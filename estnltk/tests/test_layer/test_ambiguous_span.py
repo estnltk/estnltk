@@ -1,6 +1,7 @@
 import pytest
 
 from estnltk import AmbiguousSpan, Span, Layer
+from estnltk.layer import AttributeList
 
 
 def test_add_annotation():
@@ -28,7 +29,7 @@ def test_getattr():
     span_1.add_annotation(attr_1=0)
     span_1.add_annotation(attr_1=3)
 
-    assert span_1.attr_1 == [0, 3]
+    assert span_1.attr_1 == AttributeList([0, 3], 'attr_1')
 
     with pytest.raises(AttributeError):
         span_1.__getstate__

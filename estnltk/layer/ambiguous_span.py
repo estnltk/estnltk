@@ -5,6 +5,7 @@ from IPython.core.display import display_html
 
 from estnltk import Span
 from .annotation import Annotation
+from estnltk.layer import AttributeList
 
 
 class AmbiguousSpan(collections.Sequence):
@@ -101,7 +102,7 @@ class AmbiguousSpan(collections.Sequence):
             raise AttributeError
         layer = self.__getattribute__('layer')  # type: Layer
         if item in layer.attributes:
-            return [getattr(span, item) for span in self._annotations]
+            return AttributeList((getattr(span, item) for span in self._annotations), item)
         if item == getattr(self.layer, 'parent', None):
             return self.parent
         if item in self.__dict__:

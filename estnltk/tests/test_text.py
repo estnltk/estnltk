@@ -3,6 +3,7 @@ import pytest
 import itertools
 from estnltk.text import *
 from estnltk.layer import AmbiguousAttributeList
+from estnltk.layer import AttributeList
 from estnltk.tests import new_text
 
 
@@ -377,7 +378,7 @@ def test_ambiguous_from_dict():
                        ]
                     )
 
-    assert t.words[0].lemma == ['kui', 'KUU']
+    assert t.words[0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
 
 
 def test_ambiguous_from_dict_unbound():
@@ -398,7 +399,7 @@ def test_ambiguous_from_dict_unbound():
     t = Text('Kui mitu kuud on aastas?')
     t['words'] = words
 
-    assert t.words[0].lemma == ['kui', 'KUU']
+    assert t.words[0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
 
 
     words2 = Layer(name='words2', attributes=['lemma2'], ambiguous = True, parent='words')
@@ -413,7 +414,7 @@ def test_ambiguous_from_dict_unbound():
                        ]
                     )
     t['words2'] = words2
-    assert t.words2[0].lemma2 == ['kui', 'KUU']
+    assert t.words2[0].lemma2 == AttributeList(['kui', 'KUU'], 'lemma2')
 
     assert t.words2[0].parent is t.words[0]
 
@@ -664,7 +665,7 @@ def test_morph2():
     print(text.morph_analysis[5])
     print(text.morph_analysis[5].lemma)
     assert len(text.morph_analysis[5].lemma) == 2
-    assert text.morph_analysis[5].lemma == ['olema', 'olema']
+    assert text.morph_analysis[5].lemma == AttributeList(['olema', 'olema'], 'lemma')
     assert text.morph_analysis.lemma == AmbiguousAttributeList(
         [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'],
          ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'],
@@ -917,7 +918,7 @@ def test_delete_annotation_in_ambiguous_span():
 
 def test_span_morph_access():
     text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
-    assert text.sentences[0].words[0].morph_analysis.lemma == ['olema']
+    assert text.sentences[0].words[0].morph_analysis.lemma == AttributeList(['olema'], 'lemma')
 
 
 def test_lemma_access_from_text_object():
@@ -941,7 +942,11 @@ def test_sentences_morph_analysis_lemma():
     #assert text.sentences[:].morph_analysis.lemma == text.sentences[:].words.lemma
     #assert (text.sentences.morph_analysis.lemma == [[['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']], [['kus'], ['mina'], ['olema'], ['?']]])
     #assert (text.sentences.morph_analysis.lemma == text.sentences.words.lemma)
-    assert (text.sentences[0].words.lemma == [['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']])
+    assert text.sentences[0].words.lemma == \
+            [AttributeList(['olema'], 'lemma'),
+             AttributeList(['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], 'lemma'),
+             AttributeList(['koha', 'koht'], 'lemma'),
+             AttributeList(['.'], 'lemma')]
     assert text.sentences[0].morph_analysis.lemma == text.sentences[0].words.lemma
 
 
@@ -984,7 +989,11 @@ def test_phrase_layer():
 
     assert (t.phrasetext) == AttributeList(['karu on punane', 'sinu karu'], 'phrasetext')
 
-    assert (t.uppercasephrase.lemma) == [[['karu'], ['olema', 'olema'], ['punane']], [['sina'], ['karu']]]
+    assert t.uppercasephrase.lemma == [[AttributeList(['karu'], 'lemma'),
+                                        AttributeList(['olema', 'olema'], 'lemma'),
+                                        AttributeList(['punane'], 'lemma')],
+                                       [AttributeList(['sina'], 'lemma'),
+                                        AttributeList(['karu'], 'lemma')]]
 
     assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.span_list))]) ==  ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
 
