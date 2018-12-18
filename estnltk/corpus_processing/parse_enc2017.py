@@ -16,10 +16,14 @@
 #  have remained.
 #
 
+import re
+from io import TextIOWrapper
+from typing import Iterable
+
 from logging import Logger
 from logging import getLevelName
 
-import re
+from tqdm import tqdm, tqdm_notebook
 
 from estnltk.text import Text, Layer, Span, EnvelopingSpan
 
@@ -1139,6 +1143,53 @@ class VertXMLFileParser:
 #   Corpus iterators
 # =================================================
 
+def _get_iterable_content_w_tqdm( iterable_content:Iterable,
+                                  in_file:str,
+                                  line_progressbar:str=None ):
+    ''' Wraps tqdm progressbar around iterable_content. 
+        Type  of  the  progressbar  is  given  in  argument
+        line_progressbar, and it should be one of the following: 
+            ['ascii', 'unicode', 'notebook']
+        If line_progressbar == None, simply returns the 
+        iterable_content, without any wrapping.
+    '''
+    progressbar_options = [None, 'ascii', 'unicode', 'notebook']
+    assert line_progressbar in progressbar_options, \
+       '(!) line_progressbar should be one of the following: {!r}'.format(progressbar_options)
+    assert isinstance(iterable_content, (list, TextIOWrapper))
+    if line_progressbar is not None:
+        # If progressbar is required, then
+        # 1) Find out total count
+        total = 0
+        if isinstance(iterable_content, list):
+            # Input is list: simply count its length as total
+            total = len(iterable_content)
+        else:
+            # Input must be file: get its length in lines
+            with open(in_file, 'rb') as f:
+                for line in f:
+                    total += 1
+            # Note: this can be further optimized, 
+            # see https://stackoverflow.com/q/845058
+            # for discussion and details
+        # 2) Get corresponding line_progressbar
+        if line_progressbar == 'notebook':
+            return tqdm_notebook(iterable_content,
+                                 total=total,
+                                 unit='line',
+                                 smoothing=0)
+        else:
+            return tqdm(iterable_content,
+                        total=total,
+                        unit='line',
+                        ascii=(line_progressbar == 'ascii'),
+                        smoothing=0)
+    # Otherwise (line_progressbar was not required), simply 
+    # return given iterable_content
+    return iterable_content
+
+
+
 def parse_enc2017_file_iterator( in_file:str, 
                                  encoding:str='utf-8', \
                                  focus_doc_ids:set=None, \
@@ -1149,6 +1200,7 @@ def parse_enc2017_file_iterator( in_file:str,
                                  restore_morph_analysis:bool=False, \
                                  vertParser:VertXMLFileParser=None, \
                                  textReconstructor:ENC2017TextReconstructor=None, \
+                                 line_progressbar:str=None, \
                                  logger:Logger=None  ):
     '''Opens an ENC 2017 corpus file (a vert or prevert type file), 
        reads its content document by document, reconstructs Text 
@@ -1252,8 +1304,15 @@ def parse_enc2017_file_iterator( in_file:str,
            given vertParser.
        
        textReconstructor: ENC2017TextReconstructor
-           If set, then overrides the default ENC2017TextReconstructor with the 
-           given textReconstructor.
+           If set, then overrides the default ENC2017TextReconstructor with 
+           the given textReconstructor.
+       
+       line_progressbar:str
+           Initiates a line-counting progressbar that shows the progress on
+           reading the file. Possible values: 
+               ['ascii', 'unicode', 'notebook', None]
+           If line_progressbar == None, then progressbar is not shown.
+           Default: None
        
        logger: logging.Logger
            Logger to be used for warning and debug messages.
@@ -1279,12 +1338,13 @@ def parse_enc2017_file_iterator( in_file:str,
                    record_morph_analysis=restore_morph_analysis,\
                    logger=logger )
     with open( in_file, mode='r', encoding=encoding ) as f:
-        for line in f:
+        for line in _get_iterable_content_w_tqdm( f, in_file, line_progressbar ):
             result = xmlParser.parse_next_line( line )
             if result:
                 # If the parser completed a document and created a 
                 # Text object, yield it gracefully
                 yield result
+
 
 
 def parse_enc2017_file_content_iterator( content, 
@@ -1296,6 +1356,7 @@ def parse_enc2017_file_content_iterator( content,
                                          restore_morph_analysis:bool=False, \
                                          vertParser:VertXMLFileParser=None, \
                                          textReconstructor:ENC2017TextReconstructor=None, \
+                                         line_progressbar:str=None, \
                                          logger:Logger=None  ):
     '''Reads ENC 2017 corpus file's content, extracts documents 
        based on the XML annotations, reconstructs Text objects from 
@@ -1399,6 +1460,13 @@ def parse_enc2017_file_content_iterator( content,
            If set, then overrides the default ENC2017TextReconstructor with the 
            given textReconstructor.
        
+       line_progressbar:str
+           Initiates a line-counting progressbar that shows the progress on
+           reading the file. Possible values: 
+               ['ascii', 'unicode', 'notebook', None]
+           If line_progressbar == None, then progressbar is not shown.
+           Default: None
+       
        logger: logging.Logger
            Logger to be used for warning and debug messages.
     '''
@@ -1424,7 +1492,9 @@ def parse_enc2017_file_content_iterator( content,
                        record_morph_analysis=restore_morph_analysis,\
                        logger=logger)
     # Process the content line by line
-    for line in content.splitlines( keepends=True ):
+    for line in _get_iterable_content_w_tqdm( content.splitlines( keepends=True ), \
+                                              None, \
+                                              line_progressbar ):
         result = xmlParser.parse_next_line( line )
         if result:
             # If the parser completed a document and created a 
