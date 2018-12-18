@@ -1144,7 +1144,6 @@ class VertXMLFileParser:
 # =================================================
 
 def _get_iterable_content_w_tqdm( iterable_content:Iterable,
-                                  in_file:str,
                                   line_progressbar:str=None ):
     ''' Wraps tqdm progressbar around iterable_content. 
         Type  of  the  progressbar  is  given  in  argument
@@ -1165,13 +1164,15 @@ def _get_iterable_content_w_tqdm( iterable_content:Iterable,
             # Input is list: simply count its length as total
             total = len(iterable_content)
         else:
-            # Input must be file: get its length in lines
-            with open(in_file, 'rb') as f:
-                for line in f:
-                    total += 1
-            # Note: this can be further optimized, 
-            # see https://stackoverflow.com/q/845058
-            # for discussion and details
+            assert isinstance(iterable_content, TextIOWrapper)
+            # Get file length in lines
+            # ( Note: this can be further optimized, 
+            #   see https://stackoverflow.com/q/845058
+            #   for discussion and details )
+            for line in iterable_content:
+                total += 1
+            # Restart file reading from the beginning
+            iterable_content.seek(0)
         # 2) Get corresponding line_progressbar
         if line_progressbar == 'notebook':
             return tqdm_notebook(iterable_content,
@@ -1338,7 +1339,7 @@ def parse_enc2017_file_iterator( in_file:str,
                    record_morph_analysis=restore_morph_analysis,\
                    logger=logger )
     with open( in_file, mode='r', encoding=encoding ) as f:
-        for line in _get_iterable_content_w_tqdm( f, in_file, line_progressbar ):
+        for line in _get_iterable_content_w_tqdm( f, line_progressbar ):
             result = xmlParser.parse_next_line( line )
             if result:
                 # If the parser completed a document and created a 
@@ -1493,7 +1494,6 @@ def parse_enc2017_file_content_iterator( content,
                        logger=logger)
     # Process the content line by line
     for line in _get_iterable_content_w_tqdm( content.splitlines( keepends=True ), \
-                                              None, \
                                               line_progressbar ):
         result = xmlParser.parse_next_line( line )
         if result:
