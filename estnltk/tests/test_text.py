@@ -168,12 +168,22 @@ def test_delete_layer():
 
     layer_names = 'words sentences morph_analysis'.split()
     t.tag_layer(layer_names)
-    assert  set(t.layers.keys()).issuperset(set(layer_names))
+    assert set(layer_names) <= set(t.layers)
+    assert set(layer_names) <= set(t.__dict__)
+
 
     #Should not raise NotImplementedError
     #deleting a root lalyer should also delete all its dependants
     del t.tokens
+
+    assert 'tokens' not in t.__dict__
+    assert 'compound_tokens' not in t.__dict__
+
     del t.words
+
+    assert 'words' not in t.__dict__
+    assert 'sentences' not in t.__dict__
+    assert 'morph_analysis' not in t.__dict__
 
     assert t.layers == {}
 
