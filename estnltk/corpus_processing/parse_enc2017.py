@@ -1161,14 +1161,11 @@ def _get_iterable_content_w_tqdm( iterable_content:Iterable,
         # 1) Find out total count
         total = 0
         if isinstance(iterable_content, list):
-            # Input is list: simply count its length as total
+            # Input is list: simply get its length as total
             total = len(iterable_content)
         else:
             assert isinstance(iterable_content, TextIOWrapper)
             # Get file length in lines
-            # ( Note: this can be further optimized, 
-            #   see https://stackoverflow.com/q/845058
-            #   for discussion and details )
             for line in iterable_content:
                 total += 1
             # Restart file reading from the beginning

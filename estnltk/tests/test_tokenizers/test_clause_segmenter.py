@@ -143,7 +143,9 @@ def test_clause_segmenter_context_tear_down():
     with pytest.raises(AssertionError) as e1:
         segmenter.tag(text)
     
-    # 2) Apply segmenter outside with, and use the __exit__() method
+    # Test different ways how ClauseSegmenter can be ended manually:
+    
+    # 2) Create segmenter outside with, and use the __exit__() method
     segmenter2 = ClauseSegmenter()
     # Check that the process is running
     assert segmenter2._java_process._process.poll() is None
@@ -152,3 +154,21 @@ def test_clause_segmenter_context_tear_down():
     # Check that the process is terminated
     assert segmenter2._java_process._process.poll() is not None
     
+    # 3) Create segmenter outside with, and use the close() method
+    segmenter3 = ClauseSegmenter()
+    # Check that the process is running
+    assert segmenter3._java_process._process.poll() is None
+    # Terminate the process "manually"
+    segmenter3.close()
+    # Check that the process is terminated
+    assert segmenter3._java_process._process.poll() is not None
+
+    # 4) Create segmenter outside with, and simply delete ClauseSegmenter
+    segmenter4 = ClauseSegmenter()
+    # Check that the process is running
+    assert segmenter4._java_process._process.poll() is None
+    java_process = segmenter4._java_process
+    # Terminate the process "manually"
+    del segmenter4
+    # Check that the process is terminated
+    assert java_process._process.poll() is not None

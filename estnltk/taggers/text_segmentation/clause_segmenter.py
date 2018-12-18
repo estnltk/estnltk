@@ -101,6 +101,15 @@ class ClauseSegmenter(Tagger):
         self._java_process._process.communicate()
         # 3) Assert that the process terminated
         assert self._java_process._process.poll() is not None
+        return False
+
+
+    def close(self):
+        self.__exit__()
+
+
+    def __del__(self):
+        self.__exit__()
 
 
     def _make_layer(self, text, layers, status: dict):
