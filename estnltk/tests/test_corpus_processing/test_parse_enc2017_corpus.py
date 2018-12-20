@@ -50,9 +50,7 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_1():
                                                          'leitakse ainult minimaalses koguses '+\
                                                          'antiaine-positrone ja antiprootoneid.'
     assert 'original_word_chunks' in doc1.layers
-    assert doc1.original_word_chunks.text == ['–', 'Puuduv', 'antiaine:', 'Mõned', 'suure', 'paugu',\
-          'teooriad', 'eeldavad', 'võrdselt', 'aine', 'ja', 'antiainete', 'tekkimist.', 'Sellegipoolest',\
-          'leitakse', 'ainult', 'minimaalses', 'koguses', 'antiaine-positrone', 'ja', 'antiprootoneid.']
+    assert doc1.original_word_chunks.text == ['antiaine:', 'tekkimist.', 'antiprootoneid.']
     
     # Document 2
     doc2 = texts[1]
@@ -60,6 +58,9 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_1():
            doc2.meta['url'] == "http://evm.ee/est/meist/uudised?article_filters%5Btag%5D=%C3%BClest%C3%B5usmisp%C3%BChad"
     assert len(doc2.layers) == 6
     assert 'original_paragraphs' in doc2.layers 
+    assert 'original_word_chunks' in doc2.layers 
+    assert doc2.original_word_chunks.text == ['pühapäeval,', 'kevadlaadale,', 'ülestõusmispühi.',\
+                                              'pühadekommetest,', 'toidukraami.', 'kontserdid.']
     assert len( doc2.original_paragraphs ) == 3
     assert str( doc2.original_paragraphs.heading ) == "['yes', None, None]"
     assert str( doc2.original_paragraphs.langdiff ) == "['0.92', '0.58', '0.93']"
@@ -93,7 +94,6 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_2():
     assert doc1.original_sentences[1].enclosing_text == 'Selliste ümardamisreeglite järgimine jätab '+\
                                                         'inimestele üle 130 miljoni krooni rohkem '+\
                                                         'raha kätte.'
-    
     doc2 = texts[1]
     assert 'src' in doc2.meta and \
            doc2.meta['src'] == 'NC'
@@ -102,10 +102,8 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_2():
     assert 'subdoc_id' in doc2.meta and \
            doc2.meta['subdoc_id'] == '650309'
     assert 'original_word_chunks' in doc2.layers 
-    assert doc2.original_word_chunks[:11].text == \
-           ['TALLINN,', '9.', 'detsember', '(EPLO)', '-', 'Neste', 'langetas', \
-            'kell', '15.00', 'bensiinide', 'hindu']
-    assert len( doc2.original_word_chunks ) == 41
+    assert doc2.original_word_chunks.text == \
+           ['TALLINN,', '(EPLO)', 'kohta,', 'kütuseturul.', '11,80,', 'Online.']
     assert 'original_words' in doc2.layers 
     assert len( doc2.original_words ) == 48
 

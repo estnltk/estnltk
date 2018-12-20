@@ -214,7 +214,7 @@ class ENC2017TextReconstructor:
         sent_locations       = []
         para_locations       = []
         word_locations       = []
-        word_chunk_locations = [] # word chunks are bigger than words
+        word_chunk_locations = [] # only contains tokens glued together in the original text
         morph_analyses       = []
         cur_pos = 0
         all_text_tokens = []
@@ -349,7 +349,7 @@ class ENC2017TextReconstructor:
             s_start = cur_pos
             local_word_chunk_locations = []
             if '_original_words' in sentence:
-                # Collect words from sentence
+                # Collect all word chunks from sentence
                 words = sentence['_original_words']
                 for wid, word in enumerate(words):
                     w_start = cur_pos
@@ -361,7 +361,6 @@ class ENC2017TextReconstructor:
                     if wid+1 < len(words):
                         all_text_tokens.append(self.word_separator)
                         cur_pos += len(self.word_separator)
-                word_chunk_locations.extend(local_word_chunk_locations)
             if '_words' in sentence:
                 last_cur_pos = cur_pos
                 cur_pos = s_start
@@ -379,10 +378,19 @@ class ENC2017TextReconstructor:
                         if chunk['start'] <= w_start and \
                            chunk['end'] > w_end:
                             inside_chunk = True
+                            # Remember that this chunk covers 
+                            # multiple tokens
+                            chunk['multitoken'] = True
                             break
                     if wid+1 < len(words) and not inside_chunk:
                         cur_pos += len(self.word_separator)
                 cur_pos = last_cur_pos
+            # Keep only those word chunks that cover multiple 
+            # tokens, forget all other (redundant information)
+            for chunk in local_word_chunk_locations:
+                if 'multitoken' in chunk and chunk['multitoken']:
+                    del chunk['multitoken']
+                    word_chunk_locations.append( chunk )
             # Collect original morph analyses
             if self.restore_original_morph:
                 assert '_morph' in sentence, \
