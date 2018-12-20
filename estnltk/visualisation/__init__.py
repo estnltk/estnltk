@@ -1,4 +1,3 @@
-from estnltk.visualisation.prettyprinter import estnltk_display
 from estnltk.visualisation.span_visualiser.direct_plain_span_visualiser import DirectPlainSpanVisualiser
 from estnltk.visualisation.span_visualiser.indirect_plain_span_visualiser import IndirectPlainSpanVisualiser
 from estnltk.visualisation.mappers.value_mapper import value_mapper_discrete

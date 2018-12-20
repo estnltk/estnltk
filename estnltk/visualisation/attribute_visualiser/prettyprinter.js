@@ -3,6 +3,11 @@ for (let i = 0; i < elements.length; i++){
     elements.item(i).addEventListener("click",function() {intermediate_table(elements.item(i));})
 }
 
+var elements = document.getElementsByClassName("span")
+for (let i = 0; i < elements.length; i++){
+    elements.item(i).addEventListener("click",function() {attribute_table(elements.item(i));})
+}
+
 function intermediate_table(span_element) {
     console.log(span_element)
     let spantable = document.createElement('div')
@@ -25,7 +30,7 @@ function intermediate_table(span_element) {
     })
 }
 
-function span_table (span) {{
+function span_table (span) {
     data = span.getAttribute("span_info")
     data = data.split(",")
     var content = '<table>'
@@ -37,4 +42,8 @@ function span_table (span) {{
     content += '</table>'
 
     return content
-}}
+}
+
+function attribute_table (content) {
+
+}

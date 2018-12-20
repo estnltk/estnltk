@@ -1,9 +1,14 @@
-from estnltk.visualisation.span_decorator import SpanDecorator
+from estnltk.visualisation.core.span_visualiser import SpanDecorator
+from estnltk.core import rel_path
 class DirectAttributeVisualiser(SpanDecorator):
+    """Attribute visualiser that maps css elements one by one to the segment and has javascript to display
+    attributes in tables. Takes css_file as argument (path to the file) and the same css elements as in
+    direct_span_visualiser"""
     def __init__(self, colour_mapping=None, bg_mapping=None, font_mapping=None,
                  weight_mapping=None, italics_mapping=None, underline_mapping=None,
                  size_mapping=None, tracking_mapping=None,fill_empty_spans=False,
-                 event_attacher=None, js_added=False, css_added=False, css_file="prettyprinter.css"):
+                 event_attacher=None, js_added=False, css_added=False,
+                 css_file=rel_path("visualisation/attribute_visualiser/prettyprinter.css")):
         self.bg_mapping = bg_mapping or self.default_bg_mapping
         self.colour_mapping = colour_mapping
         self.font_mapping = font_mapping
@@ -17,7 +22,8 @@ class DirectAttributeVisualiser(SpanDecorator):
         self.js_added = js_added
         self.css_added = css_added
         self.css_file = css_file
-        self.js_file = "prettyprinter.js"
+        self.js_file = rel_path("visualisation/attribute_visualiser/prettyprinter.js")
+        self.class_mapping = self.default_class_mapper
 
     def __call__(self, segment):
 
@@ -52,10 +58,17 @@ class DirectAttributeVisualiser(SpanDecorator):
                 output += 'font-size:'+ self.size_mapping(segment)+";"
             if self.tracking_mapping is not None:
                 output += 'letter-spacing:'+ self.tracking_mapping(segment)+";"
-            output += "onclick=visualise(this,"
-            print(segment[1])
-            output += segment[1][0]
-            output += ")>"
+            if self.class_mapping is not None:
+                output += ' class=' + self.class_mapping(segment) + " "
+
+            spans = []
+            for a_span in segment[1]:
+                spans.append(str(a_span))
+
+            output += ' span_info='
+            for attribute_span in spans:
+                output += "".join(attribute_span)  # span info for javascript
+            output += '>'
             output += segment[0]
             output += '</span>'
 

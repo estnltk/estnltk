@@ -1,8 +1,9 @@
 from IPython.display import display_html
-from estnltk.visualisation.direct_attribute_visualiser import DirectAttributeVisualiser
-from estnltk.visualisation.prettyprinter import decompose_to_elementary_spans
+from estnltk.visualisation.attribute_visualiser.direct_attribute_visualiser import DirectAttributeVisualiser
+from estnltk.visualisation.core.prettyprinter import decompose_to_elementary_spans
 
 class DisplayAttributes:
+    """Superclass for attribute visualisers"""
 
     def __init__(self):
         self.span_decorator = DirectAttributeVisualiser()
@@ -18,7 +19,6 @@ class DisplayAttributes:
         for segment in segments:
             outputs.append(self.span_decorator(segment))
 
-        print(outputs)
         self.span_decorator.css_added=False
         self.span_decorator.js_added=False
         return "".join(outputs)

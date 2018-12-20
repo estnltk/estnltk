@@ -22,3 +22,8 @@ class SpanDecorator:
             contents = js_file.read()
             output = ''.join(["<script>\n", contents, "</script>"])
         return output
+
+    def default_class_mapper(self, segment):
+        if len(segment[1]) > 1:
+            return "overlapping-span"
+        return "span"

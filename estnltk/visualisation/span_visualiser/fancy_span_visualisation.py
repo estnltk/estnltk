@@ -1,7 +1,7 @@
 from IPython.display import display_html
 from estnltk.visualisation.span_visualiser.direct_plain_span_visualiser import DirectPlainSpanVisualiser
 from estnltk.visualisation.span_visualiser.indirect_plain_span_visualiser import IndirectPlainSpanVisualiser
-from estnltk.visualisation.prettyprinter import decompose_to_elementary_spans
+from estnltk.visualisation.core.prettyprinter import decompose_to_elementary_spans
 
 
 class DisplaySpans:
