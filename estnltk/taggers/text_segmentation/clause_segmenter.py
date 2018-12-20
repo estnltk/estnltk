@@ -105,11 +105,8 @@ class ClauseSegmenter(Tagger):
 
 
     def close(self):
-        self.__exit__()
-
-
-    def __del__(self):
-        self.__exit__()
+        if self._java_process._process.poll() is None:
+            self.__exit__()
 
 
     def _make_layer(self, text, layers, status: dict):
