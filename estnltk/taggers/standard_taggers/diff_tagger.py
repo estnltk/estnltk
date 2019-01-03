@@ -5,6 +5,7 @@ import itertools
 import bisect
 import random
 from operator import eq
+import pandas as pd
 
 from estnltk import EnvelopingSpan
 from estnltk import Layer
@@ -245,11 +246,45 @@ def iterate_extra(difference_layer: Layer, span_status_attribute='span_status'):
     yield from (s for s in difference_layer if getattr(s[0], span_status_attribute) == 'extra')
 
 
+def print_diff_summary(summary):
+    m = summary
+    m = m.append(pd.Series({'annotations_in_old_layer': m.unchanged_annotations + m.missing_annotations,
+                            'annotations_in_new_layer': m.unchanged_annotations + m.extra_annotations,
+                            'spans_in_old_layer': m.unchanged_spans + m.modified_spans + m.missing_spans,
+                            'spans_in_new_layer': m.unchanged_spans + m.modified_spans + m.extra_spans
+                            }))
+
+    s = (
+        'annotations in old layer  {m.annotations_in_old_layer:10}\n'
+        '    unchanged_annotations       {m.unchanged_annotations:10}\n'
+        '    missing_annotations         {m.missing_annotations:10}\n'
+        'annotations in new layer  {m.annotations_in_new_layer:10}\n'
+        '    unchanged_annotations       {m.unchanged_annotations:10}\n'
+        '    extra_annotations           {m.extra_annotations:10}\n'
+        'spans in old layer        {m.spans_in_old_layer:10}\n'
+        '    unchanged_spans             {m.unchanged_spans:10}\n'
+        '    modified_spans              {m.modified_spans:10}\n'
+        '    missing_spans               {m.missing_spans:10}\n'
+        'spans in new layer        {m.spans_in_new_layer:10}\n'
+        '    unchanged_spans             {m.unchanged_spans:10}\n'
+        '    modified_spans              {m.modified_spans:10}\n'
+        '    extra_spans                 {m.extra_spans:10}\n'
+        'conflicts                 {m.conflicts:10}\n'
+        '   overlapped                   {m.overlapped:10}\n'
+        '   prolonged                    {m.prolonged:10}\n'
+        '   shortened                    {m.shortened:10}').format(m=m)
+    print(s)
+
+
 class DiffSampler:
     def __init__(self, collection, layer):
         self.collection = collection
         self.layer = layer
         self.layer_meta = self.collection.get_layer_meta(self.layer)
+
+    def print_summary(self):
+        m = self.layer_meta.sum()
+        print_diff_summary(m)
 
     def sample_indexes(self, distribution, ids, k):
         result = defaultdict(list)
