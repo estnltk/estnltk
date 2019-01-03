@@ -20,4 +20,6 @@ def test_to_lower():
                                       {'example': set('set'), 'value type': 'other', 'color': 'White'},
                                   ])
     voc_lower = voc.to_lower()
-    assert set(voc_lower) == {'orangered', 'white', 'cyan', 'yellow', 'lightpink', 'moccasin', 'lightsteelblue'}
+
+    assert set(voc) == {'Cyan', 'LightPink', 'LightSteelBlue', 'Moccasin', 'OrangeRed', 'White', 'Yellow'}
+    assert set(voc_lower) == {'cyan', 'lightpink', 'lightsteelblue', 'moccasin', 'orangered', 'white', 'yellow'}
