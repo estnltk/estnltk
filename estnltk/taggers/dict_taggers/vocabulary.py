@@ -15,7 +15,7 @@ class Vocabulary:
     def __init__(self,
                  mapping: Mapping[str, Sequence[Mapping]],
                  key: str,
-                 attributes: Sequence[str] = None,
+                 attributes: Sequence[str],
                  ):
         """
         Input data object for SpanTagger, PhraseTagger, RegexTagger.
@@ -177,6 +177,10 @@ class Vocabulary:
 
             mapping[rec[key]].append(rec)
         return Vocabulary(mapping=mapping, key=key, attributes=attributes)
+
+    # TODO:
+    def write_csv(self):
+        raise NotImplementedError()
 
     @staticmethod
     def read_csv(vocabulary_file: str, key: str = None, attributes: Sequence = None, default_rec: dict = None):
