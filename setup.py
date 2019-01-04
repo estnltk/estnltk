@@ -53,7 +53,8 @@ setup(
         'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
         'estnltk.mw_verbs': ['res/*'],
         'estnltk.converters': ['*.mrf'],
-        'estnltk.syntax': ['files/*']
+        'estnltk.syntax': ['files/*'],
+        'estnltk.visualisation': ['attribute_visualiser/*.css', 'attribute_visualiser/*.js', 'span_visualiser/*.css', 'span_visualiser/*.js']
     },
 
     author="University of Tartu",
