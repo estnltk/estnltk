@@ -18,6 +18,7 @@ from estnltk.layer_operations import create_ngram_fingerprint_index
 
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import create_table
+from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import JsonbLayerQuery
 
 
@@ -178,13 +179,13 @@ class PgCollection:
             logger.debug(c.query.decode())
         self._structure = self._get_structure()
 
-    def insert(self, text, key=None, meta_data=None):
+    def old_slow_insert(self, text, key=None, meta_data=None):
         return self._buffered_insert(text=text, buffer=[], buffer_size=0, query_length_limit=0, key=key,
                                      meta_data=meta_data)
 
     # TODO: merge this with buffered_layer_insert
     @contextmanager
-    def buffered_insert(self, buffer_size=10000, query_length_limit=5000000):
+    def insert(self, buffer_size=10000, query_length_limit=5000000):
         buffer = []
         self._buffered_insert_query_length = 0
 
@@ -634,8 +635,8 @@ class PgCollection:
                     conn.commit()
                 conn.autocommit = True
 
-    def create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
-                     create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None):
+    def old_slow_create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
+                              create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None):
         """
         Creates layer
 
@@ -755,13 +756,12 @@ class PgCollection:
         logger.info('layer created: {!r}'.format(layer_name))
 
     def continue_creating_layer(self, tagger, progressbar=None, query_length_limit=5000000):
-        self.create_layer_buffered(tagger=tagger, progressbar=progressbar, query_length_limit=query_length_limit,
-                                   mode='append')
+        self.create_layer(tagger=tagger, progressbar=progressbar, query_length_limit=query_length_limit,
+                          mode='append')
 
-    # TODO: rename to create_layer
-    def create_layer_buffered(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
-                              create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,
-                              query_length_limit=5000000, mode=None):
+    def create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
+                     create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,
+                     query_length_limit=5000000, mode=None):
         """
         Creates layer
 
@@ -1149,7 +1149,7 @@ class PgCollection:
         logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, export_table))
 
     def __len__(self):
-        return self.storage.count_rows(self.table_name)
+        return count_rows(self.storage, self.table_name)
 
     def _repr_html_(self):
         if self._structure is None:

@@ -66,7 +66,7 @@ class TestStorage(unittest.TestCase):
         self.assertRaises(PgStorageException, lambda: col.select_by_key(1))
 
         text = Text("Mingi tekst")
-        col.insert(text, 1)
+        col.old_slow_insert(text, 1)
         res = col.select_by_key(1)
         self.assertEqual(text, res)
         col.delete()
@@ -76,10 +76,10 @@ class TestStorage(unittest.TestCase):
         col.create()
 
         text1 = Text('Ööbik laulab.')
-        id1 = col.insert(text1)
+        id1 = col.old_slow_insert(text1)
 
         text2 = Text('Mis kell on?')
-        id2 = col.insert(text2)
+        id2 = col.old_slow_insert(text2)
 
         # test select_by_id
         self.assertEqual(col.select_by_key(id1), text1)
@@ -97,9 +97,9 @@ class TestStorage(unittest.TestCase):
 
         # test select
         text1 = Text('mis kell on?').analyse('morphology')
-        col.insert(text1)
+        col.old_slow_insert(text1)
         text2 = Text('palju kell on?').analyse('morphology')
-        col.insert(text2)
+        col.old_slow_insert(text2)
 
         res = list(col.select(query=Q('morph_analysis', lemma='mis')))
         self.assertEqual(len(res), 1)
@@ -183,11 +183,11 @@ class TestLayerFragment(unittest.TestCase):
         lfrag1 = "layer_fragment_1"
         lfrag2 = "layer_fragment_2"
 
-        col.create_layer(lfrag1, data_iterator=col.select(), row_mapper=None)
+        col.old_slow_create_layer(lfrag1, data_iterator=col.select(), row_mapper=None)
         self.assertTrue(table_exists(self.storage, col.layer_name_to_table_name(lfrag1)))
         self.assertTrue(col.has_layer(lfrag1))
 
-        col.create_layer(lfrag2, data_iterator=col.select(), row_mapper=None)
+        col.old_slow_create_layer(lfrag2, data_iterator=col.select(), row_mapper=None)
         self.assertEqual(len(col.get_layer_names()), 2)
         self.assertTrue(lfrag1 in col.get_layer_names())
         self.assertTrue(lfrag2 in col.get_layer_names())
@@ -210,9 +210,9 @@ class TestLayerFragment(unittest.TestCase):
         col.create()
 
         text1 = Text('see on esimene lause').tag_layer(["sentences"])
-        col.insert(text1)
+        col.old_slow_insert(text1)
         text2 = Text('see on teine lause').tag_layer(["sentences"])
-        col.insert(text2)
+        col.old_slow_insert(text2)
 
         layer_fragment_name = "layer_fragment_1"
         tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer_fragment_name)
@@ -223,9 +223,9 @@ class TestLayerFragment(unittest.TestCase):
                          RowMapperRecord(layer=tagger1.tag(text, return_layer=True), meta=None)]
             return fragments
 
-        col.create_layer(layer_fragment_name,
-                         data_iterator=col.select(),
-                         row_mapper=fragment_tagger)
+        col.old_slow_create_layer(layer_fragment_name,
+                                  data_iterator=col.select(),
+                                  row_mapper=fragment_tagger)
         tagger1.tag(text1)
         tagger1.tag(text2)
 
@@ -270,9 +270,9 @@ class TestFragment(unittest.TestCase):
         col.create()
 
         layer_fragment_name = "layer_fragment_1"
-        col.create_layer(layer_fragment_name,
-                         data_iterator=col.select(),
-                         row_mapper=None)
+        col.old_slow_create_layer(layer_fragment_name,
+                                  data_iterator=col.select(),
+                                  row_mapper=None)
 
         fragment_name = "fragment_1"
 
@@ -306,15 +306,15 @@ class TestFragment(unittest.TestCase):
         col.create()
 
         text1 = Text('see on esimene lause').tag_layer(["sentences"])
-        col.insert(text1)
+        col.old_slow_insert(text1)
         text2 = Text('see on teine lause').tag_layer(["sentences"])
-        col.insert(text2)
+        col.old_slow_insert(text2)
 
         layer_fragment_name = "layer_fragment_1"
         tagger = VabamorfTagger(disambiguate=False, layer_name=layer_fragment_name)
-        col.create_layer(layer_fragment_name,
-                         data_iterator=col.select(),
-                         row_mapper=lambda row: [RowMapperRecord(layer=tagger.tag(row[1], return_layer=True),
+        col.old_slow_create_layer(layer_fragment_name,
+                                  data_iterator=col.select(),
+                                  row_mapper=lambda row: [RowMapperRecord(layer=tagger.tag(row[1], return_layer=True),
                                                                  meta=None)])
 
         self.assertTrue(col.has_layer(layer_fragment_name))
@@ -364,12 +364,12 @@ class TestLayer(unittest.TestCase):
         layer1 = "layer1"
         layer2 = "layer2"
 
-        col.create_layer(layer1, data_iterator=col.select(), row_mapper=None)
+        col.old_slow_create_layer(layer1, data_iterator=col.select(), row_mapper=None)
 
         self.assertTrue(table_exists(self.storage, col.layer_name_to_table_name(layer1)))
         self.assertTrue(col.has_layer(layer1))
 
-        col.create_layer(layer2, data_iterator=col.select(), row_mapper=None)
+        col.old_slow_create_layer(layer2, data_iterator=col.select(), row_mapper=None)
         self.assertEqual(len(col.get_layer_names()), 2)
         self.assertTrue(layer1 in col.get_layer_names())
         self.assertTrue(layer2 in col.get_layer_names())
@@ -392,9 +392,9 @@ class TestLayer(unittest.TestCase):
         col.create()
 
         text1 = Text('see on esimene lause').tag_layer(["sentences"])
-        col.insert(text1)
+        col.old_slow_insert(text1)
         text2 = Text('see on teine lause').tag_layer(["sentences"])
-        col.insert(text2)
+        col.old_slow_insert(text2)
 
         layer1 = "layer1"
         tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
@@ -404,7 +404,7 @@ class TestLayer(unittest.TestCase):
             layer = tagger1.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        col.create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1)
+        col.old_slow_create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1)
         tagger1.tag(text1)
         tagger1.tag(text2)
 
@@ -416,7 +416,7 @@ class TestLayer(unittest.TestCase):
             layer = tagger2.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
+        col.old_slow_create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
         tagger2.tag(text1)
         tagger2.tag(text2)
 
@@ -442,9 +442,9 @@ class TestLayer(unittest.TestCase):
         col.create()
 
         text1 = Text('see on esimene lause').tag_layer(["sentences"])
-        col.insert(text1)
+        col.old_slow_insert(text1)
         text2 = Text('see on teine lause').tag_layer(["sentences"])
-        col.insert(text2)
+        col.old_slow_insert(text2)
 
         layer1 = "layer1"
         tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
@@ -454,10 +454,10 @@ class TestLayer(unittest.TestCase):
             layer = tagger1.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})]
 
-        col.create_layer(layer1,
-                         data_iterator=col.select(),
-                         row_mapper=row_mapper1,
-                         meta={"meta_text_id": "int",
+        col.old_slow_create_layer(layer1,
+                                  data_iterator=col.select(),
+                                  row_mapper=row_mapper1,
+                                  meta={"meta_text_id": "int",
                                "sum": "float"})
         layer_table = self.storage.layer_name_to_table_name(col.table_name, layer1)
         self.assertTrue(table_exists(self.storage, layer_table))
@@ -478,10 +478,10 @@ class TestLayer(unittest.TestCase):
         col.create()
 
         text1 = Text('Ööbik laulab.').tag_layer(["sentences"])
-        id1 = col.insert(text1)
+        id1 = col.old_slow_insert(text1)
 
         text2 = Text('Mis kell on?').tag_layer(["sentences"])
-        id2 = col.insert(text2)
+        id2 = col.old_slow_insert(text2)
 
         # test ambiguous layer
         layer1 = "layer1"
@@ -493,9 +493,9 @@ class TestLayer(unittest.TestCase):
             layer = tagger1.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        col.create_layer(layer1,
-                         data_iterator=col.select(),
-                         row_mapper=row_mapper1)
+        col.old_slow_create_layer(layer1,
+                                  data_iterator=col.select(),
+                                  row_mapper=row_mapper1)
 
         q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik', form='sg n')
         self.assertEqual(len(list(col.select(layer_query={layer1: q}))), 1)
@@ -525,7 +525,7 @@ class TestLayer(unittest.TestCase):
             layer = tagger2.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
+        col.old_slow_create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
 
         q = JsonbLayerQuery(layer_table=layer2_table, lemma='ööbik', form='sg n')
         self.assertEqual(len(list(col.select(layer_query={layer2: q}))), 1)
@@ -540,10 +540,10 @@ class TestLayer(unittest.TestCase):
         col.create()
 
         text1 = Text('Ööbik laulab.').tag_layer(["sentences"])
-        id1 = col.insert(text1)
+        id1 = col.old_slow_insert(text1)
 
         text2 = Text('Mis kell on?').tag_layer(["sentences"])
-        id2 = col.insert(text2)
+        id2 = col.old_slow_insert(text2)
 
         layer1 = "layer1"
         layer2 = "layer2"
@@ -560,8 +560,8 @@ class TestLayer(unittest.TestCase):
             layer = tagger2.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        col.create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1, create_index=True)
-        col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
+        col.old_slow_create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1, create_index=True)
+        col.old_slow_create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
 
         # test one layer
         res = col.find_fingerprint(layer_query={
@@ -624,10 +624,10 @@ class TestLayer(unittest.TestCase):
         col.create()
 
         text1 = Text("Ööbik laulab puu otsas.").tag_layer(["sentences"])
-        id1 = col.insert(text1)
+        id1 = col.old_slow_insert(text1)
 
         text2 = Text("Mis kell on?").tag_layer(["sentences"])
-        id2 = col.insert(text2)
+        id2 = col.old_slow_insert(text2)
 
         layer1 = "layer1"
         layer2 = "layer2"
@@ -644,10 +644,10 @@ class TestLayer(unittest.TestCase):
             layer = tagger2.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        col.create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1,
-                         ngram_index={"lemma": 2})
-        col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2,
-                         ngram_index={"partofspeech": 3})
+        col.old_slow_create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1,
+                                  ngram_index={"lemma": 2})
+        col.old_slow_create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2,
+                                  ngram_index={"partofspeech": 3})
 
         self.assertEqual(count_rows(self.storage, self.storage.layer_name_to_table_name(table_name, layer1)), 2)
         self.assertEqual(count_rows(self.storage, self.storage.layer_name_to_table_name(table_name, layer2)), 2)
