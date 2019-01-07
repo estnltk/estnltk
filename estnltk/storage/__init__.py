@@ -1,7 +1,7 @@
 """
-Module enables to store and search `Text` object in Postgres database.
+Module enables to store and search `Text` objects in Postgres database.
 
 For usage examples, see tutorial `estnltk/tutorials/storing_text_objects_in_postgres.ipynb`
 """
 
-from .postgres.db import PostgresStorage
+from estnltk.storage.postgres.postgres_storage import PostgresStorage

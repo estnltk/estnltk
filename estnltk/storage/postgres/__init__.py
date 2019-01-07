@@ -30,4 +30,16 @@ Example usage:
         print(key, txt)
 
 """
-from .db import PostgresStorage, JsonbTextQuery, JsonbLayerQuery, PgStorageException, RowMapperRecord
+from .jsonb_layer_query import JsonbLayerQuery
+from .jsnob_text_query import JsonbTextQuery
+from .pg_operations import create_schema
+from .pg_operations import delete_schema
+from .pg_operations import count_rows
+from .pg_operations import create_table
+from .pg_operations import drop_table
+from .pg_operations import drop_table_if_exists
+from .pg_operations import table_exists
+from .db import RowMapperRecord
+from .db import PgCollection
+from .postgres_storage import PgStorageException
+from .postgres_storage import PostgresStorage

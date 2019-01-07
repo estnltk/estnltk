@@ -41,3 +41,16 @@ def find_examples(collection, layer, attributes, output_layers=None, return_text
                             yield example, key, span_pos, text
                         else:
                             yield example, key, span_pos
+
+
+def filter_fragmets(collection, fragmented_layer:str, ngram_query, filter):
+    """
+
+    :param fragments:
+    :param ngram_query:
+    :param filter:
+        filter ja ngram_query on alternatiivsed ?
+    :return:
+    fragments
+    """
+    pass
