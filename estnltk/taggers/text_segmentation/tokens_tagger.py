@@ -62,17 +62,17 @@ class TokensTagger(Tagger):
         
            Parameters
            ----------
-           raw_text: str
-              Text string corresponding to the text which will be 
-              tokenized;
+           text: str
+              Text object which will be tokenized;
               
            layers: MutableMapping[str, Layer]
-              Layers of the raw_text. Contains mappings from the name 
+              Layers of the text. Contains mappings from the name 
               of the layer to the Layer object.
               
            status: dict
               This can be used to store metadata on layer tagging.
         """
+        assert text.text is not None, '(!) {} has no textual content to be analysed.'.format(text)
         spans = list(tokenizer.span_tokenize(text.text))
         if self.apply_punct_postfixes:
             #  WordPunctTokenizer may leave tokenization of punctuation 

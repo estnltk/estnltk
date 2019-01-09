@@ -48,17 +48,17 @@ class WhiteSpaceTokensTagger(Tagger):
         
            Parameters
            ----------
-           raw_text: str
-              Text string corresponding to the text which will be 
-              tokenized;
+           text: str
+              Text object which will be tokenized;
               
            layers: MutableMapping[str, Layer]
-              Layers of the raw_text. Contains mappings from the name 
+              Layers of the text. Contains mappings from the name 
               of the layer to the Layer object.
               
            status: dict
               This can be used to store metadata on layer tagging.
         """
+        assert text.text is not None, '(!) {} has no textual content to be analysed.'.format(text)
         raw_text = text.text
         spans = list(tokenizer.span_tokenize(raw_text))
         return Layer(name=self.output_layer, text_object=text).from_records(
