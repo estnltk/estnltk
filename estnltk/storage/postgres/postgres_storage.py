@@ -544,7 +544,8 @@ class PostgresStorage:
         return PgCollection(name=table_name, storage=self, meta=meta_fields)
 
     def __str__(self):
-        return '{self.__class__.__name__}({self.conn.dsn} schema={self.schema})'.format(self=self)
+        return '{self.__class__.__name__}({self.conn.dsn} schema={self.schema} temporary={self.temporary})'.format(
+                self=self)
 
     def _repr_html_(self):
         tables = self.get_all_tables()

@@ -68,11 +68,6 @@ class PgCollection:
 
         self._buffered_insert_query_length = 0
 
-    # TODO: remove deprecated attribute table_name
-    @property
-    def table_name(self):
-        return self.name
-
     def create(self, description=None, meta=None):
         """Creates the database tables for the collection"""
         temporary = SQL('TEMPORARY') if self._temporary else SQL('')
@@ -1018,7 +1013,7 @@ class PgCollection:
                 else:
                     raise PgCollectionException("can't delete layer {!r}; "
                                                 "there is a dependant layer {!r}".format(layer_name, ln))
-        drop_layer_table(self.storage, layer_name)
+        drop_layer_table(self.storage, self.name, layer_name)
         self._delete_from_structure(layer_name)
         logger.info('layer deleted: {!r}'.format(layer_name))
 
@@ -1176,7 +1171,7 @@ class PgCollection:
             else:
                 meta_html = 'This collection has no metadata.<br/>'
         return ('<b>{self.__class__.__name__}</b><br/>'
-                '<b>name:</b> {self.table_name}<br/>'
+                '<b>name:</b> {self.name}<br/>'
                 '<b>storage:</b> {self.storage}<br/>'
                 '<b>count objects:</b> {count}<br/>'
                 '<b>Metadata</b><br/>{meta_html}'

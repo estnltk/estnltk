@@ -448,8 +448,8 @@ class TestLayer(unittest.TestCase):
         self.assertEqual(text1_db[layer2].lemma, text1[layer2].lemma)
 
         col.delete()
-        self.assertFalse(table_exists(self.storage, self.storage.layer_name_to_table_name(col.table_name, layer1)))
-        self.assertFalse(table_exists(self.storage, self.storage.layer_name_to_table_name(col.table_name, layer2)))
+        self.assertFalse(table_exists(self.storage, self.storage.layer_name_to_table_name(col.name, layer1)))
+        self.assertFalse(table_exists(self.storage, self.storage.layer_name_to_table_name(col.name, layer2)))
 
     def test_layer_meta(self):
         table_name = get_random_table_name()
@@ -474,7 +474,7 @@ class TestLayer(unittest.TestCase):
                                   row_mapper=row_mapper1,
                                   meta={"meta_text_id": "int",
                                "sum": "float"})
-        layer_table = self.storage.layer_name_to_table_name(col.table_name, layer1)
+        layer_table = self.storage.layer_name_to_table_name(col.name, layer1)
         self.assertTrue(table_exists(self.storage, layer_table))
 
         q = "SELECT text_id, meta_text_id, sum from %s.%s" % (
