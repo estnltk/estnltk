@@ -58,7 +58,7 @@ class PgCollection:
     def __init__(self, name, storage, meta=None, temporary=False):
         if '__' in name:
             raise PgCollectionException('collection name must not contain double underscore: {!r}'.format(name))
-        self.table_name = name
+        self.name = name
         self.storage = storage
         # TODO: read meta columns from collection table if exists, move this parameter to self.create
         self.meta = meta or {}
@@ -68,9 +68,10 @@ class PgCollection:
 
         self._buffered_insert_query_length = 0
 
+    # TODO: remove deprecated attribute table_name
     @property
-    def name(self):
-        return self.table_name
+    def table_name(self):
+        return self.name
 
     def create(self, description=None, meta=None):
         """Creates the database tables for the collection"""
@@ -86,7 +87,7 @@ class PgCollection:
                           '_base text, '
                           'meta text[]);').format(temporary=temporary,
                                                   structure=self._structure_identifier()))
-            logger.info('new empty collection {!r} created'.format(self.table_name))
+            logger.info('new empty collection {!r} created'.format(self.name))
             logger.debug(c.query.decode())
 
         meta = meta or self.meta or {}
@@ -101,7 +102,7 @@ class PgCollection:
         with self.storage.conn.cursor() as c:
             c.execute(
                 SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
-                    index=Identifier('idx_%s_data' % self.table_name),
+                    index=Identifier('idx_%s_data' % self.name),
                     table=self._collection_identifier()))
 
     def drop_index(self):
@@ -110,7 +111,7 @@ class PgCollection:
             c.execute(
                 SQL("DROP INDEX {schema}.{index}").format(
                     schema=Identifier(self.storage.schema),
-                    index=Identifier('idx_%s_data' % self.table_name)))
+                    index=Identifier('idx_%s_data' % self.name)))
 
     # TODO: make it work
     def extend(self, other: 'PgCollection'):
@@ -151,7 +152,7 @@ class PgCollection:
             c.execute(SQL('SELECT column_name, data_type from information_schema.columns '
                           'WHERE table_schema={} and table_name={} '
                           'ORDER BY ordinal_position'
-                          ).format(Literal(self.storage.schema), Literal(self.table_name)))
+                          ).format(Literal(self.storage.schema), Literal(self.name)))
             return collections.OrderedDict(c.fetchall())
 
     def _insert_into_structure(self, layer, detached: bool, meta: dict=None):
@@ -319,7 +320,7 @@ class PgCollection:
 
     def exists(self):
         """Returns true if collection tables exists"""
-        collection_table_exists = table_exists(self.storage, self.table_name)
+        collection_table_exists = table_exists(self.storage, self.name)
         structure_table_exists = table_exists(self.storage, self._structure_table_name())
         assert collection_table_exists is structure_table_exists, (collection_table_exists, structure_table_exists)
         return collection_table_exists
@@ -327,7 +328,7 @@ class PgCollection:
     def select_fragment_raw(self, fragment_name, parent_layer_name, query=None, ngram_query=None):
         return self.storage.select_fragment_raw(
             fragment_table=self.fragment_name_to_table_name(fragment_name),
-            text_table=self.table_name,
+            text_table=self.name,
             parent_layer_table=self.layer_name_to_table_name(parent_layer_name),
             query=query,
             ngram_query=ngram_query)
@@ -373,7 +374,7 @@ class PgCollection:
             for key, txt in storage.select(table, query=q):
                 print(key, txt)
         """
-        table = self.table_name
+        table = self.name
         with self.storage.conn.cursor('read', withhold=True) as c:
             # 1. Build query
 
@@ -507,7 +508,7 @@ class PgCollection:
         for layer in layers or []:
             if layer not in self._structure:
                 raise PgCollectionException('there is no {!r} layer in the collection {!r}'.format(
-                        layer, self.table_name))
+                        layer, self.name))
             include_dep(layer)
 
         data_iterator = self._select(query=query, layer_query=layer_query, layer_ngram_query=layer_ngram_query,
@@ -540,7 +541,7 @@ class PgCollection:
 
     def select_by_key(self, key, return_as_dict=False):
         """See PostgresStorage.select_by_key()"""
-        return self.storage.select_by_key(self.table_name, key, return_as_dict)
+        return self.storage.select_by_key(self.name, key, return_as_dict)
 
     def count_values(self, layer, attr, **kwargs):
         """Count attribute values in the collection."""
@@ -551,19 +552,19 @@ class PgCollection:
 
     def find_fingerprint(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
         """See PostgresStorage.find_fingerprint()"""
-        return self.storage.find_fingerprint(self.table_name, query, layer_query, layer_ngram_query, layers,
+        return self.storage.find_fingerprint(self.name, query, layer_query, layer_ngram_query, layers,
                                              order_by_key)
 
     def layer_name_to_table_name(self, layer_name):
-        return self.storage.layer_name_to_table_name(self.table_name, layer_name)
+        return self.storage.layer_name_to_table_name(self.name, layer_name)
 
     def _collection_identifier(self):
         if self._temporary:
-            return Identifier(self.table_name)
-        return SQL('{}.{}').format(Identifier(self.storage.schema), Identifier(self.table_name))
+            return Identifier(self.name)
+        return SQL('{}.{}').format(Identifier(self.storage.schema), Identifier(self.name))
 
     def _structure_table_name(self):
-        return self.table_name + '__structure'
+        return self.name + '__structure'
 
     def _structure_identifier(self):
         if self._temporary:
@@ -571,19 +572,19 @@ class PgCollection:
         return SQL('{}.{}').format(Identifier(self.storage.schema), Identifier(self._structure_table_name()))
 
     def _layer_identifier(self, layer_name):
-        table_identifier = Identifier('{}__{}__layer'.format(self.table_name, layer_name))
+        table_identifier = Identifier('{}__{}__layer'.format(self.name, layer_name))
         if self._temporary:
             return table_identifier
         return SQL('{}.{}').format(Identifier(self.storage.schema), table_identifier)
 
     def _fragment_identifier(self, fragment_name):
         if self._temporary:
-            return Identifier('{}__{}__fragment'.format(self.table_name, fragment_name))
+            return Identifier('{}__{}__fragment'.format(self.name, fragment_name))
         return SQL('{}.{}').format(Identifier(self.storage.schema),
-                                   Identifier('{}__{}__fragment'.format(self.table_name, fragment_name)))
+                                   Identifier('{}__{}__fragment'.format(self.name, fragment_name)))
 
     def fragment_name_to_table_name(self, fragment_name):
-        return self.storage.fragment_name_to_table_name(self.table_name, fragment_name)
+        return self.storage.fragment_name_to_table_name(self.name, fragment_name)
 
     def create_fragment(self, fragment_name, data_iterator, row_mapper,
                         create_index=False, ngram_index=None):
@@ -684,8 +685,8 @@ class PgCollection:
 
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
-                self.table_name, layer_name))
-        logger.info('collection: {!r}'.format(self.table_name))
+                self.name, layer_name))
+        logger.info('collection: {!r}'.format(self.name))
         if self._structure is None:
             raise PgCollectionException("can't add detached layer {!r}, the collection is empty".format(layer_name))
         if self.has_layer(layer_name):
@@ -823,8 +824,8 @@ class PgCollection:
 
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
-                self.table_name, layer_name))
-        logger.info('collection: {!r}'.format(self.table_name))
+                self.name, layer_name))
+        logger.info('collection: {!r}'.format(self.name))
         if self._structure is None:
             raise PgCollectionException("can't add detached layer {!r}, the collection is empty".format(layer_name))
         if self.has_layer(layer_name):
@@ -972,7 +973,7 @@ class PgCollection:
 
         q = SQL("COMMENT ON TABLE {} IS {};").format(
             layer_identifier,
-            Literal("%s %s layer" % (self.table_name, layer_name)))
+            Literal("%s %s layer" % (self.name, layer_name)))
         cursor.execute(q)
         logger.debug(cursor.query.decode())
 
@@ -1056,7 +1057,7 @@ class PgCollection:
                 # no exception, transaction in progress
                 conn.commit()
             conn.autocommit = True
-            logger.info('collection {!r} deleted'.format(self.table_name))
+            logger.info('collection {!r} deleted'.format(self.name))
 
     def has_layer(self, layer_name):
         return layer_name in self._structure
@@ -1067,7 +1068,7 @@ class PgCollection:
     def get_fragment_names(self):
         lf_names = []
         for tbl in self.get_fragment_tables():
-            layer = re.sub("^%s__" % self.table_name, "", tbl)
+            layer = re.sub("^%s__" % self.name, "", tbl)
             layer = re.sub("__fragment$", "", layer)
             lf_names.append(layer)
         return lf_names
@@ -1080,7 +1081,7 @@ class PgCollection:
     def get_fragment_tables(self):
         fragment_tables = []
         for tbl in self.storage.get_all_table_names():
-            if tbl.startswith("%s__" % self.table_name) and tbl.endswith("__fragment"):
+            if tbl.startswith("%s__" % self.name) and tbl.endswith("__fragment"):
                 fragment_tables.append(tbl)
         return fragment_tables
 
@@ -1115,7 +1116,7 @@ class PgCollection:
             return pandas.DataFrame(data=data, columns=columns)
 
     def export_layer(self, layer, attributes, progressbar=None):
-        export_table = '{}__{}__export'.format(self.table_name, layer)
+        export_table = '{}__{}__export'.format(self.name, layer)
         texts = self.select(layers=[layer], progressbar=progressbar)
         logger.info('preparing to export layer {!r} with attributes {!r}'.format(layer, attributes))
 
@@ -1151,7 +1152,7 @@ class PgCollection:
         logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, export_table))
 
     def __len__(self):
-        return count_rows(self.storage, self.table_name)
+        return count_rows(self.storage, self.name)
 
     def _repr_html_(self):
         if self._structure is None:
