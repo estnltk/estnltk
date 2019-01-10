@@ -15,7 +15,7 @@ from estnltk.storage.postgres import PostgresStorage, PgStorageException
 from estnltk.storage.postgres import JsonbTextQuery as Q
 from estnltk.storage.postgres import JsonbLayerQuery
 from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema, table_exists, drop_table, count_rows
+from estnltk.storage.postgres import create_schema, delete_schema, table_exists, count_rows
 from estnltk.storage.postgres import create_collection_table, create_structure_table
 from estnltk.storage.postgres import collection_table_exists, structure_table_exists
 from estnltk.storage.postgres import drop_collection_table

@@ -145,15 +145,3 @@ def count_rows(storage, table=None, table_identifier=None):
         c.execute(SQL("SELECT count(*) FROM {}.{}").format(Identifier(storage.schema), Identifier(table)))
         nrows = c.fetchone()[0]
         return nrows
-
-
-def _drop_table(storge, table):
-    with storge.conn.cursor() as c:
-        c.execute(SQL("DROP TABLE {}.{};").format(Identifier(storge.schema), Identifier(table)))
-        logger.debug(c.query.decode())
-
-
-def drop_table_if_exists(storage, table):
-    with storage.conn.cursor() as c:
-        c.execute(SQL("DROP TABLE IF EXISTS {}.{};").format(Identifier(storage.schema), Identifier(table)))
-
