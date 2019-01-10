@@ -17,9 +17,10 @@ from estnltk.converters import dict_to_text, text_to_json
 from estnltk.layer_operations import create_ngram_fingerprint_index
 
 from estnltk.storage.postgres import table_exists
-from estnltk.storage.postgres import create_table
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import JsonbLayerQuery
+from estnltk.storage.postgres import create_collection_table
+from estnltk.storage.postgres import drop_collection_table, drop_structure_table, drop_layer_table
 
 
 class PgCollectionException(Exception):
@@ -63,10 +64,13 @@ class PgCollection:
         self.meta = meta or {}
         self._temporary = temporary
         self._structure = self._get_structure()
-        column_names = self._collection_table_meta()
         self.column_names = ['id', 'data'] + list(self.meta)
 
         self._buffered_insert_query_length = 0
+
+    @property
+    def name(self):
+        return self.table_name
 
     def create(self, description=None, meta=None):
         """Creates the database tables for the collection"""
@@ -87,11 +91,10 @@ class PgCollection:
 
         meta = meta or self.meta or {}
 
-        return create_table(self.storage, table=self.table_name,
-                                         description=description,
-                                         meta=meta,
-                                         temporary=self._temporary,
-                                         table_identifier=self._collection_identifier())
+        return create_collection_table(self.storage,
+                                       collection_name=self.name,
+                                       meta_columns=meta,
+                                       description=description)
 
     def create_index(self):
         """create index for the collection table"""
@@ -514,7 +517,7 @@ class PgCollection:
             yield from data_iterator
             return
 
-        total = self.storage.count_rows(self.table_name)
+        total = count_rows(self.storage, self.name)
         initial = 0
         if missing_layer is not None:
             initial = self.storage.count_rows(table_identifier=self._layer_identifier(missing_layer))
@@ -1014,7 +1017,7 @@ class PgCollection:
                 else:
                     raise PgCollectionException("can't delete layer {!r}; "
                                                 "there is a dependant layer {!r}".format(layer_name, ln))
-        self._drop_table(self._layer_identifier(layer_name))
+        drop_layer_table(self.storage, layer_name)
         self._delete_from_structure(layer_name)
         logger.info('layer deleted: {!r}'.format(layer_name))
 
@@ -1039,10 +1042,12 @@ class PgCollection:
         conn = self.storage.conn
         conn.autocommit = False
         try:
-            for identifier in self._get_layer_table_identifiers():
-                self._drop_table(identifier)
-            self._drop_table(self._structure_identifier())
-            self._drop_table(self._collection_identifier())
+            if self._structure is not None:
+                for layer_name, struct in self._structure.items():
+                    if struct['detached']:
+                        drop_layer_table(self.storage, self.name, layer_name)
+            drop_structure_table(self.storage, self.name)
+            drop_collection_table(self.storage, self.name)
         except Exception:
             conn.rollback()
             raise
@@ -1052,11 +1057,6 @@ class PgCollection:
                 conn.commit()
             conn.autocommit = True
             logger.info('collection {!r} deleted'.format(self.table_name))
-
-    def _drop_table(self, identifier):
-        with self.storage.conn.cursor() as c:
-            c.execute(SQL('DROP TABLE {};').format(identifier))
-            logger.debug(c.query.decode())
 
     def has_layer(self, layer_name):
         return layer_name in self._structure
@@ -1073,6 +1073,8 @@ class PgCollection:
         return lf_names
 
     def get_layer_names(self):
+        if self._structure is None:
+            return []
         return list(self._structure)
 
     def get_fragment_tables(self):
@@ -1143,9 +1145,9 @@ class PgCollection:
                         values.extend(str(getattr(annotation, attr)) for attr in attributes)
                         c.execute(SQL("INSERT INTO {}.{} "
                                       "VALUES ({});").format(Identifier(self.storage.schema),
-                                                            Identifier(export_table),
-                                                            SQL(', ').join(map(Literal, values))
-                                                            ))
+                                                             Identifier(export_table),
+                                                             SQL(', ').join(map(Literal, values))
+                                                             ))
         logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, export_table))
 
     def __len__(self):

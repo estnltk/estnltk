@@ -26,7 +26,7 @@ class PostgresStorage:
     """
 
     def __init__(self, dbname=None, user=None, password=None, host=None, port=None,
-                 pgpass_file=None, schema="public", role=None, **kwargs):
+                 pgpass_file=None, schema="public", role=None, temporary=False, **kwargs):
         """
         Connects to database either using connection parameters if specified, or ~/.pgpass file.
 
@@ -34,6 +34,8 @@ class PostgresStorage:
 
         """
         self.schema = schema
+        self.temporary = temporary
+
         _host, _port, _dbname, _user, _password = host, port, dbname, user, password
         if _host is None or _port is None or _dbname is None or _user is None or _password is None:
             if pgpass_file is None:
@@ -537,9 +539,9 @@ class PostgresStorage:
         return self.select(table, jsonb_text_query, jsonb_layer_query, layer_ngram_query, layers,
                            order_by_key=order_by_key)
 
-    def get_collection(self, table_name, meta_fields=None, temporary=False):
+    def get_collection(self, table_name, meta_fields=None):
         """Returns a new instance of `PgCollection` without physically creating it."""
-        return PgCollection(name=table_name, storage=self, meta=meta_fields, temporary=temporary)
+        return PgCollection(name=table_name, storage=self, meta=meta_fields)
 
     def __str__(self):
         return '{self.__class__.__name__}({self.conn.dsn} schema={self.schema})'.format(self=self)
@@ -564,5 +566,7 @@ class PostgresStorage:
                 collection_tables = df.to_html()
             else:
                 collection_tables = '<br/>This storage has no collections.'
-        return '<b>{self.__class__.__name__}</b><br/>\n{self.conn.dsn} schema={self.schema}\n{collections}'.format(
+        return ('<b>{self.__class__.__name__}</b><br/>\n{self.conn.dsn} schema={self.schema}<br/>'
+                'temporary={self.temporary}\n'
+                '{collections}').format(
                 self=self, collections=collection_tables)

@@ -15,7 +15,12 @@ from estnltk.storage.postgres import PostgresStorage, PgStorageException
 from estnltk.storage.postgres import JsonbTextQuery as Q
 from estnltk.storage.postgres import JsonbLayerQuery
 from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, create_table, delete_schema, table_exists, drop_table, count_rows
+from estnltk.storage.postgres import create_schema, delete_schema, table_exists, drop_table, count_rows
+from estnltk.storage.postgres import create_collection_table, create_structure_table
+from estnltk.storage.postgres import collection_table_exists, structure_table_exists
+from estnltk.storage.postgres import drop_collection_table
+from estnltk.storage.postgres import table_exists
+
 
 logger.setLevel('DEBUG')
 
@@ -47,18 +52,28 @@ class TestStorage(unittest.TestCase):
         col.delete()
         self.assertFalse(col.exists())
 
+    def test_create_and_drop_collection_table(self):
+        collection_name = get_random_table_name()
+
+        create_collection_table(self.storage, collection_name)
+        assert collection_table_exists(self.storage, collection_name)
+        assert table_exists(self.storage, collection_name)
+        drop_collection_table(self.storage, collection_name)
+        assert not collection_table_exists(self.storage, collection_name)
+        assert not table_exists(self.storage, collection_name)
+
     def test_sql_injection(self):
         normal_table = get_random_table_name()
-        create_table(self.storage, normal_table)
-        self.assertTrue(table_exists(self.storage, normal_table))
+        create_collection_table(self.storage, normal_table)
+        self.assertTrue(collection_table_exists(self.storage, normal_table))
 
         injected_table_name = "%a; drop table %s;" % (get_random_table_name(), normal_table)
-        create_table(self.storage, injected_table_name)
-        self.assertTrue(table_exists(self.storage, injected_table_name))
-        self.assertTrue(table_exists(self.storage, normal_table))
+        create_collection_table(self.storage, injected_table_name)
+        self.assertTrue(collection_table_exists(self.storage, injected_table_name))
+        self.assertTrue(collection_table_exists(self.storage, normal_table))
 
-        drop_table(self.storage, normal_table)
-        drop_table(self.storage, injected_table_name)
+        drop_collection_table(self.storage, normal_table)
+        drop_collection_table(self.storage, injected_table_name)
 
     def test_select_by_key(self):
         col = self.storage.get_collection(get_random_table_name())
