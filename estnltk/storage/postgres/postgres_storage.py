@@ -108,8 +108,9 @@ class PostgresStorage:
         self.conn.autocommit = True
 
         with self.conn.cursor() as c:
-            logger.info('role: {!r}'.format(role))
             c.execute(SQL("SET ROLE {};").format(Identifier(role)))
+
+        logger.info('schema: {!r}, temporary: {!r}, role: {!r}'.format(self.schema, self.temporary, role))
 
     def close(self):
         """Closes database connection"""
@@ -189,7 +190,7 @@ class PostgresStorage:
                       (key,))
             res = c.fetchone()
             if res is None:
-                raise PgStorageException("Key %s not not found." % key)
+                raise PgStorageException("Key %s not found." % key)
             key, text_dict = res
             text = text_dict if return_as_dict is True else dict_to_text(text_dict)
             return text
