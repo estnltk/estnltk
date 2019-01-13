@@ -45,5 +45,5 @@ from .pg_operations import drop_layer_table
 from .pg_operations import table_exists
 from .collection import RowMapperRecord
 from .collection import PgCollection
-from .postgres_storage import PgStorageException
-from .postgres_storage import PostgresStorage
+from .storage import PgStorageException
+from .storage import PostgresStorage
