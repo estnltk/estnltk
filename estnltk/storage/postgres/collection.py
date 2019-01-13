@@ -457,9 +457,10 @@ class PgCollection:
                 detached_layers = {}
                 if len(row) > 2 + len(collection_meta):
                     for i in range(2 + len(collection_meta), len(row), 2):
+                        layer_id = row[i]
                         layer_dict = row[i + 1]
                         layer = dict_to_layer(layer_dict, text, detached_layers)
-                        detached_layers[layer.name] = layer
+                        detached_layers[layer.name] = {'layer': layer, 'layer_id': layer_id}
                 result = text_id, text, meta, detached_layers
                 yield result
         c.close()
@@ -476,7 +477,7 @@ class PgCollection:
                                    missing_layer=missing_layer):
             text_id, text, meta_list, detached_layers = row
             for layer_name in layers:
-                text[layer_name] = detached_layers[layer_name]
+                text[layer_name] = detached_layers[layer_name]['layer']
             if collection_meta:
                 meta = {}
                 for meta_name, meta_value in zip(collection_meta, meta_list):
@@ -611,9 +612,10 @@ class PgCollection:
                 fragment_table = self.fragment_name_to_table_name(fragment_name)
                 id_ = 0
                 for row in data_iterator:
-                    text_id, text, parent_layer_id = row[0], row[1], row[2]
+                    text_id, text = row[0], row[1]
                     for record in row_mapper(row):
-                        fragment_dict = layer_to_dict(record.layer, text)
+                        fragment_dict = layer_to_dict(record['fragment'], text)
+                        parent_layer_id = record['parent_id']
                         if ngram_index is not None:
                             ngram_values = [create_ngram_fingerprint_index(record.layer, attr, n)
                                             for attr, n in ngram_index.items()]
