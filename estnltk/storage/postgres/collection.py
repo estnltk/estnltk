@@ -179,8 +179,8 @@ class PgCollection:
         self._structure = self._get_structure()
 
     def old_slow_insert(self, text, key=None, meta_data=None):
-        return self._buffered_insert(text=text, buffer=[], buffer_size=0, query_length_limit=0, key=key,
-                                     meta_data=meta_data)
+        with self.insert() as collection_insert:
+            collection_insert(text=text, key=key, meta_data=meta_data)
 
     # TODO: merge this with buffered_layer_insert
     @contextmanager
@@ -191,10 +191,50 @@ class PgCollection:
         table_identifier = self._collection_identifier()
 
         with self.storage.conn.cursor() as cursor:
+
             def wrap_buffered_insert(text, key=None, meta_data=None):
-                return self._buffered_insert(text, buffer=buffer, buffer_size=buffer_size,
-                                             query_length_limit=query_length_limit, key=key, meta_data=meta_data,
-                                             cursor=cursor)
+                if self._structure is None:
+                    for layer in text.layers:
+                        self._insert_into_structure(text[layer], detached=False)
+                elif any(struct['detached'] for struct in self._structure.values()):
+                    # TODO: solve this case in a better way
+                    raise PgCollectionException("this collection has detached layers, can't add new text objects")
+                else:
+                    assert set(text.layers) == set(self._structure), '{} != {}'.format(set(text.layers),
+                                                                                       set(self._structure))
+                    for layer_name, layer in text.layers.items():
+                        layer_struct = self._structure[layer_name]
+                        assert layer_struct['detached'] is False
+                        assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
+                                layer_struct['attributes'],
+                                layer.attributes)
+                        assert layer_struct['ambiguous'] == layer.ambiguous
+                        assert layer_struct['parent'] == layer.parent
+                        assert layer_struct['enveloping'] == layer.enveloping
+                        assert layer_struct['_base'] == layer._base
+                text = text_to_json(text)
+                if key is None:
+                    key = DEFAULT
+                else:
+                    key = Literal(key)
+
+                row = [key, Literal(text)]
+                for k in self.column_names[2:]:
+                    if k in meta_data:
+                        m = Literal(meta_data[k])
+                    else:
+                        m = DEFAULT
+                    row.append(m)
+
+                q = SQL('({})').format(SQL(', ').join(row))
+                self._buffered_insert_query_length += get_query_length(q)
+                buffer.append(q)
+
+                if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
+                    self._flush_insert_buffer(cursor=cursor, table_identifier=table_identifier,
+                                              column_identifiers=column_identifiers,
+                                              buffer=buffer)
+                    self._buffered_insert_query_length = 0
 
             try:
                 yield wrap_buffered_insert
@@ -203,67 +243,6 @@ class PgCollection:
                                           table_identifier=table_identifier,
                                           column_identifiers=column_identifiers,
                                           buffer=buffer)
-
-    def _buffered_insert(self, text, buffer, buffer_size, query_length_limit, key=None, meta_data=None, cursor=None):
-        """Saves a given `Text` object into the collection.
-
-        Args:
-            text: Text
-            key: int
-            meta_data: dict
-            buffer_size: int
-                number of text objects to buffer before inserting into collection table
-                run PgCollection.flush_buffer after last insert
-
-        Returns:
-            int: row key (id)
-        """
-        column_identifiers = SQL(', ').join(map(Identifier, self.column_names))
-        table_identifier = self._collection_identifier()
-
-        if self._structure is None:
-            for layer in text.layers:
-                self._insert_into_structure(text[layer], detached=False)
-        elif any(struct['detached'] for struct in self._structure.values()):
-            # TODO: solve this case in a better way
-            raise PgCollectionException("this collection has detached layers, can't add new text objects")
-        else:
-            assert set(text.layers) == set(self._structure), '{} != {}'.format(set(text.layers), set(self._structure))
-            for layer_name, layer in text.layers.items():
-                layer_struct = self._structure[layer_name]
-                assert layer_struct['detached'] is False
-                assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(layer_struct['attributes'],
-                                                                                         layer.attributes)
-                assert layer_struct['ambiguous'] == layer.ambiguous
-                assert layer_struct['parent'] == layer.parent
-                assert layer_struct['enveloping'] == layer.enveloping
-                assert layer_struct['_base'] == layer._base
-        text = text_to_json(text)
-        if key is None:
-            key = DEFAULT
-        else:
-            key = Literal(key)
-
-        row = [key, Literal(text)]
-        for k in self.column_names[2:]:
-            if k in meta_data:
-                m = Literal(meta_data[k])
-            else:
-                m = DEFAULT
-            row.append(m)
-
-        q = SQL('({})').format(SQL(', ').join(row))
-        self._buffered_insert_query_length += get_query_length(q)
-        buffer.append(q)
-
-        if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
-            ids = self._flush_insert_buffer(cursor=cursor, table_identifier=table_identifier,
-                                            column_identifiers=column_identifiers,
-                                            buffer=buffer)
-            self._buffered_insert_query_length = 0
-            if buffer_size == 0 and len(ids) == 1:
-                return ids[0]
-            return ids
 
     @contextmanager
     def buffered_layer_insert(self, table_identifier, columns, buffer_size=10000, query_length_limit=5000000):
