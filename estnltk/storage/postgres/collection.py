@@ -578,10 +578,13 @@ class PgCollection:
         with conn.cursor() as c:
             try:
                 conn.autocommit = False
-                # create fragment table and indices
-                self.create_fragment_table(c, fragment_name,
-                                           create_index=create_index,
-                                           ngram_index=ngram_index)
+                table_name = self.fragment_name_to_table_name(fragment_name)
+                self._create_layer_table(cursor=c,
+                                         layer_table=table_name,
+                                         layer_name=fragment_name,
+                                         is_fragment=True,
+                                         create_index=create_index,
+                                         ngram_index=ngram_index)
                 # insert data
                 fragment_table = self.fragment_name_to_table_name(fragment_name)
                 id_ = 0
@@ -674,12 +677,15 @@ class PgCollection:
             try:
                 conn.autocommit = False
                 # create table and indices
-                self.create_layer_table(cursor=c,
-                                        layer_name=layer_name,
-                                        create_index=create_index,
-                                        ngram_index=ngram_index,
-                                        overwrite=overwrite,
-                                        meta=meta)
+                self._create_layer_table(cursor=c,
+                                         layer_table=self.layer_name_to_table_name(layer_name),
+                                         layer_name=layer_name,
+                                         is_fragment=False,
+                                         create_index=create_index,
+                                         ngram_index=ngram_index,
+                                         overwrite=overwrite,
+                                         meta=meta)
+
                 # insert data
                 id_ = 0
 
@@ -838,12 +844,14 @@ class PgCollection:
                 conn.autocommit = True
                 # create table and indices
                 if mode in {'new', 'overwrite'}:
-                    self.create_layer_table(cursor=c,
-                                            layer_name=layer_name,
-                                            create_index=create_index,
-                                            ngram_index=ngram_index,
-                                            overwrite=(mode == 'overwrite'),
-                                            meta=meta)
+                    self._create_layer_table(cursor=c,
+                                             layer_table=self.layer_name_to_table_name(layer_name),
+                                             layer_name=layer_name,
+                                             is_fragment=False,
+                                             create_index=create_index,
+                                             ngram_index=ngram_index,
+                                             overwrite=overwrite,
+                                             meta=meta)
                 # insert data
                 structure_written = (mode == 'append')
                 with self.buffered_layer_insert(table_identifier=self._layer_identifier(layer_name),
@@ -882,17 +890,6 @@ class PgCollection:
                 conn.autocommit = True
 
         logger.info('layer created: {!r}'.format(layer_name))
-
-    def create_layer_table(self, cursor, layer_name, create_index=True, ngram_index=None, overwrite=False, meta=None):
-        is_fragment = False
-        table_name = self.layer_name_to_table_name(layer_name)
-        return self._create_layer_table(cursor, table_name, layer_name, is_fragment, create_index, ngram_index,
-                                        overwrite=overwrite, meta=meta)
-
-    def create_fragment_table(self, cursor, fragment_name, create_index=True, ngram_index=None):
-        is_fragment = True
-        table_name = self.fragment_name_to_table_name(fragment_name)
-        return self._create_layer_table(cursor, table_name, fragment_name, is_fragment, create_index, ngram_index)
 
     def _create_layer_table(self, cursor, layer_table, layer_name, is_fragment=False, create_index=True,
                             ngram_index=None, overwrite=False, meta=None):
