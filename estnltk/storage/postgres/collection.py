@@ -187,17 +187,24 @@ class PgCollection:
     def insert(self, buffer_size=10000, query_length_limit=5000000):
         buffer = []
         self._buffered_insert_query_length = 0
+        column_identifiers = SQL(', ').join(map(Identifier, self.column_names))
+        table_identifier = self._collection_identifier()
 
-        def wrap_buffered_insert(text, key=None, meta_data=None):
-            return self._buffered_insert(text, buffer=buffer, buffer_size=buffer_size,
-                                         query_length_limit=query_length_limit, key=key, meta_data=meta_data)
+        with self.storage.conn.cursor() as cursor:
+            def wrap_buffered_insert(text, key=None, meta_data=None):
+                return self._buffered_insert(text, buffer=buffer, buffer_size=buffer_size,
+                                             query_length_limit=query_length_limit, key=key, meta_data=meta_data,
+                                             cursor=cursor)
 
-        try:
-            yield wrap_buffered_insert
-        finally:
-            self._flush_insert_buffer(buffer)
+            try:
+                yield wrap_buffered_insert
+            finally:
+                self._flush_insert_buffer(cursor=cursor,
+                                          table_identifier=table_identifier,
+                                          column_identifiers=column_identifiers,
+                                          buffer=buffer)
 
-    def _buffered_insert(self, text, buffer, buffer_size, query_length_limit, key=None, meta_data=None):
+    def _buffered_insert(self, text, buffer, buffer_size, query_length_limit, key=None, meta_data=None, cursor=None):
         """Saves a given `Text` object into the collection.
 
         Args:
@@ -211,6 +218,8 @@ class PgCollection:
         Returns:
             int: row key (id)
         """
+        column_identifiers = SQL(', ').join(map(Identifier, self.column_names))
+        table_identifier = self._collection_identifier()
 
         if self._structure is None:
             for layer in text.layers:
@@ -248,27 +257,13 @@ class PgCollection:
         buffer.append(q)
 
         if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
-            ids = self._flush_insert_buffer(buffer)
+            ids = self._flush_insert_buffer(cursor=cursor, table_identifier=table_identifier,
+                                            column_identifiers=column_identifiers,
+                                            buffer=buffer)
             self._buffered_insert_query_length = 0
             if buffer_size == 0 and len(ids) == 1:
                 return ids[0]
             return ids
-
-    def _flush_insert_buffer(self, buffer):
-        if len(buffer) == 0:
-            return []
-        sql_column_names = SQL(', ').join(map(Identifier, self.column_names))
-        with self.storage.conn.cursor() as c:
-            c.execute(SQL('INSERT INTO {} ({}) VALUES {} RETURNING id;').format(
-                self._collection_identifier(),
-                sql_column_names,
-                SQL(', ').join(buffer)))
-            row_key = c.fetchone()
-            logger.debug('flush buffer: {} rows, {} bytes, {} estimated characters'.format(len(buffer),
-                                                                                           len(c.query),
-                                                                                           self._buffered_insert_query_length))
-        buffer.clear()
-        return row_key
 
     @contextmanager
     def buffered_layer_insert(self, table_identifier, columns, buffer_size=10000, query_length_limit=5000000):
@@ -285,30 +280,30 @@ class PgCollection:
                 self._buffered_insert_query_length += get_query_length(q)
 
                 if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
-                    return self._flush_layer_insert_buffer(cursor=cursor,
+                    return self._flush_insert_buffer(cursor=cursor,
                                                            table_identifier=table_identifier,
                                                            column_identifiers=column_identifiers,
                                                            buffer=buffer)
             try:
                 yield buffered_insert
             finally:
-                self._flush_layer_insert_buffer(cursor=cursor,
+                self._flush_insert_buffer(cursor=cursor,
                                                 table_identifier=table_identifier,
                                                 column_identifiers=column_identifiers,
                                                 buffer=buffer)
                 self.storage.conn.autocommit = False
 
-    def _flush_layer_insert_buffer(self, cursor, table_identifier, column_identifiers, buffer):
+    def _flush_insert_buffer(self, cursor, table_identifier, column_identifiers, buffer):
         if len(buffer) == 0:
             return []
 
         cursor.execute(SQL('INSERT INTO {} ({}) VALUES {} RETURNING id;').format(
-                        table_identifier,
-                        column_identifiers,
-                        SQL(', ').join(buffer)))
-        row_key = cursor.fetchall()
+                       table_identifier,
+                       column_identifiers,
+                       SQL(', ').join(buffer)))
+        row_key = cursor.fetchone()
         logger.debug('flush buffer: {} rows, {} bytes, {} estimated characters'.format(
-                     len(buffer), len(cursor.query), self._buffered_insert_query_length))
+                len(buffer), len(cursor.query), self._buffered_insert_query_length))
         buffer.clear()
         self._buffered_insert_query_length = get_query_length(column_identifiers)
         return row_key
