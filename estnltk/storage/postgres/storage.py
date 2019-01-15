@@ -151,16 +151,6 @@ class PostgresStorage:
         """
         return "%s__%s__layer" % (collection_table, layer_name)
 
-    def insert_layer_row(self, layer_table, layer_dict, row_id, text_id, ngram_values=None):
-        layer_json = json.dumps(layer_dict, ensure_ascii=False)
-        ngram_values = ngram_values or []
-        with self.conn.cursor() as c:
-            sql = "INSERT INTO {}.{} VALUES (%s) RETURNING id;" % ", ".join(['%s'] * (3 + len(ngram_values)))
-            c.execute(SQL(sql).format(Identifier(self.schema), Identifier(layer_table)),
-                      (row_id, text_id, layer_json, *ngram_values))
-            row_key = c.fetchone()[0]
-            return row_key
-
     def insert(self, table, text, key=None, meta=None):
         """
         Saves a given `text` object into a given `table`..
