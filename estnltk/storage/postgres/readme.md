@@ -2,4 +2,4 @@
 
 Store a collection of EstNltk `Text` objects in a PostgreSQL database.
 
-For usage see [tutorials](../../../tutorials/postgres).
+For usage see [tutorials](../../../tutorials/storage).
