@@ -1114,7 +1114,7 @@ class PgCollection:
         layer_table = self.layer_name_to_table_name(layer_name)
         if layer_name not in self.get_layer_names():
             raise PgCollectionException("Collection does not have a layer '{}'.".format(layer_name))
-        if not self.storage.table_exists(layer_table):
+        if not table_exists(self.storage, layer_table):
             raise PgCollectionException("Layer table '{}' does not exist.".format(layer_table))
 
         with self.storage.conn.cursor() as c:
