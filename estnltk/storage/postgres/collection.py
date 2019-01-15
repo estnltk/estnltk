@@ -302,6 +302,122 @@ class PgCollection:
             query=query,
             ngram_query=ngram_query)
 
+    def _build_sql_query(self,
+                         query=None,
+                         layer_query: 'JsonbLayerQuery' = None,
+                         layer_ngram_query: dict = None,
+                         layers: list = None,
+                         keys: list = None,
+                         order_by_key: bool = False,
+                         collection_meta: list = None,
+                         missing_layer: str = None):
+        """
+        Select from collection table with possible search constraints.
+
+        Args:
+            table: str
+                collection table
+            query: JsonbTextQuery
+                collection table query
+            layer_query: JsonbLayerQuery
+                layer query
+            layer_ngram_query: dict
+            keys: list
+                List of id-s.
+            order_by_key: bool
+            layers: list
+                Layers to fetch. Specified layers will be merged into returned text object and
+                become accessible via `text["layer_name"]`.
+            collection_meta: list
+                list of collection metadata column names
+            missing_layer: str
+                name of the layer
+                select collection objects for which there is no entry in the table `missing_layer`
+
+        Returns:
+            iterator of (key, text) pairs
+
+        Example:
+
+            q = JsonbTextQuery('morph_analysis', lemma='laulma')
+            for key, txt in storage.select(table, query=q):
+                print(key, txt)
+        """
+        table = self.name
+        # 1. Build query
+
+        where = False
+        sql_parts = []
+        collection_identifier = self._collection_identifier()
+        table_escaped = SQL("{}").format(collection_identifier).as_string(self.storage.conn)
+        collection_meta = collection_meta or []
+        collection_columns = SQL(', ').join(SQL('{}.{}').format(collection_identifier, column_id) for
+                                            column_id in map(Identifier, ['id', 'data', *collection_meta]))
+        if not layers and layer_query is None and layer_ngram_query is None:
+            # select only text table
+            q = SQL("SELECT {} FROM {}").format(collection_columns, collection_identifier).as_string(self.storage.conn)
+            sql_parts.append(q)
+        else:
+            # need to join text and all layer tables
+            layers = layers or []
+            layer_query = layer_query or {}
+            layer_ngram_query = layer_ngram_query or {}
+
+            layers_select = []
+            for layer in chain(layers):
+                layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
+                layers_select.append(layer)
+
+            layers_join = set()
+            for layer in chain(layers, layer_query.keys(), layer_ngram_query.keys()):
+                layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
+                layers_join.add(layer)
+
+            q = 'SELECT {collection_columns} {select} FROM {table}, {layers_join} WHERE {where}'.format(
+                    collection_columns=collection_columns.as_string(self.storage.conn),
+                    table=table_escaped,
+                    select=", %s" % ", ".join(
+                            "{0}.id, {0}.data".format(layer) for layer in layers_select) if layers_select else "",
+                    layers_join=", ".join(layer for layer in layers_join),
+                    where=" AND ".join("%s.id = %s.text_id" % (table_escaped, layer) for layer in layers_join))
+            sql_parts.append(q)
+            where = True
+
+        if query is not None:
+            # build constraint on the main text table
+            sql_parts.append("%s %s" % ("AND" if where else "WHERE", query.eval()))
+            where = True
+        if layer_query:
+            # build constraint on related layer tables
+            q = " AND ".join(query.eval() for layer, query in layer_query.items())
+            sql_parts.append("%s %s" % ("AND" if where else "WHERE", q))
+            where = True
+        if keys is not None:
+            # build constraint on id-s
+            sql_parts.append("AND" if where else "WHERE")
+            _keys = Literal(keys).as_string(self.storage.conn)
+            sql_parts.append("{table}.id = ANY({keys})".format(table=table_escaped, keys=_keys))
+            where = True
+        if layer_ngram_query:
+            # build constraint on related layer's ngram index
+            q = self.storage.build_layer_ngram_query(layer_ngram_query, table)
+            if where is True:
+                q = "AND %s" % q
+            sql_parts.append(q)
+            where = True
+        if missing_layer:
+            # select collection objects for which there is no entry in the layer table
+            sql_parts.append("AND" if where else "WHERE")
+            q = SQL('id NOT IN (SELECT text_id FROM {})').format(self._layer_identifier(missing_layer)).as_string(self.storage.conn)
+            sql_parts.append(q)
+            where = True
+
+        if order_by_key is True:
+            sql_parts.append("order by id")
+
+        sql = " ".join(sql_parts)  # bad, bad string concatenation, but we can't avoid it here, right?
+        return sql
+
     def select_raw(self,
                    query=None,
                    layer_query: 'JsonbLayerQuery' = None,
@@ -343,85 +459,20 @@ class PgCollection:
             for key, txt in storage.select(table, query=q):
                 print(key, txt)
         """
-        table = self.name
+
+        collection_meta = collection_meta or []
+
+        sql = self._build_sql_query(query=query,
+                                    layer_query=layer_query,
+                                    layer_ngram_query=layer_ngram_query,
+                                    layers=layers,
+                                    keys=keys,
+                                    order_by_key=order_by_key,
+                                    collection_meta=collection_meta,
+                                    missing_layer=missing_layer)
+
         with self.storage.conn.cursor('read', withhold=True) as c:
-            # 1. Build query
-
-            where = False
-            sql_parts = []
-            collection_identifier = self._collection_identifier()
-            table_escaped = SQL("{}").format(collection_identifier).as_string(self.storage.conn)
-            collection_meta = collection_meta or []
-            collection_columns = SQL(', ').join(SQL('{}.{}').format(collection_identifier, column_id) for
-                                                column_id in map(Identifier, ['id', 'data', *collection_meta]))
-            if not layers and layer_query is None and layer_ngram_query is None:
-                # select only text table
-                q = SQL("SELECT {} FROM {}").format(collection_columns, collection_identifier).as_string(self.storage.conn)
-                sql_parts.append(q)
-            else:
-                # need to join text and all layer tables
-                layers = layers or []
-                layer_query = layer_query or {}
-                layer_ngram_query = layer_ngram_query or {}
-
-                layers_select = []
-                for layer in chain(layers):
-                    layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
-                    layers_select.append(layer)
-
-                layers_join = set()
-                for layer in chain(layers, layer_query.keys(), layer_ngram_query.keys()):
-                    layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
-                    layers_join.add(layer)
-
-                q = 'SELECT {collection_columns} {select} FROM {table}, {layers_join} WHERE {where}'.format(
-                    collection_columns=collection_columns.as_string(self.storage.conn),
-                    table=table_escaped,
-                    select=", %s" % ", ".join(
-                        "{0}.id, {0}.data".format(layer) for layer in layers_select) if layers_select else "",
-                    layers_join=", ".join(layer for layer in layers_join),
-                    where=" AND ".join("%s.id = %s.text_id" % (table_escaped, layer) for layer in layers_join))
-                sql_parts.append(q)
-                where = True
-
-            if query is not None:
-                # build constraint on the main text table
-                sql_parts.append("%s %s" % ("AND" if where else "WHERE", query.eval()))
-                where = True
-            if layer_query:
-                # build constraint on related layer tables
-                q = " AND ".join(query.eval() for layer, query in layer_query.items())
-                sql_parts.append("%s %s" % ("AND" if where else "WHERE", q))
-                where = True
-            if keys is None:
-                keys = []
-            else:
-                keys = list(map(int, keys))
-                # build constraint on id-s
-                sql_parts.append("AND" if where else "WHERE")
-                sql_parts.append("{table}.id = ANY(%(keys)s)".format(table=table_escaped))
-                where = True
-            if layer_ngram_query:
-                # build constraint on related layer's ngram index
-                q = self.storage.build_layer_ngram_query(layer_ngram_query, table)
-                if where is True:
-                    q = "AND %s" % q
-                sql_parts.append(q)
-                where = True
-            if missing_layer:
-                # select collection objects for which there is no entry in the layer table
-                sql_parts.append("AND" if where else "WHERE")
-                q = SQL('id NOT IN (SELECT text_id FROM {})').format(self._layer_identifier(missing_layer)).as_string(self.storage.conn)
-                sql_parts.append(q)
-                where = True
-
-            if order_by_key is True:
-                sql_parts.append("order by id")
-
-            sql = " ".join(sql_parts)  # bad, bad string concatenation, but we can't avoid it here, right?
-
-            # 2. Execute query
-            c.execute(sql, {'keys': keys})
+            c.execute(sql)
             logger.debug(c.query.decode())
             for row in c:
                 text_id = row[0]
@@ -1052,15 +1103,6 @@ class PgCollection:
             if tbl.startswith("%s__" % self.name) and tbl.endswith("__fragment"):
                 fragment_tables.append(tbl)
         return fragment_tables
-
-    def _get_layer_table_identifiers(self):
-        identifiers = []
-        if not self._structure:
-            return identifiers
-        for name, struct in self._structure.items():
-            if struct['detached']:
-                identifiers.append(self._layer_identifier(name))
-        return identifiers
 
     def get_layer_meta(self, layer_name):
         layer_table = self.layer_name_to_table_name(layer_name)
