@@ -306,12 +306,12 @@ class DiffSampler:
                     'prolonged': iterate_prolonged,
                     'shortened': iterate_shortened
                     }[domain]
-        dist = self.layer_meta[domain]
+        dist = list(self.layer_meta[domain])
 
-        ids = self.layer_meta['text_id']
+        ids = list(self.layer_meta['text_id'])
         indexes = self.sample_indexes(dist, ids, k)
 
-        for text_id, text in self.collection.select(layers=[self.layer], keys=tuple(indexes)):
+        for text_id, text in self.collection.select(layers=[self.layer], keys=list(indexes)):
             span_indexes = set(indexes[text_id])
             for span_index, span in enumerate(iterator(text[self.layer], span_status_attribute='span_status')):
                 if span_index in span_indexes:

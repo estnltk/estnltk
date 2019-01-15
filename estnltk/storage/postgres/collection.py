@@ -401,7 +401,7 @@ class PgCollection:
         if keys is not None:
             # build constraint on id-s
             sql_parts.append("AND" if where else "WHERE")
-            _keys = Literal(keys).as_string(self.storage.conn)
+            _keys = Literal(list(keys)).as_string(self.storage.conn)
             sql_parts.append("{table}.id = ANY({keys})".format(table=table_escaped, keys=_keys))
             where = True
         if layer_ngram_query:
