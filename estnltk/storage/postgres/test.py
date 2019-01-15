@@ -15,11 +15,12 @@ from estnltk.storage.postgres import PostgresStorage, PgStorageException
 from estnltk.storage.postgres import JsonbTextQuery as Q
 from estnltk.storage.postgres import JsonbLayerQuery
 from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema, table_exists, count_rows
+from estnltk.storage.postgres import create_schema, delete_schema, count_rows
 from estnltk.storage.postgres import create_collection_table, create_structure_table
 from estnltk.storage.postgres import collection_table_exists, structure_table_exists
 from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres import fragment_table_exists
 
 
 logger.setLevel('DEBUG')
@@ -284,42 +285,6 @@ class TestFragment(unittest.TestCase):
         delete_schema(self.storage)
         self.storage.close()
 
-    def _test_create(self):
-        table_name = get_random_table_name()
-        col = self.storage.get_collection(table_name)
-        col.create()
-
-        layer_fragment_name = "layer_fragment_1"
-        col.old_slow_create_layer(layer_fragment_name,
-                                  data_iterator=col.select(),
-                                  row_mapper=None)
-
-        fragment_name = "fragment_1"
-
-        def row_mapper(row):
-            text_id, text = row[0], row[1]
-            fragments = [text[layer_fragment_name],
-                         text[layer_fragment_name]]
-            return fragments
-
-        col.create_fragment(fragment_name,
-                            data_iterator=col.select_raw(layers=[layer_fragment_name]),
-                            row_mapper=row_mapper,
-                            create_index=False,
-                            ngram_index=None)
-
-        self.assertTrue(table_exists(self.storage, col.fragment_name_to_table_name(fragment_name)))
-        self.assertTrue(col.has_fragment(fragment_name))
-        self.assertTrue(fragment_name in col.get_fragment_names())
-
-        col.delete_fragment(fragment_name)
-
-        self.assertFalse(table_exists(self.storage, col.fragment_name_to_table_name(fragment_name)))
-        self.assertFalse(col.has_fragment(fragment_name))
-        self.assertFalse(fragment_name in col.get_fragment_names())
-
-        col.delete()
-
     def test_read_write(self):
         table_name = get_random_table_name()
         collection = self.storage.get_collection(table_name)
@@ -366,6 +331,10 @@ class TestFragment(unittest.TestCase):
         self.assertIsInstance(row[3], Layer)
         self.assertIsInstance(row[4], int)
         self.assertIsInstance(row[5], Layer)
+
+        assert fragment_table_exists(self.storage, collection.name, fragment_name)
+        collection.delete_fragment(fragment_name)
+        assert not fragment_table_exists(self.storage, collection.name, fragment_name)
 
 
 class TestLayer(unittest.TestCase):

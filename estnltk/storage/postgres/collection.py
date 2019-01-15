@@ -17,10 +17,16 @@ from estnltk.converters import dict_to_text, text_to_json
 from estnltk.layer_operations import create_ngram_fingerprint_index
 
 from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import JsonbLayerQuery
 from estnltk.storage.postgres import create_collection_table
 from estnltk.storage.postgres import drop_collection_table, drop_structure_table, drop_layer_table
+from estnltk.storage.postgres import drop_fragment_table
+from estnltk.storage.postgres.sql_strings import fragment_table_name
+from estnltk.storage.postgres.sql_strings import layer_table_name
+from estnltk.storage.postgres.pg_operations import table_identifier
+
 
 
 class PgCollectionException(Exception):
@@ -296,7 +302,7 @@ class PgCollection:
 
     def select_fragment_raw(self, fragment_name, parent_layer_name, query=None, ngram_query=None):
         return self.storage.select_fragment_raw(
-            fragment_table=self.fragment_name_to_table_name(fragment_name),
+            fragment_table=fragment_table_name(self.name, fragment_name),
             text_table=self.name,
             parent_layer_table=self.layer_name_to_table_name(parent_layer_name),
             query=query,
@@ -604,9 +610,6 @@ class PgCollection:
         return SQL('{}.{}').format(Identifier(self.storage.schema),
                                    Identifier('{}__{}__fragment'.format(self.name, fragment_name)))
 
-    def fragment_name_to_table_name(self, fragment_name):
-        return self.storage.fragment_name_to_table_name(self.name, fragment_name)
-
     def create_fragment(self, fragment_name, data_iterator, row_mapper,
                         create_index=False, ngram_index=None):
         """
@@ -629,15 +632,13 @@ class PgCollection:
         with conn.cursor() as c:
             try:
                 conn.autocommit = False
-                table_name = self.fragment_name_to_table_name(fragment_name)
+                fragment_table = fragment_table_name(self.name, fragment_name)
                 self._create_layer_table(cursor=c,
-                                         layer_table=table_name,
                                          layer_name=fragment_name,
                                          is_fragment=True,
                                          create_index=create_index,
                                          ngram_index=ngram_index)
                 # insert data
-                fragment_table = self.fragment_name_to_table_name(fragment_name)
                 id_ = 0
                 for row in data_iterator:
                     text_id, text = row[0], row[1]
@@ -729,7 +730,6 @@ class PgCollection:
                 conn.autocommit = False
                 # create table and indices
                 self._create_layer_table(cursor=c,
-                                         layer_table=self.layer_name_to_table_name(layer_name),
                                          layer_name=layer_name,
                                          is_fragment=False,
                                          create_index=create_index,
@@ -896,7 +896,6 @@ class PgCollection:
                 # create table and indices
                 if mode in {'new', 'overwrite'}:
                     self._create_layer_table(cursor=c,
-                                             layer_table=self.layer_name_to_table_name(layer_name),
                                              layer_name=layer_name,
                                              is_fragment=False,
                                              create_index=create_index,
@@ -942,10 +941,20 @@ class PgCollection:
 
         logger.info('layer created: {!r}'.format(layer_name))
 
-    def _create_layer_table(self, cursor, layer_table, layer_name, is_fragment=False, create_index=True,
+    def _create_layer_table(self, cursor, layer_name, is_fragment=False, create_index=True,
                             ngram_index=None, overwrite=False, meta=None):
+        if is_fragment:
+            layer_table = fragment_table_name(self.name, layer_name)
+        else:
+            layer_table = layer_table_name(self.name, layer_name)
+
         if overwrite:
-            self.storage.drop_table_if_exists(layer_table)
+            if is_fragment:
+                raise NotImplementedError
+            else:
+                if layer_table_exists(self.storage, self.name, layer_name):
+                    drop_layer_table(self.storage, self.name, layer_name)
+                #self.storage.drop_table_if_exists(layer_table)
         elif table_exists(self.storage, layer_table):
             raise PgCollectionException("Table {!r} for layer {!r} already exists.".format(layer_table, layer_name))
 
@@ -983,9 +992,9 @@ class PgCollection:
 
         q %= {"parent_col": parent_col, "ngram_cols": ngram_cols, "meta_cols": meta_cols}
         if is_fragment:
-            layer_identifier = self._fragment_identifier(layer_name)
+            layer_identifier = table_identifier(self.storage, fragment_table_name(self.name, layer_name))
         else:
-            layer_identifier = self._layer_identifier(layer_name)
+            layer_identifier = table_identifier(self.storage, layer_table_name(self.name, layer_name))
         q = SQL(q).format(temporary=temporary, layer_identifier=layer_identifier)
         cursor.execute(q)
         logger.debug(cursor.query.decode())
@@ -1042,12 +1051,9 @@ class PgCollection:
         logger.info('layer deleted: {!r}'.format(layer_name))
 
     def delete_fragment(self, fragment_name):
-        fragment_table = self.fragment_name_to_table_name(fragment_name)
         if fragment_name not in self.get_fragment_names():
             raise PgCollectionException("Collection does not have a layer fragment '%s'." % fragment_name)
-        if not self.storage.table_exists(fragment_table):
-            raise PgCollectionException("Layer fragment table '%s' does not exist." % fragment_table)
-        self.storage.drop_table(fragment_table)
+        drop_fragment_table(self.storage, self.name, fragment_name)
 
     def delete_layer_fragment(self, layer_fragment_name):
         lf_table = self.layer_fragment_name_to_table_name(layer_fragment_name)
