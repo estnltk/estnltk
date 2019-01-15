@@ -2,7 +2,10 @@ from psycopg2.sql import SQL, Identifier, Literal
 from psycopg2.extensions import STATUS_BEGIN
 
 from estnltk import logger
-from .sql_strings import structure_table_name, collection_table_name, layer_table_name
+from .sql_strings import structure_table_name
+from .sql_strings import collection_table_name
+from .sql_strings import layer_table_name
+from .sql_strings import fragment_table_name
 
 
 pytype2dbtype = {
@@ -94,6 +97,14 @@ def create_collection_table(storage, collection_name, meta_columns=None, descrip
             storage.conn.autocommit = True
 
 
+def fragment_table_exists(storage, collection_name, fragment_name):
+    return table_exists(storage, fragment_table_name(collection_name, fragment_name))
+
+
+def layer_table_exists(storage, collection_name, layer_name):
+    return table_exists(storage, layer_table_name(collection_name, layer_name))
+
+
 def table_exists(storage, table_name):
     if storage.temporary:
         raise NotImplementedError("don't know how to check existence of temporary table: {!r}".format(table_name))
@@ -133,6 +144,13 @@ def drop_structure_table(storage, collection_name):
 
 def drop_layer_table(storage, collection_name, layer_name):
     table_name = layer_table_name(collection_name, layer_name)
+    drop_table(storage, table_name)
+
+
+def drop_fragment_table(storage, collection_name, fragment_name):
+    table_name = fragment_table_name(collection_name, fragment_name)
+    if not table_exists(storage, table_name):
+        raise Exception("Fragment table '%s' does not exist." % table_name)
     drop_table(storage, table_name)
 
 

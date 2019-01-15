@@ -41,8 +41,11 @@ from .pg_operations import collection_table_exists
 from .pg_operations import structure_table_exists
 from .pg_operations import drop_collection_table
 from .pg_operations import drop_structure_table
+from .pg_operations import drop_fragment_table
 from .pg_operations import drop_layer_table
 from .pg_operations import table_exists
+from .pg_operations import layer_table_exists
+from .pg_operations import fragment_table_exists
 from .collection import RowMapperRecord
 from .collection import PgCollection
 from .storage import PgStorageException
