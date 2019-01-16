@@ -1,4 +1,4 @@
-from estnltk.tests import new_text
+from estnltk.tests.helpers.text_objects import new_text
 from estnltk.visualisation.mappers.value_mapper import value_mapper_discrete
 from estnltk.visualisation.core.prettyprinter import decompose_to_elementary_spans
 

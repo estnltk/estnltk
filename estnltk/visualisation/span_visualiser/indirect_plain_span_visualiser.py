@@ -9,8 +9,6 @@ class IndirectPlainSpanVisualiser(SpanDecorator):
     be functions that take the span as the argument and return a string that will be
     the value of the corresponding attribute in the css."""
 
-    js_added = False
-
     # use None as default for css_file and js_file and define default file names in the __init__ body
     def __init__(self, id_mapping=None, class_mapping=None, css_file=rel_path("visualisation/span_visualiser/prettyprinter.css"),
                  fill_empty_spans=False, css_added=False, js_file=rel_path("visualisation/span_visualiser/span_visualiser.js")):
@@ -25,15 +23,6 @@ class IndirectPlainSpanVisualiser(SpanDecorator):
     def __call__(self, segment):
 
         output = []
-
-        if not self.js_added:
-            output.append(self.js())
-            self.js_added = True
-
-        if not self.css_added:
-            output.append(self.css())
-            self.css_added = True
-    
         # Simple text no span to fill
         if not self.fill_empty_spans and self.is_pure_text(segment):
             output.append(segment[0])
@@ -62,10 +51,3 @@ class IndirectPlainSpanVisualiser(SpanDecorator):
     def update_css(self, css_file):
         self.css_file = css_file
         display_html(self.css())
-
-    def css(self):
-        with open(self.css_file) as css_file:
-            contents = css_file.read()
-            output = ''.join(["<style>\n", contents, "</style>"])
-        return output
-
