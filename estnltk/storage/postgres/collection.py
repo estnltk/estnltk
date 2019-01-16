@@ -28,7 +28,6 @@ from estnltk.storage.postgres.sql_strings import layer_table_name
 from estnltk.storage.postgres.pg_operations import table_identifier
 
 
-
 class PgCollectionException(Exception):
     pass
 
@@ -310,7 +309,7 @@ class PgCollection:
 
     def _build_sql_query(self,
                          query=None,
-                         layer_query: 'JsonbLayerQuery' = None,
+                         layer_query: dict = None,
                          layer_ngram_query: dict = None,
                          layers: list = None,
                          keys: list = None,
@@ -381,11 +380,11 @@ class PgCollection:
 
             q = 'SELECT {collection_columns} {select} FROM {table}, {layers_join} WHERE {where}'.format(
                     collection_columns=collection_columns.as_string(self.storage.conn),
-                    table=table_escaped,
                     select=", %s" % ", ".join(
-                            "{0}.id, {0}.data".format(layer) for layer in layers_select) if layers_select else "",
+                            '{0}."id", {0}."data"'.format(layer) for layer in layers_select) if layers_select else "",
+                    table=table_escaped,
                     layers_join=", ".join(layer for layer in layers_join),
-                    where=" AND ".join("%s.id = %s.text_id" % (table_escaped, layer) for layer in layers_join))
+                    where=" AND ".join('%s."id" = %s."text_id"' % (table_escaped, layer) for layer in layers_join))
             sql_parts.append(q)
             where = True
 
@@ -402,7 +401,7 @@ class PgCollection:
             # build constraint on id-s
             sql_parts.append("AND" if where else "WHERE")
             _keys = Literal(list(keys)).as_string(self.storage.conn)
-            sql_parts.append("{table}.id = ANY({keys})".format(table=table_escaped, keys=_keys))
+            sql_parts.append('{table}."id" = ANY({keys})'.format(table=table_escaped, keys=_keys))
             where = True
         if layer_ngram_query:
             # build constraint on related layer's ngram index
@@ -414,14 +413,16 @@ class PgCollection:
         if missing_layer:
             # select collection objects for which there is no entry in the layer table
             sql_parts.append("AND" if where else "WHERE")
-            q = SQL('id NOT IN (SELECT text_id FROM {})').format(self._layer_identifier(missing_layer)).as_string(self.storage.conn)
+            q = SQL('"id" NOT IN (SELECT "text_id" FROM {})').format(self._layer_identifier(missing_layer)).as_string(self.storage.conn)
             sql_parts.append(q)
             where = True
 
         if order_by_key is True:
-            sql_parts.append("order by id")
+            sql_parts.append('ORDER BY "id"')
 
-        sql = " ".join(sql_parts)  # bad, bad string concatenation, but we can't avoid it here, right?
+        sql_parts.append(';')
+
+        sql = SQL(" ").join(map(SQL, sql_parts))
         return sql
 
     def select_raw(self,

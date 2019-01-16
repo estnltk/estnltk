@@ -36,7 +36,7 @@ def get_random_table_name_with_schema(schema="public"):
 
 class TestStorage(unittest.TestCase):
     def setUp(self):
-        schema = "test_storage_schema"
+        schema = "test_schema"
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
         create_schema(self.storage)
 
@@ -185,6 +185,96 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(len(res), 2)
 
         collection.delete()
+
+    def test_build_sql_query(self):
+        collection = self.storage.get_collection('test_collection')
+
+        sql = collection._build_sql_query()
+        result = sql.as_string(self.storage.conn)
+        expected = ('SELECT "test_schema"."test_collection"."id", '
+                           '"test_schema"."test_collection"."data" '
+                    'FROM "test_schema"."test_collection" ;')
+        self.assertEqual(expected, result)
+
+        # query
+        jsonb_text_query = Q('kiht', lemma='kass')
+        sql = collection._build_sql_query(query=jsonb_text_query)
+        result = sql.as_string(self.storage.conn)
+        expected = (
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
+            'FROM "test_schema"."test_collection" '
+            'WHERE data->\'layers\' @> \'[{"name": "kiht", "spans": [[{"lemma": "kass"}]]}]\' ;')
+        self.assertEqual(expected, result)
+
+        # layer_query
+        sql = collection._build_sql_query(layer_query={
+            'layer1': JsonbLayerQuery(layer_table='layer1_table', lemma='esimene') |
+                      JsonbLayerQuery(layer_table='layer1_table', lemma='teine')
+        })
+        result = sql.as_string(self.storage.conn)
+        expected = (
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data"  '
+            'FROM "test_schema"."test_collection", "test_schema"."test_collection__layer1__layer" '
+            'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer1__layer"."text_id" '
+            'AND (layer1_table.data @> \'{"spans": [[{"lemma": "esimene"}]]}\' '
+            'OR layer1_table.data @> \'{"spans": [[{"lemma": "teine"}]]}\') ;')
+        self.assertEqual(expected, result)
+
+        # layer_ngram_query
+        q = {'indexed_layer': {"lemma": [("see", "olema")]}}
+        sql = collection._build_sql_query(layer_ngram_query=q)
+        result = sql.as_string(self.storage.conn)
+        expected = (
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data"  '
+            'FROM "test_schema"."test_collection", "test_schema"."test_collection__indexed_layer__layer" '
+            'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__indexed_layer__layer"."text_id" '
+            'AND ("test_schema"."test_collection__indexed_layer__layer"."lemma" @> ARRAY[\'see-olema\']) ;')
+        self.assertEqual(expected, result)
+
+        # layers
+        sql = collection._build_sql_query(layers=['layer_1'])
+        result = sql.as_string(self.storage.conn)
+        expected = (
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" , '
+            '"test_schema"."test_collection__layer_1__layer"."id", '
+            '"test_schema"."test_collection__layer_1__layer"."data" '
+            'FROM "test_schema"."test_collection", "test_schema"."test_collection__layer_1__layer" '
+            'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_1__layer"."text_id" ;')
+        self.assertEqual(expected, result)
+
+        # keys
+        sql = collection._build_sql_query(keys=[2, 5, 9])
+        result = sql.as_string(self.storage.conn)
+        expected = (
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
+            'FROM "test_schema"."test_collection" WHERE "test_schema"."test_collection"."id" = ANY(ARRAY[2,5,9]) ;')
+        self.assertEqual(expected, result)
+
+        # order_by_id
+        sql = collection._build_sql_query(order_by_key=True)
+        result = sql.as_string(self.storage.conn)
+        expected = (
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
+            'FROM "test_schema"."test_collection" ORDER BY "id" ;')
+        self.assertEqual(expected, result)
+
+        # collection_meta
+        sql = collection._build_sql_query(collection_meta=['meta1', 'meta2'])
+        result = sql.as_string(self.storage.conn)
+        expected = (
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data", '
+                   '"test_schema"."test_collection"."meta1", "test_schema"."test_collection"."meta2" '
+            'FROM "test_schema"."test_collection" ;')
+        self.assertEqual(expected, result)
+
+        # missing_layer
+        sql = collection._build_sql_query(missing_layer='layer_1')
+        result = sql.as_string(self.storage.conn)
+        expected = (
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
+            'FROM "test_schema"."test_collection" '
+            'WHERE "id" NOT IN (SELECT "text_id" FROM "test_schema"."test_collection__layer_1__layer") ;')
+        self.assertEqual(expected, result)
 
 
 class TestLayerFragment(unittest.TestCase):
