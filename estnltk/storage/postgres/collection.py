@@ -427,7 +427,7 @@ class PgCollection:
 
     def select_raw(self,
                    query=None,
-                   layer_query: 'JsonbLayerQuery' = None,
+                   layer_query: dict = None,
                    layer_ngram_query: dict = None,
                    layers: list = None,
                    keys: list = None,
@@ -491,7 +491,7 @@ class PgCollection:
                     for i in range(2 + len(collection_meta), len(row), 2):
                         layer_id = row[i]
                         layer_dict = row[i + 1]
-                        layer = dict_to_layer(layer_dict, text, detached_layers)
+                        layer = dict_to_layer(layer_dict, text, {k: v['layer'] for k, v in detached_layers.items()})
                         detached_layers[layer.name] = {'layer': layer, 'layer_id': layer_id}
                 result = text_id, text, meta, detached_layers
                 yield result
