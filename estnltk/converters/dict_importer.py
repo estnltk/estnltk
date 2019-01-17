@@ -3,6 +3,12 @@ from typing import Union, Sequence, List
 from estnltk.text import Text, Layer, Span, EnvelopingSpan
 
 
+def list_to_tuple(value):
+    if isinstance(value, list):
+        return tuple(value)
+    return value
+
+
 def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
     layer = Layer(name=layer_dict['name'],
                   attributes=layer_dict['attributes'],
@@ -24,20 +30,20 @@ def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
                 for r in rec:
                     span = Span(parent=parent_layer[r['_index_']])
                     for attr in layer.attributes:
-                        setattr(span, attr, r[attr])
+                        setattr(span, attr, list_to_tuple(r[attr]))
                     layer.add_span(span)
         else:
             for rec in layer_dict['spans']:
                 span = parent_layer[rec['_index_']].mark(layer.name)
                 for attr in layer.attributes:
-                    setattr(span, attr, rec[attr])
+                    setattr(span, attr, list_to_tuple(rec[attr]))
     elif layer.enveloping:
         enveloped_layer = layers[layer.enveloping]
         if layer.ambiguous:
             for records in layer_dict['spans']:
                 for rec in records:
                     spans = [enveloped_layer[i] for i in rec['_index_']]
-                    attributes = {attr: rec[attr] for attr in layer.attributes}
+                    attributes = {attr: list_to_tuple(rec[attr]) for attr in layer.attributes}
                     span = EnvelopingSpan(spans=spans, layer=layer, attributes=attributes)
                     layer.add_span(span)
         else:
@@ -45,7 +51,7 @@ def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
                 spans = [enveloped_layer[i] for i in rec['_index_']]
                 span = EnvelopingSpan(spans=spans, layer=layer)
                 for attr in layer.attributes:
-                    setattr(span, attr, rec[attr])
+                    setattr(span, attr, list_to_tuple(rec[attr]))
                 layer.add_span(span)
     else:
         layer = layer.from_records(layer_dict['spans'], rewriting=True)
