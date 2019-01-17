@@ -33,12 +33,11 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
                    'depends_on', 'layer_name', 'attributes' ]
     attributes = output_attributes  # <- For backward compatibility ...
     
-    def __init__(self, output_layer:str='morph_analysis', \
-                       input_morph_analysis_layer:str='morph_analysis'):
+    def __init__(self, morph_analysis_layer:str='morph_analysis'):
         # Set input/output layer names
-        self.output_layer = output_layer
-        self._input_morph_analysis_layer = input_morph_analysis_layer
-        self.input_layers = [input_morph_analysis_layer]
+        self.output_layer = morph_analysis_layer
+        self._input_morph_analysis_layer = morph_analysis_layer
+        self.input_layers = [morph_analysis_layer]
         self.layer_name = self.output_layer  # <- For backward compatibility ...
         self.depends_on = self.input_layers  # <- For backward compatibility ...
 
@@ -115,7 +114,7 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
         
         # 4) Convert records back to morph analyses
         for wid, morph_word in enumerate( morph_spans ):
-            # 4.0) Check if the word can be skipped (no changes were made turing rewrite_words)
+            # 4.0) Check if the word can be skipped (no changes were made during rewrite_words)
             if wid in skip_words:
                 continue
             morph_records = new_morph_analysis_records[wid]

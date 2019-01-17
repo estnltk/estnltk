@@ -1,7 +1,7 @@
 from estnltk import Text
 
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
-from estnltk.taggers.morph_analysis.record_based_retagger import MorphAnalysisRecordBasedRetagger
+from estnltk.taggers.morph_analysis.recordbased_retagger import MorphAnalysisRecordBasedRetagger
 
 # ----------------------------------
 #   Helper functions
