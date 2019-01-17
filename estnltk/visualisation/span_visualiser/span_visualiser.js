@@ -21,10 +21,10 @@ function show_conflicting_spans(span_element) {
     span_element.parentElement.appendChild(spantable)
 
     //Position the table directly below the corresponding text
-    spantable.style.left = "0px";
-    spantable.style.top = "0px";
-    spantable.style.left = span_element.getBoundingClientRect().left-spantable.getBoundingClientRect().left + 'px'
-    spantable.style.top = span_element.getBoundingClientRect().top-spantable.getBoundingClientRect().top+span_element.getBoundingClientRect().height+ 'px'
+    console.log(span_element.parentElement.parentElement.getBoundingClientRect())
+    console.log(spantable.getBoundingClientRect())
+    spantable.style.left = span_element.getBoundingClientRect().left-span_element.parentElement.parentElement.parentElement.getBoundingClientRect().left + 'px'
+    spantable.style.top = span_element.getBoundingClientRect().top-spantable.getBoundingClientRect().top+span_element.parentElement.parentElement.parentElement.getBoundingClientRect().height+ 'px'
     spantable.parentElement.style.height = spantable.parentElement.style.height+"100px"
 
     // remove the table when clicked on again
@@ -33,17 +33,3 @@ function show_conflicting_spans(span_element) {
         element.removeChild(this)  //deleting the table
     })
 }
-
-function span_table (span) {{
-    data = span.getAttribute("span_info")
-    data = data.split(",")
-    var content = '<table>'
-    for (let row of data) {
-        content+='<tr><td>'
-        content+=row
-        content+='</td></tr>'
-    }
-    content += '</table>'
-
-    return content
-}}

@@ -1,9 +1,9 @@
-from estnltk.visualisation.core.span_visualiser import SpanDecorator
+from estnltk.visualisation.core.span_visualiser import SpanVisualiser
 from estnltk.core import rel_path
 from IPython.display import display_html
 
 
-class DirectPlainSpanVisualiser(SpanDecorator):
+class DirectPlainSpanVisualiser(SpanVisualiser):
     """Class that visualises spans, arguments can be css elements.
     Arguments that can be changed are bg_mapping, colour_mapping, font_mapping, weight_mapping,
     italics_mapping, underline_mapping, size_mapping and tracking_mapping. These should

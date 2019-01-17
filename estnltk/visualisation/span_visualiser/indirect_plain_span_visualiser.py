@@ -1,9 +1,9 @@
-from estnltk.visualisation.core.span_visualiser import SpanDecorator
+from estnltk.visualisation.core.span_visualiser import SpanVisualiser
 from IPython.display import display_html
 from estnltk.core import rel_path
 
 
-class IndirectPlainSpanVisualiser(SpanDecorator):
+class IndirectPlainSpanVisualiser(SpanVisualiser):
     """Class that visualises spans, arguments can give ids and classes to spans.
     Arguments that can be changed are id_mapping and class_mapping. These should
     be functions that take the span as the argument and return a string that will be

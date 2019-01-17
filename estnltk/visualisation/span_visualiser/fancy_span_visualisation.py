@@ -20,7 +20,7 @@ class DisplaySpans:
             self.span_decorator = IndirectPlainSpanVisualiser(**kwargs)
         else:
             raise ValueError(styling)
-        display_html(self.span_decorator.css())
+        display_html(self.css())
 
     def __call__(self, layer):
 

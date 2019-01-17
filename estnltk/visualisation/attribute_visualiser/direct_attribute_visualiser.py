@@ -1,6 +1,6 @@
-from estnltk.visualisation.core.span_visualiser import SpanDecorator
+from estnltk.visualisation.core.span_visualiser import SpanVisualiser
 from estnltk.core import rel_path
-class DirectAttributeVisualiser(SpanDecorator):
+class DirectAttributeVisualiser(SpanVisualiser):
     """Attribute visualiser that maps css elements one by one to the segment and has javascript to display
     attributes in tables. Takes css_file as argument (path to the file) and the same css elements as in
     direct_span_visualiser"""
