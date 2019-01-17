@@ -223,6 +223,7 @@ class TestStorage(unittest.TestCase):
     def test_build_sql_query(self):
         collection = self.storage.get_collection('test_collection')
 
+        # defaults
         sql = collection._build_sql_query()
         result = sql.as_string(self.storage.conn)
         expected = ('SELECT "test_schema"."test_collection"."id", '
@@ -309,6 +310,42 @@ class TestStorage(unittest.TestCase):
             'FROM "test_schema"."test_collection" '
             'WHERE "id" NOT IN (SELECT "text_id" FROM "test_schema"."test_collection__layer_1__layer") ;')
         self.assertEqual(expected, result)
+
+        # all in one
+        layer_query = {'layer_2': JsonbLayerQuery(layer_table='layer1_table', lemma='esimene') |
+                                  JsonbLayerQuery(layer_table='layer1_table', lemma='teine')}
+        sql = collection._build_sql_query(query=Q('layer_1', lemma='kass'),
+                                          layer_query=layer_query,
+                                          layer_ngram_query={'layer_3': {"lemma": [("see", "olema")]}},
+                                          layers=['layer_4'],
+                                          keys=[2, 5, 9],
+                                          order_by_key=True,
+                                          collection_meta=['meta1', 'meta2'],
+                                          missing_layer='layer_5')
+
+        result = sql.as_string(self.storage.conn)
+        expected = (
+            'SELECT "test_schema"."test_collection"."id", '
+                   '"test_schema"."test_collection"."data", '
+                   '"test_schema"."test_collection"."meta1", '
+                   '"test_schema"."test_collection"."meta2" , '
+                   '"test_schema"."test_collection__layer_4__layer"."id", '
+                   '"test_schema"."test_collection__layer_4__layer"."data" '
+            'FROM "test_schema"."test_collection", '
+                 '"test_schema"."test_collection__layer_2__layer", '
+                 '"test_schema"."test_collection__layer_3__layer", '
+                 '"test_schema"."test_collection__layer_4__layer" '
+            'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_2__layer"."text_id" '
+              'AND "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_3__layer"."text_id" '
+              'AND "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_4__layer"."text_id" '
+              'AND data->\'layers\' @> \'[{"name": "layer_1", "spans": [[{"lemma": "kass"}]]}]\' '
+              'AND (layer1_table.data @> \'{"spans": [[{"lemma": "esimene"}]]}\' OR layer1_table.data @> \'{"spans": [[{"lemma": "teine"}]]}\') '
+              'AND "test_schema"."test_collection"."id" = ANY(ARRAY[2,5,9]) '
+              'AND ("test_schema"."test_collection__layer_3__layer"."lemma" @> ARRAY[\'see-olema\']) '
+              'AND "id" NOT IN (SELECT "text_id" FROM "test_schema"."test_collection__layer_5__layer") '
+            'ORDER BY "id" ;')
+        self.assertEqual(expected, result)
+
 
 
 class TestLayerFragment(unittest.TestCase):

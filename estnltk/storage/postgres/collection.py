@@ -374,19 +374,18 @@ class PgCollection:
                 layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
                 layers_select.append(layer)
 
-            layers_join = set()
-            for layer in chain(layers, layer_query.keys(), layer_ngram_query.keys()):
+            layers_join = []
+            for layer in sorted(set(chain(layers, layer_query.keys(), layer_ngram_query.keys()))):
                 layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
-                layers_join.add(layer)
+                layers_join.append(layer)
 
-            q = 'SELECT {collection_columns} {select} FROM {table}, {layers_join} WHERE {where}'.format(
-                    collection_columns=collection_columns.as_string(self.storage.conn),
-                    select=", %s" % ", ".join(
-                            '{0}."id", {0}."data"'.format(layer) for layer in layers_select) if layers_select else "",
-                    table=table_escaped,
-                    layers_join=", ".join(layer for layer in layers_join),
-                    where=" AND ".join('%s."id" = %s."text_id"' % (table_escaped, layer) for layer in layers_join))
-            q = SQL(q)
+            q = SQL('SELECT {collection_columns} {select} FROM {table}, {layers_join} WHERE {where}').format(
+                    collection_columns=collection_columns,
+                    select=SQL(", %s" % ", ".join(
+                             '{0}."id", {0}."data"'.format(layer) for layer in layers_select) if layers_select else ""),
+                    table=collection_identifier,
+                    layers_join=SQL(", ".join(layers_join)),
+                    where=SQL(" AND ".join('%s."id" = %s."text_id"' % (table_escaped, layer) for layer in layers_join)))
             sql_parts.append(q)
             where = True
 
