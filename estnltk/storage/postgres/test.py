@@ -11,6 +11,7 @@ from estnltk import logger
 from estnltk import Layer
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
+from estnltk.taggers import ParagraphTokenizer
 from estnltk.storage.postgres import PostgresStorage, PgStorageException
 from estnltk.storage.postgres import JsonbTextQuery as Q
 from estnltk.storage.postgres import JsonbLayerQuery
@@ -52,6 +53,39 @@ class TestStorage(unittest.TestCase):
         self.assertTrue(col.exists())
         col.delete()
         self.assertFalse(col.exists())
+
+    def test_basic_collection_workflow(self):
+        # insert texts -> create layers -> select texts
+        collection_name = get_random_table_name()
+        collection = self.storage.get_collection(collection_name)
+        collection.create()
+
+        text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
+        text_2 = Text('Teine tekst')
+        text_1.tag_layer(['sentences'])
+        text_2.tag_layer(['sentences'])
+
+        with collection.insert() as collection_insert:
+            collection_insert(text_1, key=1)
+            collection_insert(text_2, key=2)
+
+        tagger1 = VabamorfTagger(disambiguate=False)
+        collection.create_layer(tagger=tagger1)
+
+        tagger1.tag(text_1)
+        tagger1.tag(text_2)
+
+        tagger2 = ParagraphTokenizer()
+        collection.create_layer(tagger=tagger2)
+
+        tagger2.tag(text_1)
+        tagger2.tag(text_2)
+
+        for text_id, text in collection.select(layers=['morph_analysis', 'paragraphs']):
+            if text_id == 1:
+                assert text == text_1, text_1.diff(text)
+            elif text_id == 2:
+                assert text == text_2, text_2.diff(text)
 
     def test_create_and_drop_collection_table(self):
         collection_name = get_random_table_name()
