@@ -79,9 +79,12 @@ class VabamorfTagger(TaggerOld):
         
         self.kwargs = kwargs
         self.layer_name = layer_name
+        self.output_layer = layer_name
+
         self._input_compound_tokens_layer = input_compound_tokens_layer
         self._input_words_layer = input_words_layer
         self._input_sentences_layer = input_sentences_layer
+        self.input_layers = (self._input_compound_tokens_layer, self._input_words_layer, self._input_sentences_layer)
        
         if postanalysis_tagger:
             # Check for Retagger
@@ -185,6 +188,9 @@ class VabamorfTagger(TaggerOld):
             return morph_layer
         # Layer is already attached to the text, return it
         return text
+
+    def make_layer(self, text, status):
+        return self.tag(text, return_layer=True)
 
 
 # ========================================================
