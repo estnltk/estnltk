@@ -32,20 +32,28 @@ Example usage:
 """
 from .jsonb_layer_query import JsonbLayerQuery
 from .jsnob_text_query import JsonbTextQuery
+
 from .pg_operations import create_schema
-from .pg_operations import delete_schema
-from .pg_operations import count_rows
 from .pg_operations import create_collection_table
 from .pg_operations import create_structure_table
+
+from .pg_operations import delete_schema
+
+from .pg_operations import collection_table_identifier
+
+from .pg_operations import table_exists
 from .pg_operations import collection_table_exists
 from .pg_operations import structure_table_exists
+from .pg_operations import layer_table_exists
+from .pg_operations import fragment_table_exists
+
 from .pg_operations import drop_collection_table
 from .pg_operations import drop_structure_table
 from .pg_operations import drop_fragment_table
 from .pg_operations import drop_layer_table
-from .pg_operations import table_exists
-from .pg_operations import layer_table_exists
-from .pg_operations import fragment_table_exists
+
+from .pg_operations import count_rows
+
 from .collection import RowMapperRecord
 from .collection import PgCollection
 from .storage import PgStorageException

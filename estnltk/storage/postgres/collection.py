@@ -19,7 +19,7 @@ from estnltk.layer_operations import create_ngram_fingerprint_index
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import count_rows
-from estnltk.storage.postgres import JsonbLayerQuery
+from estnltk.storage.postgres import collection_table_identifier
 from estnltk.storage.postgres import create_collection_table
 from estnltk.storage.postgres import drop_collection_table, drop_structure_table, drop_layer_table
 from estnltk.storage.postgres import drop_fragment_table
@@ -103,7 +103,7 @@ class PgCollection:
             c.execute(
                 SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
                     index=Identifier('idx_%s_data' % self.name),
-                    table=self._collection_identifier()))
+                    table=collection_table_identifier(self.storage, self.name)))
 
     def drop_index(self):
         """drop index of the collection table"""
@@ -120,8 +120,9 @@ class PgCollection:
         if self._structure != other._structure:
             raise PgCollectionException("can't extend: structures are different")
         with self.storage.conn.cursor() as cursor:
-            cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(self._collection_identifier(),
-                                                                         other._collection_identifier()))
+            cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}'
+                               ).format(collection_table_identifier(self.storage, self.name),
+                                        collection_table_identifier(other.storage, other.name)))
             for layer_name, struct in self._structure.items():
                 if struct['detached']:
                     cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(self._layer_identifier(layer_name),
@@ -193,7 +194,7 @@ class PgCollection:
         buffer = []
         self._buffered_insert_query_length = 0
         column_identifiers = SQL(', ').join(map(Identifier, self.column_names))
-        table_identifier = self._collection_identifier()
+        table_identifier = collection_table_identifier(self.storage, self.name)
 
         with self.storage.conn.cursor() as cursor:
 
@@ -353,14 +354,14 @@ class PgCollection:
 
         where = False
         sql_parts = []
-        collection_identifier = self._collection_identifier()
+        collection_identifier = collection_table_identifier(self.storage, self.name)
         table_escaped = SQL("{}").format(collection_identifier).as_string(self.storage.conn)
         collection_meta = collection_meta or []
         collection_columns = SQL(', ').join(SQL('{}.{}').format(collection_identifier, column_id) for
                                             column_id in map(Identifier, ['id', 'data', *collection_meta]))
         if not layers and layer_query is None and layer_ngram_query is None:
             # select only text table
-            q = SQL("SELECT {} FROM {}").format(collection_columns, collection_identifier).as_string(self.storage.conn)
+            q = SQL("SELECT {} FROM {}").format(collection_columns, collection_identifier)
             sql_parts.append(q)
         else:
             # need to join text and all layer tables
@@ -385,44 +386,45 @@ class PgCollection:
                     table=table_escaped,
                     layers_join=", ".join(layer for layer in layers_join),
                     where=" AND ".join('%s."id" = %s."text_id"' % (table_escaped, layer) for layer in layers_join))
+            q = SQL(q)
             sql_parts.append(q)
             where = True
 
         if query is not None:
             # build constraint on the main text table
-            sql_parts.append("%s %s" % ("AND" if where else "WHERE", query.eval()))
+            sql_parts.append(SQL("%s %s" % ("AND" if where else "WHERE", query.eval())))
             where = True
         if layer_query:
             # build constraint on related layer tables
             q = " AND ".join(query.eval() for layer, query in layer_query.items())
-            sql_parts.append("%s %s" % ("AND" if where else "WHERE", q))
+            sql_parts.append(SQL("%s %s" % ("AND" if where else "WHERE", q)))
             where = True
         if keys is not None:
             # build constraint on id-s
-            sql_parts.append("AND" if where else "WHERE")
+            sql_parts.append(SQL("AND") if where else SQL("WHERE"))
             _keys = Literal(list(keys)).as_string(self.storage.conn)
-            sql_parts.append('{table}."id" = ANY({keys})'.format(table=table_escaped, keys=_keys))
+            sql_parts.append(SQL('{table}."id" = ANY({keys})'.format(table=table_escaped, keys=_keys)))
             where = True
         if layer_ngram_query:
             # build constraint on related layer's ngram index
             q = self.storage.build_layer_ngram_query(layer_ngram_query, table)
             if where is True:
                 q = "AND %s" % q
-            sql_parts.append(q)
+            sql_parts.append(SQL(q))
             where = True
         if missing_layer:
             # select collection objects for which there is no entry in the layer table
-            sql_parts.append("AND" if where else "WHERE")
-            q = SQL('"id" NOT IN (SELECT "text_id" FROM {})').format(self._layer_identifier(missing_layer)).as_string(self.storage.conn)
+            sql_parts.append(SQL("AND") if where else SQL("WHERE"))
+            q = SQL('"id" NOT IN (SELECT "text_id" FROM {})').format(self._layer_identifier(missing_layer))
             sql_parts.append(q)
             where = True
 
         if order_by_key is True:
-            sql_parts.append('ORDER BY "id"')
+            sql_parts.append(SQL('ORDER BY "id"'))
 
-        sql_parts.append(';')
+        sql_parts.append(SQL(';'))
 
-        sql = SQL(" ").join(map(SQL, sql_parts))
+        sql = SQL(" ").join(sql_parts)
         return sql
 
     def select_raw(self,
@@ -585,11 +587,6 @@ class PgCollection:
 
     def layer_name_to_table_name(self, layer_name):
         return self.storage.layer_name_to_table_name(self.name, layer_name)
-
-    def _collection_identifier(self):
-        if self._temporary:
-            return Identifier(self.name)
-        return SQL('{}.{}').format(Identifier(self.storage.schema), Identifier(self.name))
 
     def _structure_table_name(self):
         return self.name + '__structure'
