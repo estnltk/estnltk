@@ -15,7 +15,7 @@ Currently, there are two branches of EstNLTK:
 ## Version 1.6
 
 ### Installation
-The recommended way of installing estnltk is by using the [anaconda python distribution](https://www.continuum.io/downloads) and python 3.5+.
+The recommended way of installing estnltk is by using the [anaconda python distribution](https://www.anaconda.com/download) and python 3.5+.
 
 Installable packages have been built for osx, windows-64, and linux-64.
 
@@ -38,7 +38,7 @@ Documentation for 1.6 currently comes in the form of [jupyter notebooks](http://
 ## Version 1.4.1
 
 ### Installation
-The recommended way of installing estnltk is by using the [anaconda python distribution](https://www.continuum.io/downloads) and python 3.5+.
+The recommended way of installing estnltk is by using the [anaconda python distribution](https://www.anaconda.com/download) and python 3.5+.
 
 We have installable packages built for osx, windows-64, and linux-64.
 
