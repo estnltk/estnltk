@@ -23,8 +23,8 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
         records back to annotations of the layer.
         
         This is a base class that can be used  by  retaggers  that  need 
-        to manipulate morph analysis layer  in  a  straightforward  manner:
-        by changing dictionary representations of analyses.
+        to  manipulate  morph  analysis  layer  by  changing  dictionary  
+        representations of analyses.
         Inheriting classes should implement method:
             rewrite_words(...)
     """
