@@ -115,3 +115,71 @@ def test_pick_first_analysis_with_record_retagger():
     # Check results
     assert expected_records == results_dict
 
+
+# ----------------------------------
+
+class GiveSpecialPosTagsToEmoticonsTagger(MorphAnalysisRecordBasedRetagger):
+    """ A naive morphological tagger that changes partofspeech of 
+        emoticons :) :-) and :D to 'Emo' and fixes root/root_tokens
+        of corresponding emoticons.
+        Note: this is only for testing purposes, 'Emo' is actually not
+        a legal partofspeech tag.
+    """
+    def __init__(self):
+        # Require normalized word forms
+        super().__init__(add_normalized_word_form=True)
+    
+    def rewrite_words(self, words:list):
+        new_word_records = []
+        unchanged_words = set()
+        for wid, word_morph in enumerate(words):
+            isEmoticon = False
+            for aid, analysis in enumerate( word_morph ):
+                if analysis['word_normal'] in [':)', ':-)', ':D']:
+                   isEmoticon = True
+                if isEmoticon:
+                    analysis['partofspeech'] = 'Emo'
+                    # Fix root/root_tokens
+                    analysis['root'] = analysis['word_normal']
+                    analysis['root_tokens'] = (analysis['word_normal'],)
+            if not isEmoticon:
+                # nothing was changed
+                unchanged_words.add(wid)
+            new_word_records.append(word_morph)
+        return new_word_records, unchanged_words
+
+
+def test_record_retagger_that_works_on_normalized_word_forms():
+    # Tests that MorphAnalysisRecordBasedRetagger can be used to create a tagger
+    # that changes partofspeech of emoticons, and takes account of the normalized
+    # word forms
+    
+    # Initialize tagger
+    simple_disambiguator = GiveSpecialPosTagsToEmoticonsTagger()
+    
+    text=Text('Kas :- ) või hoopis :) ? Pigem :D')
+    text.tag_layer(['words','sentences'])
+    morf_analyzer.tag(text)
+    simple_disambiguator.retag(text)
+    #print(text['morph_analysis'].to_records())
+    expected_records = [
+        [{'end': 3, 'start': 0, 'partofspeech': 'D', 'root': 'kas', 'clitic': '', 'root_tokens': ('kas',), 'ending': '0', 'form': '', 'lemma': 'kas'}], \
+        [{'end': 8, 'start': 4, 'partofspeech': 'Emo', 'root': ':-)', 'clitic': '', 'root_tokens': (':-)',), 'ending': '', 'form': '', 'lemma': ':-)'}], \
+        [{'end': 12, 'start': 9, 'partofspeech': 'D', 'root': 'või', 'clitic': '', 'root_tokens': ('või',), 'ending': '0', 'form': '', 'lemma': 'või'}, \
+         {'end': 12, 'start': 9, 'partofspeech': 'J', 'root': 'või', 'clitic': '', 'root_tokens': ('või',), 'ending': '0', 'form': '', 'lemma': 'või'}, \
+         {'end': 12, 'start': 9, 'partofspeech': 'S', 'root': 'või', 'clitic': '', 'root_tokens': ('või',), 'ending': '0', 'form': 'sg g', 'lemma': 'või'}, \
+         {'end': 12, 'start': 9, 'partofspeech': 'S', 'root': 'või', 'clitic': '', 'root_tokens': ('või',), 'ending': '0', 'form': 'sg n', 'lemma': 'või'}, \
+         {'end': 12, 'start': 9, 'partofspeech': 'V', 'root': 'või', 'clitic': '', 'root_tokens': ('või',), 'ending': '0', 'form': 'o', 'lemma': 'võima'}], \
+        [{'end': 19, 'start': 13, 'partofspeech': 'D', 'root': 'hoopis', 'clitic': '', 'root_tokens': ('hoopis',), 'ending': '0', 'form': '', 'lemma': 'hoopis'}], \
+        [{'end': 22, 'start': 20, 'partofspeech': 'Emo', 'root': ':)', 'clitic': '', 'root_tokens': (':)',), 'ending': '', 'form': '', 'lemma': ':)'}], \
+        [{'end': 24, 'start': 23, 'partofspeech': 'Z', 'root': '?', 'clitic': '', 'root_tokens': ('?',), 'ending': '', 'form': '', 'lemma': '?'}], \
+        [{'end': 30, 'start': 25, 'partofspeech': 'D', 'root': 'pigem', 'clitic': '', 'root_tokens': ('pigem',), 'ending': '0', 'form': '', 'lemma': 'pigem'}], \
+        [{'end': 33, 'start': 31, 'partofspeech': 'Emo', 'root': ':D', 'clitic': '', 'root_tokens': (':D',), 'ending': '0', 'form': '?', 'lemma': 'D'}]
+    ]
+    # Sort analyses (so that the order within a word is always the same)
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
