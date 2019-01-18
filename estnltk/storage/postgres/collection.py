@@ -351,7 +351,6 @@ class PgCollection:
             for key, txt in storage.select(table, query=q):
                 print(key, txt)
         """
-        table = self.name
         # 1. Build query
 
         where_and = SQL('WHERE')
@@ -380,12 +379,11 @@ class PgCollection:
                 layer = SQL("{}").format(layer_table_identifier(self.storage, self.name, layer))
                 layers_join.append(layer)
 
-            q = SQL('SELECT {collection_columns} {select} FROM {table}, {layers_join} WHERE {where}').format(
-                    collection_columns=SQL(', ').join(collection_columns),
-                    select=SQL(", {}").format(SQL(", ").join(layer_columns)) if layer_columns else SQL(""),
-                    table=collection_identifier,
-                    layers_join=SQL(", ").join(layers_join),
-                    where=SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier, layer) for layer in layers_join))
+            q = SQL('SELECT {columns} FROM {tables} WHERE {condition}').format(
+                    columns=SQL(', ').join(collection_columns + layer_columns),
+                    tables=SQL(", ").join([collection_identifier, *layers_join]),
+                    condition=SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(
+                                                    collection_identifier, layer) for layer in layers_join))
             sql_parts.append(q)
             where_and = SQL('AND')
 
@@ -409,7 +407,7 @@ class PgCollection:
         if layer_ngram_query:
             # build constraint on related layer's ngram index
             sql_parts.append(where_and)
-            sql_parts.append(SQL(self.storage.build_layer_ngram_query(layer_ngram_query, table)))
+            sql_parts.append(SQL(self.storage.build_layer_ngram_query(layer_ngram_query, self.name)))
             where_and = SQL('AND')
         if missing_layer:
             # select collection objects for which there is no entry in the layer table

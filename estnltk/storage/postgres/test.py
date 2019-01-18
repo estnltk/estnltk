@@ -248,7 +248,7 @@ class TestStorage(unittest.TestCase):
         })
         result = sql.as_string(self.storage.conn)
         expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data"  '
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
             'FROM "test_schema"."test_collection", "test_schema"."test_collection__layer1__layer" '
             'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer1__layer"."text_id" '
             'AND (layer1_table.data @> \'{"spans": [[{"lemma": "esimene"}]]}\' '
@@ -260,7 +260,7 @@ class TestStorage(unittest.TestCase):
         sql = collection._build_sql_query(layer_ngram_query=q)
         result = sql.as_string(self.storage.conn)
         expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data"  '
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
             'FROM "test_schema"."test_collection", "test_schema"."test_collection__indexed_layer__layer" '
             'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__indexed_layer__layer"."text_id" '
             'AND ("test_schema"."test_collection__indexed_layer__layer"."lemma" @> ARRAY[\'see-olema\']) ;')
@@ -270,7 +270,7 @@ class TestStorage(unittest.TestCase):
         sql = collection._build_sql_query(layers=['layer_1'])
         result = sql.as_string(self.storage.conn)
         expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" , '
+            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data", '
             '"test_schema"."test_collection__layer_1__layer"."id", '
             '"test_schema"."test_collection__layer_1__layer"."data" '
             'FROM "test_schema"."test_collection", "test_schema"."test_collection__layer_1__layer" '
@@ -328,7 +328,7 @@ class TestStorage(unittest.TestCase):
             'SELECT "test_schema"."test_collection"."id", '
                    '"test_schema"."test_collection"."data", '
                    '"test_schema"."test_collection"."meta1", '
-                   '"test_schema"."test_collection"."meta2" , '
+                   '"test_schema"."test_collection"."meta2", '
                    '"test_schema"."test_collection__layer_4__layer"."id", '
                    '"test_schema"."test_collection__layer_4__layer"."data" '
             'FROM "test_schema"."test_collection", '
@@ -339,13 +339,13 @@ class TestStorage(unittest.TestCase):
               'AND "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_3__layer"."text_id" '
               'AND "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_4__layer"."text_id" '
               'AND data->\'layers\' @> \'[{"name": "layer_1", "spans": [[{"lemma": "kass"}]]}]\' '
-              'AND (layer1_table.data @> \'{"spans": [[{"lemma": "esimene"}]]}\' OR layer1_table.data @> \'{"spans": [[{"lemma": "teine"}]]}\') '
+              'AND (layer1_table.data @> \'{"spans": [[{"lemma": "esimene"}]]}\' '
+                'OR layer1_table.data @> \'{"spans": [[{"lemma": "teine"}]]}\') '
               'AND "test_schema"."test_collection"."id" = ANY(ARRAY[2,5,9]) '
               'AND ("test_schema"."test_collection__layer_3__layer"."lemma" @> ARRAY[\'see-olema\']) '
               'AND "id" NOT IN (SELECT "text_id" FROM "test_schema"."test_collection__layer_5__layer") '
             'ORDER BY "id" ;')
         self.assertEqual(expected, result)
-
 
 
 class TestLayerFragment(unittest.TestCase):
