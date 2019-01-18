@@ -354,7 +354,7 @@ class PgCollection:
         table = self.name
         # 1. Build query
 
-        where = False
+        where_and = SQL('WHERE')
         sql_parts = []
         collection_identifier = collection_table_identifier(self.storage, self.name)
         collection_meta = collection_meta or []
@@ -387,36 +387,37 @@ class PgCollection:
                     layers_join=SQL(", ").join(layers_join),
                     where=SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier, layer) for layer in layers_join))
             sql_parts.append(q)
-            where = True
+            where_and = SQL('AND')
 
         if query is not None:
             # build constraint on the main text table
-            sql_parts.append(SQL("%s %s" % ("AND" if where else "WHERE", query.eval())))
-            where = True
+            sql_parts.append(where_and)
+            sql_parts.append(SQL(query.eval()))
+            where_and = SQL('AND')
         if layer_query:
             # build constraint on related layer tables
             q = " AND ".join(query.eval() for layer, query in layer_query.items())
-            sql_parts.append(SQL("%s %s" % ("AND" if where else "WHERE", q)))
-            where = True
+            sql_parts.append(where_and)
+            sql_parts.append(SQL(q))
+            where_and = SQL('AND')
         if keys is not None:
             # build constraint on id-s
-            sql_parts.append(SQL("AND") if where else SQL("WHERE"))
+            sql_parts.append(where_and)
             _keys = Literal(list(keys))
             sql_parts.append(SQL('{table}."id" = ANY({keys})').format(table=collection_identifier, keys=_keys))
-            where = True
+            where_and = SQL('AND')
         if layer_ngram_query:
             # build constraint on related layer's ngram index
-            q = self.storage.build_layer_ngram_query(layer_ngram_query, table)
-            if where is True:
-                q = "AND %s" % q
-            sql_parts.append(SQL(q))
-            where = True
+            sql_parts.append(where_and)
+            sql_parts.append(SQL(self.storage.build_layer_ngram_query(layer_ngram_query, table)))
+            where_and = SQL('AND')
         if missing_layer:
             # select collection objects for which there is no entry in the layer table
-            sql_parts.append(SQL("AND") if where else SQL("WHERE"))
-            q = SQL('"id" NOT IN (SELECT "text_id" FROM {})').format(layer_table_identifier(self.storage, self.name, missing_layer))
+            sql_parts.append(where_and)
+            q = SQL('"id" NOT IN (SELECT "text_id" FROM {})'
+                    ).format(layer_table_identifier(self.storage, self.name, missing_layer))
             sql_parts.append(q)
-            where = True
+            where_and = SQL('AND')
 
         if order_by_key is True:
             sql_parts.append(SQL('ORDER BY "id"'))
