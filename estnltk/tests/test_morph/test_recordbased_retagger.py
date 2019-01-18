@@ -149,7 +149,7 @@ class GiveSpecialPosTagsToEmoticonsTagger(MorphAnalysisRecordBasedRetagger):
         return new_word_records, unchanged_words
 
 
-def test_record_retagger_that_works_on_normalized_word_forms():
+def test_record_retagger_that_requires_normalized_word_forms():
     # Tests that MorphAnalysisRecordBasedRetagger can be used to create a tagger
     # that changes partofspeech of emoticons, and takes account of the normalized
     # word forms
@@ -183,3 +183,67 @@ def test_record_retagger_that_works_on_normalized_word_forms():
     # Check results
     assert expected_records == results_dict
 
+# ----------------------------------
+
+class DeleteSentenceInitialProperNamesDisambiguator(MorphAnalysisRecordBasedRetagger):
+    """ A naive morphological disambiguator that removes all proper 
+        name analyses that appear in the beginning of a sentence.
+    """
+    def __init__(self):
+        # Require sentence_id-s
+        super().__init__(add_sentence_ids=True)
+    
+    def rewrite_words(self, words:list):
+        new_word_records = []
+        unchanged_words = set()
+        last_sent_id = -1
+        for wid, word_morph in enumerate(words):
+            toDelete = []
+            for aid, analysis in enumerate( word_morph ):
+                cur_sent_id = analysis['sentence_id']
+                if cur_sent_id != last_sent_id:
+                    # We are in the beginning of a sentence
+                    if analysis['partofspeech'] == 'H':
+                        toDelete.append( analysis )
+            if toDelete:
+                for analysis in toDelete:
+                    word_morph.remove(analysis)
+            else:
+                unchanged_words.add(wid)
+            new_word_records.append(word_morph)
+            last_sent_id = cur_sent_id
+        return new_word_records, unchanged_words
+
+
+def test_record_retagger_that_requires_sentence_ids():
+    # Tests that MorphAnalysisRecordBasedRetagger can be used to create a tagger
+    # that naively deletes all sentence-initial proper names
+    
+    # Initialize tagger
+    simple_disambiguator = DeleteSentenceInitialProperNamesDisambiguator()
+    
+    text=Text('Jänese Haak? Kapsa Mari!')
+    text.tag_layer(['words','sentences'])
+    morf_analyzer.tag(text)
+    simple_disambiguator.retag(text)
+    #print(text['morph_analysis'].to_records())
+    expected_records = [
+        [{'clitic': '', 'lemma': 'jänes', 'root_tokens': ('jänes',), 'partofspeech': 'S', 'root': 'jänes', 'form': 'sg g', 'start': 0, 'ending': '0', 'end': 6}], \
+        [{'clitic': '', 'lemma': 'Haak', 'root_tokens': ('Haak',), 'partofspeech': 'H', 'root': 'Haak', 'form': 'sg n', 'start': 7, 'ending': '0', 'end': 11}, \
+         {'clitic': '', 'lemma': 'haak', 'root_tokens': ('haak',), 'partofspeech': 'S', 'root': 'haak', 'form': 'sg n', 'start': 7, 'ending': '0', 'end': 11}], \
+        [{'clitic': '', 'lemma': '?', 'root_tokens': ('?',), 'partofspeech': 'Z', 'root': '?', 'form': '', 'start': 11, 'ending': '', 'end': 12}], \
+        [{'clitic': '', 'lemma': 'kapsama', 'root_tokens': ('kapsa',), 'partofspeech': 'V', 'root': 'kapsa', 'form': 'o', 'start': 13, 'ending': '0', 'end': 18}, \
+         {'clitic': '', 'lemma': 'kapsas', 'root_tokens': ('kapsas',), 'partofspeech': 'S', 'root': 'kapsas', 'form': 'sg g', 'start': 13, 'ending': '0', 'end': 18}], \
+        [{'clitic': '', 'lemma': 'Mari', 'root_tokens': ('Mari',), 'partofspeech': 'H', 'root': 'Mari', 'form': 'sg g', 'start': 19, 'ending': '0', 'end': 23}, \
+         {'clitic': '', 'lemma': 'Mari', 'root_tokens': ('Mari',), 'partofspeech': 'H', 'root': 'Mari', 'form': 'sg n', 'start': 19, 'ending': '0', 'end': 23}, \
+         {'clitic': '', 'lemma': 'mari', 'root_tokens': ('mari',), 'partofspeech': 'S', 'root': 'mari', 'form': 'sg g', 'start': 19, 'ending': '0', 'end': 23}, \
+         {'clitic': '', 'lemma': 'mari', 'root_tokens': ('mari',), 'partofspeech': 'S', 'root': 'mari', 'form': 'sg n', 'start': 19, 'ending': '0', 'end': 23}, \
+         {'clitic': '', 'lemma': 'mari', 'root_tokens': ('mari',), 'partofspeech': 'S', 'root': 'mari', 'form': 'sg p', 'start': 19, 'ending': '0', 'end': 23}], \
+        [{'clitic': '', 'lemma': '!', 'root_tokens': ('!',), 'partofspeech': 'Z', 'root': '!', 'form': '', 'start': 23, 'ending': '', 'end': 24}]
+    ]
+    # Sort analyses (so that the order within a word is always the same)
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict

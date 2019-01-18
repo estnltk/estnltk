@@ -31,18 +31,22 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
     output_attributes = VabamorfTagger.attributes
     conf_param = [ # configuration
                    'add_normalized_word_form',\
+                   'add_sentence_ids',\
                    # input layers
                    '_input_morph_analysis_layer',\
                    '_input_words_layer',\
+                   '_input_sentences_layer',\
                    # For backward compatibility:
                    'depends_on', 'layer_name', 'attributes' ]
     attributes = output_attributes  # <- For backward compatibility ...
     
     def __init__(self, morph_analysis_layer:str='morph_analysis', \
                        add_normalized_word_form: bool = False, \
-                       input_words_layer:str='words' ):
+                       input_words_layer:str='words',\
+                       add_sentence_ids: bool = False, \
+                       input_sentences_layer:str='sentences' ):
         """ Initialize MorphAnalysisRecordBasedRetagger class.
-
+            
             Parameters
             ----------
             morph_analysis_layer: str (default: 'morph_analysis')
@@ -54,19 +58,34 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
                 which will be taken from the input_words_layer;
             
             input_words_layer: str (default: 'words')
-                Name of the input words layer. This is the layer from where normalized
-                word forms will be obtained.  Note: this layer will be added to the list 
-                of input_layer only if  add_normalized_word_form==True;
+                Name of the input words layer. This is the layer from where 
+                normalized word forms will be obtained.  Note: this layer will be 
+                added to the list of input_layer only if add_normalized_word_form==True;
 
+            add_sentence_ids: bool (default: False)
+                If True, then morphological analyses dictionaries will be 
+                populated with sentence id-s (under keys 'sentence_id'),
+                referring to sentences from which the analyses were taken.
+                Sentence id-s will be obtained from the input_sentences_layer;
+                
+            input_sentences_layer: str (default: 'sentences')
+                Name of the input sentences layer. This is the layer from where 
+                sentence id-s will be obtained.  Note: this layer will be added to 
+                the list of input_layer only if  add_sentence_ids==True;
+                
         """
         # Set input/output layer names
         self.output_layer = morph_analysis_layer
         self._input_morph_analysis_layer = morph_analysis_layer
         self._input_words_layer = input_words_layer
+        self._input_sentences_layer = input_sentences_layer
+        self.add_sentence_ids = add_sentence_ids
         self.add_normalized_word_form = add_normalized_word_form
         self.input_layers = [morph_analysis_layer]
         if add_normalized_word_form:
             self.input_layers.append( self._input_words_layer )
+        if add_sentence_ids:
+            self.input_layers.append( self._input_sentences_layer )
         self.layer_name = self.output_layer  # <- For backward compatibility ...
         self.depends_on = self.input_layers  # <- For backward compatibility ...
 
@@ -132,12 +151,17 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
         # 1) Convert morph analyses to records (dictionaries)
         morph_analysis = layers[ self._input_morph_analysis_layer ]
         words_layer = None
+        sentences_layer = None
         if self.add_normalized_word_form:
             words_layer = layers[ self._input_words_layer ]
             assert len(words_layer) == len(morph_analysis)
+        if self.add_sentence_ids:
+            sentences_layer = layers[ self._input_sentences_layer ]
          # Take attributes from the input layer
         current_attributes = morph_analysis.attributes
+        # Convert morph_analysis into records
         morph_analysis_records = []
+        sentence_id = 0
         for wid, word_morph in enumerate( morph_analysis ):
             word_records = word_morph.to_record()
             # Add normalized word forms (if required)
@@ -145,6 +169,16 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
                 normalized_text = _get_word_text( words_layer[wid] )
                 for rec in word_records:
                     rec['word_normal'] = normalized_text
+            # Add sentence ids (if required)
+            if self.add_sentence_ids:
+                cur_sentence = sentences_layer[sentence_id]
+                assert cur_sentence.start <= word_morph.start and \
+                       word_morph.end <= cur_sentence.end
+                for rec in word_records:
+                    rec['sentence_id'] = sentence_id
+                if word_morph.end == cur_sentence.end:
+                    # Take the next sentence
+                    sentence_id += 1
             morph_analysis_records.append( word_records )
         
         # 2) Rewrite records (all words at once)
