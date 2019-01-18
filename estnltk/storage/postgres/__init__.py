@@ -40,6 +40,7 @@ from .pg_operations import create_structure_table
 from .pg_operations import delete_schema
 
 from .pg_operations import collection_table_identifier
+from .pg_operations import layer_table_identifier
 
 from .pg_operations import table_exists
 from .pg_operations import collection_table_exists

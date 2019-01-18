@@ -20,6 +20,7 @@ from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import collection_table_identifier
+from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import create_collection_table
 from estnltk.storage.postgres import drop_collection_table, drop_structure_table, drop_layer_table
 from estnltk.storage.postgres import drop_fragment_table
@@ -125,8 +126,9 @@ class PgCollection:
                                         collection_table_identifier(other.storage, other.name)))
             for layer_name, struct in self._structure.items():
                 if struct['detached']:
-                    cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(self._layer_identifier(layer_name),
-                                                                                 other._layer_identifier(layer_name)))
+                    cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(
+                            layer_table_identifier(self.storage, self.name, layer_name),
+                            layer_table_identifier(self.storage, other.name, layer_name)))
 
     def _get_structure(self):
         if not self.exists():
@@ -357,11 +359,11 @@ class PgCollection:
         collection_identifier = collection_table_identifier(self.storage, self.name)
         table_escaped = SQL("{}").format(collection_identifier).as_string(self.storage.conn)
         collection_meta = collection_meta or []
-        collection_columns = SQL(', ').join(SQL('{}.{}').format(collection_identifier, column_id) for
-                                            column_id in map(Identifier, ['id', 'data', *collection_meta]))
+        collection_columns = [SQL('{}.{}').format(collection_identifier, column_id) for
+                                            column_id in map(Identifier, ['id', 'data', *collection_meta])]
         if not layers and layer_query is None and layer_ngram_query is None:
             # select only text table
-            q = SQL("SELECT {} FROM {}").format(collection_columns, collection_identifier)
+            q = SQL("SELECT {} FROM {}").format(SQL(', ').join(collection_columns), collection_identifier)
             sql_parts.append(q)
         else:
             # need to join text and all layer tables
@@ -371,18 +373,18 @@ class PgCollection:
 
             layers_select = []
             for layer in chain(layers):
-                layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
+                layer = SQL("{}").format(layer_table_identifier(self.storage, self.name, layer)).as_string(self.storage.conn)
                 layers_select.append(layer)
 
             layers_join = []
             for layer in sorted(set(chain(layers, layer_query.keys(), layer_ngram_query.keys()))):
-                layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
+                layer = SQL("{}").format(layer_table_identifier(self.storage, self.name, layer)).as_string(self.storage.conn)
                 layers_join.append(layer)
 
             q = SQL('SELECT {collection_columns} {select} FROM {table}, {layers_join} WHERE {where}').format(
-                    collection_columns=collection_columns,
-                    select=SQL(", %s" % ", ".join(
-                             '{0}."id", {0}."data"'.format(layer) for layer in layers_select) if layers_select else ""),
+                    collection_columns=SQL(', ').join(collection_columns),
+                    select=SQL(", {}".format(", ".join(
+                             '{0}."id", {0}."data"'.format(layer) for layer in layers_select)) if layers_select else ""),
                     table=collection_identifier,
                     layers_join=SQL(", ".join(layers_join)),
                     where=SQL(" AND ".join('%s."id" = %s."text_id"' % (table_escaped, layer) for layer in layers_join)))
@@ -414,7 +416,7 @@ class PgCollection:
         if missing_layer:
             # select collection objects for which there is no entry in the layer table
             sql_parts.append(SQL("AND") if where else SQL("WHERE"))
-            q = SQL('"id" NOT IN (SELECT "text_id" FROM {})').format(self._layer_identifier(missing_layer))
+            q = SQL('"id" NOT IN (SELECT "text_id" FROM {})').format(layer_table_identifier(self.storage, self.name, missing_layer))
             sql_parts.append(q)
             where = True
 
@@ -550,7 +552,8 @@ class PgCollection:
         total = count_rows(self.storage, self.name)
         initial = 0
         if missing_layer is not None:
-            initial = self.storage.count_rows(table_identifier=self._layer_identifier(missing_layer))
+            initial = self.storage.count_rows(
+                    table_identifier=layer_table_identifier(self.storage, self.name, missing_layer))
         if progressbar == 'notebook':
             iter_data = tqdm_notebook(data_iterator,
                                       total=total,
@@ -594,12 +597,6 @@ class PgCollection:
         if self._temporary:
             return Identifier(self._structure_table_name())
         return SQL('{}.{}').format(Identifier(self.storage.schema), Identifier(self._structure_table_name()))
-
-    def _layer_identifier(self, layer_name):
-        table_identifier = Identifier('{}__{}__layer'.format(self.name, layer_name))
-        if self._temporary:
-            return table_identifier
-        return SQL('{}.{}').format(Identifier(self.storage.schema), table_identifier)
 
     def _fragment_identifier(self, fragment_name):
         if self._temporary:
@@ -765,7 +762,7 @@ class PgCollection:
 
                         columns = SQL(', ').join(map(Identifier, columns))
                         q = SQL('INSERT INTO {} ({}) VALUES ({});'
-                                ).format(self._layer_identifier(layer_name),
+                                ).format(layer_table_identifier(self.storage, self.name, layer_name),
                                          columns,
                                          SQL(', ').join(map(Literal, values)))
                         c.execute(q)
@@ -901,7 +898,7 @@ class PgCollection:
                                              meta=meta)
                 # insert data
                 structure_written = (mode == 'append')
-                with self.buffered_layer_insert(table_identifier=self._layer_identifier(layer_name),
+                with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer_name),
                                                 columns=columns,
                                                 query_length_limit=query_length_limit) as buffered_insert:
                     for row in data_iterator:

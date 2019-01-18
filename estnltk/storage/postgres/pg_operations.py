@@ -38,6 +38,11 @@ def collection_table_identifier(storage, collection_name):
     return table_identifier(storage, table_name)
 
 
+def layer_table_identifier(storage, collection_name, layer_name):
+    table_name = layer_table_name(collection_name, layer_name)
+    return table_identifier(storage, table_name)
+
+
 def create_structure_table(storage, collection_name):
     table = table_identifier(storage, structure_table_name(collection_name))
     temporary = SQL('TEMPORARY') if storage.temporary else SQL('')
