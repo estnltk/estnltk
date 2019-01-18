@@ -357,7 +357,6 @@ class PgCollection:
         where = False
         sql_parts = []
         collection_identifier = collection_table_identifier(self.storage, self.name)
-        table_escaped = SQL("{}").format(collection_identifier).as_string(self.storage.conn)
         collection_meta = collection_meta or []
         collection_columns = [SQL('{}.{}').format(collection_identifier, column_id) for
                                             column_id in map(Identifier, ['id', 'data', *collection_meta])]
@@ -371,23 +370,22 @@ class PgCollection:
             layer_query = layer_query or {}
             layer_ngram_query = layer_ngram_query or {}
 
-            layers_select = []
+            layer_columns = []
             for layer in chain(layers):
-                layer = SQL("{}").format(layer_table_identifier(self.storage, self.name, layer)).as_string(self.storage.conn)
-                layers_select.append(layer)
+                layer_columns.append(SQL('{}."id"').format(layer_table_identifier(self.storage, self.name, layer)))
+                layer_columns.append(SQL('{}."data"').format(layer_table_identifier(self.storage, self.name, layer)))
 
             layers_join = []
             for layer in sorted(set(chain(layers, layer_query.keys(), layer_ngram_query.keys()))):
-                layer = SQL("{}").format(layer_table_identifier(self.storage, self.name, layer)).as_string(self.storage.conn)
+                layer = SQL("{}").format(layer_table_identifier(self.storage, self.name, layer))
                 layers_join.append(layer)
 
             q = SQL('SELECT {collection_columns} {select} FROM {table}, {layers_join} WHERE {where}').format(
                     collection_columns=SQL(', ').join(collection_columns),
-                    select=SQL(", {}".format(", ".join(
-                             '{0}."id", {0}."data"'.format(layer) for layer in layers_select)) if layers_select else ""),
+                    select=SQL(", {}").format(SQL(", ").join(layer_columns)) if layer_columns else SQL(""),
                     table=collection_identifier,
-                    layers_join=SQL(", ".join(layers_join)),
-                    where=SQL(" AND ".join('%s."id" = %s."text_id"' % (table_escaped, layer) for layer in layers_join)))
+                    layers_join=SQL(", ").join(layers_join),
+                    where=SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier, layer) for layer in layers_join))
             sql_parts.append(q)
             where = True
 
@@ -403,8 +401,8 @@ class PgCollection:
         if keys is not None:
             # build constraint on id-s
             sql_parts.append(SQL("AND") if where else SQL("WHERE"))
-            _keys = Literal(list(keys)).as_string(self.storage.conn)
-            sql_parts.append(SQL('{table}."id" = ANY({keys})'.format(table=table_escaped, keys=_keys)))
+            _keys = Literal(list(keys))
+            sql_parts.append(SQL('{table}."id" = ANY({keys})').format(table=collection_identifier, keys=_keys))
             where = True
         if layer_ngram_query:
             # build constraint on related layer's ngram index
