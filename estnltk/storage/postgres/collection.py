@@ -16,17 +16,19 @@ from estnltk.converters.dict_exporter import layer_to_dict
 from estnltk.converters import dict_to_text, text_to_json
 from estnltk.layer_operations import create_ngram_fingerprint_index
 
-from estnltk.storage.postgres import table_exists
-from estnltk.storage.postgres import layer_table_exists
-from estnltk.storage.postgres import count_rows
+from estnltk.storage.postgres import table_identifier
 from estnltk.storage.postgres import collection_table_identifier
 from estnltk.storage.postgres import layer_table_identifier
+from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import create_collection_table
-from estnltk.storage.postgres import drop_collection_table, drop_structure_table, drop_layer_table
+from estnltk.storage.postgres import drop_collection_table
+from estnltk.storage.postgres import drop_structure_table
+from estnltk.storage.postgres import drop_layer_table
 from estnltk.storage.postgres import drop_fragment_table
-from estnltk.storage.postgres.sql_strings import fragment_table_name
-from estnltk.storage.postgres.sql_strings import layer_table_name
-from estnltk.storage.postgres.pg_operations import table_identifier
+from estnltk.storage.postgres import count_rows
+from estnltk.storage.postgres import fragment_table_name
+from estnltk.storage.postgres import layer_table_name
 
 
 class PgCollectionException(Exception):
@@ -310,7 +312,9 @@ class PgCollection:
             query=query,
             ngram_query=ngram_query)
 
-    def _build_sql_query(self,
+    @staticmethod
+    def _build_sql_query(storage,
+                         collection_name,
                          query=None,
                          layer_query: dict = None,
                          layer_ngram_query: dict = None,
@@ -355,7 +359,7 @@ class PgCollection:
 
         where_and = SQL('WHERE')
         sql_parts = []
-        collection_identifier = collection_table_identifier(self.storage, self.name)
+        collection_identifier = collection_table_identifier(storage, collection_name)
         collection_meta = collection_meta or []
         collection_columns = [SQL('{}.{}').format(collection_identifier, column_id) for
                                             column_id in map(Identifier, ['id', 'data', *collection_meta])]
@@ -371,12 +375,12 @@ class PgCollection:
 
             layer_columns = []
             for layer in chain(layers):
-                layer_columns.append(SQL('{}."id"').format(layer_table_identifier(self.storage, self.name, layer)))
-                layer_columns.append(SQL('{}."data"').format(layer_table_identifier(self.storage, self.name, layer)))
+                layer_columns.append(SQL('{}."id"').format(layer_table_identifier(storage, collection_name, layer)))
+                layer_columns.append(SQL('{}."data"').format(layer_table_identifier(storage, collection_name, layer)))
 
             layers_join = []
             for layer in sorted(set(chain(layers, layer_query.keys(), layer_ngram_query.keys()))):
-                layer = SQL("{}").format(layer_table_identifier(self.storage, self.name, layer))
+                layer = SQL("{}").format(layer_table_identifier(storage, collection_name, layer))
                 layers_join.append(layer)
 
             q = SQL('SELECT {columns} FROM {tables} WHERE {condition}').format(
@@ -407,13 +411,13 @@ class PgCollection:
         if layer_ngram_query:
             # build constraint on related layer's ngram index
             sql_parts.append(where_and)
-            sql_parts.append(SQL(self.storage.build_layer_ngram_query(layer_ngram_query, self.name)))
+            sql_parts.append(SQL(storage.build_layer_ngram_query(layer_ngram_query, collection_name)))
             where_and = SQL('AND')
         if missing_layer:
             # select collection objects for which there is no entry in the layer table
             sql_parts.append(where_and)
             q = SQL('"id" NOT IN (SELECT "text_id" FROM {})'
-                    ).format(layer_table_identifier(self.storage, self.name, missing_layer))
+                    ).format(layer_table_identifier(storage, collection_name, missing_layer))
             sql_parts.append(q)
             where_and = SQL('AND')
 
@@ -469,7 +473,9 @@ class PgCollection:
 
         collection_meta = collection_meta or []
 
-        sql = self._build_sql_query(query=query,
+        sql = self._build_sql_query(self.storage,
+                                    self.name,
+                                    query=query,
                                     layer_query=layer_query,
                                     layer_ngram_query=layer_ngram_query,
                                     layers=layers,

@@ -224,7 +224,7 @@ class TestStorage(unittest.TestCase):
         collection = self.storage.get_collection('test_collection')
 
         # defaults
-        sql = collection._build_sql_query()
+        sql = collection._build_sql_query(self.storage, collection.name)
         result = sql.as_string(self.storage.conn)
         expected = ('SELECT "test_schema"."test_collection"."id", '
                            '"test_schema"."test_collection"."data" '
@@ -233,7 +233,7 @@ class TestStorage(unittest.TestCase):
 
         # query
         jsonb_text_query = Q('kiht', lemma='kass')
-        sql = collection._build_sql_query(query=jsonb_text_query)
+        sql = collection._build_sql_query(self.storage, collection.name, query=jsonb_text_query)
         result = sql.as_string(self.storage.conn)
         expected = (
             'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
@@ -242,7 +242,9 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(expected, result)
 
         # layer_query
-        sql = collection._build_sql_query(layer_query={
+        sql = collection._build_sql_query(self.storage,
+                                          collection.name,
+                                          layer_query={
             'layer1': JsonbLayerQuery(layer_table='layer1_table', lemma='esimene') |
                       JsonbLayerQuery(layer_table='layer1_table', lemma='teine')
         })
@@ -257,7 +259,7 @@ class TestStorage(unittest.TestCase):
 
         # layer_ngram_query
         q = {'indexed_layer': {"lemma": [("see", "olema")]}}
-        sql = collection._build_sql_query(layer_ngram_query=q)
+        sql = collection._build_sql_query(self.storage, collection.name, layer_ngram_query=q)
         result = sql.as_string(self.storage.conn)
         expected = (
             'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
@@ -267,7 +269,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(expected, result)
 
         # layers
-        sql = collection._build_sql_query(layers=['layer_1'])
+        sql = collection._build_sql_query(self.storage, collection.name, layers=['layer_1'])
         result = sql.as_string(self.storage.conn)
         expected = (
             'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data", '
@@ -278,7 +280,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(expected, result)
 
         # keys
-        sql = collection._build_sql_query(keys=[2, 5, 9])
+        sql = collection._build_sql_query(self.storage, collection.name, keys=[2, 5, 9])
         result = sql.as_string(self.storage.conn)
         expected = (
             'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
@@ -286,7 +288,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(expected, result)
 
         # order_by_id
-        sql = collection._build_sql_query(order_by_key=True)
+        sql = collection._build_sql_query(self.storage, collection.name, order_by_key=True)
         result = sql.as_string(self.storage.conn)
         expected = (
             'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
@@ -294,7 +296,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(expected, result)
 
         # collection_meta
-        sql = collection._build_sql_query(collection_meta=['meta1', 'meta2'])
+        sql = collection._build_sql_query(self.storage, collection.name, collection_meta=['meta1', 'meta2'])
         result = sql.as_string(self.storage.conn)
         expected = (
             'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data", '
@@ -303,7 +305,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(expected, result)
 
         # missing_layer
-        sql = collection._build_sql_query(missing_layer='layer_1')
+        sql = collection._build_sql_query(self.storage, collection.name, missing_layer='layer_1')
         result = sql.as_string(self.storage.conn)
         expected = (
             'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
@@ -314,7 +316,9 @@ class TestStorage(unittest.TestCase):
         # all in one
         layer_query = {'layer_2': JsonbLayerQuery(layer_table='layer1_table', lemma='esimene') |
                                   JsonbLayerQuery(layer_table='layer1_table', lemma='teine')}
-        sql = collection._build_sql_query(query=Q('layer_1', lemma='kass'),
+        sql = collection._build_sql_query(self.storage,
+                                          collection.name,
+                                          query=Q('layer_1', lemma='kass'),
                                           layer_query=layer_query,
                                           layer_ngram_query={'layer_3': {"lemma": [("see", "olema")]}},
                                           layers=['layer_4'],

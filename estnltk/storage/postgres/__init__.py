@@ -33,6 +33,9 @@ Example usage:
 from .jsonb_layer_query import JsonbLayerQuery
 from .jsnob_text_query import JsonbTextQuery
 
+from .sql_strings import fragment_table_name
+from .sql_strings import layer_table_name
+
 from .pg_operations import create_schema
 from .pg_operations import create_collection_table
 from .pg_operations import create_structure_table
@@ -43,6 +46,7 @@ from .pg_operations import collection_table_identifier
 from .pg_operations import layer_table_identifier
 
 from .pg_operations import table_exists
+from .pg_operations import table_identifier
 from .pg_operations import collection_table_exists
 from .pg_operations import structure_table_exists
 from .pg_operations import layer_table_exists
