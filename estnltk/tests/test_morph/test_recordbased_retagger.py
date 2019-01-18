@@ -70,7 +70,7 @@ class PickVerbForNudDisambiguator(MorphAnalysisRecordBasedRetagger):
     """
     def rewrite_words(self, words:list):
         new_word_records = []
-        unchanged_words = set()
+        changed_words = set()
         for wid, word_morph in enumerate(words):
             nud_index = -1
             for aid, analysis in enumerate( word_morph ):
@@ -79,11 +79,11 @@ class PickVerbForNudDisambiguator(MorphAnalysisRecordBasedRetagger):
                    nud_index = aid
             if nud_index != -1:
                 new_word_records.append([ word_morph[nud_index] ])
+                changed_words.add(wid)
             else:
                 # do not change anything
                 new_word_records.append(word_morph)
-                unchanged_words.add(wid)
-        return new_word_records, unchanged_words
+        return new_word_records, changed_words
 
 
 def test_pick_first_analysis_with_record_retagger():
@@ -131,7 +131,7 @@ class GiveSpecialPosTagsToEmoticonsTagger(MorphAnalysisRecordBasedRetagger):
     
     def rewrite_words(self, words:list):
         new_word_records = []
-        unchanged_words = set()
+        changed_words = set()
         for wid, word_morph in enumerate(words):
             isEmoticon = False
             for aid, analysis in enumerate( word_morph ):
@@ -142,11 +142,10 @@ class GiveSpecialPosTagsToEmoticonsTagger(MorphAnalysisRecordBasedRetagger):
                     # Fix root/root_tokens
                     analysis['root'] = analysis['word_normal']
                     analysis['root_tokens'] = (analysis['word_normal'],)
-            if not isEmoticon:
-                # nothing was changed
-                unchanged_words.add(wid)
+            if isEmoticon:
+                changed_words.add(wid)
             new_word_records.append(word_morph)
-        return new_word_records, unchanged_words
+        return new_word_records, changed_words
 
 
 def test_record_retagger_that_requires_normalized_word_forms():
@@ -195,7 +194,7 @@ class DeleteSentenceInitialProperNamesDisambiguator(MorphAnalysisRecordBasedReta
     
     def rewrite_words(self, words:list):
         new_word_records = []
-        unchanged_words = set()
+        changed_words = set()
         last_sent_id = -1
         for wid, word_morph in enumerate(words):
             toDelete = []
@@ -208,11 +207,10 @@ class DeleteSentenceInitialProperNamesDisambiguator(MorphAnalysisRecordBasedReta
             if toDelete:
                 for analysis in toDelete:
                     word_morph.remove(analysis)
-            else:
-                unchanged_words.add(wid)
+                changed_words.add(wid)
             new_word_records.append(word_morph)
             last_sent_id = cur_sent_id
-        return new_word_records, unchanged_words
+        return new_word_records, changed_words
 
 
 def test_record_retagger_that_requires_sentence_ids():

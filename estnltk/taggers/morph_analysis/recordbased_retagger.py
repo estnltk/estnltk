@@ -124,10 +124,9 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
             2) a tuple of two elements, where:
                2.1) the first element is a list of word analyses (1);
                2.2) the second element is a  set  of  words  ids, 
-                    indicating words  that  were  not  changed  in
-                    rewrite_words; this is used to optimize the layer 
-                    rewriting -- annotations of unchanged records 
-                    will not be modified;
+                    indicating words that were changed in rewrite_words; 
+                    this is used to optimize the layer rewriting -- 
+                    annotations of unchanged records will not be modified;
 
         """
         raise NotImplementedError('rewrite_words method not implemented in ' + self.__class__.__name__)
@@ -184,7 +183,7 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
         # 2) Rewrite records (all words at once)
         results = self.rewrite_words(morph_analysis_records)
         # 3) Disassemble results, and do some initial checks on them
-        skip_words = set()
+        changed_words = set()
         if isinstance(results, tuple):
             assert len(results) == 2, \
                    '(!) Expected a tuple with 2 elements, but got {!r} instead.'.format(results[1])
@@ -194,8 +193,8 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
             new_morph_analysis_records = results[0]
             assert isinstance(results[1], set), \
                    '(!) Expected a set, but found {!r} instead.'.format(results[1])
-            # words that were not changed:
-            skip_words = results[1]
+            # words that were changed:
+            changed_words = results[1]
         elif isinstance(results, list):
             # new list of analyses
             new_morph_analysis_records = results
@@ -211,7 +210,7 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
         # 4) Convert records back to morph analyses
         for wid, morph_word in enumerate( morph_spans ):
             # 4.0) Check if the word can be skipped (no changes were made during rewrite_words)
-            if wid in skip_words:
+            if wid not in changed_words:
                 continue
             morph_records = new_morph_analysis_records[wid]
             assert isinstance(morph_records, list), \
