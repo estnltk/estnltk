@@ -183,7 +183,7 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
         # 2) Rewrite records (all words at once)
         results = self.rewrite_words(morph_analysis_records)
         # 3) Disassemble results, and do some initial checks on them
-        changed_words = set()
+        changed_words = set( list(range(len(morph_analysis_records))) )
         if isinstance(results, tuple):
             assert len(results) == 2, \
                    '(!) Expected a tuple with 2 elements, but got {!r} instead.'.format(results[1])

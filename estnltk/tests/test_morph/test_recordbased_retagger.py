@@ -39,7 +39,6 @@ def test_pick_first_analysis_with_record_retagger():
     
     # Initialize tagger
     simple_disambiguator = PickFirstAnalysisDisambiguator()
-    
     text=Text('Ma ei olnud sellisest masinavärgist veel kuulnudki.')
     text.tag_layer(['words','sentences'])
     morf_analyzer.tag(text)
@@ -86,7 +85,7 @@ class PickVerbForNudDisambiguator(MorphAnalysisRecordBasedRetagger):
         return new_word_records, changed_words
 
 
-def test_pick_first_analysis_with_record_retagger():
+def test_pick_verb_for_nud_with_record_retagger():
     # Tests that MorphAnalysisRecordBasedRetagger can be used to create a simple disambiguator:
     # for each nud-word, pick the verb analysis (even if it may not be correct)
     
