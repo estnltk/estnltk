@@ -5,6 +5,7 @@ Requires ~/.pgpass file with database connection settings to `test_db` database.
 Schema/table creation and read/write rights are required.
 """
 import unittest
+import pytest
 import random
 
 from estnltk import logger
@@ -22,6 +23,7 @@ from estnltk.storage.postgres import collection_table_exists, structure_table_ex
 from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import fragment_table_exists
+from estnltk.storage.postgres import PgCollectionException
 
 
 logger.setLevel('DEBUG')
@@ -612,11 +614,11 @@ class TestLayer(unittest.TestCase):
             layer = tagger1.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})]
 
-        collection.old_slow_create_layer(layer1,
-                                  data_iterator=collection.select(),
-                                  row_mapper=row_mapper1,
-                                  meta={"meta_text_id": "int",
-                               "sum": "float"})
+        collection.create_layer(layer1,
+                                data_iterator=collection.select(),
+                                row_mapper=row_mapper1,
+                                meta={"meta_text_id": "int",
+                                      "sum": "float"})
         layer_table = self.storage.layer_name_to_table_name(collection.name, layer1)
         self.assertTrue(table_exists(self.storage, layer_table))
 
@@ -627,6 +629,16 @@ class TestLayer(unittest.TestCase):
             for row in c.fetchall():
                 self.assertEqual(row[0], row[1])
                 self.assertAlmostEqual(row[2], 45.5)
+
+        # get_layer_meta
+        layer_meta = collection.get_layer_meta(layer_name=layer1)
+        assert layer_meta.to_dict() == {'id': {0: 1, 1: 2},
+                                        'meta_text_id': {0: 1, 1: 2},
+                                        'sum': {0: 45.5, 1: 45.5},
+                                        'text_id': {0: 1, 1: 2}}, layer_meta.to_dict()
+
+        with self.assertRaises(PgCollectionException):
+            collection.get_layer_meta(layer_name='not_exists')
 
         collection.delete()
 

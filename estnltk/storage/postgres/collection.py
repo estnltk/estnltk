@@ -1110,9 +1110,7 @@ class PgCollection:
     def get_layer_meta(self, layer_name):
         layer_table = self.layer_name_to_table_name(layer_name)
         if layer_name not in self.get_layer_names():
-            raise PgCollectionException("Collection does not have a layer '{}'.".format(layer_name))
-        if not table_exists(self.storage, layer_table):
-            raise PgCollectionException("Layer table '{}' does not exist.".format(layer_table))
+            raise PgCollectionException("Collection does not have the layer {!r}".format(layer_name))
 
         with self.storage.conn.cursor() as c:
             c.execute(SQL("SELECT column_name FROM information_schema.columns "

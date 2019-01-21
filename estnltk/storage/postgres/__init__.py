@@ -61,5 +61,6 @@ from .pg_operations import count_rows
 
 from .collection import RowMapperRecord
 from .collection import PgCollection
+from .collection import PgCollectionException
 from .storage import PgStorageException
 from .storage import PostgresStorage
