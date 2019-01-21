@@ -5,6 +5,8 @@ from estnltk import Text
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
+
 # ----------------------------------
 #   Helper functions
 # ----------------------------------
@@ -20,9 +22,9 @@ def collect_ambiguities( docs ):
     return ambiguities
 
 def find_ambiguities_diff( ambiguities_a, ambiguities_b ):
+    # Finds a difference between ambiguities_a and ambiguities_b
     removed_ambiguities = defaultdict(list)
     added_ambiguities   = defaultdict(list)
-    # Finds a difference between ambiguities_a and ambiguities_b
     for key_a in ambiguities_a.keys():
         if key_a in ambiguities_b:
             # Check if any ambiguities were removed
@@ -41,6 +43,24 @@ def find_ambiguities_diff( ambiguities_a, ambiguities_b ):
             # All analyses from a have been newly added 
             added_ambiguities[key_b] = ambiguities_b[key_b]
     return removed_ambiguities, added_ambiguities
+
+def count_analyses( docs ):
+    # Finds count of all analyses, and how the counts distribute
+    # between proper name analyses, and other analyses
+    analyseCountTotal = 0
+    analyseCountH     = 0
+    analyseCountNotH  = 0
+    for doc_id, doc in enumerate(docs):
+        for wid, word in enumerate(doc['words']):
+            for analysis in word.morph_analysis:
+                if _is_empty_span( analysis ):
+                    raise Exception( '(!) Error: unexpectedly found an empty span: '+str(analysis) )
+                analyseCountTotal += 1
+                if analysis.partofspeech == 'H':
+                    analyseCountH += 1
+                else:
+                    analyseCountNotH += 1
+    return [analyseCountTotal, analyseCountH, analyseCountNotH]
 
 morf_analyzer = VabamorfAnalyzer()
 
@@ -94,4 +114,20 @@ def test_proper_names_disambiguation():
                                             ]
     assert list(added.items()) == []
 
+
+def test_pre_disambiguation_ver_1_4():
+    # Pre-disambiguation test from estnltk v1.4
+    docs = [Text('Jänes oli parajasti põllu peal. Hunti nähes ta ehmus ja pani jooksu.'),\
+            Text('Talupidaja Jänes kommenteeris, et hunte on viimasel ajal liiga palju siginenud. Tema naaber, talunik Lammas, nõustus sellega.'), \
+            Text('Jänesele ja Lambale oli selge, et midagi tuleb ette võtta. Eile algatasid nad huntidevastase kampaania.')]
+    for doc in docs:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+        morf_analyzer.tag(doc)
+    [countTotal, countH, countNonH] = count_analyses( docs )
+    assert [countTotal, countH, countNonH] == [104, 19, 85]
+    # Use corpus-based disambiguation:
+    cb_disambiguator = CorpusBasedMorphDisambiguator()
+    cb_disambiguator._test_predisambiguation(docs)
+    [countTotal, countH, countNonH] = count_analyses( docs )
+    assert [countTotal, countH, countNonH] == [85, 5, 80]
 
