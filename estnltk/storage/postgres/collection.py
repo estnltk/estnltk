@@ -306,9 +306,9 @@ class PgCollection:
 
     def select_fragment_raw(self, fragment_name, parent_layer_name, query=None, ngram_query=None):
         return self.storage.select_fragment_raw(
-            fragment_table=fragment_table_name(self.name, fragment_name),
-            text_table=self.name,
-            parent_layer_table=self.layer_name_to_table_name(parent_layer_name),
+            fragment_name=fragment_name,
+            collection_name=self.name,
+            parent_layer_name=parent_layer_name,
             query=query,
             ngram_query=ngram_query)
 
@@ -1108,21 +1108,15 @@ class PgCollection:
         return fragment_tables
 
     def get_layer_meta(self, layer_name):
-        layer_table = self.layer_name_to_table_name(layer_name)
         if layer_name not in self.get_layer_names():
             raise PgCollectionException("Collection does not have the layer {!r}".format(layer_name))
 
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("SELECT column_name FROM information_schema.columns "
-                          "WHERE table_schema=%s AND table_name=%s;"),
-                      (self.storage.schema, layer_table))
-            res = c.fetchall()
-            columns = [r[0] for r in res if r[0] != 'data']
+            columns = ['id', 'text_id'] + self._structure[layer_name]['meta']
 
-            c.execute(SQL('SELECT {} FROM {}.{};').format(
+            c.execute(SQL('SELECT {} FROM {};').format(
                 SQL(', ').join(map(Identifier, columns)),
-                Identifier(self.storage.schema),
-                Identifier(layer_table)))
+                layer_table_identifier(self.storage, self.name, layer_name)))
             data = c.fetchall()
             return pandas.DataFrame(data=data, columns=columns)
 

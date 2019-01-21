@@ -1,5 +1,4 @@
 import os
-import json
 import pandas
 import operator as op
 from functools import reduce
@@ -14,6 +13,9 @@ from estnltk.converters import dict_to_text, text_to_json
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import JsonbLayerQuery
 from estnltk.storage.postgres import JsonbTextQuery
+from estnltk.storage.postgres import collection_table_identifier
+from estnltk.storage.postgres import layer_table_identifier
+from estnltk.storage.postgres import fragment_table_identifier
 
 
 class PgStorageException(Exception):
@@ -209,13 +211,13 @@ class PostgresStorage:
             tables = {row[0]: {'total_size': row[1], 'comment':row[2]} for row in c}
             return tables
 
-    def select_fragment_raw(self, fragment_table, text_table, parent_layer_table, query=None, ngram_query=None):
+    def select_fragment_raw(self, fragment_name, collection_name, parent_layer_name, query=None, ngram_query=None):
         """
 
         Args:
-            fragment_table:
-            text_table:
-            parent_layer_table:
+            fragment_name:
+            collection_name:
+            parent_layer_name:
             query:
             ngram_query:
 
@@ -230,7 +232,7 @@ class PostgresStorage:
                 fragment_layer
         """
         # 1. Build query
-        q = """
+        q = SQL("""
             SELECT
               {text_table}.id, {text_table}.data, {parent_table}.id, {parent_table}.data,
               {fragment_table}.id, {fragment_table}.data
@@ -238,27 +240,30 @@ class PostgresStorage:
               {text_table}, {parent_table}, {fragment_table}
             WHERE
               {fragment_table}.parent_id = {parent_table}.id AND {parent_table}.text_id = {text_table}.id
-            """
-
-        format_table = lambda tbl: SQL("{}.{}").format(Identifier(self.schema), Identifier(tbl)).as_string(
-            self.conn)
-
+            """)
         q = q.format(
-            text_table=format_table(text_table),
-            parent_table=format_table(parent_layer_table),
-            fragment_table=format_table(fragment_table))
+            text_table=collection_table_identifier(self, collection_name),
+            parent_table=layer_table_identifier(self, collection_name, parent_layer_name),
+            fragment_table=fragment_table_identifier(self, collection_name, fragment_name))
+
+        sql_parts = [q]
 
         if query is not None:
             # build constraint on fragment's data column
-            q = "%s AND %s" % (q, query.eval())
+            sql_parts.append(SQL('AND'))
+            sql_parts.append(SQL(query.eval()))
 
         if ngram_query is not None:
             # build constraint on fragment's ngram index
-            ngram_q = " AND ".join([self._build_column_ngram_query(q, col, fragment_table)
-                                    for col, q in ngram_query])
-            q = "%s AND %s" % (q, ngram_q)
+            ngram_q = SQL(" AND ").join(SQL(self._build_column_ngram_query(q, col, fragment_name))
+                                        for col, q in ngram_query)
+            sql_parts.append(SQL('AND'))
+            sql_parts.append(ngram_q)
+
+        q = SQL(' ').join(sql_parts)
 
         # 2. Execute query
+        logger.debug(q.as_string(self.conn))
         with self.conn.cursor() as c:
             c.execute(q)
             for row in c.fetchall():

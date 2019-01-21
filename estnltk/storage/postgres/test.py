@@ -640,6 +640,8 @@ class TestLayer(unittest.TestCase):
         with self.assertRaises(PgCollectionException):
             collection.get_layer_meta(layer_name='not_exists')
 
+        assert set(collection._get_structure()[layer1]['meta']) == {'sum', 'meta_text_id'}
+
         collection.delete()
 
     def test_layer_query(self):

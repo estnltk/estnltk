@@ -43,6 +43,11 @@ def layer_table_identifier(storage, collection_name, layer_name):
     return table_identifier(storage, table_name)
 
 
+def fragment_table_identifier(storage, collection_name, fragment_name):
+    table_name = fragment_table_name(collection_name, fragment_name)
+    return table_identifier(storage, table_name)
+
+
 def create_structure_table(storage, collection_name):
     table = table_identifier(storage, structure_table_name(collection_name))
     temporary = SQL('TEMPORARY') if storage.temporary else SQL('')
