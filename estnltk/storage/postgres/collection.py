@@ -393,7 +393,7 @@ class PgCollection:
 
     def find_fingerprint(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
         """See PostgresStorage.find_fingerprint()"""
-        return self.storage.find_fingerprint(self.name, query, layer_query, layer_ngram_query, layers,
+        return self.storage.find_fingerprint(self, query, layer_query, layer_ngram_query, layers,
                                              order_by_key)
 
     def _structure_table_name(self):

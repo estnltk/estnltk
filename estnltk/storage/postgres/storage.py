@@ -2,7 +2,6 @@ import os
 import pandas
 import operator as op
 from functools import reduce
-from itertools import chain
 
 import psycopg2
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
@@ -273,139 +272,6 @@ class PostgresStorage:
                 fragment_layer = dict_to_layer(fragment_dict, text)
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
-    def select_raw(self,
-                   table: str,
-                   query: str = None,
-                   layer_query: 'JsonbLayerQuery' = None,
-                   layer_ngram_query: dict = None,
-                   layers: list = None,
-                   keys: list = None,
-                   order_by_key: bool = False):
-        """
-        Select from collection table with possible search constraints.
-
-        Args:
-            table: str
-                collection table
-            query: JsonbTextQuery
-                collection table query
-            layer_query: JsonbLayerQuery
-                layer query
-            keys: list
-                List of id-s.
-            order_by_key: bool
-            layers: list
-                Layers to fetch. Specified layers will be merged into returned text object and
-                become accessible via `text["layer_name"]`.
-
-        Returns:
-            iterator of (key, text) pairs
-
-        Example:
-
-            q = JsonbTextQuery('morph_analysis', lemma='laulma')
-            for key, txt in storage.select(table, query=q):
-                print(key, txt)
-
-
-        """
-        with self.conn.cursor() as c:
-            # 1. Build query
-
-            where = False
-            sql_parts = []
-            table_escaped = SQL("{}.{}").format(Identifier(self.schema), Identifier(table)).as_string(self.conn)
-            if not layers and layer_query is None and layer_ngram_query is None:
-                # select only text table
-                q = SQL("SELECT id, data FROM {}.{}").format(Identifier(self.schema), Identifier(table)).as_string(self.conn)
-                sql_parts.append(q)
-            else:
-                # need to join text and all layer tables
-                layers = layers or []
-                layer_query = layer_query or {}
-                layer_ngram_query = layer_ngram_query or {}
-
-                layers_select = []
-                for layer in chain(layers):
-                    layer = self.layer_name_to_table_name(table, layer)
-                    layer = SQL("{}.{}").format(Identifier(self.schema), Identifier(layer)).as_string(self.conn)
-                    layers_select.append(layer)
-
-                layers_join = set()
-                for layer in chain(layers, layer_query.keys(), layer_ngram_query.keys()):
-                    layer = self.layer_name_to_table_name(table, layer)
-                    layer = SQL("{}.{}").format(Identifier(self.schema), Identifier(layer)).as_string(self.conn)
-                    layers_join.add(layer)
-
-                q = "SELECT {table}.id, {table}.data {select} FROM {table}, {layers_join} where {where}".format(
-                    schema=Identifier(self.schema),
-                    table=table_escaped,
-                    select=", %s" % ", ".join(
-                        "{0}.id, {0}.data".format(layer) for layer in layers_select) if layers_select else "",
-                    layers_join=", ".join(layer for layer in layers_join),
-                    where=" AND ".join("%s.id = %s.text_id" % (table_escaped, layer) for layer in layers_join))
-                sql_parts.append(q)
-                where = True
-            if query is not None:
-                # build constraint on the main text table
-                sql_parts.append("%s %s" % ("and" if where else "where", query.eval()))
-                where = True
-            if layer_query:
-                # build constraint on related layer tables
-                q = " AND ".join(query.eval() for layer, query in layer_query.items())
-                sql_parts.append("%s %s" % ("and" if where else "where", q))
-                where = True
-            if keys is None:
-                keys = []
-            else:
-                keys = list(map(int, keys))
-                # build constraint on id-s
-                sql_parts.append("AND" if where else "WHERE")
-                sql_parts.append("{table}.id = ANY(%(keys)s)".format(table=table_escaped))
-                where = True
-            if layer_ngram_query:
-                # build constraint on related layer's ngram index
-                q = self.build_layer_ngram_query(layer_ngram_query, table).as_string(self.conn)
-                if where is True:
-                    q = "AND %s" % q
-                sql_parts.append(q)
-                where = True
-            if order_by_key is True:
-                sql_parts.append("order by id")
-
-            sql = " ".join(sql_parts)  # bad, bad string concatenation, but we can't avoid it here, right?
-
-            # 2. Execute query
-            c.execute(sql, {'keys': keys})
-            for row in c.fetchall():
-                text_id = row[0]
-                text_dict = row[1]
-                text = dict_to_text(text_dict)
-                layers = []
-                if len(row) > 2:
-                    detached_layers = {}
-                    for i in range(2, len(row), 2):
-                        layer_id = row[i]
-                        layer_dict = row[i + 1]
-                        layer = dict_to_layer(layer_dict, text, detached_layers)
-                        detached_layers[layer.name] = layer
-                        layers.append(layer_id)
-                        layers.append(layer)
-                result = text_id, text, *layers
-                yield result
-
-    def select(self, table, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
-               order_by_key=False):
-        for row in self.select_raw(table, query, layer_query, layer_ngram_query, layers, keys=keys,
-                                   order_by_key=order_by_key):
-            text_id = row[0]
-            text = row[1]
-            if len(row) > 2:
-                for i, layer_name in zip(range(3, len(row), 2), layers):
-                    layer = row[i]
-                    text[layer_name] = layer
-            yield text_id, text
-
     def build_layer_ngram_query(self, ngram_query, collection_table):
         sql_parts = []
         for layer in ngram_query:
@@ -443,7 +309,7 @@ class PostgresStorage:
         column_ngram_query = SQL("({})").format(SQL(" OR ").join(or_parts))
         return column_ngram_query
 
-    def find_fingerprint(self, table, query=None, layer_query=None, layer_ngram_query=None, layers=None,
+    def find_fingerprint(self, collection, query=None, layer_query=None, layer_ngram_query=None, layers=None,
                          order_by_key=False):
         """
         A wrapper over `select` method, which enables to conveniently build composite AND/OR queries.
@@ -514,7 +380,7 @@ class PostgresStorage:
 
         def build_layer_query(layer, q):
             or_query_list = []
-            layer_table = self.layer_name_to_table_name(table, layer)
+            layer_table = self.layer_name_to_table_name(collection.name, layer)
             for and_terms in q["query"]:
                 if not isinstance(and_terms, (list, tuple, set)):
                     and_terms = [and_terms]
@@ -533,8 +399,8 @@ class PostgresStorage:
         jsonb_layer_query = {layer: build_layer_query(layer, q) for layer, q in
                              layer_query.items()} if layer_query is not None else None
 
-        return self.select(table, jsonb_text_query, jsonb_layer_query, layer_ngram_query, layers,
-                           order_by_key=order_by_key)
+        return collection.select(query=jsonb_text_query, layer_query=jsonb_layer_query,
+                                 layer_ngram_query=layer_ngram_query, layers=layers, order_by_key=order_by_key)
 
     def get_collection(self, table_name, meta_fields=None):
         """Returns a new instance of `PgCollection` without physically creating it."""
