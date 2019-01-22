@@ -10,9 +10,8 @@ from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT, Composed
 
 from estnltk import logger
-from estnltk.converters.dict_importer import dict_to_layer
 from estnltk.converters.dict_exporter import layer_to_dict
-from estnltk.converters import dict_to_text, text_to_json
+from estnltk.converters import text_to_json
 from estnltk.layer_operations import create_ngram_fingerprint_index
 
 from estnltk.storage.postgres import table_identifier
@@ -28,7 +27,6 @@ from estnltk.storage.postgres import drop_fragment_table
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import fragment_table_name
 from estnltk.storage.postgres import layer_table_name
-from estnltk.storage.postgres import build_sql_query
 from estnltk.storage.postgres import select_raw
 
 
@@ -397,9 +395,6 @@ class PgCollection:
         """See PostgresStorage.find_fingerprint()"""
         return self.storage.find_fingerprint(self.name, query, layer_query, layer_ngram_query, layers,
                                              order_by_key)
-
-    def layer_name_to_table_name(self, layer_name):
-        return self.storage.layer_name_to_table_name(self.name, layer_name)
 
     def _structure_table_name(self):
         return self.name + '__structure'
