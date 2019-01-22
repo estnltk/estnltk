@@ -25,6 +25,7 @@ from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import PgCollectionException
 from estnltk.storage.postgres import build_sql_query
+from estnltk.storage.postgres import select_raw
 
 
 logger.setLevel('DEBUG')
@@ -391,9 +392,9 @@ class TestLayerFragment(unittest.TestCase):
 
         self.assertTrue(collection.has_layer(layer_fragment_name))
 
-        rows = [row for row in collection.select_raw(storage=self.storage,
-                                                     collection_name=table_name,
-                                                     layers=[layer_fragment_name])]
+        rows = [row for row in select_raw(storage=self.storage,
+                                          collection_name=table_name,
+                                          layers=[layer_fragment_name])]
         self.assertEqual(len(rows), 4)
 
         text_ids = [row[0] for row in rows]
@@ -457,9 +458,9 @@ class TestFragment(unittest.TestCase):
                     {'fragment': parent_layer, 'parent_id': parent_id}]
 
         collection.create_fragment(fragment_name,
-                            data_iterator=collection.select_raw(storage=self.storage,
-                                                                collection_name=table_name,
-                                                                layers=[layer_fragment_name]),
+                            data_iterator=select_raw(storage=self.storage,
+                                                     collection_name=table_name,
+                                                     layers=[layer_fragment_name]),
                             row_mapper=row_mapper,
                             create_index=False,
                             ngram_index=None)

@@ -58,6 +58,7 @@ from .pg_operations import drop_structure_table
 from .pg_operations import drop_fragment_table
 from .pg_operations import drop_layer_table
 from .pg_operations import build_sql_query
+from .pg_operations import select_raw
 
 from .pg_operations import count_rows
 
