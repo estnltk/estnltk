@@ -281,7 +281,7 @@ def build_sql_query(storage,
     if layer_ngram_query:
         # build constraint on related layer's ngram index
         sql_parts.append(where_and)
-        sql_parts.append(SQL(storage.build_layer_ngram_query(layer_ngram_query, collection_name)))
+        sql_parts.append(storage.build_layer_ngram_query(layer_ngram_query, collection_name))
         where_and = SQL('AND')
     if missing_layer:
         # select collection objects for which there is no entry in the layer table

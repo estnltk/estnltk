@@ -365,7 +365,7 @@ class PostgresStorage:
                 where = True
             if layer_ngram_query:
                 # build constraint on related layer's ngram index
-                q = self.build_layer_ngram_query(layer_ngram_query, table)
+                q = self.build_layer_ngram_query(layer_ngram_query, table).as_string(self.conn)
                 if where is True:
                     q = "AND %s" % q
                 sql_parts.append(q)
@@ -410,10 +410,11 @@ class PostgresStorage:
         sql_parts = []
         for layer in ngram_query:
             for column, q in ngram_query[layer].items():
+                table_identifier = layer_table_identifier(self, collection_table, layer)
                 layer_table = self.layer_name_to_table_name(collection_table, layer)
                 col_query = self._build_column_ngram_query(q, column, layer_table)
                 sql_parts.append(col_query)
-        q = " AND ".join(sql_parts)
+        q = SQL(" AND ").join(sql_parts)
         return q
 
     def _build_column_ngram_query(self, query, column, table_name):
@@ -437,9 +438,9 @@ class PostgresStorage:
             p = SQL("{schema}.{table}.{column} @> ARRAY[%s]" % arr).format(
                 schema=Identifier(self.schema),
                 table=Identifier(table_name),
-                column=Identifier(column)).as_string(self.conn)
+                column=Identifier(column))
             or_parts.append(p)
-        column_ngram_query = "(%s)" % " OR ".join(or_parts)
+        column_ngram_query = SQL("({})").format(SQL(" OR ").join(or_parts))
         return column_ngram_query
 
     def find_fingerprint(self, table, query=None, layer_query=None, layer_ngram_query=None, layers=None,
