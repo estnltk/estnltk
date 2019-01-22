@@ -21,6 +21,7 @@ from estnltk.taggers import Retagger
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf import VabamorfTagger
 from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
+from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 
 from estnltk.taggers.morph_analysis.recordbased_retagger import MorphAnalysisRecordBasedRetagger
@@ -458,5 +459,62 @@ class ProperNamesDisambiguationStep3Retagger(MorphAnalysisRecordBasedRetagger):
                 # Keep track of changed words (for optimization purposes)
                 changed_words.add( wid )
             last_sent_id = cur_sent_id
+        return words, changed_words
+
+
+class RemoveDuplicateAndProblematicAnalysesRetagger(MorphAnalysisRecordBasedRetagger):
+    """ A Retagger in corpus-based post-disambiguation preparation step. 
+        Removes:
+        1) duplicate morphological analyses. For instance, word 'palk'
+           obtains two analyses: 'palk' (which inflects as 'palk\palgi') 
+           and 'palk' (which inflects as 'palk\palga'), but after the 
+           removal of duplicates, only one remains;
+        2) If verb analyses contain forms '-tama' and '-ma', then keep 
+           only '-ma' analyses;
+    """
+    def __init__(self, morph_analysis_layer:str='morph_analysis'):
+        super().__init__( morph_analysis_layer=morph_analysis_layer )
+
+    def rewrite_words(self, words:list):
+        changed_words = set()
+        for wid, word_analyses in enumerate( words ):
+            #
+            # 1) Find and remove duplicate analyses
+            #
+            toDeleteAnalysisIDs = []
+            for i1, analysis1 in enumerate(word_analyses):
+                duplicateFound = False
+                for i2 in range(i1+1, len(word_analyses)):
+                    analysis2 = word_analyses[i2]
+                    # Check for complete attribute match
+                    attr_matches = []
+                    for attr in VABAMORF_ATTRIBUTES:
+                        attr_match = \
+                           analysis1[attr]==analysis2[attr]
+                        attr_matches.append( attr_match )
+                    if all( attr_matches ):
+                        duplicateFound = True
+                        toDeleteAnalysisIDs.append( i2 )
+                        break
+            if toDeleteAnalysisIDs:
+                for aid in sorted(toDeleteAnalysisIDs, reverse=True):
+                    word_analyses.pop( aid )
+                changed_words.add( wid )
+            #
+            # 2) If verb analyses contain forms '-tama' and '-ma', 
+            #    then keep only '-ma' analyses;
+            #
+            tamaIDs = []
+            maIDs   = []
+            for i, analysis in enumerate(word_analyses):
+                if analysis['partofspeech'] == 'V':
+                    if analysis['form'] == 'ma':
+                        maIDs.append(i)
+                    elif analysis['form'] == 'tama':
+                        tamaIDs.append(i)
+            if len(maIDs)>0 and len(tamaIDs)>0:
+                for aid in sorted(tamaIDs, reverse=True):
+                    word_analyses.pop( aid )
+                changed_words.add( wid )
         return words, changed_words
 

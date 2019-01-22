@@ -4,6 +4,7 @@ from estnltk import Text
 
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
+from estnltk.taggers.morph_analysis.cb_disambiguator import RemoveDuplicateAndProblematicAnalysesRetagger
 
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
 
@@ -130,4 +131,49 @@ def test_pre_disambiguation_ver_1_4():
     cb_disambiguator._test_predisambiguation(docs)
     [countTotal, countH, countNonH] = count_analyses( docs )
     assert [countTotal, countH, countNonH] == [85, 5, 80]
+
+
+
+def test_remove_duplicate_and_problematic_analyses():
+    # 
+    #  Case 1: removing duplicate analyses (if any exists)
+    #  
+    duplicate_removal_tagger = RemoveDuplicateAndProblematicAnalysesRetagger()
+    doc = Text('Konkreetne palk vs ümar palk')
+    doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+    morf_analyzer.tag(doc)
+    # TODO: could not find an example of 'palk/palgi/palga' ambiguity:
+    #       it seems that the word 'palk' always has only a single 
+    #       analysis
+    [countTotal, countH, countNonH] = count_analyses( [doc] )
+    assert [countTotal, countH, countNonH] == [7, 2, 5]
+    duplicate_removal_tagger.retag( doc )
+    [countTotal, countH, countNonH] = count_analyses( [doc] )
+    assert [countTotal, countH, countNonH] == [7, 2, 5]
+    for word in doc['words']:
+        if word.text == 'palk':
+            records = word.morph_analysis.to_record()
+            for rec in records:
+                del rec['start']
+                del rec['end']
+            assert records == [{'root': 'palk', 'partofspeech': 'S', 'ending': '0', 'form': 'sg n', 'lemma': 'palk', 'clitic': '', 'root_tokens': ('palk',)}]
+    # 
+    #  Case 2: removing 'tama' if verb contains both 'tama' and 'ma'
+    #  
+    doc = Text('Peaks kuulutama, kuulatama ja kajastama.')
+    doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+    morf_analyzer.tag(doc)
+    duplicate_removal_tagger.retag( doc )
+    for word in doc['words']:
+        if word.text.endswith('tama'):
+            records = word.morph_analysis.to_record()
+            for rec in records:
+                del rec['start']
+                del rec['end']
+            if word.text == 'kuulutama':
+                assert records == [{'root': 'kuuluta', 'lemma': 'kuulutama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ('kuuluta',), 'clitic': '', 'form': 'ma'}]
+            if word.text == 'kuulatama':
+                assert records == [{'root': 'kuulata', 'lemma': 'kuulatama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ('kuulata',), 'clitic': '', 'form': 'ma'}]
+            if word.text == 'kajastama':
+                assert records == [{'root': 'kajasta', 'lemma': 'kajastama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ('kajasta',), 'clitic': '', 'form': 'ma'}]
 
