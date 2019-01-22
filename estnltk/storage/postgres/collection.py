@@ -3,7 +3,6 @@ import json
 import pandas
 from contextlib import contextmanager
 import collections
-from itertools import chain
 
 from tqdm import tqdm, tqdm_notebook
 
@@ -387,27 +386,6 @@ class PgCollection:
                 yield result
         c.close()
 
-    def _select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
-                order_by_key=False, collection_meta=None, missing_layer: str = None):
-        for row in self.select_raw(query=query,
-                                   layer_query=layer_query,
-                                   layer_ngram_query=layer_ngram_query,
-                                   layers=layers,
-                                   keys=keys,
-                                   order_by_key=order_by_key,
-                                   collection_meta=collection_meta,
-                                   missing_layer=missing_layer):
-            text_id, text, meta_list, detached_layers = row
-            for layer_name in layers:
-                text[layer_name] = detached_layers[layer_name]['layer']
-            if collection_meta:
-                meta = {}
-                for meta_name, meta_value in zip(collection_meta, meta_list):
-                    meta[meta_name] = meta_value
-                yield text_id, text, meta
-            else:
-                yield text_id, text
-
     def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False,
                collection_meta=None, progressbar=None, missing_layer: str = None):
         """See select_raw()"""
@@ -429,11 +407,28 @@ class PgCollection:
                         layer, self.name))
             include_dep(layer)
 
-        data_iterator = self._select(query=query, layer_query=layer_query, layer_ngram_query=layer_ngram_query,
-                                     layers=layers_extended, keys=keys, order_by_key=order_by_key,
-                                     collection_meta=collection_meta, missing_layer=missing_layer)
+        def data_iterator():
+            for row in self.select_raw(query=query,
+                                       layer_query=layer_query,
+                                       layer_ngram_query=layer_ngram_query,
+                                       layers=layers_extended,
+                                       keys=keys,
+                                       order_by_key=order_by_key,
+                                       collection_meta=collection_meta,
+                                       missing_layer=missing_layer):
+                text_id, text, meta_list, detached_layers = row
+                for layer_name in layers_extended:
+                    text[layer_name] = detached_layers[layer_name]['layer']
+                if collection_meta:
+                    meta = {}
+                    for meta_name, meta_value in zip(collection_meta, meta_list):
+                        meta[meta_name] = meta_value
+                    yield text_id, text, meta
+                else:
+                    yield text_id, text
+
         if progressbar not in {'ascii', 'unicode', 'notebook'}:
-            yield from data_iterator
+            yield from data_iterator()
             return
 
         total = count_rows(self.storage, self.name)
@@ -442,13 +437,13 @@ class PgCollection:
             initial = self.storage.count_rows(
                     table_identifier=layer_table_identifier(self.storage, self.name, missing_layer))
         if progressbar == 'notebook':
-            iter_data = tqdm_notebook(data_iterator,
+            iter_data = tqdm_notebook(data_iterator(),
                                       total=total,
                                       initial=initial,
                                       unit='doc',
                                       smoothing=0)
         else:
-            iter_data = tqdm(data_iterator,
+            iter_data = tqdm(data_iterator(),
                              total=total,
                              initial=initial,
                              unit='doc',
