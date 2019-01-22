@@ -312,7 +312,9 @@ class PgCollection:
             query=query,
             ngram_query=ngram_query)
 
-    def select_raw(self,
+    @staticmethod
+    def select_raw(storage=None,
+                   collection_name=None,
                    query=None,
                    layer_query: dict = None,
                    layer_ngram_query: dict = None,
@@ -356,8 +358,8 @@ class PgCollection:
 
         collection_meta = collection_meta or []
 
-        sql = build_sql_query(self.storage,
-                              self.name,
+        sql = build_sql_query(storage,
+                              collection_name,
                               query=query,
                               layer_query=layer_query,
                               layer_ngram_query=layer_ngram_query,
@@ -367,7 +369,7 @@ class PgCollection:
                               collection_meta=collection_meta,
                               missing_layer=missing_layer)
 
-        with self.storage.conn.cursor('read', withhold=True) as c:
+        with storage.conn.cursor('read', withhold=True) as c:
             c.execute(sql)
             logger.debug(c.query.decode())
             for row in c:
@@ -408,7 +410,9 @@ class PgCollection:
             include_dep(layer)
 
         def data_iterator():
-            for row in self.select_raw(query=query,
+            for row in self.select_raw(storage=self.storage,
+                                       collection_name=self.name,
+                                       query=query,
                                        layer_query=layer_query,
                                        layer_ngram_query=layer_ngram_query,
                                        layers=layers_extended,
