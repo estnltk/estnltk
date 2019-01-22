@@ -22,6 +22,7 @@ from estnltk.storage.postgres import create_collection_table, create_structure_t
 from estnltk.storage.postgres import collection_table_exists, structure_table_exists
 from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import PgCollectionException
 
@@ -364,35 +365,6 @@ class TestLayerFragment(unittest.TestCase):
         delete_schema(self.storage)
         self.storage.close()
 
-    def _test_create(self):
-        table_name = get_random_table_name()
-        col = self.storage.get_collection(table_name)
-        col.create()
-
-        lfrag1 = "layer_fragment_1"
-        lfrag2 = "layer_fragment_2"
-
-        col.old_slow_create_layer(lfrag1, data_iterator=col.select(), row_mapper=None)
-        self.assertTrue(table_exists(self.storage, col.layer_name_to_table_name(lfrag1)))
-        self.assertTrue(col.has_layer(lfrag1))
-
-        col.old_slow_create_layer(lfrag2, data_iterator=col.select(), row_mapper=None)
-        self.assertEqual(len(col.get_layer_names()), 2)
-        self.assertTrue(lfrag1 in col.get_layer_names())
-        self.assertTrue(lfrag2 in col.get_layer_names())
-
-        col.delete_layer(lfrag1)
-        self.assertFalse(table_exists(self.storage, col.layer_name_to_table_name(lfrag1)))
-        self.assertFalse(col.has_layer(lfrag1))
-        self.assertFalse(lfrag1 in col.get_layer_names())
-        self.assertTrue(col.has_layer(lfrag2))
-
-        col.delete()
-
-        self.assertFalse(col.has_layer(lfrag2))
-        self.assertEqual(len(col.get_layer_names()), 0)
-        self.assertFalse(table_exists(self.storage, table_name))
-
     def test_read_write(self):
         table_name = get_random_table_name()
         collection = self.storage.get_collection(table_name)
@@ -436,10 +408,11 @@ class TestLayerFragment(unittest.TestCase):
         layers = [row[3] for row in rows]
         #self.assertTrue(isinstance(layers[0], Layer))
 
+        self.assertTrue(layer_table_exists(self.storage, collection.name, layer_fragment_name))
+
         collection.delete()
 
-        self.assertFalse(
-            table_exists(self.storage, collection.layer_name_to_table_name(layer_fragment_name)))
+        self.assertFalse(layer_table_exists(self.storage, collection.name, layer_fragment_name))
 
 
 class TestFragment(unittest.TestCase):
@@ -513,36 +486,6 @@ class TestLayer(unittest.TestCase):
     def tearDown(self):
         delete_schema(self.storage)
         self.storage.close()
-
-    def _test_create_layer(self):
-        table_name = get_random_table_name()
-        col = self.storage.get_collection(table_name)
-        col.create()
-
-        layer1 = "layer1"
-        layer2 = "layer2"
-
-        col.old_slow_create_layer(layer1, data_iterator=col.select(), row_mapper=None)
-
-        self.assertTrue(table_exists(self.storage, col.layer_name_to_table_name(layer1)))
-        self.assertTrue(col.has_layer(layer1))
-
-        col.old_slow_create_layer(layer2, data_iterator=col.select(), row_mapper=None)
-        self.assertEqual(len(col.get_layer_names()), 2)
-        self.assertTrue(layer1 in col.get_layer_names())
-        self.assertTrue(layer2 in col.get_layer_names())
-
-        col.delete_layer(layer1)
-        self.assertFalse(table_exists(self.storage, col.layer_name_to_table_name(layer1)))
-        self.assertFalse(col.has_layer(layer1))
-        self.assertFalse(layer1 in col.get_layer_names())
-        self.assertTrue(col.has_layer(layer2))
-
-        col.delete()
-
-        self.assertFalse(col.has_layer(layer2))
-        self.assertEqual(len(col.get_layer_names()), 0)
-        self.assertFalse(table_exists(self.storage, table_name))
 
     def test_layer_read_write(self):
         table_name = get_random_table_name()
