@@ -30,18 +30,18 @@ Example usage:
         print(key, txt)
 
 """
-from .sql_strings import fragment_table_name
+from .sql_strings import collection_table_name
+from .sql_strings import structure_table_name
 from .sql_strings import layer_table_name
-
-from .pg_operations import create_schema
-from .pg_operations import create_collection_table
-from .pg_operations import create_structure_table
-
-from .pg_operations import delete_schema
+from .sql_strings import fragment_table_name
 
 from .pg_operations import collection_table_identifier
 from .pg_operations import layer_table_identifier
 from .pg_operations import fragment_table_identifier
+
+from .pg_operations import create_schema
+from .pg_operations import create_collection_table
+from .pg_operations import create_structure_table
 
 from .pg_operations import table_exists
 from .pg_operations import table_identifier
@@ -50,10 +50,14 @@ from .pg_operations import structure_table_exists
 from .pg_operations import layer_table_exists
 from .pg_operations import fragment_table_exists
 
+from .pg_operations import delete_schema
 from .pg_operations import drop_collection_table
 from .pg_operations import drop_structure_table
 from .pg_operations import drop_fragment_table
 from .pg_operations import drop_layer_table
+
+from .pg_operations import build_layer_ngram_query
+from .pg_operations import build_column_ngram_query
 from .pg_operations import build_sql_query
 from .pg_operations import select_raw
 
@@ -65,5 +69,6 @@ from .jsonb_text_query import JsonbTextQuery
 from .collection import RowMapperRecord
 from .collection import PgCollection
 from .collection import PgCollectionException
+
 from .storage import PgStorageException
 from .storage import PostgresStorage

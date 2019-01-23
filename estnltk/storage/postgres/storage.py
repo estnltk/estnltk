@@ -236,41 +236,6 @@ class PostgresStorage:
                 fragment_layer = dict_to_layer(fragment_dict, text)
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
-    def build_layer_ngram_query(self, ngram_query, collection_name):
-        sql_parts = []
-        for layer_name in ngram_query:
-            for column, q in ngram_query[layer_name].items():
-                col_query = self._build_column_ngram_query(q, column, collection_name, layer_name)
-                sql_parts.append(col_query)
-        q = SQL(" AND ").join(sql_parts)
-        return q
-
-    def _build_column_ngram_query(self, query, column, collection_name, layer_name):
-        if not isinstance(query, list):
-            query = list(query)
-        if isinstance(query[0], list):
-            # case: [[(a),(b)], [(c)]] -> a AND b OR c
-            or_terms = [["-".join(e) for e in and_term] for and_term in query]
-        elif isinstance(query[0], tuple):
-            # case: [(a), (b)] -> a OR b
-            or_terms = [["-".join(e)] for e in query]
-        elif isinstance(query[0], str):
-            # case: [a, b] -> "a-b"
-            or_terms = [["-".join(query)]]
-        else:
-            raise ValueError("Invalid ngram query format: {}".format(query))
-
-        table_identifier = layer_table_identifier(self, collection_name, layer_name)
-        or_parts = []
-        for and_term in or_terms:
-            arr = ",".join("'%s'" % v for v in and_term)
-            p = SQL("{table}.{column} @> ARRAY[%s]" % arr).format(
-                table=table_identifier,
-                column=Identifier(column))
-            or_parts.append(p)
-        column_ngram_query = SQL("({})").format(SQL(" OR ").join(or_parts))
-        return column_ngram_query
-
     def get_collection(self, table_name, meta_fields=None):
         """Returns a new instance of `PgCollection` without physically creating it."""
         return PgCollection(name=table_name, storage=self, meta=meta_fields)
