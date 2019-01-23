@@ -60,7 +60,7 @@ from .pg_operations import select_raw
 from .pg_operations import count_rows
 
 from .jsonb_layer_query import JsonbLayerQuery
-from .jsnob_text_query import JsonbTextQuery
+from .jsonb_text_query import JsonbTextQuery
 
 from .collection import RowMapperRecord
 from .collection import PgCollection
