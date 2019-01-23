@@ -120,22 +120,6 @@ class PostgresStorage:
     def closed(self):
         return self.conn.closed
 
-    @staticmethod
-    def fragment_name_to_table_name(collection_table, fragment_name):
-        """
-        Constructs table name for a fragment.
-
-        Args:
-            collection_table: str
-                parent collection table
-            fragment_name: str
-                fragment name
-        Returns:
-            str: fragment table name
-
-        """
-        return "%s__%s__fragment" % (collection_table, fragment_name)
-
     def insert(self, table, text, key=None, meta=None):
         """
         Saves a given `text` object into a given `table`..
@@ -291,7 +275,8 @@ class PostgresStorage:
         column_ngram_query = SQL("({})").format(SQL(" OR ").join(or_parts))
         return column_ngram_query
 
-    def find_fingerprint(self, collection, query=None, layer_query=None, layer_ngram_query=None, layers=None,
+    @staticmethod
+    def find_fingerprint(collection, query=None, layer_query=None, layer_ngram_query=None, layers=None,
                          order_by_key=False):
         """
         A wrapper over `select` method, which enables to conveniently build composite AND/OR queries.
