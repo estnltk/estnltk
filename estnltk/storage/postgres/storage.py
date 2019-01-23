@@ -1,7 +1,5 @@
 import os
 import pandas
-import operator as op
-from functools import reduce
 
 import psycopg2
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
@@ -10,8 +8,6 @@ from estnltk import logger
 from estnltk.converters import dict_to_layer
 from estnltk.converters import dict_to_text, text_to_json
 from estnltk.storage.postgres import PgCollection
-from estnltk.storage.postgres import JsonbLayerQuery
-from estnltk.storage.postgres import JsonbTextQuery
 from estnltk.storage.postgres import collection_table_identifier
 from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import fragment_table_identifier
@@ -274,99 +270,6 @@ class PostgresStorage:
             or_parts.append(p)
         column_ngram_query = SQL("({})").format(SQL(" OR ").join(or_parts))
         return column_ngram_query
-
-    @staticmethod
-    def find_fingerprint(collection, query=None, layer_query=None, layer_ngram_query=None, layers=None,
-                         order_by_key=False):
-        """
-        A wrapper over `select` method, which enables to conveniently build composite AND/OR queries.
-
-        Args:
-            table: str
-                collection table name
-            query: dict
-                Query applied to collection table
-            layer_query: dict
-                Query applied to layer table
-            order_by_key: bool
-                Sort results by key in ascending order
-        Returns:
-            iterator of tuples (key, text)
-
-        Example `layer_ngramm_query`:
-
-            Search ("üks,kaks" AND "kolm,neli") OR "viis,kuus":
-
-            q = {
-                "some_layer": {
-                     "field": "some_field",
-                     "query": [[("üks", "kaks"), ("kolm", "neli")], [("viis", "kuus")]],
-                },
-                ...
-
-        Example `query`:
-
-            q = {
-                 "layer": "morph_analysis",
-                 "field": "lemma",
-                 "ambiguous": True,
-                 "query": ["mis", "palju"],  # mis OR palju
-                 }
-
-        Example `layer_query`:
-
-            q = {
-                layer1: {
-                    "field": "lemma",
-                    "query": ["ööbik"],
-                    "ambiguous": True
-                },
-                layer2: {
-                    "field": "lemma",
-                    "query": ["ööbik"],
-                    "ambiguous": True
-                }}
-        """
-        if query is None and layer_query is None and layer_ngram_query is None:
-            raise PgStorageException("One of 'query', 'layer_query' or 'layer_ngramm_query' should be specified.")
-
-        def build_text_query(q):
-            or_query_list = []
-            for and_terms in q["query"]:
-                if not isinstance(and_terms, (list, tuple, set)):
-                    and_terms = [and_terms]
-                if and_terms:
-                    and_query = reduce(op.__and__, (JsonbTextQuery(q["layer"], q["ambiguous"], **{q["field"]: term})
-                                                    for term in and_terms))
-                    or_query_list.append(and_query)
-            if len(or_query_list) > 0:
-                jsonb_query = reduce(op.__or__, or_query_list)
-            else:
-                jsonb_query = None
-            return jsonb_query
-
-        def build_layer_query(layer_name, q):
-            or_query_list = []
-            for and_terms in q["query"]:
-                if not isinstance(and_terms, (list, tuple, set)):
-                    and_terms = [and_terms]
-                if and_terms:
-                    and_query = reduce(op.__and__,
-                                       (JsonbLayerQuery(layer_name, q["ambiguous"], **{q["field"]: term})
-                                        for term in and_terms))
-                    or_query_list.append(and_query)
-            if len(or_query_list) > 0:
-                jsonb_query = reduce(op.__or__, or_query_list)
-            else:
-                jsonb_query = None
-            return jsonb_query
-
-        jsonb_text_query = build_text_query(query) if query is not None else None
-        jsonb_layer_query = {layer: build_layer_query(layer, q) for layer, q in
-                             layer_query.items()} if layer_query is not None else None
-
-        return collection.select(query=jsonb_text_query, layer_query=jsonb_layer_query,
-                                 layer_ngram_query=layer_ngram_query, layers=layers, order_by_key=order_by_key)
 
     def get_collection(self, table_name, meta_fields=None):
         """Returns a new instance of `PgCollection` without physically creating it."""
