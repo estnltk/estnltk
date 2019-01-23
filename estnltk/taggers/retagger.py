@@ -26,7 +26,7 @@ class Retagger(Tagger):
         raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
 
     def retag(self, text: Text, status: dict = None, 
-                    check_output_consistency: bool=True ) -> Text:
+              check_output_consistency: bool=True ) -> Text:
         """
         Modifies output_layer of given Text object.
         
@@ -49,7 +49,7 @@ class Retagger(Tagger):
         # TODO: check that layer is not frozen
 
         # Used _change_layer to get the retagged variant of the layer
-        self._change_layer(text.text, layers, status)
+        self._change_layer(text, layers, status)
         # Check that the layer exists
         assert self.output_layer in layers, \
                "output_layer '{}' missing from layers {}".format(
