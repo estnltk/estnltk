@@ -1,3 +1,5 @@
+from psycopg2.sql import SQL
+
 """
 The module provides tools to compose boolean queries.
 
@@ -33,14 +35,14 @@ class BinaryOperation(Node):
 
 class And(BinaryOperation):
     def eval(self, storage, collection_name):
-        return "({} AND {})".format(self.left.eval(storage, collection_name),
-                                    self.right.eval(storage, collection_name))
+        return SQL("({} AND {})").format(self.left.eval(storage, collection_name),
+                                         self.right.eval(storage, collection_name))
 
 
 class Or(BinaryOperation):
     def eval(self, storage, collection_name):
-        return "({} OR {})".format(self.left.eval(storage, collection_name),
-                                   self.right.eval(storage, collection_name))
+        return SQL("({} OR {})").format(self.left.eval(storage, collection_name),
+                                        self.right.eval(storage, collection_name))
 
 
 class Query(Node):
@@ -49,6 +51,7 @@ class Query(Node):
         raise NotImplemented()
 
 
+# TODO: test or remove
 class SimpleQuery(Query):
     """Example implementation of `Query`.
 
@@ -61,4 +64,4 @@ class SimpleQuery(Query):
         self.kwargs = kwargs
 
     def eval(self, storage, collection_name):
-        return ' AND '.join("%s = '%s'" % (k, v) for k, v in self.kwargs.items())
+        return SQL(' AND '.join("%s = '%s'" % (k, v) for k, v in self.kwargs.items()))

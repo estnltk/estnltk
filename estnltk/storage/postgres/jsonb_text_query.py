@@ -24,4 +24,4 @@ class JsonbTextQuery(Query):
         else:
             pat = SQL("""{table}."data"->'layers' @> '[{{"name": {layer}, "spans": [{condition}]}}]'""")
 
-        return pat.format(table=table, layer=Identifier(self.layer), condition=SQL(json.dumps(self.kwargs))).as_string(storage.conn)
+        return pat.format(table=table, layer=Identifier(self.layer), condition=SQL(json.dumps(self.kwargs)))

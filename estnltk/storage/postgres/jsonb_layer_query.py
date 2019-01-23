@@ -21,4 +21,4 @@ class JsonbLayerQuery(Query):
             pat = """%s.data @> '{"spans": [[%s]]}'"""
         else:
             pat = """%s.data @> '{"spans": [%s]}'"""
-        return pat % (self.layer_table, json.dumps(self.kwargs))
+        return SQL(pat % (self.layer_table, json.dumps(self.kwargs)))

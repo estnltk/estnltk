@@ -250,7 +250,7 @@ class PostgresStorage:
         if query is not None:
             # build constraint on fragment's data column
             sql_parts.append(SQL('AND'))
-            sql_parts.append(SQL(query.eval()))
+            sql_parts.append(query.eval())
 
         if ngram_query is not None:
             # build constraint on fragment's ngram index

@@ -264,11 +264,11 @@ def build_sql_query(storage,
     if query is not None:
         # build constraint on the main text table
         sql_parts.append(where_and)
-        sql_parts.append(SQL(query.eval(storage, collection_name)))
+        sql_parts.append(query.eval(storage, collection_name))
         where_and = SQL('AND')
     if layer_query:
         # build constraint on related layer tables
-        q = SQL(" AND ".join(query.eval(storage, collection_name) for layer, query in layer_query.items()))
+        q = SQL(" AND ").join(query.eval(storage, collection_name) for layer, query in layer_query.items())
         sql_parts.append(where_and)
         sql_parts.append(q)
         where_and = SQL('AND')
