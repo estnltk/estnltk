@@ -30,9 +30,6 @@ Example usage:
         print(key, txt)
 
 """
-from .jsonb_layer_query import JsonbLayerQuery
-from .jsnob_text_query import JsonbTextQuery
-
 from .sql_strings import fragment_table_name
 from .sql_strings import layer_table_name
 
@@ -61,6 +58,9 @@ from .pg_operations import build_sql_query
 from .pg_operations import select_raw
 
 from .pg_operations import count_rows
+
+from .jsonb_layer_query import JsonbLayerQuery
+from .jsnob_text_query import JsonbTextQuery
 
 from .collection import RowMapperRecord
 from .collection import PgCollection

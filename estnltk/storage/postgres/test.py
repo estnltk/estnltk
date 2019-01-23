@@ -242,7 +242,7 @@ class TestStorage(unittest.TestCase):
         expected = (
             'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
             'FROM "test_schema"."test_collection" '
-            'WHERE data->\'layers\' @> \'[{"name": "kiht", "spans": [[{"lemma": "kass"}]]}]\' ;')
+            'WHERE "test_schema"."test_collection"."data"->\'layers\' @> \'[{"name": "kiht", "spans": [[{"lemma": "kass"}]]}]\' ;')
         self.assertEqual(expected, result)
 
         # layer_query
@@ -346,7 +346,7 @@ class TestStorage(unittest.TestCase):
             'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_2__layer"."text_id" '
               'AND "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_3__layer"."text_id" '
               'AND "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_4__layer"."text_id" '
-              'AND data->\'layers\' @> \'[{"name": "layer_1", "spans": [[{"lemma": "kass"}]]}]\' '
+              'AND "test_schema"."test_collection"."data"->\'layers\' @> \'[{"name": "layer_1", "spans": [[{"lemma": "kass"}]]}]\' '
               'AND (layer1_table.data @> \'{"spans": [[{"lemma": "esimene"}]]}\' '
                 'OR layer1_table.data @> \'{"spans": [[{"lemma": "teine"}]]}\') '
               'AND "test_schema"."test_collection"."id" = ANY(ARRAY[2,5,9]) '

@@ -1,5 +1,7 @@
 import json
+from psycopg2.sql import SQL, Identifier
 
+from estnltk.storage.postgres import collection_table_identifier
 from .query import Query
 
 
@@ -15,9 +17,11 @@ class JsonbTextQuery(Query):
         self.ambiguous = ambiguous
         self.kwargs = kwargs
 
-    def eval(self):
+    def eval(self, storage, collection_name):
+        table = collection_table_identifier(storage, collection_name)
         if self.ambiguous is True:
-            pat = """data->'layers' @> '[{"name": "%s", "spans": [[%s]]}]'"""
+            pat = SQL("""{table}."data"->'layers' @> '[{{"name": {layer}, "spans": [[{condition}]]}}]'""")
         else:
-            pat = """data->'layers' @> '[{"name": "%s", "spans": [%s]}]'"""
-        return pat % (self.layer, json.dumps(self.kwargs))
+            pat = SQL("""{table}."data"->'layers' @> '[{{"name": {layer}, "spans": [{condition}]}}]'""")
+
+        return pat.format(table=table, layer=Identifier(self.layer), condition=SQL(json.dumps(self.kwargs))).as_string(storage.conn)

@@ -1,4 +1,5 @@
 import json
+from psycopg2.sql import SQL
 
 from .query import Query
 
@@ -15,7 +16,7 @@ class JsonbLayerQuery(Query):
         self.ambiguous = ambiguous
         self.kwargs = kwargs
 
-    def eval(self):
+    def eval(self, storage, collection_name):
         if self.ambiguous is True:
             pat = """%s.data @> '{"spans": [[%s]]}'"""
         else:

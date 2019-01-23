@@ -21,7 +21,7 @@ class Node:
         """Or operation with "|" operator"""
         return Or(self, other)
 
-    def eval(self):
+    def eval(self, storage, collection_name):
         """Operations and leaf nodes should implement it"""
         raise NotImplemented()
 
@@ -32,17 +32,19 @@ class BinaryOperation(Node):
 
 
 class And(BinaryOperation):
-    def eval(self):
-        return "({} AND {})".format(self.left.eval(), self.right.eval())
+    def eval(self, storage, collection_name):
+        return "({} AND {})".format(self.left.eval(storage, collection_name),
+                                    self.right.eval(storage, collection_name))
 
 
 class Or(BinaryOperation):
-    def eval(self):
-        return "({} OR {})".format(self.left.eval(), self.right.eval())
+    def eval(self, storage, collection_name):
+        return "({} OR {})".format(self.left.eval(storage, collection_name),
+                                   self.right.eval(storage, collection_name))
 
 
 class Query(Node):
-    def eval(self):
+    def eval(self, storage, collection_name):
         """Returns string representation of a (leaf) node"""
         raise NotImplemented()
 
@@ -58,5 +60,5 @@ class SimpleQuery(Query):
     def _init__(self, **kwargs):
         self.kwargs = kwargs
 
-    def eval(self):
+    def eval(self, storage, collection_name):
         return ' AND '.join("%s = '%s'" % (k, v) for k, v in self.kwargs.items())
