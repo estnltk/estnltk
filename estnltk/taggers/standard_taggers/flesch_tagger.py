@@ -1,6 +1,7 @@
 from estnltk.taggers import Retagger
 from estnltk.vabamorf.morf import syllabify_word
-import flesch
+from . import flesch
+
 
 class SentenceFleschScoreRetagger(Retagger):
     """Adds Flesch reading ease score to sentences layer and the whole text."""
@@ -14,7 +15,7 @@ class SentenceFleschScoreRetagger(Retagger):
         self.output_layer = sentences_layer
         self.output_attributes = (score_attribute,)
 
-    def _change_layer(self, text, status):
+    def _change_layer(self, text, layers, status):
         if 'sentences' not in text.layers:
             text.tag_layer(['sentences'])
         if 'morph_analysis' not in text.layers:
