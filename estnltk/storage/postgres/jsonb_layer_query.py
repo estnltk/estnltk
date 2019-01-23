@@ -1,6 +1,7 @@
 import json
 from psycopg2.sql import SQL
 
+from estnltk.storage.postgres import layer_table_identifier
 from .query import Query
 
 
@@ -9,16 +10,18 @@ class JsonbLayerQuery(Query):
     Constructs database query to search `layer` objects stored in jsonb format.
     """
 
-    def __init__(self, layer_table, ambiguous=True, **kwargs):
+    def __init__(self, layer_name, ambiguous=True, **kwargs):
         if not kwargs:
             raise ValueError('At least one layer attribute is required.')
-        self.layer_table = layer_table
+        self.layer_name = layer_name
         self.ambiguous = ambiguous
         self.kwargs = kwargs
 
     def eval(self, storage, collection_name):
+        table = layer_table_identifier(storage, collection_name, self.layer_name)
         if self.ambiguous is True:
-            pat = """%s.data @> '{"spans": [[%s]]}'"""
+            pat = SQL("""{table}.data @> '{{"spans": [[{condition}]]}}'""")
         else:
-            pat = """%s.data @> '{"spans": [%s]}'"""
-        return SQL(pat % (self.layer_table, json.dumps(self.kwargs)))
+            pat = SQL("""{table}.data @> '{{"spans": [{condition}]}}'""")
+
+        return pat.format(table=table, condition=SQL(json.dumps(self.kwargs)))

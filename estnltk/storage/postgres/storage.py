@@ -136,22 +136,6 @@ class PostgresStorage:
         """
         return "%s__%s__fragment" % (collection_table, fragment_name)
 
-    @staticmethod
-    def layer_name_to_table_name(collection_table, layer_name):
-        """
-        Constructs layer table name.
-
-        Args:
-            collection_table: str
-                parent collection table
-            layer_name: str
-                layer name
-        Returns:
-            str: layer table name
-
-        """
-        return "%s__%s__layer" % (collection_table, layer_name)
-
     def insert(self, table, text, key=None, meta=None):
         """
         Saves a given `text` object into a given `table`..
@@ -272,18 +256,16 @@ class PostgresStorage:
                 fragment_layer = dict_to_layer(fragment_dict, text)
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
-    def build_layer_ngram_query(self, ngram_query, collection_table):
+    def build_layer_ngram_query(self, ngram_query, collection_name):
         sql_parts = []
-        for layer in ngram_query:
-            for column, q in ngram_query[layer].items():
-                table_identifier = layer_table_identifier(self, collection_table, layer)
-                layer_table = self.layer_name_to_table_name(collection_table, layer)
-                col_query = self._build_column_ngram_query(q, column, layer_table)
+        for layer_name in ngram_query:
+            for column, q in ngram_query[layer_name].items():
+                col_query = self._build_column_ngram_query(q, column, collection_name, layer_name)
                 sql_parts.append(col_query)
         q = SQL(" AND ").join(sql_parts)
         return q
 
-    def _build_column_ngram_query(self, query, column, table_name):
+    def _build_column_ngram_query(self, query, column, collection_name, layer_name):
         if not isinstance(query, list):
             query = list(query)
         if isinstance(query[0], list):
@@ -298,12 +280,12 @@ class PostgresStorage:
         else:
             raise ValueError("Invalid ngram query format: {}".format(query))
 
+        table_identifier = layer_table_identifier(self, collection_name, layer_name)
         or_parts = []
         for and_term in or_terms:
             arr = ",".join("'%s'" % v for v in and_term)
-            p = SQL("{schema}.{table}.{column} @> ARRAY[%s]" % arr).format(
-                schema=Identifier(self.schema),
-                table=Identifier(table_name),
+            p = SQL("{table}.{column} @> ARRAY[%s]" % arr).format(
+                table=table_identifier,
                 column=Identifier(column))
             or_parts.append(p)
         column_ngram_query = SQL("({})").format(SQL(" OR ").join(or_parts))
@@ -378,15 +360,14 @@ class PostgresStorage:
                 jsonb_query = None
             return jsonb_query
 
-        def build_layer_query(layer, q):
+        def build_layer_query(layer_name, q):
             or_query_list = []
-            layer_table = self.layer_name_to_table_name(collection.name, layer)
             for and_terms in q["query"]:
                 if not isinstance(and_terms, (list, tuple, set)):
                     and_terms = [and_terms]
                 if and_terms:
                     and_query = reduce(op.__and__,
-                                       (JsonbLayerQuery(layer_table, q["ambiguous"], **{q["field"]: term})
+                                       (JsonbLayerQuery(layer_name, q["ambiguous"], **{q["field"]: term})
                                         for term in and_terms))
                     or_query_list.append(and_query)
             if len(or_query_list) > 0:

@@ -22,6 +22,7 @@ from estnltk.storage.postgres import collection_table_exists, structure_table_ex
 from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import layer_table_exists
+from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import PgCollectionException
 from estnltk.storage.postgres import build_sql_query
@@ -249,16 +250,16 @@ class TestStorage(unittest.TestCase):
         sql = build_sql_query(self.storage,
                               collection.name,
                               layer_query={
-            'layer1': JsonbLayerQuery(layer_table='layer1_table', lemma='esimene') |
-                      JsonbLayerQuery(layer_table='layer1_table', lemma='teine')
+            'layer1': JsonbLayerQuery(layer_name='layer1_table', lemma='esimene') |
+                      JsonbLayerQuery(layer_name='layer1_table', lemma='teine')
         })
         result = sql.as_string(self.storage.conn)
         expected = (
             'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
             'FROM "test_schema"."test_collection", "test_schema"."test_collection__layer1__layer" '
             'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer1__layer"."text_id" '
-            'AND (layer1_table.data @> \'{"spans": [[{"lemma": "esimene"}]]}\' '
-            'OR layer1_table.data @> \'{"spans": [[{"lemma": "teine"}]]}\') ;')
+            'AND ("test_schema"."test_collection__layer1_table__layer".data @> \'{"spans": [[{"lemma": "esimene"}]]}\' '
+            'OR "test_schema"."test_collection__layer1_table__layer".data @> \'{"spans": [[{"lemma": "teine"}]]}\') ;')
         self.assertEqual(expected, result)
 
         # layer_ngram_query
@@ -318,8 +319,8 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(expected, result)
 
         # all in one
-        layer_query = {'layer_2': JsonbLayerQuery(layer_table='layer1_table', lemma='esimene') |
-                                  JsonbLayerQuery(layer_table='layer1_table', lemma='teine')}
+        layer_query = {'layer_2': JsonbLayerQuery(layer_name='layer1_table', lemma='esimene') |
+                                  JsonbLayerQuery(layer_name='layer1_table', lemma='teine')}
         sql = build_sql_query(self.storage,
                               collection.name,
                               query=Q('layer_1', lemma='kass'),
@@ -347,8 +348,8 @@ class TestStorage(unittest.TestCase):
               'AND "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_3__layer"."text_id" '
               'AND "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_4__layer"."text_id" '
               'AND "test_schema"."test_collection"."data"->\'layers\' @> \'[{"name": "layer_1", "spans": [[{"lemma": "kass"}]]}]\' '
-              'AND (layer1_table.data @> \'{"spans": [[{"lemma": "esimene"}]]}\' '
-                'OR layer1_table.data @> \'{"spans": [[{"lemma": "teine"}]]}\') '
+              'AND ("test_schema"."test_collection__layer1_table__layer".data @> \'{"spans": [[{"lemma": "esimene"}]]}\' '
+                'OR "test_schema"."test_collection__layer1_table__layer".data @> \'{"spans": [[{"lemma": "teine"}]]}\') '
               'AND "test_schema"."test_collection"."id" = ANY(ARRAY[2,5,9]) '
               'AND ("test_schema"."test_collection__layer_3__layer"."lemma" @> ARRAY[\'see-olema\']) '
               'AND "id" NOT IN (SELECT "text_id" FROM "test_schema"."test_collection__layer_5__layer") '
@@ -540,8 +541,8 @@ class TestLayer(unittest.TestCase):
         self.assertEqual(text1_db[layer2].lemma, text1[layer2].lemma)
 
         collection.delete()
-        self.assertFalse(table_exists(self.storage, self.storage.layer_name_to_table_name(collection.name, layer1)))
-        self.assertFalse(table_exists(self.storage, self.storage.layer_name_to_table_name(collection.name, layer2)))
+        self.assertFalse(layer_table_exists(self.storage, collection.name, layer1))
+        self.assertFalse(layer_table_exists(self.storage, collection.name, layer2))
 
     def test_layer_meta(self):
         table_name = get_random_table_name()
@@ -567,16 +568,7 @@ class TestLayer(unittest.TestCase):
                                 row_mapper=row_mapper1,
                                 meta={"meta_text_id": "int",
                                       "sum": "float"})
-        layer_table = self.storage.layer_name_to_table_name(collection.name, layer1)
-        self.assertTrue(table_exists(self.storage, layer_table))
-
-        q = "SELECT text_id, meta_text_id, sum from %s.%s" % (
-            self.schema, layer_table)  # col.layer_name_to_table_name(layer1)
-        with self.storage.conn.cursor() as c:
-            c.execute(q)
-            for row in c.fetchall():
-                self.assertEqual(row[0], row[1])
-                self.assertAlmostEqual(row[2], 45.5)
+        self.assertTrue(layer_table_exists(self.storage, collection.name, layer1))
 
         # get_layer_meta
         layer_meta = collection.get_layer_meta(layer_name=layer1)
@@ -605,40 +597,39 @@ class TestLayer(unittest.TestCase):
             collection_insert(text2)
 
         # test ambiguous layer
-        layer1 = "layer1"
-        layer1_table = self.storage.layer_name_to_table_name(table_name, layer1)
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+        layer1_name = "layer1"
+        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1_name)
 
         def row_mapper1(row):
             text_id, text = row[0], row[1]
             layer = tagger1.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        collection.old_slow_create_layer(layer1,
+        collection.old_slow_create_layer(layer1_name,
                                   data_iterator=collection.select(),
                                   row_mapper=row_mapper1)
 
-        q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik', form='sg n')
-        self.assertEqual(len(list(collection.select(layer_query={layer1: q}))), 1)
+        q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik', form='sg n')
+        self.assertEqual(len(list(collection.select(layer_query={layer1_name: q}))), 1)
 
-        q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik') | JsonbLayerQuery(layer_table=layer1_table,
-                                                                                       lemma='mis')
-        self.assertEqual(len(list(collection.select(layer_query={layer1: q}))), 2)
+        q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik') | JsonbLayerQuery(layer_name=layer1_name,
+                                                                                     lemma='mis')
+        self.assertEqual(len(list(collection.select(layer_query={layer1_name: q}))), 2)
 
-        q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik') & JsonbLayerQuery(layer_table=layer1_table,
-                                                                                       lemma='mis')
-        self.assertEqual(len(list(collection.select(layer_query={layer1: q}))), 0)
+        q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik') & JsonbLayerQuery(layer_name=layer1_name,
+                                                                                     lemma='mis')
+        self.assertEqual(len(list(collection.select(layer_query={layer1_name: q}))), 0)
 
-        q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik')
-        text = [text for key, text in collection.select(layer_query={layer1: q})][0]
-        self.assertTrue(layer1 not in text.layers)
+        q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik')
+        text = [text for key, text in collection.select(layer_query={layer1_name: q})][0]
+        self.assertTrue(layer1_name not in text.layers)
 
-        text = list(collection.select(layer_query={layer1: q}, layers=[layer1]))[0][1]
-        self.assertTrue(layer1 in text.layers)
+        text = list(collection.select(layer_query={layer1_name: q}, layers=[layer1_name]))[0][1]
+        self.assertTrue(layer1_name in text.layers)
 
         # test with 2 layers
         layer2 = "layer2"
-        layer2_table = self.storage.layer_name_to_table_name(table_name, layer2)
+        layer2_table = layer2
         tagger2 = VabamorfTagger(disambiguate=True, layer_name=layer2)
 
         def row_mapper2(row):
@@ -648,11 +639,11 @@ class TestLayer(unittest.TestCase):
 
         collection.old_slow_create_layer(layer2, data_iterator=collection.select(), row_mapper=row_mapper2)
 
-        q = JsonbLayerQuery(layer_table=layer2_table, lemma='ööbik', form='sg n')
+        q = JsonbLayerQuery(layer_name=layer2_table, lemma='ööbik', form='sg n')
         self.assertEqual(len(list(collection.select(layer_query={layer2: q}))), 1)
 
-        text = list(collection.select(layer_query={layer2: q}, layers=[layer1, layer2]))[0][1]
-        self.assertTrue(layer1 in text.layers)
+        text = list(collection.select(layer_query={layer2: q}, layers=[layer1_name, layer2]))[0][1]
+        self.assertTrue(layer1_name in text.layers)
         self.assertTrue(layer2 in text.layers)
 
     def test_layer_fingerprint_query(self):
@@ -775,8 +766,8 @@ class TestLayer(unittest.TestCase):
         collection.old_slow_create_layer(layer2, data_iterator=collection.select(), row_mapper=row_mapper2,
                                   ngram_index={"partofspeech": 3})
 
-        self.assertEqual(count_rows(self.storage, self.storage.layer_name_to_table_name(table_name, layer1)), 2)
-        self.assertEqual(count_rows(self.storage, self.storage.layer_name_to_table_name(table_name, layer2)), 2)
+        self.assertEqual(count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer1)), 2)
+        self.assertEqual(count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer2)), 2)
 
         res = list(collection.find_fingerprint(layer_ngram_query={
             layer1: {"lemma": [("otsas", ".")]}}))
