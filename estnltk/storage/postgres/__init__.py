@@ -70,5 +70,7 @@ from .collection import RowMapperRecord
 from .collection import PgCollection
 from .collection import PgCollectionException
 
+from .pgpass_parsing import parse_pgpass
+
 from .storage import PgStorageException
 from .storage import PostgresStorage
