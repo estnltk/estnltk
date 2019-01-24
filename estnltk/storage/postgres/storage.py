@@ -61,28 +61,6 @@ class PostgresStorage:
     def closed(self):
         return self.conn.closed
 
-    def insert(self, table, text, key=None, meta=None):
-        """
-        Saves a given `text` object into a given `table`..
-        Args:
-            table: str
-            text: text
-            key: int
-
-        Returns:
-            int: row key (id)
-        """
-        text = text_to_json(text)
-        if key is None:
-            key = DEFAULT
-        else:
-            key = Literal(key)
-        with self.conn.cursor() as c:
-            c.execute(SQL("INSERT INTO {}.{} VALUES ({}, %s) RETURNING id").format(
-                Identifier(self.schema), Identifier(table), key), (text,))
-            row_key = c.fetchone()[0]
-            return row_key
-
     def select_by_key(self, table, key, return_as_dict=False):
         """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
         with self.conn.cursor() as c:
