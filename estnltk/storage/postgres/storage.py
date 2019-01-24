@@ -61,18 +61,6 @@ class PostgresStorage:
     def closed(self):
         return self.conn.closed
 
-    def select_by_key(self, table, key, return_as_dict=False):
-        """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
-        with self.conn.cursor() as c:
-            c.execute(SQL("SELECT * FROM {}.{} WHERE id = %s").format(Identifier(self.schema), Identifier(table)),
-                      (key,))
-            res = c.fetchone()
-            if res is None:
-                raise PgStorageException("Key %s not found." % key)
-            key, text_dict = res
-            text = text_dict if return_as_dict is True else dict_to_text(text_dict)
-            return text
-
     def get_all_table_names(self):
         if self.closed():
             return None
