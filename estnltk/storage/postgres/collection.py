@@ -14,11 +14,13 @@ from psycopg2.sql import SQL, Identifier, Literal, DEFAULT, Composed
 from estnltk import logger
 from estnltk.converters.dict_exporter import layer_to_dict
 from estnltk.converters import dict_to_text
+from estnltk.converters import dict_to_layer
 from estnltk.converters import text_to_json
 from estnltk.layer_operations import create_ngram_fingerprint_index
 
 from estnltk.storage.postgres import table_identifier
 from estnltk.storage.postgres import collection_table_identifier
+from estnltk.storage.postgres import fragment_table_identifier
 from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import layer_table_exists
@@ -309,12 +311,66 @@ class PgCollection:
         return collection_table_exists
 
     def select_fragment_raw(self, fragment_name, parent_layer_name, query=None, ngram_query=None):
-        return self.storage.select_fragment_raw(
-            fragment_name=fragment_name,
-            collection_name=self.name,
-            parent_layer_name=parent_layer_name,
-            query=query,
-            ngram_query=ngram_query)
+        """
+
+        Args:
+            fragment_name:
+            collection_name:
+            parent_layer_name:
+            query:
+            ngram_query:
+
+        Returns:
+            Iterator of tuples.
+            Each tuple has 6 elements:
+                text_id
+                text
+                parent_id
+                parent_layer
+                fragment_id
+                fragment_layer
+        """
+        # 1. Build query
+        q = SQL("""
+            SELECT
+              {text_table}.id, {text_table}.data, {parent_table}.id, {parent_table}.data,
+              {fragment_table}.id, {fragment_table}.data
+            FROM
+              {text_table}, {parent_table}, {fragment_table}
+            WHERE
+              {fragment_table}.parent_id = {parent_table}.id AND {parent_table}.text_id = {text_table}.id
+            """)
+        q = q.format(
+            text_table=collection_table_identifier(self.storage, self.name),
+            parent_table=layer_table_identifier(self.storage, self.name, parent_layer_name),
+            fragment_table=fragment_table_identifier(self.storage, self.name, fragment_name))
+
+        sql_parts = [q]
+
+        if query is not None:
+            # build constraint on fragment's data column
+            sql_parts.append(SQL('AND'))
+            sql_parts.append(query.eval())
+
+        if ngram_query is not None:
+            # build constraint on fragment's ngram index
+            ngram_q = SQL(" AND ").join(SQL(self._build_column_ngram_query(q, col, fragment_name))
+                                        for col, q in ngram_query)
+            sql_parts.append(SQL('AND'))
+            sql_parts.append(ngram_q)
+
+        q = SQL(' ').join(sql_parts)
+
+        # 2. Execute query
+        logger.debug(q.as_string(self.storage.conn))
+        with self.storage.conn.cursor() as c:
+            c.execute(q)
+            for row in c.fetchall():
+                text_id, text_dict, parent_id, parent_dict, fragment_id, fragment_dict = row
+                text = dict_to_text(text_dict)
+                parent_layer = dict_to_layer(parent_dict, text)
+                fragment_layer = dict_to_layer(fragment_dict, text)
+                yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
     def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False,
                collection_meta=None, progressbar=None, missing_layer: str = None):

@@ -85,68 +85,6 @@ class PostgresStorage:
             tables = {row[0]: {'total_size': row[1], 'comment':row[2]} for row in c}
             return tables
 
-    def select_fragment_raw(self, fragment_name, collection_name, parent_layer_name, query=None, ngram_query=None):
-        """
-
-        Args:
-            fragment_name:
-            collection_name:
-            parent_layer_name:
-            query:
-            ngram_query:
-
-        Returns:
-            Iterator of tuples.
-            Each tuple has 6 elements:
-                text_id
-                text
-                parent_id
-                parent_layer
-                fragment_id
-                fragment_layer
-        """
-        # 1. Build query
-        q = SQL("""
-            SELECT
-              {text_table}.id, {text_table}.data, {parent_table}.id, {parent_table}.data,
-              {fragment_table}.id, {fragment_table}.data
-            FROM
-              {text_table}, {parent_table}, {fragment_table}
-            WHERE
-              {fragment_table}.parent_id = {parent_table}.id AND {parent_table}.text_id = {text_table}.id
-            """)
-        q = q.format(
-            text_table=collection_table_identifier(self, collection_name),
-            parent_table=layer_table_identifier(self, collection_name, parent_layer_name),
-            fragment_table=fragment_table_identifier(self, collection_name, fragment_name))
-
-        sql_parts = [q]
-
-        if query is not None:
-            # build constraint on fragment's data column
-            sql_parts.append(SQL('AND'))
-            sql_parts.append(query.eval())
-
-        if ngram_query is not None:
-            # build constraint on fragment's ngram index
-            ngram_q = SQL(" AND ").join(SQL(self._build_column_ngram_query(q, col, fragment_name))
-                                        for col, q in ngram_query)
-            sql_parts.append(SQL('AND'))
-            sql_parts.append(ngram_q)
-
-        q = SQL(' ').join(sql_parts)
-
-        # 2. Execute query
-        logger.debug(q.as_string(self.conn))
-        with self.conn.cursor() as c:
-            c.execute(q)
-            for row in c.fetchall():
-                text_id, text_dict, parent_id, parent_dict, fragment_id, fragment_dict = row
-                text = dict_to_text(text_dict)
-                parent_layer = dict_to_layer(parent_dict, text)
-                fragment_layer = dict_to_layer(fragment_dict, text)
-                yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
-
     def get_collection(self, table_name, meta_fields=None):
         """Returns a new instance of `PgCollection` without physically creating it."""
         return PgCollection(name=table_name, storage=self, meta=meta_fields)
