@@ -4,13 +4,8 @@ import psycopg2
 from psycopg2.sql import SQL, Identifier, Literal
 
 from estnltk import logger
-from estnltk.converters import dict_to_layer
-from estnltk.converters import dict_to_text
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import parse_pgpass
-from estnltk.storage.postgres import collection_table_identifier
-from estnltk.storage.postgres import layer_table_identifier
-from estnltk.storage.postgres import fragment_table_identifier
 
 
 class PgStorageException(Exception):
