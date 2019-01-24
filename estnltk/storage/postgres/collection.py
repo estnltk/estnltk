@@ -13,6 +13,7 @@ from psycopg2.sql import SQL, Identifier, Literal, DEFAULT, Composed
 
 from estnltk import logger
 from estnltk.converters.dict_exporter import layer_to_dict
+from estnltk.converters import dict_to_text
 from estnltk.converters import text_to_json
 from estnltk.layer_operations import create_ngram_fingerprint_index
 
@@ -385,8 +386,17 @@ class PgCollection:
             yield data
 
     def select_by_key(self, key, return_as_dict=False):
-        """See PostgresStorage.select_by_key()"""
-        return self.storage.select_by_key(self.name, key, return_as_dict)
+        """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL("SELECT * FROM {}.{} WHERE id = %s;").format(Identifier(self.storage.schema),
+                                                                       Identifier(self.name)),
+                      (key,))
+            res = c.fetchone()
+            if res is None:
+                raise PgCollectionException("Key not found: {!r}".format(key))
+            key, text_dict = res
+            text = text_dict if return_as_dict is True else dict_to_text(text_dict)
+            return text
 
     def count_values(self, layer, attr, **kwargs):
         """Count attribute values in the collection."""

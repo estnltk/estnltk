@@ -118,7 +118,7 @@ class TestStorage(unittest.TestCase):
     def test_select_by_key(self):
         collection = self.storage.get_collection(get_random_table_name())
         collection.create()
-        self.assertRaises(PgStorageException, lambda: collection.select_by_key(1))
+        self.assertRaises(PgCollectionException, lambda: collection.select_by_key(1))
 
         text = Text("Mingi tekst")
         with collection.insert() as collection_insert:

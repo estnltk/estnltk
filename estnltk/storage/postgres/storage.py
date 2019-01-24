@@ -1,11 +1,11 @@
 import pandas
 
 import psycopg2
-from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
+from psycopg2.sql import SQL, Identifier, Literal
 
 from estnltk import logger
 from estnltk.converters import dict_to_layer
-from estnltk.converters import dict_to_text, text_to_json
+from estnltk.converters import dict_to_text
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import parse_pgpass
 from estnltk.storage.postgres import collection_table_identifier
