@@ -36,6 +36,7 @@ from .sql_strings import layer_table_name
 from .sql_strings import fragment_table_name
 
 from .pg_operations import collection_table_identifier
+from .pg_operations import structure_table_identifier
 from .pg_operations import layer_table_identifier
 from .pg_operations import fragment_table_identifier
 
