@@ -1,1 +1,74 @@
-'<script>\nvar elements = document.getElementsByClassName("overlapping-span")\nfor (let i = 0; i < elements.length; i++){\n    elements.item(i).addEventListener("click",function() {show_conflicting_spans(elements.item(i));})\n}\n\nfunction show_conflicting_spans(span_element) {\n    let spantable = document.createElement(\'div\')\n    spantable.classList.add(\'tables\')\n\n    // Prepare the contents of the span table\n    data = span_element.getAttribute("span_info")\n    data = data.split(",")\n    var spancontent = \'<table>\'\n    for (let row of data) {\n        spancontent+=\'<tr><td>\'\n        spancontent+=row\n        spancontent+=\'</td></tr>\'\n    }\n    spancontent += \'</table>\'\n    spantable.innerHTML = spancontent\n    span_element.parentElement.appendChild(spantable)\n\n    //Position the table directly below the corresponding text\n    console.log(span_element.parentElement.parentElement.getBoundingClientRect())\n    console.log(spantable.getBoundingClientRect())\n    spantable.style.left = span_element.getBoundingClientRect().left-span_element.parentElement.parentElement.parentElement.getBoundingClientRect().left + \'px\'\n    spantable.style.top = span_element.getBoundingClientRect().top-spantable.getBoundingClientRect().top+span_element.parentElement.parentElement.parentElement.getBoundingClientRect().height+ \'px\'\n    spantable.parentElement.style.height = spantable.parentElement.style.height+"100px"\n\n    // remove the table when clicked on again\n    spantable.addEventListener(\'click\', function () {\n        let element = this.parentElement\n        element.removeChild(this)  //deleting the table\n    })\n}\n</script><style>\n.span {\n    background-color: yellow;\n}\n\n.overlapping-span {\n    background-color: red;\n}\n\n.spanline {\n    background-color: blue;\n    position: relative;\n    height: 3px;\n    margin-left: 0px;\n}\n\n.tables {\n    position: absolute;\n    width: fit-content;\n    width: -moz-fit-content;\n    border: 1px solid black;\n}\n\n.maintext{0} {\n    position: relative;\n}\n\n.tables tbody tr:nth-child(even) {\n    background-color: lightgray;\n}\n\n.tables tbody tr:nth-child(odd) {\n    background-color: beige;\n}\n\n.tables tbody tr:hover {\n    background-color: ivory;\n}\n</style><span span_info=Sada>Sada</span> <span span_info=kaks,kakskümmend>kaks</span><span span_info=kakskümmend,kümme>kümme</span><span span_info=kakskümmend>nd</span> <span span_info=kolm>kolm</span>.<span span_info= Neli> Neli</span> <span span_info=tuhat>tuhat</span> <span span_info=viis,viissada>viis</span><span span_info=viissada,sada>sada</span> <span span_info=kuus,kuuskümmend>kuus</span><span span_info=kuuskümmend,kümme>kümme</span><span span_info=kuuskümmend>nd</span> <span span_info=seitse>seitse</span> <span span_info=koma>koma</span> <span span_info=kaheksa>kaheksa</span>. <span span_info=Üheksa,Üheksakümmend>Üheksa</span><span span_info=Üheksakümmend,kümme>kümme</span><span span_info=Üheksakümmend>nd</span> tuhat.'
+<script>
+for (var element of document.getElementsByClassName("overlapping-span")) {
+    element.addEventListener("click",function() {show_conflicting_spans(element);})
+}
+
+function show_conflicting_spans(span_element) {
+    let spantable = document.createElement('div')
+    spantable.classList.add('tables')
+
+    // Prepare the contents of the span table
+    data = span_element.getAttribute("span_info")
+    data = data.split(",")
+    var spancontent = '<table>'
+    for (let row of data) {
+        spancontent+='<tr><td>'
+        spancontent+=row
+        spancontent+='</td></tr>'
+    }
+    spancontent += '</table>'
+    spantable.innerHTML = spancontent
+    span_element.parentElement.appendChild(spantable)
+
+    //Position the table directly below the corresponding text
+    console.log(span_element.parentElement.parentElement.getBoundingClientRect())
+    console.log(spantable.getBoundingClientRect())
+    spantable.style.left = span_element.getBoundingClientRect().left-span_element.parentElement.parentElement.parentElement.getBoundingClientRect().left + 'px'
+    spantable.style.top = span_element.getBoundingClientRect().top-spantable.getBoundingClientRect().top+span_element.parentElement.parentElement.parentElement.getBoundingClientRect().height+ 'px'
+    spantable.parentElement.style.height = spantable.parentElement.style.height+"100px"
+
+    // remove the table when clicked on again
+    spantable.addEventListener('click', function () {
+        let element = this.parentElement
+        element.removeChild(this)  //deleting the table
+    })
+}
+</script><style>
+.span {
+    background-color: yellow;
+}
+
+.overlapping-span {
+    background-color: red;
+}
+
+.spanline {
+    background-color: blue;
+    position: relative;
+    height: 3px;
+    margin-left: 0px;
+}
+
+.tables {
+    position: absolute;
+    width: fit-content;
+    width: -moz-fit-content;
+    border: 1px solid black;
+}
+
+.maintext{0} {
+    position: relative;
+}
+
+.tables tbody tr:nth-child(even) {
+    background-color: lightgray;
+}
+
+.tables tbody tr:nth-child(odd) {
+    background-color: beige;
+}
+
+.tables tbody tr:hover {
+    background-color: ivory;
+}
+</style><span span_info=Sada>Sada</span> <span span_info=kaks,kakskümmend>kaks</span><span span_info=kakskümmend,kümme>kümme</span><span span_info=kakskümmend>nd</span> <span span_info=kolm>kolm</span>.<span span_info= Neli> Neli</span> <span span_info=tuhat>tuhat</span> <span span_info=viis,viissada>viis</span><span span_info=viissada,sada>sada</span> <span span_info=kuus,kuuskümmend>kuus</span><span span_info=kuuskümmend,kümme>kümme</span><span span_info=kuuskümmend>nd</span> <span span_info=seitse>seitse</span> <span span_info=koma>koma</span> <span span_info=kaheksa>kaheksa</span>. <span span_info=Üheksa,Üheksakümmend>Üheksa</span><span span_info=Üheksakümmend,kümme>kümme</span><span span_info=Üheksakümmend>nd</span> tuhat.

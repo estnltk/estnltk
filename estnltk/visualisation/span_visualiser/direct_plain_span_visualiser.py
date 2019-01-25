@@ -27,13 +27,13 @@ class DirectPlainSpanVisualiser(SpanVisualiser):
         self.fill_empty_spans = fill_empty_spans
     
     def __call__(self, segment):
-        
-        output = []
 
         # Simple text no span to fill
         if not self.fill_empty_spans and self.is_pure_text(segment):
-            output.append(segment[0])
+             return segment[0]
+
         else:
+            output = []
             # There is a span to decorate
             output.append('<span style=')
             if self.colour_mapping is not None:
@@ -61,5 +61,4 @@ class DirectPlainSpanVisualiser(SpanVisualiser):
             output.append('>')
             output.append(segment[0])
             output.append('</span>')
-
-        return "".join(output)
+            return "".join(output)

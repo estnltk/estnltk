@@ -8,11 +8,6 @@ def test_css():
     file = rel_path("tests/test_visualisation/expected_outputs/indirect_plain_span_visualiser_outputs/css_test_input.txt")
     with open(file,encoding="UTF-8") as expected_file:
         expected = expected_file.read()
-    # python escapes backslashes in readline() and it messes up the test, this fixes that
-    expected = expected.replace("\\n", "\n")
-    expected = expected.replace("\\'", "\'")
-    expected = expected.replace("'", "")
-    result = result.replace("'", "")
     assert result == expected
 
 def test_html():
@@ -22,9 +17,4 @@ def test_html():
         "tests/test_visualisation/expected_outputs/indirect_plain_span_visualiser_outputs/html_test_input.txt")
     with open(file,encoding="UTF-8") as expected_file:
         expected = expected_file.read()
-    # python escapes backslashes in readline() and it messes up the test, this fixes that
-    expected = expected.replace("\\n", "\n")
-    expected = expected.replace("\\'", "\'")
-    expected = expected.replace("'", "")
-    result = result.replace("'", "")
     assert expected == result

@@ -7,7 +7,8 @@ from estnltk.core import rel_path
 
 class DisplaySpans:
     """Displays spans defined by the layer. By default spans are coloured green, overlapping spans are red.
-    To change the behaviour, redefine ..._mapping."""
+    To change the behaviour, redefine ..._mapping. Arguments that can be changed are bg_mapping, colour_mapping,
+    font_mapping, weight_mapping, italics_mapping, underline_mapping, size_mapping and tracking_mapping."""
 
     js_file = rel_path("visualisation/span_visualiser/span_visualiser.js")
     css_file = rel_path("visualisation/span_visualiser/prettyprinter.css")

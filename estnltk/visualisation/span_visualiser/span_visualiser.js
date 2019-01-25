@@ -1,6 +1,5 @@
-var elements = document.getElementsByClassName("overlapping-span")
-for (let i = 0; i < elements.length; i++){
-    elements.item(i).addEventListener("click",function() {show_conflicting_spans(elements.item(i));})
+for (var element of document.getElementsByClassName("overlapping-span")) {
+    element.addEventListener("click",function() {show_conflicting_spans(element);})
 }
 
 function show_conflicting_spans(span_element) {
