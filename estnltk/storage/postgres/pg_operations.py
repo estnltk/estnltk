@@ -27,6 +27,7 @@ def create_schema(storage):
 def delete_schema(storage):
     with storage.conn.cursor() as c:
         c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(storage.schema)))
+    storage.conn.commit()
 
 
 def table_identifier(storage, table_name):
@@ -38,6 +39,11 @@ def table_identifier(storage, table_name):
 
 def collection_table_identifier(storage, collection_name):
     table_name = collection_table_name(collection_name)
+    return table_identifier(storage, table_name)
+
+
+def structure_table_identifier(storage, collection_name):
+    table_name = structure_table_name(collection_name)
     return table_identifier(storage, table_name)
 
 
@@ -90,6 +96,7 @@ def create_collection_table(storage, collection_name, meta_columns=None, descrip
     table_name = collection_table_name(collection_name)
     table = collection_table_identifier(storage, table_name)
 
+    storage.conn.commit()
     storage.conn.autocommit = False
     with storage.conn.cursor() as c:
         try:
@@ -112,7 +119,6 @@ def create_collection_table(storage, collection_name, meta_columns=None, descrip
             if storage.conn.status == STATUS_BEGIN:
                 # no exception, transaction in progress
                 storage.conn.commit()
-            storage.conn.autocommit = True
 
 
 def fragment_table_exists(storage, collection_name, fragment_name):
