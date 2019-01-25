@@ -6,6 +6,9 @@ from psycopg2.sql import SQL, Identifier, Literal
 from estnltk import logger
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import parse_pgpass
+from estnltk.storage.postgres import drop_layer_table
+from estnltk.storage.postgres import drop_structure_table
+from estnltk.storage.postgres import drop_collection_table
 
 
 class PgStorageException(Exception):
@@ -42,10 +45,13 @@ class PostgresStorage:
             logger.error('Failed to connect '
                          'host: {host!r}, port: {port!r}, dbname: {dbname!r}, user: {user!r}.'.format(**conn_param))
             raise
-        self.conn.autocommit = True
 
         with self.conn.cursor() as c:
             c.execute(SQL("SET ROLE {};").format(Identifier(role)))
+        self.conn.commit()
+
+        tables = self.get_all_tables()
+        self._collections = {table: None for table in tables if table + '__structure' in tables}
 
         logger.info('schema: {!r}, temporary: {!r}, role: {!r}'.format(self.schema, self.temporary, role))
 
@@ -80,9 +86,39 @@ class PostgresStorage:
             tables = {row[0]: {'total_size': row[1], 'comment':row[2]} for row in c}
             return tables
 
-    def get_collection(self, table_name, meta_fields=None):
+    def get_collection(self, table_name: str, meta_fields: dict = None):
         """Returns a new instance of `PgCollection` without physically creating it."""
-        return PgCollection(name=table_name, storage=self, meta=meta_fields)
+        collection = self[table_name]
+        if meta_fields is not None:
+            collection.meta = meta_fields
+        return collection
+
+    @property
+    def collections(self):
+        return sorted(self._collections)
+
+    def __getitem__(self, item):
+        collection = self._collections.get(item)
+        if collection is not None:
+            return collection
+        collection = PgCollection(item, self)
+        self._collections[item] = collection
+        return collection
+
+    def __delitem__(self, key):
+        collection = self._collections.get(key)
+        if collection is None:
+            raise KeyError('collection not found: {!r}'.format(key))
+
+        assert collection.name == key, (collection.name, key)
+
+        if collection.exists():
+            for layer, v in collection.structure.items():
+                if v['detached']:
+                    drop_layer_table(self, key, layer)
+            drop_structure_table(self, key)
+            drop_collection_table(self, key)
+        del self._collections[key]
 
     def __str__(self):
         return '{self.__class__.__name__}({self.conn.dsn} schema={self.schema} temporary={self.temporary})'.format(
