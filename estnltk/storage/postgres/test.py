@@ -49,7 +49,7 @@ class TestStorage(unittest.TestCase):
 
     def test_create_collection(self):
         collection_name = get_random_collection_name()
-        collection = self.storage.get_collection(collection_name)
+        collection = self.storage[collection_name]
 
         self.assertFalse(collection.exists())
 
@@ -70,7 +70,7 @@ class TestStorage(unittest.TestCase):
     def test_basic_collection_workflow(self):
         # insert texts -> create layers -> select texts
         collection_name = get_random_collection_name()
-        collection = self.storage.get_collection(collection_name)
+        collection = self.storage[collection_name]
         collection.create()
 
         text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
@@ -111,20 +111,20 @@ class TestStorage(unittest.TestCase):
         assert not table_exists(self.storage, collection_name)
 
     def test_sql_injection(self):
-        normal_table = get_random_collection_name()
-        create_collection_table(self.storage, normal_table)
-        self.assertTrue(collection_table_exists(self.storage, normal_table))
+        normal_collection_name = get_random_collection_name()
+        create_collection_table(self.storage, normal_collection_name)
+        self.assertTrue(collection_table_exists(self.storage, normal_collection_name))
 
-        injected_table_name = "%a; drop table %s;" % (get_random_collection_name(), normal_table)
-        create_collection_table(self.storage, injected_table_name)
-        self.assertTrue(collection_table_exists(self.storage, injected_table_name))
-        self.assertTrue(collection_table_exists(self.storage, normal_table))
+        injected_collection_name = "%a; drop table %s;" % (get_random_collection_name(), normal_collection_name)
+        create_collection_table(self.storage, injected_collection_name)
+        self.assertTrue(collection_table_exists(self.storage, injected_collection_name))
+        self.assertTrue(collection_table_exists(self.storage, normal_collection_name))
 
-        drop_collection_table(self.storage, normal_table)
-        drop_collection_table(self.storage, injected_table_name)
+        drop_collection_table(self.storage, normal_collection_name)
+        drop_collection_table(self.storage, injected_collection_name)
 
     def test_select_by_key(self):
-        collection = self.storage.get_collection(get_random_collection_name())
+        collection = self.storage[get_random_collection_name()]
         collection.create()
         self.assertRaises(PgCollectionException, lambda: collection.select_by_key(1))
 
@@ -136,7 +136,7 @@ class TestStorage(unittest.TestCase):
         collection.delete()
 
     def test_select(self):
-        collection = self.storage.get_collection(get_random_collection_name())
+        collection = self.storage[get_random_collection_name()]
         collection.create()
 
         with collection.insert() as collection_insert:
@@ -234,7 +234,7 @@ class TestStorage(unittest.TestCase):
         collection.delete()
 
     def test_build_sql_query(self):
-        collection = self.storage.get_collection('test_collection')
+        collection = self.storage['test_collection']
 
         # defaults
         sql = build_sql_query(self.storage, collection.name)
@@ -376,8 +376,8 @@ class TestLayerFragment(unittest.TestCase):
         self.storage.close()
 
     def test_read_write(self):
-        table_name = get_random_collection_name()
-        collection = self.storage.get_collection(table_name)
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
         collection.create()
 
         with collection.insert() as collection_insert:
@@ -402,7 +402,7 @@ class TestLayerFragment(unittest.TestCase):
         self.assertTrue(collection.has_layer(layer_fragment_name))
 
         rows = [row for row in select_raw(storage=self.storage,
-                                          collection_name=table_name,
+                                          collection_name=collection_name,
                                           layers=[layer_fragment_name])]
         self.assertEqual(len(rows), 4)
 
@@ -438,8 +438,8 @@ class TestFragment(unittest.TestCase):
         self.storage.close()
 
     def test_read_write(self):
-        table_name = get_random_collection_name()
-        collection = self.storage.get_collection(table_name)
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
         collection.create()
 
         with collection.insert() as collection_insert:
@@ -468,7 +468,7 @@ class TestFragment(unittest.TestCase):
 
         collection.create_fragment(fragment_name,
                             data_iterator=select_raw(storage=self.storage,
-                                                     collection_name=table_name,
+                                                     collection_name=collection_name,
                                                      layers=[layer_fragment_name]),
                             row_mapper=row_mapper,
                             create_index=False,
@@ -502,8 +502,8 @@ class TestLayer(unittest.TestCase):
         self.storage.close()
 
     def test_layer_read_write(self):
-        table_name = get_random_collection_name()
-        collection = self.storage.get_collection(table_name)
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
         collection.create()
 
         with collection.insert() as collection_insert:
@@ -553,8 +553,8 @@ class TestLayer(unittest.TestCase):
         self.assertFalse(layer_table_exists(self.storage, collection.name, layer2))
 
     def test_layer_meta(self):
-        table_name = get_random_collection_name()
-        collection = self.storage.get_collection(table_name)
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
         collection.create()
 
         with collection.insert() as collection_insert:
@@ -593,8 +593,8 @@ class TestLayer(unittest.TestCase):
         collection.delete()
 
     def test_layer_query(self):
-        table_name = get_random_collection_name()
-        collection = self.storage.get_collection(table_name)
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
         collection.create()
 
         with collection.insert() as collection_insert:
@@ -655,8 +655,8 @@ class TestLayer(unittest.TestCase):
         self.assertTrue(layer2 in text.layers)
 
     def test_layer_fingerprint_query(self):
-        table_name = get_random_collection_name()
-        collection = self.storage.get_collection(table_name)
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
         collection.create()
 
         with collection.insert() as collection_insert:
@@ -740,8 +740,8 @@ class TestLayer(unittest.TestCase):
         self.assertEqual(len(list(res)), 1)
 
     def test_layer_ngramm_index(self):
-        table_name = get_random_collection_name()
-        collection = self.storage.get_collection(table_name)
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
         collection.create()
 
         id1 = 1
