@@ -20,13 +20,13 @@ from estnltk.layer_operations import create_ngram_fingerprint_index
 
 from estnltk.storage.postgres import table_identifier
 from estnltk.storage.postgres import collection_table_identifier
+from estnltk.storage.postgres import structure_table_identifier
 from estnltk.storage.postgres import fragment_table_identifier
 from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import layer_table_exists
+from estnltk.storage.postgres import structure_table_exists
 from estnltk.storage.postgres import create_collection_table
-from estnltk.storage.postgres import drop_collection_table
-from estnltk.storage.postgres import drop_structure_table
 from estnltk.storage.postgres import drop_layer_table
 from estnltk.storage.postgres import drop_fragment_table
 from estnltk.storage.postgres import count_rows
@@ -69,7 +69,9 @@ def get_query_length(q):
 class PgCollection:
     """Convenience wrapper over PostgresStorage"""
 
-    def __init__(self, name, storage, meta=None, temporary=False):
+    def __init__(self, name: str, storage, meta=None, temporary: bool = False):
+        assert isinstance(name, str), name
+        assert name.isidentifier(), name
         if '__' in name:
             raise PgCollectionException('collection name must not contain double underscore: {!r}'.format(name))
         self.name = name
@@ -82,8 +84,10 @@ class PgCollection:
 
         self._buffered_insert_query_length = 0
 
-    def create(self, description=None, meta=None):
+    def create(self, description=None, meta=None, temporary=None):
         """Creates the database tables for the collection"""
+        if isinstance(temporary, bool):
+            self._temporary = temporary
         temporary = SQL('TEMPORARY') if self._temporary else SQL('')
         with self.storage.conn.cursor() as c:
             c.execute(SQL('CREATE {temporary} TABLE {structure} ('
@@ -95,16 +99,27 @@ class PgCollection:
                           'enveloping text, '
                           '_base text, '
                           'meta text[]);').format(temporary=temporary,
-                                                  structure=self._structure_identifier()))
+                                                  structure=structure_table_identifier(self.storage, self.name)))
             logger.info('new empty collection {!r} created'.format(self.name))
             logger.debug(c.query.decode())
 
         meta = meta or self.meta or {}
+        self.storage.conn.commit()
 
-        return create_collection_table(self.storage,
-                                       collection_name=self.name,
-                                       meta_columns=meta,
-                                       description=description)
+        create_collection_table(self.storage,
+                                collection_name=self.name,
+                                meta_columns=meta,
+                                description=description)
+        self._structure = {}
+        return self
+
+    @property
+    def layers(self):
+        return sorted(self._structure)
+
+    @property
+    def structure(self):
+        return self._structure
 
     def create_index(self):
         """create index for the collection table"""
@@ -144,7 +159,7 @@ class PgCollection:
         structure = {}
         with self.storage.conn.cursor() as c:
             c.execute(SQL("SELECT layer_name, detached, attributes, ambiguous, parent, enveloping, _base, meta "
-                          "FROM {};").format(self._structure_identifier()))
+                          "FROM {};").format(structure_table_identifier(self.storage, self.name)))
 
             for row in c.fetchall():
                 structure[row[0]] = {'detached': row[1],
@@ -171,7 +186,7 @@ class PgCollection:
         with self.storage.conn.cursor() as c:
             c.execute(SQL("INSERT INTO {} (layer_name, detached, attributes, ambiguous, parent, enveloping, _base, meta) "
                           "VALUES ({}, {}, {}, {}, {}, {}, {}, {});").format(
-                self._structure_identifier(),
+                structure_table_identifier(self.storage, self.name),
                 Literal(layer.name),
                 Literal(detached),
                 Literal(list(layer.attributes)),
@@ -187,7 +202,7 @@ class PgCollection:
     def _delete_from_structure(self, layer_name):
         with self.storage.conn.cursor() as c:
             c.execute(SQL("DELETE FROM {} WHERE layer_name={};").format(
-                self._structure_identifier(),
+                structure_table_identifier(self.storage, self.name),
                 Literal(layer_name)
             )
             )
@@ -206,10 +221,12 @@ class PgCollection:
         column_identifiers = SQL(', ').join(map(Identifier, self.column_names))
         table_identifier = collection_table_identifier(self.storage, self.name)
 
+        self.storage.conn.commit()
+        self.storage.conn.autocommit = True
         with self.storage.conn.cursor() as cursor:
 
             def wrap_buffered_insert(text, key=None, meta_data=None):
-                if self._structure is None:
+                if self._structure == {}:
                     for layer in text.layers:
                         self._insert_into_structure(text[layer], detached=False)
                 elif any(struct['detached'] for struct in self._structure.values()):
@@ -275,40 +292,37 @@ class PgCollection:
                 self._buffered_insert_query_length += get_query_length(q)
 
                 if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
-                    return self._flush_insert_buffer(cursor=cursor,
-                                                           table_identifier=table_identifier,
-                                                           column_identifiers=column_identifiers,
-                                                           buffer=buffer)
+                    self._flush_insert_buffer(cursor=cursor,
+                                              table_identifier=table_identifier,
+                                              column_identifiers=column_identifiers,
+                                              buffer=buffer)
             try:
                 yield buffered_insert
             finally:
                 self._flush_insert_buffer(cursor=cursor,
-                                                table_identifier=table_identifier,
-                                                column_identifiers=column_identifiers,
-                                                buffer=buffer)
-                self.storage.conn.autocommit = False
+                                          table_identifier=table_identifier,
+                                          column_identifiers=column_identifiers,
+                                          buffer=buffer)
 
     def _flush_insert_buffer(self, cursor, table_identifier, column_identifiers, buffer):
         if len(buffer) == 0:
             return []
 
-        cursor.execute(SQL('INSERT INTO {} ({}) VALUES {} RETURNING id;').format(
+        cursor.execute(SQL('INSERT INTO {} ({}) VALUES {};').format(
                        table_identifier,
                        column_identifiers,
                        SQL(', ').join(buffer)))
-        row_key = cursor.fetchone()
         logger.debug('flush buffer: {} rows, {} bytes, {} estimated characters'.format(
-                len(buffer), len(cursor.query), self._buffered_insert_query_length))
+                     len(buffer), len(cursor.query), self._buffered_insert_query_length))
         buffer.clear()
         self._buffered_insert_query_length = get_query_length(column_identifiers)
-        return row_key
 
     def exists(self):
         """Returns true if collection tables exists"""
-        collection_table_exists = table_exists(self.storage, self.name)
-        structure_table_exists = table_exists(self.storage, self._structure_table_name())
-        assert collection_table_exists is structure_table_exists, (collection_table_exists, structure_table_exists)
-        return collection_table_exists
+        collection_table = table_exists(self.storage, self.name)
+        structure_table = structure_table_exists(self.storage, self.name)
+        assert collection_table is structure_table, (collection_table, structure_table)
+        return collection_table
 
     def select_fragment_raw(self, fragment_name, parent_layer_name, query=None, ngram_query=None):
         """
@@ -441,8 +455,21 @@ class PgCollection:
             iter_data.set_description('collection_id: {}'.format(data[0]), refresh=False)
             yield data
 
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            pass
+        elif isinstance(item, tuple):
+            assert len(item) == 2, item
+            assert isinstance(item[0], int), item
+            if isinstance(item[1], slice):
+                pass
+            elif isinstance(item[1], str):
+                pass
+
     def select_by_key(self, key, return_as_dict=False):
         """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
+        self.storage.conn.commit()
+        self.storage.conn.autocommit = True
         with self.storage.conn.cursor() as c:
             c.execute(SQL("SELECT * FROM {}.{} WHERE id = %s;").format(Identifier(self.storage.schema),
                                                                        Identifier(self.name)),
@@ -552,14 +579,6 @@ class PgCollection:
         return self.select(query=jsonb_text_query, layer_query=jsonb_layer_query,
                            layer_ngram_query=layer_ngram_query, layers=layers, order_by_key=order_by_key)
 
-    def _structure_table_name(self):
-        return self.name + '__structure'
-
-    def _structure_identifier(self):
-        if self._temporary:
-            return Identifier(self._structure_table_name())
-        return SQL('{}.{}').format(Identifier(self.storage.schema), Identifier(self._structure_table_name()))
-
     def _fragment_identifier(self, fragment_name):
         if self._temporary:
             return Identifier('{}__{}__fragment'.format(self.name, fragment_name))
@@ -619,7 +638,6 @@ class PgCollection:
                 if conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
                     conn.commit()
-                conn.autocommit = True
 
     def old_slow_create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
                               create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None):
@@ -893,7 +911,6 @@ class PgCollection:
                 if conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
                     conn.commit()
-                conn.autocommit = True
 
         logger.info('layer created: {!r}'.format(layer_name))
 
@@ -1021,24 +1038,9 @@ class PgCollection:
 
     def delete(self):
         """Removes collection and all related layers."""
-        conn = self.storage.conn
-        conn.autocommit = False
-        try:
-            if self._structure is not None:
-                for layer_name, struct in self._structure.items():
-                    if struct['detached']:
-                        drop_layer_table(self.storage, self.name, layer_name)
-            drop_structure_table(self.storage, self.name)
-            drop_collection_table(self.storage, self.name)
-        except Exception:
-            conn.rollback()
-            raise
-        finally:
-            if conn.status == STATUS_BEGIN:
-                # no exception, transaction in progress
-                conn.commit()
-            conn.autocommit = True
-            logger.info('collection {!r} deleted'.format(self.name))
+        if not self.exists():
+            return
+        del self.storage[self.name]
 
     def has_layer(self, layer_name):
         return layer_name in self._structure

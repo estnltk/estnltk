@@ -27,17 +27,14 @@ from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import PgCollectionException
 from estnltk.storage.postgres import build_sql_query
 from estnltk.storage.postgres import select_raw
+from estnltk.storage.postgres import PgCollection
 
 
 logger.setLevel('DEBUG')
 
 
-def get_random_table_name():
-    return "table_%d" % random.randint(1, 1000000)
-
-
-def get_random_table_name_with_schema(schema="public"):
-    return "%s.table_%d" % (schema, random.randint(1, 1000000))
+def get_random_collection_name():
+    return 'collection_{}'.format(random.randint(1, 1000000))
 
 
 class TestStorage(unittest.TestCase):
@@ -51,17 +48,28 @@ class TestStorage(unittest.TestCase):
         self.storage.close()
 
     def test_create_collection(self):
-        table_name = get_random_table_name()
-        col = self.storage.get_collection(table_name)
-        self.assertFalse(col.exists())
-        col.create()
-        self.assertTrue(col.exists())
-        col.delete()
-        self.assertFalse(col.exists())
+        collection_name = get_random_collection_name()
+        collection = self.storage.get_collection(collection_name)
+
+        self.assertFalse(collection.exists())
+
+        collection.create()
+
+        self.assertTrue(collection.exists())
+
+        self.assertIs(collection, self.storage[collection_name])
+
+        collection.delete()
+
+        collection = self.storage['not_existing']
+        self.assertIsInstance(collection, PgCollection)
+
+        collection.delete()
+        self.assertFalse(collection.exists())
 
     def test_basic_collection_workflow(self):
         # insert texts -> create layers -> select texts
-        collection_name = get_random_table_name()
+        collection_name = get_random_collection_name()
         collection = self.storage.get_collection(collection_name)
         collection.create()
 
@@ -93,7 +101,7 @@ class TestStorage(unittest.TestCase):
                 assert text == text_2, text_2.diff(text)
 
     def test_create_and_drop_collection_table(self):
-        collection_name = get_random_table_name()
+        collection_name = get_random_collection_name()
 
         create_collection_table(self.storage, collection_name)
         assert collection_table_exists(self.storage, collection_name)
@@ -103,11 +111,11 @@ class TestStorage(unittest.TestCase):
         assert not table_exists(self.storage, collection_name)
 
     def test_sql_injection(self):
-        normal_table = get_random_table_name()
+        normal_table = get_random_collection_name()
         create_collection_table(self.storage, normal_table)
         self.assertTrue(collection_table_exists(self.storage, normal_table))
 
-        injected_table_name = "%a; drop table %s;" % (get_random_table_name(), normal_table)
+        injected_table_name = "%a; drop table %s;" % (get_random_collection_name(), normal_table)
         create_collection_table(self.storage, injected_table_name)
         self.assertTrue(collection_table_exists(self.storage, injected_table_name))
         self.assertTrue(collection_table_exists(self.storage, normal_table))
@@ -116,7 +124,7 @@ class TestStorage(unittest.TestCase):
         drop_collection_table(self.storage, injected_table_name)
 
     def test_select_by_key(self):
-        collection = self.storage.get_collection(get_random_table_name())
+        collection = self.storage.get_collection(get_random_collection_name())
         collection.create()
         self.assertRaises(PgCollectionException, lambda: collection.select_by_key(1))
 
@@ -128,7 +136,7 @@ class TestStorage(unittest.TestCase):
         collection.delete()
 
     def test_select(self):
-        collection = self.storage.get_collection(get_random_table_name())
+        collection = self.storage.get_collection(get_random_collection_name())
         collection.create()
 
         with collection.insert() as collection_insert:
@@ -368,7 +376,7 @@ class TestLayerFragment(unittest.TestCase):
         self.storage.close()
 
     def test_read_write(self):
-        table_name = get_random_table_name()
+        table_name = get_random_collection_name()
         collection = self.storage.get_collection(table_name)
         collection.create()
 
@@ -430,7 +438,7 @@ class TestFragment(unittest.TestCase):
         self.storage.close()
 
     def test_read_write(self):
-        table_name = get_random_table_name()
+        table_name = get_random_collection_name()
         collection = self.storage.get_collection(table_name)
         collection.create()
 
@@ -494,7 +502,7 @@ class TestLayer(unittest.TestCase):
         self.storage.close()
 
     def test_layer_read_write(self):
-        table_name = get_random_table_name()
+        table_name = get_random_collection_name()
         collection = self.storage.get_collection(table_name)
         collection.create()
 
@@ -545,7 +553,7 @@ class TestLayer(unittest.TestCase):
         self.assertFalse(layer_table_exists(self.storage, collection.name, layer2))
 
     def test_layer_meta(self):
-        table_name = get_random_table_name()
+        table_name = get_random_collection_name()
         collection = self.storage.get_collection(table_name)
         collection.create()
 
@@ -585,7 +593,7 @@ class TestLayer(unittest.TestCase):
         collection.delete()
 
     def test_layer_query(self):
-        table_name = get_random_table_name()
+        table_name = get_random_collection_name()
         collection = self.storage.get_collection(table_name)
         collection.create()
 
@@ -647,7 +655,7 @@ class TestLayer(unittest.TestCase):
         self.assertTrue(layer2 in text.layers)
 
     def test_layer_fingerprint_query(self):
-        table_name = get_random_table_name()
+        table_name = get_random_collection_name()
         collection = self.storage.get_collection(table_name)
         collection.create()
 
@@ -732,7 +740,7 @@ class TestLayer(unittest.TestCase):
         self.assertEqual(len(list(res)), 1)
 
     def test_layer_ngramm_index(self):
-        table_name = get_random_table_name()
+        table_name = get_random_collection_name()
         collection = self.storage.get_collection(table_name)
         collection.create()
 
