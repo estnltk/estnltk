@@ -9,15 +9,21 @@ class TaggerChecker(type):
         tagger = type.__call__(cls, *args, **kwargs)
 
         assert isinstance(tagger.conf_param, Sequence)
+        assert not isinstance(tagger.conf_param, str)
         assert all(isinstance(k, str) for k in tagger.conf_param), tagger.conf_param
+        tagger.conf_param = tuple(tagger.conf_param)
 
         assert isinstance(tagger.input_layers, Sequence)
+        assert not isinstance(tagger.input_layers, str)
         assert all(isinstance(k, str) for k in tagger.input_layers), tagger.input_layers
+        tagger.input_layers = tuple(tagger.input_layers)
 
         assert isinstance(tagger.output_layer, str), tagger.output_layer
 
-        assert isinstance(tagger.output_attributes, tuple), tagger.output_attributes
+        assert isinstance(tagger.output_attributes, Sequence), tagger.output_attributes
+        assert not isinstance(tagger.output_attributes, str)
         assert all(isinstance(attr, str) for attr in tagger.output_attributes), tagger.output_attributes
+        tagger.output_attributes = tuple(tagger.output_attributes)
 
         tagger._initialized = True
 
