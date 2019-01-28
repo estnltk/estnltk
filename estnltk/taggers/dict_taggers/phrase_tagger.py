@@ -22,7 +22,7 @@ class PhraseTagger(Tagger):
                  conflict_resolving_strategy: str='MAX',
                  priority_attribute: str=None,
                  output_ambiguous: bool=False,
-                 case_sensitive=True
+                 ignore_case=False
                  ):
         """Initialize a new EventSequenceTagger instance.
 
@@ -53,7 +53,7 @@ class PhraseTagger(Tagger):
         """
         self.conf_param = ('input_attribute', 'vocabulary', 'global_validator', 'validator_attribute', 'decorator',
                            'conflict_resolving_strategy', 'priority_attribute', 'output_ambiguous', '_heads',
-                           'case_sensitive')
+                           'ignore_case')
 
         self.output_layer = output_layer
         self.input_layers = [input_layer]
@@ -80,8 +80,8 @@ class PhraseTagger(Tagger):
                                            default_rec={self.validator_attribute: default_validator}
                                            )
 
-        self.case_sensitive = case_sensitive
-        if not case_sensitive:
+        self.ignore_case = ignore_case
+        if ignore_case:
             self.vocabulary = self.vocabulary.to_lower()
 
         assert key is None or key == self.vocabulary.key,\
@@ -113,7 +113,7 @@ class PhraseTagger(Tagger):
         value_list = getattr(input_layer, self.input_attribute)
         validator_attribute = self.validator_attribute
         if input_layer.ambiguous:
-            if not self.case_sensitive:
+            if self.ignore_case:
                 value_list = [{k.lower() for k in v} for v in value_list]
             for i, values in enumerate(value_list):
                 for value in set(values):
@@ -141,7 +141,7 @@ class PhraseTagger(Tagger):
                                                     setattr(span, attr, attr_value)
                                             layer.add_span(span)
         else:
-            if not self.case_sensitive:
+            if self.ignore_case:
                 value_list = [v.lower() for v in value_list]
             for i, value in enumerate(value_list):
                 if value in heads:
