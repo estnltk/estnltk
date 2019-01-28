@@ -17,7 +17,6 @@ class AddressPartTagger(Tagger):
     conf_param = ['house_nr_tagger','zip_code_tagger', 'spec_voc_tagger', 'street_name_tagger', 'place_name_tagger',
                   'atomizer2', 'atomizer2a', 'atomizer3', 'gaps_tagger', 'merge_tagger',
                   'merge_tagger2']
-    input_layers = []
 
     def __init__(self,
                  output_attributes=('grammar_symbol', 'type'),
@@ -26,7 +25,7 @@ class AddressPartTagger(Tagger):
                  output_layer: str = 'address_parts',
                  # output_nodes={'ADDRESS'}
                  ):
-
+        self.input_layers = ['words']
         self.output_attributes = tuple(output_attributes)
         self.output_layer = output_layer
         # priority_attribute = '_priority_'
