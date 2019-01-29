@@ -11,13 +11,14 @@ def decompose_to_elementary_spans(layer, text) -> List:
 
     spanindexes = sorted(spanindexes)
 
-    if len(spanindexes) == 0 or spanindexes[0] != 0:
-        # if text does not start or end with a span
+    if not layer.spans:
+        # Default for when there are no spans
+        return [[text, []]]
+    # Now we process layers with spans
+    if spanindexes[0] != 0:
         spanindexes.insert(0, 0)
     if spanindexes[-1] != len(text):
         spanindexes.append(len(text))
-    if len(spanindexes)==1:
-        spanindexes.append(0)
     
     for i in range(len(spanindexes)-1):
         span_text = text[spanindexes[i]:spanindexes[i+1]]

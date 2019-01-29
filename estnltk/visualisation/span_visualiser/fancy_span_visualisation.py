@@ -43,8 +43,8 @@ class DisplaySpans:
         return "".join(outputs)
 
     def update_css(self, css_file):
-        self.span_decorator.update_css(css_file)
-        display_html(self.span_decorator.css())
+        self.css_file = css_file
+        display_html(self.css())
 
     def js(self):
         with open(self.js_file) as js_file:
@@ -57,3 +57,9 @@ class DisplaySpans:
             contents = css_file.read()
             output = ''.join(["<style>\n", contents, "</style>"])
         return output
+
+    def update_class_mapping(self, class_mapping, css_file=None):
+        if self.styling=="indirect":
+            self.class_mapping = class_mapping
+            if self.css_file is not None:
+                self.update_css(css_file)

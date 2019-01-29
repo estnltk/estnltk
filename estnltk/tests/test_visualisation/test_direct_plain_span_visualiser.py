@@ -12,5 +12,3 @@ def test_html():
         expected = expected_file.read()
 
     assert result == expected
-
-test_html()
