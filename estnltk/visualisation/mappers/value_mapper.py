@@ -1,5 +1,6 @@
 # tüüpida ja dokumenteerida
 
+
 # Rename value_mapper_unique
 def value_mapper_discrete(segment, attribute, value_mapping, default_value, conflict_value) -> str:
     """A function for defining mappings that assign css-attributes for each span in a layer. 
@@ -66,11 +67,11 @@ def value_mapper_ambigious(segment, attribute, value_mapping, default_value, con
     if len(segment[1]) != 1:
         return conflict_value
 
-    #TODO: Update code to reflect documentation    
-    for attr in getattr(segment[1][0],attribute):
+    #TODO: Update code to reflect documentation
+    for attr in getattr(segment[1][0], attribute):
         if attr in value_mapping:
-            value = value_mapping.get(attr)
-    return value or default_value
+            return value_mapping.get(attr)
+    return default_value
 
 # There is a way to write function with signature (segment, attribute, value_mapping_func) but this hides only the structure
 # of a segment and thus does not make sense
