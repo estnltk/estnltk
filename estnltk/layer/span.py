@@ -46,9 +46,12 @@ class Span:
         if not self.is_dependant:
             self._base = self  # type:Span
 
+        annotation = Annotation(self)
+        self._annotations = [annotation]
+
         for k, v in attributes.items():
             if k in legal_attributes:
-                self.__setattr__(k, v)
+                setattr(self, k, v)
 
     def __len__(self):
         return 1
@@ -155,6 +158,11 @@ class Span:
                         left,
                         '<span style="text-decoration: underline;">', middle, '</span>',
                         right, '</span>'))
+
+    def __setattr__(self, key, value):
+        if key != '_legal_attribute_names' and key in (self._legal_attribute_names or ()):
+            setattr(self._annotations[0], key, value)
+        super().__setattr__(key, value)
 
     def __getattr__(self, item):
         if item in {'start', 'end', 'layer', 'text'}:
