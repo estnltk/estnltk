@@ -1,8 +1,7 @@
 # tüüpida ja dokumenteerida
 
 
-# Rename value_mapper_unique
-def value_mapper_discrete(segment, attribute, value_mapping, default_value, conflict_value) -> str:
+def value_mapper_unique(segment, attribute, value_mapping, default_value, conflict_value) -> str:
     """A function for defining mappings that assign css-attributes for each span in a layer. 
     
     Keyword arguments:
