@@ -37,25 +37,15 @@ def test_keep_annotations():
                                            ('attr', 'attr_1'))
     assert text.layer_1['attr', 'attr_1'] == expected
 
-    # test function
-    def function(annotation):
-        return len(annotation.span) == 1
-
-    text = new_text(3)
-    keep_annotations(layer=text.layer_1,
-                     function=function,
-                     drop_immediately=True
-                     )
-    assert text.layer_1['attr', 'attr_1'] == expected
-
-    # test keep_last_annotation=True
+    # test preserve_spans=True
     text = new_text(3)
     keep_annotations(layer=text.layer_1,
                      attribute='attr_1',
                      values={},
-                     keep_last_annotation=True,
-                     drop_immediately=True
+                     preserve_spans=True,
                      )
+    expected = AmbiguousAttributeTupleList([[['L1-0', 'A']], [['L1-1', 'C']], [['L1-2', 'D']], [['L1-3', 'F']]],
+                                           ('attr', 'attr_1'))
     assert text.layer_1['attr', 'attr_1'] == expected
 
 
@@ -316,15 +306,15 @@ class TestLayerOperation():
         assert result == expected
 
     def test_diff_layer(self):
-        layer_1 = Layer('1')
-        layer_2 = Layer('2')
+        layer_1 = Layer('layer_1')
+        layer_2 = Layer('layer_2')
         result = list(diff_layer(layer_1, layer_2))
         expected = []
         assert result == expected
 
-        layer_1 = Layer('1')
+        layer_1 = Layer('layer_1')
         layer_1.add_span(Span(0, 3))
-        layer_2 = Layer('2')
+        layer_2 = Layer('layer_2')
         result = list(diff_layer(layer_1, layer_2))
         expected = [(Span(0, 3), None)]
         assert result == expected
