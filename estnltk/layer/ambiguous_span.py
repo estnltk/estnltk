@@ -102,7 +102,9 @@ class AmbiguousSpan(collections.Sequence):
             raise AttributeError
         layer = self.__getattribute__('layer')  # type: Layer
         if item in layer.attributes:
-            return AttributeList((getattr(span, item) for span in self._annotations), item)
+            if layer.ambiguous:
+                return AttributeList((getattr(span, item) for span in self._annotations), item)
+            return getattr(self._annotations[0], item)
         if item == getattr(self.layer, 'parent', None):
             return self.parent
         if item in self.__dict__:
