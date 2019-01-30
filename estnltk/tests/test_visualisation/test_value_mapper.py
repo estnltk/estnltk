@@ -1,6 +1,6 @@
 from estnltk.tests.helpers.text_objects import new_text
-from estnltk.visualisation.mappers.value_mapper import value_mapper_discrete
-from estnltk.visualisation.mappers.value_mapper import value_mapper_ambigious
+from estnltk.visualisation.mappers.value_mapper import value_mapper_unique
+from estnltk.visualisation.mappers.value_mapper import value_mapper_ambiguous
 from estnltk.visualisation.core.prettyprinter import decompose_to_elementary_spans
 
 
@@ -30,12 +30,12 @@ def test_usual_mapper():
 
 
 def empty_mapper(segment):
-    return value_mapper_discrete(segment, "start", {}, "default", "")
+    return value_mapper_unique(segment, "start", {}, "default", "")
 
 
 def conflicting_mapper(segment):
-    return value_mapper_discrete(segment,"start",{},"default_value","conflict_value")
+    return value_mapper_unique(segment, "start", {}, "default_value", "conflict_value")
 
 
 def my_best_color_mapper(segment):
-    return value_mapper_ambigious(segment, "attr_1", {'SADA':"red"}, "blue", "green")
+    return value_mapper_ambiguous(segment, "attr_1", {'SADA': "red"}, "blue", "green")

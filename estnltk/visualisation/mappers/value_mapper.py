@@ -14,27 +14,26 @@ def value_mapper_unique(segment, attribute, value_mapping, default_value, confli
 
     Returns the value for the css element.
 
-    Important: Can be used only for decorating spans from non-ambigious layers. If a span has several annotations
+    Important: Can be used only for decorating spans of non-ambigious layers. If a span has several annotations
     the mapper does not know how to map list of attribute values to appropriate css attribute value.
 
     Example:
     --------
 
-    Define a background colour based on the value of a part-of-speach tag   
+    Define a background colour based on the value of a part-of-speech tag
 
-    bg_mapper = lambda s: value_mapper_discrete(s, 
-                    attribute='pos', value_mapping={'S' : 'green', 'V': 'yellow', 'O': 'blue'}, 
-                    default_value = 'gray', conflict_value='red') 
-
+    bg_mapper = lambda s: value_mapper_unique(s,
+                    attribute='pos', value_mapping={'S': 'green', 'V': 'yellow', 'O': 'blue'},
+                    default_value='gray', conflict_value='red')
     """
 
     if len(segment[1]) != 1:
         return conflict_value
 
-    return value_mapping.get(getattr(segment[1][0],attribute), default_value)
+    return value_mapping.get(getattr(segment[1][0], attribute), default_value)
 
 
-def value_mapper_ambigious(segment, attribute, value_mapping, default_value, conflict_value) -> str:
+def value_mapper_ambiguous(segment, attribute, value_mapping, default_value, conflict_value) -> str:
     """A function for defining mappings that assign css-attributes for each span in a layer.
 
     Keyword arguments:
