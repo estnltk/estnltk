@@ -2,7 +2,7 @@
 #  Tags sentence boundaries, and applies post-correction rules to sentence tokenization.
 #
 from typing import Iterator, Tuple
-from typing import MutableMapping, Sequence
+from typing import MutableMapping
 
 import re
 
@@ -21,7 +21,7 @@ _ending_punct_regexp = re.compile('^[.?!…]+$')
 
 # Patterns describing how two mistakenly split 
 # adjacent sentences can be merged into one sentence
-merge_patterns = [ \
+merge_patterns = [
    # ***********************************
    #   Fixes related to numbers, number ranges, dates and times 
    # ***********************************
@@ -278,26 +278,24 @@ class SentenceTokenizer( Tagger ):
     """Tokenizes text into sentences, and makes sentence tokenization post-corrections where necessary."""
     output_layer = 'sentences'
     output_attributes = ()
-    input_layers = ['words', 'compound_tokens']
-    conf_param = [ 'base_sentence_tokenizer',
-                   'fix_paragraph_endings', 'fix_compound_tokens',
-                   'fix_numeric', 'fix_parentheses', 'fix_double_quotes',
-                   'fix_inner_title_punct', 'fix_repeated_ending_punct',
-                   'use_emoticons_as_endings',
-                   'record_fix_types',
-                   # Inner parameters:
-                   '_merge_rules',
-                   '_apply_sentences_from_tokens',
-                   # Names of the specific input layers
-                   '_input_words_layer', '_input_compound_tokens_layer',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name', 'attributes'
+    conf_param = ['base_sentence_tokenizer',
+                  'fix_paragraph_endings', 'fix_compound_tokens',
+                  'fix_numeric', 'fix_parentheses', 'fix_double_quotes',
+                  'fix_inner_title_punct', 'fix_repeated_ending_punct',
+                  'use_emoticons_as_endings',
+                  'record_fix_types',
+                  # Inner parameters:
+                  '_merge_rules',
+                  '_apply_sentences_from_tokens',
+                  # Names of the specific input layers
+                  '_input_words_layer', '_input_compound_tokens_layer',
+                  # For backward compatibility:
+                  'depends_on', 'layer_name', 'attributes'
                   ]
     # For backward compatibility:
-    layer_name    = 'sentences'
-    attributes    = ()
-    depends_on    = ['compound_tokens', 'words']
-    
+    layer_name = 'sentences'
+    attributes = ()
+
     def __init__(self, 
                  output_layer:str='sentences',
                  input_words_layer:str='words',
@@ -332,7 +330,7 @@ class SentenceTokenizer( Tagger ):
         
         fix_compound_tokens: boolean (default: True)
             If True, then following sentence boundary fixes are applied:
-            *) a built-in logic is used to remove all sentence endings 
+            *) a built-in logic  is used to remove all sentence endings
                that fall inside compound_tokens;
             *) sentence endings that are added after compound_tokens of 
                type non_ending_abbreviation are removed;
@@ -460,13 +458,12 @@ class SentenceTokenizer( Tagger ):
             if fix_inner_title_punct and merge_pattern['fix_type'].startswith('inner_title_punct'):
                 self._merge_rules.append( merge_pattern )
 
-
     def _tokenize_text(self, raw_text: str) -> Iterator[Tuple[int, int]]:
-        ''' Tokenizes into sentences based on the input text. '''
+        """Tokenizes into sentences based on the input text."""
         return self.base_sentence_tokenizer.span_tokenize(raw_text)
 
     def _sentences_from_tokens(self, layers) -> Iterator[Tuple[int, int]]:
-        ''' Tokenizes into sentences based on the word tokens of the input text. '''
+        """Tokenizes into sentences based on the word tokens of the input text."""
         words = list(layers[self._input_words_layer])
         word_texts = layers[self._input_words_layer].text
         i = 0
@@ -616,10 +613,8 @@ class SentenceTokenizer( Tagger ):
             layer.add_span(sentence_span_list)
         return layer
 
-
-    def _merge_mistakenly_split_sentences(self, raw_text: str, sentences_list:list,
-                                                               sentence_fixes_list:list):
-        ''' Uses regular expression patterns (defined in self._merge_rules) to 
+    def _merge_mistakenly_split_sentences(self, raw_text: str, sentences_list:list, sentence_fixes_list:list):
+        """ Uses regular expression patterns (defined in self._merge_rules) to
             discover adjacent sentences (in sentences_list) that should actually 
             form a single sentence. Merges those adjacent sentences.
             
@@ -631,7 +626,7 @@ class SentenceTokenizer( Tagger ):
             Returns a tuple of two lists:
             *) new version of sentences_list where merges have been made;
             *) correspondingly updated sentence_fixes_list;
-        '''
+        """
         assert len(sentences_list) == len(sentence_fixes_list)
         new_sentences_list = []
         new_sentence_fixes_list = []
@@ -687,8 +682,7 @@ class SentenceTokenizer( Tagger ):
                 if shiftEnding:
                     prev_sent_spl = \
                         new_sentences_list[-1] if new_sentences_list else last_sentence_spl
-                    merge_split_result = self._perform_merge_split( raw_text, \
-                                              shiftEnding, sentence_spl, prev_sent_spl )
+                    merge_split_result = self._perform_merge_split(shiftEnding, sentence_spl, prev_sent_spl)
                     if merge_split_result != None:
                         if new_sentences_list:
                             # Update sentence spans
@@ -759,8 +753,8 @@ class SentenceTokenizer( Tagger ):
         assert len(new_sentences_list) == len(new_sentence_fixes_list)
         return new_sentences_list, new_sentence_fixes_list
 
-    def _find_new_sentence_ending(self,
-                                  raw_text: str,
+    @staticmethod
+    def _find_new_sentence_ending(raw_text: str,
                                   merge_split_pattern: dict,
                                   this_sent: SpanList,
                                   prev_sent: SpanList):
@@ -826,12 +820,11 @@ class SentenceTokenizer( Tagger ):
                         return ( start_in_text, end_in_text )
         # The new sentence ending was either not found, or did not pass 
         # the validation
-        return None 
+        return None
 
-
-    def _perform_merge_split(self, raw_text:str, end_span:tuple, \
-                                   this_sent:SpanList, prev_sent:SpanList ):
-        ''' Performs merge-split operation: 1) consecutive sentences prev_sent
+    @staticmethod
+    def _perform_merge_split(end_span: tuple, this_sent: SpanList, prev_sent: SpanList):
+        """ Performs merge-split operation: 1) consecutive sentences prev_sent
             and this_sent will be joined into one sentence, 2) the new joined 
             sentence will be split (into two sentences) at the position end_span;
             
@@ -843,7 +836,7 @@ class SentenceTokenizer( Tagger ):
             and-split. For instance, returns None if one of the new sentences 
             would be empty, or if the merge-and-split would result in duplication 
             of tokens;
-        '''
+        """
         if end_span and end_span != (-1, -1):
             new_sentence1 = []
             new_sentence2 = []
@@ -874,8 +867,8 @@ class SentenceTokenizer( Tagger ):
             return merged_spanlist1, merged_spanlist2
         return None
 
-    def _split_by_double_newlines(self, raw_text: str,
-                                  sentences_list: list):
+    @staticmethod
+    def _split_by_double_newlines(raw_text: str, sentences_list: list):
         """ Splits sentences inside the given list of sentences by double
             newlines (usually paragraph endings).
             
