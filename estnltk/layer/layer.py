@@ -148,7 +148,6 @@ class SpanList(collections.Sequence):
         return str(self)
 
 
-
 def whitelist_record(record, source_attributes):
     # the goal is to only keep the keys explicitly listed in source_attributes
 
@@ -176,13 +175,16 @@ class Layer:
                  ) -> None:
         assert parent is None or enveloping is None, "Can't be derived AND enveloping"
 
-        # name of the layer
-        self.name = name
-
         # list of legal attribute names for the layer
+        assert not isinstance(attributes, str), attributes
         attributes = tuple(attributes)
+        assert all(attr.isidentifier() for attr in attributes), attributes
         self.attributes = attributes
         assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
+
+        # name of the layer
+        assert name.isidentifier(), 'layer name must be a Python identifier: {!r}'.format(name)
+        self.name = name
 
         # the name of the parent layer.
         self.parent = parent
@@ -322,7 +324,7 @@ class Layer:
                                                for asp in self.spans), attributes)
         else:
             if isinstance(attributes, (list, tuple)):
-                return AttributeTupleList([[getattr(sp, attr)for attr in attributes] for sp in self.spans], attributes)
+                return AttributeTupleList([[getattr(sp, attr) for attr in attributes] for sp in self.spans], attributes)
             else:
                 return AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
 
@@ -399,6 +401,18 @@ class Layer:
                 bisect.insort(self.span_list.spans, ambiguous_span)
                 self.classes[hash(span)] = ambiguous_span
             assert isinstance(ambiguous_span, AmbiguousSpan), ambiguous_span
+            attributes_pluss_default_values = self.default_values.copy()
+            attributes_pluss_default_values.update(attributes)
+            return ambiguous_span.add_annotation(**attributes_pluss_default_values)
+
+        if self.parent is None and self.enveloping is None and not self.ambiguous:
+            ambiguous_span = self.classes.get(hash(span), None)
+            if ambiguous_span is None:
+                ambiguous_span = AmbiguousSpan(self, span)
+                bisect.insort(self.span_list.spans, ambiguous_span)
+                self.classes[hash(span)] = ambiguous_span
+            else:
+                raise ValueError('the layer is not ambiguous and already contains this span')
             attributes_pluss_default_values = self.default_values.copy()
             attributes_pluss_default_values.update(attributes)
             return ambiguous_span.add_annotation(**attributes_pluss_default_values)
@@ -506,6 +520,11 @@ class Layer:
 
         target = self.text_object._resolve(self.name, item, sofar=self.span_list)
         return target
+
+    def __setattr__(self, key, value):
+        if key != 'attributes' and key in self.attributes:
+            raise AttributeError(key)
+        super().__setattr__(key, value)
 
     def __getitem__(self, item) -> Union[Span, 'Layer', AmbiguousAttributeTupleList]:
         if item == [] or item == ():

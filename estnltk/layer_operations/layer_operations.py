@@ -13,66 +13,68 @@ from estnltk import Layer
 from estnltk.layer.span_operations import equal_support
 
 
-def drop_annotations(layer: Layer, attribute: str = None, values: Container = None, function=None,
-                     keep_last_annotation=False, drop_immediately=False):
-    if function is None:
-        assert isinstance(attribute, str), attribute
-        assert isinstance(values, Container), 'values should be Container (set, tuple, list, ...)'
-        assert not isinstance(values, str), 'values should not be str'
-
-        def _function(annotation):
-            return getattr(annotation, attribute) in values
-    else:
-        assert attribute is None, attribute
-        assert values is None, values
-
-        _function = function
-
+def apply_filter(layer: Layer, function: callable, preserve_spans: bool = False, drop_immediately: bool = False):
     if drop_immediately:
         i = 0
         while i < len(layer):
             j = 0
             while j < len(layer[i]):
-                if keep_last_annotation and len(layer[i]) == 1:
+                if preserve_spans and len(layer[i]) == 1:
                     break
-                if _function(layer[i][j]):
-                    if len(layer[i]) == 1:
-                        del layer[i][j]
-                        i -= 1
-                        break
-                    else:
-                        del layer[i][j]
-                else:
+                if function(layer, i, j):
                     j += 1
+                    continue
+                if len(layer[i]) == 1:
+                    del layer[i][j]
+                    i -= 1
+                    break
+                else:
+                    del layer[i][j]
             i += 1
     else:
         to_remove = []
         for i, span in enumerate(layer):
             for j, annotation in enumerate(span):
-                if _function(annotation):
+                if not function(layer, i, j):
                     to_remove.append((i, j))
         for i, j in reversed(to_remove):
-            if not keep_last_annotation or len(layer[i]) > 1:
+            if not preserve_spans or len(layer[i]) > 1:
                 del layer[i][j]
 
 
-def keep_annotations(layer: Layer, attribute: str = None, values: Container = None, function=None,
-                     keep_last_annotation=False, drop_immediately=False):
-    if function is None:
-        assert isinstance(attribute, str), attribute
-        assert isinstance(values, Container), 'values should be Container (set, tuple, list, ...)'
-        assert not isinstance(values, str), 'values should not be str'
+def drop_annotations(layer: Layer, attribute: str, values: Container, preserve_spans=False):
+    to_remove = []
 
-        def _function(annotation):
-            return getattr(annotation, attribute) not in values
-    else:
-        assert attribute is None, attribute
-        assert values is None, values
+    for i, span in enumerate(layer):
+        for j, annotation in enumerate(span):
+            if getattr(annotation, attribute) in values:
+                to_remove.append((i, j))
+    for i, j in reversed(to_remove):
+        if not preserve_spans or len(layer[i]) > 1:
+            del layer[i][j]
 
-        def _function(annotation):
-            return not function(annotation)
 
-    drop_annotations(layer, None, None, _function, keep_last_annotation, drop_immediately)
+def keep_annotations(layer: Layer, attribute: str, values: Container, preserve_spans=False):
+    to_remove = []
+
+    for i, span in enumerate(layer):
+        for j, annotation in enumerate(span):
+            if getattr(annotation, attribute) not in values:
+                to_remove.append((i, j))
+    for i, j in reversed(to_remove):
+        if not preserve_spans or len(layer[i]) > 1:
+            del layer[i][j]
+
+
+def apply_to_annotations(layer: Layer, function: callable):
+    for span in layer:
+        for annotation in span:
+            function(annotation)
+
+
+def apply_to_spans(layer: Layer, function: callable):
+    for span in layer:
+        function(span)
 
 
 def unique_texts(layer: Layer, order=None):
