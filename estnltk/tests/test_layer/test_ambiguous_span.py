@@ -24,7 +24,7 @@ def test_add_annotation():
 
 
 def test_getattr():
-    span_1 = AmbiguousSpan(Layer('test', attributes=['attr_1']), Span(0, 1))
+    span_1 = AmbiguousSpan(Layer('test', attributes=['attr_1'], ambiguous=True), Span(0, 1))
 
     span_1.add_annotation(attr_1=0)
     span_1.add_annotation(attr_1=3)
