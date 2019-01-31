@@ -22,6 +22,7 @@ from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf import VabamorfTagger
 from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import _get_word_text
 from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 
 from estnltk.taggers.morph_analysis.recordbased_retagger import MorphAnalysisRecordBasedRetagger
@@ -243,7 +244,9 @@ class CorpusBasedMorphDisambiguator( object ):
                Otherwise, leave analyses intact;
          """
         disamb_retagger = ProperNamesDisambiguationStep3Retagger(lexicon,\
-                          morph_analysis_layer=self._morph_analysis_layer)
+                          morph_analysis_layer=self._morph_analysis_layer,\
+                          input_words_layer=self._input_words_layer,\
+                          input_sentences_layer=self._input_sentences_layer )
         for doc in docs:
             disamb_retagger.retag( doc )
 
@@ -443,7 +446,7 @@ class ProperNamesDisambiguationStep2Retagger(CorpusBasedMorphDisambiguationSubst
 
 
 
-class ProperNamesDisambiguationStep3Retagger(MorphAnalysisRecordBasedRetagger):
+class ProperNamesDisambiguationStep3Retagger(CorpusBasedMorphDisambiguationSubstepRetagger):
     """ Third Retagger for removal of redundant proper names analyses.
         -- in case of sentence-central ambiguous proper names, keep only 
            proper name analyses;
@@ -452,45 +455,68 @@ class ProperNamesDisambiguationStep3Retagger(MorphAnalysisRecordBasedRetagger):
            proper name analyses. Otherwise, leave analyses intact;
     """
     def __init__(self, lexicon:dict, \
-                       morph_analysis_layer:str='morph_analysis'):
+                       morph_analysis_layer:str='morph_analysis',\
+                       input_words_layer:str='words',\
+                       input_sentences_layer:str='sentences' ):
         super().__init__( morph_analysis_layer=morph_analysis_layer, \
-                          add_normalized_word_form=True, \
-                          add_sentence_ids=True )
+                          input_words_layer=input_words_layer,\
+                          input_sentences_layer=input_sentences_layer,\
+                          requires_words_layer=True, \
+                          requires_sentences_layer=True )
         self.conf_param.append('_lexicon')
         self._lexicon = lexicon
 
-    def rewrite_words(self, words:list):
-        changed_words = set()
-        last_sent_id = -1
+    def _change_layer(self, text, layers, status: dict):
+        morph_analysis_layer = layers[ self._input_morph_analysis_layer ]
+        words_layer     = layers[ self._input_words_layer ]
+        sentences_layer = layers[ self._input_sentences_layer ]
+        assert len(morph_analysis_layer) == len(words_layer)
+        cur_sent_id = 0
         nextSentenceInitialPosition = -1
-        for wid, word_analyses in enumerate( words ):
-            # Determine if we are at the sentence start:
-            # 1) Regular sentence start
-            cur_sent_id = word_analyses[0]['sentence_id']
-            sentence_start = cur_sent_id != last_sent_id or \
+        for wid, word_morph_analyses in enumerate( morph_analysis_layer ):
+            word = words_layer[wid]
+            # A) Find annotated sentence that contains given word
+            cur_sentence = None
+            while cur_sent_id < len( sentences_layer ):
+                cur_sentence = sentences_layer[cur_sent_id]
+                if cur_sentence.start <= word_morph_analyses.start and \
+                   word_morph_analyses.end <= cur_sentence.end:
+                    # Take the current sentence
+                    break
+                elif word_morph_analyses.start > cur_sentence.end:
+                    # Take the next sentence
+                    cur_sent_id += 1
+                else:
+                    raise Exception('(!) Unable find sentence for the word {!r}; last sentence: {!r}'.format(word,cur_sentence))
+            assert cur_sentence and \
+                   cur_sentence.start <= word_morph_analyses.start and \
+                   word_morph_analyses.end <= cur_sentence.end
+            # B) Determine if we are at the sentence start:
+            # B.1) Determine the extended sentence start position
+            #      (start from annotations + start from heuristics)
+            sentence_start = cur_sentence.start == word_morph_analyses.start or \
                              wid == nextSentenceInitialPosition
-            # 2) Heuristic: punctuation that is not comma 
-            #    nor semicolon, is before a sentence-initial 
-            #    position
-            if all([ a['partofspeech'] == 'Z' for a in word_analyses ]) and \
-                   not re.match('^[,;]+$', word_analyses[0]['word_normal']):
+            # B.2) Heuristic: punctuation that is not comma 
+            #      nor semicolon, is before a sentence-initial 
+            #      position
+            if all([ a.partofspeech == 'Z' for a in word_morph_analyses ]) and \
+                   not re.match('^[,;]+$', _get_word_text( word )):
                 nextSentenceInitialPosition = wid + 1
-            changed = False
             # 
             #  Only consider ambiguous words with proper names analyses
             # 
-            if len(word_analyses) > 1 and \
-               any([ a['partofspeech'] == 'H' for a in word_analyses ]):
+            if len(word_morph_analyses) > 1 and \
+               any([ a.partofspeech == 'H' for a in word_morph_analyses ]):
                 if not sentence_start:
                     # In the middle of a sentence, choose only proper name
                     # analyses (assuming that by now, all the remaining proper 
                     # name analyses are correct)
                     toDelete = []
-                    for analysis in word_analyses:
-                        if analysis['partofspeech'] not in ['H','G']:
-                            toDelete.append(analysis)
+                    for analysis in word_morph_analyses:
+                        if analysis.partofspeech not in ['H','G']:
+                            toDelete.append( analysis )
                     for analysis in toDelete:
-                        word_analyses.remove(analysis)
+                        word_morph_analyses.annotations.remove( analysis )
                         changed = True
                 else:
                     # In the beginning of a sentence: choose only proper name
@@ -498,22 +524,18 @@ class ProperNamesDisambiguationStep3Retagger(MorphAnalysisRecordBasedRetagger):
                     # frequency higher than 1
                     toDelete = []
                     hasRecurringProperName = False
-                    for analysis in word_analyses:
-                        if analysis['partofspeech'] == 'H' and \
-                           analysis['root'] in self._lexicon and \
-                           self._lexicon[analysis['root']] > 1:
+                    for analysis in word_morph_analyses:
+                        if analysis.partofspeech == 'H' and \
+                           analysis.root in self._lexicon and \
+                           self._lexicon[analysis.root] > 1:
                             hasRecurringProperName = True
-                        if analysis['partofspeech'] not in ['H','G']:
+                        if analysis.partofspeech not in ['H','G']:
                             toDelete.append(analysis)
                     if hasRecurringProperName and toDelete:
                         for analysis in toDelete:
-                            word_analyses.remove(analysis)
+                            word_morph_analyses.annotations.remove(analysis)
                             changed = True
-            if changed:
-                # Keep track of changed words (for optimization purposes)
-                changed_words.add( wid )
-            last_sent_id = cur_sent_id
-        return words, changed_words
+
 
 
 class RemoveDuplicateAndProblematicAnalysesRetagger(CorpusBasedMorphDisambiguationSubstepRetagger):
@@ -542,7 +564,7 @@ class RemoveDuplicateAndProblematicAnalysesRetagger(CorpusBasedMorphDisambiguati
                     analysis2 = morph_analyses[i2]
                     # Check for complete attribute match
                     attr_matches = []
-                    for attr in VABAMORF_ATTRIBUTES:
+                    for attr in self.output_attributes:
                         attr_match = \
                            getattr(analysis1,attr)==getattr(analysis2,attr)
                         attr_matches.append( attr_match )
