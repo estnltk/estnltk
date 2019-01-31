@@ -33,7 +33,7 @@ class CorpusBasedMorphDisambiguator( object ):
         disambiguation  and  post-disambiguation --  in  the  input  document 
         collection.
         
-        In detail, fifferent morphological disambiguation steps are 
+        In detail, different morphological disambiguation steps are 
         the following:
         *) pre-disambiguation of proper names based on lemma counts 
            in the corpus;
