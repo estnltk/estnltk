@@ -388,8 +388,8 @@ class ProperNamesDisambiguationStep1Retagger(CorpusBasedMorphDisambiguationSubst
         self._lexicon = lexicon
 
     def _change_layer(self, text, layers, status: dict):
-        morph_analysis = layers[ self._input_morph_analysis_layer ]
-        for wid, morph_analyses in enumerate( morph_analysis ):
+        morph_analysis_layer = layers[ self._input_morph_analysis_layer ]
+        for morph_analyses in morph_analysis_layer:
             if len(morph_analyses) > 1: # Only consider words that have more than 1 analysis
                 # 1) Collect all proper name analyses of the word, and 
                 #    get their highest frequency based on the the freq lexicon
@@ -416,7 +416,7 @@ class ProperNamesDisambiguationStep1Retagger(CorpusBasedMorphDisambiguationSubst
 
 
 
-class ProperNamesDisambiguationStep2Retagger(MorphAnalysisRecordBasedRetagger):
+class ProperNamesDisambiguationStep2Retagger(CorpusBasedMorphDisambiguationSubstepRetagger):
     """ Second Retagger for removal of redundant proper names analyses.
         If a word has multiple analyses, and some of these will be proper
         names listed in the given lexicon, then proper names appearing in 
@@ -428,24 +428,19 @@ class ProperNamesDisambiguationStep2Retagger(MorphAnalysisRecordBasedRetagger):
         self.conf_param.append('_lexicon')
         self._lexicon = lexicon
 
-    def rewrite_words(self, words:list):
-        changed_words = set()
-        for wid, word_analyses in enumerate( words ):
-            changed = False
-            if len(word_analyses) > 1: # Only consider words that have more than 1 analysis
+    def _change_layer(self, text, layers, status: dict):
+        morph_analysis_layer = layers[ self._input_morph_analysis_layer ]
+        for morph_analyses in morph_analysis_layer:
+            if len(morph_analyses) > 1: # Only consider words that have more than 1 analysis
                 # 1) Gather deletable proper name analyses 
                 toDelete = []
-                for analysis in word_analyses:
-                    if analysis['partofspeech'] == 'H' and analysis['root'] in self._lexicon:
+                for analysis in morph_analyses:
+                    if analysis.partofspeech == 'H' and analysis.root in self._lexicon:
                         toDelete.append(analysis)
                 # 2) Perform deletion
                 for analysis in toDelete:
-                    word_analyses.remove(analysis)
-                    changed = True
-            if changed:
-                # Keep track of changed words (for optimization purposes)
-                changed_words.add( wid )
-        return words, changed_words
+                    morph_analyses.annotations.remove(analysis)
+
 
 
 class ProperNamesDisambiguationStep3Retagger(MorphAnalysisRecordBasedRetagger):
@@ -521,7 +516,7 @@ class ProperNamesDisambiguationStep3Retagger(MorphAnalysisRecordBasedRetagger):
         return words, changed_words
 
 
-class RemoveDuplicateAndProblematicAnalysesRetagger(MorphAnalysisRecordBasedRetagger):
+class RemoveDuplicateAndProblematicAnalysesRetagger(CorpusBasedMorphDisambiguationSubstepRetagger):
     """ A Retagger in corpus-based post-disambiguation preparation step. 
         Removes:
         1) duplicate morphological analyses. For instance, word 'palk'
@@ -534,22 +529,22 @@ class RemoveDuplicateAndProblematicAnalysesRetagger(MorphAnalysisRecordBasedReta
     def __init__(self, morph_analysis_layer:str='morph_analysis'):
         super().__init__( morph_analysis_layer=morph_analysis_layer )
 
-    def rewrite_words(self, words:list):
-        changed_words = set()
-        for wid, word_analyses in enumerate( words ):
+    def _change_layer(self, text, layers, status: dict):
+        morph_analysis_layer = layers[ self._input_morph_analysis_layer ]
+        for morph_analyses in morph_analysis_layer:
             #
             # 1) Find and remove duplicate analyses
             #
             toDeleteAnalysisIDs = []
-            for i1, analysis1 in enumerate(word_analyses):
+            for i1, analysis1 in enumerate(morph_analyses):
                 duplicateFound = False
-                for i2 in range(i1+1, len(word_analyses)):
-                    analysis2 = word_analyses[i2]
+                for i2 in range(i1+1, len(morph_analyses)):
+                    analysis2 = morph_analyses[i2]
                     # Check for complete attribute match
                     attr_matches = []
                     for attr in VABAMORF_ATTRIBUTES:
                         attr_match = \
-                           analysis1[attr]==analysis2[attr]
+                           getattr(analysis1,attr)==getattr(analysis2,attr)
                         attr_matches.append( attr_match )
                     if all( attr_matches ):
                         duplicateFound = True
@@ -557,23 +552,20 @@ class RemoveDuplicateAndProblematicAnalysesRetagger(MorphAnalysisRecordBasedReta
                         break
             if toDeleteAnalysisIDs:
                 for aid in sorted(toDeleteAnalysisIDs, reverse=True):
-                    word_analyses.pop( aid )
-                changed_words.add( wid )
+                    morph_analyses.annotations.pop( aid )
             #
             # 2) If verb analyses contain forms '-tama' and '-ma', 
             #    then keep only '-ma' analyses;
             #
             tamaIDs = []
             maIDs   = []
-            for i, analysis in enumerate(word_analyses):
-                if analysis['partofspeech'] == 'V':
-                    if analysis['form'] == 'ma':
+            for i, analysis in enumerate(morph_analyses):
+                if analysis.partofspeech == 'V':
+                    if analysis.form == 'ma':
                         maIDs.append(i)
-                    elif analysis['form'] == 'tama':
+                    elif analysis.form == 'tama':
                         tamaIDs.append(i)
             if len(maIDs)>0 and len(tamaIDs)>0:
                 for aid in sorted(tamaIDs, reverse=True):
-                    word_analyses.pop( aid )
-                changed_words.add( wid )
-        return words, changed_words
+                    morph_analyses.annotations.pop( aid )
 
