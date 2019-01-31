@@ -311,7 +311,71 @@ class CorpusBasedMorphDisambiguator( object ):
         raise NotImplementedError('_repr_html_ method not implemented in ' + self.__class__.__name__)
 
 
-class ProperNamesDisambiguationStep1Retagger(MorphAnalysisRecordBasedRetagger):
+
+# ----------------------------------------
+
+class CorpusBasedMorphDisambiguationSubstepRetagger(Retagger):
+    """ A general Retagger for a sub step in corpus-based 
+        morphological disambiguation.
+
+        Defines common attributes, input and output layers for 
+        inheriting classes. Inheriting classes should implement 
+        the method:
+            change_layer(...)
+    """
+    output_attributes = VabamorfTagger.attributes
+    conf_param = [ # input layers
+                   '_input_morph_analysis_layer',\
+                   '_input_words_layer',\
+                   '_input_sentences_layer',\
+                   # For backward compatibility:
+                   'depends_on', 'layer_name', 'attributes' ]
+    attributes = output_attributes  # <- For backward compatibility ...
+    
+    def __init__(self, morph_analysis_layer:str='morph_analysis', \
+                       requires_words_layer: bool = False, \
+                       input_words_layer:str='words',\
+                       requires_sentences_layer: bool = False, \
+                       input_sentences_layer:str='sentences' ):
+        """ Initialize CorpusBasedMorphDisambiguationSubstepRetagger class.
+            
+            Parameters
+            ----------
+            morph_analysis_layer: str (default: 'morph_analysis')
+                Name of the morphological analysis layer that is to be changed;
+            
+            requires_words_layer: bool (default: False)
+                If True, then words layer will be added to the required input 
+                layers;
+            
+            input_words_layer: str (default: 'words')
+                Name of the input words layer;
+            
+            requires_sentences_layer: bool (default: False)
+                If True, then sentences layer will be added to the required input 
+                layers;
+            
+            input_sentences_layer: str (default: 'sentences')
+                Name of the input sentences layer;
+        """
+        # Set input/output layer names
+        self.output_layer = morph_analysis_layer
+        self._input_morph_analysis_layer = morph_analysis_layer
+        self._input_words_layer = input_words_layer
+        self._input_sentences_layer = input_sentences_layer
+        self.input_layers = [morph_analysis_layer]
+        if requires_words_layer:
+            self.input_layers.append( self._input_words_layer )
+        if requires_sentences_layer:
+            self.input_layers.append( self._input_sentences_layer )
+        self.layer_name = self.output_layer  # <- For backward compatibility ...
+        self.depends_on = self.input_layers  # <- For backward compatibility ...
+
+# ----------------------------------------
+
+
+
+class ProperNamesDisambiguationStep1Retagger(CorpusBasedMorphDisambiguationSubstepRetagger):
     """ First Retagger for removal of redundant proper names analyses.
         If a word has multiple proper name analyses with different 
         frequencies, keeps only the analysis that has the highest
@@ -323,38 +387,33 @@ class ProperNamesDisambiguationStep1Retagger(MorphAnalysisRecordBasedRetagger):
         self.conf_param.append('_lexicon')
         self._lexicon = lexicon
 
-    def rewrite_words(self, words:list):
-        changed_words = set()
-        for wid, word_analyses in enumerate( words ):
-            changed = False
-            if len(word_analyses) > 1: # Only consider words that have more than 1 analysis
+    def _change_layer(self, text, layers, status: dict):
+        morph_analysis = layers[ self._input_morph_analysis_layer ]
+        for wid, morph_analyses in enumerate( morph_analysis ):
+            if len(morph_analyses) > 1: # Only consider words that have more than 1 analysis
                 # 1) Collect all proper name analyses of the word, and 
                 #    get their highest frequency based on the the freq lexicon
                 highestFreq = 0
                 properNameAnalyses = []
-                for analysis in word_analyses:
-                    if analysis['partofspeech'] == 'H':
-                        if analysis['root'] in self._lexicon:
+                for analysis in morph_analyses:
+                    if analysis.partofspeech == 'H':
+                        if analysis.root in self._lexicon:
                             properNameAnalyses.append( analysis )
-                            if self._lexicon[analysis['root']] > highestFreq:
-                                highestFreq = self._lexicon[analysis['root']]
+                            if self._lexicon[analysis.root] > highestFreq:
+                                highestFreq = self._lexicon[analysis.root]
                         else:
                             raise Exception( \
-                                '(!) Unable to find lemma {!r} from the lexicon.'.format(analysis['root']) )
+                                '(!) Unable to find proper name lemma {!r} from the lexicon.'.format(analysis.root) )
                 # 2) Keep only those proper name analyses that have the highest
                 #    frequency (in the corpus), delete all others
                 if highestFreq > 0:
                     toDelete = []
                     for analysis in properNameAnalyses:
-                        if self._lexicon[analysis['root']] < highestFreq:
+                        if self._lexicon[ analysis.root ] < highestFreq:
                             toDelete.append(analysis)
                     for analysis in toDelete:
-                        word_analyses.remove(analysis)
-                        changed = True
-            if changed:
-                # Keep track of changed words (for optimization purposes)
-                changed_words.add( wid )
-        return words, changed_words
+                        morph_analyses.annotations.remove(analysis)
+
 
 
 class ProperNamesDisambiguationStep2Retagger(MorphAnalysisRecordBasedRetagger):
