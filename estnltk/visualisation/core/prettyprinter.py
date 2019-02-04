@@ -1,6 +1,11 @@
 from typing import List
 
+
 def decompose_to_elementary_spans(layer, text) -> List:
+    if not layer.spans:
+        # Default for when there are no spans
+        return [[text, []]]
+
     spanindexes = set()
 
     for s in layer.spans:
@@ -11,26 +16,41 @@ def decompose_to_elementary_spans(layer, text) -> List:
 
     spanindexes = sorted(spanindexes)
 
-    if not layer.spans:
-        # Default for when there are no spans
-        return [[text, []]]
     # Now we process layers with spans
     if spanindexes[0] != 0:
         spanindexes.insert(0, 0)
     if spanindexes[-1] != len(text):
         spanindexes.append(len(text))
-    
-    for i in range(len(spanindexes)-1):
-        span_text = text[spanindexes[i]:spanindexes[i+1]]
-        html_spans.append([spanindexes[i], spanindexes[i+1], span_text])
+
+    for i in range(len(spanindexes) - 1):
+        span_text = text[spanindexes[i]:spanindexes[i + 1]]
+        html_spans.append([spanindexes[i], spanindexes[i + 1], span_text])
+
+    i = 0
+    for span in layer.spans:
+        # Safe as there exist  html_spans[i][0] == span.start
+        while html_spans[i][0] != span.start:
+            i += 1
+        j = i
+        # Safe as there exists html_spans[j][1] == span.end
+        while html_spans[j][1] <= span.end:
+            if len(html_spans[j]) == 3:
+                html_spans[j].append([])
+            html_spans[j][3].append(span)
+            if len(html_spans) != j + 1:
+                j += 1
+            else:
+                break
 
     for html_span in html_spans:
-        span_list = []
-        span_start = html_span[0]
-        for s in layer.spans:
-            if span_start in range(s.start, s.end):
-                span_list.append(s)
-        html_span.append(span_list)
         del html_span[0:2]
+        if len(html_span) == 1:
+            html_span.append([])
 
     return html_spans
+
+
+from estnltk.tests import new_text
+
+print(decompose_to_elementary_spans(new_text(3).layer_0, new_text(3).text))
+# print(decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text))

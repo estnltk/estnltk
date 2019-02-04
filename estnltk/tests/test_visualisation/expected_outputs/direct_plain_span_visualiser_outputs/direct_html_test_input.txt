@@ -20,17 +20,16 @@ function show_conflicting_spans(span_element) {
     spantable.innerHTML = spancontent
     span_element.parentElement.appendChild(spantable)
 
-    //Increase the size of the cell so the tables would fit
+    // Increase the size of the cell so the tables would fit
     spantable.parentElement.style.height = Math.max(Number(spantable.parentElement.style.height.substring(0,spantable.parentElement.style.height.length-2)),span_element.offsetTop+90)+ 'px'
-    //Position the table directly below the corresponding text
+    // Position the table directly below the corresponding text
     spantable.style.left = span_element.getBoundingClientRect().left-spantable.parentElement.parentElement.getBoundingClientRect().left + 'px'
     spantable.style.top = span_element.getBoundingClientRect().top-spantable.parentElement.parentElement.getBoundingClientRect().top+20+ 'px'
 
-
-    // remove the table when clicked on again
+    // Remove the table when clicked on again
     spantable.addEventListener('click', function () {
         let element = this.parentElement
-        element.removeChild(this)  //deleting the table
+        element.removeChild(this)
     })
 }
 </script><span style=background:yellow;>Sada</span> <span style=background:red; class=overlapping-span  span_info=kaks,kakskümmend>kaks</span><span style=background:red; class=overlapping-span  span_info=kakskümmend,kümme>kümme</span><span style=background:yellow;>nd</span> <span style=background:yellow;>kolm</span>.<span style=background:yellow;> Neli</span> <span style=background:yellow;>tuhat</span> <span style=background:red; class=overlapping-span  span_info=viis,viissada>viis</span><span style=background:red; class=overlapping-span  span_info=viissada,sada>sada</span> <span style=background:red; class=overlapping-span  span_info=kuus,kuuskümmend>kuus</span><span style=background:red; class=overlapping-span  span_info=kuuskümmend,kümme>kümme</span><span style=background:yellow;>nd</span> <span style=background:yellow;>seitse</span> <span style=background:yellow;>koma</span> <span style=background:yellow;>kaheksa</span>. <span style=background:red; class=overlapping-span  span_info=Üheksa,Üheksakümmend>Üheksa</span><span style=background:red; class=overlapping-span  span_info=Üheksakümmend,kümme>kümme</span><span style=background:yellow;>nd</span> tuhat.

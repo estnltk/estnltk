@@ -18,17 +18,16 @@ class IndirectPlainSpanVisualiser(SpanVisualiser):
         # Simple text no span to fill
         if not self.fill_empty_spans and self.is_pure_text(segment):
             return segment[0]
-        output = []
         # There is a span to decorate
-        output.append('<span')
+        output = ['<span']
         rows = []
         for row in segment[1]:
             rows.append(row.text)
-        output.append(' span_info='+','.join(rows))#text of spans for javascript
+        output.append(' span_info=' + ','.join(rows))  # text of spans for javascript
         if self.id_mapping is not None:
-            output.append(' id=' + self.id_mapping(segment)+" ")
+            output.append(' id=' + self.id_mapping(segment) + " ")
         if self.class_mapping is not None:
-            output.append(' class='+ self.class_mapping(segment)+" ")
+            output.append(' class=' + self.class_mapping(segment) + " ")
         output.append('>')
         output.append(segment[0])
         output.append('</span>')
