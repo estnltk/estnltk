@@ -15,9 +15,9 @@ class DisplaySpans:
 
     def __init__(self, styling="direct", **kwargs):
         self.styling = styling
-        if self.styling=="direct":
+        if self.styling == "direct":
             self.span_decorator = DirectPlainSpanVisualiser(**kwargs)
-        elif self.styling=="indirect":
+        elif self.styling == "indirect":
             self.span_decorator = IndirectPlainSpanVisualiser(**kwargs)
         else:
             raise ValueError(styling)
@@ -31,11 +31,10 @@ class DisplaySpans:
 
         segments = decompose_to_elementary_spans(layer, layer.text_object.text)
 
-        outputs=[]
+        outputs = [self.js()]
 
-        #put html together from js, css and html spans
-        outputs.append(self.js())
-        if self.styling=="indirect":
+        # put html together from js, css and html spans
+        if self.styling == "indirect":
             outputs.append(self.css())
         for segment in segments:
             outputs.append(self.span_decorator(segment))
@@ -59,7 +58,7 @@ class DisplaySpans:
         return output
 
     def update_class_mapping(self, class_mapping, css_file=None):
-        if self.styling=="indirect":
+        if self.styling == "indirect":
             self.class_mapping = class_mapping
             if self.css_file is not None:
                 self.update_css(css_file)
