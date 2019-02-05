@@ -100,6 +100,54 @@ class TestStorage(unittest.TestCase):
             elif text_id == 2:
                 assert text == text_2, text_2.diff(text)
 
+    def test_collection_getitem_and_iter(self):
+        # insert texts -> create layers -> select texts
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+
+        text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
+        text_2 = Text('Teine tekst')
+        text_1.tag_layer(['sentences'])
+        text_2.tag_layer(['sentences'])
+
+        with collection.insert() as collection_insert:
+            collection_insert(text_1, key=1)
+            collection_insert(text_2, key=2)
+
+        tagger1 = VabamorfTagger(disambiguate=False)
+        collection.create_layer(tagger=tagger1)
+
+        tagger1.tag(text_1)
+        tagger1.tag(text_2)
+
+        tagger2 = ParagraphTokenizer()
+        collection.create_layer(tagger=tagger2)
+
+        tagger2.tag(text_1)
+        tagger2.tag(text_2)
+
+        raw_text_set = {text_1.text, text_2.text}
+
+        # test __iter__
+        result = list(collection)
+        assert len(result) == 2, result
+        assert {text.text for text in result} == raw_text_set, result
+        for text in result:
+            assert set(text.layers) == {'sentences', 'words', 'tokens', 'compound_tokens'}
+
+        # test __getitem__
+        assert collection[1].text == text_1.text
+        assert collection[2].text == text_2.text
+        with self.assertRaises(KeyError):
+            collection[5]
+        with self.assertRaises(KeyError):
+            next(collection['bla'])
+
+        result = collection[1, 'paragraphs']
+        assert isinstance(result, Layer)
+        assert result.name == 'paragraphs'
+
     def test_create_and_drop_collection_table(self):
         collection_name = get_random_collection_name()
 

@@ -35,6 +35,7 @@ from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import select_raw
 from estnltk.storage.postgres import JsonbLayerQuery
 from estnltk.storage.postgres import JsonbTextQuery
+from estnltk.storage import postgres as pg
 
 
 class PgCollectionException(Exception):
@@ -387,84 +388,35 @@ class PgCollection:
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
     def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False,
-               collection_meta=None, progressbar=None, missing_layer: str = None):
-        """See select_raw()"""
-        if not self.exists():
-            return
-        layers_extended = []
-
-        def include_dep(layer):
-            if layer is None or not self._structure[layer]['detached']:
-                return
-            for dep in (self._structure[layer]['parent'], self._structure[layer]['enveloping']):
-                include_dep(dep)
-            if layer not in layers_extended:
-                layers_extended.append(layer)
-
-        for layer in layers or []:
-            if layer not in self._structure:
-                raise PgCollectionException('there is no {!r} layer in the collection {!r}'.format(
-                        layer, self.name))
-            include_dep(layer)
-
-        def data_iterator():
-            for row in select_raw(storage=self.storage,
-                                  collection_name=self.name,
+               collection_meta: bool = None, progressbar=None, missing_layer: str = None):
+        return pg.PgSubCollection(self,
                                   query=query,
                                   layer_query=layer_query,
                                   layer_ngram_query=layer_ngram_query,
-                                  layers=layers_extended,
+                                  layers=layers,
                                   keys=keys,
                                   order_by_key=order_by_key,
                                   collection_meta=collection_meta,
-                                  missing_layer=missing_layer):
-                text_id, text, meta_list, detached_layers = row
-                for layer_name in layers_extended:
-                    text[layer_name] = detached_layers[layer_name]['layer']
-                if collection_meta:
-                    meta = {}
-                    for meta_name, meta_value in zip(collection_meta, meta_list):
-                        meta[meta_name] = meta_value
-                    yield text_id, text, meta
-                else:
-                    yield text_id, text
+                                  progressbar=progressbar,
+                                  missing_layer=missing_layer)
 
-        if progressbar not in {'ascii', 'unicode', 'notebook'}:
-            yield from data_iterator()
-            return
-
-        total = count_rows(self.storage, self.name)
-        initial = 0
-        if missing_layer is not None:
-            initial = self.storage.count_rows(
-                    table_identifier=layer_table_identifier(self.storage, self.name, missing_layer))
-        if progressbar == 'notebook':
-            iter_data = tqdm_notebook(data_iterator(),
-                                      total=total,
-                                      initial=initial,
-                                      unit='doc',
-                                      smoothing=0)
-        else:
-            iter_data = tqdm(data_iterator(),
-                             total=total,
-                             initial=initial,
-                             unit='doc',
-                             ascii=(progressbar == 'ascii'),
-                             smoothing=0)
-        for data in iter_data:
-            iter_data.set_description('collection_id: {}'.format(data[0]), refresh=False)
-            yield data
+    def __len__(self):
+        return count_rows(self.storage, self.name)
 
     def __getitem__(self, item):
-        if isinstance(item, str):
-            pass
-        elif isinstance(item, tuple):
-            assert len(item) == 2, item
-            assert isinstance(item[0], int), item
-            if isinstance(item[1], slice):
-                pass
-            elif isinstance(item[1], str):
-                pass
+        if isinstance(item, int):
+            result = list(self.select(keys=[item]))
+            if result:
+                return result[0][1]
+            raise KeyError(item)
+        if isinstance(item, tuple) and len(item) == 2:
+            key, layer = item
+            return list(self.select(layers=[layer], keys=[key]))[0][1][layer]
+        raise KeyError(item)
+
+    def __iter__(self):
+        for _, text in self.select():
+            yield text
 
     def select_by_key(self, key, return_as_dict=False):
         """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
@@ -578,12 +530,6 @@ class PgCollection:
 
         return self.select(query=jsonb_text_query, layer_query=jsonb_layer_query,
                            layer_ngram_query=layer_ngram_query, layers=layers, order_by_key=order_by_key)
-
-    def _fragment_identifier(self, fragment_name):
-        if self._temporary:
-            return Identifier('{}__{}__fragment'.format(self.name, fragment_name))
-        return SQL('{}.{}').format(Identifier(self.storage.schema),
-                                   Identifier('{}__{}__fragment'.format(self.name, fragment_name)))
 
     def create_fragment(self, fragment_name, data_iterator, row_mapper,
                         create_index=False, ngram_index=None):
@@ -1117,8 +1063,6 @@ class PgCollection:
                                                              ))
         logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, export_table))
 
-    def __len__(self):
-        return count_rows(self.storage, self.name)
 
     def _repr_html_(self):
         if self._structure is None:
