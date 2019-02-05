@@ -144,10 +144,9 @@ class JavaProcess( object ):
         with open(os.devnull, "w") as trash: 
             returncode = subprocess.call('java -version', shell=True, stdout=trash, stderr=trash)
             if returncode != 0:
-                pass
-                # raise Exception('(!) Unable to launch a java process. '+\
-                #                'Please make sure that java is installed into the system and '+\
-                #                'available via environment variable PATH.')
+                raise Exception('(!) Unable to launch a java process. '+\
+                                'Please make sure that java is installed into the system and '+\
+                                'available via environment variable PATH.')
 
 
 
