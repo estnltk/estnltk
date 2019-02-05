@@ -1,7 +1,7 @@
 #
-# HFST-based morphological analyser for Estonian.
+# HFST-based morphological analyser for Estonian. [WORK IN PROGRESS]
 # This analyser uses a finite-state transducer to look up morphological 
-# analyses of the words.
+# analyses of the words. The output of the analysis will be ambiguous.
 #
 # Source code for the Estonian transducer models can be obtained from here:
 #     https://victorio.uit.no/langtech/trunk/experiment-langs/est
@@ -9,18 +9,16 @@
 # 'src/analyser-gt-desc.hfstol'. This is the file that can be given to 
 # HfstEstMorphAnalyser as the transducer model.
 # 
-# (!) Currently, you should always import HfstEstMorphAnalyser before any other
-#     module in estnltk, or else, you will later run into a conflict with the 
-#     Vabamorf package. Conflict explained: if you import Vabamorf, then import 
-#     hfst, and then try to use Vabamorf, then the Vabamorf likely gives you a
-#     "Segmentation fault";
+# (!) Currently, if you want to use HfstEstMorphAnalyser, you should always
+#     make "import hfst" before importing anything from estnltk, or else, you 
+#     will later run into a conflict with the Vabamorf package. 
+#     Conflict explained: if you import Vabamorf, then import hfst, and then 
+#     try to use Vabamorf, then the Vabamorf gives you a "Segmentation fault";
 #
 
 from typing import MutableMapping, Any
 
 import os.path, re
-
-import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
 
 from estnltk import logger
 
@@ -29,6 +27,7 @@ from estnltk.taggers import Tagger
 
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text
 
+import hfst
 
 class HfstEstMorphAnalyser(Tagger):
     """ Hfst-based morphological analyser for Estonian.
