@@ -313,7 +313,12 @@ def test_timex_tagger_context_tear_down():
     
     # 2) Apply tagger outside with, and use the __exit__() method
     tagger2 = TimexTagger()
-    # Check that the process is running
+    # Check that there is no process at first (lazy initialization)
+    assert tagger2._java_process._process is None
+    text = Text( 'Testimise tekst.' )
+    text.tag_layer(['words', 'sentences', 'morph_analysis'])
+    tagger2.tag(text)
+    # Check that the process is running after calling tag()
     assert tagger2._java_process._process.poll() is None
     # Terminate the process "manually"
     tagger2.__exit__()

@@ -94,7 +94,8 @@ class JavaProcess( object ):
     It deals with input/output and errors.
     """
 
-    def __init__(self, runnable_jar, jar_path=None, check_java=True, args=[]):
+    def __init__(self, runnable_jar, jar_path=None, check_java=True, \
+                       lazy_initialize=True, args=[]):
         """Initialize a Java VM.
         
         Parameters
@@ -106,27 +107,37 @@ class JavaProcess( object ):
             be concatenated to the JAR file name before launching 
             the command.
         check_java: boolean
-            If set, then launches command 'java -version' to check
-            that java is accessible from the shell. If java is not
-            accessible, throws an exception informing the user that
-            the java may not be properly installed.
+            If set, then before initialization of the java subprocess,
+            launches command 'java -version' to check that java is 
+            accessible from the shell. If java is not accessible, 
+            throws an exception informing the user that the java may 
+            not be properly installed.
             Note: this check adds some extra time to initializing
-            the JavaProcess.
+            the java subprocess.
+            (default: False)
+        lazy_initialize: boolean
+            If set, then java subprocess will not be initialized at 
+            the constructor (which would cause an expection if
+            java is missing), but it will be delayed and initialized 
+            later, when the method process_line() is called first 
+            time. Otherwise, the java subprocess will be initialized 
+            right away.
             (default: True)
         args: list of str
             The list of arguments given to the Java program.
         """
         if jar_path:
             runnable_jar = os.path.join(jar_path, runnable_jar)
-        if check_java:
-            self.check_for_java_accessibility()
-        self._process = subprocess.Popen(['java', '-jar', runnable_jar] + args,
-                                         stdin=subprocess.PIPE,
-                                         stdout=subprocess.PIPE,
-                                         stderr=subprocess.PIPE)
+        self._check_java   = check_java
+        self._process      = None
+        self._java_args    = args
+        self._runnable_jar = runnable_jar
+        if not lazy_initialize:
+            self.initialize_java_subprocess()
 
 
-    def check_for_java_accessibility(self):
+    @staticmethod
+    def check_for_java_accessibility():
         """Checks if java is accessible from the shell by launching the command 
            'java -version'. If launching the command fails, throws an exception 
             informing the user that the java is not properly installed."""
@@ -138,12 +149,28 @@ class JavaProcess( object ):
                                 'available via environment variable PATH.')
 
 
+
+    def initialize_java_subprocess(self):
+        """Checks for java's accessibility (if _check_java==True), and initializes java 
+           subprocess."""
+        if self._check_java:
+            self.check_for_java_accessibility()
+        self._process = subprocess.Popen(['java', '-jar', self._runnable_jar] + self._java_args,
+                                          stdin=subprocess.PIPE,
+                                          stdout=subprocess.PIPE,
+                                          stderr=subprocess.PIPE)
+
+
+
     def process_line(self, line):
         """Process a line of data.
-        
+       
         Sends the data through the pipe to the process and flush it. Reads a resulting line
         and returns it.
-        
+
+        Note: self._process is None (lazy initialization), then calls initialize_java_subprocess() 
+        before processing the line.
+
         Parameters
         ----------
         
@@ -161,6 +188,14 @@ class JavaProcess( object ):
         IoError
             In case it was impossible to read or write from the subprocess standard input / output.
         """
+        # Lazy initialization:
+        if self._process is None:
+            self.initialize_java_subprocess()
+        else:
+            assert self._process.poll() is None, \
+               '(!) The tagger cannot be used anymore, '+\
+               'because its Java process has been terminated.'
+        
         assert isinstance(line, str)
         try:
             self._process.stdin.write(as_binary(line))
