@@ -50,7 +50,7 @@ class PostgresStorage:
             c.execute(SQL("SET ROLE {};").format(Identifier(role)))
         self.conn.commit()
 
-        tables = self.get_all_tables()
+        tables = self._get_all_tables()
         self._collections = {table: None for table in tables if table + '__structure' in tables}
 
         logger.info('schema: {!r}, temporary: {!r}, role: {!r}'.format(self.schema, self.temporary, role))
@@ -72,7 +72,7 @@ class PostgresStorage:
             table_names = [row[0] for row in c.fetchall()]
             return table_names
 
-    def get_all_tables(self):
+    def _get_all_tables(self):
         if self.closed():
             return None
         with self.conn.cursor() as c:
@@ -125,7 +125,7 @@ class PostgresStorage:
                 self=self)
 
     def _repr_html_(self):
-        tables = self.get_all_tables()
+        tables = self._get_all_tables()
 
         structure = {}
 

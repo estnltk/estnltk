@@ -73,5 +73,7 @@ from .collection import PgCollectionException
 
 from .pgpass_parsing import parse_pgpass
 
+from .iterators import PgSubCollection
+
 from .storage import PgStorageException
 from .storage import PostgresStorage

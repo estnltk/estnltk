@@ -147,7 +147,12 @@ def test_clause_segmenter_context_tear_down():
     
     # 2) Create segmenter outside with, and use the __exit__() method
     segmenter2 = ClauseSegmenter()
-    # Check that the process is running
+    # Check that there is not process at first (lazy initialization)
+    assert segmenter2._java_process._process is None
+    text = Text( 'Testimise tekst.' )
+    text.tag_layer(['words', 'sentences', 'morph_analysis'])
+    segmenter2.tag(text)
+    # Check that the process is up and running after calling tag()
     assert segmenter2._java_process._process.poll() is None
     # Terminate the process "manually"
     segmenter2.__exit__()
@@ -156,6 +161,11 @@ def test_clause_segmenter_context_tear_down():
     
     # 3) Create segmenter outside with, and use the close() method
     segmenter3 = ClauseSegmenter()
+    # Check that there is no process at first (lazy initialization)
+    assert segmenter3._java_process._process is None
+    text = Text( 'Testimise tekst.' )
+    text.tag_layer(['words', 'sentences', 'morph_analysis'])
+    segmenter3.tag(text)
     # Check that the process is running
     assert segmenter3._java_process._process.poll() is None
     # Terminate the process "manually"

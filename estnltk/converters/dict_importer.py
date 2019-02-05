@@ -1,4 +1,4 @@
-from typing import Union, Sequence, List
+from typing import Union, Sequence, List, Container
 
 from estnltk.text import Text, Layer, Span, EnvelopingSpan
 
@@ -67,16 +67,17 @@ def dict_to_layer(layer_dict: dict, text: Text, detached_layers=None) -> Union[L
     return _dict_to_layer(layer_dict, text, detached_layers)
 
 
-def _dict_to_text(text_dict: dict) -> Text:
+def _dict_to_text(text_dict: dict, layers: Container = None) -> Text:
     text = Text(text_dict['text'])
     text.meta = text_dict['meta']
     for layer_dict in text_dict['layers']:
-        layer = dict_to_layer(layer_dict, text)
-        text[layer.name] = layer
+        if layers is None or layer_dict['name'] in layers:
+            layer = dict_to_layer(layer_dict, text)
+            text[layer.name] = layer
     return text
 
 
-def dict_to_text(text_dict: Union[dict, Sequence[dict]]) -> Union[Text, List[Text]]:
+def dict_to_text(text_dict: Union[dict, Sequence[dict]], layers: Container = None) -> Union[Text, List[Text]]:
     if isinstance(text_dict, Sequence):
-        return [_dict_to_text(td) for td in text_dict]
-    return _dict_to_text(text_dict)
+        return [_dict_to_text(td, layers) for td in text_dict]
+    return _dict_to_text(text_dict, layers)

@@ -84,7 +84,7 @@ class ClauseSegmenter(Tagger):
             args.append('-ins_comma_mis')
         # Initiate Java process
         self._java_process = \
-            JavaProcess( 'Osalau.jar', jar_path=JAVARES_PATH, args=args )
+            JavaProcess( 'Osalau.jar', jar_path=JAVARES_PATH, check_java=True, lazy_initialize=True, args=args )
 
 
     def __enter__(self):
@@ -93,20 +93,22 @@ class ClauseSegmenter(Tagger):
 
     def __exit__(self, *args):
         """ Terminates Java process. """
-        # The proper way to terminate the process:
-        # 1) Send out the terminate signal
-        self._java_process._process.terminate()
-        # 2) Interact with the process. Read data from stdout and stderr, 
-        #    until end-of-file is reached. Wait for process to terminate.
-        self._java_process._process.communicate()
-        # 3) Assert that the process terminated
-        assert self._java_process._process.poll() is not None
+        if self._java_process._process is not None: # if the process was initialized
+            # The proper way to terminate the process:
+            # 1) Send out the terminate signal
+            self._java_process._process.terminate()
+            # 2) Interact with the process. Read data from stdout and stderr, 
+            #    until end-of-file is reached. Wait for process to terminate.
+            self._java_process._process.communicate()
+            # 3) Assert that the process terminated
+            assert self._java_process._process.poll() is not None
         return False
 
 
     def close(self):
-        if self._java_process._process.poll() is None:
-            self.__exit__()
+        if self._java_process._process is not None: # if the process was initialized
+            if self._java_process._process.poll() is None:
+                self.__exit__()
 
 
     def _make_layer(self, text, layers, status: dict):
@@ -126,9 +128,6 @@ class ClauseSegmenter(Tagger):
         status: dict
            This can be used to store metadata on layer tagging.
         """
-        assert self._java_process._process.poll() is None, \
-           '(!) This '+str(self.__class__.__name__)+' cannot be used anymore, '+\
-           'because its Java process has been terminated.'
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
         morph_spans  = layers[ self._input_morph_analysis_layer ].span_list

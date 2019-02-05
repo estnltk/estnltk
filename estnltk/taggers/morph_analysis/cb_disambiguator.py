@@ -25,7 +25,6 @@ from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text
 from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 
-from estnltk.taggers.morph_analysis.recordbased_retagger import MorphAnalysisRecordBasedRetagger
 
 
 class CorpusBasedMorphDisambiguator( object ):
