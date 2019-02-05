@@ -40,7 +40,6 @@ class HfstEstMorphAnalyser(Tagger):
                   # Internal components:
                   '_transducer',
                   '_input_words_layer',
-                  '_input_sentences_layer', 
                   '_flag_cleaner_re',
                   # For backward compatibility:
                   'depends_on',
@@ -51,7 +50,6 @@ class HfstEstMorphAnalyser(Tagger):
     def __init__(self,
                  output_layer:str='hfst_gt_morph_analysis',
                  input_words_layer:str='words',
-                 input_sentences_layer:str='sentences',
                  output_format:str='raw',
                  transducer_file:str=None,
                  transducer:hfst.HfstTransducer=None):
@@ -64,9 +62,6 @@ class HfstEstMorphAnalyser(Tagger):
 
         input_words_layer: str (default: 'words')
             Name of the input words layer;
-        
-        input_sentences_layer: str (default: 'sentences')
-            Name of the input sentences layer;
         
         output_format: str (default: 'raw')
             Specifies how the results of the hfst morphological 
@@ -108,10 +103,8 @@ class HfstEstMorphAnalyser(Tagger):
         
         # Set attributes & configuration
         self.output_layer = output_layer
-        self.input_layers = [input_words_layer, \
-                             input_sentences_layer ]
+        self.input_layers = [ input_words_layer ]
         self._input_words_layer     = self.input_layers[0]
-        self._input_sentences_layer = self.input_layers[1]
         self.depends_on = self.input_layers
         self.attributes = self.output_attributes
         
@@ -162,7 +155,7 @@ class HfstEstMorphAnalyser(Tagger):
            layers: MutableMapping[str, Layer]
               Layers of the text. Contains mappings from the name 
               of the layer to the Layer object.  The  mapping  must 
-              contain words, and sentences. 
+              contain words layer. 
               The  hfst_gt_morph_analysis  layer will be created.
               
            status: dict
