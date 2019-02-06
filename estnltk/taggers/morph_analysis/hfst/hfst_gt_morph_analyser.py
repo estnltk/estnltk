@@ -5,15 +5,16 @@
 #
 # Source code for the Estonian transducer models can be obtained from here:
 #     https://victorio.uit.no/langtech/trunk/experiment-langs/est
-# Once you have compiled HFST models in this repository, look for file 
+# Once you have compiled HFST models of this repository, look for file 
 # 'src/analyser-gt-desc.hfstol'. This is the file that can be given to 
 # HfstEstMorphAnalyser as the transducer model.
 # 
 # (!) Currently, if you want to use HfstEstMorphAnalyser, you should always
 #     make "import hfst" before importing anything from estnltk, or else, you 
 #     will later run into a conflict with the Vabamorf package. 
-#     Conflict explained: if you import Vabamorf, then import hfst, and then 
-#     try to use Vabamorf, then the Vabamorf gives you a "Segmentation fault";
+#     Conflict described: if you import estnltk/Vabamorf, and then import hfst, 
+#     and then try to use Vabamorf, the Vabamorf gives you a "Segmentation 
+#     fault";
 #
 
 from typing import MutableMapping, Any
@@ -110,6 +111,7 @@ class HfstEstMorphAnalyser(Tagger):
         
         # Utils: create a flag cleaner
         self._flag_cleaner_re = re.compile('@[PNDRCU][.][^@]*@')
+        self._transducer = None
         self.transducer_file = None
         
         if transducer:
@@ -161,6 +163,11 @@ class HfstEstMorphAnalyser(Tagger):
            status: dict
               This can be used to store metadata on layer tagging.
         """
+        assert self._transducer is not None, \
+               '(!) Transducer was not initialized in the constructor of '+\
+               self.__class__.__name__+'. Please create a new instance and '+\
+               'initialize transducer properly.'
+
         new_layer = Layer(name=self.output_layer,
                                parent=self._input_words_layer,
                                text_object=text,
@@ -251,3 +258,4 @@ class RawAnalysesHfstMorphOutputExtractor(HfstMorphOutputExtractor):
                 # Add annotation to the layer
                 layer.add_annotation( word, **record )
 
+# ========================================================
