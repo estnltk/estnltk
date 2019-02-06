@@ -348,7 +348,8 @@ def select_raw(storage,
                query=None,
                layer_query: dict = None,
                layer_ngram_query: dict = None,
-               layers: list = None,
+               attached_layers=None,
+               detached_layers=None,
                keys: list = None,
                order_by_key: bool = False,
                collection_meta: list = None,
@@ -393,7 +394,7 @@ def select_raw(storage,
                           query=query,
                           layer_query=layer_query,
                           layer_ngram_query=layer_ngram_query,
-                          layers=layers,
+                          layers=detached_layers,
                           keys=keys,
                           order_by_key=order_by_key,
                           collection_meta=collection_meta,
@@ -405,7 +406,7 @@ def select_raw(storage,
         for row in c:
             text_id = row[0]
             text_dict = row[1]
-            text = dict_to_text(text_dict)
+            text = dict_to_text(text_dict, attached_layers)
             meta = row[2:2+len(collection_meta)]
             detached_layers = {}
             if len(row) > 2 + len(collection_meta):

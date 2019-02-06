@@ -26,8 +26,8 @@ from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import PgCollectionException
 from estnltk.storage.postgres import build_sql_query
-from estnltk.storage.postgres import select_raw
 from estnltk.storage.postgres import PgCollection
+from estnltk.storage import postgres as pg
 
 
 logger.setLevel('DEBUG')
@@ -94,7 +94,7 @@ class TestStorage(unittest.TestCase):
         tagger2.tag(text_1)
         tagger2.tag(text_2)
 
-        for text_id, text in collection.select(layers=['morph_analysis', 'paragraphs']):
+        for text_id, text in collection.select(layers=['compound_tokens', 'morph_analysis', 'paragraphs']):
             if text_id == 1:
                 assert text == text_1, text_1.diff(text)
             elif text_id == 2:
@@ -444,14 +444,14 @@ class TestLayerFragment(unittest.TestCase):
             return fragments
 
         collection.old_slow_create_layer(layer_fragment_name,
-                                         data_iterator=collection.select(),
+                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
                                          row_mapper=fragment_tagger)
 
         self.assertTrue(collection.has_layer(layer_fragment_name))
 
-        rows = [row for row in select_raw(storage=self.storage,
-                                          collection_name=collection_name,
-                                          layers=[layer_fragment_name])]
+        rows = [row for row in pg.select_raw(storage=self.storage,
+                                             collection_name=collection_name,
+                                             detached_layers=[layer_fragment_name])]
         self.assertEqual(len(rows), 4)
 
         text_ids = [row[0] for row in rows]
@@ -499,7 +499,7 @@ class TestFragment(unittest.TestCase):
         layer_fragment_name = "layer_fragment_1"
         tagger = VabamorfTagger(disambiguate=False, layer_name=layer_fragment_name)
         collection.old_slow_create_layer(layer_fragment_name,
-                                         data_iterator=collection.select(),
+                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
                                          row_mapper=lambda row: [RowMapperRecord(
                                                  layer=tagger.tag(row[1], return_layer=True), meta=None)])
 
@@ -515,9 +515,9 @@ class TestFragment(unittest.TestCase):
                     {'fragment': parent_layer, 'parent_id': parent_id}]
 
         collection.create_fragment(fragment_name,
-                            data_iterator=select_raw(storage=self.storage,
-                                                     collection_name=collection_name,
-                                                     layers=[layer_fragment_name]),
+                            data_iterator=pg.select_raw(storage=self.storage,
+                                                        collection_name=collection_name,
+                                                        detached_layers=[layer_fragment_name]),
                             row_mapper=row_mapper,
                             create_index=False,
                             ngram_index=None)
@@ -568,7 +568,9 @@ class TestLayer(unittest.TestCase):
             layer = tagger1.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        collection.old_slow_create_layer(layer1, data_iterator=collection.select(), row_mapper=row_mapper1)
+        collection.old_slow_create_layer(layer1,
+                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
+                                         row_mapper=row_mapper1)
         tagger1.tag(text1)
         tagger1.tag(text2)
 
@@ -580,11 +582,13 @@ class TestLayer(unittest.TestCase):
             layer = tagger2.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        collection.old_slow_create_layer(layer2, data_iterator=collection.select(), row_mapper=row_mapper2)
+        collection.old_slow_create_layer(layer2,
+                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
+                                         row_mapper=row_mapper2)
         tagger2.tag(text1)
         tagger2.tag(text2)
 
-        for key, text in collection.select():
+        for key, text in collection.select(layers=['sentences']):
             self.assertTrue("sentences" in text.layers)
             self.assertTrue(layer1 not in text.layers)
             self.assertTrue(layer2 not in text.layers)
@@ -620,7 +624,7 @@ class TestLayer(unittest.TestCase):
             return [RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})]
 
         collection.create_layer(layer1,
-                                data_iterator=collection.select(),
+                                data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
                                 row_mapper=row_mapper1,
                                 meta={"meta_text_id": "int",
                                       "sum": "float"})
@@ -629,9 +633,9 @@ class TestLayer(unittest.TestCase):
         # get_layer_meta
         layer_meta = collection.get_layer_meta(layer_name=layer1)
         assert layer_meta.to_dict() == {'id': {0: 1, 1: 2},
-                                        'meta_text_id': {0: 1, 1: 2},
+                                        'meta_text_id': {0: 0, 1: 1},
                                         'sum': {0: 45.5, 1: 45.5},
-                                        'text_id': {0: 1, 1: 2}}, layer_meta.to_dict()
+                                        'text_id': {0: 0, 1: 1}}, layer_meta.to_dict()
 
         with self.assertRaises(PgCollectionException):
             collection.get_layer_meta(layer_name='not_exists')
@@ -662,7 +666,7 @@ class TestLayer(unittest.TestCase):
             return [RowMapperRecord(layer=layer, meta=None)]
 
         collection.old_slow_create_layer(layer1_name,
-                                  data_iterator=collection.select(),
+                                  data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
                                   row_mapper=row_mapper1)
 
         q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik', form='sg n')
@@ -693,7 +697,7 @@ class TestLayer(unittest.TestCase):
             layer = tagger2.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        collection.old_slow_create_layer(layer2, data_iterator=collection.select(), row_mapper=row_mapper2)
+        collection.old_slow_create_layer(layer2, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper2)
 
         q = JsonbLayerQuery(layer_name=layer2_table, lemma='ööbik', form='sg n')
         self.assertEqual(len(list(collection.select(layer_query={layer2: q}))), 1)
@@ -729,8 +733,12 @@ class TestLayer(unittest.TestCase):
             layer = tagger2.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        collection.old_slow_create_layer(layer1, data_iterator=collection.select(), row_mapper=row_mapper1, create_index=True)
-        collection.old_slow_create_layer(layer2, data_iterator=collection.select(), row_mapper=row_mapper2)
+        collection.old_slow_create_layer(layer1,
+                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
+                                         row_mapper=row_mapper1, create_index=True)
+        collection.old_slow_create_layer(layer2,
+                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
+                                         row_mapper=row_mapper2)
 
         # test one layer
         res = collection.find_fingerprint(layer_query={
@@ -817,9 +825,9 @@ class TestLayer(unittest.TestCase):
             layer = tagger2.tag(text, return_layer=True)
             return [RowMapperRecord(layer=layer, meta=None)]
 
-        collection.old_slow_create_layer(layer1, data_iterator=collection.select(), row_mapper=row_mapper1,
+        collection.old_slow_create_layer(layer1, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper1,
                                   ngram_index={"lemma": 2})
-        collection.old_slow_create_layer(layer2, data_iterator=collection.select(), row_mapper=row_mapper2,
+        collection.old_slow_create_layer(layer2, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper2,
                                   ngram_index={"partofspeech": 3})
 
         self.assertEqual(count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer1)), 2)
