@@ -2,6 +2,7 @@ import pytest
 
 from estnltk import AmbiguousSpan, Span, Layer
 from estnltk.layer import AttributeList
+from estnltk.layer.annotation import Annotation
 
 
 def test_add_annotation():
@@ -42,3 +43,25 @@ def test_getattr():
 
     assert hasattr(span_1, 'attr_1')
     assert not hasattr(span_1, 'blabla')
+
+
+def test_getitem():
+    span_1 = AmbiguousSpan(Layer('test', attributes=['attr_1'], ambiguous=True), Span(0, 1))
+
+    span_1.add_annotation(attr_1=0)
+    span_1.add_annotation(attr_1=3)
+
+    assert isinstance(span_1[0], Annotation)
+    assert span_1[0].attr_1 == 0
+    assert span_1[1].attr_1 == 3
+
+    assert span_1['attr_1'] == AttributeList([0, 3], 'attr_1')
+
+    with pytest.raises(KeyError):
+        span_1[:]
+
+    with pytest.raises(AttributeError):
+        span_1['bla']
+
+    with pytest.raises(IndexError):
+        span_1[2]

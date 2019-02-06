@@ -112,11 +112,13 @@ class AmbiguousSpan(collections.Sequence):
 
         raise AttributeError(item)
 
-    def __getitem__(self, idx: int) -> Union[Span, 'SpanList']:
-        wrapped = self._annotations.__getitem__(idx)
+    def __getitem__(self, idx: int) -> Union[Annotation, AttributeList]:
         if isinstance(idx, int):
+            wrapped = self._annotations.__getitem__(idx)
             return wrapped
-        raise NotImplementedError('slicing of ambiguous span not yet implemented')
+        if isinstance(idx, str):
+            return AttributeList([getattr(annotation, idx) for annotation in self._annotations], idx)
+        raise KeyError(idx)
 
     def __lt__(self, other: Any) -> bool:
         return (self.start, self.end) < (other.start, other.end)
