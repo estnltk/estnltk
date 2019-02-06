@@ -58,7 +58,7 @@ class PgSubCollection:
         layers_extended = []
 
         def include_dep(layer):
-            if layer is None or not self.collection.structure[layer]['detached']:
+            if layer is None:
                 return
             for dep in (self.collection.structure[layer]['parent'], self.collection.structure[layer]['enveloping']):
                 include_dep(dep)
@@ -71,19 +71,23 @@ class PgSubCollection:
                         layer, self.collection.name))
             include_dep(layer)
 
+        attached_layer_names = [layer for layer in layers_extended if not self.collection.structure[layer]['detached']]
+        detached_layer_names = [layer for layer in layers_extended if self.collection.structure[layer]['detached']]
+
         def data_iterator():
             for row in pg.select_raw(storage=self.collection.storage,
                                      collection_name=self.collection.name,
                                      query=self.query,
                                      layer_query=self.layer_query,
                                      layer_ngram_query=self.layer_ngram_query,
-                                     layers=layers_extended,
+                                     attached_layers=attached_layer_names,
+                                     detached_layers=detached_layer_names,
                                      keys=self.keys,
                                      order_by_key=self.order_by_key,
                                      collection_meta=self.collection_meta,
                                      missing_layer=self.missing_layer):
                 text_id, text, meta_list, detached_layers = row
-                for layer_name in layers_extended:
+                for layer_name in detached_layer_names:
                     text[layer_name] = detached_layers[layer_name]['layer']
                 if self.collection_meta:
                     meta = {}

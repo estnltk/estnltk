@@ -6,8 +6,6 @@ import re
 from functools import reduce
 from contextlib import contextmanager
 
-from tqdm import tqdm, tqdm_notebook
-
 from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT, Composed
 
@@ -19,7 +17,6 @@ from estnltk.converters import text_to_json
 from estnltk.layer_operations import create_ngram_fingerprint_index
 
 from estnltk.storage.postgres import table_identifier
-from estnltk.storage.postgres import collection_table_identifier
 from estnltk.storage.postgres import structure_table_identifier
 from estnltk.storage.postgres import fragment_table_identifier
 from estnltk.storage.postgres import layer_table_identifier
@@ -32,7 +29,6 @@ from estnltk.storage.postgres import drop_fragment_table
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import fragment_table_name
 from estnltk.storage.postgres import layer_table_name
-from estnltk.storage.postgres import select_raw
 from estnltk.storage.postgres import JsonbLayerQuery
 from estnltk.storage.postgres import JsonbTextQuery
 from estnltk.storage import postgres as pg
@@ -84,6 +80,7 @@ class PgCollection:
         self.column_names = ['id', 'data'] + list(self.meta)
 
         self._buffered_insert_query_length = 0
+        self._selected_layes = None
 
     def create(self, description=None, meta=None, temporary=None):
         """Creates the database tables for the collection"""
@@ -119,6 +116,22 @@ class PgCollection:
         return sorted(self._structure)
 
     @property
+    def selected_layers(self):
+        if self._selected_layes is None:
+            if self._structure is None:
+                return []
+            self._selected_layes = [layer for layer, properties in self._structure.items()
+                                    if properties['detached'] is False]
+        return self._selected_layes
+
+    @selected_layers.setter
+    def selected_layers(self, value):
+        assert isinstance(value, list)
+        assert all(isinstance(v, str) for v in value)
+        assert set(value) <= set(self._structure)
+        self._selected_layes = value
+
+    @property
     def structure(self):
         return self._structure
 
@@ -128,7 +141,7 @@ class PgCollection:
             c.execute(
                 SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
                     index=Identifier('idx_%s_data' % self.name),
-                    table=collection_table_identifier(self.storage, self.name)))
+                    table=pg.collection_table_identifier(self.storage, self.name)))
 
     def drop_index(self):
         """drop index of the collection table"""
@@ -146,8 +159,8 @@ class PgCollection:
             raise PgCollectionException("can't extend: structures are different")
         with self.storage.conn.cursor() as cursor:
             cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}'
-                               ).format(collection_table_identifier(self.storage, self.name),
-                                        collection_table_identifier(other.storage, other.name)))
+                               ).format(pg.collection_table_identifier(self.storage, self.name),
+                                        pg.collection_table_identifier(other.storage, other.name)))
             for layer_name, struct in self._structure.items():
                 if struct['detached']:
                     cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(
@@ -220,7 +233,7 @@ class PgCollection:
         buffer = []
         self._buffered_insert_query_length = 0
         column_identifiers = SQL(', ').join(map(Identifier, self.column_names))
-        table_identifier = collection_table_identifier(self.storage, self.name)
+        table_identifier = pg.collection_table_identifier(self.storage, self.name)
 
         self.storage.conn.commit()
         self.storage.conn.autocommit = True
@@ -228,6 +241,8 @@ class PgCollection:
 
             def wrap_buffered_insert(text, key=None, meta_data=None):
                 if self._structure == {}:
+                    if key is None:
+                        key = 0
                     for layer in text.layers:
                         self._insert_into_structure(text[layer], detached=False)
                 elif any(struct['detached'] for struct in self._structure.values()):
@@ -356,7 +371,7 @@ class PgCollection:
               {fragment_table}.parent_id = {parent_table}.id AND {parent_table}.text_id = {text_table}.id
             """)
         q = q.format(
-            text_table=collection_table_identifier(self.storage, self.name),
+            text_table=pg.collection_table_identifier(self.storage, self.name),
             parent_table=layer_table_identifier(self.storage, self.name, parent_layer_name),
             fragment_table=fragment_table_identifier(self.storage, self.name, fragment_name))
 
@@ -405,7 +420,7 @@ class PgCollection:
 
     def __getitem__(self, item):
         if isinstance(item, int):
-            result = list(self.select(keys=[item]))
+            result = list(self.select(layers=self.selected_layers, keys=[item]))
             if result:
                 return result[0][1]
             raise KeyError(item)
@@ -415,7 +430,7 @@ class PgCollection:
         raise KeyError(item)
 
     def __iter__(self):
-        for _, text in self.select():
+        for _, text in self.select(layers=self.selected_layers):
             yield text
 
     def select_by_key(self, key, return_as_dict=False):
