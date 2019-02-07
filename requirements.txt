@@ -14,3 +14,4 @@ IPython
 tensorflow
 numpy
 tqdm
+conllu
