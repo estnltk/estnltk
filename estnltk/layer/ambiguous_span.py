@@ -114,10 +114,11 @@ class AmbiguousSpan(collections.Sequence):
 
     def __getitem__(self, idx: int) -> Union[Annotation, AttributeList]:
         if isinstance(idx, int):
-            wrapped = self._annotations.__getitem__(idx)
-            return wrapped
+            return self._annotations[idx]
+
         if isinstance(idx, str):
-            return AttributeList([getattr(annotation, idx) for annotation in self._annotations], idx)
+            return getattr(self, idx)
+
         raise KeyError(idx)
 
     def __lt__(self, other: Any) -> bool:
