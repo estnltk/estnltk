@@ -259,3 +259,110 @@ class RawAnalysesHfstMorphOutputExtractor(HfstMorphOutputExtractor):
                 layer.add_annotation( word, **record )
 
 # ========================================================
+
+# ========================================================
+#   Finding structure of hfst analysis
+# ========================================================
+
+#  Note: the structure of analysis is described in more 
+#  detail in:
+#     https://victorio.uit.no/langtech/trunk/experiment-langs/est/src/morphology/lexlang.xfscript
+
+# part-of-speech_tags 
+est_hfst_postags = [
+    # DeclinablePOS 
+    "+N", "+N+Prop", "+A", "+A+Comp", "+A+Superl", "+Num+Card", "+Num+Ord", "+Pron", "+ACR",\
+    # NonInflectingPOS 
+    "+Adv", "+Interj", "+CC", "+CS", "+Adp", "+Pref", "+CLB",\
+    # VPOS 
+    "+V" ]
+
+# Separates one component of a derivative from another
+est_hfst_derivative_strs = ['+Der/', '+Dim/']
+# Note that, a derivative str is usually followed by 
+# a lowercase word suffix, which is then followed by 
+# a new part of speech tag, e.g.
+#           suusatama+V+Der/mine+N+Sg+Nom
+#           Järvamaa+N+Prop+Der/lane+N+Sg+Nom
+# Exceptions are "+Der/minus" and "+Dim/ke", for which 
+# no part-of-speech change is specified:
+#           tillu+A+Dim/ke+Sg+Nom
+
+# Separates one component of a compound word from another
+est_hfst_compound_seps = ['#']
+
+# String marking a guessed word
+est_hfst_guess_strs = ['+Guess']
+
+# String marking a clitic
+est_hfst_clitic_strs = ['+Foc/gi']
+
+# Strings marking usage patterns
+est_hfst_usage_strs = ["+Use/Rare", "+Use/Hyp", "+Use/NotNorm", "+Use/CommonNotNorm"]
+
+# -------------------------------------------------
+
+def split_into_morphemes( raw_analysis: str ):
+    """ Splits raw analysis of the word into separate chunks of morphemes.
+        Note: not all of these chunks are morphemes in the linguistic
+        sense.
+        
+        Uses two kinds of split symbols:
+        1) Split by compounding (symbol #):
+            udu+N+Sg+Gen#loss+N+Sg+Nom => udu+N+Sg+Gen, loss+N+Sg+Nom
+
+        2) Split by derivatives (symbol /):
+            laulma+V+Der/ja+N+Sg+Nom => laulma+V+Der, ja+N+Sg+Nom
+        
+        Clitics and usage information will also be separated from
+        the rest of the morphemes, e.g.
+            karu+Guess#tapja+N+Sg+Nom+Foc/gi => karu+Guess, tapja+N+Sg+Nom, +Foc/gi
+            miski+Pron+Sg+Ine+Use/NotNorm => miski+Pron+Sg+Ine, +Use/NotNorm
+    """
+    locations = []
+    start = 0
+    alen = len(raw_analysis)
+    for cid, chr in enumerate(raw_analysis):
+        breakpoint_found = False
+        # Check for compounding
+        for cp in est_hfst_compound_seps:
+            if cid+len(cp) <= alen and cp == raw_analysis[cid:cid+len(cp)]:
+                locations.append( (start, cid) )
+                start = cid+len(cp) # next start position
+                breakpoint_found = True
+                break
+        if not breakpoint_found:
+            # Check for derivative
+            for dv in est_hfst_derivative_strs:
+                if cid+len(dv) <= alen and dv == raw_analysis[cid:cid+len(dv)]:
+                    assert len(dv) > 1 and dv.endswith('/')
+                    # Exclude only the last symbol of derivative (/)
+                    locations.append( (start, cid+len(dv)-1) )
+                    start = cid+len(dv) # next start position
+                    breakpoint_found = True
+                    break
+        if not breakpoint_found:
+            # Check for clitics
+            for cl in est_hfst_clitic_strs:
+                if cid+len(cl) <= alen and cl == raw_analysis[cid:cid+len(cl)]:
+                    locations.append( (start, cid) )
+                    start = cid # next start position
+                    breakpoint_found = True
+                    break
+        if not breakpoint_found:
+            # Check for usage information
+            for us in est_hfst_usage_strs:
+                if cid+len(us) <= alen and us == raw_analysis[cid:cid+len(us)]:
+                    locations.append( (start, cid) )
+                    start = cid # next start position
+                    breakpoint_found = True
+                    break
+    # Add the last / remaining chunk
+    if start < alen:
+        locations.append( (start, alen) )
+    # Take chunks out
+    chunks = [raw_analysis[s:e] for (s,e) in locations]
+    return chunks
+
+
+# ========================================================

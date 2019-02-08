@@ -81,3 +81,40 @@ def test_hfst_gt_morph_analyser_raw_output():
         {'raw_analysis': 'suusa+Guess#riik+N+Sg+Tra', 'end': 45, 'weight': 243.0, 'start': 33}]]
     assert results == expected_results
 
+
+@pytest.mark.skipif(not check_if_hfst_is_available(),
+                    reason="package hfst is required for this test")
+def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
+    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
+    
+    from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import split_into_morphemes
+    
+    test_data = [ {'word':'talv',\
+                   'raw_analysis':'talv+N+Sg+Nom', \
+                   'expected_morphemes':['talv+N+Sg+Nom']}, \
+                  {'word':'millegis',\
+                   'raw_analysis':'miski+Pron+Sg+Ine+Use/NotNorm', \
+                   'expected_morphemes':['miski+Pron+Sg+Ine', '+Use/NotNorm']}, \
+                  {'word':'öelnud',\
+                   'raw_analysis':'ütlema+V+Pers+Prt+Ind+Neg', \
+                   'expected_morphemes':['ütlema+V+Pers+Prt+Ind+Neg']}, \
+                  {'word':'karutapjagi',\
+                   'raw_analysis':'karu+N+Sg+Gen#tapma+V+Der/ja+N+Sg+Nom+Foc/gi' , \
+                   'expected_morphemes':['karu+N+Sg+Gen', 'tapma+V+Der', 'ja+N+Sg+Nom', '+Foc/gi']}, \
+                  {'word':'ülipüüdlik',\
+                   'raw_analysis':'üli+Pref#püüd+N+Der/lik+A+Sg+Nom' , \
+                   'expected_morphemes':['üli+Pref', 'püüd+N+Der', 'lik+A+Sg+Nom']}, \
+                  {'word':'laupäevahommikuti',\
+                   'raw_analysis':'laupäev+N+Sg+Gen#hommik+N+Der/ti+Adv' , \
+                   'expected_morphemes':['laupäev+N+Sg+Gen', 'hommik+N+Der', 'ti+Adv']}, \
+                  {'word':'killuke',\
+                   'raw_analysis':'kild+N+Dim/ke+Sg+Nom' , \
+                   'expected_morphemes':['kild+N+Dim', 'ke+Sg+Nom']}, \
+                  {'word':'iluaedasid',\
+                   'raw_analysis':'ilu+N+Sg+Gen#aed+N+Pl+Par+Use/Rare' , \
+                   'expected_morphemes':['ilu+N+Sg+Gen', 'aed+N+Pl+Par', '+Use/Rare']}, \
+                ]
+    for test_item in test_data:
+        input_raw_analysis = test_item['raw_analysis']
+        morphemes = split_into_morphemes( input_raw_analysis )
+        assert  morphemes == test_item['expected_morphemes']
