@@ -1,7 +1,10 @@
 import html
 import regex as re
 from typing import MutableMapping, Sequence, Tuple
-from estnltk.text import Layer, Text
+
+from estnltk.text import Text
+from estnltk.layer.layer import Layer
+from estnltk.layer.ambiguous_attribute_tuple_list import to_str
 
 
 class TaggerChecker(type):
@@ -160,21 +163,3 @@ class Tagger(metaclass=TaggerChecker):
                   'configuration': [p+'='+str(getattr(self, p)) for p in self.conf_param if not p.startswith('_')]
                   }
         return record
-
-
-def to_str(value, escape_html=False):
-    if callable(value) and hasattr(value, '__name__') and hasattr(value, '__module__'):
-        value_str = '<function {}.{}>'.format(value.__module__, value.__name__)
-    elif isinstance(value, re.Pattern):
-        value_str = '<Regex {}>'.format(value.pattern)
-    else:
-        value_str = str(value)
-
-    if len(value_str) >= 100:
-        value_str = value_str[:80] + ' ..., type: ' + str(type(value))
-        if hasattr(value, '__len__'):
-            value_str += ', length: ' + str(len(value))
-
-    if escape_html:
-        value_str = html.escape(value_str)
-    return value_str

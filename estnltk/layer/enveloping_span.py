@@ -2,7 +2,8 @@ import collections
 from typing import Any, Union, Sequence
 import itertools
 
-from estnltk import Span, AmbiguousSpan
+from estnltk.layer.span import Span
+from estnltk.layer.ambiguous_span import AmbiguousSpan
 
 
 class EnvelopingSpan(collections.Sequence):

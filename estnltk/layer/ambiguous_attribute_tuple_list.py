@@ -1,6 +1,27 @@
 import pandas
+import html
+import regex as re
 
 from estnltk.layer.immutable_list import ImmutableList
+from estnltk.layer.span import Span
+
+
+def to_str(value, escape_html=False):
+    if callable(value) and hasattr(value, '__name__') and hasattr(value, '__module__'):
+        value_str = '<function {}.{}>'.format(value.__module__, value.__name__)
+    elif isinstance(value, re.Pattern):
+        value_str = '<Regex {}>'.format(value.pattern)
+    else:
+        value_str = str(value)
+
+    if len(value_str) >= 100:
+        value_str = value_str[:80] + ' ..., type: ' + str(type(value))
+        if hasattr(value, '__len__'):
+            value_str += ', length: ' + str(len(value))
+
+    if escape_html:
+        value_str = html.escape(value_str)
+    return value_str
 
 
 class AmbiguousAttributeTupleList:

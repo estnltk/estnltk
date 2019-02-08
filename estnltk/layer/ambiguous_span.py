@@ -4,8 +4,8 @@ import pandas as pd
 from IPython.core.display import display_html
 
 from estnltk import Span
-from .annotation import Annotation
 from estnltk.layer import AttributeList
+from estnltk.layer.annotation import Annotation
 
 
 class AmbiguousSpan(collections.Sequence):

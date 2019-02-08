@@ -10,7 +10,8 @@ from estnltk import Span
 from estnltk import EnvelopingSpan
 from estnltk import SpanList
 from estnltk import Layer
-from estnltk.layer import AttributeList, AmbiguousAttributeList
+from estnltk.layer import AttributeList
+from estnltk.layer import AmbiguousAttributeList
 
 
 def _get_span_by_start_and_end(spans: SpanList, start: int=None, end: int=None, span: Span=None) -> Union[Span, None]:
