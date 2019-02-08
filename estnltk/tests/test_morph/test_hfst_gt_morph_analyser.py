@@ -164,6 +164,6 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
         input_raw_analysis = test_item['raw_analysis']
         morphemes = split_into_morphemes( input_raw_analysis )
         morpheme_feats = extract_morpheme_features( morphemes )
-        print(morpheme_feats)
+        #print(morpheme_feats)
         assert morpheme_feats == test_item['expected_features']
 

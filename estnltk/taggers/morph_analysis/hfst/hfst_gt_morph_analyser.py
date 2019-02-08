@@ -436,7 +436,9 @@ def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_sig
         for guess in est_hfst_guess_strs:
             if chunk_str.endswith(guess):
                 features['is_guessed'] = True
-                features['morphemes'].append( chunk_str.replace(guess,'') )
+                morpheme = chunk_str.replace(guess,'')
+                assert '+' not in morpheme
+                features['morphemes'].append( morpheme )
                 features['postags'].append( '' )
                 features['forms'].append( '' )
                 analysisExtracted = True
