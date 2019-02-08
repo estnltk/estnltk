@@ -1,0 +1,17 @@
+1	Milliseks	milline	P	P	rel|sg|tr	2	@ADVL	_	_
+2	kujuneb	kujune	V	V	indic|pres|ps3|sg	0	ROOT	_	_
+3	Riigikassa	Riigi_kassa	S	H	sg|nom	2	@SUBJ	_	_
+4	ja	ja	J	Jc	_	6	@J	_	_
+5	Ühispanga	ühis_pank	S	S	sg|gen	6	@NN>	_	_
+6	vahekord	vahe_kord	S	S	sg|nom	2	@SUBJ	_	_
+7	?	?	Z	Z	Int	6	@Punc	_	_
+
+1	Minu	mina	P	Ppers	ps1|sg|gen	2	@ADVL	_	_
+2	arvates	arva	V	V	ger	3	@ADVL	_	_
+3	on	ole	V	V	indic|pres|ps3|sg	0	ROOT	_	_
+4	Eesti	Eesti	S	H	sg|gen	5	@NN>	_	_
+5	pangandus	pangandus	S	S	sg|nom	3	@SUBJ	_	_
+6	tehnoloogiliselt	tehnoloogilise=lt	D	D	_	3	@ADVL	_	_
+7	maailma	maa_ilm	S	S	sg|gen	8	@NN>	_	_
+8	tasemel	tase	S	S	sg|ad	3	@ADVL	_	_
+9	.	.	Z	Z	Fst	8	@Punc	_	_
