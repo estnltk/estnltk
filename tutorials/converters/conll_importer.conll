@@ -6,35 +6,6 @@
 6	isikutelt	isik	S	S	pl|abl	4	@ADVL	_	_
 7	.	.	Z	Z	Fst	6	@Punc	_	_
 
-1	Eesti	Eesti	S	H	sg|gen	2	@NN>	_	_
-2	Ekspressi	Ekspress	S	H	sg|gen	3	@NN>	_	_
-3	teada	tead	V	Vinf	inf	7	@ADVL	_	_
-4	on	ole	V	Vaux	indic|pres|ps3|sg	3	@FCV	_	_
-5	Eesti	Eesti	S	H	sg|gen	6	@NN>	_	_
-6	Pank	pank	S	S	sg|nom	7	@SUBJ	_	_
-7	uurinud	uuri	V	V	ppast	0	ROOT	_	_
-8	Hansapanga	Hansa_pank	S	H	sg|gen	9	@NN>	_	_
-9	tehinguid	tehing	S	S	pl|part	7	@OBJ	_	_
-10	,	,	Z	Z	Com	9	@Punc	_	_
-11	mis	mis	P	P	intrel|pl|nom	12	@SUBJ	_	_
-12	toimusid	toimu	V	V	indic|impf|ps3|pl	9	@FMV	_	_
-13	kaks	kaks	N	N	card|sg|nom|l	15	@P>	_	_
-14	aastat	aasta	S	S	sg|part	13	@<Q	_	_
-15	tagasi	tagasi	K	Kt	_	12	@ADVL	_	_
-16	suvel	suvi	S	S	sg|ad	12	@ADVL	_	_
-17	ja	ja	J	Jc	_	20	@J	_	_
-18	mille	mis	P	P	intrel|pl|gen	19	@P>	_	_
-19	käigus	käigus	K	Kt	_	20	@ADVL	_	_
-20	voolas	voola	V	V	indic|impf|ps3|sg	16	@FMV	_	_
-21	panka	pank	S	S	sg|adit	20	@ADVL	_	_
-22	ligi	ligi	D	D	_	23	@ADVL	_	_
-23	miljardi	miljard	N	N	card|sg|gen|l	25	@NN>	_	_
-24	krooni	kroon	S	S	sg|gen	23	@<Q	_	_
-25	ulatuses	ulatus	S	S	sg|in	20	@ADVL	_	_
-26	kahtlast	kahtlane	A	A	sg|part	27	@AN>	_	_
-27	raha	raha	S	S	sg|part	20	@OBJ	_	_
-28	.	.	Z	Z	Fst	27	@Punc	_	_
-
 1	See	see	P	P	dem|sg|nom	2	@SUBJ	_	_
 2	oli	ole	V	V	indic|impf|ps3|sg	0	ROOT	_	_
 3	rohkem	rohkem	D	D	_	2	@OBJ	_	_
