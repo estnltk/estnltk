@@ -11,6 +11,8 @@ def to_str(value, escape_html=False):
         value_str = '<function {}.{}>'.format(value.__module__, value.__name__)
     elif isinstance(value, re.Pattern):
         value_str = '<Regex {}>'.format(value.pattern)
+    elif isinstance(value, Span):
+        value_str = 'Span({})'.format(value.text)
     else:
         value_str = str(value)
 
@@ -61,7 +63,7 @@ class AmbiguousAttributeTupleList:
         for i, value_tuples in enumerate(self.amb_attr_tuple_list):
             first = True
             for value_tuple in value_tuples:
-                record = {k: str(v) for k, v in zip(self.attribute_names, value_tuple)}
+                record = {k: to_str(v) for k, v in zip(self.attribute_names, value_tuple)}
                 if index is True:
                     record[''] = i if first else ''
                 elif isinstance(index, str) and not first:
