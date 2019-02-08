@@ -18,6 +18,7 @@
 #
 
 from typing import MutableMapping, Any
+from collections import OrderedDict
 
 import os.path, re
 
@@ -279,14 +280,6 @@ est_hfst_postags = [
 
 # Separates one component of a derivative from another
 est_hfst_derivative_strs = ['+Der/', '+Dim/']
-# Note that, a derivative str is usually followed by 
-# a lowercase word suffix, which is then followed by 
-# a new part of speech tag, e.g.
-#           suusatama+V+Der/mine+N+Sg+Nom
-#           Järvamaa+N+Prop+Der/lane+N+Sg+Nom
-# Exceptions are "+Der/minus" and "+Dim/ke", for which 
-# no part-of-speech change is specified:
-#           tillu+A+Dim/ke+Sg+Nom
 
 # Separates one component of a compound word from another
 est_hfst_compound_seps = ['#']
@@ -364,5 +357,105 @@ def split_into_morphemes( raw_analysis: str ):
     chunks = [raw_analysis[s:e] for (s,e) in locations]
     return chunks
 
+
+def _compile_postags_pattern():
+    """ Creates regexp for capturing part-of-speech tags 
+        from the output of HFST lookup. """
+    sorted_postags = sorted(est_hfst_postags, key=lambda x: (-len(x), x)) # Sort (longest first, then alpha)
+    postags_regexp = '|'.join(sorted_postags)
+    postags_regexp = '('+ postags_regexp.replace('+','\+') +')'
+    return re.compile(postags_regexp)
+
+est_hfst_postags_pattern = _compile_postags_pattern()
+
+def _compile_usage_strs_pattern():
+    """ Creates regexp for capturing part-of-speech tags 
+        from the output of HFST lookup. """
+    sorted_usage_strs = sorted(est_hfst_usage_strs, key=lambda x: (-len(x), x))
+    usage_strs_regexp = '|'.join(sorted_usage_strs)
+    usage_strs_regexp = '('+ usage_strs_regexp.replace('+','\+') +')'
+    usage_strs_pattern = re.compile(usage_strs_regexp)
+    return re.compile(usage_strs_pattern)
+
+est_hfst_usage_strs_pattern = _compile_usage_strs_pattern()
+
+def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_signs=True ):
+    """ Processes word's  morpheme_chunks,  extracts  their 
+        important features (morpheme, part-of-speech, form), 
+        and writes into an ordered dictionary. 
+        Returns resulting dictionary.
+
+        The resulting dictionary has keys:
+         * 'morphemes' -- list of morphemes in the word;
+         * 'postags'   -- list of part-of-speech tags of 
+                          corresponding morphemes;
+         * 'forms'     -- list of forms / category markings of 
+                          corresponding morphemes;
+         * 'has_clitic' -- boolean, indicating if morpheme_chunks
+                           contained clitic analysis.
+                           Note: clitic will not be added to 
+                           list of 'morphemes';
+         * 'is_guessed' -- boolean, indicating if morpheme_chunks
+                           contained a guessed analysis.
+         * 'usage'      -- strings describing word/morpheme usage, 
+                           e.g. whether it is a rare word;
+    """
+    features = OrderedDict()
+    features['morphemes'] = []
+    features['postags']   = []
+    features['forms']     = []
+    features['has_clitic'] = False
+    features['is_guessed'] = False
+    features['usage']      = ''
+    for chunk_str in morpheme_chunks:
+        analysisExtracted = False
+        firstplus = chunk_str.find('+')
+        postag_match = est_hfst_postags_pattern.search(chunk_str)
+        if postag_match:
+            postag_start = postag_match.start(0)
+            postag_end = postag_match.end(0)
+            # sanity check: start of the postag must overlap
+            # with the first plus;
+            if firstplus == postag_start:
+                morpheme = chunk_str[0:postag_start]
+                postag = chunk_str[postag_start:postag_end]
+                form = chunk_str[postag_end:]
+                features['morphemes'].append( morpheme )
+                features['postags'].append( postag )
+                features['forms'].append( form )
+                analysisExtracted = True
+        if est_hfst_usage_strs_pattern.match(chunk_str):
+            features['usage'] += chunk_str
+            analysisExtracted = True
+        # Check if we have a clitic string
+        for cl in est_hfst_clitic_strs:
+            if cl == chunk_str:
+                features['has_clitic'] = True
+                analysisExtracted = True
+        # Check if the word has been quessed:
+        for guess in est_hfst_guess_strs:
+            if chunk_str.endswith(guess):
+                features['is_guessed'] = True
+                features['morphemes'].append( chunk_str.replace(guess,'') )
+                features['postags'].append( '' )
+                features['forms'].append( '' )
+                analysisExtracted = True
+        if not analysisExtracted:
+            if firstplus > -1:
+                # In case of a plus sign, assume that it separates the 
+                # morpheme from the form categories
+                features['morphemes'].append( chunk_str[:firstplus] )
+                features['postags'].append( '' )
+                features['forms'].append( chunk_str[firstplus:] )
+            else:
+                # Assume a bare morpheme, without any category specification
+                features['morphemes'].append( chunk_str )
+                features['postags'].append( '' )
+                features['forms'].append( '' )
+    if clear_surrounding_plus_signs:
+        features['morphemes'] = [m.strip('+') for m in features['morphemes']]
+        features['postags'] = [m.strip('+') for m in features['postags']]
+        features['forms'] = [m.strip('+') for m in features['forms']]
+    return features
 
 # ========================================================
