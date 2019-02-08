@@ -5,9 +5,9 @@ import collections
 import itertools
 import warnings
 
-from estnltk import Span, EnvelopingSpan, AmbiguousSpan
+from estnltk import Span, EnvelopingSpan, AmbiguousSpan, Annotation
 from estnltk.layer import AmbiguousAttributeTupleList, AttributeTupleList, AttributeList, AmbiguousAttributeList
-from .annotation import Annotation
+from estnltk.visualisation import DisplaySpans
 
 
 # TODO: remove SpanList
@@ -601,8 +601,8 @@ class Layer:
                                                       'ambiguous', 'span count'])
 
     def display(self):
-        from estnltk.visualisation import estnltk_display
-        estnltk_display(self)
+        display_spans = DisplaySpans()
+        display_spans(self)
 
     def to_html(self, header='Layer', start_end=False):
         res = []

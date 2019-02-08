@@ -4,7 +4,7 @@ from estnltk import Text
 from estnltk import Layer
 from estnltk import Span
 from estnltk import AmbiguousSpan
-from estnltk.layer.annotation import Annotation
+from estnltk import Annotation
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.layer import AmbiguousAttributeList
 from estnltk.layer import AttributeTupleList
