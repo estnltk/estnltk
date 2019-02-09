@@ -14,16 +14,6 @@ from estnltk.layer import AttributeList
 from estnltk.layer import AmbiguousAttributeList
 
 
-def _get_span_by_start_and_end(spans: SpanList, start: int=None, end: int=None, span: Span=None) -> Union[Span, None]:
-    if span:
-        i = bisect_left(spans, span)
-    else:
-        i = bisect_left(spans, Span(start=start, end=end))
-    if i != len(spans):
-        return spans[i]
-    return None
-
-
 class Text:
     def __init__(self, text: str = None) -> None:
         self._text = text  # type: str
@@ -191,10 +181,9 @@ class Text:
             # this means the layer might already have spans, and the spans might need to have their parents reset
             if layer.parent is not None:
                 for span in layer:
-                    span.parent = _get_span_by_start_and_end(
-                        self.layers[layer._base].span_list,
-                        span=span
-                    )
+                    base_layer = self.layers[layer._base]
+                    i = bisect_left(base_layer, span)
+                    span.parent = base_layer[i]
                     span._base = span.parent
 
         for span in layer.spans:
