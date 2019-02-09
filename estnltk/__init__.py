@@ -8,3 +8,5 @@ from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.layer import SpanList
 from estnltk.layer.layer import Layer
 from estnltk.text import Text
+
+from estnltk.taggers.tagger import Tagger
