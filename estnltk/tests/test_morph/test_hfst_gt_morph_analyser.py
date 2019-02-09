@@ -130,35 +130,48 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
     
     test_data = [ {'word':'talv',\
                    'raw_analysis':'talv+N+Sg+Nom', \
-                   'expected_features': OrderedDict([('morphemes', ['talv']), ('postags', ['N']), ('forms', ['Sg+Nom']), ('has_clitic', False), ('is_guessed', False), ('usage', '')])}, \
+                   'expected_features': OrderedDict([('morphemes', ['talv']), ('postags', ['N']), ('forms', ['Sg+Nom']), \
+                                                     ('has_clitic', [False]), ('is_guessed', [False]), ('usage', [''])]) }, \
                   {'word':'millegis',\
                    'raw_analysis':'miski+Pron+Sg+Ine+Use/NotNorm', \
-                   'expected_features': OrderedDict([('morphemes', ['miski']), ('postags', ['Pron']), ('forms', ['Sg+Ine']), ('has_clitic', False), ('is_guessed', False), ('usage', '+Use/NotNorm')])}, \
+                   'expected_features': OrderedDict([('morphemes', ['miski']), ('postags', ['Pron']), ('forms', ['Sg+Ine']), \
+                                                     ('has_clitic', [False]), ('is_guessed', [False]), ('usage', ['Use/NotNorm'])])}, \
                   {'word':'öelnud',\
                    'raw_analysis':'ütlema+V+Pers+Prt+Ind+Neg', \
-                   'expected_features': OrderedDict([('morphemes', ['ütlema']), ('postags', ['V']), ('forms', ['Pers+Prt+Ind+Neg']), ('has_clitic', False), ('is_guessed', False), ('usage', '')])}, \
+                   'expected_features': OrderedDict([('morphemes', ['ütlema']), ('postags', ['V']), ('forms', ['Pers+Prt+Ind+Neg']), \
+                                                     ('has_clitic', [False]), ('is_guessed', [False]), ('usage', [''])])}, \
                   {'word':'karutapjagi',\
                    'raw_analysis':'karu+N+Sg+Gen#tapma+V+Der/ja+N+Sg+Nom+Foc/gi' , \
-                   'expected_features': OrderedDict([('morphemes', ['karu', 'tapma', 'ja']), ('postags', ['N', 'V', 'N']), ('forms', ['Sg+Gen', 'Der', 'Sg+Nom']), ('has_clitic', True), ('is_guessed', False), ('usage', '')])}, \
+                   'expected_features': OrderedDict([('morphemes', ['karu', 'tapma', 'ja']), ('postags', ['N', 'V', 'N']), \
+                                                     ('forms', ['Sg+Gen', 'Der', 'Sg+Nom']), ('has_clitic', [False,False,True]), \
+                                                     ('is_guessed', [False,False,False]), ('usage', ['','',''])])}, \
                   {'word':'ülipüüdlik',\
                    'raw_analysis':'üli+Pref#püüd+N+Der/lik+A+Sg+Nom' , \
-                   'expected_features': OrderedDict([('morphemes', ['üli', 'püüd', 'lik']), ('postags', ['Pref', 'N', 'A']), ('forms', ['', 'Der', 'Sg+Nom']), ('has_clitic', False), ('is_guessed', False), ('usage', '')])}, \
+                   'expected_features': OrderedDict([('morphemes', ['üli', 'püüd', 'lik']), ('postags', ['Pref', 'N', 'A']), \
+                                                     ('forms', ['', 'Der', 'Sg+Nom']), ('has_clitic', [False,False,False]), \
+                                                     ('is_guessed', [False,False,False]), ('usage', ['','',''])])}, \
                   {'word':'laupäevahommikuti',\
                    'raw_analysis':'laupäev+N+Sg+Gen#hommik+N+Der/ti+Adv' , \
-                   'expected_features': OrderedDict([('morphemes', ['laupäev', 'hommik', 'ti']), ('postags', ['N', 'N', 'Adv']), ('forms', ['Sg+Gen', 'Der', '']), ('has_clitic', False), ('is_guessed', False), ('usage', '')])}, \
+                   'expected_features': OrderedDict([('morphemes', ['laupäev', 'hommik', 'ti']), ('postags', ['N', 'N', 'Adv']), \
+                                                     ('forms', ['Sg+Gen', 'Der', '']), ('has_clitic', [False,False,False]), \
+                                                     ('is_guessed', [False,False,False]), ('usage', ['','',''])])}, \
                   {'word':'killuke',\
                    'raw_analysis':'kild+N+Dim/ke+Sg+Nom' , \
-                   'expected_features': OrderedDict([('morphemes', ['kild', 'ke']), ('postags', ['N', '']), ('forms', ['Dim', 'Sg+Nom']), ('has_clitic', False), ('is_guessed', False), ('usage', '')])}, \
+                   'expected_features': OrderedDict([('morphemes', ['kild', 'ke']), ('postags', ['N', '']), ('forms', ['Dim', 'Sg+Nom']), \
+                                                     ('has_clitic', [False,False]), ('is_guessed', [False,False]), ('usage', ['',''])])}, \
                   {'word':'iluaedasid',\
                    'raw_analysis':'ilu+N+Sg+Gen#aed+N+Pl+Par+Use/Rare' , \
-                   'expected_features': OrderedDict([('morphemes', ['ilu', 'aed']), ('postags', ['N', 'N']), ('forms', ['Sg+Gen', 'Pl+Par']), ('has_clitic', False), ('is_guessed', False), ('usage', '+Use/Rare')])}, \
+                   'expected_features': OrderedDict([('morphemes', ['ilu', 'aed']), ('postags', ['N', 'N']), ('forms', ['Sg+Gen', 'Pl+Par']), \
+                                                     ('has_clitic', [False,False]), ('is_guessed', [False,False]), ('usage', ['','Use/Rare'])])}, \
                   {'word':'vannaema',\
                    'raw_analysis':'vanna+Guess#ema+N+Sg+Gen' , \
-                   'expected_features': OrderedDict([('morphemes', ['vanna', 'ema']), ('postags', ['', 'N']), ('forms', ['', 'Sg+Gen']), ('has_clitic', False), ('is_guessed', True), ('usage', '')])}, \
+                   'expected_features': OrderedDict([('morphemes', ['vanna', 'ema']), ('postags', ['', 'N']), ('forms', ['', 'Sg+Gen']), \
+                                                     ('has_clitic', [False,False]), ('is_guessed', [True,False]), ('usage', ['',''])])}, \
                   # It should also work on empty string
                   {'word':'',\
                    'raw_analysis':'' , \
-                   'expected_features': OrderedDict([('morphemes', []), ('postags', []), ('forms', []), ('has_clitic', False), ('is_guessed', False), ('usage', '')])}, \
+                   'expected_features': OrderedDict([('morphemes', []), ('postags', []), ('forms', []), ('has_clitic', []), \
+                                                     ('is_guessed', []), ('usage', [])])}, \
                 ]
     for test_item in test_data:
         input_raw_analysis = test_item['raw_analysis']

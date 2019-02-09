@@ -379,10 +379,12 @@ def _compile_usage_strs_pattern():
 
 est_hfst_usage_strs_pattern = _compile_usage_strs_pattern()
 
+
 def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_signs=True ):
     """ Processes word's  morpheme_chunks,  extracts  their 
-        important features (morpheme, part-of-speech, form), 
-        and writes into an ordered dictionary. 
+        important  features  (for  instance:  morphemes, 
+        part-of-speech tags, forms), and writes into an 
+        ordered dictionary. 
         Returns resulting dictionary.
 
         The resulting dictionary has keys:
@@ -391,24 +393,39 @@ def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_sig
                           corresponding morphemes;
          * 'forms'     -- list of forms / category markings of 
                           corresponding morphemes;
-         * 'has_clitic' -- boolean, indicating if morpheme_chunks
+         * 'has_clitic' -- list of booleans, each indicating 
+                           if the corresponding morpheme
                            contained clitic analysis.
-                           Note: clitic will not be added to 
-                           list of 'morphemes';
-         * 'is_guessed' -- boolean, indicating if morpheme_chunks
-                           contained a guessed analysis.
-         * 'usage'      -- strings describing word/morpheme usage, 
-                           e.g. whether it is a rare word;
+                           Note: the clitic itself will not be 
+                           added to list of 'morphemes';
+         * 'is_guessed' -- list of booleans, each indicating if 
+                           the corresponding morpheme contained 
+                           a guessed analysis;
+         * 'usage'      -- list of strings, each giving a remark
+                           about corresponding morpheme's usage
+                           (e.g. whether it is a rare word);
+                           If the transducer did not output any
+                           usage note for a morpheme, then an
+                           empty string will fill up the place;
     """
     features = OrderedDict()
     features['morphemes'] = []
     features['postags']   = []
     features['forms']     = []
-    features['has_clitic'] = False
-    features['is_guessed'] = False
-    features['usage']      = ''
+    features['has_clitic'] = []
+    features['is_guessed'] = []
+    features['usage']      = []
     for chunk_str in morpheme_chunks:
         analysisExtracted = False
+        is_guessed = False
+        # Try to extract a guessing label
+        for guess in est_hfst_guess_strs:
+            if chunk_str.endswith(guess):
+                is_guessed = True
+                # Remove guessed label
+                chunk_str = chunk_str.replace(guess,'')
+                break
+        # Try to extract a morpheme with postag and form
         firstplus = chunk_str.find('+')
         postag_match = est_hfst_postags_pattern.search(chunk_str)
         if postag_match:
@@ -423,24 +440,20 @@ def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_sig
                 features['morphemes'].append( morpheme )
                 features['postags'].append( postag )
                 features['forms'].append( form )
+                features['has_clitic'].append( False )
+                features['is_guessed'].append( is_guessed )
+                features['usage'].append( '' )
                 analysisExtracted = True
+        # Try to extract a note about usage
         if est_hfst_usage_strs_pattern.match(chunk_str):
-            features['usage'] += chunk_str
+            assert len(features['usage']) > 0
+            features['usage'][-1] += chunk_str
             analysisExtracted = True
-        # Check if we have a clitic string
+        # Try to extract a note about clitic 
         for cl in est_hfst_clitic_strs:
             if cl == chunk_str:
-                features['has_clitic'] = True
-                analysisExtracted = True
-        # Check if the word has been quessed:
-        for guess in est_hfst_guess_strs:
-            if chunk_str.endswith(guess):
-                features['is_guessed'] = True
-                morpheme = chunk_str.replace(guess,'')
-                assert '+' not in morpheme
-                features['morphemes'].append( morpheme )
-                features['postags'].append( '' )
-                features['forms'].append( '' )
+                assert len(features['has_clitic']) > 0
+                features['has_clitic'][-1] = True
                 analysisExtracted = True
         if not analysisExtracted:
             if firstplus > -1:
@@ -454,10 +467,14 @@ def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_sig
                 features['morphemes'].append( chunk_str )
                 features['postags'].append( '' )
                 features['forms'].append( '' )
+            features['has_clitic'].append( False )
+            features['is_guessed'].append( is_guessed )
+            features['usage'].append( '' )
     if clear_surrounding_plus_signs:
         features['morphemes'] = [m.strip('+') for m in features['morphemes']]
         features['postags'] = [m.strip('+') for m in features['postags']]
         features['forms'] = [m.strip('+') for m in features['forms']]
+        features['usage'] = [m.strip('+') for m in features['usage']]
     return features
 
 # ========================================================
