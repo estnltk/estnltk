@@ -1,5 +1,3 @@
-import html
-import regex as re
 from typing import MutableMapping, Sequence, Tuple
 
 from estnltk.text import Text
@@ -11,19 +9,19 @@ class TaggerChecker(type):
     def __call__(cls, *args, **kwargs):
         tagger = type.__call__(cls, *args, **kwargs)
 
-        assert isinstance(tagger.conf_param, Sequence)
+        assert isinstance(tagger.conf_param, Sequence), "'conf_param' not defined in {!r}".format(cls.__name__)
         assert not isinstance(tagger.conf_param, str)
         assert all(isinstance(k, str) for k in tagger.conf_param), tagger.conf_param
         tagger.conf_param = tuple(tagger.conf_param)
 
-        assert isinstance(tagger.input_layers, Sequence)
+        assert isinstance(tagger.input_layers, Sequence), "'input_layers' not defined in {!r}".format(cls.__name__)
         assert not isinstance(tagger.input_layers, str)
         assert all(isinstance(k, str) for k in tagger.input_layers), tagger.input_layers
         tagger.input_layers = tuple(tagger.input_layers)
 
-        assert isinstance(tagger.output_layer, str), tagger.output_layer
+        assert isinstance(tagger.output_layer, str), "'output_layer' not defined in {!r}".format(cls.__name__)
 
-        assert isinstance(tagger.output_attributes, Sequence), tagger.output_attributes
+        assert isinstance(tagger.output_attributes, Sequence), "'output_attributes' not defined in {!r}".format(cls.__name__)
         assert not isinstance(tagger.output_attributes, str)
         assert all(isinstance(attr, str) for attr in tagger.output_attributes), tagger.output_attributes
         tagger.output_attributes = tuple(tagger.output_attributes)
@@ -63,7 +61,7 @@ class Tagger(metaclass=TaggerChecker):
                     self.__class__.__name__, key))
         assert key in {'conf_param', 'output_layer', 'output_attributes', 'input_layers', '_initialized'} or\
                key in self.conf_param,\
-               'attribute must be listed in conf_param: ' + key
+               'attribute {!r} not listed in {}.conf_param'.format(key, self.__class__.__name__)
         super().__setattr__(key, value)
 
     # TODO: rename layers -> detached_layers ?
@@ -89,6 +87,8 @@ class Tagger(metaclass=TaggerChecker):
         except Exception as e:
             e.args += ('in the {!r}'.format(self.__class__.__name__),)
             raise
+        assert isinstance(layer, Layer), '{}._make_layer did not return a Layer object, but {!r}'.format(
+                                           self.__class__.__name__, type(layer))
         assert layer.text_object is text, '{}._make_layer returned a layer with incorrect Text object'.format(
                                            self.__class__.__name__)
         assert layer.attributes == self.output_attributes,\
