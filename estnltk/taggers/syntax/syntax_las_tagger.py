@@ -69,9 +69,9 @@ def by_sentences(layer_a, layer_b):
 
 def compare(span_a, span_b):
     if span_a.deprel == span_b.deprel:
-        if span_a.head is None or span_b.head is None:
-            if span_a.head is None and span_b.head is None:
+        if span_a.parent_span is None or span_b.parent_span is None:
+            if span_a.parent_span is None and span_b.parent_span is None:
                 return 1
-        elif span_a.head.start == span_b.head.start and span_a.head.end == span_b.head.end:
+        elif span_a.parent_span.start == span_b.parent_span.start and span_a.parent_span.end == span_b.parent_span.end:
             return 1
     return 0
