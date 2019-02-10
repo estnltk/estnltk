@@ -211,6 +211,8 @@ class Layer:
 
         self.classes = {}  # type: MutableMapping[int, AmbiguousSpan]
 
+        self.meta = {}
+
     @property
     def layer(self):
         return self
