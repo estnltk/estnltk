@@ -22,6 +22,8 @@ class AmbiguousSpan(collections.Sequence):
         # placeholder for dependant layer
         self._base = None  # type:Union[Span, None]
 
+        self.text_object = layer.text_object
+
     @property
     def annotations(self):
         return self._annotations
