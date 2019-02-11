@@ -17,11 +17,6 @@
     position: absolute;
     width: fit-content;
     width: -moz-fit-content;
-    border: 1px solid black;
-}
-
-.maintext{0} {
-    position: relative;
 }
 
 .tables tbody tr:nth-child(even) {

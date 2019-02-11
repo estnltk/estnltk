@@ -37,6 +37,7 @@ class DisplaySpans:
         if self.styling == "indirect":
             outputs.append(self.css())
         for segment in segments:
+            segment[0] = segment[0].replace("\n","<br>")
             outputs.append(self.span_decorator(segment))
 
         return "".join(outputs)
