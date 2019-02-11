@@ -75,7 +75,20 @@ class HfstEstMorphAnalyser(Tagger):
                        analyses in raw / unparsed format, and 
                        'weight', which contains corresponding 
                        weights (floating point numbers);
-         
+            
+            * 'morphemes_lemmas' -- the analysis will be split
+                       into  morphemes / lemmas,  and   their 
+                       corresponding part-of-speech tags  and
+                       form listings. In total, each analysis 
+                       will have the following attributes:
+                          'morphemes'
+                          'postags'
+                          'forms'
+                          'is_guessed',
+                          'has_clitic',
+                          'usage',
+                          'weight'
+            
         transducer_file: str (default: None)
             Path to the ('analyser-gt-desc.hfstol') file, from
             which Estonian morphological analyser can be 
@@ -92,11 +105,14 @@ class HfstEstMorphAnalyser(Tagger):
         """
         # Set output_extractor
         self.output_extractor   = None
-        expected_output_formats = ['raw']
+        expected_output_formats = ['raw', 'morphemes_lemmas']
         if output_format:
             if output_format.lower() == 'raw':
                 self.output_extractor = \
                      RawAnalysesHfstMorphOutputExtractor()
+            elif output_format.lower() == 'morphemes_lemmas':
+                self.output_extractor = \
+                     MorphemesLemmasHfstOutputExtractor()
         if self.output_extractor is None:
             # Failed to create output_extractor: probably because wrong output_format
             raise ValueError('(!) output_format should be one of the following: {!r}'.format(expected_output_formats))
@@ -379,7 +395,6 @@ def _compile_usage_strs_pattern():
 
 est_hfst_usage_strs_pattern = _compile_usage_strs_pattern()
 
-
 def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_signs=True ):
     """ Processes word's  morpheme_chunks,  extracts  their 
         important  features  (for  instance:  morphemes, 
@@ -394,10 +409,10 @@ def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_sig
          * 'forms'     -- list of forms / category markings of 
                           corresponding morphemes;
          * 'has_clitic' -- list of booleans, each indicating 
-                           if the corresponding morpheme
-                           contained clitic analysis.
+                           if there is a clitic attached to the 
+                           corresponding morpheme.
                            Note: the clitic itself will not be 
-                           added to list of 'morphemes';
+                           added to the list morphemes;
          * 'is_guessed' -- list of booleans, each indicating if 
                            the corresponding morpheme contained 
                            a guessed analysis;
@@ -477,4 +492,90 @@ def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_sig
         features['usage'] = [m.strip('+') for m in features['usage']]
     return features
 
+
 # ========================================================
+
+class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
+    """ Hfst morph analysis output extractor that splits the analysis into morphemes**.
+        For each morpheme (or lemma), it also extracts corresponding postag, 
+        and a form category. Results are stored in tuples, so that the same 
+        index can be used to access features of the morpheme stored in different 
+        tuples.
+        For instance, tuples of analysis of the word 'vanaema' are:
+            morphemes:  ('vana', 'ema')
+            postags:    ('A', 'N')
+            forms:      ('Sg+Nom', 'Sg+Nom')
+        Boolean attributes 'has_clitic', and 'is_guessed' state whether a
+        clitic was present in the word, and whether the analysis of a 
+        compound contains unknown word morphemes;
+        Attribute 'usage' gives (string) remarks about word's usage, e.g. 
+        whether it is a rarely used word;
+        
+        In case of unknown words, all analysis attributes will have value 
+        None, and the attribute 'weight' will have value equal to 
+        float("inf");
+        
+        ** morpheme -- the definition of the morpheme here does not 
+           follow the linguistic one 100%. What is called a 'morpheme' 
+           here may, in some cases, also be a lemma of a word. 
+    """
+
+    def set_output_attributes(self, tagger:Tagger):
+        # Update Tagger's output attributes
+        tagger.output_attributes = ('morphemes','postags','forms','is_guessed','has_clitic','usage','weight')
+
+
+    def _create_unknown_word_record(self):
+        # Creates a record for an unknown word
+        features = dict()
+        features['morphemes']  = None
+        features['postags']    = None
+        features['forms']      = None
+        features['is_guessed'] = None
+        features['has_clitic'] = None
+        features['usage']      = None
+        return features
+
+
+    def extract_annotation_from_output(self, word:Span, output_text:str, layer:Layer ):
+        if len(output_text) == 0:
+            # Empty analysis == unknown word
+            record = self._create_unknown_word_record()
+            record['weight'] = float("inf")
+            # Add annotation to the layer
+            layer.add_annotation( word, **record )
+            return
+        for analysis_weight in output_text.split('\n'):
+            record = {}
+            if '\t' in analysis_weight:
+                # Known word or guessed word
+                raw_analysis, weight = analysis_weight.split('\t')
+                record['weight'] = float(weight)
+                morpheme_chunks = split_into_morphemes( raw_analysis )
+                morpheme_chunk_feats = extract_morpheme_features( morpheme_chunks )
+                for mcf_key in morpheme_chunk_feats.keys():
+                    if mcf_key == 'morphemes':
+                        # convert list to tuple
+                        record['morphemes'] = tuple(morpheme_chunk_feats['morphemes'])
+                    elif mcf_key == 'is_guessed':
+                        # aggregate 'is_guessed' feature
+                        record[mcf_key] = any( morpheme_chunk_feats[mcf_key] )
+                    elif mcf_key == 'has_clitic':
+                        # aggregate 'has_clitic' feature
+                        record[mcf_key] = any( morpheme_chunk_feats[mcf_key] )
+                    elif mcf_key == 'usage':
+                        # aggregate 'usage' feature
+                        usage = [u for u in morpheme_chunk_feats[mcf_key] if len(u)>0]
+                        record[mcf_key] = tuple( usage )
+                    else:
+                        # convert list to tuple
+                        record[mcf_key] = tuple( morpheme_chunk_feats[mcf_key] )
+                # Add annotation to the layer
+                layer.add_annotation( word, **record )
+            elif len(analysis_weight) > 0:
+                # Unknown word
+                record = self._create_unknown_word_record()
+                record['weight'] = float("inf")
+                # Add annotation to the layer
+                layer.add_annotation( word, **record )
+
