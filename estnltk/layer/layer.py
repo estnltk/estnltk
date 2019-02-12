@@ -492,6 +492,22 @@ class Layer:
                                        for span in self.spans for annotation in span.annotations)
         return collections.Counter(getattr(span, attribute) for span in self.spans)
 
+    def groupby(self, by: Sequence[str], return_annotations: bool = False):
+        groups = collections.defaultdict(list)
+
+        if return_annotations:
+            for span in self.spans:
+                for annotation in span.annotations:
+                    key = tuple(getattr(annotation, k) for k in by)
+                    groups[key].append(annotation)
+            return groups
+
+        for span in self.spans:
+            keys = {tuple(getattr(annotation, a) for a in by) for annotation in span.annotations}
+            for k in keys:
+                groups[k].append(span)
+        return groups
+
     def __getattr__(self, item):
         if item in {'_ipython_canary_method_should_not_exist_', '__getstate__'}:
             raise AttributeError
