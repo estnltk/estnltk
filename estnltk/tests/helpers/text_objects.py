@@ -70,7 +70,7 @@ layer_0.add_span(Span(start= 5, end= 9, legal_attributes=['attr', 'attr_0'], att
 layer_0.add_span(Span(start= 5, end=16, legal_attributes=['attr', 'attr_0'], attr='L0-2',  attr_0='20'))
 layer_0.add_span(Span(start= 9, end=14, legal_attributes=['attr', 'attr_0'], attr='L0-3',  attr_0='10'))
 layer_0.add_span(Span(start=17, end=21, legal_attributes=['attr', 'attr_0'], attr='L0-4',  attr_0='3'))
-layer_0.add_span(Span(start=22, end=27, legal_attributes=['attr', 'attr_0'], attr='L0-5',  attr_0='4'))
+layer_0.add_span(Span(start=22, end=27, legal_attributes=['attr', 'attr_0'], attr='L0-5',  attr_0='4'))  # TODO start=23
 layer_0.add_span(Span(start=28, end=33, legal_attributes=['attr', 'attr_0'], attr='L0-6',  attr_0='1000'))
 layer_0.add_span(Span(start=34, end=38, legal_attributes=['attr', 'attr_0'], attr='L0-7',  attr_0='5'))
 layer_0.add_span(Span(start=34, end=42, legal_attributes=['attr', 'attr_0'], attr='L0-8',  attr_0='500'))
@@ -97,7 +97,7 @@ layer_1.add_span(Span(start= 5, end=16, legal_attributes=['attr', 'attr_1'], att
 
 layer_1.add_span(Span(start= 9, end=14, legal_attributes=['attr', 'attr_1'], attr='L1-3',  attr_1='KÜMME'))
 layer_1.add_span(Span(start=17, end=21, legal_attributes=['attr', 'attr_1'], attr='L1-4',  attr_1='KOLM'))
-layer_1.add_span(Span(start=22, end=27, legal_attributes=['attr', 'attr_1'], attr='L1-5',  attr_1='NELI'))
+layer_1.add_span(Span(start=23, end=27, legal_attributes=['attr', 'attr_1'], attr='L1-5',  attr_1='NELI'))
 layer_1.add_span(Span(start=28, end=33, legal_attributes=['attr', 'attr_1'], attr='L1-6',  attr_1='TUHAT'))
 layer_1.add_span(Span(start=34, end=38, legal_attributes=['attr', 'attr_1'], attr='L1-7',  attr_1='VIIS'))
 
