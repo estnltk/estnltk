@@ -56,7 +56,7 @@ text_3['layer_3'] = layer_3
 text_3['layer_4'] = layer_4
 text_3['layer_5'] = layer_5
 
-t = """Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat."""
+t = 'Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.'
 # text
 text_4 = Text(t)
 
