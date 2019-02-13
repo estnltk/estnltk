@@ -1,3 +1,4 @@
+from .groupby import GroupBy
 from .layer_operations import apply_filter
 from .layer_operations import drop_annotations
 from .layer_operations import keep_annotations

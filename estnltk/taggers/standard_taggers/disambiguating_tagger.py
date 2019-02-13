@@ -1,4 +1,7 @@
-from estnltk import Layer, AmbiguousSpan, Span, EnvelopingSpan
+from estnltk.layer.span import Span
+from estnltk.layer.ambiguous_span import AmbiguousSpan
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 
 

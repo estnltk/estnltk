@@ -9,7 +9,7 @@ from pandas import DataFrame
 
 from collections import Counter, defaultdict
 
-from estnltk import Layer
+from estnltk.layer.layer import Layer
 from estnltk.layer.span_operations import equal_support
 
 

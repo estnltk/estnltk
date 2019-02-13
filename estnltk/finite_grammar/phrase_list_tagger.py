@@ -1,5 +1,6 @@
 from estnltk.taggers import TaggerOld
-from estnltk import Layer, EnvelopingSpan
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 

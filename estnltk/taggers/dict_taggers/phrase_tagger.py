@@ -1,8 +1,10 @@
-from estnltk import EnvelopingSpan, Layer
-from estnltk.taggers import Tagger, Vocabulary
-from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 from typing import Sequence, Union
+
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import Layer
+from estnltk.taggers import Tagger, Vocabulary
+from estnltk.layer_operations import resolve_conflicts
 
 
 class PhraseTagger(Tagger):

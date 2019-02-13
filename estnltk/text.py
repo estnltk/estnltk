@@ -6,12 +6,12 @@ from typing import MutableMapping, Union, List, Sequence
 import pandas
 import networkx as nx
 
-from estnltk import Span
-from estnltk import EnvelopingSpan
-from estnltk import SpanList
-from estnltk import Layer
-from estnltk.layer import AttributeList
-from estnltk.layer import AmbiguousAttributeList
+from estnltk.layer.span import Span
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import SpanList
+from estnltk.layer.layer import Layer
+from estnltk.layer.attribute_list import AttributeList
+from estnltk.layer.ambiguous_attribute_list import AmbiguousAttributeList
 
 
 class Text:

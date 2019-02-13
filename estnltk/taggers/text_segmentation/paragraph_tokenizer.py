@@ -1,5 +1,6 @@
 from nltk import RegexpTokenizer
-from estnltk import Layer, EnvelopingSpan
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 
 

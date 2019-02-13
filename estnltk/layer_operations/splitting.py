@@ -1,5 +1,7 @@
 from typing import Iterable, Sequence
-from estnltk.text import Span, Layer, Text
+from estnltk.layer.span import Span
+from estnltk.layer.layer import Layer
+from estnltk.text import Text
 from estnltk import EnvelopingSpan
 
 import networkx as nx
