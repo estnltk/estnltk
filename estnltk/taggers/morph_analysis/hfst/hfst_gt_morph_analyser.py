@@ -202,6 +202,25 @@ class HfstEstMorphAnalyser(Tagger):
         return new_layer
 
 
+    def lookup(self, input_word:str):
+        """ Analyses a singe word with the transducer. Returns a list of records 
+            (dictionaries), where each record corresponds to a single analysis 
+            from the transducer's output.
+            In case of an unknown word, returns an empty list;
+            
+            Use this method if you need to selectively analyse words: e.g. analyse
+            only some specific words, but not all words of the text.
+        """
+        assert self._transducer is not None, \
+               '(!) Transducer was not initialized in the constructor of '+\
+               self.__class__.__name__+'. Please create a new instance and '+\
+               'initialize transducer properly.'
+        raw_analyses = self._transducer.lookup( input_word, output='text' )
+        # Remove flag diacritics
+        cleaned_analyses = self.filter_flags(raw_analyses)
+        # Use output_extractor for getting the output
+        return self.output_extractor.extract_annotation_records( cleaned_analyses )
+
 
     def filter_flags(self, o_str):
         """ Cleans the output string of the transducer from flag diacritics.
@@ -230,7 +249,7 @@ class HfstMorphOutputExtractor(object):
     
     def extract_annotation_records(self, output_text:str ):
         """ Given an output of the HFST transducer, extracts morph analysis records from the 
-            output, returns as a list (of dictionaries). In case of an unknown word, returns 
+            output, and returns as a list (of dictionaries). In case of an unknown word, returns 
             an empty list.
         """
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
