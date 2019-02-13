@@ -495,6 +495,38 @@ class Layer:
     def groupby(self, by: Sequence[str], return_type: str = 'spans'):
         return GroupBy(layer=self, by=by, return_type=return_type)
 
+    def rolling(self, window: int, inside: str = None):
+        if inside is None:
+            len_s = len(self)
+            win = min(len_s, window)
+
+            for start in range(1 - win, len_s):
+                end = start + win
+                start = max(0, start)
+                end = min(len_s, end)
+
+                yield SpanList(spans=self.spans[start:end],
+                               layer=self
+                               )
+        else:
+            if inside in self.text_object.layers:
+                enveloping_layer = self.text_object.layers[inside]
+                for span in enveloping_layer:
+                    spans = getattr(span, self.name)
+                    len_s = len(spans)
+                    win = min(len_s, window)
+
+                    for start in range(1 - win, len_s):
+                        end = start + win
+                        start = max(0, start)
+                        end = min(len_s, end)
+
+                        yield SpanList(spans=spans[start:end],
+                                       layer=self,
+                                       )
+            else:
+                raise ValueError(inside)
+
     def __getattr__(self, item):
         if item in {'_ipython_canary_method_should_not_exist_', '__getstate__'}:
             raise AttributeError
@@ -677,4 +709,4 @@ class Layer:
         return self.diff(other) is None
 
 
-from estnltk.layer_operations.groupby import GroupBy
+from estnltk.layer_operations import GroupBy
