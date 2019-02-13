@@ -319,7 +319,7 @@ def test_count_values():
 
 
 def test_groupby():
-    result = dict(new_text(5).layer_1.groupby(['attr_1']))
+    result = new_text(5).layer_1.groupby(['attr_1']).groups
     for key in result:
         result[key] = [sp.text for sp in result[key]]
     assert result == {('KAHEKSA',): ['kaheksa'],
@@ -344,7 +344,7 @@ def test_groupby():
                       ('ÜHEKSA',): ['Üheksa', 'Üheksakümmend'],
                       ('ÜHEKSAKÜMMEND',): ['Üheksakümmend']}
 
-    result = new_text(5).layer_0.groupby(['attr', 'attr_0'])
+    result = new_text(5).layer_0.groupby(['attr', 'attr_0']).groups
     for key in result:
         result[key] = [sp.text for sp in result[key]]
     assert result == {('L0-0', '100'): ['Sada'],
@@ -368,7 +368,7 @@ def test_groupby():
                       ('L0-8', '500'): ['viissada'],
                       ('L0-9', '100'): ['sada']}
 
-    groups = new_text(5).layer_1.groupby(['attr'], return_annotations=True)
+    groups = new_text(5).layer_1.groupby(['attr'], return_type='annotations').groups
     result = {}
     for key in groups:
         result[key] = [sp.text for sp in groups[key]]
@@ -392,7 +392,7 @@ def test_groupby():
                       ('L1-8',): ['viissada', 'viissada', 'viissada'],
                       ('L1-9',): ['sada']}
 
-    result = new_text(5).layer_0.groupby(['attr', 'attr_0'], return_annotations=True)
+    result = new_text(5).layer_0.groupby(['attr', 'attr_0'], return_type='annotations').groups
     for key in result:
         result[key] = [sp.text for sp in result[key]]
     assert result == {('L0-0', '100'): ['Sada'],
