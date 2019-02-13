@@ -197,7 +197,7 @@ class HfstEstMorphAnalyser(Tagger):
             # Remove flag diacritics
             cleaned_analyses = self.filter_flags(raw_analyses)
             # Use output_extractor for getting the output
-            self.output_extractor.extract_annotation_from_output( \
+            self.output_extractor.extract_annotation_and_add_to_layer( \
                         word, cleaned_analyses, new_layer )
         return new_layer
 
@@ -228,10 +228,18 @@ class HfstMorphOutputExtractor(object):
         """
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
     
-    def extract_annotation_from_output(self, word:Span, output_text:str, layer:Layer ):
+    def extract_annotation_records(self, output_text:str ):
+        """ Given an output of the HFST transducer, extracts morph analysis records from the 
+            output, returns as a list (of dictionaries). In case of an unknown word, returns 
+            an empty list.
+        """
+        raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
+
+    def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer ):
         """ Given word Span and the corresponding output of the HFST transducer, 
             extracts morph analysis records from the output, and saves as annotatons 
-            of the layer.
+            of the layer. Note: implementations of this method should use extractor's 
+            method extract_annotation_records() for getting the records;
         """
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
@@ -250,30 +258,43 @@ class RawAnalysesHfstMorphOutputExtractor(HfstMorphOutputExtractor):
         # Update Tagger's output attributes
         tagger.output_attributes = ('raw_analysis', 'weight')
 
-    def extract_annotation_from_output(self, word:Span, output_text:str, layer:Layer ):
+    def extract_annotation_records(self, output_text:str ):
+        records = []
         if len(output_text) == 0:
+            # Empty analysis == unknown word
+            return records
+        for analysis_weight in output_text.split('\n'):
+            record = {}
+            if '\t' in analysis_weight:
+                # Known word or guessed word
+                analysis, weight = analysis_weight.split('\t')
+                record['weight'] = float(weight)
+                record['raw_analysis'] = analysis
+                # Add annotation to the layer
+                records.append( record )
+            elif len(analysis_weight) > 0:
+                # Unknown word
+                record['weight'] = float("inf")
+                record['raw_analysis'] = None
+                # Add annotation to the layer
+                records.append( record )
+        return records
+
+
+    def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer ):
+        records = self.extract_annotation_records( output_text )
+        if len(records) == 0:
             # Empty analysis == unknown word
             record = {}
             record['weight'] = float("inf")
             record['raw_analysis'] = None
             # Add annotation to the layer
             layer.add_annotation( word, **record )
-            return
-        for analysis_weight in output_text.split('\n'):
-            record = {}
-            if '\t' in analysis_weight:
-                # Known word
-                analysis, weight = analysis_weight.split('\t')
-                record['weight'] = float(weight)
-                record['raw_analysis'] = analysis
+        else:
+            for record in records:
                 # Add annotation to the layer
                 layer.add_annotation( word, **record )
-            elif len(analysis_weight) > 0:
-                # Unknown word
-                record['weight'] = float("inf")
-                record['raw_analysis'] = None
-                # Add annotation to the layer
-                layer.add_annotation( word, **record )
+
 
 # ========================================================
 
@@ -537,14 +558,11 @@ class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
         return features
 
 
-    def extract_annotation_from_output(self, word:Span, output_text:str, layer:Layer ):
+    def extract_annotation_records(self, output_text:str ):
+        records = []
         if len(output_text) == 0:
             # Empty analysis == unknown word
-            record = self._create_unknown_word_record()
-            record['weight'] = float("inf")
-            # Add annotation to the layer
-            layer.add_annotation( word, **record )
-            return
+            return records
         for analysis_weight in output_text.split('\n'):
             record = {}
             if '\t' in analysis_weight:
@@ -570,12 +588,27 @@ class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
                     else:
                         # convert list to tuple
                         record[mcf_key] = tuple( morpheme_chunk_feats[mcf_key] )
-                # Add annotation to the layer
-                layer.add_annotation( word, **record )
+                # Add record
+                records.append( record )
             elif len(analysis_weight) > 0:
                 # Unknown word
                 record = self._create_unknown_word_record()
                 record['weight'] = float("inf")
-                # Add annotation to the layer
+                # Add record
+                records.append( record )
+        return records
+
+
+    def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer ):
+        records = self.extract_annotation_records( output_text )
+        if len(records) == 0:
+            # Empty analysis == unknown word
+            record = self._create_unknown_word_record()
+            record['weight'] = float("inf")
+            # Add annotation to the layer
+            layer.add_annotation( word, **record )
+            return
+        else:
+            for record in records:
                 layer.add_annotation( word, **record )
 
