@@ -17,7 +17,6 @@ class SyntaxLasTagger(Tagger):
     def _make_layer(self, text, layers, status):
         layer_a = layers[self.input_layers[0]]
         layer_b = layers[self.input_layers[1]]
-        window = self.window
 
         aggregate_deprels = defaultdict(list)
 
@@ -26,7 +25,7 @@ class SyntaxLasTagger(Tagger):
 
         for spans, deprels, scores in by_sentences(layer_a, layer_b):
             len_s = len(spans)
-            window = min(len_s, window)
+            window = min(len_s, self.window)
 
             for start in range(1 - window, len_s):
                 end = start + window
