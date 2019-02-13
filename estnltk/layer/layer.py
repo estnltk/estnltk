@@ -492,21 +492,8 @@ class Layer:
                                        for span in self.spans for annotation in span.annotations)
         return collections.Counter(getattr(span, attribute) for span in self.spans)
 
-    def groupby(self, by: Sequence[str], return_annotations: bool = False):
-        groups = collections.defaultdict(list)
-
-        if return_annotations:
-            for span in self.spans:
-                for annotation in span.annotations:
-                    key = tuple(getattr(annotation, k) for k in by)
-                    groups[key].append(annotation)
-            return groups
-
-        for span in self.spans:
-            keys = {tuple(getattr(annotation, a) for a in by) for annotation in span.annotations}
-            for k in keys:
-                groups[k].append(span)
-        return groups
+    def groupby(self, by: Sequence[str], return_type: str = 'spans'):
+        return GroupBy(layer=self, by=by, return_type=return_type)
 
     def __getattr__(self, item):
         if item in {'_ipython_canary_method_should_not_exist_', '__getstate__'}:
@@ -648,11 +635,11 @@ class Layer:
     print_start_end = False
 
     def _repr_html_(self):
-        assert self.text_object is not None, 'this layer is missing a Text object'
+        attributes = []
+        if self.text_object is not None:
+            attributes.append('text')
         if self.print_start_end:
-            attributes = ['text', 'start', 'end']
-        else:
-            attributes = ['text']
+            attributes.extend(['start', 'end'])
         attributes.extend(self.attributes)
         table_1 = self.metadata().to_html(index=False, escape=False)
         table_2 = self.attribute_list(attributes).to_html(index='text')
@@ -688,3 +675,6 @@ class Layer:
 
     def __eq__(self, other):
         return self.diff(other) is None
+
+
+from estnltk.layer_operations.groupby import GroupBy
