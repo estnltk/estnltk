@@ -522,7 +522,7 @@ class Layer:
                         end = min(len_s, end)
 
                         yield SpanList(spans=spans[start:end],
-                                       layer=self,
+                                       layer=self
                                        )
             else:
                 raise ValueError(inside)
