@@ -226,6 +226,40 @@ def build_layer_ngram_query(storage, ngram_query, collection_name):
     return q
 
 
+def where_clause(storage,
+                 collection_name,
+                 query=None,
+                 layer_query: dict = None,
+                 layer_ngram_query: dict = None,
+                 keys: list = None,
+                 missing_layer: str = None):
+    sql_parts = []
+
+    if query is not None:
+        # build constraint on the main text table
+        sql_parts.append(query.eval(storage, collection_name))
+    if layer_query:
+        # build constraint on related layer tables
+        q = SQL(" AND ").join(query.eval(storage, collection_name) for layer, query in layer_query.items())
+        sql_parts.append(q)
+    if keys is not None:
+        # build constraint on id-s
+        sql_parts.append(SQL('{table}."id" = ANY({keys})').format(
+                             table=collection_table_identifier(storage, collection_name),
+                             keys=Literal(list(keys))))
+    if layer_ngram_query:
+        # build constraint on related layer's ngram index
+        sql_parts.append(build_layer_ngram_query(storage, layer_ngram_query, collection_name))
+    if missing_layer:
+        # select collection objects for which there is no entry in the layer table
+        q = SQL('"id" NOT IN (SELECT "text_id" FROM {})'
+                ).format(layer_table_identifier(storage, collection_name, missing_layer))
+        sql_parts.append(q)
+
+    if sql_parts:
+        return SQL(" AND ").join(sql_parts)
+
+
 def build_sql_query(storage,
                     collection_name,
                     query=None,
@@ -238,7 +272,6 @@ def build_sql_query(storage,
                     missing_layer: str = None):
     """
     Select from collection table with possible search constraints.
-
     Args:
         table: str
             collection table
@@ -258,28 +291,22 @@ def build_sql_query(storage,
         missing_layer: str
             name of the layer
             select collection objects for which there is no entry in the table `missing_layer`
-
     Returns:
         iterator of (key, text) pairs
-
     Example:
-
         q = JsonbTextQuery('morph_analysis', lemma='laulma')
         for key, txt in storage.select(table, query=q):
             print(key, txt)
     """
-    # 1. Build query
 
-    where_and = SQL('WHERE')
-    sql_parts = []
     collection_identifier = collection_table_identifier(storage, collection_name)
     collection_meta = collection_meta or []
     collection_columns = [SQL('{}.{}').format(collection_identifier, column_id) for
-                                        column_id in map(Identifier, ['id', 'data', *collection_meta])]
+                          column_id in map(Identifier, ['id', 'data', *collection_meta])]
     if not layers and layer_query is None and layer_ngram_query is None:
         # select only text table
-        q = SQL("SELECT {} FROM {}").format(SQL(', ').join(collection_columns), collection_identifier)
-        sql_parts.append(q)
+        select = SQL("SELECT {} FROM {}").format(SQL(', ').join(collection_columns), collection_identifier)
+        where_and = SQL('WHERE')
     else:
         # need to join text and all layer tables
         layers = layers or []
@@ -296,51 +323,32 @@ def build_sql_query(storage,
             layer = SQL("{}").format(layer_table_identifier(storage, collection_name, layer))
             layers_join.append(layer)
 
-        q = SQL('SELECT {columns} FROM {tables} WHERE {condition}').format(
-                columns=SQL(', ').join(collection_columns + layer_columns),
-                tables=SQL(", ").join([collection_identifier, *layers_join]),
-                condition=SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(
-                                                collection_identifier, layer) for layer in layers_join))
-        sql_parts.append(q)
+        select = SQL('SELECT {columns} FROM {tables} WHERE {condition}').format(
+                     columns=SQL(', ').join(collection_columns + layer_columns),
+                     tables=SQL(", ").join([collection_identifier, *layers_join]),
+                     condition=SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(
+                                                     collection_identifier, layer)
+                                                 for layer in layers_join))
         where_and = SQL('AND')
 
-    if query is not None:
-        # build constraint on the main text table
-        sql_parts.append(where_and)
-        sql_parts.append(query.eval(storage, collection_name))
-        where_and = SQL('AND')
-    if layer_query:
-        # build constraint on related layer tables
-        q = SQL(" AND ").join(query.eval(storage, collection_name) for layer, query in layer_query.items())
-        sql_parts.append(where_and)
-        sql_parts.append(q)
-        where_and = SQL('AND')
-    if keys is not None:
-        # build constraint on id-s
-        sql_parts.append(where_and)
-        _keys = Literal(list(keys))
-        sql_parts.append(SQL('{table}."id" = ANY({keys})').format(table=collection_identifier, keys=_keys))
-        where_and = SQL('AND')
-    if layer_ngram_query:
-        # build constraint on related layer's ngram index
-        sql_parts.append(where_and)
-        sql_parts.append(build_layer_ngram_query(storage, layer_ngram_query, collection_name))
-        where_and = SQL('AND')
-    if missing_layer:
-        # select collection objects for which there is no entry in the layer table
-        sql_parts.append(where_and)
-        q = SQL('"id" NOT IN (SELECT "text_id" FROM {})'
-                ).format(layer_table_identifier(storage, collection_name, missing_layer))
-        sql_parts.append(q)
-        where_and = SQL('AND')
+    where = where_clause(storage=storage,
+                         collection_name=collection_name,
+                         query=query,
+                         layer_query=layer_query,
+                         layer_ngram_query=layer_ngram_query,
+                         keys=keys,
+                         missing_layer=missing_layer)
+    if where:
+        sql_parts = [select, where_and, where]
+    else:
+        sql_parts = [select]
 
     if order_by_key is True:
         sql_parts.append(SQL('ORDER BY "id"'))
 
     sql_parts.append(SQL(';'))
 
-    sql = SQL(" ").join(sql_parts)
-    return sql
+    return SQL(" ").join(sql_parts)
 
 
 def select_raw(storage,
