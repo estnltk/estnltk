@@ -214,7 +214,7 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
                     reason="transducer model file is required for this test")
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-def test_hfst_gt_morph_analyser_morpheme_lemmas_output():
+def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
     from estnltk import Text
@@ -231,18 +231,18 @@ def test_hfst_gt_morph_analyser_morpheme_lemmas_output():
     results = text['hfst_gt_morph_analysis'].to_records()
     #print(results)
     expected_results = [
-       [{'weight': 45.0, 'end': 10, 'forms': ('', 'Sg+Nom'), 'postags': ('Pref', 'A'), 'morphemes': ('üli', 'püüdlik'), 'is_guessed': False, 'has_clitic': False, 'start': 0, 'usage': ()}, 
-        {'weight': 55.0, 'end': 10, 'forms': ('', 'Der', 'Sg+Nom'), 'postags': ('Pref', 'N', 'A'), 'morphemes': ('üli', 'püüd', 'lik'), 'is_guessed': False, 'has_clitic': False, 'start': 0, 'usage': ()}, 
-        {'weight': 250.0, 'end': 10, 'forms': ('', 'Der', 'Sg+Nom'), 'postags': ('', 'N', 'A'), 'morphemes': ('üli', 'püüd', 'lik'), 'is_guessed': True, 'has_clitic': False, 'start': 0, 'usage': ()}], 
-       [{'weight': 240.0, 'end': 21, 'forms': ('', 'Sg+Nom'), 'postags': ('', 'N'), 'morphemes': ('vanna', 'emake'), 'is_guessed': True, 'has_clitic': False, 'start': 11, 'usage': ()}, 
-        {'weight': 250.0, 'end': 21, 'forms': ('', 'Dim', 'Sg+Nom'), 'postags': ('', 'N', ''), 'morphemes': ('vanna', 'ema', 'ke'), 'is_guessed': True, 'has_clitic': False, 'start': 11, 'usage': ()}], 
-       [{'weight': 0.0, 'end': 27, 'forms': ('Pers+Prs+Ind+Sg3+Aff',), 'postags': ('V',), 'morphemes': ('rohima',), 'is_guessed': False, 'has_clitic': False, 'start': 22, 'usage': ()}], 
-       [{'weight': 0.0, 'end': 37, 'forms': ('',), 'postags': ('Adv',), 'morphemes': ('võib-olla',), 'is_guessed': False, 'has_clitic': False, 'start': 28, 'usage': ()}], 
-       [{'weight': float('inf'), 'end': 49, 'forms': None, 'postags': None, 'morphemes': None, 'is_guessed': None, 'has_clitic': None, 'start': 38, 'usage': None}], 
-       [{'weight': 63.0, 'end': 60, 'forms': ('Pl+Par',), 'postags': ('N',), 'morphemes': ('iluaed',), 'is_guessed': False, 'has_clitic': False, 'start': 50, 'usage': ('Use/Rare',)}, 
-        {'weight': 74.0, 'end': 60, 'forms': ('Sg+Gen', 'Pl+Par'), 'postags': ('N', 'N'), 'morphemes': ('ilu', 'aed'), 'is_guessed': False, 'has_clitic': False, 'start': 50, 'usage': ('Use/Rare',)}, 
-        {'weight': 273.0, 'end': 60, 'forms': ('', 'Pl+Par'), 'postags': ('', 'N'), 'morphemes': ('ilu', 'aed'), 'is_guessed': True, 'has_clitic': False, 'start': 50, 'usage': ('Use/Rare',)}], 
-       [{'weight': 0.0, 'end': 61, 'forms': ('',), 'postags': ('CLB',), 'morphemes': ('.',), 'is_guessed': False, 'has_clitic': False, 'start': 60, 'usage': ()}]
+       [{'weight': 45.0, 'end': 10, 'forms': ('', 'Sg+Nom'), 'postags': ('Pref', 'A'), 'morphemes_lemmas': ('üli', 'püüdlik'), 'is_guessed': False, 'has_clitic': False, 'start': 0, 'usage': ()}, 
+        {'weight': 55.0, 'end': 10, 'forms': ('', 'Der', 'Sg+Nom'), 'postags': ('Pref', 'N', 'A'), 'morphemes_lemmas': ('üli', 'püüd', 'lik'), 'is_guessed': False, 'has_clitic': False, 'start': 0, 'usage': ()}, 
+        {'weight': 250.0, 'end': 10, 'forms': ('', 'Der', 'Sg+Nom'), 'postags': ('', 'N', 'A'), 'morphemes_lemmas': ('üli', 'püüd', 'lik'), 'is_guessed': True, 'has_clitic': False, 'start': 0, 'usage': ()}], 
+       [{'weight': 240.0, 'end': 21, 'forms': ('', 'Sg+Nom'), 'postags': ('', 'N'), 'morphemes_lemmas': ('vanna', 'emake'), 'is_guessed': True, 'has_clitic': False, 'start': 11, 'usage': ()}, 
+        {'weight': 250.0, 'end': 21, 'forms': ('', 'Dim', 'Sg+Nom'), 'postags': ('', 'N', ''), 'morphemes_lemmas': ('vanna', 'ema', 'ke'), 'is_guessed': True, 'has_clitic': False, 'start': 11, 'usage': ()}], 
+       [{'weight': 0.0, 'end': 27, 'forms': ('Pers+Prs+Ind+Sg3+Aff',), 'postags': ('V',), 'morphemes_lemmas': ('rohima',), 'is_guessed': False, 'has_clitic': False, 'start': 22, 'usage': ()}], 
+       [{'weight': 0.0, 'end': 37, 'forms': ('',), 'postags': ('Adv',), 'morphemes_lemmas': ('võib-olla',), 'is_guessed': False, 'has_clitic': False, 'start': 28, 'usage': ()}], 
+       [{'weight': float('inf'), 'end': 49, 'forms': None, 'postags': None, 'morphemes_lemmas': None, 'is_guessed': None, 'has_clitic': None, 'start': 38, 'usage': None}], 
+       [{'weight': 63.0, 'end': 60, 'forms': ('Pl+Par',), 'postags': ('N',), 'morphemes_lemmas': ('iluaed',), 'is_guessed': False, 'has_clitic': False, 'start': 50, 'usage': ('Use/Rare',)}, 
+        {'weight': 74.0, 'end': 60, 'forms': ('Sg+Gen', 'Pl+Par'), 'postags': ('N', 'N'), 'morphemes_lemmas': ('ilu', 'aed'), 'is_guessed': False, 'has_clitic': False, 'start': 50, 'usage': ('Use/Rare',)}, 
+        {'weight': 273.0, 'end': 60, 'forms': ('', 'Pl+Par'), 'postags': ('', 'N'), 'morphemes_lemmas': ('ilu', 'aed'), 'is_guessed': True, 'has_clitic': False, 'start': 50, 'usage': ('Use/Rare',)}], 
+       [{'weight': 0.0, 'end': 61, 'forms': ('',), 'postags': ('CLB',), 'morphemes_lemmas': ('.',), 'is_guessed': False, 'has_clitic': False, 'start': 60, 'usage': ()}]
     ]
     assert results == expected_results
     
@@ -254,17 +254,17 @@ def test_hfst_gt_morph_analyser_morpheme_lemmas_output():
     results = text['hfst_gt_morph_analysis'].to_records()
     #print(results)
     expected_results = [
-       [{'postags': ('Adv', 'V', 'A'), 'is_guessed': False, 'end': 11, 'morphemes': ('ära', 'lõikama', 'tud'), 'has_clitic': False, 'forms': ('', 'Der', ''), 'weight': 50.0, 'start': 0, 'usage': ()}, 
-        {'postags': ('Adv', 'V', 'A'), 'is_guessed': False, 'end': 11, 'morphemes': ('ära', 'lõikama', 'tu'), 'has_clitic': False, 'forms': ('', 'Der', 'Pl+Nom'), 'weight': 51.0, 'start': 0, 'usage': ()}], 
-       [{'postags': ('N',), 'is_guessed': False, 'end': 22, 'morphemes': ('ühendus',), 'has_clitic': False, 'forms': ('Sg+Com',), 'weight': 3.0, 'start': 12, 'usage': ()}, 
-        {'postags': ('V', 'N'), 'is_guessed': False, 'end': 22, 'morphemes': ('ühendama', 'us'), 'has_clitic': False, 'forms': ('Der', 'Sg+Com'), 'weight': 13.0, 'start': 12, 'usage': ()}], 
-       [{'postags': ('N', 'N'), 'is_guessed': False, 'end': 44, 'morphemes': ('allmaaraudtee', 'jaam'), 'has_clitic': True, 'forms': ('Sg+Gen', 'Sg+Ine'), 'weight': 134.0, 'start': 23, 'usage': ()}, 
-        {'postags': ('Pref', 'N', 'N'), 'is_guessed': False, 'end': 44, 'morphemes': ('all', 'maa', 'raudteejaam'), 'has_clitic': True, 'forms': ('', 'Sg+Gen', 'Sg+Ine'), 'weight': 149.0, 'start': 23, 'usage': ()}, 
-        {'postags': ('Pref', 'N', 'N', 'N'), 'is_guessed': False, 'end': 44, 'morphemes': ('all', 'maa', 'raudtee', 'jaam'), 'has_clitic': True, 'forms': ('', 'Sg+Gen', 'Sg+Gen', 'Sg+Ine'), 'weight': 160.0, 'start': 23, 'usage': ()}], 
-       [{'postags': ('V',), 'is_guessed': False, 'end': 50, 'morphemes': ('ulguma',), 'has_clitic': False, 'forms': ('Pers+Prt+Ind+Sg3+Aff',), 'weight': 1.0, 'start': 45, 'usage': ()}], 
-       [{'postags': ('N',), 'is_guessed': False, 'end': 60, 'morphemes': ('tuuleke',), 'has_clitic': False, 'forms': ('Sg+Nom',), 'weight': 30.0, 'start': 51, 'usage': ('Use/Rare',)}, 
-        {'postags': ('N', ''), 'is_guessed': False, 'end': 60, 'morphemes': ('tuul', 'ke'), 'has_clitic': False, 'forms': ('Dim', 'Sg+Nom'), 'weight': 40.0, 'start': 51, 'usage': ('Use/Rare',)}],
-       [{'postags': ('CLB',), 'is_guessed': False, 'end': 61, 'morphemes': ('.',), 'has_clitic': False, 'forms': ('',), 'weight': 0.0, 'start': 60, 'usage': ()}]
+       [{'postags': ('Adv', 'V', 'A'), 'is_guessed': False, 'end': 11, 'morphemes_lemmas': ('ära', 'lõikama', 'tud'), 'has_clitic': False, 'forms': ('', 'Der', ''), 'weight': 50.0, 'start': 0, 'usage': ()}, 
+        {'postags': ('Adv', 'V', 'A'), 'is_guessed': False, 'end': 11, 'morphemes_lemmas': ('ära', 'lõikama', 'tu'), 'has_clitic': False, 'forms': ('', 'Der', 'Pl+Nom'), 'weight': 51.0, 'start': 0, 'usage': ()}], 
+       [{'postags': ('N',), 'is_guessed': False, 'end': 22, 'morphemes_lemmas': ('ühendus',), 'has_clitic': False, 'forms': ('Sg+Com',), 'weight': 3.0, 'start': 12, 'usage': ()}, 
+        {'postags': ('V', 'N'), 'is_guessed': False, 'end': 22, 'morphemes_lemmas': ('ühendama', 'us'), 'has_clitic': False, 'forms': ('Der', 'Sg+Com'), 'weight': 13.0, 'start': 12, 'usage': ()}], 
+       [{'postags': ('N', 'N'), 'is_guessed': False, 'end': 44, 'morphemes_lemmas': ('allmaaraudtee', 'jaam'), 'has_clitic': True, 'forms': ('Sg+Gen', 'Sg+Ine'), 'weight': 134.0, 'start': 23, 'usage': ()}, 
+        {'postags': ('Pref', 'N', 'N'), 'is_guessed': False, 'end': 44, 'morphemes_lemmas': ('all', 'maa', 'raudteejaam'), 'has_clitic': True, 'forms': ('', 'Sg+Gen', 'Sg+Ine'), 'weight': 149.0, 'start': 23, 'usage': ()}, 
+        {'postags': ('Pref', 'N', 'N', 'N'), 'is_guessed': False, 'end': 44, 'morphemes_lemmas': ('all', 'maa', 'raudtee', 'jaam'), 'has_clitic': True, 'forms': ('', 'Sg+Gen', 'Sg+Gen', 'Sg+Ine'), 'weight': 160.0, 'start': 23, 'usage': ()}], 
+       [{'postags': ('V',), 'is_guessed': False, 'end': 50, 'morphemes_lemmas': ('ulguma',), 'has_clitic': False, 'forms': ('Pers+Prt+Ind+Sg3+Aff',), 'weight': 1.0, 'start': 45, 'usage': ()}], 
+       [{'postags': ('N',), 'is_guessed': False, 'end': 60, 'morphemes_lemmas': ('tuuleke',), 'has_clitic': False, 'forms': ('Sg+Nom',), 'weight': 30.0, 'start': 51, 'usage': ('Use/Rare',)}, 
+        {'postags': ('N', ''), 'is_guessed': False, 'end': 60, 'morphemes_lemmas': ('tuul', 'ke'), 'has_clitic': False, 'forms': ('Dim', 'Sg+Nom'), 'weight': 40.0, 'start': 51, 'usage': ('Use/Rare',)}],
+       [{'postags': ('CLB',), 'is_guessed': False, 'end': 61, 'morphemes_lemmas': ('.',), 'has_clitic': False, 'forms': ('',), 'weight': 0.0, 'start': 60, 'usage': ()}]
     ]
     assert results == expected_results
 
@@ -274,12 +274,12 @@ def test_hfst_gt_morph_analyser_morpheme_lemmas_output():
     records = hfstAnalyser.lookup('alpikannike')
     #print(records)
     expected_records = [ \
-        {'has_clitic': False, 'morphemes': ('alpikann', 'ke'), 'forms': ('Dim', 'Sg+Nom'), 'weight': 40.0, 'postags': ('N', ''), 'usage': (), 'is_guessed': False}, \
-        {'has_clitic': False, 'morphemes': ('alpi', 'kannike'), 'forms': ('', 'Sg+Nom'), 'weight': 45.0, 'postags': ('Pref', 'N'), 'usage': (), 'is_guessed': False}, \
-        {'has_clitic': False, 'morphemes': ('alpi', 'kann', 'ke'), 'forms': ('', 'Dim', 'Sg+Nom'), 'weight': 55.0, 'postags': ('Pref', 'N', ''), 'usage': (), 'is_guessed': False}, \
-        {'has_clitic': False, 'morphemes': ('alpi', 'kann', 'ike'), 'forms': ('', 'Sg+Nom', 'Sg+Nom'), 'weight': 90.0, 'postags': ('Pref', 'N', 'N'), 'usage': (), 'is_guessed': False}, \
-        {'has_clitic': False, 'morphemes': ('alpi', 'kannike'), 'forms': ('', 'Sg+Nom'), 'weight': 240.0, 'postags': ('', 'N'), 'usage': (), 'is_guessed': True}, \
-        {'has_clitic': False, 'morphemes': ('alpi', 'kann', 'ke'), 'forms': ('', 'Dim', 'Sg+Nom'), 'weight': 250.0, 'postags': ('', 'N', ''), 'usage': (), 'is_guessed': True} \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpikann', 'ke'), 'forms': ('Dim', 'Sg+Nom'), 'weight': 40.0, 'postags': ('N', ''), 'usage': (), 'is_guessed': False}, \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kannike'), 'forms': ('', 'Sg+Nom'), 'weight': 45.0, 'postags': ('Pref', 'N'), 'usage': (), 'is_guessed': False}, \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kann', 'ke'), 'forms': ('', 'Dim', 'Sg+Nom'), 'weight': 55.0, 'postags': ('Pref', 'N', ''), 'usage': (), 'is_guessed': False}, \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kann', 'ike'), 'forms': ('', 'Sg+Nom', 'Sg+Nom'), 'weight': 90.0, 'postags': ('Pref', 'N', 'N'), 'usage': (), 'is_guessed': False}, \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kannike'), 'forms': ('', 'Sg+Nom'), 'weight': 240.0, 'postags': ('', 'N'), 'usage': (), 'is_guessed': True}, \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kann', 'ke'), 'forms': ('', 'Dim', 'Sg+Nom'), 'weight': 250.0, 'postags': ('', 'N', ''), 'usage': (), 'is_guessed': True} \
     ]
     assert records == expected_records
     
@@ -287,10 +287,10 @@ def test_hfst_gt_morph_analyser_morpheme_lemmas_output():
     records = hfstAnalyser.lookup('üleguugeldanud') # as in: "Oled ennast täitsa üleguugeldanud!"
     #print(records)
     expected_records = [ \
-        {'weight': 50.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', ''), 'usage': (), 'morphemes': ('üle', 'guugeldama', 'nud'), 'has_clitic': False}, \
-        {'weight': 50.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', 'Sg+Nom'), 'usage': (), 'morphemes': ('üle', 'guugeldama', 'nud'), 'has_clitic': False}, \
-        {'weight': 51.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'N'), 'forms': ('', 'Der', 'Pl+Nom'), 'usage': (), 'morphemes': ('üle', 'guugeldama', 'nu'), 'has_clitic': False}, \
-        {'weight': 51.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', 'Pl+Nom'), 'usage': (), 'morphemes': ('üle', 'guugeldama', 'nud'), 'has_clitic': False} \
+        {'weight': 50.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', ''), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nud'), 'has_clitic': False}, \
+        {'weight': 50.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', 'Sg+Nom'), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nud'), 'has_clitic': False}, \
+        {'weight': 51.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'N'), 'forms': ('', 'Der', 'Pl+Nom'), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nu'), 'has_clitic': False}, \
+        {'weight': 51.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', 'Pl+Nom'), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nud'), 'has_clitic': False} \
     ]
     assert records == expected_records
 

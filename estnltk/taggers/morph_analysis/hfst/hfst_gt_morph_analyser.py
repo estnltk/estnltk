@@ -81,7 +81,7 @@ class HfstEstMorphAnalyser(Tagger):
                        corresponding part-of-speech tags  and
                        form listings. In total, each analysis 
                        will have the following attributes:
-                          'morphemes'
+                          'morphemes_lemmas'
                           'postags'
                           'forms'
                           'is_guessed',
@@ -537,8 +537,8 @@ def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_sig
 
 class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
     """ Hfst morph analysis output extractor that splits the analysis into morphemes**.
-        For each morpheme (or lemma), it also extracts corresponding postag, 
-        and a form category. Results are stored in tuples, so that the same 
+        For  each  morpheme  or  lemma,  it  extracts corresponding postag, 
+        and a form category. Results are stored in tuples,  so that the same 
         index can be used to access features of the morpheme stored in different 
         tuples.
         For instance, tuples of analysis of the word 'vanaema' are:
@@ -557,18 +557,19 @@ class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
         
         ** morpheme -- the definition of the morpheme here does not 
            follow the linguistic one 100%. What is called a 'morpheme' 
-           here may, in some cases, also be a lemma of a word. 
+           here may, in some cases, also be a lemma of a word. That is 
+           why we use the attribute name 'morphemes_lemmas';
     """
 
     def set_output_attributes(self, tagger:Tagger):
         # Update Tagger's output attributes
-        tagger.output_attributes = ('morphemes','postags','forms','is_guessed','has_clitic','usage','weight')
+        tagger.output_attributes = ('morphemes_lemmas','postags','forms','is_guessed','has_clitic','usage','weight')
 
 
     def _create_unknown_word_record(self):
         # Creates a record for an unknown word
         features = dict()
-        features['morphemes']  = None
+        features['morphemes_lemmas']  = None
         features['postags']    = None
         features['forms']      = None
         features['is_guessed'] = None
@@ -593,7 +594,7 @@ class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
                 for mcf_key in morpheme_chunk_feats.keys():
                     if mcf_key == 'morphemes':
                         # convert list to tuple
-                        record['morphemes'] = tuple(morpheme_chunk_feats['morphemes'])
+                        record['morphemes_lemmas'] = tuple(morpheme_chunk_feats['morphemes'])
                     elif mcf_key == 'is_guessed':
                         # aggregate 'is_guessed' feature
                         record[mcf_key] = any( morpheme_chunk_feats[mcf_key] )
