@@ -1,5 +1,4 @@
-from itertools import chain
-from psycopg2.sql import SQL, Identifier, Literal, Composed
+from psycopg2.sql import SQL, Identifier, Literal
 from psycopg2.extensions import STATUS_BEGIN
 
 from estnltk import logger
@@ -9,6 +8,7 @@ from estnltk.storage.postgres import structure_table_name
 from estnltk.storage.postgres import collection_table_name
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import fragment_table_name
+from estnltk.storage import postgres as pg
 
 
 pytype2dbtype = {
@@ -226,153 +226,6 @@ def build_layer_ngram_query(storage, ngram_query, collection_name):
     return q
 
 
-class WhereClause(Composed):
-    def __init__(self,
-                 storage,
-                 collection_name,
-                 query=None,
-                 layer_query: dict = None,
-                 layer_ngram_query: dict = None,
-                 keys: list = None,
-                 missing_layer: str = None):
-
-        where = self.where_clause(storage,
-                                  collection_name,
-                                  query=query,
-                                  layer_query=layer_query,
-                                  layer_ngram_query=layer_ngram_query,
-                                  keys=keys,
-                                  missing_layer=missing_layer)
-        if where:
-            super().__init__(where)
-        else:
-            super().__init__([])
-
-    def __bool__(self):
-        return bool(self.seq)
-
-    @staticmethod
-    def where_clause(storage,
-                     collection_name,
-                     query=None,
-                     layer_query: dict = None,
-                     layer_ngram_query: dict = None,
-                     keys: list = None,
-                     missing_layer: str = None):
-        sql_parts = []
-
-        if query is not None:
-            # build constraint on the main text table
-            sql_parts.append(query.eval(storage, collection_name))
-        if layer_query:
-            # build constraint on related layer tables
-            q = SQL(" AND ").join(query.eval(storage, collection_name) for layer, query in layer_query.items())
-            sql_parts.append(q)
-        if keys is not None:
-            # build constraint on id-s
-            sql_parts.append(SQL('{table}."id" = ANY({keys})').format(
-                    table=collection_table_identifier(storage, collection_name),
-                    keys=Literal(list(keys))))
-        if layer_ngram_query:
-            # build constraint on related layer's ngram index
-            sql_parts.append(build_layer_ngram_query(storage, layer_ngram_query, collection_name))
-        if missing_layer:
-            # select collection objects for which there is no entry in the layer table
-            q = SQL('"id" NOT IN (SELECT "text_id" FROM {})'
-                    ).format(layer_table_identifier(storage, collection_name, missing_layer))
-            sql_parts.append(q)
-
-        if sql_parts:
-            return SQL(" AND ").join(sql_parts)
-
-
-class SelectedColumns(Composed):
-    def __init__(self,
-                 storage,
-                 collection_name,
-                 layer_query: dict = None,
-                 layer_ngram_query: dict = None,
-                 layers: list = None,
-                 collection_meta: list = None):
-
-        select_and_join, where_and = self.select_and_join_clause(storage,
-                                                                 collection_name,
-                                                                 layer_query=layer_query,
-                                                                 layer_ngram_query=layer_ngram_query,
-                                                                 layers=layers,
-                                                                 collection_meta=collection_meta)
-        self.where_and = where_and
-
-        super().__init__(select_and_join)
-
-    def __add__(self, other):
-        if isinstance(other, WhereClause):
-            if other:
-                return SQL(' ').join([self, self.where_and, other])
-            return self
-        raise NotImplementedError()
-
-    @staticmethod
-    def select_and_join_clause(storage,
-                               collection_name,
-                               layer_query: dict = None,
-                               layer_ngram_query: dict = None,
-                               layers: list = None,
-                               collection_meta: list = None):
-
-        collection_identifier = collection_table_identifier(storage, collection_name)
-
-        # selected_columns(collection_meta, collection_identifier, layers)
-        collection_meta = collection_meta or []
-
-        selected_columns = [SQL('{}.{}').format(collection_identifier, column_id) for
-                            column_id in map(Identifier, ['id', 'data', *collection_meta])]
-        # col.id, col.data, col.meta_*
-
-        # list columns of selected layers
-        layers = layers or []
-        for layer in chain(layers):
-            selected_columns.append(SQL('{}."id"').format(layer_table_identifier(storage, collection_name, layer)))
-            selected_columns.append(SQL('{}."data"').format(layer_table_identifier(storage, collection_name, layer)))
-        # col__layer1__layer.id, col__layer1__layer.data, ...
-
-        # no restrictions to the collection
-        if not layers and layer_query is None and layer_ngram_query is None:
-            # select only text table
-            select = SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
-            where_and = SQL('WHERE')
-            return select, where_and
-
-        # we have restrictions and must join tables to meet them
-        # need to join text and all layer tables
-        # selected_layer_tables(...)
-        layer_query = layer_query or {}
-        layer_ngram_query = layer_ngram_query or {}
-
-        # selected_tables(layers, layer_query, ngram_query)
-        # find all layers needed for the where clause
-        selected_layers = []
-        for layer in sorted(set(chain(layers, layer_query.keys(), layer_ngram_query.keys()))):
-            layer = SQL("{}").format(layer_table_identifier(storage, collection_name, layer))
-            selected_layers.append(layer)
-        # col__layer1_layer, col_layer2_layer
-
-        # join_clause(collection_identifier, selected_layers)
-        join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(
-                collection_identifier, layer)
-                                           for layer in selected_layers)
-
-        # selected_tables_clause()
-        selected_tables = [collection_identifier, *selected_layers]
-        select = SQL('SELECT {columns} FROM {tables} WHERE {join_condition}').format(
-                columns=SQL(', ').join(selected_columns),
-                tables=SQL(", ").join(selected_tables),
-                join_condition=join_condition)
-        where_and = SQL('AND')
-
-        return select, where_and
-
-
 def build_sql_query(storage,
                     collection_name,
                     query=None,
@@ -412,20 +265,20 @@ def build_sql_query(storage,
             print(key, txt)
     """
 
-    selected_columns = SelectedColumns(storage,
-                                      collection_name,
-                                      layer_query=layer_query,
-                                      layer_ngram_query=layer_ngram_query,
-                                      layers=layers,
-                                      collection_meta=collection_meta)
+    selected_columns = pg.SelectedColumns(storage,
+                                          collection_name,
+                                          layer_query=layer_query,
+                                          layer_ngram_query=layer_ngram_query,
+                                          layers=layers,
+                                          collection_meta=collection_meta)
 
-    where_clause = WhereClause(storage=storage,
-                               collection_name=collection_name,
-                               query=query,
-                               layer_query=layer_query,
-                               layer_ngram_query=layer_ngram_query,
-                               keys=keys,
-                               missing_layer=missing_layer)
+    where_clause = pg.WhereClause(storage=storage,
+                                  collection_name=collection_name,
+                                  query=query,
+                                  layer_query=layer_query,
+                                  layer_ngram_query=layer_ngram_query,
+                                  keys=keys,
+                                  missing_layer=missing_layer)
 
     sql_parts = [selected_columns + where_clause]
 
