@@ -5,29 +5,17 @@ import collections
 import itertools
 import warnings
 
-from estnltk import Span, EnvelopingSpan, AmbiguousSpan
+from estnltk import Span, EnvelopingSpan, AmbiguousSpan, Annotation
 from estnltk.layer import AmbiguousAttributeTupleList, AttributeTupleList, AttributeList, AmbiguousAttributeList
-from .annotation import Annotation
+from estnltk.visualisation import DisplaySpans
 
 
-# TODO: remove SpanList
 class SpanList(collections.Sequence):
     def __init__(self,
-                 layer=None,  # type: Layer
-                 ambiguous: bool=False) -> None:
-        # TODO:
-        # assert layer is not None
-
-        self.spans = []  # type: List
-
+                 layer,  # type: Layer
+                 spans: list = None):
+        self.spans = spans or []  # type: List
         self._layer = layer
-        self.ambiguous = ambiguous
-
-        # placeholder for ambiguous layer
-        self.parent = None  # type:Union[Span, None]
-
-        # placeholder for dependant layer
-        self._base = None  # type:Union[Span, None]
 
     def get_attributes(self, items):
         r = []
@@ -99,18 +87,18 @@ class SpanList(collections.Sequence):
 
         layer = self.__getattribute__('layer')  # type: Layer
         if item in layer.attributes:
-            return layer.attribute_list(item)#[getattr(span, item) for span in self.spans]
+            return layer.attribute_list(item)
         if item in self.__dict__.keys():
             return self.__dict__[item]
         if item == getattr(self.layer, 'parent', None):
-            return self.parent
+            return self.layer.parent
         if item in self.__dict__:
             return self.__dict__[item]
 
         target = layer.text_object._resolve(layer.name, item, sofar=self)
         return target
 
-    def __getitem__(self, idx: int) -> Union[Span, 'SpanList', list]:
+    def __getitem__(self, idx) -> Union[Span, 'SpanList', list]:
         if isinstance(idx, str) or isinstance(idx, (list, tuple)) and all(isinstance(s, str) for s in idx):
             return self.attribute_list(idx)
 
@@ -118,10 +106,7 @@ class SpanList(collections.Sequence):
         if isinstance(idx, int):
             return wrapped
 
-        res = SpanList(layer=self.layer, ambiguous=self.ambiguous)
-        res.spans = wrapped
-        res.ambiguous = self.ambiguous
-        res.parent = self.parent
+        res = SpanList(layer=self.layer, spans=wrapped)
         return res
 
     def __lt__(self, other: Any) -> bool:
@@ -133,9 +118,6 @@ class SpanList(collections.Sequence):
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
 
-    def __hash__(self):
-        return hash((tuple(self.spans), self.ambiguous, self.parent))
-
     def __str__(self):
         return 'SL[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
 
@@ -145,7 +127,6 @@ class SpanList(collections.Sequence):
     def _repr_html_(self):
         if self.layer and self is self.layer.span_list:
             return self.layer.to_html(header='SpanList', start_end=True)
-        return str(self)
 
 
 def whitelist_record(record, source_attributes):
@@ -167,10 +148,10 @@ class Layer:
     def __init__(self,
                  name: str,
                  attributes: Sequence[str] = (),
-                 text_object=None,  # TODO: make text_object required parameter
+                 text_object=None,
                  parent: str = None,
                  enveloping: str = None,
-                 ambiguous: bool = False,  # TODO: change default to True and finally remove this parameter
+                 ambiguous: bool = False,
                  default_values: dict = None
                  ) -> None:
         assert parent is None or enveloping is None, "Can't be derived AND enveloping"
@@ -213,7 +194,7 @@ class Layer:
         self.enveloping = enveloping
 
         # Container for spans
-        self.span_list = SpanList(layer=self, ambiguous=ambiguous)
+        self.span_list = SpanList(layer=self)
 
         # boolean for if this is an ambiguous layer
         # if True, add_span will behave differently and add a SpanList instead.
@@ -229,6 +210,8 @@ class Layer:
         self.text_object = text_object  # type: Text
 
         self.classes = {}  # type: MutableMapping[int, AmbiguousSpan]
+
+        self.meta = {}
 
     @property
     def layer(self):
@@ -282,7 +265,7 @@ class Layer:
 
         if self.ambiguous:
             if rewriting:
-                self.span_list = SpanList(ambiguous=True, layer=self)
+                self.span_list = SpanList(layer=self)
                 tmpspans = []
                 for record_line in records:
                     span = Span(**{**record_line[0], **{'layer': self}}, legal_attributes=self.attributes)
@@ -297,7 +280,7 @@ class Layer:
                     self._add_spans([Span(**record, legal_attributes=self.attributes) for record in record_line])
         else:
             if rewriting:
-                spns = SpanList(layer=self, ambiguous=False)
+                spns = SpanList(layer=self)
                 spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes) for record in
                               records if record is not None]
 
@@ -509,6 +492,12 @@ class Layer:
                                        for span in self.spans for annotation in span.annotations)
         return collections.Counter(getattr(span, attribute) for span in self.spans)
 
+    def groupby(self, by: Sequence[str], return_type: str = 'spans'):
+        return layer_operations.GroupBy(layer=self, by=by, return_type=return_type)
+
+    def rolling(self, window: int, min_periods: int = None, inside: str = None):
+        return layer_operations.Rolling(self, window=window,  min_periods=min_periods, inside=inside)
+
     def __getattr__(self, item):
         if item in {'_ipython_canary_method_should_not_exist_', '__getstate__'}:
             raise AttributeError
@@ -516,10 +505,8 @@ class Layer:
             return self.__getattribute__('__dict__')[item]
         if item in self.__getattribute__('attributes'):
             return self.__getitem__(item)
-            #return self.__getattribute__('span_list').__getattr__(item)
 
-        target = self.text_object._resolve(self.name, item, sofar=self.span_list)
-        return target
+        return self.text_object._resolve(self.name, item, sofar=self.span_list)
 
     def __setattr__(self, key, value):
         if key != 'attributes' and key in self.attributes:
@@ -549,14 +536,12 @@ class Layer:
 
         layer = Layer(name=self.name,
                       attributes=self.attributes,
+                      text_object=self.text_object,
                       parent=self.parent,
                       enveloping=self.enveloping,
                       ambiguous=self.ambiguous,
                       default_values=self.default_values)
         layer._base = self._base
-        span_list = SpanList(layer=layer, ambiguous=self.ambiguous)
-        span_list.parent = self.span_list.parent
-        layer.span_list = span_list
 
         if isinstance(item, slice):
             wrapped = self.span_list.spans.__getitem__(item)
@@ -601,8 +586,8 @@ class Layer:
                                                       'ambiguous', 'span count'])
 
     def display(self):
-        from estnltk.visualisation import estnltk_display
-        estnltk_display(self)
+        display_spans = DisplaySpans()
+        display_spans(self)
 
     def to_html(self, header='Layer', start_end=False):
         res = []
@@ -653,11 +638,11 @@ class Layer:
     print_start_end = False
 
     def _repr_html_(self):
-        assert self.text_object is not None, 'this layer is missing a Text object'
+        attributes = []
+        if self.text_object is not None:
+            attributes.append('text')
         if self.print_start_end:
-            attributes = ['text', 'start', 'end']
-        else:
-            attributes = ['text']
+            attributes.extend(['start', 'end'])
         attributes.extend(self.attributes)
         table_1 = self.metadata().to_html(index=False, escape=False)
         table_2 = self.attribute_list(attributes).to_html(index='text')
@@ -693,3 +678,6 @@ class Layer:
 
     def __eq__(self, other):
         return self.diff(other) is None
+
+
+import estnltk.layer_operations as layer_operations

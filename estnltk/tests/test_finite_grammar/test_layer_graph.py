@@ -33,10 +33,6 @@ def test_PhonyNode():
     assert node_2 == node_3
 
 
-#def test_START_END_NODE():
-#    assert START_NODE < END_NODE
-
-
 def test_TerminalNode():
     span_1 = text_5.layer_0[0]
     node_1 = TerminalNode(span_1.attr_0, span_1, attributes={'attr', 'attr_0'})
@@ -71,30 +67,29 @@ def test_GrammarNode():
 
 def test_layer_to_graph():
     graph = layer_to_graph(text_5['layer_0'], text_5.text, name_attribute='attr')
-    assert len(graph) == 19
-    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [#('START', 'L0-0'),
-                                                                    ('L0-0', 'L0-1'),
-                                                                    ('L0-0', 'L0-2'),
-                                                                    ('L0-1', 'L0-3'),
-                                                                    ('L0-2', 'L0-4'),
-                                                                    ('L0-3', 'L0-4'),
-                                                                    ('L0-4', 'L0-5'),
-                                                                    ('L0-5', 'L0-6'),
-                                                                    ('L0-6', 'L0-7'),
-                                                                    ('L0-6', 'L0-8'),
-                                                                    ('L0-7', 'L0-9'),
-                                                                    ('L0-8', 'L0-10'),
-                                                                    ('L0-8', 'L0-11'),
-                                                                    ('L0-9', 'L0-10'),
-                                                                    ('L0-9', 'L0-11'),
-                                                                    ('L0-10', 'L0-12'),
-                                                                    ('L0-11', 'L0-13'),
-                                                                    ('L0-12', 'L0-13'),
-                                                                    ('L0-13', 'L0-14'),
-                                                                    ('L0-14', 'L0-15'),
-                                                                    ('L0-15', 'L0-16'),
-                                                                    ('L0-15', 'L0-17'),
-                                                                    ('L0-16', 'L0-18'),
-                                                                    #('L0-17', 'END'),
-                                                                    #('L0-18', 'END')
-    ]
+    assert len(graph) == 20
+    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [('L0-0', 'L0-1'),
+                                                                  ('L0-0', 'L0-2'),
+                                                                  ('L0-1', 'L0-3'),
+                                                                  ('L0-2', 'L0-4'),
+                                                                  ('L0-3', 'L0-4'),
+                                                                  ('L0-4', 'L0-5'),
+                                                                  ('L0-5', 'L0-6'),
+                                                                  ('L0-6', 'L0-7'),
+                                                                  ('L0-6', 'L0-8'),
+                                                                  ('L0-7', 'L0-9'),
+                                                                  ('L0-8', 'L0-10'),
+                                                                  ('L0-8', 'L0-11'),
+                                                                  ('L0-9', 'L0-10'),
+                                                                  ('L0-9', 'L0-11'),
+                                                                  ('L0-10', 'L0-12'),
+                                                                  ('L0-11', 'L0-13'),
+                                                                  ('L0-12', 'L0-13'),
+                                                                  ('L0-13', 'L0-14'),
+                                                                  ('L0-14', 'L0-15'),
+                                                                  ('L0-15', 'L0-16'),
+                                                                  ('L0-15', 'L0-17'),
+                                                                  ('L0-16', 'L0-18'),
+                                                                  ('L0-17', 'L0-19'),
+                                                                  ('L0-18', 'L0-19')
+                                                                  ]

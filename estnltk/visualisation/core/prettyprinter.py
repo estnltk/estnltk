@@ -48,9 +48,3 @@ def decompose_to_elementary_spans(layer, text) -> List:
             html_span.append([])
 
     return html_spans
-
-
-from estnltk.tests import new_text
-
-print(decompose_to_elementary_spans(new_text(3).layer_0, new_text(3).text))
-# print(decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text))

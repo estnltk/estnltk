@@ -1,6 +1,33 @@
 import pandas
+import html
+import regex as re
 
 from estnltk.layer.immutable_list import ImmutableList
+from estnltk.layer.span import Span
+
+
+def to_str(value, escape_html=False):
+    if isinstance(value, str):
+        value_str = value
+    elif callable(value) and hasattr(value, '__name__') and hasattr(value, '__module__'):
+        value_str = '<function {}.{}>'.format(value.__module__, value.__name__)
+    elif isinstance(value, re.Pattern):
+        value_str = '<Regex {}>'.format(value.pattern)
+    elif isinstance(value, Span):
+        value_str = 'Span({})'.format(value.text)
+    elif isinstance(value, tuple):
+        value_str = str(tuple(to_str(v) for v in value))
+    else:
+        value_str = str(value)
+
+    if len(value_str) >= 100:
+        value_str = value_str[:80] + ' ..., type: ' + str(type(value))
+        if hasattr(value, '__len__'):
+            value_str += ', length: ' + str(len(value))
+
+    if escape_html:
+        value_str = html.escape(value_str)
+    return value_str
 
 
 class AmbiguousAttributeTupleList:
@@ -40,7 +67,7 @@ class AmbiguousAttributeTupleList:
         for i, value_tuples in enumerate(self.amb_attr_tuple_list):
             first = True
             for value_tuple in value_tuples:
-                record = {k: str(v) for k, v in zip(self.attribute_names, value_tuple)}
+                record = {k: to_str(v) for k, v in zip(self.attribute_names, value_tuple)}
                 if index is True:
                     record[''] = i if first else ''
                 elif isinstance(index, str) and not first:

@@ -1,8 +1,7 @@
 import pytest
 
-from estnltk import AmbiguousSpan, Span, Layer
+from estnltk import AmbiguousSpan, Span, Layer, Annotation
 from estnltk.layer import AttributeList
-from estnltk.layer.annotation import Annotation
 
 
 def test_add_annotation():

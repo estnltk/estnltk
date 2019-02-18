@@ -2,8 +2,10 @@
 #   Functions for yielding consecutive spans.
 #
 
-from estnltk import SpanList, Span
 from typing import Union, List, Callable
+
+from estnltk.layer.span import Span
+from estnltk.layer.layer import SpanList
 
 
 def default_gap_validator(s: str) -> bool:

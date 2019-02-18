@@ -6,21 +6,12 @@ from typing import MutableMapping, Union, List, Sequence
 import pandas
 import networkx as nx
 
-from estnltk import Span
-from estnltk import EnvelopingSpan
-from estnltk import SpanList
-from estnltk import Layer
-from estnltk.layer import AttributeList, AmbiguousAttributeList
-
-
-def _get_span_by_start_and_end(spans: SpanList, start: int=None, end: int=None, span: Span=None) -> Union[Span, None]:
-    if span:
-        i = bisect_left(spans, span)
-    else:
-        i = bisect_left(spans, Span(start=start, end=end))
-    if i != len(spans):
-        return spans[i]
-    return None
+from estnltk.layer.span import Span
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import SpanList
+from estnltk.layer.layer import Layer
+from estnltk.layer.attribute_list import AttributeList
+from estnltk.layer.ambiguous_attribute_list import AmbiguousAttributeList
 
 
 class Text:
@@ -190,10 +181,9 @@ class Text:
             # this means the layer might already have spans, and the spans might need to have their parents reset
             if layer.parent is not None:
                 for span in layer:
-                    span.parent = _get_span_by_start_and_end(
-                        self.layers[layer._base].span_list,
-                        span=span
-                    )
+                    base_layer = self.layers[layer._base]
+                    i = bisect_left(base_layer, span)
+                    span.parent = base_layer[i]
                     span._base = span.parent
 
         for span in layer.spans:
@@ -209,54 +199,38 @@ class Text:
 
         self._setup_structure()
 
-    def _resolve(self, frm, to, sofar: 'SpanList'=None) -> Union['SpanList', List[None]]:
+    def _resolve(self, frm: str, to: str, sofar: SpanList = None) -> Union['SpanList', List[None]]:
         # must return the correct object
         # this method is supposed to centralize attribute access
 
         # if sofar is set, it must be a SpanList at point "frm" with a path to "to"
         # going down a level of enveloping layers adds a layer SpanLists
 
-        GENERAL_KEYS = ['text', 'parent']
-        if to in GENERAL_KEYS:
-            if sofar:
-                return sofar.__getattribute__(to)
-            else:
-                return self.layers[frm].span_list.__getattribute__(to)
+        if not self._path_exists(frm, to):
+            raise AttributeError('{} -> {} not implemented - path does not exist'.format(frm, to))
 
-        path_exists = self._path_exists(frm, to)
-        if path_exists and to in self.layers.keys():
-            if frm in self.layers.keys():
-                # from layer to its attribute
-                if to in self.layers[frm].attributes or (to in GENERAL_KEYS):
-                    return getattr(self.layers[frm], to)
-
+        if to in self.layers:
+            if frm in self.layers:
                 # from enveloping layer to its direct descendant
-                elif to == self.layers[frm].enveloping:
+                if to == self.layers[frm].enveloping:
                     return sofar
 
                 # from an enveloping layer to dependant layer (one step only, skipping base layer)
                 elif self.layers[frm].enveloping == self.layers[to].parent:
-                    if sofar is None:
-                        sofar = self.layers[frm].span_list
-
                     spans = []
 
-                    # path taken by text.sentences.lemma
-                    # TODO: is SpanList needed here?
-                    if isinstance(sofar[0], (SpanList, EnvelopingSpan)):
+                    # path taken by text.sentences.morph_analysis
+                    if isinstance(sofar[0], EnvelopingSpan):
                         for envelop in sofar:
                             enveloped_spans = []
                             for span in self.layers[to]:
                                 if span.parent in envelop.spans:
                                     enveloped_spans.append(span)
                             if enveloped_spans:
-                                sl = SpanList(layer=self.layers[frm])
-                                sl.spans = enveloped_spans
+                                sl = SpanList(layer=self.layers[frm], spans=enveloped_spans)
                                 spans.append(sl)
 
-                        res = SpanList(layer=self.layers[to])
-                        res.spans = spans
-                        return res
+                        return SpanList(layer=self.layers[to], spans=spans)
 
                     # path taken by text.sentences[0].lemma
                     elif isinstance(sofar[0], Span):
@@ -292,9 +266,8 @@ class Text:
                                          to=to,
                                          sofar=sofar
                                          )
-
         # attribute access
-        elif path_exists:
+        else:
             to_layer_name = self.attributes[to][0]
             path = self._get_path(frm, to_layer_name) + ['{}.{}'.format(to_layer_name, to)]
 
@@ -351,10 +324,6 @@ class Text:
                             i.__getattr__(to)
                         )
                     return res
-
-        raise AttributeError('{} -> {} not implemented'.format(frm, to) +
-                                  (' but path exists' if path_exists else ' - path does not exist')
-                                  )
 
     def _path_exists(self, frm, to):
         paths = self._get_all_paths(frm, to)

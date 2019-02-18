@@ -2,11 +2,11 @@ from typing import MutableMapping, Any, Sequence
 
 
 class Annotation:
-    def __init__(self, ambiguous_span) -> None:
+    def __init__(self, span) -> None:
 
-        self._ambiguous_span = ambiguous_span
+        self._span = span
 
-        self.layer = ambiguous_span.layer
+        self.layer = span.layer
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
@@ -22,19 +22,19 @@ class Annotation:
 
     @property
     def parent(self):
-        return self._ambiguous_span.parent
+        return self._span.parent
 
     @property
     def start(self) -> int:
-        return self._ambiguous_span.start
+        return self._span.start
 
     @property
     def end(self) -> int:
-        return self._ambiguous_span.end
+        return self._span.end
 
     @property
     def span(self):
-        return self._ambiguous_span
+        return self._span
 
     @property
     def text(self):

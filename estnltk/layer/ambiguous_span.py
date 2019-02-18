@@ -4,7 +4,7 @@ import pandas as pd
 from IPython.core.display import display_html
 
 from estnltk import Span
-from .annotation import Annotation
+from estnltk import Annotation
 from estnltk.layer import AttributeList
 
 
@@ -21,6 +21,8 @@ class AmbiguousSpan(collections.Sequence):
 
         # placeholder for dependant layer
         self._base = None  # type:Union[Span, None]
+
+        self.text_object = layer.text_object
 
     @property
     def annotations(self):
@@ -114,10 +116,11 @@ class AmbiguousSpan(collections.Sequence):
 
     def __getitem__(self, idx: int) -> Union[Annotation, AttributeList]:
         if isinstance(idx, int):
-            wrapped = self._annotations.__getitem__(idx)
-            return wrapped
+            return self._annotations[idx]
+
         if isinstance(idx, str):
-            return AttributeList([getattr(annotation, idx) for annotation in self._annotations], idx)
+            return getattr(self, idx)
+
         raise KeyError(idx)
 
     def __lt__(self, other: Any) -> bool:

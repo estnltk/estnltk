@@ -1,5 +1,7 @@
 from typing import Sequence
-from estnltk import Span, EnvelopingSpan, Layer
+from estnltk.layer.span import Span
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import Layer
 
 
 def merge_layers(layers: Sequence[Layer],

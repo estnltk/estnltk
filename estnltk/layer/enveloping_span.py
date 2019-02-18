@@ -2,7 +2,8 @@ import collections
 from typing import Any, Union, Sequence
 import itertools
 
-from estnltk import Span, AmbiguousSpan
+from estnltk.layer.span import Span
+from estnltk.layer.ambiguous_span import AmbiguousSpan
 
 
 class EnvelopingSpan(collections.Sequence):
@@ -145,15 +146,19 @@ class EnvelopingSpan(collections.Sequence):
         return layer.text_object._resolve(layer.name, item, sofar=self)
 
     def __getitem__(self, idx: int) -> Union[Span, 'EnvelopingSpan']:
-        wrapped = self.spans.__getitem__(idx)
         if isinstance(idx, int):
-            return wrapped
-        res = EnvelopingSpan(spans=wrapped)
-        res.layer = self.layer
+            return self.spans[0]
 
-        res.parent = self.parent
+        if isinstance(idx, str):
+            return getattr(self, idx)
 
-        return res
+        if isinstance(idx, slice):
+            res = EnvelopingSpan(spans=self.spans[idx])
+            res.layer = self.layer
+            res.parent = self.parent
+            return res
+
+        raise KeyError(idx)
 
     def __lt__(self, other: Any) -> bool:
         return isinstance(other, EnvelopingSpan) and \

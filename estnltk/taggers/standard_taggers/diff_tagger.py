@@ -7,8 +7,8 @@ import random
 from operator import eq
 import pandas as pd
 
-from estnltk import EnvelopingSpan
-from estnltk import Layer
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import Layer
 from estnltk.layer_operations import diff_layer
 from estnltk.taggers import Tagger
 from estnltk.layer.span_operations import symm_diff_ambiguous_spans

@@ -1,7 +1,9 @@
 import pytest
 
 import itertools
-from estnltk.text import *
+from estnltk import Span
+from estnltk import Layer
+from estnltk import Text
 from estnltk.layer import AmbiguousAttributeList
 from estnltk.layer import AttributeList
 from estnltk.tests import new_text
@@ -26,7 +28,6 @@ def test_general():
     assert len(t.words) == len(t.words.text)
     #assert len(t.sentences) == len(t.sentences.text)
     #assert len(t.sentences.words.text) == len(t.sentences.text)
-    print(t.morph_analysis.lemma)
     assert t.morph_analysis.lemma == AmbiguousAttributeList([['mina'], ['nimi'], ['olema', 'olema'], ['Uku'],
                                                              ['.'], ['mis', 'mis'], ['sina'], ['nimi'],
                                                              ['olema', 'olema'], ['?'], ['miks'], ['mina'],
@@ -36,15 +37,10 @@ def test_general():
     assert len(t.morph_analysis.lemma) == len(t.words)
     assert len(t.morph_analysis) == len(t.words)
 
-    print(t.words.morph_analysis)
-    print(t.words.lemma)
-    #assert t.words.morph_analysis.lemma == t.words.lemma
+    assert t.words.morph_analysis.lemma == t.words.lemma
     #assert len(t.sentences[1:].words) == len(t.sentences[1:].text)
 
-    #print('mrf', (t.sentences[1:].morph_analysis))
-    print(t.sentences[1:].text)
     #assert len(t.sentences[1:].morph_analysis) == len(t.sentences[1:].text)
-
 
     #assert len(t.sentences[:].morph_analysis) == len(t.sentences[:].text)
     #assert t.sentences[:] == t.sentences.span_list

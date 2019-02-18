@@ -56,7 +56,7 @@ text_3['layer_3'] = layer_3
 text_3['layer_4'] = layer_4
 text_3['layer_5'] = layer_5
 
-t = """Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat."""
+t = 'Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.'
 # text
 text_4 = Text(t)
 
@@ -70,7 +70,7 @@ layer_0.add_span(Span(start= 5, end= 9, legal_attributes=['attr', 'attr_0'], att
 layer_0.add_span(Span(start= 5, end=16, legal_attributes=['attr', 'attr_0'], attr='L0-2',  attr_0='20'))
 layer_0.add_span(Span(start= 9, end=14, legal_attributes=['attr', 'attr_0'], attr='L0-3',  attr_0='10'))
 layer_0.add_span(Span(start=17, end=21, legal_attributes=['attr', 'attr_0'], attr='L0-4',  attr_0='3'))
-layer_0.add_span(Span(start=22, end=27, legal_attributes=['attr', 'attr_0'], attr='L0-5',  attr_0='4'))
+layer_0.add_span(Span(start=22, end=27, legal_attributes=['attr', 'attr_0'], attr='L0-5',  attr_0='4'))  # TODO start=23
 layer_0.add_span(Span(start=28, end=33, legal_attributes=['attr', 'attr_0'], attr='L0-6',  attr_0='1000'))
 layer_0.add_span(Span(start=34, end=38, legal_attributes=['attr', 'attr_0'], attr='L0-7',  attr_0='5'))
 layer_0.add_span(Span(start=34, end=42, legal_attributes=['attr', 'attr_0'], attr='L0-8',  attr_0='500'))
@@ -84,6 +84,7 @@ layer_0.add_span(Span(start=67, end=74, legal_attributes=['attr', 'attr_0'], att
 layer_0.add_span(Span(start=76, end=82, legal_attributes=['attr', 'attr_0'], attr='L0-16', attr_0='9'))
 layer_0.add_span(Span(start=76, end=89, legal_attributes=['attr', 'attr_0'], attr='L0-17', attr_0='90'))
 layer_0.add_span(Span(start=82, end=87, legal_attributes=['attr', 'attr_0'], attr='L0-18', attr_0='10'))
+layer_0.add_span(Span(start=90, end=95, legal_attributes=['attr', 'attr_0'], attr='L0-19', attr_0='1000'))
 text_5['layer_0'] = layer_0
 
 layer_1 = Layer('layer_1', attributes=['attr', 'attr_1'], ambiguous=True)
@@ -96,7 +97,7 @@ layer_1.add_span(Span(start= 5, end=16, legal_attributes=['attr', 'attr_1'], att
 
 layer_1.add_span(Span(start= 9, end=14, legal_attributes=['attr', 'attr_1'], attr='L1-3',  attr_1='KÜMME'))
 layer_1.add_span(Span(start=17, end=21, legal_attributes=['attr', 'attr_1'], attr='L1-4',  attr_1='KOLM'))
-layer_1.add_span(Span(start=22, end=27, legal_attributes=['attr', 'attr_1'], attr='L1-5',  attr_1='NELI'))
+layer_1.add_span(Span(start=23, end=27, legal_attributes=['attr', 'attr_1'], attr='L1-5',  attr_1='NELI'))
 layer_1.add_span(Span(start=28, end=33, legal_attributes=['attr', 'attr_1'], attr='L1-6',  attr_1='TUHAT'))
 layer_1.add_span(Span(start=34, end=38, legal_attributes=['attr', 'attr_1'], attr='L1-7',  attr_1='VIIS'))
 
@@ -132,6 +133,11 @@ layer_3 = Layer('layer_3', attributes=['attr', 'attr_3'], ambiguous=True, parent
 text_5['layer_3'] = layer_3
 
 layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], ambiguous=False, enveloping='layer_0')
+layer_4.add_span(EnvelopingSpan(spans=[layer_0[0], layer_0[2], layer_0[4]], layer=layer_4, attributes={'attr': 'L4-0', 'attr_4': '123'}))
+layer_4.add_span(EnvelopingSpan(spans=[layer_0[5], layer_0[6], layer_0[8], layer_0[11], layer_0[13]], layer=layer_4, attributes={'attr': 'L4-1', 'attr_4': '4567'}))
+layer_4.add_span(EnvelopingSpan(spans=[layer_0[15]], layer=layer_4, attributes={'attr': 'L4-2', 'attr_4': '8'}))
+layer_4.add_span(EnvelopingSpan(spans=[layer_0[14]], layer=layer_4, attributes={'attr': 'L4-3', 'attr_4': ','}))
+layer_4.add_span(EnvelopingSpan(spans=[layer_0[17], layer_0[19]], layer=layer_4, attributes={'attr': 'L4-4', 'attr_4': '90 000'}))
 text_5['layer_4'] = layer_4
 
 layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], ambiguous=True, enveloping='layer_1')

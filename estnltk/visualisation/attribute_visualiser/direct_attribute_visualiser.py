@@ -38,7 +38,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
             self.js_added = True
 
         if not self.fill_empty_spans and self.is_pure_text(segment):
-            output+=segment[0]
+            return segment[0]
         else:
             # There is a span to decorate
             output += '<span style='
@@ -67,7 +67,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
 
             output += ' span_info='
             for attribute_span in spans:
-                output += "".join(attribute_span)  # span info for javascript
+                output += "".join(attribute_span).replace(" ","")  # span info for javascript
             output += '>'
             output += segment[0]
             output += '</span>'

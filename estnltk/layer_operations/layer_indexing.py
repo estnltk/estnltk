@@ -1,6 +1,6 @@
 from itertools import product, chain
 
-from estnltk import Layer
+from estnltk.layer.layer import Layer
 
 
 def build_ngrams(layer: Layer, attribute: str, n: int, sep: str='-'):
