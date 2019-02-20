@@ -1,6 +1,9 @@
 from typing import Sequence
 from tqdm import tqdm, tqdm_notebook
+from psycopg2.sql import SQL
 
+from estnltk import logger
+from estnltk.converters import dict_to_text, dict_to_layer
 from estnltk.storage import postgres as pg
 
 
@@ -84,12 +87,12 @@ class PgSubCollection:
         detached_layer_names = [layer for layer in layers_extended if self.collection.structure[layer]['detached']]
 
         def data_iterator():
-            for row in pg.select_raw(collection=self.collection,
-                                     attached_layers=attached_layer_names,
-                                     order_by_key=self.order_by_key,
-                                     collection_meta=self.collection_meta,
-                                     selected_columns=self._selected_columns,
-                                     where_clause=self._where_clause):
+            for row in select_raw(collection=self.collection,
+                                  attached_layers=attached_layer_names,
+                                  order_by_key=self.order_by_key,
+                                  collection_meta=self.collection_meta,
+                                  selected_columns=self._selected_columns,
+                                  where_clause=self._where_clause):
                 text_id, text, meta_list, detached_layers = row
                 for layer_name in detached_layer_names:
                     text[layer_name] = detached_layers[layer_name]['layer']
@@ -143,3 +146,37 @@ class PgSubCollection:
 
     def raw_fragment(self):
         pass
+
+
+def select_raw(collection,
+               attached_layers=None,
+               order_by_key: bool = False,
+               collection_meta: list = None,
+               selected_columns=None,
+               where_clause=None):
+    collection_meta = collection_meta or []
+
+    sql_parts = [selected_columns + where_clause]
+    if order_by_key is True:
+        sql_parts.append(SQL('ORDER BY "id"'))
+    sql_parts.append(SQL(';'))
+    sql = SQL(' ').join(sql_parts)
+
+    with collection.storage.conn.cursor('read', withhold=True) as c:
+        c.execute(sql)
+        logger.debug(c.query.decode())
+        for row in c:
+            text_id = row[0]
+            text_dict = row[1]
+            text = dict_to_text(text_dict, attached_layers)
+            meta = row[2:2+len(collection_meta)]
+            detached_layers = {}
+            if len(row) > 2 + len(collection_meta):
+                for i in range(2 + len(collection_meta), len(row), 2):
+                    layer_id = row[i]
+                    layer_dict = row[i + 1]
+                    layer = dict_to_layer(layer_dict, text, {k: v['layer'] for k, v in detached_layers.items()})
+                    detached_layers[layer.name] = {'layer': layer, 'layer_id': layer_id}
+            result = text_id, text, meta, detached_layers
+            yield result
+    c.close()
