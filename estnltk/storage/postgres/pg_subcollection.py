@@ -8,7 +8,7 @@ class PgSubCollection:
     def __init__(self, collection, layers=None, collection_meta=None, order_by_key=True, progressbar=None,
                  where_clause=None, selected_columns=None):
         self.collection = collection
-        self.default_layers = layers
+        self.selected_layers = layers
         self.collection_meta = collection_meta
         self.order_by_key = order_by_key
         self.progressbar = progressbar
@@ -26,7 +26,7 @@ class PgSubCollection:
             if layer not in layers_extended:
                 layers_extended.append(layer)
 
-        for layer in self.default_layers or []:
+        for layer in self.selected_layers or []:
             if layer not in self.collection.structure:
                 raise pg.PgCollectionException('there is no layer {!r} in the collection {!r}'.format(
                                                layer, self.collection.name))
@@ -53,7 +53,7 @@ class PgSubCollection:
             return self
 
         return PgSubCollection(collection=self.collection,
-                               layers=self.default_layers,
+                               layers=self.selected_layers,
                                collection_meta=self.collection_meta,
                                order_by_key=self.order_by_key,
                                progressbar=self.progressbar,
@@ -74,7 +74,7 @@ class PgSubCollection:
             if layer not in layers_extended:
                 layers_extended.append(layer)
 
-        for layer in self.default_layers or []:
+        for layer in self.selected_layers or []:
             if layer not in self.collection.structure:
                 raise pg.PgCollectionException('there is no layer {!r} in the collection {!r}'.format(
                         layer, self.collection.name))
