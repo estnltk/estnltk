@@ -226,8 +226,7 @@ def build_layer_ngram_query(storage, ngram_query, collection_name):
     return q
 
 
-def build_sql_query(storage,
-                    collection_name,
+def build_sql_query(collection,
                     query=None,
                     layer_query: dict = None,
                     layer_ngram_query: dict = None,
@@ -265,15 +264,13 @@ def build_sql_query(storage,
             print(key, txt)
     """
 
-    selected_columns = pg.SelectedColumns(storage,
-                                          collection_name,
+    selected_columns = pg.SelectedColumns(collection=collection,
                                           layer_query=layer_query,
                                           layer_ngram_query=layer_ngram_query,
                                           layers=layers,
                                           collection_meta=collection_meta)
 
-    where_clause = pg.WhereClause(storage=storage,
-                                  collection_name=collection_name,
+    where_clause = pg.WhereClause(collection=collection,
                                   query=query,
                                   layer_query=layer_query,
                                   layer_ngram_query=layer_ngram_query,
@@ -290,8 +287,7 @@ def build_sql_query(storage,
     return SQL(' ').join(sql_parts)
 
 
-def select_raw(storage,
-               collection_name,
+def select_raw(collection,
                query=None,
                layer_query: dict = None,
                layer_ngram_query: dict = None,
@@ -300,7 +296,9 @@ def select_raw(storage,
                keys: list = None,
                order_by_key: bool = False,
                collection_meta: list = None,
-               missing_layer: str = None):
+               missing_layer: str = None,
+               selected_columns=None,
+               where_clause=None):
     """
     Select from collection table with possible search constraints.
 
@@ -336,18 +334,24 @@ def select_raw(storage,
 
     collection_meta = collection_meta or []
 
-    sql = build_sql_query(storage,
-                          collection_name,
-                          query=query,
-                          layer_query=layer_query,
-                          layer_ngram_query=layer_ngram_query,
-                          layers=detached_layers,
-                          keys=keys,
-                          order_by_key=order_by_key,
-                          collection_meta=collection_meta,
-                          missing_layer=missing_layer)
+    if selected_columns is None and where_clause is None:
+        sql = build_sql_query(collection,
+                              query=query,
+                              layer_query=layer_query,
+                              layer_ngram_query=layer_ngram_query,
+                              layers=detached_layers,
+                              keys=keys,
+                              order_by_key=order_by_key,
+                              collection_meta=collection_meta,
+                              missing_layer=missing_layer)
+    else:
+        sql_parts = [selected_columns + where_clause]
+        if order_by_key is True:
+            sql_parts.append(SQL('ORDER BY "id"'))
+        sql_parts.append(SQL(';'))
+        sql = SQL(' ').join(sql_parts)
 
-    with storage.conn.cursor('read', withhold=True) as c:
+    with collection.storage.conn.cursor('read', withhold=True) as c:
         c.execute(sql)
         logger.debug(c.query.decode())
         for row in c:
