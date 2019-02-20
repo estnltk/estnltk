@@ -14,6 +14,8 @@ def check_if_hfst_is_available():
                     reason="package hfst is required for this test")
 @pytest.mark.skipif(not os.path.exists('analyser-gt-desc.hfstol'),
                     reason="transducer model file is required for this test")
+@pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
+                         "leads to a segfault in other tests that are using vabamorf")
 def test_hfst_gt_morph_analyser_raw_output():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -113,6 +115,8 @@ def test_hfst_gt_morph_analyser_raw_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
+@pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
+                         "leads to a segfault in other tests that are using vabamorf")
 def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -151,6 +155,8 @@ def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
+@pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
+                         "leads to a segfault in other tests that are using vabamorf")
 def test_hfst_gt_morph_analyser_extract_morpheme_features():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -214,6 +220,8 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
                     reason="transducer model file is required for this test")
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
+@pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
+                         "leads to a segfault in other tests that are using vabamorf")
 def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     

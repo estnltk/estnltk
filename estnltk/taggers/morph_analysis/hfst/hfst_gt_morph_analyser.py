@@ -52,7 +52,7 @@ class HfstEstMorphAnalyser(Tagger):
     def __init__(self,
                  output_layer:str='hfst_gt_morph_analysis',
                  input_words_layer:str='words',
-                 output_format:str='raw',
+                 output_format:str='morphemes_lemmas',
                  transducer_file:str=None,
                  transducer:hfst.HfstTransducer=None):
         """Initializes HfstEstMorphAnalyser class.
@@ -65,7 +65,7 @@ class HfstEstMorphAnalyser(Tagger):
         input_words_layer: str (default: 'words')
             Name of the input words layer;
         
-        output_format: str (default: 'raw')
+        output_format: str (default: 'morphemes_lemmas')
             Specifies how the results of the hfst morphological 
             analysis will be formatted in the layer. Possible 
             options:
