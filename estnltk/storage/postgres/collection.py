@@ -3,6 +3,7 @@ import json
 import operator as op
 import pandas
 import re
+from typing import Sequence
 from functools import reduce
 from contextlib import contextmanager
 
@@ -403,17 +404,19 @@ class PgCollection:
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
     def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False,
-               collection_meta: bool = None, progressbar=None, missing_layer: str = None):
-        return pg.PgSubCollection(self,
-                                  query=query,
-                                  layer_query=layer_query,
-                                  layer_ngram_query=layer_ngram_query,
+               collection_meta: Sequence[str] = None, progressbar=None, missing_layer: str = None):
+        if not self.exists():
+            raise PgCollectionException('collection does not exist')
+
+        return pg.PgSubCollection(collection=self,
                                   layers=layers,
-                                  keys=keys,
-                                  order_by_key=order_by_key,
                                   collection_meta=collection_meta,
-                                  progressbar=progressbar,
-                                  missing_layer=missing_layer)
+                                  order_by_key=order_by_key,
+                                  progressbar=progressbar).select(query=query,
+                                                                  layer_query=layer_query,
+                                                                  layer_ngram_query=layer_ngram_query,
+                                                                  keys=keys,
+                                                                  missing_layer=missing_layer)
 
     def __len__(self):
         return count_rows(self.storage, self.name)
@@ -424,14 +427,15 @@ class PgCollection:
             if result:
                 return result[0][1]
             raise KeyError(item)
-        if isinstance(item, tuple) and len(item) == 2:
-            key, layer = item
-            return list(self.select(layers=[layer], keys=[key]))[0][1][layer]
+        if isinstance(item, slice):  # TODO
+            if item.step not in {1, None}:
+                raise NotImplementedError('slicing step not supported: {}'.format(item.step))
+            raise NotImplementedError('slicing not implemented')
+
         raise KeyError(item)
 
     def __iter__(self):
-        for _, text in self.select(layers=self.selected_layers):
-            yield text
+        yield from (text for _, text in self.select(layers=self.selected_layers))
 
     def select_by_key(self, key, return_as_dict=False):
         """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
@@ -1077,7 +1081,6 @@ class PgCollection:
                                                              SQL(', ').join(map(Literal, values))
                                                              ))
         logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, export_table))
-
 
     def _repr_html_(self):
         if self._structure is None:
