@@ -5,16 +5,14 @@ from estnltk.storage import postgres as pg
 
 class WhereClause(Composed):
     def __init__(self,
-                 storage,
-                 collection_name,
+                 collection,
                  query=None,
                  layer_query: dict = None,
                  layer_ngram_query: dict = None,
                  keys: list = None,
                  missing_layer: str = None):
 
-        where = self.where_clause(storage,
-                                  collection_name,
+        where = self.where_clause(collection,
                                   query=query,
                                   layer_query=layer_query,
                                   layer_ngram_query=layer_ngram_query,
@@ -28,15 +26,27 @@ class WhereClause(Composed):
     def __bool__(self):
         return bool(self.seq)
 
+    # TODO
+    @property
+    def required_tables(self):
+        return self.required_layer_tables
+
+    # TODO
+    @property
+    def required_layer_tables(self):
+        return
+
     @staticmethod
-    def where_clause(storage,
-                     collection_name,
+    def where_clause(collection,
                      query=None,
                      layer_query: dict = None,
                      layer_ngram_query: dict = None,
                      keys: list = None,
                      missing_layer: str = None):
         sql_parts = []
+        collection_name = collection.name
+        storage = collection.storage
+
 
         if query is not None:
             # build constraint on the main text table

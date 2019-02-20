@@ -1,4 +1,3 @@
-from itertools import chain
 from psycopg2.sql import Composed, Identifier, SQL
 
 from estnltk.storage import postgres as pg
@@ -6,15 +5,13 @@ from estnltk.storage import postgres as pg
 
 class SelectedColumns(Composed):
     def __init__(self,
-                 storage,
-                 collection_name,
+                 collection,
                  layer_query: dict = None,
                  layer_ngram_query: dict = None,
                  layers: list = None,
                  collection_meta: list = None):
 
-        select_and_join, where_and = self.select_and_join_clause(storage,
-                                                                 collection_name,
+        select_and_join, where_and = self.select_and_join_clause(collection,
                                                                  layer_query=layer_query,
                                                                  layer_ngram_query=layer_ngram_query,
                                                                  layers=layers,
@@ -31,12 +28,14 @@ class SelectedColumns(Composed):
         raise NotImplementedError()
 
     @staticmethod
-    def select_and_join_clause(storage,
-                               collection_name,
+    def select_and_join_clause(collection,
                                layer_query: dict = None,
                                layer_ngram_query: dict = None,
                                layers: list = None,
                                collection_meta: list = None):
+
+        storage = collection.storage
+        collection_name = collection.name
 
         collection_identifier = pg.collection_table_identifier(storage, collection_name)
 
@@ -49,7 +48,7 @@ class SelectedColumns(Composed):
 
         # list columns of selected layers
         layers = layers or []
-        for layer in chain(layers):
+        for layer in layers:
             selected_columns.append(SQL('{}."id"').format(pg.layer_table_identifier(storage, collection_name, layer)))
             selected_columns.append(SQL('{}."data"').format(pg.layer_table_identifier(storage, collection_name, layer)))
         # col__layer1__layer.id, col__layer1__layer.data, ...
@@ -70,8 +69,8 @@ class SelectedColumns(Composed):
         # selected_tables(layers, layer_query, ngram_query)
         # find all layers needed for the where clause
         selected_layers = []
-        for layer in sorted(set(chain(layers, layer_query.keys(), layer_ngram_query.keys()))):
-            layer = SQL("{}").format(pg.layer_table_identifier(storage, collection_name, layer))
+        for layer in sorted(set(layers) | set(layer_query) | set(layer_ngram_query)):
+            layer = pg.layer_table_identifier(storage, collection_name, layer)
             selected_layers.append(layer)
         # col__layer1_layer, col_layer2_layer
 
