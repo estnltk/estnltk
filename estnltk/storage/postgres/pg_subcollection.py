@@ -15,8 +15,7 @@ class PgSubCollection:
         self._where_clause = where_clause
         self._selected_columns = selected_columns
 
-    def select(self, query=None, layer_query=None, layer_ngram_query=None, keys=None,
-               missing_layer: str = None):
+    def select(self, query=None, layer_query=None, layer_ngram_query=None, keys=None, missing_layer: str = None):
         layers_extended = []
 
         def include_dep(layer):
@@ -62,40 +61,6 @@ class PgSubCollection:
                                selected_columns=selected_columns)
 
     def __iter__(self):
-        yield from self._select(layers=self.default_layers)
-
-    #def __getitem__(self, item):
-    #    if isinstance(item, str):
-    #        return self.select(layers=[item])
-    #    if isinstance(item, tuple):
-    #        if not all(isinstance(i, str) for i in item):
-    #            raise KeyError(item)
-    #        return self.select(layers=item)
-    #    if item == slice(None, None, None):
-    #        all_layers = self.collection.get_layer_names()
-    #        return self.select(layers=all_layers)
-    #    if item == []:
-    #        return self.select(layers=item)
-    #
-    #    raise KeyError(item)
-
-    def all(self):
-        layers = self.collection.get_layer_names()
-        return self.select(layers=layers)
-
-    def text(self):
-        pass
-
-    def layers(self, layers: Sequence[str]):
-        return self.select(layers=layers)
-
-    def raw_layer(self):
-        pass
-
-    def raw_fragment(self):
-        pass
-
-    def _select(self, layers):
         if not self.collection.exists():
             raise pg.PgCollectionException('collection does not exist')
 
@@ -109,7 +74,7 @@ class PgSubCollection:
             if layer not in layers_extended:
                 layers_extended.append(layer)
 
-        for layer in layers or []:
+        for layer in self.default_layers or []:
             if layer not in self.collection.structure:
                 raise pg.PgCollectionException('there is no layer {!r} in the collection {!r}'.format(
                         layer, self.collection.name))
@@ -162,3 +127,19 @@ class PgSubCollection:
         for data in iter_data:
             iter_data.set_description('collection_id: {}'.format(data[0]), refresh=False)
             yield data
+
+    def all(self):
+        layers = self.collection.get_layer_names()
+        return self.select(layers=layers)
+
+    def text(self):
+        pass
+
+    def layers(self, layers: Sequence[str]):
+        return self.select(layers=layers)
+
+    def raw_layer(self):
+        pass
+
+    def raw_fragment(self):
+        pass
