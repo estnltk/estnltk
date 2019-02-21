@@ -37,7 +37,10 @@ class PgSubCollection:
     @selected_layers.setter
     def selected_layers(self, value: list):
         self._selected_layers = self.dependent_layers(value)
-        self._detached_layers = [layer for layer in self._selected_layers if self.collection.structure[layer]['detached']]
+        self._attached_layers = [layer for layer in self._selected_layers
+                                 if not self.collection.structure[layer]['detached']]
+        self._detached_layers = [layer for layer in self._selected_layers
+                                 if self.collection.structure[layer]['detached']]
 
     @property
     def sql_query(self):
@@ -156,25 +159,6 @@ class PgSubCollection:
         if not self.collection.exists():
             raise pg.PgCollectionException('collection does not exist')
 
-        layers_extended = []
-
-        def include_dep(layer):
-            if layer is None:
-                return
-            for dep in (self.collection.structure[layer]['parent'], self.collection.structure[layer]['enveloping']):
-                include_dep(dep)
-            if layer not in layers_extended:
-                layers_extended.append(layer)
-
-        for layer in self.selected_layers or []:
-            if layer not in self.collection.structure:
-                raise pg.PgCollectionException('there is no layer {!r} in the collection {!r}'.format(
-                        layer, self.collection.name))
-            include_dep(layer)
-
-        attached_layer_names = [layer for layer in layers_extended if not self.collection.structure[layer]['detached']]
-        detached_layer_names = [layer for layer in layers_extended if self.collection.structure[layer]['detached']]
-
         def data_iterator():
             with self.collection.storage.conn.cursor('read', withhold=True) as c:
                 c.execute(self.sql_query)
@@ -182,7 +166,7 @@ class PgSubCollection:
                 for row in c:
                     text_id = row[0]
                     text_dict = row[1]
-                    text = dict_to_text(text_dict, attached_layer_names)
+                    text = dict_to_text(text_dict, self._attached_layers)
                     meta_list = row[2:2 + len(self.collection_meta)]
                     detached_layers = {}
                     if len(row) > 2 + len(self.collection_meta):
@@ -193,7 +177,7 @@ class PgSubCollection:
                                                   {k: v['layer'] for k, v in detached_layers.items()})
                             detached_layers[layer.name] = {'layer': layer, 'layer_id': layer_id}
 
-                    for layer_name in detached_layer_names:
+                    for layer_name in self._detached_layers:
                         text[layer_name] = detached_layers[layer_name]['layer']
                     if self.collection_meta:
                         meta = {}
