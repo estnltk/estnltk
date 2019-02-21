@@ -1,4 +1,3 @@
-from itertools import chain
 from psycopg2.sql import SQL, Identifier, Literal
 from psycopg2.extensions import STATUS_BEGIN
 
@@ -9,6 +8,7 @@ from estnltk.storage.postgres import structure_table_name
 from estnltk.storage.postgres import collection_table_name
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import fragment_table_name
+from estnltk.storage import postgres as pg
 
 
 pytype2dbtype = {
@@ -226,8 +226,7 @@ def build_layer_ngram_query(storage, ngram_query, collection_name):
     return q
 
 
-def build_sql_query(storage,
-                    collection_name,
+def build_sql_query(collection,
                     query=None,
                     layer_query: dict = None,
                     layer_ngram_query: dict = None,
@@ -238,7 +237,6 @@ def build_sql_query(storage,
                     missing_layer: str = None):
     """
     Select from collection table with possible search constraints.
-
     Args:
         table: str
             collection table
@@ -258,93 +256,38 @@ def build_sql_query(storage,
         missing_layer: str
             name of the layer
             select collection objects for which there is no entry in the table `missing_layer`
-
     Returns:
         iterator of (key, text) pairs
-
     Example:
-
         q = JsonbTextQuery('morph_analysis', lemma='laulma')
         for key, txt in storage.select(table, query=q):
             print(key, txt)
     """
-    # 1. Build query
 
-    where_and = SQL('WHERE')
-    sql_parts = []
-    collection_identifier = collection_table_identifier(storage, collection_name)
-    collection_meta = collection_meta or []
-    collection_columns = [SQL('{}.{}').format(collection_identifier, column_id) for
-                                        column_id in map(Identifier, ['id', 'data', *collection_meta])]
-    if not layers and layer_query is None and layer_ngram_query is None:
-        # select only text table
-        q = SQL("SELECT {} FROM {}").format(SQL(', ').join(collection_columns), collection_identifier)
-        sql_parts.append(q)
-    else:
-        # need to join text and all layer tables
-        layers = layers or []
-        layer_query = layer_query or {}
-        layer_ngram_query = layer_ngram_query or {}
+    selected_columns = pg.SelectedColumns(collection=collection,
+                                          layer_query=layer_query,
+                                          layer_ngram_query=layer_ngram_query,
+                                          layers=layers,
+                                          collection_meta=collection_meta)
 
-        layer_columns = []
-        for layer in chain(layers):
-            layer_columns.append(SQL('{}."id"').format(layer_table_identifier(storage, collection_name, layer)))
-            layer_columns.append(SQL('{}."data"').format(layer_table_identifier(storage, collection_name, layer)))
+    where_clause = pg.WhereClause(collection=collection,
+                                  query=query,
+                                  layer_query=layer_query,
+                                  layer_ngram_query=layer_ngram_query,
+                                  keys=keys,
+                                  missing_layer=missing_layer)
 
-        layers_join = []
-        for layer in sorted(set(chain(layers, layer_query.keys(), layer_ngram_query.keys()))):
-            layer = SQL("{}").format(layer_table_identifier(storage, collection_name, layer))
-            layers_join.append(layer)
-
-        q = SQL('SELECT {columns} FROM {tables} WHERE {condition}').format(
-                columns=SQL(', ').join(collection_columns + layer_columns),
-                tables=SQL(", ").join([collection_identifier, *layers_join]),
-                condition=SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(
-                                                collection_identifier, layer) for layer in layers_join))
-        sql_parts.append(q)
-        where_and = SQL('AND')
-
-    if query is not None:
-        # build constraint on the main text table
-        sql_parts.append(where_and)
-        sql_parts.append(query.eval(storage, collection_name))
-        where_and = SQL('AND')
-    if layer_query:
-        # build constraint on related layer tables
-        q = SQL(" AND ").join(query.eval(storage, collection_name) for layer, query in layer_query.items())
-        sql_parts.append(where_and)
-        sql_parts.append(q)
-        where_and = SQL('AND')
-    if keys is not None:
-        # build constraint on id-s
-        sql_parts.append(where_and)
-        _keys = Literal(list(keys))
-        sql_parts.append(SQL('{table}."id" = ANY({keys})').format(table=collection_identifier, keys=_keys))
-        where_and = SQL('AND')
-    if layer_ngram_query:
-        # build constraint on related layer's ngram index
-        sql_parts.append(where_and)
-        sql_parts.append(build_layer_ngram_query(storage, layer_ngram_query, collection_name))
-        where_and = SQL('AND')
-    if missing_layer:
-        # select collection objects for which there is no entry in the layer table
-        sql_parts.append(where_and)
-        q = SQL('"id" NOT IN (SELECT "text_id" FROM {})'
-                ).format(layer_table_identifier(storage, collection_name, missing_layer))
-        sql_parts.append(q)
-        where_and = SQL('AND')
+    sql_parts = [selected_columns + where_clause]
 
     if order_by_key is True:
         sql_parts.append(SQL('ORDER BY "id"'))
 
     sql_parts.append(SQL(';'))
 
-    sql = SQL(" ").join(sql_parts)
-    return sql
+    return SQL(' ').join(sql_parts)
 
 
-def select_raw(storage,
-               collection_name,
+def select_raw(collection,
                query=None,
                layer_query: dict = None,
                layer_ngram_query: dict = None,
@@ -353,7 +296,9 @@ def select_raw(storage,
                keys: list = None,
                order_by_key: bool = False,
                collection_meta: list = None,
-               missing_layer: str = None):
+               missing_layer: str = None,
+               selected_columns=None,
+               where_clause=None):
     """
     Select from collection table with possible search constraints.
 
@@ -389,18 +334,24 @@ def select_raw(storage,
 
     collection_meta = collection_meta or []
 
-    sql = build_sql_query(storage,
-                          collection_name,
-                          query=query,
-                          layer_query=layer_query,
-                          layer_ngram_query=layer_ngram_query,
-                          layers=detached_layers,
-                          keys=keys,
-                          order_by_key=order_by_key,
-                          collection_meta=collection_meta,
-                          missing_layer=missing_layer)
+    if selected_columns is None and where_clause is None:
+        sql = build_sql_query(collection,
+                              query=query,
+                              layer_query=layer_query,
+                              layer_ngram_query=layer_ngram_query,
+                              layers=detached_layers,
+                              keys=keys,
+                              order_by_key=order_by_key,
+                              collection_meta=collection_meta,
+                              missing_layer=missing_layer)
+    else:
+        sql_parts = [selected_columns + where_clause]
+        if order_by_key is True:
+            sql_parts.append(SQL('ORDER BY "id"'))
+        sql_parts.append(SQL(';'))
+        sql = SQL(' ').join(sql_parts)
 
-    with storage.conn.cursor('read', withhold=True) as c:
+    with collection.storage.conn.cursor('read', withhold=True) as c:
         c.execute(sql)
         logger.debug(c.query.decode())
         for row in c:

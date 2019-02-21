@@ -64,6 +64,9 @@ from .pg_operations import select_raw
 
 from .pg_operations import count_rows
 
+from .where_clause import WhereClause
+from .selected_columns import SelectedColumns
+
 from .jsonb_layer_query import JsonbLayerQuery
 from .jsonb_text_query import JsonbTextQuery
 
@@ -73,7 +76,7 @@ from .collection import PgCollectionException
 
 from .pgpass_parsing import parse_pgpass
 
-from .iterators import PgSubCollection
+from .pg_subcollection import PgSubCollection
 
 from .storage import PgStorageException
 from .storage import PostgresStorage

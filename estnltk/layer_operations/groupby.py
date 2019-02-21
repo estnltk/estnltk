@@ -35,8 +35,12 @@ class GroupBy:
     def count(self):
         return {k: len(v) for k, v in self._groups.items()}
 
-    def aggregate(self):
-        pass
+    def aggregate(self, func: callable, combiner: callable = None):
+        if combiner is None:
+            def combiner(spans):
+                return spans
+
+        return combiner({key: func(value) for key, value in self._groups.items()})
 
     def __iter__(self):
         yield from ((key, self._groups[key]) for key in sorted(self._groups))
