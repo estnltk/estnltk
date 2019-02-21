@@ -13,7 +13,7 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
     syntax = Layer(name=syntax_layer,
                    text_object=text,
                    attributes=['id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps',
-                               'misc', 'parent_span', 'children'],
+                               'misc', 'parent_span', 'children', 'parent_deprel'],
                    ambiguous=False,
                    )
 
@@ -25,7 +25,7 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
         for sentence in parse_incr(data_file):
             id_to_span = {}
             id_to_children = defaultdict(list)
-
+            id_to_deprel = {}
             for w in sentence:
                 token = w['form']
 
@@ -41,7 +41,9 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
 
                 w['head'] = w['head']
                 w['parent_span'] = None
+                w['parent_deprel'] = None
                 id_to_span[w['id']] = span
+                id_to_deprel[w['id']] = w['deprel']
                 id_to_children[w['head']].append(w['id'])
 
                 syntax.add_annotation(span, **w)
@@ -51,7 +53,7 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
                 span = syntax[index]
                 span.parent_span = id_to_span.get(span.head)
                 span.children = tuple(id_to_span[c_id] for c_id in id_to_children[span.id])
-
+                span.parent_deprel = id_to_deprel.get(span.head)
             sentence_start = len(syntax)
 
     text[syntax_layer] = syntax
@@ -71,7 +73,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
     syntax = Layer(name=syntax_layer,
                    text_object=text,
                    attributes=['id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps',
-                               'misc', 'parent_span', 'children'],
+                               'misc', 'parent_span', 'children', 'parent_deprel'],
                    ambiguous=False,
                    )
     cur = 0
@@ -83,6 +85,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
 
         for sentence in parse_incr(data_file):
             id_to_span = {}
+            id_to_deprel = {}
             id_to_children = defaultdict(list)
 
             for w in sentence:
@@ -94,7 +97,9 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
 
                 w['head'] = w['head']
                 w['parent_span'] = None
+                w['parent_deprel'] = None
                 id_to_span[w['id']] = span
+                id_to_deprel[w['id']] = w['deprel']
                 id_to_children[w['head']].append(w['id'])
 
                 syntax.add_annotation(span, **w)
@@ -103,6 +108,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
             for index in range(sentence_start, len(syntax)):
                 span = syntax[index]
                 span.parent_span = id_to_span.get(span.head)
+                span.parent_deprel = id_to_deprel.get(span.head)
                 span.children = tuple(id_to_span[c_id] for c_id in id_to_children[span.id])
 
             sentence_start += len(sentence)
