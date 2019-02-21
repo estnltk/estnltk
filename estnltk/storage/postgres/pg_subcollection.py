@@ -8,7 +8,7 @@ from estnltk.storage import postgres as pg
 
 
 class PgSubCollection:
-    def __init__(self, collection, layers=None, collection_meta=None, order_by_key=True, progressbar=None,
+    def __init__(self, collection, layers=None, collection_meta=(), order_by_key=True, progressbar=None,
                  where_clause=None, selected_columns=None, query=None, layer_query=None, layer_ngram_query=None,
                  keys=None, missing_layer=None):
         self.collection = collection
@@ -41,18 +41,50 @@ class PgSubCollection:
 
     @property
     def sql_query(self):
-        selected_columns = pg.SelectedColumns(collection=self.collection,
-                                              layer_query=self.layer_query,
-                                              layer_ngram_query=self.layer_ngram_query,
-                                              layers=self._detached_layers,
-                                              collection_meta=self.collection_meta)
+        """Returns sql select statement definig subcollection."""
 
-        sql_parts = [selected_columns + self._where_clause]
-        if self.order_by_key is True:
-            sql_parts.append(SQL('ORDER BY "id"'))
-        sql_parts.append(SQL(';'))
-        sql = SQL(' ').join(sql_parts)
-        return sql
+        selected_columns = pg.SelectedColumns_2(collection=self.collection,
+                                                layers=self._detached_layers,
+                                                collection_meta=self.collection_meta)
+        # tables to join
+        collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
+
+        required_layers = sorted(set(self._detached_layers + self._where_clause.required_layers))
+
+        # no restrictions
+        if not required_layers and not self._where_clause.seq:
+            return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
+
+        # no restrictions based on detached layers
+        if not required_layers:
+            return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                            collection_identifier,
+                                                            self._where_clause)
+
+        # complex restrictions
+        required_tables = [collection_identifier]
+        for layer in required_layers:
+            required_tables.append(pg.layer_table_identifier(self.collection.storage, self.collection.name, layer))
+        required_tables = SQL(', ').join(required_tables)
+
+        join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(
+                                               collection_identifier,
+                pg.layer_table_identifier(self.collection.storage, self.collection.name, layer))
+                                           for layer in required_layers)
+        print(required_layers)
+        print(self._where_clause.seq)
+        if self._where_clause:
+            return SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
+                                                                   required_tables,
+                                                                   join_condition,
+                                                                   self._where_clause)
+        return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                               required_tables,
+                                                               join_condition)
+
+    @property
+    def sql_query_text(self):
+        return self.sql_query.as_string(self.collection.storage.conn)
 
     def dependent_layers(self, selected_layers):
         """Returns all layers that depend on selected layers including selected layers."""
@@ -144,22 +176,33 @@ class PgSubCollection:
         detached_layer_names = [layer for layer in layers_extended if self.collection.structure[layer]['detached']]
 
         def data_iterator():
-            for row in self.select_raw(collection=self.collection,
-                                       attached_layers=attached_layer_names,
-                                       order_by_key=self.order_by_key,
-                                       collection_meta=self.collection_meta,
-                                       selected_columns=self._selected_columns,
-                                       where_clause=self._where_clause):
-                text_id, text, meta_list, detached_layers = row
-                for layer_name in detached_layer_names:
-                    text[layer_name] = detached_layers[layer_name]['layer']
-                if self.collection_meta:
-                    meta = {}
-                    for meta_name, meta_value in zip(self.collection_meta, meta_list):
-                        meta[meta_name] = meta_value
-                    yield text_id, text, meta
-                else:
-                    yield text_id, text
+            with self.collection.storage.conn.cursor('read', withhold=True) as c:
+                c.execute(self.sql_query)
+                logger.debug(c.query.decode())
+                for row in c:
+                    text_id = row[0]
+                    text_dict = row[1]
+                    text = dict_to_text(text_dict, attached_layer_names)
+                    meta_list = row[2:2 + len(self.collection_meta)]
+                    detached_layers = {}
+                    if len(row) > 2 + len(self.collection_meta):
+                        for i in range(2 + len(self.collection_meta), len(row), 2):
+                            layer_id = row[i]
+                            layer_dict = row[i + 1]
+                            layer = dict_to_layer(layer_dict, text,
+                                                  {k: v['layer'] for k, v in detached_layers.items()})
+                            detached_layers[layer.name] = {'layer': layer, 'layer_id': layer_id}
+
+                    for layer_name in detached_layer_names:
+                        text[layer_name] = detached_layers[layer_name]['layer']
+                    if self.collection_meta:
+                        meta = {}
+                        for meta_name, meta_value in zip(self.collection_meta, meta_list):
+                            meta[meta_name] = meta_value
+                        yield text_id, text, meta
+                    else:
+                        yield text_id, text
+            c.close()
 
         if self.progressbar not in {'ascii', 'unicode', 'notebook'}:
             yield from data_iterator()
@@ -203,37 +246,3 @@ class PgSubCollection:
 
     def raw_fragment(self):
         pass
-
-    def select_raw(self,
-                   collection,
-                   attached_layers=None,
-                   order_by_key: bool = False,
-                   collection_meta: list = None,
-                   selected_columns=None,
-                   where_clause=None):
-        collection_meta = collection_meta or []
-
-        sql_parts = [selected_columns + where_clause]
-        if order_by_key is True:
-            sql_parts.append(SQL('ORDER BY "id"'))
-        sql_parts.append(SQL(';'))
-        sql = SQL(' ').join(sql_parts)
-
-        with collection.storage.conn.cursor('read', withhold=True) as c:
-            c.execute(sql)
-            logger.debug(c.query.decode())
-            for row in c:
-                text_id = row[0]
-                text_dict = row[1]
-                text = dict_to_text(text_dict, attached_layers)
-                meta = row[2:2+len(collection_meta)]
-                detached_layers = {}
-                if len(row) > 2 + len(collection_meta):
-                    for i in range(2 + len(collection_meta), len(row), 2):
-                        layer_id = row[i]
-                        layer_dict = row[i + 1]
-                        layer = dict_to_layer(layer_dict, text, {k: v['layer'] for k, v in detached_layers.items()})
-                        detached_layers[layer.name] = {'layer': layer, 'layer_id': layer_id}
-                result = text_id, text, meta, detached_layers
-                yield result
-        c.close()

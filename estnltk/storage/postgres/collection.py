@@ -404,7 +404,7 @@ class PgCollection:
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
     def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False,
-               collection_meta: Sequence[str] = None, progressbar=None, missing_layer: str = None):
+               collection_meta: Sequence[str] = (), progressbar=None, missing_layer: str = None):
         if not self.exists():
             raise PgCollectionException('collection does not exist')
 
