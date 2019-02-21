@@ -88,3 +88,32 @@ class SelectedColumns(Composed):
         where_and = SQL('AND')
 
         return select, where_and
+
+
+class SelectedColumns_2(Composed):
+    def __init__(self,
+                 collection,
+                 layers: list = (),
+                 collection_meta: list = ()):
+
+        self._layers = layers
+
+        storage = collection.storage
+        collection_name = collection.name
+
+        collection_identifier = pg.collection_table_identifier(storage, collection_name)
+
+        # List columns of main collection table.
+        selected_columns = [SQL('{}.{}').format(collection_identifier, column_id) for
+                            column_id in map(Identifier, ['id', 'data', *collection_meta])]
+
+        # List columns of selected layers.
+        for layer in layers:
+            selected_columns.append(SQL('{}."id"').format(pg.layer_table_identifier(storage, collection_name, layer)))
+            selected_columns.append(SQL('{}."data"').format(pg.layer_table_identifier(storage, collection_name, layer)))
+
+        super().__init__(selected_columns)
+
+    @property
+    def required_layers(self):
+        return self._layers

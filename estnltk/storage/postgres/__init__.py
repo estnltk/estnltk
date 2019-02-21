@@ -66,6 +66,7 @@ from .pg_operations import count_rows
 
 from .where_clause import WhereClause
 from .selected_columns import SelectedColumns
+from .selected_columns import SelectedColumns_2
 
 from .jsonb_layer_query import JsonbLayerQuery
 from .jsonb_text_query import JsonbTextQuery
