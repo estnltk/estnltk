@@ -23,13 +23,16 @@ class WhereClause(Composed):
         else:
             super().__init__([])
 
+        # We omit layers inside a Text object.
+        self._required_layers = sorted(set(layer_query or []) | set(layer_ngram_query or []))
+        self.collection = collection
+
     def __bool__(self):
         return bool(self.seq)
 
-    # TODO
     @property
-    def required_tables(self):
-        return self.required_layer_tables
+    def required_layers(self):
+        return self._required_layers
 
     # TODO
     @property
