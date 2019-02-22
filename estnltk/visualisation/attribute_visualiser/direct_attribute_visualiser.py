@@ -1,5 +1,6 @@
 from estnltk.visualisation.core.span_visualiser import SpanVisualiser
 from estnltk.core import rel_path
+import html
 class DirectAttributeVisualiser(SpanVisualiser):
     """Attribute visualiser that maps css elements one by one to the segment and has javascript to display
     attributes in tables. Takes css_file as argument (path to the file) and the same css elements as in
@@ -26,6 +27,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
         self.class_mapping = self.default_class_mapper
 
     def __call__(self, segment):
+        segment[0] = html.escape(segment[0])
 
         output=''
 

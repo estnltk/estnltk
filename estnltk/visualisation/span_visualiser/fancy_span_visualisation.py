@@ -1,6 +1,7 @@
 from IPython.display import display_html
 from estnltk.visualisation.span_visualiser.direct_plain_span_visualiser import DirectPlainSpanVisualiser
 from estnltk.visualisation.span_visualiser.indirect_plain_span_visualiser import IndirectPlainSpanVisualiser
+from estnltk.visualisation.span_visualiser.plain_span_visualiser import PlainSpanVisualiser
 from estnltk.visualisation.core.prettyprinter import decompose_to_elementary_spans
 from estnltk.core import rel_path
 
@@ -19,6 +20,8 @@ class DisplaySpans:
             self.span_decorator = DirectPlainSpanVisualiser(**kwargs)
         elif self.styling == "indirect":
             self.span_decorator = IndirectPlainSpanVisualiser(**kwargs)
+        elif self.styling == "both":
+            self.span_decorator = PlainSpanVisualiser(**kwargs)
         else:
             raise ValueError(styling)
         display_html(self.css())
@@ -37,8 +40,7 @@ class DisplaySpans:
         if self.styling == "indirect":
             outputs.append(self.css())
         for segment in segments:
-            segment[0] = segment[0].replace("\n","<br>")
-            outputs.append(self.span_decorator(segment))
+            outputs.append(self.span_decorator(segment).replace("\n","<br>"))
 
         return "".join(outputs)
 

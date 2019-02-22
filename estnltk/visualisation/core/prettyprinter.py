@@ -1,4 +1,5 @@
 from typing import List
+import html
 
 
 def decompose_to_elementary_spans(layer, text) -> List:

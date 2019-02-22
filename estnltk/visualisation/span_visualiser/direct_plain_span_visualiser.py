@@ -1,6 +1,5 @@
 from estnltk.visualisation.core.span_visualiser import SpanVisualiser
-from estnltk.core import rel_path
-from IPython.display import display_html
+import html
 
 
 class DirectPlainSpanVisualiser(SpanVisualiser):
@@ -25,6 +24,8 @@ class DirectPlainSpanVisualiser(SpanVisualiser):
         self.fill_empty_spans = fill_empty_spans
 
     def __call__(self, segment):
+
+        segment[0] = html.escape(segment[0])
 
         # Simple text no span to fill
         if not self.fill_empty_spans and self.is_pure_text(segment):

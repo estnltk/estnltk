@@ -17,8 +17,7 @@ class DisplayAttributes:
 
         outputs = []
         for segment in segments:
-            segment[0] = segment[0].replace("\n", "<br>")
-            outputs.append(self.span_decorator(segment))
+            outputs.append(self.span_decorator(segment).replace("\n", "<br>"))
 
         self.span_decorator.css_added=False
         self.span_decorator.js_added=False
