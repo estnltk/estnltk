@@ -34,10 +34,10 @@ class WhereClause(Composed):
     def required_layers(self):
         return self._required_layers
 
-    # TODO
-    @property
-    def required_layer_tables(self):
-        return
+    def __and__(self, other):
+        assert self.collection is other.collection
+        # TODO
+        raise NotImplementedError
 
     @staticmethod
     def where_clause(collection,

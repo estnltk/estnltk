@@ -1,4 +1,3 @@
-from typing import Sequence
 from tqdm import tqdm, tqdm_notebook
 from psycopg2.sql import SQL
 
@@ -21,30 +20,18 @@ class PgSubCollection:
     ISSUES: How one specifies layer meta attributes? Do they come automatically
     """
 
-    # TODO: final signature __init__(self, collection, selection_criterion, selected_layers, meta_attibutes)
-    # TODO: Check that collection exists
-    def __init__(self, collection, layers=None, collection_meta=(), order_by_key=True, progressbar=None,
-                 where_clause=None, selected_columns=None, query=None, layer_query=None, layer_ngram_query=None,
-                 keys=None, missing_layer=None):
+    def __init__(self, collection, selection_criterion=None, selected_layers=None, meta_attributes=(),
+                 progressbar=None, return_index=False):
+
+        if not collection.exists():
+            raise pg.PgCollectionException('collection does not exist')
 
         self.collection = collection
-        self.selected_layers = layers or []
-        self.collection_meta = collection_meta
-        self.order_by_key = order_by_key
+        self._selection_criterion = selection_criterion
+        self.selected_layers = selected_layers or []
+        self.meta_attributes = meta_attributes
         self.progressbar = progressbar
-        self._where_clause = where_clause
-        self.layer_query = layer_query
-        self.layer_ngram_query = layer_ngram_query
-        if where_clause is None:
-            self._where_clause = pg.WhereClause(collection=self.collection,
-                                                query=query,
-                                                layer_query=layer_query,
-                                                layer_ngram_query=layer_ngram_query,
-                                                keys=keys,
-                                                missing_layer=missing_layer)
-        self.selected_layers = layers or []
-
-        self._selected_columns = selected_columns
+        self.return_index = return_index
 
     @property
     def selected_layers(self):
@@ -70,20 +57,20 @@ class PgSubCollection:
 
         selected_columns = pg.SelectedColumns_2(collection=self.collection,
                                                 layers=self._detached_layers,
-                                                collection_meta=self.collection_meta)
+                                                collection_meta=self.meta_attributes)
 
-        required_layers = sorted(set(self._detached_layers + self._where_clause.required_layers))
+        required_layers = sorted(set(self._detached_layers + self._selection_criterion.required_layers))
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
         # Required layers are part of the main collection
         if not required_layers:
-            if not self._where_clause.seq:
+            if not self._selection_criterion.seq:
                 return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
 
             else:
                 return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                            collection_identifier,
-                                                            self._where_clause)
+                                                                collection_identifier,
+                                                                self._selection_criterion)
 
         # There are detached layers among required layers
         # TODO: Simplify code by defining requred_layer_tables instead of required_tables
@@ -98,11 +85,7 @@ class PgSubCollection:
                 pg.layer_table_identifier(self.collection.storage, self.collection.name, layer))
                                            for layer in required_layers)
 
-        #TODO: Remove prints
-        print(required_layers)
-        print(self._where_clause.seq)
-
-        if not self._where_clause.seq:
+        if not self._selection_criterion.seq:
             return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
                                                                            required_tables,
                                                                            join_condition)
@@ -110,7 +93,7 @@ class PgSubCollection:
             return SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
                                                                    required_tables,
                                                                    join_condition,
-                                                                   self._where_clause)
+                                                                   self._selection_criterion)
 
     @property
     def sql_query_text(self):
@@ -159,7 +142,8 @@ class PgSubCollection:
         return layers_extended
 
     #TODO: final signature select(self, additional_constraint, selected_layers) 
-    def select(self, query=None, layer_query=None, layer_ngram_query=None, keys=None, missing_layer: str = None):
+    def select(self, additional_constraint=None, selected_layers=None,
+               query=None, layer_query=None, layer_ngram_query=None, keys=None, missing_layer: str = None):
 
         #TODO: Remove dead code
 
@@ -184,38 +168,36 @@ class PgSubCollection:
         #TODO: Replace with self._detached_layers
         detached_layer_names = [layer for layer in layers_extended if self.collection.structure[layer]['detached']]
 
-        #TODO: Rename where_clause --> additional_constraint
-        where_clause = pg.WhereClause(collection=self.collection,
-                                      query=query,
-                                      layer_query=layer_query,
-                                      layer_ngram_query=layer_ngram_query,
-                                      keys=keys,
-                                      missing_layer=missing_layer)
+        additional_constraint = pg.WhereClause(collection=self.collection,
+                                               query=query,
+                                               layer_query=layer_query,
+                                               layer_ngram_query=layer_ngram_query,
+                                               keys=keys,
+                                               missing_layer=missing_layer)
 
         #---DEAD-CODE-----
         selected_columns = pg.SelectedColumns(collection=self.collection,
                                               layer_query=layer_query,
                                               layer_ngram_query=layer_ngram_query,
                                               layers=detached_layer_names,
-                                              collection_meta=self.collection_meta)
+                                              collection_meta=self.meta_attributes)
         #---DEAD-CODE-----
 
         #TODO:
         #if not additional_constraint.seq: return self
-        if self._where_clause is None and self._selected_columns is None:
-            self._where_clause = where_clause
+        if self._selection_criterion is None and self._selected_columns is None:
+            self._selection_criterion = additional_constraint
             self._selected_columns = selected_columns
             return self
 
         #TODO add the constraint to the where_clause
         # return PgSubCollection(collection, self._where_clause & additional_constraint, self.selected_layers)
         return PgSubCollection(collection=self.collection,
-                               layers=self.selected_layers,
-                               collection_meta=self.collection_meta,
-                               order_by_key=self.order_by_key,
+                               selection_criterion=self._selection_criterion & additional_constraint,
+                               selected_layers=self.selected_layers.copy(),
+                               meta_attributes=self.meta_attributes,
                                progressbar=self.progressbar,
-                               where_clause=where_clause,
-                               selected_columns=selected_columns)
+                               )
 
     def __iter__(self):
         """
@@ -235,10 +217,10 @@ class PgSubCollection:
                     text_id = row[0]
                     text_dict = row[1]
                     text = dict_to_text(text_dict, self._attached_layers)
-                    meta_list = row[2:2 + len(self.collection_meta)]
+                    meta_list = row[2:2 + len(self.meta_attributes)]
                     detached_layers = {}
-                    if len(row) > 2 + len(self.collection_meta):
-                        for i in range(2 + len(self.collection_meta), len(row), 2):
+                    if len(row) > 2 + len(self.meta_attributes):
+                        for i in range(2 + len(self.meta_attributes), len(row), 2):
                             layer_id = row[i]
                             layer_dict = row[i + 1]
                             layer = dict_to_layer(layer_dict, text,
@@ -247,9 +229,9 @@ class PgSubCollection:
 
                     for layer_name in self._detached_layers:
                         text[layer_name] = detached_layers[layer_name]['layer']
-                    if self.collection_meta:
+                    if self.meta_attributes:
                         meta = {}
-                        for meta_name, meta_value in zip(self.collection_meta, meta_list):
+                        for meta_name, meta_value in zip(self.meta_attributes, meta_list):
                             meta[meta_name] = meta_value
                         yield text_id, text, meta
                     else:
@@ -285,19 +267,10 @@ class PgSubCollection:
             iter_data.set_description('collection_id: {}'.format(data[0]), refresh=False)
             yield data
 
-    #TODO: Rename this function select_all()
     #Make sure that it calls self.select_layers = all_layers
     #TODO define property all_layers
-    def all(self):
+    def select_all(self):
         layers = self.collection.get_layer_names()
-        return self.select(layers=layers)
-
-    #TODO: Remove as this can be achieved with selected_layers = []
-    def text(self):
-        pass
-
-    #TODO: Remove this. It is obsolete 
-    def layers(self, layers: Sequence[str]):
         return self.select(layers=layers)
 
     def raw_layer(self):

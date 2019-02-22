@@ -408,15 +408,19 @@ class PgCollection:
         if not self.exists():
             raise PgCollectionException('collection does not exist')
 
+        where_clause = pg.WhereClause(collection=self,
+                                      query=query,
+                                      layer_query=layer_query,
+                                      layer_ngram_query=layer_ngram_query,
+                                      keys=keys,
+                                      missing_layer=missing_layer)
+
         return pg.PgSubCollection(collection=self,
-                                  layers=layers,
-                                  collection_meta=collection_meta,
-                                  order_by_key=order_by_key,
-                                  progressbar=progressbar).select(query=query,
-                                                                  layer_query=layer_query,
-                                                                  layer_ngram_query=layer_ngram_query,
-                                                                  keys=keys,
-                                                                  missing_layer=missing_layer)
+                                  selection_criterion=where_clause,
+                                  selected_layers=layers,
+                                  meta_attributes=collection_meta,
+                                  progressbar=progressbar
+                                  )
 
     def __len__(self):
         return count_rows(self.storage, self.name)
