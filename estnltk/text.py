@@ -79,6 +79,14 @@ class Text:
     def text(self):
         return self._text
 
+    @text.setter
+    def text(self, t):
+        if self._text is not None:
+            raise AttributeError('raw text has already been set')
+        if not isinstance(t, str):
+            raise TypeError('')
+        self._text = t
+
     def setup_structure(self):
         return self._setup_structure()
 
