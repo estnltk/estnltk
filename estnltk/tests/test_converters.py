@@ -1,8 +1,9 @@
-from estnltk import Text, Layer
+from estnltk import Span, Layer, Text
 from estnltk.converters import export_CG3
 from estnltk.converters import text_to_dict, dict_to_text
 from estnltk.converters import text_to_json, json_to_text
 from estnltk.converters import export_TCF, import_TCF
+from estnltk.converters import annotation_to_json, json_to_annotation
 from estnltk.tests import new_text
 
 
@@ -105,6 +106,16 @@ def test_json_export_import():
 
     text_list = [text, Text(''), Text(T_1), Text(T_2)]
     assert text_list == json_to_text(text_to_json(text_list))
+
+
+def test_annotation_json_export_import():
+    layer = Layer('my_layer', attributes=['attr', 'attr_0'])
+    span = Span(0, 1, layer=layer)
+
+    annotation = new_text(5).layer_0[0][0]
+
+    a = json_to_annotation(span, annotation_to_json(annotation))
+    assert a == annotation
 
 
 def test_TCF_export_import():

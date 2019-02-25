@@ -1,12 +1,26 @@
 from typing import Union, Sequence, List, Container
 
-from estnltk.text import Text, Layer, Span, EnvelopingSpan
+from estnltk.text import Text
+from estnltk.layer.layer import Layer
+from estnltk.layer.span import Span
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.annotation import Annotation
 
 
 def list_to_tuple(value):
     if isinstance(value, list):
         return tuple(value)
     return value
+
+
+def _dict_to_annotation(span, annotation_dict: dict):
+    return Annotation(span, **annotation_dict)
+
+
+def dict_to_annotation(d: Union[dict, Sequence[dict]], span) -> Union[Annotation, List[Annotation]]:
+    if isinstance(d, Sequence):
+        return [_dict_to_annotation(span, ad) for ad in d]
+    return _dict_to_annotation(span, d)
 
 
 def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
