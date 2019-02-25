@@ -568,7 +568,7 @@ class Layer:
         return len(self.span_list)
 
     def __str__(self):
-        return 'Layer(name={self.name}, spans={self.span_list})'.format(self=self)
+        return 'Layer(name={self.name!r}, attributes={self.attributes}, spans={self.span_list})'.format(self=self)
 
     def metadata(self):
         """
@@ -645,7 +645,9 @@ class Layer:
             attributes.extend(['start', 'end'])
         attributes.extend(self.attributes)
         table_1 = self.metadata().to_html(index=False, escape=False)
-        table_2 = self.attribute_list(attributes).to_html(index='text')
+        table_2 = ''
+        if attributes:
+            table_2 = self.attribute_list(attributes).to_html(index='text')
         return '\n'.join(('<h4>Layer</h4>', table_1, table_2))
 
     def __repr__(self):

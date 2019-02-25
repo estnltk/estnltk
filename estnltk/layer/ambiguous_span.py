@@ -159,7 +159,7 @@ class AmbiguousSpan(collections.Sequence):
             else:
                 rec['text'] = ''
         df = pd.DataFrame.from_records(records, columns=('text', 'start', 'end')+self.layer.attributes)
-        return df.to_html(escape=False, justify='left', index=False)
+        return '<b>{}</b>\n{}'.format(self.__class__.__name__, df.to_html(escape=False, justify='left', index=False))
 
     def display(self, margin: int=0):
         display_html(self._to_html(margin), raw=True)
