@@ -5,7 +5,7 @@ from estnltk.layer.annotation import Annotation
 
 
 class Span:
-    def __init__(self, start: int=None, end: int=None, parent=None, *,
+    def __init__(self, start: int = None, end: int = None, parent=None, *,
                  layer=None, text_object=None, legal_attributes=None, **attributes) -> None:
 
         # this is set up first, because attribute access depends on knowing attribute names as early as possible
@@ -220,11 +220,9 @@ class Span:
         if self._text_object is not None:
             return 'Span(start={self.start}, end={self.end}, text={self.text!r})'.format(self=self)
         if self.layer is None:
-            return 'Span(start={self.start}, end={self.end}, layer={self.layer}, parent={self.parent})'.\
-                format(self=self)
+            return 'Span(start={self.start}, end={self.end}, layer={self.layer})'.format(self=self)
         if self.layer.text_object is None:
-            return 'Span(start={self.start}, end={self.end}, layer_name={self.layer.name}, parent={self.parent})'.\
-                format(self=self)
+            return 'Span(start={self.start}, end={self.end}, layer={self.layer.name})'.format(self=self)
 
         legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
 
