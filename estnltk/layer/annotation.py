@@ -2,11 +2,10 @@ from typing import MutableMapping, Any, Sequence
 
 
 class Annotation:
-    def __init__(self, span) -> None:
-
+    def __init__(self, span, **kwargs):
         self._span = span
-
-        self.layer = span.layer
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
@@ -37,8 +36,13 @@ class Annotation:
         return self._span
 
     @property
+    def layer(self):
+        return self._span.layer
+
+    @property
     def text(self):
-        return self.layer.text_object.text[self.start:self.end]
+        if self.span.layer.text_object:
+            return self.layer.text_object.text[self.start:self.end]
 
     # TODO: remove
     @property
@@ -71,19 +75,11 @@ class Annotation:
         return hash((self.start, self.end))
 
     def __str__(self):
-        if self.layer is None:
-            return 'Annotation(start={self.start}, end={self.end}, layer={self.layer}, parent={self.parent})'.\
-                format(self=self)
-        if self.layer.text_object is None:
-            return 'Annotation(start={self.start}, end={self.end}, layer_name={self.layer.name}, parent={self.parent})'.\
-                format(self=self)
-        legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
-
         # Output key-value pairs in a sorted way
         # (to assure a consistent output, e.g. for automated testing)
         mapping_sorted = []
 
-        for k in sorted(legal_attribute_names):
+        for k in sorted(self.legal_attribute_names):
             key_value_str = "{key_val}".format(key_val = {k:self.__getattribute__(k)})
             # Hack: Remove surrounding '{' and '}'
             key_value_str = key_value_str[:-1]
