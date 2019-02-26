@@ -80,7 +80,7 @@ class WhereClause(Composed):
                     keys=Literal(list(keys))))
         if layer_ngram_query:
             # build constraint on related layer's ngram index
-            sql_parts.append(pg.build_layer_ngram_query(storage, layer_ngram_query, collection_name))
+            sql_parts.append(pg.build_layer_ngram_query(storage, collection_name, layer_ngram_query))
         if missing_layer:
             # select collection objects for which there is no entry in the layer table
             q = SQL('"id" NOT IN (SELECT "text_id" FROM {})'

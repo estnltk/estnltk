@@ -19,6 +19,9 @@ pytype2dbtype = {
 }
 
 
+# PostgresStorage operations #
+
+
 def create_schema(storage):
     with storage.conn.cursor() as c:
         c.execute(SQL("CREATE SCHEMA {};").format(Identifier(storage.schema)))
@@ -35,6 +38,37 @@ def table_identifier(storage, table_name):
     if storage.temporary:
         return identifier
     return SQL('{}.{}').format(Identifier(storage.schema), identifier)
+
+
+def table_exists(storage, table_name):
+    if storage.temporary:
+        raise NotImplementedError("don't know how to check existence of temporary table: {!r}".format(table_name))
+
+    with storage.conn.cursor() as c:
+        c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = {} AND tablename = {});"
+                      ).format(Literal(storage.schema), Literal(table_name))
+                  )
+        return c.fetchone()[0]
+
+
+def drop_table(storage, table_name):
+    with storage.conn.cursor() as c:
+        c.execute(SQL('DROP TABLE {};').format(table_identifier(storage, table_name)))
+        logger.debug(c.query.decode())
+
+
+def count_rows(storage, table=None, table_identifier=None):
+    if table_identifier is not None:
+        with storage.conn.cursor() as c:
+            c.execute(SQL("SELECT count(*) FROM {}").format(table_identifier))
+            return c.fetchone()[0]
+    with storage.conn.cursor() as c:
+        c.execute(SQL("SELECT count(*) FROM {}.{}").format(Identifier(storage.schema), Identifier(table)))
+        nrows = c.fetchone()[0]
+        return nrows
+
+
+# PgCollection operations #
 
 
 def collection_table_identifier(storage, collection_name):
@@ -129,17 +163,6 @@ def layer_table_exists(storage, collection_name, layer_name):
     return table_exists(storage, layer_table_name(collection_name, layer_name))
 
 
-def table_exists(storage, table_name):
-    if storage.temporary:
-        raise NotImplementedError("don't know how to check existence of temporary table: {!r}".format(table_name))
-
-    with storage.conn.cursor() as c:
-        c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = {} AND tablename = {});"
-                      ).format(Literal(storage.schema), Literal(table_name))
-                  )
-        return c.fetchone()[0]
-
-
 def collection_table_exists(storage, collection_name):
     table_name = collection_table_name(collection_name)
     return table_exists(storage, table_name)
@@ -148,12 +171,6 @@ def collection_table_exists(storage, collection_name):
 def structure_table_exists(storage, collection_name):
     table_name = structure_table_name(collection_name)
     return table_exists(storage, table_name)
-
-
-def drop_table(storage, table_name):
-    with storage.conn.cursor() as c:
-        c.execute(SQL('DROP TABLE {};').format(table_identifier(storage, table_name)))
-        logger.debug(c.query.decode())
 
 
 def drop_collection_table(storage, collection_name):
@@ -178,18 +195,7 @@ def drop_fragment_table(storage, collection_name, fragment_name):
     drop_table(storage, table_name)
 
 
-def count_rows(storage, table=None, table_identifier=None):
-    if table_identifier is not None:
-        with storage.conn.cursor() as c:
-            c.execute(SQL("SELECT count(*) FROM {}").format(table_identifier))
-            return c.fetchone()[0]
-    with storage.conn.cursor() as c:
-        c.execute(SQL("SELECT count(*) FROM {}.{}").format(Identifier(storage.schema), Identifier(table)))
-        nrows = c.fetchone()[0]
-        return nrows
-
-
-def build_column_ngram_query(storage, query, column, collection_name, layer_name):
+def build_column_ngram_query(storage, collection_name, query, column, layer_name):
     if not isinstance(query, list):
         query = list(query)
     if isinstance(query[0], list):
@@ -216,11 +222,11 @@ def build_column_ngram_query(storage, query, column, collection_name, layer_name
     return column_ngram_query
 
 
-def build_layer_ngram_query(storage, ngram_query, collection_name):
+def build_layer_ngram_query(storage, collection_name, ngram_query):
     sql_parts = []
     for layer_name in ngram_query:
         for column, q in ngram_query[layer_name].items():
-            col_query = build_column_ngram_query(storage, q, column, collection_name, layer_name)
+            col_query = build_column_ngram_query(storage, collection_name, q, column, layer_name)
             sql_parts.append(col_query)
     q = SQL(" AND ").join(sql_parts)
     return q
