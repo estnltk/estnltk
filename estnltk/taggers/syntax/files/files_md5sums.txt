@@ -1,0 +1,61 @@
+-------------------------------------------------------------
+ 1) Files from  https://github.com/EstSyntax/EstCG/tree/467f0746ae870169776b0ed7aef8825730fea671
+    that were used as a basis for the reimplementation of the VISLCG3 syntactic analysis
+    pipeline, and their corresponding MD5 hashes;
+-------------------------------------------------------------
+
+d0dd7125c212168e0602d3880eda181b  1reaks.pl
+6355bf46710f3509dea819f23421cb8c  abileksikon06utf.lx
+47f1e3c52cd79102754e3f83ba151e98  clo.rul
+04de622c454c6baa61a352bce942ad18  COPYRIGHT
+ddb69bf61f8a0476f65c08ce7a0fe3ad  info.txt
+8156e838854ff584ef07ba42d58d1fce  inforemover.pl
+6d560fb9d100428056264ae2a003eb24  json2mrf.pl
+01056128a91133f6f7a6522358a0b5a1  morfyhe.rul
+0ec1fb5d9f7863cc2877624f4f71f29c  PhVerbs.rul
+6c47aba534d14795140db5905da1662f  pindsyn.rul
+06bdc5004e91528a1a7fa975912882b4  README.md
+56d201e6ee35d49261166bd5d45cda6f  rlausestaja.pl
+3db76e5c251b6823ca469a81407b57dc  rtolkija.pl
+074346d87a4fa5f8c13daa866a1e908d  strukt.rul
+d211583656c1c46e3d6a860248e8584b  tagger08.c
+7b0aba54d82eb75384f0bf666d6196ee  tcopyremover.pl
+723fc2d84e5b6fdd70a69c3d68fddb11  test.sh
+7df0a4aac26e726748bcb93bdd37a1f3  test.txt
+b34cd3d186e0327e188a9dd40ac50987  test.txt.cg3
+38c8abe1315e4f5b3f98e43f26544269  tkms2cg3.pl
+90e7dcf2a4145e63cb8e81a614245366  tmorftrtabel.txt
+842a67bdff49cf1609566b74fd1e6b1f  tolgeraldi.pl
+10142628929b3dc69e5aa3c91f95ca39  tpron.pl
+fdf9b8dd074b27ef7b558a98111ed1e9  TTRELLID.AWK
+fb4921a1f32db9f7d4cade32c6c71cf8  wr2json.pl
+
+-------------------------------------------------------------
+ 2) Lexicons/rule files used in the SYNTAX_PIPELINE_ESTCG
+-------------------------------------------------------------
+
+cf71713295a8f4e5cfa8a0cc3da30194  abileksikon06utf.lx
+47f1e3c52cd79102754e3f83ba151e98  clo.rul
+01056128a91133f6f7a6522358a0b5a1  morfyhe.rul
+0ec1fb5d9f7863cc2877624f4f71f29c  PhVerbs.rul
+6c47aba534d14795140db5905da1662f  pindsyn.rul
+34efe257c0dce637071096d504b6ca44  strukt_parand.rul
+cb10a951334153fa8232afdfca7048f7  tmorftrtabel.txt
+
+-----------------------
+Note that 'strukt.rul' from https://github.com/EstSyntax/EstCG 
+was replaced with 'strukt_parand.rul', which is distributed 
+here;
+-----------------------
+
+-------------------------------------------------------------
+ 3) Lexicons/rule files used in the SYNTAX_PIPELINE_1_4
+-------------------------------------------------------------
+
+cf71713295a8f4e5cfa8a0cc3da30194  abileksikon06utf.lx
+827afb0687c299186f38abfce0817540  clo_ub.rle
+4cb58dda8bdcf779f2da816d4b185496  morfyhe_ub.rle
+ddb31f36c5f8915a4e3a52b1ffb4099c  PhVerbs_ub.rle
+f85bfa0f4a961128dcdd1709ea1e071f  pindsyn_ub.rle
+f474104f46a1e625e10edaa0ccf0a3fc  strukt_ub.rle
+cb10a951334153fa8232afdfca7048f7  tmorftrtabel.txt
