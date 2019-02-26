@@ -24,7 +24,6 @@ from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import structure_table_exists
-from estnltk.storage.postgres import create_collection_table
 from estnltk.storage.postgres import drop_layer_table
 from estnltk.storage.postgres import drop_fragment_table
 from estnltk.storage.postgres import count_rows
@@ -67,7 +66,7 @@ def get_query_length(q):
 class PgCollection:
     """Convenience wrapper over PostgresStorage"""
 
-    def __init__(self, name: str, storage, meta=None, temporary: bool = False):
+    def __init__(self, name: str, storage, meta: dict = None, temporary: bool = False):
         assert isinstance(name, str), name
         assert name.isidentifier(), name
         if '__' in name:
@@ -83,7 +82,7 @@ class PgCollection:
         self._buffered_insert_query_length = 0
         self._selected_layes = None
 
-    def create(self, description=None, meta=None, temporary=None):
+    def create(self, description=None, meta: dict = None, temporary=None):
         """Creates the database tables for the collection"""
         if isinstance(temporary, bool):
             self._temporary = temporary
@@ -105,10 +104,10 @@ class PgCollection:
         meta = meta or self.meta or {}
         self.storage.conn.commit()
 
-        create_collection_table(self.storage,
-                                collection_name=self.name,
-                                meta_columns=meta,
-                                description=description)
+        pg.create_collection_table(self.storage,
+                                   collection_name=self.name,
+                                   meta_columns=meta,
+                                   description=description)
         self._structure = {}
         return self
 
@@ -131,6 +130,47 @@ class PgCollection:
         assert all(isinstance(v, str) for v in value)
         assert set(value) <= set(self._structure)
         self._selected_layes = value
+
+    def dependent_layers(self, selected_layers):
+        """Returns all layers that depend on selected layers including selected layers.
+
+           Returned layers are ordered ...
+           The latter provides a correct order for loading and re-attaching detached layers
+
+           TODO: Complete description
+        """
+        layers_extended = []
+
+        # TODO:
+        # Rekursioonita on raske tagada õiget kihtide järjekorda
+        # Vaja topoloogilist järjestust.
+        #
+        # Võimalikud lahendused on
+        # 1. Otsida Algoritmide ja andmestruktuuride raamatust topoloogiline sort
+        # 2. Lisada collection_structure tabelisse igale kihile autoinkrementiga järjekorranumber
+        #    ja järjestada kihid vastavalt id numbrile
+        # 3. Defineerida serialiseerimine nii, et pole vahet mis järjekorras kihid luuakse
+        #    - Selleks peab saama EnvelopingSpani sisu defineerida avaldisega
+        #    - Peab defineerima Layer.evaluate, mis kõik avaldised asendab hetkel tekkivate väärtustega
+        #    See lahendus lubab vaevata ka depencency_layer deserialiseerimist
+        #
+        # Mina eelistaksin lahendust 2 ja tulevikus 3
+
+        def include_dep(layer):
+            if layer is None:
+                return
+            for dep in (self.structure[layer]['parent'], self.structure[layer]['enveloping']):
+                include_dep(dep)
+            if layer not in layers_extended:
+                layers_extended.append(layer)
+
+        for layer in selected_layers:
+            if layer not in self.structure:
+                raise pg.PgCollectionException('there is no layer {!r} in the collection {!r}'.format(
+                                               layer, self.name))
+            include_dep(layer)
+
+        return layers_extended
 
     @property
     def structure(self):
@@ -403,7 +443,7 @@ class PgCollection:
                 fragment_layer = dict_to_layer(fragment_dict, text)
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
-    def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False,
+    def select(self, query=None, layer_query=(), layer_ngram_query=(), layers=None, keys=None, order_by_key=False,
                collection_meta: Sequence[str] = (), progressbar=None, missing_layer: str = None):
         if not self.exists():
             raise PgCollectionException('collection does not exist')
