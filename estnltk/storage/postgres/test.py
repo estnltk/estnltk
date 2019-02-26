@@ -483,9 +483,9 @@ class TestPgSubCollection(unittest.TestCase):
         subcollection.selected_layers = ['tokens']
         assert set(subcollection.selected_layers) == {'tokens'}
 
-    def test_all_layers(self):
+    def test_layers(self):
         subcollection = pg.PgSubCollection(self.collection)
-        assert set(subcollection.all_layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
+        assert set(subcollection.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
 
     def test_sql_query_text(self):
         subcollection = self.collection.select()

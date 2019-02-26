@@ -54,7 +54,7 @@ class PgSubCollection:
                                  if self.collection.structure[layer]['detached']]
 
     @property
-    def all_layers(self):
+    def layers(self):
         return self.collection.get_layer_names()
 
     @property
@@ -179,7 +179,7 @@ class PgSubCollection:
                         yield text
 
     def select_all(self):
-        self.selected_layers = self.all_layers
+        self.selected_layers = self.layers
         return self
 
     # TODO: ?
