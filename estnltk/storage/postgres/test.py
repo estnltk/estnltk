@@ -28,7 +28,7 @@ from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import PgCollectionException
-from estnltk.storage.postgres import build_sql_query
+from estnltk.storage.postgres.pg_operations import build_sql_query
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage import postgres as pg
 
