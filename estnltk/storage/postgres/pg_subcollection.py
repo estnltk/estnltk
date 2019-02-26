@@ -1,3 +1,4 @@
+from typing import Sequence
 from tqdm import tqdm, tqdm_notebook
 from psycopg2.sql import SQL
 
@@ -24,10 +25,17 @@ class PgSubCollection:
                  progressbar=None, return_index=False):
 
         if not collection.exists():
-            raise pg.PgCollectionException('collection does not exist')
+            raise pg.PgCollectionException('collection {!r} does not exist'.format(collection.name))
 
         self.collection = collection
-        self._selection_criterion = selection_criterion
+
+        if selection_criterion is None:
+            self._selection_criterion = pg.WhereClause(collection=self.collection)
+        elif isinstance(selection_criterion, pg.WhereClause):
+            self._selection_criterion = selection_criterion
+        else:
+            raise TypeError('unexpected type of selection_criterion: {!r}'.format(type(selection_criterion)))
+
         self.selected_layers = selected_layers or []
         self.meta_attributes = meta_attributes
         self.progressbar = progressbar
@@ -38,12 +46,16 @@ class PgSubCollection:
         return self._selected_layers
 
     @selected_layers.setter
-    def selected_layers(self, value: list):
-        self._selected_layers = self.dependent_layers(value)
+    def selected_layers(self, layers: list):
+        self._selected_layers = self.dependent_layers(layers)
         self._attached_layers = [layer for layer in self._selected_layers
                                  if not self.collection.structure[layer]['detached']]
         self._detached_layers = [layer for layer in self._selected_layers
                                  if self.collection.structure[layer]['detached']]
+
+    @property
+    def all_layers(self):
+        return self.collection.get_layer_names()
 
     @property
     def sql_query(self):
@@ -77,6 +89,11 @@ class PgSubCollection:
         required_tables = [collection_identifier]
         for layer in required_layers:
             required_tables.append(pg.layer_table_identifier(self.collection.storage, self.collection.name, layer))
+
+        # TODO ???
+        required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
+                                 for layer in required_layers]
+
         required_tables = SQL(', ').join(required_tables)
 
         # Join all tables using text_id
@@ -89,112 +106,31 @@ class PgSubCollection:
             return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
                                                                            required_tables,
                                                                            join_condition)
-        else:
-            return SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
-                                                                   required_tables,
-                                                                   join_condition,
-                                                                   self._selection_criterion)
+
+        return SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
+                                                               required_tables,
+                                                               join_condition,
+                                                               self._selection_criterion)
 
     @property
     def sql_query_text(self):
         return self.sql_query.as_string(self.collection.storage.conn)
 
     def dependent_layers(self, selected_layers):
-        """Returns all layers that depend on selected layers including selected layers.
+        return self.collection.dependent_layers(selected_layers)
 
-           Returned layers are ordered ...
-           The latter provides a correct order for loading and re-attaching detached layers
+    def select(self, additional_constraint: pg.WhereClause = None, selected_layers: Sequence[str] = None):
 
-           TODO: Complete description
-        """
-        layers_extended = []
+        if selected_layers is None:
+            selected_layers = self.selected_layers
 
-        # TODO: kirjuta ümber vastavalt fotole
-        # Rekursioonita on raske tagada õiget kihtide järjekorda
-        # Tahvlil olev algoritm tegi depth-first järjestus. 
-        # Sul on vaja topoloogilist järjestust. See asi siin ei pruugi töötada
-        #
-        # Võimalikud lahendused on
-        # 1. Otsida Algoritmide ja andmestruktuuride raamatust topoloogiline sort
-        # 2. Lisada collection_structure tabelisse igale kihile autoinrementiga järjekorranumber
-        #    ja järjestada kihid vastavalt id numbrile
-        # 3. Defineerida serialiseerimine nii, et pole vahet mis järjekorras kihid luuakse
-        #    - Selleks peab saama EnvelopingSpani sisu defineerida avaldisega
-        #    - Peab defineerima Layer.evaluate, mis kõik avaldised asendab hetkel tekkivate väärtustega
-        #    See lahendus lubab vaevata ka depencency_layer deserialiseerimist
-        #
-        # Mina eelistaksin lahendust 2 ja tulevikus 3
-
-        def include_dep(layer):
-            if layer is None:
-                return
-            for dep in (self.collection.structure[layer]['parent'], self.collection.structure[layer]['enveloping']):
-                include_dep(dep)
-            if layer not in layers_extended:
-                layers_extended.append(layer)
-
-        for layer in selected_layers:
-            if layer not in self.collection.structure:
-                raise pg.PgCollectionException('there is no layer {!r} in the collection {!r}'.format(
-                                               layer, self.collection.name))
-            include_dep(layer)
-
-        return layers_extended
-
-    #TODO: final signature select(self, additional_constraint, selected_layers) 
-    def select(self, additional_constraint=None, selected_layers=None,
-               query=None, layer_query=None, layer_ngram_query=None, keys=None, missing_layer: str = None):
-
-        #TODO: Remove dead code
-
-        #----DEAD-CODE------
-        layers_extended = []
-
-        def include_dep(layer):
-            if layer is None:
-                return
-            for dep in (self.collection.structure[layer]['parent'], self.collection.structure[layer]['enveloping']):
-                include_dep(dep)
-            if layer not in layers_extended:
-                layers_extended.append(layer)
-
-        for layer in self.selected_layers or []:
-            if layer not in self.collection.structure:
-                raise pg.PgCollectionException('there is no layer {!r} in the collection {!r}'.format(
-                                               layer, self.collection.name))
-            include_dep(layer)
-        #-----DEAD-CODE-----
-
-        #TODO: Replace with self._detached_layers
-        detached_layer_names = [layer for layer in layers_extended if self.collection.structure[layer]['detached']]
-
-        additional_constraint = pg.WhereClause(collection=self.collection,
-                                               query=query,
-                                               layer_query=layer_query,
-                                               layer_ngram_query=layer_ngram_query,
-                                               keys=keys,
-                                               missing_layer=missing_layer)
-
-        #---DEAD-CODE-----
-        selected_columns = pg.SelectedColumns(collection=self.collection,
-                                              layer_query=layer_query,
-                                              layer_ngram_query=layer_ngram_query,
-                                              layers=detached_layer_names,
-                                              collection_meta=self.meta_attributes)
-        #---DEAD-CODE-----
-
-        #TODO:
-        #if not additional_constraint.seq: return self
-        if self._selection_criterion is None and self._selected_columns is None:
-            self._selection_criterion = additional_constraint
-            self._selected_columns = selected_columns
+        if additional_constraint is None:
+            self.selected_layers = selected_layers
             return self
 
-        #TODO add the constraint to the where_clause
-        # return PgSubCollection(collection, self._where_clause & additional_constraint, self.selected_layers)
         return PgSubCollection(collection=self.collection,
                                selection_criterion=self._selection_criterion & additional_constraint,
-                               selected_layers=self.selected_layers.copy(),
+                               selected_layers=selected_layers.copy(),
                                meta_attributes=self.meta_attributes,
                                progressbar=self.progressbar,
                                )
@@ -207,7 +143,7 @@ class PgSubCollection:
         # Check that somebody else has not deleted the collection
         # TODO: Improve the error message
         if not self.collection.exists():
-            raise pg.PgCollectionException('collection does not exist')
+            raise pg.PgCollectionException('collection {!r} does not exist'.format(self.collection.name))
 
         def data_iterator():
             with self.collection.storage.conn.cursor('read', withhold=True) as c:
@@ -246,10 +182,6 @@ class PgSubCollection:
         #TODO: Define property sql_count_query or find out how execute return the size of the outcome 
         total = pg.count_rows(self.collection.storage, self.collection.name)
         initial = 0
-        if self.missing_layer is not None:
-            initial = self.collection.storage.count_rows(
-                    table_identifier=pg.layer_table_identifier(self.collection.storage,
-                                                               self.collection.name, self.missing_layer))
         if self.progressbar == 'notebook':
             iter_data = tqdm_notebook(data_iterator(),
                                       total=total,
@@ -267,14 +199,14 @@ class PgSubCollection:
             iter_data.set_description('collection_id: {}'.format(data[0]), refresh=False)
             yield data
 
-    #Make sure that it calls self.select_layers = all_layers
-    #TODO define property all_layers
     def select_all(self):
-        layers = self.collection.get_layer_names()
-        return self.select(layers=layers)
+        self.selected_layers = self.all_layers
+        return self
 
+    # TODO: ?
     def raw_layer(self):
-        pass
+        raise NotImplementedError()
 
+    # TODO: ?
     def raw_fragment(self):
-        pass
+        raise NotImplementedError()
