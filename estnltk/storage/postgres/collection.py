@@ -84,31 +84,15 @@ class PgCollection:
 
     def create(self, description=None, meta: dict = None, temporary=None):
         """Creates the database tables for the collection"""
-        if isinstance(temporary, bool):
-            self._temporary = temporary
-        temporary = SQL('TEMPORARY') if self._temporary else SQL('')
-        with self.storage.conn.cursor() as c:
-            c.execute(SQL('CREATE {temporary} TABLE {structure} ('
-                          'layer_name text primary key, '
-                          'detached bool not null, '
-                          'attributes text[] not null, '
-                          'ambiguous bool not null, '
-                          'parent text, '
-                          'enveloping text, '
-                          '_base text, '
-                          'meta text[]);').format(temporary=temporary,
-                                                  structure=structure_table_identifier(self.storage, self.name)))
-            logger.info('new empty collection {!r} created'.format(self.name))
-            logger.debug(c.query.decode())
-
-        meta = meta or self.meta or {}
-        self.storage.conn.commit()
+        pg.create_structure_table(self.storage, self.name)
 
         pg.create_collection_table(self.storage,
                                    collection_name=self.name,
-                                   meta_columns=meta,
+                                   meta_columns=meta or self.meta or {},
                                    description=description)
         self._structure = {}
+
+        logger.info('new empty collection {!r} created'.format(self.name))
         return self
 
     @property
