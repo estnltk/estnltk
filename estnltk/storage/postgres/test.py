@@ -465,7 +465,7 @@ class TestPgSubCollection(unittest.TestCase):
         assert subcollection.selected_layers == []
         assert subcollection.meta_attributes == ()
         assert subcollection.progressbar is None
-        assert subcollection.return_index is False
+        assert subcollection.return_index is True
 
         with self.assertRaises(TypeError):
             pg.PgSubCollection(self.collection, selection_criterion='')
@@ -554,6 +554,13 @@ class TestPgSubCollection(unittest.TestCase):
         assert set(text.layers) == set()
         assert meta == {'meta_1': None, 'meta_2': None}
 
+        subcollection = pg.PgSubCollection(self.collection, meta_attributes=['meta_2'],
+                                           selected_layers=['morph_analysis'], return_index=False)
+        text, meta = next(iter(subcollection))
+        assert text.text == 'Esimene lause. Teine lause. Kolmas lause.'
+        assert set(text.layers) == {'words', 'morph_analysis'}
+        assert meta == {'meta_2': None}
+
         subcollection = pg.PgSubCollection(self.collection, progressbar='ascii')
         result = list(subcollection)
         assert len(result) == 4
@@ -577,6 +584,10 @@ class TestPgSubCollection(unittest.TestCase):
         assert text_id == 0
         assert text.text == 'Esimene lause. Teine lause. Kolmas lause.'
         assert set(text.layers) == set()
+
+        subcollection = pg.PgSubCollection(self.collection, progressbar='undefined')
+        with self.assertRaises(ValueError):
+            next(iter(subcollection))
 
     def test_select_all(self):
         subcollection_0 = pg.PgSubCollection(self.collection)

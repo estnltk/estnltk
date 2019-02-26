@@ -22,7 +22,7 @@ class PgSubCollection:
     """
 
     def __init__(self, collection, selection_criterion=None, selected_layers=None, meta_attributes=(),
-                 progressbar=None, return_index=False):
+                 progressbar=None, return_index=True):
 
         if not collection.exists():
             raise pg.PgCollectionException('collection {!r} does not exist'.format(collection.name))
@@ -145,59 +145,47 @@ class PgSubCollection:
         if not self.collection.exists():
             raise pg.PgCollectionException('collection {!r} does not exist'.format(self.collection.name))
 
-        def data_iterator():
-            with self.collection.storage.conn.cursor('read', withhold=True) as c:
-                c.execute(self.sql_query)
-                logger.debug(c.query.decode())
-                for row in c:
-                    text_id = row[0]
-                    text_dict = row[1]
-                    text = dict_to_text(text_dict, self._attached_layers)
-                    meta_list = row[2:2 + len(self.meta_attributes)]
-                    detached_layers = {}
-                    if len(row) > 2 + len(self.meta_attributes):
-                        for i in range(2 + len(self.meta_attributes), len(row), 2):
-                            layer_id = row[i]
-                            layer_dict = row[i + 1]
-                            layer = dict_to_layer(layer_dict, text,
-                                                  {k: v['layer'] for k, v in detached_layers.items()})
-                            detached_layers[layer.name] = {'layer': layer, 'layer_id': layer_id}
-
-                    for layer_name in self._detached_layers:
-                        text[layer_name] = detached_layers[layer_name]['layer']
-                    if self.meta_attributes:
-                        meta = {}
-                        for meta_name, meta_value in zip(self.meta_attributes, meta_list):
-                            meta[meta_name] = meta_value
-                        yield text_id, text, meta
-                    else:
-                        yield text_id, text
-            c.close()
-
-        if self.progressbar not in {'ascii', 'unicode', 'notebook'}:
-            yield from data_iterator()
-            return
-
         #BUG: The size of subcollection is not equal to the collection
-        #TODO: Define property sql_count_query or find out how execute return the size of the outcome 
+        #TODO: Define property sql_count_query or find out how execute return the size of the outcome
         total = pg.count_rows(self.collection.storage, self.collection.name)
         initial = 0
-        if self.progressbar == 'notebook':
-            iter_data = tqdm_notebook(data_iterator(),
-                                      total=total,
-                                      initial=initial,
-                                      unit='doc',
-                                      smoothing=0)
-        else:
-            iter_data = tqdm(data_iterator(),
-                             total=total,
-                             initial=initial,
-                             unit='doc',
-                             ascii=(self.progressbar == 'ascii'),
-                             smoothing=0)
-        for data in iter_data:
-            iter_data.set_description('collection_id: {}'.format(data[0]), refresh=False)
-            yield data
+
+        with self.collection.storage.conn.cursor('read', withhold=True) as c:
+            c.execute(self.sql_query)
+            logger.debug(c.query.decode())
+            data_iterator = Progressbar(cursor=c, total=total, initial=0, progressbar_type=self.progressbar)
+            for row in data_iterator:
+                text_id = row[0]
+                text_dict = row[1]
+                text = dict_to_text(text_dict, self._attached_layers)
+                meta_list = row[2:2 + len(self.meta_attributes)]
+                detached_layers = {}
+                if len(row) > 2 + len(self.meta_attributes):
+                    for i in range(2 + len(self.meta_attributes), len(row), 2):
+                        layer_id = row[i]
+                        layer_dict = row[i + 1]
+                        layer = dict_to_layer(layer_dict, text,
+                                              {k: v['layer'] for k, v in detached_layers.items()})
+                        detached_layers[layer.name] = {'layer': layer, 'layer_id': layer_id}
+
+                for layer_name in self._detached_layers:
+                    text[layer_name] = detached_layers[layer_name]['layer']
+
+                data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
+                if self.meta_attributes:
+                    meta = {}
+                    for meta_name, meta_value in zip(self.meta_attributes, meta_list):
+                        meta[meta_name] = meta_value
+                    if self.return_index:
+                        yield text_id, text, meta
+                    else:
+                        yield text, meta
+                else:
+                    if self.return_index:
+                        yield text_id, text
+                    else:
+                        yield text
+        c.close()
 
     def select_all(self):
         self.selected_layers = self.all_layers
@@ -210,3 +198,34 @@ class PgSubCollection:
     # TODO: ?
     def raw_fragment(self):
         raise NotImplementedError()
+
+
+class Progressbar:
+    def __init__(self, cursor, total, initial, progressbar_type):
+        self.progressbar_type = progressbar_type
+
+        if progressbar_type is None:
+            self.data_iterator = cursor
+        elif progressbar_type in {'ascii', 'unicode'}:
+            self.data_iterator = tqdm(cursor,
+                                      total=total,
+                                      initial=initial,
+                                      unit='doc',
+                                      ascii=progressbar_type == 'ascii',
+                                      smoothing=0)
+        elif progressbar_type == 'notebook':
+            self.data_iterator = tqdm_notebook(cursor,
+                                               total=total,
+                                               initial=initial,
+                                               unit='doc',
+                                               smoothing=0)
+        else:
+            raise ValueError("unknown progressbar type: {!r}, expected None, 'ascii', 'unicode' or 'notebook'"
+                             .format(progressbar_type))
+
+    def set_description(self, description, refresh=False):
+        if self.progressbar_type is not None:
+            self.data_iterator.set_description(description, refresh=refresh)
+
+    def __iter__(self):
+        yield from self.data_iterator

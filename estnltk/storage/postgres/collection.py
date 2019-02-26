@@ -444,7 +444,7 @@ class PgCollection:
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
     def select(self, query=None, layer_query=(), layer_ngram_query=(), layers=None, keys=None, order_by_key=False,
-               collection_meta: Sequence[str] = (), progressbar=None, missing_layer: str = None):
+               collection_meta: Sequence[str] = (), progressbar=None, missing_layer: str = None, return_index=True):
         if not self.exists():
             raise PgCollectionException('collection does not exist')
 
@@ -459,7 +459,8 @@ class PgCollection:
                                   selection_criterion=where_clause,
                                   selected_layers=layers,
                                   meta_attributes=collection_meta,
-                                  progressbar=progressbar
+                                  progressbar=progressbar,
+                                  return_index=return_index
                                   )
 
     def __len__(self):
@@ -479,7 +480,7 @@ class PgCollection:
         raise KeyError(item)
 
     def __iter__(self):
-        yield from (text for _, text in self.select(layers=self.selected_layers))
+        yield from self.select(layers=self.selected_layers, return_index=False)
 
     def select_by_key(self, key, return_as_dict=False):
         """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
