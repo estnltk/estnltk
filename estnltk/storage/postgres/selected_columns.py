@@ -94,7 +94,8 @@ class SelectedColumns_2(Composed):
     def __init__(self,
                  collection,
                  layers: list = (),
-                 collection_meta: list = ()):
+                 collection_meta: list = (),
+                 include_layer_ids: bool = True):
 
         self._layers = layers
 
@@ -109,7 +110,8 @@ class SelectedColumns_2(Composed):
 
         # List columns of selected layers.
         for layer in layers:
-            selected_columns.append(SQL('{}."id"').format(pg.layer_table_identifier(storage, collection_name, layer)))
+            if include_layer_ids:
+                selected_columns.append(SQL('{}."id"').format(pg.layer_table_identifier(storage, collection_name, layer)))
             selected_columns.append(SQL('{}."data"').format(pg.layer_table_identifier(storage, collection_name, layer)))
 
         super().__init__(selected_columns)

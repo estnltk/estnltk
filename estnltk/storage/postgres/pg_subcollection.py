@@ -69,7 +69,8 @@ class PgSubCollection:
 
         selected_columns = pg.SelectedColumns_2(collection=self.collection,
                                                 layers=self._detached_layers,
-                                                collection_meta=self.meta_attributes)
+                                                collection_meta=self.meta_attributes,
+                                                include_layer_ids=False)
 
         required_layers = sorted(set(self._detached_layers + self._selection_criterion.required_layers))
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
@@ -153,22 +154,16 @@ class PgSubCollection:
             data_iterator = Progressbar(cursor=c, total=total, initial=0, progressbar_type=self.progressbar)
             for row in data_iterator:
                 text_id = row[0]
+                data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
+
                 text_dict = row[1]
                 text = dict_to_text(text_dict, self._attached_layers)
                 meta_list = row[2:2 + len(self.meta_attributes)]
-                detached_layers = {}
-                if len(row) > 2 + len(self.meta_attributes):
-                    for i in range(2 + len(self.meta_attributes), len(row), 2):
-                        layer_id = row[i]
-                        layer_dict = row[i + 1]
-                        layer = dict_to_layer(layer_dict, text,
-                                              {k: v['layer'] for k, v in detached_layers.items()})
-                        detached_layers[layer.name] = {'layer': layer, 'layer_id': layer_id}
 
-                for layer_name in self._detached_layers:
-                    text[layer_name] = detached_layers[layer_name]['layer']
+                for layer_dict in row[2 + len(self.meta_attributes):]:
+                    layer = dict_to_layer(layer_dict, text)
+                    text[layer.name] = layer
 
-                data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
                 if self.meta_attributes:
                     meta = {}
                     for meta_name, meta_value in zip(self.meta_attributes, meta_list):
