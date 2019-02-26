@@ -10,22 +10,26 @@ class WhereClause(Composed):
                  layer_query: dict = None,
                  layer_ngram_query: dict = None,
                  keys: list = None,
-                 missing_layer: str = None):
+                 missing_layer: str = None,
+                 seq=None,
+                 required_layers=None):
+        self.collection = collection
 
-        where = self.where_clause(collection,
-                                  query=query,
-                                  layer_query=layer_query,
-                                  layer_ngram_query=layer_ngram_query,
-                                  keys=keys,
-                                  missing_layer=missing_layer)
-        if where:
-            super().__init__(where)
-        else:
-            super().__init__([])
+        if seq is None:
+            seq = self.where_clause(collection,
+                                    query=query,
+                                    layer_query=layer_query,
+                                    layer_ngram_query=layer_ngram_query,
+                                    keys=keys,
+                                    missing_layer=missing_layer)
+
+        super().__init__(seq)
 
         # We omit layers inside a Text object.
-        self._required_layers = sorted(set(layer_query or []) | set(layer_ngram_query or []))
-        self.collection = collection
+        if required_layers is None:
+            self._required_layers = sorted(set(layer_query or()) | set(layer_ngram_query or ()))
+        else:
+            self._required_layers = required_layers
 
     def __bool__(self):
         return bool(self.seq)
@@ -35,9 +39,20 @@ class WhereClause(Composed):
         return self._required_layers
 
     def __and__(self, other):
-        assert self.collection is other.collection
-        # TODO
-        raise NotImplementedError
+        if not isinstance(other, WhereClause):
+            raise TypeError('unsupported operand type for &: {!r}'.format(type(other)))
+        if self.collection is not other.collection:
+            raise ValueError("can't combine WhereClauses with different collections: {!r} and {!r}".format(
+                             self.collection.name, other.collection.name))
+
+        if not other:
+            return self
+        if not self:
+            return other
+
+        seq = SQL(" AND ").join((self, other))
+        required_layers = sorted(set(self.required_layers) | set(other.required_layers))
+        return WhereClause(collection=self.collection, seq=seq, required_layers=required_layers)
 
     @staticmethod
     def where_clause(collection,
@@ -74,3 +89,4 @@ class WhereClause(Composed):
 
         if sql_parts:
             return SQL(" AND ").join(sql_parts)
+        return []
