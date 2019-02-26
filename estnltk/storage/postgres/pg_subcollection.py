@@ -76,41 +76,38 @@ class PgSubCollection:
 
         # Required layers are part of the main collection
         if not required_layers:
-            if not self._selection_criterion.seq:
-                return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
-
-            else:
+            if self._selection_criterion:
                 return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
                                                                 collection_identifier,
                                                                 self._selection_criterion)
+            else:
+                return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
 
         # There are detached layers among required layers
-        # TODO: Simplify code by defining requred_layer_tables instead of required_tables
-        required_tables = [collection_identifier]
-        for layer in required_layers:
-            required_tables.append(pg.layer_table_identifier(self.collection.storage, self.collection.name, layer))
 
-        # TODO ???
         required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
                                  for layer in required_layers]
 
-        required_tables = SQL(', ').join(required_tables)
+        required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
 
         # Join all tables using text_id
-        join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(
-                                               collection_identifier,
-                pg.layer_table_identifier(self.collection.storage, self.collection.name, layer))
-                                           for layer in required_layers)
+        join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
+                                                                                layer_table_identifier)
+                                           for layer_table_identifier in required_layer_tables)
 
-        if not self._selection_criterion.seq:
-            return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                                           required_tables,
-                                                                           join_condition)
+        if self._selection_criterion:
+            return SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
+                                                                   required_tables,
+                                                                   join_condition,
+                                                                   self._selection_criterion)
 
-        return SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
-                                                               required_tables,
-                                                               join_condition,
-                                                               self._selection_criterion)
+        return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                        required_tables,
+                                                        join_condition)
+
+    @property
+    def sql_count_query(self):
+        return SQL('SELECT count(*) FROM ({}) AS a').format(self.sql_query)
 
     @property
     def sql_query_text(self):
@@ -145,10 +142,10 @@ class PgSubCollection:
         if not self.collection.exists():
             raise pg.PgCollectionException('collection {!r} does not exist'.format(self.collection.name))
 
-        #BUG: The size of subcollection is not equal to the collection
-        #TODO: Define property sql_count_query or find out how execute return the size of the outcome
-        total = pg.count_rows(self.collection.storage, self.collection.name)
-        initial = 0
+        with self.collection.storage.conn.cursor() as c:
+            c.execute(self.sql_count_query)
+            logger.debug(c.query.decode())
+            total = next(c)[0]
 
         with self.collection.storage.conn.cursor('read', withhold=True) as c:
             c.execute(self.sql_query)
@@ -185,7 +182,6 @@ class PgSubCollection:
                         yield text_id, text
                     else:
                         yield text
-        c.close()
 
     def select_all(self):
         self.selected_layers = self.all_layers
