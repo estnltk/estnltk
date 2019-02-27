@@ -7,22 +7,20 @@ from estnltk.converters import dict_to_text, dict_to_layer
 from estnltk.storage import postgres as pg
 
 
-class PgSubCollection:
+class PgSubCollectionLayer:
     """
     Wrapper class that provides read-only access to a subset of a collection.
 
     The subset is specified by a SQL select statement that is determined by
+    - the detached layer
     - the selection criterion
-    - the set of selected layers
-    - the set of meta attributes
 
     The main usecase for the class is iteration over its elements. 
     It is possible to iterate several times over the subcollection.
 
     Depending on the configuration attributes, the iterator returns:
-    - text objects with selected layers
-    - text objects together with their index
-    - text objects together with their index and meta fields
+    - layer object
+    - layer object their index
 
 
     TODO: Complete the description
@@ -32,20 +30,8 @@ class PgSubCollection:
     """
 
     def __init__(self, collection: pg.PgCollection, selection_criterion: pg.WhereClause = None,
-                 selected_layers: Sequence[str] = None, meta_attributes: Sequence[str] = None, 
-                 progressbar: str = None, return_index: bool = True):
+                 detached_layer: str = None, progressbar: str = None, return_index: bool = True):
         """
-        :param collection: PgCollection
-        :param selection_criterion: WhereClause
-        :param selected_layers: Sequence[str]
-            names of layers attached to the Text object, dependencies are included automatically
-        :param meta_attributes: Sequence[str]
-            names of collection meta attributes that yield in dict with text object
-        :param progressbar: str, default None
-            no progressbar by default
-            'ascii', 'unicode' or 'notebook'
-        :param return_index: bool
-            yield collection id with text objects
         """
 
         #TODO: Make sure that all objects used by the class are independent copies and cannot be 
@@ -64,40 +50,9 @@ class PgSubCollection:
         else:
             raise TypeError('unexpected type of selection_criterion: {!r}'.format(type(selection_criterion)))
 
-        #TODO: Why different default values? Unify
-        self.selected_layers = selected_layers or []
-        self.meta_attributes = meta_attributes or ()
-        self.progressbar = progressbar
-        self.return_index = return_index
+        #TODO: Complete code 
+        #Raise error if the layer is not detachable? 
 
-    @property
-    def selected_layers(self):
-        return self._selected_layers
-
-    @selected_layers.setter
-    def selected_layers(self, layers: list):
-        """
-        Selects layers together with all layers needed to define them.
-        """
-
-        self._selected_layers = self.dependent_layers(layers)
-        self._attached_layers = [layer for layer in self._selected_layers
-                                 if not self.collection.structure[layer]['detached']]
-        self._detached_layers = [layer for layer in self._selected_layers
-                                 if self.collection.structure[layer]['detached']]
-
-    @property
-    def layers(self):
-        return self.collection.get_layer_names()
-
-    @property
-    def detached_layers(self):
-        return self._detached_layers
-
-    @property
-    def fragmented_layers(self):
-        #TODO: Complete this
-        raise NotImplementedError()
 
     @property
     def sql_query(self):
@@ -108,6 +63,8 @@ class PgSubCollection:
         This must be solved by defining a view during creation of fragmented layers
         or some dark magic query composition.
         """
+
+        #TODO: Simplify query and return only a single layer
 
         selected_columns = pg.SelectedColumns(collection=self.collection,
                                               layers=self._detached_layers,
@@ -158,25 +115,20 @@ class PgSubCollection:
     def sql_count_query_text(self):
         return self.sql_count_query.as_string(self.collection.storage.conn)
 
-    #TODO: Remove this function this is not part of public API 
-    def dependent_layers(self, selected_layers):
-        return self.collection.dependent_layers(selected_layers)
 
-    def select(self, additional_constraint: pg.WhereClause = None, selected_layers: Sequence[str] = None):
+    def select(self, additional_constraint: pg.WhereClause = None):
         """
         Returns a new subcollection that satisfies additional constraints.
 
         TODO: Document its usages
         """
 
-        if selected_layers is None:
-            selected_layers = self.selected_layers
 
         if additional_constraint is None:
-            self.selected_layers = selected_layers
             return self
 
-        return PgSubCollection(collection=self.collection,
+        #TODO: Correct code    
+        return PgSubCollectionLayer(collection=self.collection,
                                selection_criterion=self._selection_criterion & additional_constraint,
                                selected_layers=selected_layers.copy(),
                                meta_attributes=self.meta_attributes,
@@ -189,14 +141,15 @@ class PgSubCollection:
         Yields all subcollection elements ordered by the text_id 
 
         Depending on self.return_index and self.meta_attributes yields either
-        - text
-        - text_id, text
-        - text, meta
-        - text_id, text, meta
+        - layer
+        - text_id, layer
+        - layer, meta
+        - text_id, layer, meta
 
         The value of these configuration attributes is fixed before starting the iteration.
         """
 
+        #TODO: Correct code 
         # Check that somebody else has not deleted the collection
         if not self.collection.exists():
             raise pg.PgCollectionException('collection {!r} has been unexpectedly deleted'.format(self.collection.name))
@@ -248,29 +201,6 @@ class PgSubCollection:
                     else:
                         yield text
 
-    def select_all(self):
-        self.selected_layers = self.layers
-        return self
-
-    # TODO:
-    def detached_layer(self, name):
-        raise NotImplementedError()
-        return LayerSubCollection(self.collection,
-                                  selection_criterion=None,
-                                  detached_layer=name,
-                                  meta_attributes=(),
-                                  progressbar=None,
-                                  return_index=True)
-
-    # TODO:
-    def fragmented_layer(self, name):
-        raise NotImplementedError()
-        return FragmentSubCollection(self.collection,
-                                     selection_criterion=None,
-                                     detached_layer=None,
-                                     meta_attributes=(),
-                                     progressbar=None,
-                                     return_index=True)
 
 #TODO: Push it out and reuse for other classes
 class Progressbar:
