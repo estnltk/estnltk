@@ -67,10 +67,10 @@ class PgSubCollection:
         or some dark magic query composition.
         """
 
-        selected_columns = pg.SelectedColumns_2(collection=self.collection,
-                                                layers=self._detached_layers,
-                                                collection_meta=self.meta_attributes,
-                                                include_layer_ids=False)
+        selected_columns = pg.SelectedColumns(collection=self.collection,
+                                              layers=self._detached_layers,
+                                              collection_meta=self.meta_attributes,
+                                              include_layer_ids=False)
 
         required_layers = sorted(set(self._detached_layers + self._selection_criterion.required_layers))
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
