@@ -107,12 +107,17 @@ class PgSubCollection:
                                                         join_condition)
 
     @property
+    def sql_query_text(self):
+        return self.sql_query.as_string(self.collection.storage.conn)
+
+    @property
     def sql_count_query(self):
         return SQL('SELECT count(*) FROM ({}) AS a').format(self.sql_query)
 
     @property
-    def sql_query_text(self):
-        return self.sql_query.as_string(self.collection.storage.conn)
+    def sql_count_query_text(self):
+        return self.sql_count_query.as_string(self.collection.storage.conn)
+
 
     def dependent_layers(self, selected_layers):
         return self.collection.dependent_layers(selected_layers)
@@ -152,27 +157,37 @@ class PgSubCollection:
             c.execute(self.sql_query)
             logger.debug(c.query.decode())
             data_iterator = Progressbar(cursor=c, total=total, initial=0, progressbar_type=self.progressbar)
-            for row in data_iterator:
-                text_id = row[0]
-                data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
 
-                text_dict = row[1]
-                text = dict_to_text(text_dict, self._attached_layers)
-                meta_list = row[2:2 + len(self.meta_attributes)]
+            if self.meta_attributes:
+                for row in data_iterator:
+                    text_id = row[0]
+                    data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
 
-                for layer_dict in row[2 + len(self.meta_attributes):]:
-                    layer = dict_to_layer(layer_dict, text)
-                    text[layer.name] = layer
+                    text_dict = row[1]
+                    text = dict_to_text(text_dict, self._attached_layers)
 
-                if self.meta_attributes:
-                    meta = {}
-                    for meta_name, meta_value in zip(self.meta_attributes, meta_list):
-                        meta[meta_name] = meta_value
+                    for layer_dict in row[2 + len(self.meta_attributes):]:
+                        layer = dict_to_layer(layer_dict, text)
+                        text[layer.name] = layer
+
+                    meta_values = row[2:2 + len(self.meta_attributes)]
+                    meta = {attr: value for attr, value in zip(self.meta_attributes, meta_values)}
                     if self.return_index:
                         yield text_id, text, meta
                     else:
                         yield text, meta
-                else:
+            else:
+                for row in data_iterator:
+                    text_id = row[0]
+                    data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
+
+                    text_dict = row[1]
+                    text = dict_to_text(text_dict, self._attached_layers)
+
+                    for layer_dict in row[2 + len(self.meta_attributes):]:
+                        layer = dict_to_layer(layer_dict, text)
+                        text[layer.name] = layer
+
                     if self.return_index:
                         yield text_id, text
                     else:
