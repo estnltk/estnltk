@@ -1,3 +1,4 @@
+from typing import Sequence
 from psycopg2.sql import Composed, Identifier, SQL
 
 from estnltk.storage import postgres as pg
@@ -5,9 +6,9 @@ from estnltk.storage import postgres as pg
 
 class SelectedColumns(Composed):
     def __init__(self,
-                 collection,
-                 layers: list = (),
-                 collection_meta: list = (),
+                 collection: pg.PgCollection,
+                 layers: Sequence[str] = (),
+                 collection_meta: Sequence[str] = (),
                  include_layer_ids: bool = True):
 
         self._layers = layers

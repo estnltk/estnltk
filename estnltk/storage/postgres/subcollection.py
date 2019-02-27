@@ -9,7 +9,7 @@ from estnltk.storage import postgres as pg
 
 class PgSubCollection:
     """
-    Wrapper class that provides read-only access to a subset of a collection
+    Wrapper class that provides read-only access to a subset of a collection.
 
     The subset is specified by a SQL select statement that is determined by
     - the selection criterion
@@ -19,10 +19,25 @@ class PgSubCollection:
     TODO: Complete the description
 
     ISSUES: How one specifies layer meta attributes? Do they come automatically
+    retrieving layer meta attributes is not implemented
     """
 
-    def __init__(self, collection, selection_criterion=None, selected_layers=None, meta_attributes=(),
-                 progressbar=None, return_index=True):
+    def __init__(self, collection: pg.PgCollection, selection_criterion: pg.WhereClause = None,
+                 selected_layers: Sequence[str] = None, meta_attributes: Sequence[str] = None, progressbar: str = None,
+                 return_index: bool = True):
+        """
+        :param collection: PgCollection
+        :param selection_criterion: WhereClause
+        :param selected_layers: Sequence[str]
+            names of layers attached to the Text object, dependencies are included automatically
+        :param meta_attributes: Sequence[str]
+            names of collection meta attributes that yield in dict with text object
+        :param progressbar: str, default None
+            no progressbar by default
+            'ascii', 'unicode' or 'notebook'
+        :param return_index: bool
+            yield collection id with text objects
+        """
 
         if not collection.exists():
             raise pg.PgCollectionException('collection {!r} does not exist'.format(collection.name))
@@ -37,7 +52,7 @@ class PgSubCollection:
             raise TypeError('unexpected type of selection_criterion: {!r}'.format(type(selection_criterion)))
 
         self.selected_layers = selected_layers or []
-        self.meta_attributes = meta_attributes
+        self.meta_attributes = meta_attributes or ()
         self.progressbar = progressbar
         self.return_index = return_index
 
@@ -118,7 +133,6 @@ class PgSubCollection:
     def sql_count_query_text(self):
         return self.sql_count_query.as_string(self.collection.storage.conn)
 
-
     def dependent_layers(self, selected_layers):
         return self.collection.dependent_layers(selected_layers)
 
@@ -136,15 +150,24 @@ class PgSubCollection:
                                selected_layers=selected_layers.copy(),
                                meta_attributes=self.meta_attributes,
                                progressbar=self.progressbar,
+                               return_index=self.return_index
                                )
 
     def __iter__(self):
         """
-        TODO: Complete description
+        yields all subcollection elements
+        Depending on self.return_index and self.meta_attributes yields either
+
+        text
+        text_id, text
+        text, meta
+        or
+        text_id, text, meta
         """
 
         # Check that somebody else has not deleted the collection
         # TODO: Improve the error message
+        # how?
         if not self.collection.exists():
             raise pg.PgCollectionException('collection {!r} does not exist'.format(self.collection.name))
 
@@ -202,7 +225,7 @@ class PgSubCollection:
         raise NotImplementedError()
         return LayerSubCollection(self.collection,
                                   selection_criterion=None,
-                                  detached_layer=None,
+                                  detached_layer=name,
                                   meta_attributes=(),
                                   progressbar=None,
                                   return_index=True)

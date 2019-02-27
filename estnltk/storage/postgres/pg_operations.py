@@ -9,7 +9,6 @@ from estnltk.storage.postgres import structure_table_name
 from estnltk.storage.postgres import collection_table_name
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import fragment_table_name
-from estnltk.storage import postgres as pg
 
 
 pytype2dbtype = {
@@ -18,9 +17,6 @@ pytype2dbtype = {
     "float": "double precision",
     "str": "text"
 }
-
-
-# PostgresStorage operations #
 
 
 def create_schema(storage):
@@ -67,9 +63,6 @@ def count_rows(storage, table=None, table_identifier=None):
         c.execute(SQL("SELECT count(*) FROM {}.{}").format(Identifier(storage.schema), Identifier(table)))
         nrows = c.fetchone()[0]
         return nrows
-
-
-# PgCollection operations #
 
 
 def collection_table_identifier(storage, collection_name):
