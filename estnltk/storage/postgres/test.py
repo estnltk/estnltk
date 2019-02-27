@@ -597,15 +597,15 @@ class TestPgSubCollection(unittest.TestCase):
         assert text_id == 0
         assert set(text.layers) == {'sentences', 'words', 'morph_analysis', 'compound_tokens', 'tokens'}
 
-    def test_raw_layer(self):
+    def test_detached_layer(self):
         subcollection = pg.PgSubCollection(self.collection)
         with self.assertRaises(NotImplementedError):
-            subcollection.raw_layer()
+            subcollection.detached_layer('layer_name')
 
-    def test_raw_fragment(self):
+    def test_fragmented_layer(self):
         subcollection = pg.PgSubCollection(self.collection)
         with self.assertRaises(NotImplementedError):
-            subcollection.raw_fragment()
+            subcollection.fragmented_layer('fragment_name')
 
 
 class TestLayerFragment(unittest.TestCase):

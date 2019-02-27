@@ -184,7 +184,7 @@ class PgSubCollection:
                     text_dict = row[1]
                     text = dict_to_text(text_dict, self._attached_layers)
 
-                    for layer_dict in row[2 + len(self.meta_attributes):]:
+                    for layer_dict in row[2:]:
                         layer = dict_to_layer(layer_dict, text)
                         text[layer.name] = layer
 
@@ -197,13 +197,25 @@ class PgSubCollection:
         self.selected_layers = self.layers
         return self
 
-    # TODO: ?
-    def raw_layer(self):
+    # TODO:
+    def detached_layer(self, name):
         raise NotImplementedError()
+        return LayerSubCollection(self.collection,
+                                  selection_criterion=None,
+                                  detached_layer=None,
+                                  meta_attributes=(),
+                                  progressbar=None,
+                                  return_index=True)
 
-    # TODO: ?
-    def raw_fragment(self):
+    # TODO:
+    def fragmented_layer(self, name):
         raise NotImplementedError()
+        return FragmentSubCollection(self.collection,
+                                     selection_criterion=None,
+                                     detached_layer=None,
+                                     meta_attributes=(),
+                                     progressbar=None,
+                                     return_index=True)
 
 
 class Progressbar:
