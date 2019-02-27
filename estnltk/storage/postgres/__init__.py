@@ -30,10 +30,10 @@ Example usage:
         print(key, txt)
 
 """
-from .sql_strings import collection_table_name
-from .sql_strings import structure_table_name
-from .sql_strings import layer_table_name
-from .sql_strings import fragment_table_name
+from .sql_table_naming import collection_table_name
+from .sql_table_naming import structure_table_name
+from .sql_table_naming import layer_table_name
+from .sql_table_naming import fragment_table_name
 
 from .pg_operations import collection_table_identifier
 from .pg_operations import structure_table_identifier
@@ -75,7 +75,7 @@ from .collection import PgCollectionException
 
 from .pgpass_parsing import parse_pgpass
 
-from .pg_subcollection import PgSubCollection
+from .subcollection import PgSubCollection
 
 from .storage import PgStorageException
 from .storage import PostgresStorage
