@@ -1,5 +1,4 @@
 from typing import Sequence
-from tqdm import tqdm, tqdm_notebook
 from psycopg2.sql import SQL
 
 from estnltk import logger
@@ -209,7 +208,7 @@ class PgSubCollection:
         with self.collection.storage.conn.cursor('read', withhold=True) as c:
             c.execute(self.sql_query)
             logger.debug(c.query.decode())
-            data_iterator = Progressbar(cursor=c, total=total, initial=0, progressbar_type=self.progressbar)
+            data_iterator = pg.Progressbar(iterable=c, total=total, initial=0, progressbar_type=self.progressbar)
 
             # Cash configuration attributes to protect against unexpected changes during iteration
             return_index = self.return_index
@@ -255,50 +254,19 @@ class PgSubCollection:
     # TODO:
     def detached_layer(self, name):
         raise NotImplementedError()
-        return LayerSubCollection(self.collection,
-                                  selection_criterion=None,
-                                  detached_layer=name,
-                                  meta_attributes=(),
-                                  progressbar=None,
-                                  return_index=True)
+        return PgSubCollectionLayer(self.collection,
+                                    selection_criterion=None,
+                                    detached_layer=name,
+                                    meta_attributes=(),
+                                    progressbar=None,
+                                    return_index=True)
 
     # TODO:
     def fragmented_layer(self, name):
         raise NotImplementedError()
-        return FragmentSubCollection(self.collection,
-                                     selection_criterion=None,
-                                     detached_layer=None,
-                                     meta_attributes=(),
-                                     progressbar=None,
-                                     return_index=True)
-
-#TODO: Push it out and reuse for other classes
-class Progressbar:
-    def __init__(self, cursor, total, initial, progressbar_type):
-        self.progressbar_type = progressbar_type
-
-        if progressbar_type is None:
-            self.data_iterator = cursor
-        elif progressbar_type in {'ascii', 'unicode'}:
-            self.data_iterator = tqdm(cursor,
-                                      total=total,
-                                      initial=initial,
-                                      unit='doc',
-                                      ascii=progressbar_type == 'ascii',
-                                      smoothing=0)
-        elif progressbar_type == 'notebook':
-            self.data_iterator = tqdm_notebook(cursor,
-                                               total=total,
-                                               initial=initial,
-                                               unit='doc',
-                                               smoothing=0)
-        else:
-            raise ValueError("unknown progressbar type: {!r}, expected None, 'ascii', 'unicode' or 'notebook'"
-                             .format(progressbar_type))
-
-    def set_description(self, description, refresh=False):
-        if self.progressbar_type is not None:
-            self.data_iterator.set_description(description, refresh=refresh)
-
-    def __iter__(self):
-        yield from self.data_iterator
+        return PgSubCollectionFragment(self.collection,
+                                       selection_criterion=None,
+                                       detached_layer=None,
+                                       meta_attributes=(),
+                                       progressbar=None,
+                                       return_index=True)
