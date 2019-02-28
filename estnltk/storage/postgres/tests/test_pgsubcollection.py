@@ -221,18 +221,8 @@ class TestPgSubCollection(unittest.TestCase):
         assert len(head) == 4
 
     def test_tail(self):
-        subcollection = pg.PgSubCollection(self.collection)
-
-        tail = subcollection.tail(0)
-        assert tail == []
-
-        tail = subcollection.tail(2)
-        assert len(tail) == 2
-        assert tail[0][1].text == 'Ööbik laulab. Öökull ei laula.'
-        assert tail[1][1].text == 'Mis kell on?'
-
-        tail = subcollection.tail(20)
-        assert len(tail) == 4
+        with self.assertRaises(NotImplementedError):
+            self.subcollection.tail()
 
     def test_select_all(self):
         subcollection_0 = pg.PgSubCollection(self.collection)

@@ -1,8 +1,8 @@
-import collections
-from typing import Sequence
+from typing import Sequence, List
 from psycopg2.sql import SQL
 
 from estnltk import logger
+from estnltk import Text
 from estnltk.converters import dict_to_text, dict_to_layer
 from estnltk.storage import postgres as pg
 
@@ -244,11 +244,13 @@ class PgSubCollection:
                     else:
                         yield text
 
-    def head(self, n: int = 5):
+    def head(self, n: int = 5) -> List[Text]:
         return [t for _, t in zip(range(n), self)]
 
-    def tail(self, n: int = 5):
-        return list(collections.deque(self, n))
+    def tail(self, n: int = 5) -> List[Text]:
+        # ineffective implementation:
+        # return list(collections.deque(self, n))
+        raise NotImplementedError()
 
     def select_all(self):
         self.selected_layers = self.layers
