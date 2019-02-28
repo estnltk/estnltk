@@ -79,7 +79,7 @@ class PgSubCollection:
         Selects layers together with all layers needed to define them.
         """
 
-        self._selected_layers = self.dependent_layers(layers)
+        self._selected_layers = self.collection.dependent_layers(layers)
         self._attached_layers = [layer for layer in self._selected_layers
                                  if not self.collection.structure[layer]['detached']]
         self._detached_layers = [layer for layer in self._selected_layers
@@ -156,10 +156,6 @@ class PgSubCollection:
     @property
     def sql_count_query_text(self):
         return self.sql_count_query.as_string(self.collection.storage.conn)
-
-    #TODO: Remove this function this is not part of public API 
-    def dependent_layers(self, selected_layers):
-        return self.collection.dependent_layers(selected_layers)
 
     def select(self, additional_constraint: pg.WhereClause = None, selected_layers: Sequence[str] = None):
         """
