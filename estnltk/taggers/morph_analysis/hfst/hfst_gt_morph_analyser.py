@@ -17,6 +17,8 @@
 #     fault";
 #
 
+import hfst
+
 from typing import MutableMapping, Any
 from collections import OrderedDict
 
@@ -29,7 +31,10 @@ from estnltk.taggers import Tagger
 
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text
 
-import hfst
+from estnltk.core import PACKAGE_PATH
+
+HFST_MODEL_FILE = \
+    os.path.join(PACKAGE_PATH, 'taggers', 'morph_analysis', 'hfst', 'models', 'analyser-gt-desc.hfstol')
 
 class HfstEstMorphAnalyser(Tagger):
     """ Hfst-based morphological analyser for Estonian.
@@ -53,7 +58,7 @@ class HfstEstMorphAnalyser(Tagger):
                  output_layer:str='hfst_gt_morph_analysis',
                  input_words_layer:str='words',
                  output_format:str='morphemes_lemmas',
-                 transducer_file:str=None,
+                 transducer_file:str=HFST_MODEL_FILE,
                  transducer:hfst.HfstTransducer=None):
         """Initializes HfstEstMorphAnalyser class.
         
@@ -89,13 +94,16 @@ class HfstEstMorphAnalyser(Tagger):
                           'usage',
                           'weight'
             
-        transducer_file: str (default: None)
+        transducer_file: str
             Path to the ('analyser-gt-desc.hfstol') file, from
             which Estonian morphological analyser can be 
             loaded;
             Note: this argument will be overridden by the 
-            argument transducer: if the transducer is specified,
-            loading it from file will not be attempted;
+            argument transducer: if the transducer is specified
+            (default), then loading it from file will not be 
+            attempted;
+            ( default file: 
+                estnltk\taggers\morph_analysis\hfst\models\analyser-gt-desc.hfstol )
         
         transducer: hfst.HfstTransducer (default: None)
             An instance of HfstTransducer, which can be used 

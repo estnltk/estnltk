@@ -1,0 +1,1 @@
+This folder contains compiled _hfst_ models. The source code of the models is available at [https://victorio.uit.no/langtech/trunk/experiment-langs/est/](https://victorio.uit.no/langtech/trunk/experiment-langs/est/), and the last compiled model is based on the source revision 176161 (2019-01-28).
