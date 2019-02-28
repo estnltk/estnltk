@@ -77,6 +77,7 @@ from .pgpass_parsing import parse_pgpass
 
 from .progressbar import Progressbar
 
+from .subcollectionlayer import PgSubCollectionLayer
 from .subcollection import PgSubCollection
 
 from .storage import PgStorageException

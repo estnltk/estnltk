@@ -256,15 +256,12 @@ class PgSubCollection:
         self.selected_layers = self.layers
         return self
 
-    # TODO:
     def detached_layer(self, name):
-        raise NotImplementedError()
-        return PgSubCollectionLayer(self.collection,
-                                    selection_criterion=None,
-                                    detached_layer=name,
-                                    meta_attributes=(),
-                                    progressbar=None,
-                                    return_index=True)
+        return pg.PgSubCollectionLayer(self.collection,
+                                       selection_criterion=self._selection_criterion,
+                                       detached_layer=name,
+                                       progressbar=self.progressbar,
+                                       return_index=self.return_index)
 
     # TODO:
     def fragmented_layer(self, name):
