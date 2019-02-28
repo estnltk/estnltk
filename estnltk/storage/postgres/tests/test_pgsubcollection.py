@@ -13,8 +13,6 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
-from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema
 from estnltk.storage import postgres as pg
 
 
@@ -28,8 +26,8 @@ def get_random_collection_name():
 class TestPgSubCollection(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        create_schema(self.storage)
+        self.storage = pg.PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+        pg.create_schema(self.storage)
 
         self.collection_name = get_random_collection_name()
         self.collection = self.storage[self.collection_name]
@@ -54,8 +52,12 @@ class TestPgSubCollection(unittest.TestCase):
         vabamorf_tagger = VabamorfTagger(disambiguate=False)
         self.collection.create_layer(tagger=vabamorf_tagger)
 
+        self.subcollection = pg.PgSubCollection(self.collection,
+                                                selected_layers=['sentences', 'morph_analysis'],
+                                                meta_attributes=['meta_1', 'meta_2'])
+
     def tearDown(self):
-        delete_schema(self.storage)
+        pg.delete_schema(self.storage)
         self.storage.close()
 
     def test_init(self):
@@ -87,8 +89,10 @@ class TestPgSubCollection(unittest.TestCase):
         assert set(subcollection.selected_layers) == {'tokens'}
 
     def test_layers(self):
-        subcollection = pg.PgSubCollection(self.collection)
-        assert set(subcollection.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
+        assert set(self.subcollection.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
+
+    def test_detached_layers(self):
+        assert self.subcollection.detached_layers == ['words', 'sentences', 'morph_analysis']
 
     def test_sql_query_text(self):
         subcollection = self.collection.select()
@@ -97,6 +101,16 @@ class TestPgSubCollection(unittest.TestCase):
                            '"test_schema"."{collection_name}"."data" '
                     'FROM "test_schema"."{collection_name}"').format(collection_name=self.collection_name)
         assert subcollection.sql_query_text == expected
+
+    def test_sql_count_query_text(self):
+        subcollection = self.collection.select()
+
+        expected = ('SELECT count(*) FROM (SELECT "test_schema"."{collection_name}"."id", '
+                                                 '"test_schema"."{collection_name}"."data" '
+                                          'FROM "test_schema"."{collection_name}") AS a'
+                    ).format(collection_name=self.collection_name)
+        print(subcollection.sql_count_query_text)
+        assert subcollection.sql_count_query_text == expected
 
     def test_select(self):
         subcollection_0 = self.collection.select()
