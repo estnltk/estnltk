@@ -1,3 +1,4 @@
+import collections
 from typing import Sequence
 from psycopg2.sql import SQL
 
@@ -242,6 +243,12 @@ class PgSubCollection:
                         yield text_id, text
                     else:
                         yield text
+
+    def head(self, n: int = 5):
+        return [t for _, t in zip(range(n), self)]
+
+    def tail(self, n: int = 5):
+        return list(collections.deque(self, n))
 
     def select_all(self):
         self.selected_layers = self.layers
