@@ -30,10 +30,10 @@ Example usage:
         print(key, txt)
 
 """
-from .sql_table_naming import collection_table_name
-from .sql_table_naming import structure_table_name
-from .sql_table_naming import layer_table_name
-from .sql_table_naming import fragment_table_name
+from estnltk.storage.postgres.sql_composition.sql_table_naming import collection_table_name
+from estnltk.storage.postgres.sql_composition.sql_table_naming import structure_table_name
+from estnltk.storage.postgres.sql_composition.sql_table_naming import layer_table_name
+from estnltk.storage.postgres.sql_composition.sql_table_naming import fragment_table_name
 
 from .pg_operations import collection_table_identifier
 from .pg_operations import structure_table_identifier
