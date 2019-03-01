@@ -272,3 +272,11 @@ class PgSubCollection:
                                        meta_attributes=(),
                                        progressbar=None,
                                        return_index=True)
+
+    def __repr__(self):
+        return ('{self.__class__.__name__}('
+                'collection: {self.collection.name!r}, '
+                'selected_layers={self.selected_layers}, '
+                'meta_attributes={self.meta_attributes}, '
+                'progressbar={self.progressbar!r}, '
+                'return_index={self.return_index})').format(self=self)
