@@ -26,14 +26,17 @@ def dict_to_annotation(d: Union[dict, Sequence[dict]], span) -> Union[Annotation
 def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
     layer = Layer(name=layer_dict['name'],
                   attributes=layer_dict['attributes'],
+                  text_object=text,
                   parent=layer_dict['parent'],
                   enveloping=layer_dict['enveloping'],
                   ambiguous=layer_dict['ambiguous']
                   )
-    layer.text_object = text
     layer._base = layer_dict['_base']
 
-    layers = text.layers.copy()
+    if text is None:
+        layers = {}
+    else:
+        layers = text.layers.copy()
     if detached_layers:
         layers.update(detached_layers)
 
@@ -72,7 +75,7 @@ def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
     return layer
 
 
-def dict_to_layer(layer_dict: dict, text: Text, detached_layers=None) -> Union[Layer, List[Layer]]:
+def dict_to_layer(layer_dict: dict, text: Text = None, detached_layers=None) -> Union[Layer, List[Layer]]:
     if isinstance(layer_dict, (list, tuple)) and isinstance(text, (list, tuple)):
         if detached_layers is None:
             detached_layers = [None] * len(layer_dict)
