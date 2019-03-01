@@ -1,7 +1,7 @@
 from psycopg2.sql import SQL
 
 from estnltk import logger
-from estnltk.converters import dict_to_text, dict_to_layer
+from estnltk.converters import dict_to_layer
 from estnltk.storage import postgres as pg
 
 
@@ -51,8 +51,11 @@ class PgSubCollectionLayer:
         self.progressbar = progressbar
         self.return_index = return_index
 
-        # TODO: Complete code
-        #  Raise error if the layer is not detachable?
+        structure = collection.structure
+        assert detached_layer in structure
+        assert structure[detached_layer]['detached'] is True
+        assert structure[detached_layer]['parent'] is None
+        assert structure[detached_layer]['enveloping'] is None
 
     @property
     def sql_query(self):
@@ -64,14 +67,12 @@ class PgSubCollectionLayer:
         or some dark magic query composition.
         """
 
-        #TODO: Simplify query and return only a single layer
+        # TODO: Simplify query
 
-        selected_columns = pg.SelectedColumns(collection=self.collection,
-                                              layers=self._detached_layers,
-                                              collection_meta=self.meta_attributes,
-                                              include_layer_ids=False)
+        selected_columns = [SQL('{}."text_id"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.detached_layer)),
+                            SQL('{}."data"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.detached_layer))]
 
-        required_layers = sorted(set(self._detached_layers + self._selection_criterion.required_layers))
+        required_layers = sorted({self.detached_layer, *self._selection_criterion.required_layers})
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
         # Required layers are part of the main collection
@@ -89,7 +90,6 @@ class PgSubCollectionLayer:
         join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
                                                                                 layer_table_identifier)
                                            for layer_table_identifier in required_layer_tables)
-
 
         required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
         if self._selection_criterion:
@@ -161,37 +161,20 @@ class PgSubCollectionLayer:
 
             # Cash configuration attributes to protect against unexpected changes during iteration
             return_index = self.return_index
-            if self.meta_attributes:
-                for row in data_iterator:
-                    text_id = row[0]
-                    data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
+            for row in data_iterator:
+                text_id = row[0]
+                data_iterator.set_description('text_id: {}'.format(text_id), refresh=False)
 
-                    text_dict = row[1]
-                    text = dict_to_text(text_dict, self._attached_layers)
+                layer = dict_to_layer(row[1])
 
-                    for layer_dict in row[2 + len(self.meta_attributes):]:
-                        layer = dict_to_layer(layer_dict, text)
-                        text[layer.name] = layer
+                if return_index:
+                    yield text_id, layer
+                else:
+                    yield layer
 
-                    meta_values = row[2:2 + len(self.meta_attributes)]
-                    meta = {attr: value for attr, value in zip(self.meta_attributes, meta_values)}
-                    if return_index:
-                        yield text_id, text, meta
-                    else:
-                        yield text, meta
-            else:
-                for row in data_iterator:
-                    text_id = row[0]
-                    data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
-
-                    text_dict = row[1]
-                    text = dict_to_text(text_dict, self._attached_layers)
-
-                    for layer_dict in row[2:]:
-                        layer = dict_to_layer(layer_dict, text)
-                        text[layer.name] = layer
-
-                    if return_index:
-                        yield text_id, text
-                    else:
-                        yield text
+    def __repr__(self):
+        return ('{self.__class__.__name__}('
+                'collection: {self.collection.name!r}, '
+                'detached_layer={self.detached_layer!r}, '
+                'progressbar={self.progressbar!r}, '
+                'return_index={self.return_index})').format(self=self)
