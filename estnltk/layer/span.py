@@ -222,7 +222,7 @@ class Span:
         if self.layer is None:
             return 'Span(start={self.start}, end={self.end}, layer={self.layer})'.format(self=self)
         if self.layer.text_object is None:
-            return 'Span(start={self.start}, end={self.end}, layer={self.layer.name})'.format(self=self)
+            return 'Span(start={self.start}, end={self.end}, layer: {self.layer.name!r})'.format(self=self)
 
         legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
 

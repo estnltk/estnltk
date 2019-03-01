@@ -639,16 +639,21 @@ class Layer:
 
     def _repr_html_(self):
         attributes = []
-        if self.text_object is not None:
+        if self.text_object is None:
+            text_object = 'No Text object.'
+        else:
             attributes.append('text')
+            text_object = ''
         if self.print_start_end:
             attributes.extend(['start', 'end'])
         attributes.extend(self.attributes)
+        if not attributes:
+            attributes = ['start', 'end']
         table_1 = self.metadata().to_html(index=False, escape=False)
         table_2 = ''
         if attributes:
             table_2 = self.attribute_list(attributes).to_html(index='text')
-        return '\n'.join(('<h4>Layer</h4>', table_1, table_2))
+        return '\n'.join(('<h4>Layer</h4>', text_object, table_1, table_2))
 
     def __repr__(self):
         return str(self)
