@@ -17,7 +17,6 @@ from estnltk.converters import dict_to_layer
 from estnltk.converters import text_to_json
 from estnltk.layer_operations import create_ngram_fingerprint_index
 
-from estnltk.storage.postgres import table_identifier
 from estnltk.storage.postgres import structure_table_identifier
 from estnltk.storage.postgres import fragment_table_identifier
 from estnltk.storage.postgres import layer_table_identifier
@@ -81,6 +80,7 @@ class PgCollection:
 
         self._buffered_insert_query_length = 0
         self._selected_layes = None
+        self._is_empty = not self.exists() or len(self) == 0
 
     def create(self, description=None, meta: dict = None, temporary=None):
         """Creates the database tables for the collection"""
@@ -97,7 +97,11 @@ class PgCollection:
 
     @property
     def layers(self):
-        return sorted(self._structure)
+        if self._is_empty:
+            return
+        if self._structure is None:
+            return []
+        return list(self._structure)
 
     @property
     def selected_layers(self):
@@ -113,7 +117,7 @@ class PgCollection:
         assert isinstance(value, list)
         assert all(isinstance(v, str) for v in value)
         assert set(value) <= set(self._structure)
-        self._selected_layes = value
+        self._selected_layes = self.dependent_layers(value)
 
     def dependent_layers(self, selected_layers):
         """Returns all layers that depend on selected layers including selected layers.
@@ -257,6 +261,7 @@ class PgCollection:
     def insert(self, buffer_size=10000, query_length_limit=5000000):
         buffer = []
         self._buffered_insert_query_length = 0
+        self._insert_counter = 0
         column_identifiers = SQL(', ').join(map(Identifier, self.column_names))
         table_identifier = pg.collection_table_identifier(self.storage, self.name)
 
@@ -265,9 +270,11 @@ class PgCollection:
         with self.storage.conn.cursor() as cursor:
 
             def wrap_buffered_insert(text, key=None, meta_data=None):
-                if self._structure == {}:
+                if self._is_empty:
+                    self._is_empty = False
                     if key is None:
                         key = 0
+                    assert not self._structure
                     for layer in text.layers:
                         self._insert_into_structure(text[layer], detached=False)
                 elif any(struct['detached'] for struct in self._structure.values()):
@@ -302,6 +309,7 @@ class PgCollection:
 
                 q = SQL('({})').format(SQL(', ').join(row))
                 self._buffered_insert_query_length += get_query_length(q)
+                self._insert_counter += 1
                 buffer.append(q)
 
                 if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
@@ -317,6 +325,7 @@ class PgCollection:
                                           table_identifier=table_identifier,
                                           column_identifiers=column_identifiers,
                                           buffer=buffer)
+                logger.info('inserted {self._insert_counter} texts into the collection {self.name!r}'.format(self=self))
 
     @contextmanager
     def buffered_layer_insert(self, table_identifier, columns, buffer_size=10000, query_length_limit=5000000):
@@ -359,7 +368,7 @@ class PgCollection:
         self._buffered_insert_query_length = get_query_length(column_identifiers)
 
     def exists(self):
-        """Returns true if collection tables exists"""
+        """Returns True if collection tables exist"""
         collection_table = table_exists(self.storage, self.name)
         structure_table = structure_table_exists(self.storage, self.name)
         assert collection_table is structure_table, (collection_table, structure_table)
@@ -427,8 +436,9 @@ class PgCollection:
                 fragment_layer = dict_to_layer(fragment_dict, text)
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
-    def select(self, query=None, layer_query=(), layer_ngram_query=(), layers=None, keys=None, order_by_key=False,
-               collection_meta: Sequence[str] = (), progressbar=None, missing_layer: str = None, return_index=True):
+    def select(self, query=None, layer_query=None, layer_ngram_query=None, layers: Sequence[str] = None,
+               keys: Sequence[int] = None, collection_meta: Sequence[str] = None, progressbar: str = None,
+               missing_layer: str = None, return_index: bool = True):
         if not self.exists():
             raise PgCollectionException('collection does not exist')
 
@@ -577,7 +587,7 @@ class PgCollection:
                              layer_query.items()} if layer_query is not None else None
 
         return self.select(query=jsonb_text_query, layer_query=jsonb_layer_query,
-                           layer_ngram_query=layer_ngram_query, layers=layers, order_by_key=order_by_key)
+                           layer_ngram_query=layer_ngram_query, layers=layers)
 
     def create_fragment(self, fragment_name, data_iterator, row_mapper,
                         create_index=False, ngram_index=None):
@@ -959,9 +969,9 @@ class PgCollection:
 
         q %= {"parent_col": parent_col, "ngram_cols": ngram_cols, "meta_cols": meta_cols}
         if is_fragment:
-            layer_identifier = table_identifier(self.storage, fragment_table_name(self.name, layer_name))
+            layer_identifier = pg.table_identifier(self.storage, fragment_table_name(self.name, layer_name))
         else:
-            layer_identifier = table_identifier(self.storage, layer_table_name(self.name, layer_name))
+            layer_identifier = pg.table_identifier(self.storage, layer_table_name(self.name, layer_name))
         q = SQL(q).format(temporary=temporary, layer_identifier=layer_identifier)
         cursor.execute(q)
         logger.debug(cursor.query.decode())
@@ -1035,6 +1045,7 @@ class PgCollection:
         if not self.exists():
             return
         del self.storage[self.name]
+        self._is_empty = True
 
     def has_layer(self, layer_name):
         return layer_name in self._structure
@@ -1050,10 +1061,9 @@ class PgCollection:
             lf_names.append(layer)
         return lf_names
 
+    # TODO: remove
     def get_layer_names(self):
-        if self._structure is None:
-            return []
-        return list(self._structure)
+        return self.layers
 
     def get_fragment_tables(self):
         fragment_tables = []
