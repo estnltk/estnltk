@@ -67,6 +67,24 @@ class TestPgCollection(unittest.TestCase):
         collection.delete()
         self.assertFalse(collection.exists())
 
+    def test_insert(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+
+        text_1 = Text('Esimene tekst.')
+        text_2 = Text('Teine tekst')
+        text_3 = Text('Kolmas tekst')
+
+        with collection.insert() as collection_insert:
+            collection_insert(text_1)
+            collection_insert(text_2)
+            collection_insert(text_3)
+
+        assert len(collection) == 3
+
+        collection.delete()
+
     def test_basic_collection_workflow(self):
         # insert texts -> create layers -> select texts
         collection_name = get_random_collection_name()
@@ -205,7 +223,7 @@ class TestPgCollection(unittest.TestCase):
         self.assertEqual(collection.select_by_key(id1), text1)
         self.assertEqual(collection.select_by_key(id2), text2)
 
-        subcollection = collection.select(order_by_key=True)
+        subcollection = collection.select()
         assert isinstance(subcollection, pg.PgSubCollection)
 
         # test select_all
@@ -218,6 +236,11 @@ class TestPgCollection(unittest.TestCase):
         id_, text = res[1]
         self.assertEqual(id_, id2)
         self.assertEqual(text, text2)
+
+        collection.delete()
+
+        collection = self.storage[get_random_collection_name()]
+        collection.create()
 
         # test select
         with collection.insert() as collection_insert:
@@ -279,13 +302,13 @@ class TestPgCollection(unittest.TestCase):
 
         q["query"] = []
         res = list(collection.find_fingerprint(q))
-        self.assertEqual(len(res), 4)
+        self.assertEqual(len(res), 2)
 
         res = list(collection.select(keys=[]))
         self.assertEqual(len(res), 0)
 
         res = list(collection.select(keys=[1, 3]))
-        self.assertEqual(len(res), 2)
+        self.assertEqual(len(res), 1)
 
         collection.delete()
 

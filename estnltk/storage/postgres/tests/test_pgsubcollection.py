@@ -94,6 +94,10 @@ class TestPgSubCollection(unittest.TestCase):
     def test_detached_layers(self):
         assert self.subcollection.detached_layers == ['words', 'sentences', 'morph_analysis']
 
+    def test_fragmented_layers(self):
+        with self.assertRaises(NotImplementedError):
+            self.subcollection.fragmented_layers
+
     def test_sql_query_text(self):
         subcollection = self.collection.select()
 
@@ -233,7 +237,7 @@ class TestPgSubCollection(unittest.TestCase):
         assert set(text.layers) == {'sentences', 'words', 'morph_analysis', 'compound_tokens', 'tokens'}
 
     def test_detached_layer(self):
-        sub_collection_layer = self.subcollection.detached_layer('layer_name')
+        sub_collection_layer = self.subcollection.detached_layer('words')
         self.assertIsInstance(sub_collection_layer, pg.PgSubCollectionLayer)
 
     def test_fragmented_layer(self):
