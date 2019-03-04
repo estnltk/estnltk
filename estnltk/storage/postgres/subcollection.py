@@ -263,15 +263,12 @@ class PgSubCollection:
                                        progressbar=self.progressbar,
                                        return_index=self.return_index)
 
-    # TODO:
     def fragmented_layer(self, name):
-        raise NotImplementedError()
-        return PgSubCollectionFragment(self.collection,
-                                       selection_criterion=None,
-                                       detached_layer=None,
-                                       meta_attributes=(),
-                                       progressbar=None,
-                                       return_index=True)
+        return pg.PgSubCollectionFragments(self.collection,
+                                           selection_criterion=self._selection_criterion,
+                                           fragmented_layer=name,
+                                           progressbar=self.progressbar,
+                                           return_index=self.return_index)
 
     def __repr__(self):
         return ('{self.__class__.__name__}('

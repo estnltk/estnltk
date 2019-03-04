@@ -10,7 +10,7 @@ class PgSubCollectionFragments:
     Wrapper class that provides read-only access to a subset of a collection.
 
     The subset is specified by a SQL select statement that is determined by
-    - the detached layer
+    - the fragmented layer
     - the selection criterion
 
     The main usecase for the class is iteration over its elements. 
@@ -28,7 +28,7 @@ class PgSubCollectionFragments:
     """
 
     def __init__(self, collection: pg.PgCollection, selection_criterion: pg.WhereClause = None,
-                 detached_layer: str = None, progressbar: str = None, return_index: bool = True):
+                 fragmented_layer: str = None, progressbar: str = None, return_index: bool = True):
         """
         """
 
@@ -47,15 +47,15 @@ class PgSubCollectionFragments:
         else:
             raise TypeError('unexpected type of selection_criterion: {!r}'.format(type(selection_criterion)))
 
-        self.detached_layer = detached_layer
+        self.fragmented_layer = fragmented_layer
         self.progressbar = progressbar
         self.return_index = return_index
 
         structure = collection.structure
-        assert detached_layer in structure
-        assert structure[detached_layer]['detached'] is True
-        assert structure[detached_layer]['parent'] is None
-        assert structure[detached_layer]['enveloping'] is None
+        assert fragmented_layer in structure
+        assert structure[fragmented_layer]['detached'] is True
+        assert structure[fragmented_layer]['parent'] is None
+        assert structure[fragmented_layer]['enveloping'] is None
 
     @property
     def sql_query(self):
@@ -69,10 +69,10 @@ class PgSubCollectionFragments:
 
         # TODO: Simplify query
 
-        selected_columns = [SQL('{}."text_id"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.detached_layer)),
-                            SQL('{}."data"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.detached_layer))]
+        selected_columns = [SQL('{}."text_id"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.fragmented_layer)),
+                            SQL('{}."data"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.fragmented_layer))]
 
-        required_layers = sorted({self.detached_layer, *self._selection_criterion.required_layers})
+        required_layers = sorted({self.fragmented_layer, *self._selection_criterion.required_layers})
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
         # Required layers are part of the main collection
@@ -84,7 +84,7 @@ class PgSubCollectionFragments:
             
             return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
 
-        # Build a join clauses to merge required detached layers by text_id
+        # Build a join clauses to merge required layers by text_id
         required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
                                  for layer in required_layers]
         join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
@@ -127,7 +127,7 @@ class PgSubCollectionFragments:
 
         return PgSubCollectionFragments(collection=self.collection,
                                         selection_criterion=self._selection_criterion & additional_constraint,
-                                        detached_layer=self.detached_layer,
+                                        fragmented_layer=self.fragmented_layer,
                                         progressbar=self.progressbar,
                                         return_index=self.return_index)
 
@@ -175,6 +175,6 @@ class PgSubCollectionFragments:
     def __repr__(self):
         return ('{self.__class__.__name__}('
                 'collection: {self.collection.name!r}, '
-                'detached_layer={self.detached_layer!r}, '
+                'fragmented_layer={self.fragmented_layer!r}, '
                 'progressbar={self.progressbar!r}, '
                 'return_index={self.return_index})').format(self=self)
