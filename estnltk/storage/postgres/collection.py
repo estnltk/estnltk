@@ -75,7 +75,7 @@ class PgCollection:
         # TODO: read meta columns from collection table if exists, move this parameter to self.create
         self.meta = meta or {}
         self._temporary = temporary
-        self._structure = pg.v0.CollectionStructure(self)
+        self._structure = pg.v00.CollectionStructure(self)
         self.column_names = ['id', 'data'] + list(self.meta)
 
         self._buffered_insert_query_length = 0

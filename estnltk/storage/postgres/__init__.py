@@ -66,7 +66,8 @@ from .pg_operations import count_rows
 from .jsonb_layer_query import JsonbLayerQuery
 from .jsonb_text_query import JsonbTextQuery
 
-from .structure import v0
+from .structure.base.collection_structure_base import CollectionStructureBase
+from .structure import v00
 from .structure import v10
 
 from .collection import RowMapperRecord
