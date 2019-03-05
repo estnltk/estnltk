@@ -4,7 +4,10 @@ from estnltk.logger import logger
 from estnltk.storage import postgres as pg
 
 
-class Structure_10:
+__version__ = '1.0'
+
+
+class CollectionStructure:
     def __init__(self, collection):
         self.collection = collection
 
