@@ -75,7 +75,7 @@ class PgCollection:
         # TODO: read meta columns from collection table if exists, move this parameter to self.create
         self.meta = meta or {}
         self._temporary = temporary
-        self._structure = pg.Structure(self, version='00')
+        self._structure = pg.Structure_10(self)
         self.column_names = ['id', 'data'] + list(self.meta)
 
         self._buffered_insert_query_length = 0
@@ -84,7 +84,7 @@ class PgCollection:
 
     def create(self, description=None, meta: dict = None, temporary=None):
         """Creates the database tables for the collection"""
-        pg.create_structure_table(self.storage, self.name)
+        self.structure.create_table()
 
         pg.create_collection_table(self.storage,
                                    collection_name=self.name,
