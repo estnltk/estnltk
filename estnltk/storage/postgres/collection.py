@@ -110,7 +110,7 @@ class PgCollection:
             if self._is_empty is None:
                 return []
             self._selected_layes = [layer for layer, properties in self._structure.structure.items()
-                                    if properties['detached'] is False]
+                                    if properties['layer_type'] == 'attached']
         return self._selected_layes
 
     @selected_layers.setter
@@ -188,7 +188,7 @@ class PgCollection:
                                ).format(pg.collection_table_identifier(self.storage, self.name),
                                         pg.collection_table_identifier(other.storage, other.name)))
             for layer_name, struct in self._structure.structure.items():
-                if struct['detached']:
+                if struct['layer_type'] == 'detached':
                     cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(
                             layer_table_identifier(self.storage, self.name, layer_name),
                             layer_table_identifier(self.storage, other.name, layer_name)))
@@ -237,7 +237,7 @@ class PgCollection:
                     assert not self._structure
                     for layer in text.layers:
                         self._structure.insert(layer=text[layer], layer_type='attached', meta={})
-                elif any(struct['detached'] for struct in self._structure.structure.values()):
+                elif any(struct['layer_type'] == 'detached' for struct in self._structure.structure.values()):
                     # TODO: solve this case in a better way
                     raise PgCollectionException("this collection has detached layers, can't add new text objects")
                 else:
@@ -245,7 +245,7 @@ class PgCollection:
                                                                                        set(self._structure))
                     for layer_name, layer in text.layers.items():
                         layer_struct = self._structure[layer_name]
-                        assert layer_struct['detached'] is False
+                        assert layer_struct['layer_type'] == 'attached'
                         assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
                                 layer_struct['attributes'], layer.attributes)
                         assert layer_struct['ambiguous'] == layer.ambiguous
@@ -970,7 +970,7 @@ class PgCollection:
     def delete_layer(self, layer_name, cascade=False):
         if layer_name not in self._structure:
             raise PgCollectionException("collection does not have a layer {!}".format(layer_name))
-        if not self._structure[layer_name]['detached']:
+        if self._structure[layer_name]['layer_type'] == 'attached':
             raise PgCollectionException("can't delete attached layer {!}".format(layer_name))
 
         for ln, struct in self._structure.structure.items():
@@ -1086,7 +1086,7 @@ class PgCollection:
         else:
             structure_html = pandas.DataFrame.from_dict(self._structure.structure,
                                                         orient='index',
-                                                        columns=['detached', 'attributes', 'ambiguous', 'parent',
+                                                        columns=['layer_type', 'attributes', 'ambiguous', 'parent',
                                                                  'enveloping', '_base', 'meta']
                                                         ).to_html()
         column_meta = self._collection_table_meta()

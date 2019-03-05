@@ -114,7 +114,7 @@ class PostgresStorage:
 
         if collection.exists():
             for layer, v in collection.structure.structure.items():
-                if v['detached']:
+                if v['layer_type'] == 'detached':
                     drop_layer_table(self, key, layer)
             drop_structure_table(self, key)
             drop_collection_table(self, key)

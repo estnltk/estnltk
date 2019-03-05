@@ -32,7 +32,7 @@ class PgSubCollection:
     """
 
     def __init__(self, collection: pg.PgCollection, selection_criterion: pg.WhereClause = None,
-                 selected_layers: Sequence[str] = None, meta_attributes: Sequence[str] = None, 
+                 selected_layers: Sequence[str] = None, meta_attributes: Sequence[str] = None,
                  progressbar: str = None, return_index: bool = True):
         """
         :param collection: PgCollection
@@ -82,9 +82,9 @@ class PgSubCollection:
 
         self._selected_layers = self.collection.dependent_layers(layers)
         self._attached_layers = [layer for layer in self._selected_layers
-                                 if not self.collection.structure[layer]['detached']]
+                                 if self.collection.structure[layer]['layer_type'] == 'attached']
         self._detached_layers = [layer for layer in self._selected_layers
-                                 if self.collection.structure[layer]['detached']]
+                                 if self.collection.structure[layer]['layer_type'] == 'detached']
 
     @property
     def layers(self):
@@ -123,7 +123,7 @@ class PgSubCollection:
                 return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
                                                                 collection_identifier,
                                                                 self._selection_criterion)
-            
+
             return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
 
         # Build a join clauses to merge required detached layers by text_id
@@ -258,15 +258,15 @@ class PgSubCollection:
 
     def detached_layer(self, name):
         return pg.PgSubCollectionLayer(self.collection,
-                                       selection_criterion=self._selection_criterion,
                                        detached_layer=name,
+                                       selection_criterion=self._selection_criterion,
                                        progressbar=self.progressbar,
                                        return_index=self.return_index)
 
     def fragmented_layer(self, name):
         return pg.PgSubCollectionFragments(self.collection,
-                                           selection_criterion=self._selection_criterion,
                                            fragmented_layer=name,
+                                           selection_criterion=self._selection_criterion,
                                            progressbar=self.progressbar,
                                            return_index=self.return_index)
 

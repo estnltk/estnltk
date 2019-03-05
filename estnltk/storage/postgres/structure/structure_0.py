@@ -85,8 +85,7 @@ class Structure_0:
                       format(pg.structure_table_identifier(self.collection.storage, self.collection.name)))
 
             for row in c.fetchall():
-                structure[row[0]] = {'detached': row[1],
-                                     'attributes': tuple(row[2]),
+                structure[row[0]] = {'attributes': tuple(row[2]),
                                      'ambiguous': row[3],
                                      'parent': row[4],
                                      'enveloping': row[5],

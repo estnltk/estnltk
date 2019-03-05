@@ -92,6 +92,5 @@ class Structure_10:
                                      'enveloping': row[5],
                                      '_base': row[6],
                                      'meta': row[7],
-                                     'detached': row[1] == 'detached',
                                      'loader': None}
         return structure

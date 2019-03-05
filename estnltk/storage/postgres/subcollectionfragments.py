@@ -27,8 +27,8 @@ class PgSubCollectionFragments:
     retrieving layer meta attributes is not implemented
     """
 
-    def __init__(self, collection: pg.PgCollection, selection_criterion: pg.WhereClause = None,
-                 fragmented_layer: str = None, progressbar: str = None, return_index: bool = True):
+    def __init__(self, collection: pg.PgCollection, fragmented_layer: str,
+                 selection_criterion: pg.WhereClause = None, progressbar: str = None, return_index: bool = True):
         """
         """
 
@@ -51,9 +51,9 @@ class PgSubCollectionFragments:
         self.progressbar = progressbar
         self.return_index = return_index
 
-        structure = collection.structure
+        structure = collection._structure
         assert fragmented_layer in structure
-        assert structure[fragmented_layer]['detached'] is True
+        assert structure[fragmented_layer]['layer_type'] == 'detached'
         assert structure[fragmented_layer]['parent'] is None
         assert structure[fragmented_layer]['enveloping'] is None
 
