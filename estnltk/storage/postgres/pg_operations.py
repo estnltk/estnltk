@@ -85,23 +85,6 @@ def fragment_table_identifier(storage, collection_name, fragment_name):
     return table_identifier(storage, table_name)
 
 
-def create_structure_table(storage, collection_name):
-    table = table_identifier(storage, structure_table_name(collection_name))
-    temporary = SQL('TEMPORARY') if storage.temporary else SQL('')
-    with storage.conn.cursor() as c:
-        c.execute(SQL('CREATE {temporary} TABLE {table} ('
-                      'layer_name text primary key, '
-                      'detached bool not null, '
-                      'attributes text[] not null, '
-                      'ambiguous bool not null, '
-                      'parent text, '
-                      'enveloping text, '
-                      '_base text, '
-                      'meta text[]);').format(temporary=temporary,
-                                              table=table))
-        logger.debug(c.query.decode())
-
-
 def create_collection_table(storage, collection_name, meta_columns=None, description=None):
     """Creates a new table to store jsonb data:
 
