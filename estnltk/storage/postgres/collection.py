@@ -75,7 +75,7 @@ class PgCollection:
         # TODO: read meta columns from collection table if exists, move this parameter to self.create
         self.meta = meta or {}
         self._temporary = temporary
-        self.struct = pg.Structure(self, version='00')
+        self._structure = pg.Structure(self, version='00')
         self.column_names = ['id', 'data'] + list(self.meta)
 
         self._buffered_insert_query_length = 0
@@ -95,19 +95,21 @@ class PgCollection:
         return self
 
     @property
+    def structure(self):
+        return self._structure
+
+    @property
     def layers(self):
         if self._is_empty:
             return
-        if self.structure is None:
-            return []
-        return list(self.structure)
+        return list(self._structure)
 
     @property
     def selected_layers(self):
         if self._selected_layes is None:
-            if self.structure is None:
+            if self._is_empty is None:
                 return []
-            self._selected_layes = [layer for layer, properties in self.structure.items()
+            self._selected_layes = [layer for layer, properties in self._structure.structure.items()
                                     if properties['detached'] is False]
         return self._selected_layes
 
@@ -115,7 +117,7 @@ class PgCollection:
     def selected_layers(self, value):
         assert isinstance(value, list)
         assert all(isinstance(v, str) for v in value)
-        assert set(value) <= set(self.structure)
+        assert set(value) <= set(self._structure)
         self._selected_layes = self.dependent_layers(value)
 
     def dependent_layers(self, selected_layers):
@@ -146,22 +148,18 @@ class PgCollection:
         def include_dep(layer):
             if layer is None:
                 return
-            for dep in (self.structure[layer]['parent'], self.structure[layer]['enveloping']):
+            for dep in (self._structure[layer]['parent'], self._structure[layer]['enveloping']):
                 include_dep(dep)
             if layer not in layers_extended:
                 layers_extended.append(layer)
 
         for layer in selected_layers:
-            if layer not in self.structure:
+            if layer not in self._structure:
                 raise pg.PgCollectionException('there is no layer {!r} in the collection {!r}'.format(
                                                layer, self.name))
             include_dep(layer)
 
         return layers_extended
-
-    @property
-    def structure(self):
-        return self.struct.structure
 
     def create_index(self):
         """create index for the collection table"""
@@ -183,13 +181,13 @@ class PgCollection:
     def extend(self, other: 'PgCollection'):
         if self.column_names != other.column_names:
             raise PgCollectionException("can't extend: different collection meta")
-        if self.structure != other.structure:
+        if self._structure != other._structure:
             raise PgCollectionException("can't extend: structures are different")
         with self.storage.conn.cursor() as cursor:
             cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}'
                                ).format(pg.collection_table_identifier(self.storage, self.name),
                                         pg.collection_table_identifier(other.storage, other.name)))
-            for layer_name, struct in self.structure.items():
+            for layer_name, struct in self._structure.structure.items():
                 if struct['detached']:
                     cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(
                             layer_table_identifier(self.storage, self.name, layer_name),
@@ -236,21 +234,20 @@ class PgCollection:
                     self._is_empty = False
                     if key is None:
                         key = 0
-                    assert not self.structure
+                    assert not self._structure
                     for layer in text.layers:
-                        self.struct.insert(layer=text[layer], layer_type='attached', meta={})
-                elif any(struct['detached'] for struct in self.structure.values()):
+                        self._structure.insert(layer=text[layer], layer_type='attached', meta={})
+                elif any(struct['detached'] for struct in self._structure.structure.values()):
                     # TODO: solve this case in a better way
                     raise PgCollectionException("this collection has detached layers, can't add new text objects")
                 else:
-                    assert set(text.layers) == set(self.structure), '{} != {}'.format(set(text.layers),
-                                                                                       set(self.structure))
+                    assert set(text.layers) == set(self._structure), '{} != {}'.format(set(text.layers),
+                                                                                       set(self._structure))
                     for layer_name, layer in text.layers.items():
-                        layer_struct = self.structure[layer_name]
+                        layer_struct = self._structure[layer_name]
                         assert layer_struct['detached'] is False
                         assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
-                                layer_struct['attributes'],
-                                layer.attributes)
+                                layer_struct['attributes'], layer.attributes)
                         assert layer_struct['ambiguous'] == layer.ambiguous
                         assert layer_struct['parent'] == layer.parent
                         assert layer_struct['enveloping'] == layer.enveloping
@@ -653,7 +650,7 @@ class PgCollection:
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
                 self.name, layer_name))
         logger.info('collection: {!r}'.format(self.name))
-        if self.structure is None:
+        if self._is_empty:
             raise PgCollectionException("can't add detached layer {!r}, the collection is empty".format(layer_name))
         if self.has_layer(layer_name):
             if overwrite:
@@ -715,7 +712,7 @@ class PgCollection:
                         logger.debug('insert into layer {!r}, query size: {} bytes'.format(layer_name, len(c.query)))
 
                         id_ += 1
-                self.struct.insert(layer=layer, layer_type='detached', meta=meta)
+                self._structure.insert(layer=layer, layer_type='detached', meta=meta)
             except:
                 conn.rollback()
                 raise
@@ -794,7 +791,7 @@ class PgCollection:
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
                 self.name, layer_name))
         logger.info('collection: {!r}'.format(self.name))
-        if self.structure is None:
+        if self._is_empty:
             raise PgCollectionException("can't add detached layer {!r}, the collection is empty".format(layer_name))
         if self.has_layer(layer_name):
             if mode == 'overwrite':
@@ -868,7 +865,7 @@ class PgCollection:
                             values[0] = DEFAULT
                             buffered_insert(values=values)
                             if not structure_written:
-                                self.struct.insert(layer=layer, layer_type='detached', meta=meta)
+                                self._structure.insert(layer=layer, layer_type='detached', meta=meta)
                                 structure_written = True
             except Exception:
                 conn.rollback()
@@ -971,12 +968,12 @@ class PgCollection:
         logger.debug(cursor.query.decode())
 
     def delete_layer(self, layer_name, cascade=False):
-        if layer_name not in self.structure:
+        if layer_name not in self._structure:
             raise PgCollectionException("collection does not have a layer {!}".format(layer_name))
-        if not self.structure[layer_name]['detached']:
+        if not self._structure[layer_name]['detached']:
             raise PgCollectionException("can't delete attached layer {!}".format(layer_name))
 
-        for ln, struct in self.structure.items():
+        for ln, struct in self._structure.structure.items():
             if ln == layer_name:
                 continue
             if layer_name == struct['enveloping'] or layer_name == struct['parent'] or layer_name == struct['_base']:
@@ -1010,7 +1007,7 @@ class PgCollection:
         self._is_empty = True
 
     def has_layer(self, layer_name):
-        return layer_name in self.structure
+        return layer_name in self._structure
 
     def has_fragment(self, fragment_name):
         return fragment_name in self.get_fragment_names()
@@ -1039,7 +1036,7 @@ class PgCollection:
             raise PgCollectionException("Collection does not have the layer {!r}".format(layer_name))
 
         with self.storage.conn.cursor() as c:
-            columns = ['id', 'text_id'] + self.structure[layer_name]['meta']
+            columns = ['id', 'text_id'] + self._structure[layer_name]['meta']
 
             c.execute(SQL('SELECT {} FROM {};').format(
                 SQL(', ').join(map(Identifier, columns)),
@@ -1084,10 +1081,10 @@ class PgCollection:
         logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, export_table))
 
     def _repr_html_(self):
-        if self.structure is None:
+        if self._is_empty:
             structure_html = '<br/>unknown'
         else:
-            structure_html = pandas.DataFrame.from_dict(self.structure,
+            structure_html = pandas.DataFrame.from_dict(self._structure.structure,
                                                         orient='index',
                                                         columns=['detached', 'attributes', 'ambiguous', 'parent',
                                                                  'enveloping', '_base', 'meta']

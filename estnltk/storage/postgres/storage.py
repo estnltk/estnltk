@@ -113,7 +113,7 @@ class PostgresStorage:
         assert collection.name == key, (collection.name, key)
 
         if collection.exists():
-            for layer, v in collection.structure.items():
+            for layer, v in collection.structure.structure.items():
                 if v['detached']:
                     drop_layer_table(self, key, layer)
             drop_structure_table(self, key)

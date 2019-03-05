@@ -10,6 +10,23 @@ class Structure:
         self._modified = True
         self.load()
 
+    def __bool__(self):
+        return bool(self.structure)
+
+    def __iter__(self):
+        yield from self.structure
+
+    def __contains__(self, item):
+        return item in self.structure
+
+    def __getitem__(self, item):
+        return self.structure[item]
+
+    def __eq__(self, other):
+        if isinstance(other, Structure):
+            return self.structure == other.structure
+        return False
+
     @property
     def structure(self):
         if self._modified:
@@ -18,6 +35,8 @@ class Structure:
         return self._structure
 
     def load(self):
+        if not self.collection.exists():
+            return None
         if self.version == '00':
             return self.load_00()
         raise Exception()
@@ -30,8 +49,6 @@ class Structure:
         raise Exception()
 
     def load_00(self):
-        if not self.collection.exists():
-            return None
         structure = {}
         with self.collection.storage.conn.cursor() as c:
             c.execute(SQL("SELECT layer_name, detached, attributes, ambiguous, parent, enveloping, _base, meta "
@@ -45,7 +62,9 @@ class Structure:
                                      'parent': row[4],
                                      'enveloping': row[5],
                                      '_base': row[6],
-                                     'meta': row[7]}
+                                     'meta': row[7],
+                                     'layer_type': 'detached' if row[1] else 'attached',
+                                     'loader': None}
         return structure
 
     def insert_00(self, layer, detached: bool, meta: dict = None):
