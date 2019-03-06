@@ -48,6 +48,32 @@ def table_exists(storage, table_name):
         return c.fetchone()[0]
 
 
+def get_all_table_names(storage):
+    if storage.closed():
+        return None
+    with storage.conn.cursor() as c:
+        c.execute(SQL(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema=%s AND table_type='BASE TABLE'"),
+            [storage.schema])
+        table_names = [row[0] for row in c.fetchall()]
+        return table_names
+
+
+def get_all_tables(storage):
+    if storage.closed():
+        return None
+    with storage.conn.cursor() as c:
+        c.execute(SQL(
+            "SELECT table_name, "
+                   "pg_size_pretty(pg_total_relation_size({schema}||'.'||table_name)), "
+                   "obj_description(({schema}||'.'||table_name)::regclass) "
+            "FROM information_schema.tables "
+            "WHERE table_schema={schema} AND table_type='BASE TABLE';").format(schema=Literal(storage.schema))
+            )
+        tables = {row[0]: {'total_size': row[1], 'comment': row[2]} for row in c}
+        return tables
+
+
 def drop_table(storage, table_name):
     with storage.conn.cursor() as c:
         c.execute(SQL('DROP TABLE {};').format(table_identifier(storage, table_name)))

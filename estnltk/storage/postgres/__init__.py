@@ -45,12 +45,15 @@ from .pg_operations import create_collection_table
 
 from .pg_operations import table_exists
 from .pg_operations import table_identifier
+from .pg_operations import get_all_table_names
+from .pg_operations import get_all_tables
 from .pg_operations import collection_table_exists
 from .pg_operations import structure_table_exists
 from .pg_operations import layer_table_exists
 from .pg_operations import fragment_table_exists
 
 from .pg_operations import delete_schema
+from .pg_operations import drop_table
 from .pg_operations import drop_collection_table
 from .pg_operations import drop_structure_table
 from .pg_operations import drop_fragment_table
@@ -84,5 +87,6 @@ from .subcollectionlayer import PgSubCollectionLayer
 from .subcollectionfragments import PgSubCollectionFragments
 from .subcollection import PgSubCollection
 
+from .storage_collections import StorageCollections
 from .storage import PgStorageException
 from .storage import PostgresStorage
