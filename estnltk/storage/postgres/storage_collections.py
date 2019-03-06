@@ -68,6 +68,7 @@ class StorageCollections:
             )
             )
             logger.debug(c.query.decode())
+        self._storage.conn.commit()
 
         del self._collections[collection_name]
 

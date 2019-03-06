@@ -7,8 +7,6 @@ from estnltk import logger
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import parse_pgpass
 from estnltk.storage.postgres import drop_layer_table
-from estnltk.storage.postgres import drop_structure_table
-from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage import postgres as pg
 
 
@@ -89,21 +87,15 @@ class PostgresStorage:
         return collection
 
     def __delitem__(self, collection_name: str):
-        collection = self._collections.get(collection_name)
-        #if collection is None:
         if collection_name not in self.collections:
             raise KeyError('collection not found: {!r}'.format(collection_name))
 
-        collection = self[collection_name]
+        for layer, v in self[collection_name].structure.structure.items():
+            if v['layer_type'] == 'detached':
+                drop_layer_table(self, collection_name, layer)
+        pg.drop_structure_table(self, collection_name)
+        pg.drop_collection_table(self, collection_name)
 
-        assert collection.name == collection_name, (collection.name, collection_name)
-
-        if collection.exists():
-            for layer, v in collection.structure.structure.items():
-                if v['layer_type'] == 'detached':
-                    drop_layer_table(self, collection_name, layer)
-            drop_structure_table(self, collection_name)
-            drop_collection_table(self, collection_name)
         del self._collections[collection_name]
 
     def __str__(self):
