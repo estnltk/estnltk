@@ -1,7 +1,7 @@
 import pandas
 
 import psycopg2
-from psycopg2.sql import SQL, Identifier, Literal
+from psycopg2.sql import SQL, Identifier
 
 from estnltk import logger
 from estnltk.storage.postgres import PgCollection
@@ -9,6 +9,7 @@ from estnltk.storage.postgres import parse_pgpass
 from estnltk.storage.postgres import drop_layer_table
 from estnltk.storage.postgres import drop_structure_table
 from estnltk.storage.postgres import drop_collection_table
+from estnltk.storage import postgres as pg
 
 
 class PgStorageException(Exception):
@@ -50,10 +51,15 @@ class PostgresStorage:
             c.execute(SQL("SET ROLE {};").format(Identifier(role)))
         self.conn.commit()
 
-        tables = self._get_all_tables()
-        self._collections = {table: None for table in tables if table + '__structure' in tables}
+        self._collections = None
+        self._loaded = False
 
         logger.info('schema: {!r}, temporary: {!r}, role: {!r}'.format(self.schema, self.temporary, role))
+
+    def _load(self):
+        if not self._loaded:
+            self._collections = pg.StorageCollections(self)
+            self._loaded = True
 
     def close(self):
         """Closes database connection"""
@@ -61,30 +67,6 @@ class PostgresStorage:
 
     def closed(self):
         return self.conn.closed
-
-    def get_all_table_names(self):
-        if self.closed():
-            return None
-        with self.conn.cursor() as c:
-            c.execute(SQL(
-                "SELECT table_name FROM information_schema.tables WHERE table_schema=%s AND table_type='BASE TABLE'"),
-                [self.schema])
-            table_names = [row[0] for row in c.fetchall()]
-            return table_names
-
-    def _get_all_tables(self):
-        if self.closed():
-            return None
-        with self.conn.cursor() as c:
-            c.execute(SQL(
-                "SELECT table_name, "
-                       "pg_size_pretty(pg_total_relation_size({schema}||'.'||table_name)), "
-                       "obj_description(({schema}||'.'||table_name)::regclass) "
-                "FROM information_schema.tables "
-                "WHERE table_schema={schema} AND table_type='BASE TABLE';").format(schema=Literal(self.schema))
-                )
-            tables = {row[0]: {'total_size': row[1], 'comment':row[2]} for row in c}
-            return tables
 
     def get_collection(self, table_name: str, meta_fields: dict = None):
         """Returns a new instance of `PgCollection` without physically creating it."""
@@ -98,34 +80,39 @@ class PostgresStorage:
         return sorted(self._collections)
 
     def __getitem__(self, item):
+        self._load()
         collection = self._collections.get(item)
         if collection is not None:
             return collection
-        collection = PgCollection(item, self)
+        collection = PgCollection(item, self, structure_version='1.0')
         self._collections[item] = collection
         return collection
 
-    def __delitem__(self, key):
-        collection = self._collections.get(key)
-        if collection is None:
-            raise KeyError('collection not found: {!r}'.format(key))
+    def __delitem__(self, collection_name: str):
+        collection = self._collections.get(collection_name)
+        #if collection is None:
+        if collection_name not in self.collections:
+            raise KeyError('collection not found: {!r}'.format(collection_name))
 
-        assert collection.name == key, (collection.name, key)
+        collection = self[collection_name]
+
+        assert collection.name == collection_name, (collection.name, collection_name)
 
         if collection.exists():
             for layer, v in collection.structure.structure.items():
                 if v['layer_type'] == 'detached':
-                    drop_layer_table(self, key, layer)
-            drop_structure_table(self, key)
-            drop_collection_table(self, key)
-        del self._collections[key]
+                    drop_layer_table(self, collection_name, layer)
+            drop_structure_table(self, collection_name)
+            drop_collection_table(self, collection_name)
+        del self._collections[collection_name]
 
     def __str__(self):
         return '{self.__class__.__name__}({self.conn.dsn} schema={self.schema} temporary={self.temporary})'.format(
                 self=self)
 
     def _repr_html_(self):
-        tables = self._get_all_tables()
+        self._load()
+        tables = pg.get_all_tables(self)
 
         structure = {}
 
