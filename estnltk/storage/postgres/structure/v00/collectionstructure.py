@@ -30,8 +30,8 @@ class CollectionStructure(pg.CollectionStructureBase):
         self._modified = True
 
         detached = layer_type in {'detached', 'fragmented'}
-
         meta = list(meta or [])
+
         with self.collection.storage.conn.cursor() as c:
             c.execute(SQL("INSERT INTO {} (layer_name, detached, attributes, ambiguous, parent, enveloping, _base, meta) "
                           "VALUES ({}, {}, {}, {}, {}, {}, {}, {});").format(
@@ -46,7 +46,6 @@ class CollectionStructure(pg.CollectionStructureBase):
                 Literal(meta)
             )
             )
-        self.load()
 
     def load(self):
         if not self.collection.exists():
