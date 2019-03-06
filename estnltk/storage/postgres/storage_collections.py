@@ -23,15 +23,15 @@ class StorageCollections:
         with self._storage.conn.cursor() as c:
             c.execute(SQL('CREATE {temporary} TABLE {table} ('
                           'collection text primary key, '
-                          'structure_version text);').format(temporary=temporary,
+                          'version text);').format(temporary=temporary,
                                                             table=self._table_identifier))
             logger.debug(c.query.decode())
 
     def __setitem__(self, collection_name: str, collection: pg.PgCollection):
         if collection_name not in self._collections:
-            self._collections[collection_name] = {'structure_version': collection.structure_version,
+            self._collections[collection_name] = {'version': collection.version,
                                                   'collection_object': collection}
-            self.insert(collection_name, collection.structure_version)
+            self.insert(collection_name, collection.version)
         self._collections[collection_name]['collection_object'] = collection
 
     def __getitem__(self, collection_name: str):
@@ -51,7 +51,7 @@ class StorageCollections:
         self._modified = True
         with self._storage.conn.cursor() as c:
             c.execute(SQL(
-                    "INSERT INTO {} (collection, structure_version) "
+                    "INSERT INTO {} (collection, version) "
                     "VALUES ({}, {});").format(
                     self._table_identifier,
                     Literal(collection),
@@ -75,17 +75,17 @@ class StorageCollections:
     def load(self):
         if pg.table_exists(self._storage, '__collections'):
             with self._storage.conn.cursor() as c:
-                c.execute(SQL("SELECT collection, structure_version FROM {};").
+                c.execute(SQL("SELECT collection, version FROM {};").
                           format(self._table_identifier))
-                collections = {row[0]: {'structure_version': row[1],
+                collections = {row[0]: {'version': row[1],
                                         'collection_object': None} for row in c.fetchall()}
         else:
             tables = pg.get_all_tables(self._storage)
-            collections = {table: {'structure_version': '0.0',
+            collections = {table: {'version': '0.0',
                                    'collection_object': None} for table in tables if table + '__structure' in tables}
             self.create_table()
             for collection, data in collections.items():
-                self.insert(collection, data['structure_version'])
+                self.insert(collection, data['version'])
 
         return collections
 

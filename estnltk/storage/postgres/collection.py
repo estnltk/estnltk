@@ -66,7 +66,7 @@ def get_query_length(q):
 class PgCollection:
     """Convenience wrapper over PostgresStorage"""
 
-    def __init__(self, name: str, storage, meta: dict = None, temporary: bool = False, structure_version='0.0'):
+    def __init__(self, name: str, storage, meta: dict = None, temporary: bool = False, version='0.0'):
         assert isinstance(name, str), name
         assert name.isidentifier(), name
         if '__' in name:
@@ -77,13 +77,13 @@ class PgCollection:
         self.meta = meta or {}
         self._temporary = temporary
 
-        if structure_version == '0.0':
+        if version == '0.0':
             self._structure = pg.v00.CollectionStructure(self)
-        elif structure_version == '1.0':
+        elif version == '1.0':
             self._structure = pg.v10.CollectionStructure(self)
         else:
-            raise ValueError("structure_version must be '0.0' or '1.0'")
-        self.structure_version = structure_version
+            raise ValueError("version must be '0.0' or '1.0'")
+        self.version = version
 
         self.column_names = ['id', 'data'] + list(self.meta)
 

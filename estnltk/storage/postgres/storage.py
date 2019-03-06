@@ -82,7 +82,7 @@ class PostgresStorage:
         collection = self._collections.get(item)
         if collection is not None:
             return collection
-        collection = PgCollection(item, self, structure_version='1.0')
+        collection = PgCollection(item, self, version='1.0')
         self._collections[item] = collection
         return collection
 
