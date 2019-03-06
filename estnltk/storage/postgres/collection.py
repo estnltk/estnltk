@@ -11,7 +11,8 @@ from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT, Composed
 
 from estnltk import logger
-from estnltk.converters.dict_exporter import layer_to_dict
+from estnltk.converters import layer_to_dict
+from estnltk.converters import layer_to_json
 from estnltk.converters import dict_to_text
 from estnltk.converters import dict_to_layer
 from estnltk.converters import text_to_json
@@ -736,6 +737,92 @@ class PgCollection:
         self.create_layer(tagger=tagger, progressbar=progressbar, query_length_limit=query_length_limit,
                           mode='append')
 
+    def create_fragmented_layer(self, tagger, fragmenter: callable, meta: Sequence = None, progressbar: str = None,
+                                query_length_limit: int = 5000000):
+        """
+        Creates fragmented layer
+
+        Args:
+            tagger: Tagger
+                tagger.make_layer method is called to create new layer
+            fragmenter: callable
+                fragmenter is called to brake layer into list of (sub)layers
+            meta: dict of str -> str
+                Specifies table column names and data types for storing additional
+                meta information. E.g. meta={"sum": "int", "average": "float"}.
+                See `pytype2dbtype` for supported types.
+            progressbar: str
+                if 'notebook', display progressbar as a jupyter notebook widget
+                if 'unicode', use unicode (smooth blocks) to fill the progressbar
+                if 'ascii', use ASCII characters (1-9 #) to fill the progressbar
+                else disable progressbar (default)
+            query_length_limit: int
+                soft approximate query length limit in unicode characters, can be exceeded by the length of last buffer
+                insert
+        """
+
+        layer_name = tagger.output_layer
+
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
+                                        self.name, layer_name))
+        logger.info('collection: {!r}'.format(self.name))
+        if self._is_empty:
+            raise PgCollectionException("can't add fragmented layer {!r}, the collection is empty".format(layer_name))
+        if self.has_layer(layer_name):
+            exception = PgCollectionException("can't create layer {!r}, layer already exists".format(layer_name))
+            logger.error(exception)
+            raise exception
+
+        meta_columns = ()
+        if meta is not None:
+            meta_columns = tuple(meta)
+
+        columns = ["id", "text_id", "data"]
+        if meta_columns:
+            columns.extend(meta_columns)
+
+        conn = self.storage.conn
+        with conn.cursor() as c:
+            try:
+                conn.autocommit = True
+                # create table and indices
+                self._create_layer_table(cursor=c,
+                                         layer_name=layer_name,
+                                         meta=meta)
+
+                structure_written = False
+                with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer_name),
+                                                columns=columns,
+                                                query_length_limit=query_length_limit) as buffered_insert:
+                    for row in self.select(layers=tagger.input_layers, progressbar=progressbar):
+                        text_id, text = row[0], row[1]
+
+                        for fragment in fragmenter(tagger.make_layer(text, status={})):
+                            layer = fragment.layer
+                            layer_json = layer_to_json(fragment, text)
+
+                            values = [None, text_id, layer_json]
+
+                            if meta_columns:
+                                values.extend(fragment.meta[k] for k in meta_columns)
+
+                            values = list(map(Literal, values))
+                            values[0] = DEFAULT
+                            buffered_insert(values=values)
+                            if not structure_written:
+                                self._structure.insert(layer=layer, layer_type='fragmented', meta=meta)
+                                structure_written = True
+            except Exception:
+                conn.rollback()
+                raise
+            finally:
+                if conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    conn.commit()
+
+        logger.info('fragmented layer created: {!r}'.format(layer_name))
+
     def create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
                      create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,
                      query_length_limit=5000000, mode=None):
@@ -898,7 +985,6 @@ class PgCollection:
             else:
                 if layer_table_exists(self.storage, self.name, layer_name):
                     drop_layer_table(self.storage, self.name, layer_name)
-                #self.storage.drop_table_if_exists(layer_table)
         elif table_exists(self.storage, layer_table):
             raise PgCollectionException("Table {!r} for layer {!r} already exists.".format(layer_table, layer_name))
 
