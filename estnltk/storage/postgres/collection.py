@@ -65,7 +65,7 @@ def get_query_length(q):
 class PgCollection:
     """Convenience wrapper over PostgresStorage"""
 
-    def __init__(self, name: str, storage, meta: dict = None, temporary: bool = False):
+    def __init__(self, name: str, storage, meta: dict = None, temporary: bool = False, structure_version='0.0'):
         assert isinstance(name, str), name
         assert name.isidentifier(), name
         if '__' in name:
@@ -75,7 +75,15 @@ class PgCollection:
         # TODO: read meta columns from collection table if exists, move this parameter to self.create
         self.meta = meta or {}
         self._temporary = temporary
-        self._structure = pg.v00.CollectionStructure(self)
+
+        if structure_version == '0.0':
+            self._structure = pg.v00.CollectionStructure(self)
+        elif structure_version == '1.0':
+            self._structure = pg.v10.CollectionStructure(self)
+        else:
+            raise ValueError("structure_version must be '0.0' or '1.0'")
+        self.structure_version = structure_version
+
         self.column_names = ['id', 'data'] + list(self.meta)
 
         self._buffered_insert_query_length = 0
@@ -1026,7 +1034,7 @@ class PgCollection:
 
     def get_fragment_tables(self):
         fragment_tables = []
-        for tbl in self.storage.get_all_table_names():
+        for tbl in pg.get_all_table_names(self.storage):
             if tbl.startswith("%s__" % self.name) and tbl.endswith("__fragment"):
                 fragment_tables.append(tbl)
         return fragment_tables
