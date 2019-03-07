@@ -14,7 +14,7 @@ class ConllMorphTagger(Tagger):
     def __init__(self, output_layer: str = 'conll_morph', morph_extended_layer: str = 'morph_extended'):
         self.input_layers = [morph_extended_layer]
         self.output_layer = output_layer
-        self.output_attributes = ['id', 'lemma', 'upostag', 'xpostag', 'feats']
+        self.output_attributes = ['id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc']
 
     def _make_layer(self, text, layers, status):
         morph_extended_layer = layers[self.input_layers[0]]
@@ -29,11 +29,17 @@ class ConllMorphTagger(Tagger):
                 xpostag = create_xpostag(values[3], values[5])
                 feats = fix_feats(xpostag, values[2], values[5])
                 layer.add_annotation(span,
-                                     id=i,
+                                     id=values[0],
+                                     form=values[1],
                                      lemma=values[2],
                                      upostag=values[3],
                                      xpostag=xpostag,
-                                     feats=feats)
+                                     feats=feats,
+                                     head='_',
+                                     deprel='_',
+                                     deps='_',
+                                     misc='_'
+                )
                 if values[3] == annotation.partofspeech:
                     break
         return layer
@@ -46,10 +52,11 @@ def get_values(id, text):
     vislcg_path = '/usr/bin/vislcg3'
     pipeline2 = VISLCG3Pipeline(rules_dir=vislcgRulesDir, vislcg_cmd=vislcg_path)
     results2 = pipeline2.process_lines(res1)
-    for j, sent in enumerate(convert_cg3_to_conll(results2.split('\n'))):
-        if id == j:
-            values = sent.split('\t')
-            return (values)
+    for j, word in enumerate(list(filter(None, convert_cg3_to_conll(results2.split('\n'))))):
+        if word != '':
+            if id+1 == j+1:
+                values = word.split('\t')
+                return (values)
 
 
 def create_xpostag(upostag, feats):

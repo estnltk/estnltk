@@ -25,13 +25,13 @@
 #                          functions of the words);
 #      5) 'strukt.*'  -- adds dependency syntactic relations;
 #   *) VISLCG3Pipeline assumes input in the same format as the output of 
-#      SyntaxPreprocessing;
+#      estnltk.converters.CG3_exporter;
 #
 #   Example usage:
 #
 #      from estnltk import Text
-#      from syntax_preprocessing import SyntaxPreprocessing
-#      from vislcg3_syntax import VISLCG3Pipeline
+#      from estnltk.converters.CG3_exporter import export_CG3
+#      from estnltk.taggers.vislcg3_syntax import VISLCG3Pipeline
 #
 #      #  Set the variables:
 #      #    fsToSyntFulesFile -- path to 'tmorftrtabel.txt'
@@ -41,8 +41,8 @@
 #      #    vislcg_path       -- name of the VISLCG3 executable with full path;
 # 
 #      # Preprocessing for the syntax
-#      pipeline1 = SyntaxPreprocessing( fs_to_synt=fsToSyntFulesFile, subcat=subcatFile )
-#      results1  = pipeline1.process_Text( text )
+#      text.analyse('syntax_preprocessing')
+#      results1  = export_CG3(text)
 #
 #      # Syntactic analysis
 #      pipeline2 = VISLCG3Pipeline( rules_dir = vislcgRulesDir, vislcg_cmd = vislcg_path )
@@ -50,8 +50,6 @@
 #
 #      # Results of the syntactic analysis
 #      print( results2 )
-#
-#
 #
 
 from __future__ import unicode_literals, print_function
@@ -81,48 +79,6 @@ SYNTAX_PIPELINE_ESTCG = \
 
 
 class VISLCG3Pipeline:
-    ''' A pipeline for VISL CG3 based syntactic analysis.
-
-        *) Default steps in the pipeline:
-              1) 'clo.*'     -- disambiguates finite/main verbs, and adds
-                                  clause boundary information;
-              2) 'morfyhe.*' -- rule-based morphological disambiguation;
-              3) 'PhVerbs.*' -- detects phrasal verbs;
-              4) 'pindsyn.*' -- adds surface-syntactic analyses (syntactic 
-                                  functions of words);
-              5) 'strukt.*'  -- adds dependency syntactic relations;
-
-                 ( The complete Estonian VISL-CG3 based syntax processing pipeline
-                   is available at https://github.com/EstSyntax/EstCG )
-
-        *) VISLCG3Pipeline assumes that the input is in the same format, as the 
-           output of SyntaxPreprocessing;
-
-        Example usage:
-
-            from estnltk import Text
-            from syntax_preprocessing import SyntaxPreprocessing
-            from vislcg3_syntax import VISLCG3Pipeline
-
-            #  Set the variables:
-            #    fsToSyntFulesFile -- path to 'tmorftrtabel.txt'
-            #    subcatFile        -- path to 'abileksikon06utf.lx'
-            #    vislcgRulesDir    -- path to dir containing *.rul files for VISLCG3;
-            #    text              -- the text to be analyzed, estnltk Text object;
-            #    vislcg_path       -- path to VISLCG3 executable;
-            
-            # Preprocessing for the syntax
-            pipeline1 = SyntaxPreprocessing( fs_to_synt=fsToSyntFulesFile, subcat=subcatFile )
-            results1  = pipeline1.process_Text( text )
-
-            # Syntactic analysis
-            pipeline2 = VISLCG3Pipeline( rules_dir = vislcgRulesDir, vislcg_cmd = vislcg_path )
-            results2  = pipeline2.process_lines( results1 )
-
-            # Results of the syntax
-            print( results2 )
-
-    '''
 
     rules_pipeline = SYNTAX_PIPELINE_1_4
     rules_dir      = SYNTAX_PATH
@@ -417,128 +373,6 @@ def cleanup_lines( lines, **kwargs ):
 
 
 # ==================================================================================
-#   Align VISLCG3 output lines with words in EstNLTK Text
-# ==================================================================================
-
-def align_cg3_with_Text( lines, text, **kwargs ):
-    ''' Aligns VISLCG3's output (a list of strings) with given EstNLTK\'s Text object.
-        Basically, for each word position in the Text object, finds corresponding VISLCG3's
-        analyses;
-
-        Returns a list of dicts, where each dict has following attributes:
-          'start'   -- start index of the word in Text;
-          'end'     -- end index of the word in Text;
-          'sent_id' -- index of the sentence in Text, starting from 0;
-          'parser_out' -- list of analyses from the output of the syntactic parser;
-
-        Parameters
-        -----------
-        lines : list of str
-            The input text for the pipeline; Should be in same format as the output
-            of VISLCG3Pipeline;
-
-        text : Text
-            EstNLTK Text object containing the original text that was analysed via 
-            VISLCG3Pipeline;
-
-        check_tokens : bool
-            Optional argument specifying whether tokens should be checked for match 
-            during the alignment. In case of a mismatch, an exception is raised.
-            Default:False
-        
-        add_word_ids : bool
-            Optional argument specifying whether each alignment should include attributes:
-            * 'text_word_id' - current word index in the whole Text, starting from 0;
-            * 'sent_word_id' - index of the current word in the sentence, starting from 0;
-            Default:False
-
-
-        Example output (for text 'Jah . Öö oli täiesti tuuletu .'):
-        -----------------------------------------------------------
-        {'sent_id': 0, 'start': 0, 'end': 3, 'parser_out': ['\t"jah" L0 D @ADVL #1->0\r']}
-        {'sent_id': 0, 'start': 4, 'end': 5, 'parser_out': ['\t"." Z Fst CLB #2->2\r']}
-        {'sent_id': 1, 'start': 6, 'end': 8, 'parser_out': ['\t"öö" L0 S com sg nom @SUBJ #1->2\r']}
-        {'sent_id': 1, 'start': 9, 'end': 12, 'parser_out': ['\t"ole" Li V main indic impf ps3 sg ps af @FMV #2->0\r']}
-        {'sent_id': 1, 'start': 13, 'end': 20, 'parser_out': ['\t"täiesti" L0 D @ADVL #3->4\r']}
-        {'sent_id': 1, 'start': 21, 'end': 28, 'parser_out': ['\t"tuuletu" L0 A pos sg nom @PRD #4->2\r']}
-        {'sent_id': 1, 'start': 29, 'end': 30, 'parser_out': ['\t"." Z Fst CLB #5->5\r']}
-
-    '''
-    from estnltk.text import Text
-    if not isinstance( text, Text ):
-        raise Exception('(!) Unexpected type of input argument! Expected EstNLTK\'s Text. ')
-    if not isinstance( lines, list ):
-        raise Exception('(!) Unexpected type of input argument! Expected a list of strings.')
-    check_tokens = False
-    add_word_ids = False
-    for argName, argVal in kwargs.items() :
-        if argName in ['check_tokens', 'check'] and argVal in [True, False]:
-           check_tokens = argVal
-        if argName in ['add_word_ids', 'word_ids'] and argVal in [True, False]:
-           add_word_ids = argVal
-    pat_empty_line     = re.compile('^\s+$')
-    pat_token_line     = re.compile('^"<(.+)>"$')
-    pat_analysis_start = re.compile('^(\s+)"(.+)"(\s[LZTS].*)$')
-    pat_sent_bound     = re.compile('^("<s>"|"</s>"|<s>|</s>)\s*$')
-    generalWID  = 0
-    sentWID     = 0
-    sentenceID  = 0
-    j = 0
-    # Iterate over the sentences and perform the alignment
-    results = []
-    for sentence in text.divide( layer=WORDS, by=SENTENCES ):
-        sentWID = 0
-        for i in range(len(sentence)):
-            # 1) take the next word in Text
-            wordJson = sentence[i]
-            wordStr  = wordJson[TEXT]
-            cg3word     = None
-            cg3analyses = []
-            # 2) find next word in the VISLCG3's output
-            while (j < len(lines)):
-                # a) a sentence boundary: skip it entirely
-                if pat_sent_bound.match( lines[j] ) and j+1 < len(lines) and \
-                   (len(lines[j+1])==0 or pat_empty_line.match(lines[j+1])):
-                    j += 2
-                    continue
-                # b) a word token: collect the analyses
-                token_match = pat_token_line.match( lines[j].rstrip() )
-                if token_match:
-                    cg3word = token_match.group(1)
-                    j += 1
-                    while (j < len(lines)):
-                        if pat_analysis_start.match(lines[j]):
-                            cg3analyses.append(lines[j])
-                        else:
-                            break
-                        j += 1
-                    break
-                j += 1
-            # 3) Check whether two tokens match (if requested)
-            if cg3word:
-                if check_tokens and wordStr != cg3word: 
-                    raise Exception('(!) Unable to align EstNLTK\'s token nr ',generalWID,\
-                                    ':',wordStr,' vs ',cg3word)
-                # Populate the alignment
-                result_dict = { START:wordJson[START], END:wordJson[END], \
-                                SENT_ID:sentenceID, PARSER_OUT: cg3analyses }
-                if add_word_ids:
-                    result_dict['text_word_id'] = generalWID # word id in the text
-                    result_dict['sent_word_id'] = sentWID    # word id in the sentence
-                results.append( result_dict )
-            else:
-                if j >= len(lines):
-                    print('(!) End of VISLCG3 analysis reached: '+str(j)+' '+str(len(lines)),\
-                          file = sys.stderr)
-                raise Exception ('(!) Unable to find matching syntactic analysis ',\
-                                 'for EstNLTK\'s token nr ', generalWID, ':', wordStr)
-            sentWID    += 1
-            generalWID += 1
-        sentenceID += 1
-    return results
-
-
-# ==================================================================================
 #   Convert VISLCG format annotations to CONLL format
 # ==================================================================================
 
@@ -648,13 +482,6 @@ def convert_cg3_to_conll( lines, **kwargs ):
                   line = line.replace( '\\"', '"' )
                # Broken stuff: if previous word was without analysis
                if analyses_added == 0 and word_id > 1:
-                  # Missing analysis line
-                  # if error_on_unexp:
-                  #     raise Exception('(!) Analysis missing at line '+str(i)+': '+\
-                  #                     '\n'+lines[i-1])
-                  # else:
-                  #     print('(!) Analysis missing at line '+str(i)+': '+\
-                  #           '\n'+lines[i-1], file=sys.stderr)
                   # Add an empty analysis
                   conll_lines[-1] += '\t_'
                   conll_lines[-1] += '\tX'
@@ -681,24 +508,6 @@ def convert_cg3_to_conll( lines, **kwargs ):
                 conll_lines.append('')
                 word_id = 1
         else:
-            # ******  ANALYSIS
-            # If there is more than one pair of "", we have some kind of
-            # inconsistency: try to remove extra quotation marks from the 
-            # end of the analysis line ...
-            # if line.count('"') > 2:
-            #     new_line = []
-            #     q_count = 0
-            #     for j in range( len(line) ):
-            #         if line[j]=='"' and (j==0 or line[j-1]!='\\'):
-            #             q_count += 1
-            #             if q_count < 3:
-            #                 new_line.append(line[j])
-            #         else:
-            #             new_line.append(line[j])
-            #     line = ''.join( new_line )
-            # # Convert double quotes back to normal form (if requested)
-            # if unesc_quotes:
-            #     line = line.replace( '\\"', '"' )
             analysis_match = pat_analysis_line.match( line )
             # Analysis line; in case of multiple analyses, pick the first one;
             if analysis_match and analyses_added==0:

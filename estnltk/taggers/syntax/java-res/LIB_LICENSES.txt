@@ -1,0 +1,15 @@
+
+ Dependency libraries and their respective licenses:
+
+  joda-time-2.9.4.jar
+  web page: http://www.joda.org/joda-time/
+  license:  * Apache License Version 2.0
+            http://www.joda.org/joda-time/license.html
+
+
+  javax.json-1.0.4.jar
+  web page: https://jsonp.java.net/
+  license:  * COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL - Version 1.1)
+            * GNU General Public License (GPL - Version 2, June 1991) with the Classpath Exception
+            https://jsonp.java.net/license.html
+
