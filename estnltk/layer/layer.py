@@ -509,7 +509,8 @@ class Layer:
         return self.text_object._resolve(self.name, item, sofar=self.span_list)
 
     def __setattr__(self, key, value):
-        if key != 'attributes' and key in self.attributes:
+        # TODO: can 'name' be an attribute name?
+        if key != 'attributes' and key != 'name' and key in self.attributes:
             raise AttributeError(key)
         super().__setattr__(key, value)
 
