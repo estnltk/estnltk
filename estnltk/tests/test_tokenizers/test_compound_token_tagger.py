@@ -635,3 +635,25 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             # Assert that the tokenization is correct
             self.assertListEqual(test_text['expected_words'], word_segmentation)
 
+
+
+from estnltk.taggers.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
+from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
+
+class PretokenizedTextCompoundTokenTaggerTest(unittest.TestCase):
+
+    def test_change_pretokenized_text_compound_tokens_layer_name(self):
+        text = Text('New York nõuab metroo renoveerimiseks raha autojuhtidelt')
+        tokens_tagger = WhiteSpaceTokensTagger(output_layer='ws_tokens')
+        compound_tokens_tagger = PretokenizedTextCompoundTokensTagger( multiword_units = [['New', 'York']],
+                                 input_tokens_layer='ws_tokens', output_layer='ws_compound_tokens' )
+        tokens_tagger.tag(text)
+        compound_tokens_tagger.tag(text)
+        # assert layers
+        self.assertTrue( 'ws_tokens' in text.layers.keys() )
+        self.assertTrue( 'ws_compound_tokens' in text.layers.keys() )
+        self.assertFalse( 'tokens' in text.layers.keys() )
+        self.assertFalse( 'compound_tokens' in text.layers.keys() )
+        # assert compound tokens
+        self.assertListEqual(text['ws_compound_tokens'].text, ['New', 'York']) 
+        

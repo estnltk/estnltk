@@ -31,19 +31,26 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
        or automatically tokenized, and you want to preserve 
        exactly the original tokenization.
     """
+    output_layer = 'compound_tokens'
     output_attributes = ('type', 'normalized')
     input_layers = ['tokens']
-    depends_on   = input_layers
-    output_layer = 'compound_tokens'
-    layer_name   = output_layer
-    conf_param   = ['_multiword_units']
+    conf_param   = ['_multiword_units', 
+                    '_input_tokens_layer',
+                    'layer_name',  # <- For backward compatibility ...
+                    'depends_on'   # <- For backward compatibility ...
+                   ]
+    
+    depends_on   = input_layers  # <- For backward compatibility ...
+    layer_name   = output_layer  # <- For backward compatibility ...
 
-    def __init__(self, multiword_units = []):
+
+    def __init__(self, multiword_units = [],
+                       output_layer:str='compound_tokens',
+                       input_tokens_layer:str='tokens'):
         """Initializes PretokenizedTextCompoundTokensTagger. 
         
         Parameters
         ----------
-        
         multiword_units: list of list of str (default: [])
             A list of multiword units from the analysable text that 
             need to be preserved as compound tokens.
@@ -55,8 +62,21 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
             the  multiwords  in  the  list  should  also  include 
             repetitions (if a multiword occurs in the analysable 
             text more than once).
+
+        output_layer: str (default: 'compound_tokens')
+            Name for the compound_tokens layer;
+        
+        input_tokens_layer: str (default: 'tokens')
+            Name of the input tokens layer;
         
         """
+        # Set input/output layer names
+        self.output_layer = output_layer
+        self._input_tokens_layer = input_tokens_layer
+        self.input_layers = [input_tokens_layer]
+        self.layer_name = self.output_layer  # <- For backward compatibility ...
+        self.depends_on = self.input_layers  # <- For backward compatibility ...
+        # Add multiword units (if provided)
         if multiword_units:
            # Assert the format (should be a list of list of strings)
            assert all([isinstance(mw, list) for mw in multiword_units]), \
@@ -74,8 +94,8 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
         # Create an empty layer 
         layer = Layer(name=self.output_layer,
                       text_object=text,
-                      enveloping='tokens',
-                      attributes=self.output_attributes,
+                      enveloping =self._input_tokens_layer,
+                      attributes =self.output_attributes,
                       ambiguous=False)
         if self._multiword_units:
            # If the text has some multiword units that need to 
@@ -84,7 +104,7 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
            mw_components = self._multiword_units
            mw_comp_id = 0
            mw_id      = 0
-           token_spans = layers['tokens'].span_list
+           token_spans = layers[self._input_tokens_layer].span_list
            token_span_id = 0
            while token_span_id < len(token_spans):
                  token_span = token_spans[token_span_id]
@@ -107,7 +127,7 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
                          i += 1
                     if i == len(mw_components[mw_comp_id]):
                        # Create a new multiword unit
-                       spans = layers['tokens'][token_span_id:token_span_id+i]
+                       spans = layers[self._input_tokens_layer][token_span_id:token_span_id+i]
                        spl = EnvelopingSpan(spans=spans)
                        spl.type = ('multiword',)
                        spl.normalized = None
