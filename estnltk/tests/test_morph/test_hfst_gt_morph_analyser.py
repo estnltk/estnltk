@@ -12,8 +12,6 @@ def check_if_hfst_is_available():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(not os.path.exists('analyser-gt-desc.hfstol'),
-                    reason="transducer model file is required for this test")
 @pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
                          "leads to a segfault in other tests that are using vabamorf")
 def test_hfst_gt_morph_analyser_raw_output():
@@ -23,7 +21,7 @@ def test_hfst_gt_morph_analyser_raw_output():
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
     
     # Test HfstEstMorphAnalyser's raw output format
-    hfstAnalyser = HfstEstMorphAnalyser( transducer_file='analyser-gt-desc.hfstol', output_format='raw' )
+    hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
 
     # Case 1
     input_text_str = 'No, tore talv! Vannaemale ei öeldud, et mäesuusatamine võib-olla tore Juhhhei'
@@ -216,8 +214,7 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
         assert morpheme_feats == test_item['expected_features']
 
 
-@pytest.mark.skipif(not os.path.exists('analyser-gt-desc.hfstol'),
-                    reason="transducer model file is required for this test")
+
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 @pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
@@ -229,7 +226,7 @@ def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
     
     # Test HfstEstMorphAnalyser's morphemes_lemmas output format
-    hfstAnalyser = HfstEstMorphAnalyser( transducer_file='analyser-gt-desc.hfstol', output_format='morphemes_lemmas' )
+    hfstAnalyser = HfstEstMorphAnalyser( output_format='morphemes_lemmas' )
 
     # Case 1
     input_text_str = 'Ülipüüdlik vannaemake rohib võib-olla Zathumaeres iluaedasid.'
