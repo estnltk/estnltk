@@ -1,4 +1,5 @@
-from estnltk import Tagger, Layer
+from estnltk.taggers import Tagger
+from estnltk.layer.layer import Layer
 from estnltk.converters.CG3_exporter import export_CG3
 from estnltk.taggers.syntax.vislcg3_syntax import VISLCG3Pipeline, convert_cg3_to_conll
 from estnltk import PACKAGE_PATH
@@ -21,7 +22,6 @@ class ConllMorphTagger(Tagger):
 
         layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
                       parent=morph_extended_layer._base, ambiguous=True)
-
 
         for i, span in enumerate(morph_extended_layer):
             for annotation in span.annotations:
