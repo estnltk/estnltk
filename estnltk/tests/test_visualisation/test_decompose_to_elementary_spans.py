@@ -1,5 +1,5 @@
 from estnltk.tests import new_text
-from estnltk.visualisation.core.prettyprinter import decompose_to_elementary_spans
+from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
 from estnltk import Layer
 from estnltk import Text
 from estnltk import Span

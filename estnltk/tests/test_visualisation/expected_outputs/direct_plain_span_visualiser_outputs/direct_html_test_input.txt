@@ -32,4 +32,42 @@ function show_conflicting_spans(span_element) {
         element.removeChild(this)
     })
 }
-</script><span style=background:yellow;>Sada</span> <span style=background:red; class=overlapping-span  span_info=kaks,kakskümmend>kaks</span><span style=background:red; class=overlapping-span  span_info=kakskümmend,kümme>kümme</span><span style=background:yellow;>nd</span> <span style=background:yellow;>kolm</span>. <span style=background:yellow;>Neli</span> <span style=background:yellow;>tuhat</span> <span style=background:red; class=overlapping-span  span_info=viis,viissada>viis</span><span style=background:red; class=overlapping-span  span_info=viissada,sada>sada</span> <span style=background:red; class=overlapping-span  span_info=kuus,kuuskümmend>kuus</span><span style=background:red; class=overlapping-span  span_info=kuuskümmend,kümme>kümme</span><span style=background:yellow;>nd</span> <span style=background:yellow;>seitse</span> <span style=background:yellow;>koma</span> <span style=background:yellow;>kaheksa</span>. <span style=background:red; class=overlapping-span  span_info=Üheksa,Üheksakümmend>Üheksa</span><span style=background:red; class=overlapping-span  span_info=Üheksakümmend,kümme>kümme</span><span style=background:yellow;>nd</span> tuhat.
+</script><style>
+.span {
+    background-color: yellow;
+}
+
+.overlapping-span {
+    background-color: red;
+}
+
+.spanline {
+    background-color: blue;
+    position: relative;
+    height: 3px;
+    margin-left: 0px;
+}
+
+.tables {
+    position: absolute;
+    width: fit-content;
+    width: -moz-fit-content;
+    border: 1px solid black;
+}
+
+.maintext{0} {
+    position: relative;
+}
+
+.tables tbody tr:nth-child(even) {
+    background-color: lightgray;
+}
+
+.tables tbody tr:nth-child(odd) {
+    background-color: beige;
+}
+
+.tables tbody tr:hover {
+    background-color: ivory;
+}
+</style><span style=background:yellow;>Sada</span> <span style=background:red; class=overlapping-span  span_info=kaks,kakskümmend>kaks</span><span style=background:red; class=overlapping-span  span_info=kakskümmend,kümme>kümme</span><span style=background:yellow;>nd</span> <span style=background:yellow;>kolm</span>. <span style=background:yellow;>Neli</span> <span style=background:yellow;>tuhat</span> <span style=background:red; class=overlapping-span  span_info=viis,viissada>viis</span><span style=background:red; class=overlapping-span  span_info=viissada,sada>sada</span> <span style=background:red; class=overlapping-span  span_info=kuus,kuuskümmend>kuus</span><span style=background:red; class=overlapping-span  span_info=kuuskümmend,kümme>kümme</span><span style=background:yellow;>nd</span> <span style=background:yellow;>seitse</span> <span style=background:yellow;>koma</span> <span style=background:yellow;>kaheksa</span>. <span style=background:red; class=overlapping-span  span_info=Üheksa,Üheksakümmend>Üheksa</span><span style=background:red; class=overlapping-span  span_info=Üheksakümmend,kümme>kümme</span><span style=background:yellow;>nd</span> tuhat.

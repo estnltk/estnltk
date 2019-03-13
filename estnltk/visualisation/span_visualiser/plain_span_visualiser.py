@@ -11,6 +11,9 @@ class PlainSpanVisualiser(SpanVisualiser):
         if not self.fill_empty_spans and self.is_pure_text(segment):
             return segment[0]
 
+        if self.mapping_dict is None:
+            return segment[0]
+
         # There is a span to decorate
         output = ['<span style=']
         for key, value in self.mapping_dict.items():

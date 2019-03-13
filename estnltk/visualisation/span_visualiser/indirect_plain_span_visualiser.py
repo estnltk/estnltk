@@ -25,7 +25,7 @@ class IndirectPlainSpanVisualiser(SpanVisualiser):
         rows = []
         for row in segment[1]:
             rows.append(row.text)
-        output.append(' span_info=' + ','.join(rows))  # text of spans for javascript
+        output.append(' span_info=' + html.escape(','.join(rows)))  # text of spans for javascript
         if self.id_mapping is not None:
             output.append(' id=' + self.id_mapping(segment) + " ")
         if self.class_mapping is not None:

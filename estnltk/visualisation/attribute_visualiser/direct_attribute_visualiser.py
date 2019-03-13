@@ -1,6 +1,8 @@
 from estnltk.visualisation.core.span_visualiser import SpanVisualiser
 from estnltk.core import rel_path
 import html
+from estnltk.converters import annotation_to_json
+
 class DirectAttributeVisualiser(SpanVisualiser):
     """Attribute visualiser that maps css elements one by one to the segment and has javascript to display
     attributes in tables. Takes css_file as argument (path to the file) and the same css elements as in
@@ -29,61 +31,47 @@ class DirectAttributeVisualiser(SpanVisualiser):
     def __call__(self, segment):
         segment[0] = html.escape(segment[0])
 
-        output=''
-
-        if not self.css_added:
-            output += self.css()
-            self.css_added = True
-
-        if not self.js_added:
-            output += self.event_handler_code()
-            self.js_added = True
 
         if not self.fill_empty_spans and self.is_pure_text(segment):
             return segment[0]
         else:
             # There is a span to decorate
-            output += '<span style='
+            output = ['<span style=']
             if self.colour_mapping is not None:
-                output += 'color:' + self.colour_mapping(segment)+";"
+                output.append('color:' + self.colour_mapping(segment) + ";")
             if self.bg_mapping is not None:
-                output += 'background:'+ self.bg_mapping(segment)+";"
+                output.append('background:' + self.bg_mapping(segment) + ";")
             if self.font_mapping is not None:
-                output += 'font-family:'+ self.font_mapping(segment)+";"
+                output.append('font-family:' + self.font_mapping(segment) + ";")
             if self.weight_mapping is not None:
-                output += 'font-weight:'+ self.weight_mapping(segment)+";"
+                output.append('font-weight:' + self.weight_mapping(segment) + ";")
             if self.italics_mapping is not None:
-                output += 'font-style:'+ self.italics_mapping(segment)+";"
+                output.append('font-style:' + self.italics_mapping(segment) + ";")
             if self.underline_mapping is not None:
-                output += 'text-decoration:'+ self.underline_mapping(segment)+";"
+                output.append('text-decoration:' + self.underline_mapping(segment) + ";")
             if self.size_mapping is not None:
-                output += 'font-size:'+ self.size_mapping(segment)+";"
+                output.append('font-size:' + self.size_mapping(segment) + ";")
             if self.tracking_mapping is not None:
-                output += 'letter-spacing:'+ self.tracking_mapping(segment)+";"
+                output.append('letter-spacing:' + self.tracking_mapping(segment) + ";")
             if self.class_mapping is not None:
-                output += ' class=' + self.class_mapping(segment) + " "
+                output.append(' class=' + self.class_mapping(segment) + " ")
 
-            spans = []
-            for a_span in segment[1]:
-                spans.append(str(a_span))
-
-            output += ' span_info='
-            for attribute_span in spans:
-                output += "".join(attribute_span).replace(" ","")  # span info for javascript
-            output += '>'
-            output += segment[0]
-            output += '</span>'
-
-        return output
-
-    def css(self):
-        with open(self.css_file) as css_file:
-            contents = css_file.read()
-            output = ''.join(["<style>\n", contents, "</style>"])
-        return output
-
-    def event_handler_code(self):
-        with open(self.js_file) as js_file:
-            contents = js_file.read()
-            output = ''.join(["<script>\n", contents, "</script>"])
-        return output
+            # spans = []
+            # for a_span in segment[1]:
+            #     print(a_span)
+            #     spans.append(str(a_span))
+            #
+            # output.append(' span_info=')
+            # for attribute_span in spans:
+            #     output.append("".join(attribute_span).replace(" ",""))  # span info for javascript
+            # output.append('>')
+            for i, span in enumerate(segment[1]):
+                output.append(" span_info")
+                output.append(str(i))
+                output.append("='")
+                output.append(annotation_to_json(span))
+                output.append("'")
+            output.append(">")
+            output.append(segment[0])
+            output.append('</span>')
+        return "".join(output)

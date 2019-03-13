@@ -2,7 +2,7 @@ from IPython.display import display_html
 from estnltk.visualisation.span_visualiser.direct_plain_span_visualiser import DirectPlainSpanVisualiser
 from estnltk.visualisation.span_visualiser.indirect_plain_span_visualiser import IndirectPlainSpanVisualiser
 from estnltk.visualisation.span_visualiser.plain_span_visualiser import PlainSpanVisualiser
-from estnltk.visualisation.core.prettyprinter import decompose_to_elementary_spans
+from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
 from estnltk.core import rel_path
 
 
@@ -24,7 +24,6 @@ class DisplaySpans:
             self.span_decorator = PlainSpanVisualiser(**kwargs)
         else:
             raise ValueError(styling)
-        display_html(self.css())
 
     def __call__(self, layer):
 
@@ -35,6 +34,7 @@ class DisplaySpans:
         segments = decompose_to_elementary_spans(layer, layer.text_object.text)
 
         outputs = [self.js()]
+        outputs.append(self.css())
 
         # put html together from js, css and html spans
         if self.styling == "indirect":

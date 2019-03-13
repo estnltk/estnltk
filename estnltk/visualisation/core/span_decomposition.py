@@ -3,6 +3,11 @@ import html
 
 
 def decompose_to_elementary_spans(layer, text) -> List:
+    '''Function to map all the spans on a layer to corresponding text.
+    Arguments should be a layer and the text the layer is applied to.
+    Output is a list where each element is composed of text and the list
+    of spans that cover this part of the text.'''
+
     if not layer.spans:
         # Default for when there are no spans
         return [[text, []]]

@@ -1,7 +1,7 @@
 from estnltk.tests.helpers.text_objects import new_text
 from estnltk.visualisation.mappers.value_mapper import value_mapper_unique
 from estnltk.visualisation.mappers.value_mapper import value_mapper_ambiguous
-from estnltk.visualisation.core.prettyprinter import decompose_to_elementary_spans
+from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
 
 
 def test_empty_mapper():
