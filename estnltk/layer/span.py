@@ -17,7 +17,6 @@ class Span:
 
         # Placeholder, set when span added to spanlist
         self.layer = layer  # type: Layer
-        self.layers = {}
         self.parent = parent  # type: Span
 
         if isinstance(start, int) and isinstance(end, int):
@@ -142,10 +141,7 @@ class Span:
             self._text_object = layer.text_object
         assert self.text_object is layer.text_object
 
-        if layer.name in self.layers:
-            assert self.layers[layer.name] is layer
-        else:
-            self.layers[layer.name] = layer
+        self.layer = layer
 
     @property
     def raw_text(self):
