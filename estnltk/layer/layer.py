@@ -1,3 +1,4 @@
+import keyword
 import bisect
 from typing import Union, List, Sequence, MutableMapping, Any
 import pandas
@@ -154,7 +155,7 @@ class Layer:
                  ambiguous: bool = False,
                  default_values: dict = None
                  ) -> None:
-        assert parent is None or enveloping is None, "Can't be derived AND enveloping"
+        assert parent is None or enveloping is None, "can't be derived AND enveloping"
 
         # list of legal attribute names for the layer
         assert not isinstance(attributes, str), attributes
@@ -164,14 +165,13 @@ class Layer:
         assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
 
         # name of the layer
-        assert name.isidentifier(), 'layer name must be a Python identifier: {!r}'.format(name)
+        assert name.isidentifier() and not \
+               keyword.iskeyword(name), 'layer name must be a valid python identifier, {!r}'.format(name)
+        assert name != 'text'
         self.name = name
 
         # the name of the parent layer.
         self.parent = parent
-
-        # has this layer been added to a text object
-        self._bound = False
 
         self._is_frozen = False
 
@@ -260,7 +260,7 @@ class Layer:
         return self._is_frozen
 
     def from_records(self, records, rewriting=False) -> 'Layer':
-        if self.parent is not None and not self._bound:
+        if self.parent is not None:
             self._is_lazy = True
 
         if self.ambiguous:
@@ -336,7 +336,7 @@ class Layer:
             except AttributeError:
                 setattr(span, attr, self.default_values[attr])
 
-        span.layer = self
+        span.add_layer(self)
         target = self.classes.get(hash(span), None)
         if self.ambiguous:
             if target is None:
@@ -360,8 +360,6 @@ class Layer:
         self.span_list.spans.remove(span)
 
     def add_annotation(self, span, **attributes):
-        if self._bound:
-            span.add_layer(self)
         if span.text_object is None:
             span.text_object = self.text_object
         else:
