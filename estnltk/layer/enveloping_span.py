@@ -29,8 +29,7 @@ class EnvelopingSpan(collections.Sequence):
         self._base = None  # type:Union[Span, None]
 
     def add_layer(self, layer):
-        # TODO
-        pass
+        self._layer = layer
 
     def get_attributes(self, items):
         r = []
