@@ -697,7 +697,7 @@ def test_text_setitem():
     assert text['test'] is l
 
     #assigning something that is not a layer
-    with pytest.raises(AssertionError):
+    with pytest.raises(TypeError):
         text['test'] = '123'
 
     #getting something that is not in the dict

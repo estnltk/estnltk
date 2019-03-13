@@ -1,4 +1,3 @@
-import keyword
 import html
 from bisect import bisect_left
 from collections import defaultdict
@@ -149,23 +148,24 @@ class Text:
         return self.__getattribute__(item)
 
     def _add_layer(self, layer: Layer):
+        assert isinstance(layer, Layer), 'Layer expected, got {!r}'.format(type(layer))
+
         name = layer.name
 
-        #
-        # ASSERTS
-        #
+        assert name not in self.layers, 'this Text object already has a layer with name {!r}'.format(name)
 
-        assert not layer._bound
-        assert name not in ['text'], 'Restricted for layer name'
-        assert name.isidentifier() and not keyword.iskeyword(name), 'Layer name must be a valid python identifier'
-        assert name not in self.layers, 'Layer with name {name} already exists'.format(name=name)
+        if layer.text_object is None:
+            layer.text_object = self
+        else:
+            assert layer.text_object is self, \
+                "can't add layer {!r}, this layer is already bound to another Text object".format(name)
 
         if layer.parent:
             assert layer.parent in self.layers.keys(), 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
                 parent=layer.parent, layer=layer.name)
 
         if layer.enveloping:
-            assert layer.enveloping in self.layers.keys(), 'Cant add an enveloping layer before adding the layer it envelops'
+            assert layer.enveloping in self.layers.keys(), "can't add an enveloping layer before adding the layer it envelops"
 
         #
         # ASSERTS DONE,
@@ -194,14 +194,7 @@ class Text:
                     span.parent = base_layer[i]
                     span._base = span.parent
 
-        for span in layer.spans:
-            span.add_layer(layer)
         self.layers[name] = layer
-        if layer.text_object is None:
-            layer.text_object = self
-        else:
-            assert layer.text_object is self
-        layer._bound = True
 
         setattr(self, layer.name, layer)
 
@@ -380,13 +373,13 @@ class Text:
                         tos.append(k + '.' + i)
         return tos
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, name, layer):
         # always sets layer
-        assert key not in self.layers.keys(), 'Re-adding a layer not implemented yet: ' + key
-        assert value.name == key, 'Name mismatch between layer name and value: {}!={}'.format(value.name, key)
-        return self._add_layer(
-            value
-        )
+        if not isinstance(layer, Layer):
+            raise TypeError('Layer expected, got {!r}'.format(type(layer)))
+        if layer.name != name:
+            raise ValueError('Mismatch between layer name and index value: {!r}!={!r}'.format(layer.name, name))
+        self._add_layer(layer)
 
     def __getitem__(self, item):
         # always returns layer
