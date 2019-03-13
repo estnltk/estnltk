@@ -66,6 +66,7 @@ class AmbiguousSpan(collections.Sequence):
             self.layer.remove_span(self)
 
     def add_layer(self, layer):
+        self._layer = layer
         self._span.add_layer(layer)
 
     @property
