@@ -133,6 +133,10 @@ class Span:
             self._text_object = self.layer.text_object
         return self._text_object
 
+    @text_object.setter
+    def text_object(self, text):
+        self._text_object = text
+
     def add_layer(self, layer):
         if self._text_object is None:
             self._text_object = layer.text_object

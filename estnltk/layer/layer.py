@@ -363,9 +363,9 @@ class Layer:
         if self._bound:
             span.add_layer(self)
         if span.text_object is None:
-            span._text_object = self.text_object
+            span.text_object = self.text_object
         else:
-            assert span._text_object is self.text_object
+            assert span.text_object is self.text_object
         if self.parent is not None and self.ambiguous:
             ambiguous_span = self.classes.get(hash(span), None)
             if ambiguous_span is None:
