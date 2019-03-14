@@ -81,8 +81,10 @@ class PgCollection:
             self._structure = pg.v00.CollectionStructure(self)
         elif version == '1.0':
             self._structure = pg.v10.CollectionStructure(self)
+        elif version == '2.0':
+            self._structure = pg.v20.CollectionStructure(self)
         else:
-            raise ValueError("version must be '0.0' or '1.0'")
+            raise ValueError("version must be '0.0', '1.0' or '2.0'")
         self.version = version
 
         self.column_names = ['id', 'data'] + list(self.meta)
@@ -908,8 +910,6 @@ class PgCollection:
             elif mode == 'overwrite':
                 logger.info('nothing to overwrite, preparing to create a new layer: {!r}'.format(layer_name))
 
-        conn = self.storage.conn
-
         meta_columns = ()
         if meta is not None:
             meta_columns = tuple(meta)
@@ -922,9 +922,12 @@ class PgCollection:
             ngram_index_keys = tuple(ngram_index.keys())
             columns.extend(ngram_index_keys)
 
+        conn = self.storage.conn
+        conn.commit()
+        conn.autocommit = True
+
         with conn.cursor() as c:
             try:
-                conn.autocommit = True
                 # create table and indices
                 if mode in {'new', 'overwrite'}:
                     self._create_layer_table(cursor=c,
