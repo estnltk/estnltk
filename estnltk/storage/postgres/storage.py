@@ -77,13 +77,19 @@ class PostgresStorage:
     def collections(self):
         return sorted(self._collections)
 
-    def __getitem__(self, item):
+    def __getitem__(self, name: str):
         self._load()
-        collection = self._collections.get(item)
-        if collection is not None:
+        if name in self._collections:
+            collection = self._collections[name]
+            if collection is None:
+                version = self._collections.collections[name]['version']
+                collection = PgCollection(name, self, version=version)
+                self._collections[name] = collection
+                return collection
             return collection
-        collection = PgCollection(item, self, version='1.0')
-        self._collections[item] = collection
+
+        collection = PgCollection(name, self, version='1.0')
+        self._collections[name] = collection
         return collection
 
     def __delitem__(self, collection_name: str):

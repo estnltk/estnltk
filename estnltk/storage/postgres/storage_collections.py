@@ -7,15 +7,11 @@ from estnltk.storage import postgres as pg
 class StorageCollections:
     def __init__(self, storage):
         self._storage = storage
-        self._modified = True
         self._table_identifier = pg.table_identifier(self._storage, '__collections')
         self._collections = self.load()
 
     @property
     def collections(self):
-        if self._modified:
-            self._collections = self.load()
-            self._modified = False
         return self._collections
 
     def create_table(self):
@@ -28,11 +24,12 @@ class StorageCollections:
             logger.debug(c.query.decode())
 
     def __setitem__(self, collection_name: str, collection: pg.PgCollection):
-        if collection_name not in self._collections:
-            self._collections[collection_name] = {'version': collection.version,
-                                                  'collection_object': collection}
+        if not collection_name in self._collections:
             self.insert(collection_name, collection.version)
-        self._collections[collection_name]['collection_object'] = collection
+        if collection_name in self._collections and self._collections[collection_name]['collection_object'] is not None:
+            raise NotImplementedError('re-adding a collection not implemented: ' + collection_name)
+        self._collections[collection_name] = {'version': collection.version,
+                                              'collection_object': collection}
 
     def __getitem__(self, collection_name: str):
         return self._collections[collection_name]['collection_object']
@@ -48,7 +45,6 @@ class StorageCollections:
         yield from self._collections
 
     def insert(self, collection: str, version: str):
-        self._modified = True
         with self._storage.conn.cursor() as c:
             c.execute(SQL(
                     "INSERT INTO {} (collection, version) "
@@ -60,7 +56,6 @@ class StorageCollections:
             )
 
     def __delitem__(self, collection_name: str):
-        self._modified = True
         with self._storage.conn.cursor() as c:
             c.execute(SQL("DELETE FROM {} WHERE collection={};").format(
                 self._table_identifier,

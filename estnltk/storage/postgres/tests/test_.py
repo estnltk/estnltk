@@ -51,6 +51,8 @@ class TestPgCollection(unittest.TestCase):
         collection_name = get_random_collection_name()
         collection = self.storage[collection_name]
 
+        self.assertIs(collection, self.storage[collection_name])
+
         self.assertFalse(collection.exists())
 
         collection.create()
