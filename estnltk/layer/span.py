@@ -98,24 +98,12 @@ class Span:
         else:
             return self.parent.start
 
-    @start.setter
-    def start(self, value: int):
-        assert 0
-        assert not self.is_bound, 'setting start is allowed on special occasions only'
-        self._start = value
-
     @property
     def end(self) -> int:
         if not self.is_dependant:
             return self._end
         else:
             return self.parent.end
-
-    @end.setter
-    def end(self, value: int):
-        assert 0
-        assert not self.is_bound, 'setting end is allowed on special occasions only'
-        self._end = value
 
     @property
     def base_spans(self):
@@ -243,4 +231,3 @@ class Span:
 
     def __repr__(self):
         return str(self)
-
