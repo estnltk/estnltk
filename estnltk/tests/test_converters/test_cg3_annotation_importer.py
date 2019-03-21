@@ -1,12 +1,12 @@
 from collections import OrderedDict
 import pytest
-from estnltk.taggers.syntax.cg3_annotation_parser import CG3AnnotationParser
+from estnltk.converters.cg3_annotation_importer import CG3AnnotationParser
 
 parser = CG3AnnotationParser()
 
 
 def test_get_reversed_mapping():
-    assert parser.reversed_cats['unkw'] == ['unknown_attribute']
+    assert parser.reversed_cats['unkw'] == 'unknown_attribute'
 
 
 def test_forms():
@@ -27,13 +27,22 @@ def test_forms():
          'postag': 'D',
          'line': '	"üle" cap D @ADVL #1->4',
          'expected': (['cap'], 'D')},
-        {'cats': 'cap',
-         'postag': 'S',
-         'line': '	"mari" cap @ADVL #1->4',
-         'expected': ([''], 'X')}
+        {
+            'cats': 'cap',
+            'postag': '',
+            'line': '	"üle" cap @ADVL #1->4',
+            'expected': ([], '')}
     ]
-    for test in test_forms:
-        assert parser.get_forms(test['cats'], test['postag'], test['line']) == test['expected']
+    assert parser.get_forms(test_forms[0]['cats'], test_forms[0]['postag'], test_forms[0]['line']) == test_forms[0][
+        'expected']
+    assert parser.get_forms(test_forms[1]['cats'], test_forms[1]['postag'], test_forms[1]['line']) == test_forms[1][
+        'expected']
+    assert parser.get_forms(test_forms[2]['cats'], test_forms[2]['postag'], test_forms[2]['line']) == test_forms[2][
+        'expected']
+    assert parser.get_forms(test_forms[3]['cats'], test_forms[3]['postag'], test_forms[3]['line']) == test_forms[3][
+        'expected']
+    assert parser.get_forms(test_forms[4]['cats'], test_forms[4]['postag'], test_forms[4]['line']) == test_forms[4][
+        'expected']
 
 
 def test_analysed_forms():
@@ -50,8 +59,12 @@ def test_analysed_forms():
                                   ('person', ['ps3']), ('number', ['sg']), ('voice', ['ps']), ('negation', ['af']), \
                                   ('finiteness', ['<FinV>']), ('subcat', ['<Intr>'])])}
     ]
-    for test in test_analysed_forms:
-        assert parser.get_analysed_forms(test['forms'], test['postag']) == test['expected']
+    assert parser.get_analysed_forms(test_analysed_forms[0]['forms'], test_analysed_forms[0]['postag']) == \
+           test_analysed_forms[0]['expected']
+    assert parser.get_analysed_forms(test_analysed_forms[1]['forms'], test_analysed_forms[1]['postag']) == \
+           test_analysed_forms[1]['expected']
+    assert parser.get_analysed_forms(test_analysed_forms[2]['forms'], test_analysed_forms[2]['postag']) == \
+           test_analysed_forms[2]['expected']
 
 
 def test_postag():
@@ -64,21 +77,23 @@ def test_postag():
          'expected': 'D'
          }
     ]
-    for test in test_postags:
-        assert parser.get_postag(test['cats']) == test['expected']
+    assert parser.get_postag(test_postags[0]['cats']) == test_postags[0]['expected']
+    assert parser.get_postag(test_postags[1]['cats']) == test_postags[1]['expected']
+    assert parser.get_postag(test_postags[2]['cats']) == test_postags[2]['expected']
 
 
 def test_syntax():
     test_syntax = [
         {'syntax_analysis': '@FMV #3->0',
-         'expected': ('@FMV ', '#3->0')},
+         'expected': ('@FMV', '#3->0')},
         {'syntax_analysis': '@AN> @NN> #1->4',
-         'expected': ('@AN> @NN> ', '#1->4')},
+         'expected': ('@AN> @NN>', '#1->4')},
         {'syntax_analysis': '#1->1',
          'expected': ('', '#1->1')}
     ]
-    for test in test_syntax:
-        assert parser.get_syntax(test['syntax_analysis']) == test['expected']
+    assert parser.get_syntax(test_syntax[0]['syntax_analysis']) == test_syntax[0]['expected']
+    assert parser.get_syntax(test_syntax[1]['syntax_analysis']) == test_syntax[1]['expected']
+    assert parser.get_syntax(test_syntax[2]['syntax_analysis']) == test_syntax[2]['expected']
 
 
 def test_split_visl_analysis_line():
@@ -88,31 +103,39 @@ def test_split_visl_analysis_line():
         {'line': '	"käive" Ltega S com pl kom @NN> @<NN @ADVL #21->22',
          'expected': ('käive', 'Ltega', ' S com pl kom ', '@NN> @<NN @ADVL #21->22')},
         {'line': '	"suur" Lte A pos pl gen',
-         'expected': ('suur', 'Lte', ' A pos pl gen', '')},
+         'expected': ('suur', 'Lte', ' A pos pl gen', '')}
     ]
-    for test in test_split_valid:
-        assert parser.split_visl_analysis_line(test['line']) == test['expected']
+    assert parser.split_visl_analysis_line(test_split_valid[0]['line']) == test_split_valid[0]['expected']
+    assert parser.split_visl_analysis_line(test_split_valid[1]['line']) == test_split_valid[1]['expected']
+    assert parser.split_visl_analysis_line(test_split_valid[2]['line']) == test_split_valid[2]['expected']
 
     failed_analysis_case = {'line': '	mari cap @ADVL #1->4'}
     with pytest.raises(Exception):
         parser.split_visl_analysis_line(failed_analysis_case['line'])
     failed_nonanalysis_case = {'line': '<\s>'}
-    assert parser.split_visl_analysis_line(failed_nonanalysis_case['line']) is None
+    assert parser.split_visl_analysis_line(failed_nonanalysis_case['line']) == ('', '', '', '')
 
 
 def test_process_visl_analysis_line():
     test_process_visl = [
         {'line': '	"käive" Ltega S com pl kom @NN> @<NN @ADVL #21->22',
-         'expected': {'deprel': '@NN> @<NN @ADVL ', 'feats': OrderedDict([('substantive_type', ['com']),
-                                                                          ('number', ['pl']), ('case', ['kom'])]),
+         'expected': {'deprel': '@NN> @<NN @ADVL', 'feats': OrderedDict([('substantive_type', ['com']),
+                                                                         ('number', ['pl']), ('case', ['kom'])]),
                       'lemma': 'käive', 'ending': 'tega', 'partofspeech': 'S', 'head': '#21->22'}},
         {'line': '	"käive" Ltega S com pl kom',
          'expected': {'ending': 'tega', 'feats': OrderedDict([('substantive_type', ['com']),
                                                               ('number', ['pl']), ('case', ['kom'])]),
                       'partofspeech': 'S', 'lemma': 'käive'}}
     ]
-    for test in test_process_visl:
-        assert parser.process_visl_analysis_line(test['line']) == test['expected']
+    assert parser.process_visl_analysis_line(test_process_visl[0]['line']) == test_process_visl[0]['expected']
+    assert parser.process_visl_analysis_line(test_process_visl[1]['line']) == test_process_visl[1]['expected']
+
     failed_analysis_case = {'line': '<s>'}
     with pytest.raises(Exception):
         parser.process_visl_analysis_line(failed_analysis_case['line'])
+
+
+def test_supress_exceptions():
+    parser = CG3AnnotationParser(supress_exceptions=True)
+    assert parser.process_visl_analysis_line('<\s>') == {}
+    assert parser.split_visl_analysis_line('<\s>') == ('', '', '', '')

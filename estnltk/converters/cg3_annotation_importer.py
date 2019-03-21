@@ -4,17 +4,18 @@ import re
 import sys
 
 
-def get_reversed_mapping(cats):
+def get_reversed_mapping(cats) -> dict:
     """
-    Maps cats as 'form_value': ['category'].
+    Maps cats as 'form_value': 'category'.
     """
-    reversed_cats_mapping = defaultdict(lambda: ['unknown_attribute'])
+    reversed_cats_mapping = defaultdict(lambda: 'unknown_attribute')
     for cat, forms in cats.items():
         for form in forms:
-            if form not in reversed_cats_mapping:
-                reversed_cats_mapping[form] = [cat]
-            else:
-                reversed_cats_mapping[form].append(cat)
+            if form != 'pos':
+                try:
+                    reversed_cats_mapping[form] = cat
+                except:
+                    raise Exception("(!)Can't map form: '%s' and category: '%s'" % (form, cat))
     return reversed_cats_mapping
 
 
@@ -32,10 +33,9 @@ class CG3AnnotationParser:
         OrderedDict([('substantive_type', ['com']), ('number', ['sg']), ('case', ['all']), ('capitalized', ['cap'])]), \
         # 'deprel': '@ADVL ', 'ending': 'le'}
     """
-
-    pat_analysis_line = re.compile('^\s+"(.+)" (L\w+)*([^@#]*)([@#]*.*)$')
-    pat_pos_form = re.compile('^ *[A-Z]\s*([^#@]*).*$')
-    pat_form_pos = re.compile('^ *([a-z]+) ([A-Z]).*$')
+    pat_analysis_line = re.compile('^\s+"(?P<lemma>.+)" (?P<ending>L\w+)*(?P<cats>[^@#]*)(?P<syntax>[@#]*.*)$')
+    pat_pos_form = re.compile('^ *[A-Z]\s*(?P<form>[^#@]*).*$')
+    pat_form_pos = re.compile('^ *(?P<form>[a-z]+) (?P<postag>[A-Z]).*$')
 
     cats = {'case': {'nom', 'gen', 'part', 'ill', 'in', 'el', 'all', 'ad', 'abl',
                      'tr', 'term', 'es', 'abes', 'kom', 'adit'},
@@ -59,7 +59,7 @@ class CG3AnnotationParser:
             'finiteness': {'<FinV>', '<Inf>', '<InfP>'},
             'subcat': {'<Abl>', '<Ad>', '<All>', '<El>', '<Es>', '<Ill>', '<In>', '<Kom>', '<Part>',
                        '<all>', '<el>', '<gen>', '<ja>', '<kom>', '<mata>', '<mine>', '<nom>', '<nu>',
-                       '<nud>', '<part>', '<tav>', '<tu>', '<tud>', '<v>' '<Ter>', '<Tr>', '<Intr>',
+                       '<nud>', '<part>', '<tav>', '<tu>', '<tud>', '<v>', '<Ter>', '<Tr>', '<Intr>',
                        '<NGP-P>', '<NGP>', '<Part-P>'},
             'punctuation_type': {'Col', 'Com', 'Cpr', 'Cqu', 'Csq', 'Dsd', 'Dsh', 'Ell',
                                  'Els', 'Exc', 'Fst', 'Int', 'Opr', 'Oqu', 'Osq', 'Quo', 'Scl', 'Sla',
@@ -68,28 +68,32 @@ class CG3AnnotationParser:
 
     reversed_cats = get_reversed_mapping(cats)
 
-    def get_forms(self, cats, postag, line):
+    def __init__(self, supress_exceptions=False):
+        self.supress_exceptions = supress_exceptions
+
+    @staticmethod
+    def get_forms(cats, postag, line):
         """
         Creates morphological features from morphological categories.
         """
         assert isinstance(cats, str), '(!)Unexpected type for "cats" argument! Expected a string.'
         assert isinstance(postag, str), '(!)Unexpected type for "postag" argument! Expected a string.'
         assert isinstance(line, str), '(!)Unexpected type for "line" argument! Expected a string.'
+        forms = []
         # Features matching
-        m1 = self.pat_pos_form.match(cats)
-        m2 = self.pat_form_pos.match(cats)
+        m1 = CG3AnnotationParser.pat_pos_form.match(cats)
+        m2 = CG3AnnotationParser.pat_form_pos.match(cats)
         if m1:
-            forms = (m1.group(1)).split()
+            forms = (m1.group('form')).split()
         elif m2:
-            forms = (m2.group(1)).split()
-            postag = m2.group(2)
+            forms = (m2.group('form')).split()
+            postag = m2.group('postag')
         else:
-            postag = 'X'
-            forms = ['']
             print('(!) Unexpected format of analysis line: ' + line, file=sys.stderr)
         return forms, postag
 
-    def get_analysed_forms(self, forms, postag):
+    @staticmethod
+    def get_analysed_forms(forms, postag):
         """
         Finds attribute to each feature element.
         """
@@ -97,19 +101,22 @@ class CG3AnnotationParser:
         assert isinstance(postag, str), '(!)Unexpected type for "postag" argument! Expected a string.'
         analysed_forms = OrderedDict()
         for form in forms:
+            # 'pos' is used in two different categories so this is handled separately from other forms and their categories.
             if form == 'pos':
                 if postag == 'P':
                     analysed_forms['pronoun_type'] = ['pos']
                 else:
                     analysed_forms['adjective_type'] = ['pos']
                 continue
-            if self.reversed_cats[form][0] not in analysed_forms:
-                analysed_forms[self.reversed_cats[form][0]] = [form]
+            # Other forms using reversed categories mapping.
+            if CG3AnnotationParser.reversed_cats[form] in analysed_forms:
+                analysed_forms[CG3AnnotationParser.reversed_cats[form]].append(form)
             else:
-                analysed_forms[self.reversed_cats[form][0]].append(form)
+                analysed_forms[CG3AnnotationParser.reversed_cats[form]] = [form]
         return analysed_forms
 
-    def get_postag(self, cats):
+    @staticmethod
+    def get_postag(cats):
         """
         Finds postag from categories value.
         """
@@ -122,13 +129,14 @@ class CG3AnnotationParser:
             postag = (cats.split())[0] if len(cats.split()) >= 1 else 'X'
         return postag
 
-    def get_syntax(self, syntax_analysis):
+    @staticmethod
+    def get_syntax(syntax_analysis):
         """
         Finds deprel and head value if analysis has this info.
         """
         assert isinstance(syntax_analysis, str), '(!)Unexpected type for "syntax_analysis" argument! Expected a string.'
         syntax_chunks = syntax_analysis.split('#')
-        deprel, heads = syntax_chunks[0], '#' + syntax_chunks[1]
+        deprel, heads = syntax_chunks[0].strip(' '), '#' + syntax_chunks[1]
         return deprel, heads
 
     def split_visl_analysis_line(self, line: str) -> Optional[Tuple[str]]:
@@ -137,11 +145,14 @@ class CG3AnnotationParser:
         If some info is missing, it's returned as ''.
         """
         assert isinstance(line, str), '(!)Unexpected type for "line" argument! Expected a string.'
-        analysis_match = self.pat_analysis_line.match(line)
+        analysis_match = CG3AnnotationParser.pat_analysis_line.match(line)
         if not analysis_match:
             if line.startswith('  ') or line.startswith('\t'):
-                raise Exception('(!) Malformed analysis line: ' + line)
-            return None
+                if self.supress_exceptions:
+                    return tuple(['', '', '', ''])
+                else:
+                    raise Exception('(!) Malformed analysis line: ' + line)
+            return tuple(['', '', '', ''])
         return tuple(analysis_match.groups(default=''))
 
     def process_visl_analysis_line(self, line) -> dict:
@@ -150,7 +161,10 @@ class CG3AnnotationParser:
         """
         assert isinstance(line, str), '(!) Unexpected type of input argument! Expected a string.'
         if not (line.startswith('  ') or line.startswith('\t')):
-            raise Exception('(!) Unexpected analysis line: ' + line)
+            if self.supress_exceptions:
+                return {}
+            else:
+                raise Exception('(!) Unexpected analysis line: ' + line)
         analysis = self.split_visl_analysis_line(line)
         lemma, ending, cats, syntax = analysis
         ending = ending.lstrip('L')
