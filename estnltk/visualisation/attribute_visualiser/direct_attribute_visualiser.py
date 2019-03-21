@@ -71,6 +71,10 @@ class DirectAttributeVisualiser(SpanVisualiser):
                 output.append("='")
                 output.append(annotation_to_json(span))
                 output.append("'")
+            rows = []
+            for row in segment[1]:
+                rows.append(row.text)
+            output.append(' span_texts=' + ','.join(rows))  # text of spans for javascript
             output.append(">")
             output.append(segment[0])
             output.append('</span>')

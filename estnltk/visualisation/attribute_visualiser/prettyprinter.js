@@ -25,11 +25,13 @@ function show_conflicting_spans(span_element) {
     let spantable = document.createElement('div');
     spantable.classList.add('tables');
 
+    data = span_element.getAttribute("span_texts")
+    data = data.split(",")
     var spancontent = '<table>';
-    for (let i = 0; i < spancounter; i++) {
-        spancontent += '<tr><td>';
-        spancontent += "span"
-        spancontent += '</td></tr>'
+    for (let row of data) {
+        spancontent+='<tr><td>'
+        spancontent+=row
+        spancontent+='</td></tr>'
     }
     spancontent += '</table>';
 
@@ -53,11 +55,25 @@ function show_conflicting_spans(span_element) {
                 }
                 let annotationstable = document.createElement('div');
                 annotationstable.classList.add('tables');
+                //delete table after clicking
+                annotationstable.addEventListener("click", function () {
+                    annotationstable.parentElement.removeChild(annotationstable)
+                })
+                //position the table
+                annotationstable.style.left = spantable.style.left
+                annotationstable.style.top = spantable.style.top
                 annotationstable.innerHTML = table_builder(data)
                 span_element.parentElement.appendChild(annotationstable)
             } else {
                 let annotationtable = document.createElement('div');
                 annotationtable.classList.add('tables');
+                //position the table
+                annotationtable.style.left = spantable.style.left
+                annotationtable.style.top = spantable.style.top
+                //delete table after clicking
+                annotationtable.addEventListener("click", function () {
+                    annotationtable.parentElement.removeChild(annotationtable)
+                })
 
                 var spancontent = '<table>';
                 for (let j = 0; j < JSON.parse(span_element.getAttribute("span_info" + i)).length; j++) {
@@ -77,8 +93,15 @@ function show_conflicting_spans(span_element) {
                         }
                         let annotationstable = document.createElement('div');
                         annotationstable.classList.add('tables');
+                        //position the table
+                        annotationstable.style.left = spantable.style.left
+                        annotationstable.style.top = spantable.style.top
                         annotationstable.innerHTML = table_builder(data)
                         span_element.parentElement.appendChild(annotationstable)
+                        //delete table after clicking
+                        annotationstable.addEventListener("click", function () {
+                            annotationstable.parentElement.removeChild(annotationstable)
+                        })
                     })
 
                 }
@@ -87,6 +110,15 @@ function show_conflicting_spans(span_element) {
 
         })
     }
+
+    //this deletes the original "span" table
+    var elements = document.getElementsByClassName("tables");
+    for (let i = 0; i < elements.length; i++) {
+        elements.item(i).addEventListener("click", function () {
+            this.parentElement.removeChild(this)
+        })
+    }
+
 
 }
 
