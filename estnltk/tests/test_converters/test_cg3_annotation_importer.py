@@ -1,12 +1,18 @@
 from collections import OrderedDict
 import pytest
 from estnltk.converters.cg3_annotation_importer import CG3AnnotationParser
+from estnltk.converters.cg3_annotation_importer import get_reversed_mapping
 
 parser = CG3AnnotationParser()
 
 
 def test_get_reversed_mapping():
     assert parser.reversed_cats['unkw'] == 'unknown_attribute'
+
+    cats = {'cat1': {'nom', 'gen'},
+            'cat2': {'gen'}}
+    with pytest.raises(Exception):
+        get_reversed_mapping(cats)
 
 
 def test_forms():

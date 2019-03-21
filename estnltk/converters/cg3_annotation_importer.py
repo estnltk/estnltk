@@ -12,10 +12,9 @@ def get_reversed_mapping(cats) -> dict:
     for cat, forms in cats.items():
         for form in forms:
             if form != 'pos':
-                try:
-                    reversed_cats_mapping[form] = cat
-                except:
+                if form in reversed_cats_mapping:
                     raise Exception("(!)Can't map form: '%s' and category: '%s'" % (form, cat))
+                reversed_cats_mapping[form] = cat
     return reversed_cats_mapping
 
 
