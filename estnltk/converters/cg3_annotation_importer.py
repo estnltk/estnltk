@@ -136,6 +136,8 @@ class CG3AnnotationParser:
         assert isinstance(syntax_analysis, str), '(!)Unexpected type for "syntax_analysis" argument! Expected a string.'
         syntax_chunks = syntax_analysis.split('#')
         deprel, heads = syntax_chunks[0].strip(' '), '#' + syntax_chunks[1]
+        if deprel == '':
+            deprel = '_'
         return deprel, heads
 
     def split_visl_analysis_line(self, line: str) -> Optional[Tuple[str]]:
@@ -166,10 +168,10 @@ class CG3AnnotationParser:
                 raise Exception('(!) Unexpected analysis line: ' + line)
         analysis = self.split_visl_analysis_line(line)
         lemma, ending, cats, syntax = analysis
-        ending = ending.lstrip('L')
+        ending = ending.lstrip('L') if ending else '_'
         postag = self.get_postag(cats)
         forms, postag = self.get_forms(cats, postag, line)
-        analysed_forms = self.get_analysed_forms(forms, postag) if forms else ''
+        analysed_forms = self.get_analysed_forms(forms, postag) if forms else '_'
         # Visl row with syntactic analysis, e.g. "ole" Ln V main indic pres ps1 sg ps af @FMV #3->0
         if '#' in analysis[3]:
             deprel, heads = self.get_syntax(syntax)
@@ -178,4 +180,4 @@ class CG3AnnotationParser:
                     'head': heads}
         # Visl row with verb or adpositions info, e.g. "ole" Ln V main indic pres ps1 sg ps af <FinV> <Intr>
         else:
-            return {'lemma': lemma, 'ending': ending, 'partofspeech': postag, 'feats': analysed_forms}
+            return {'lemma': lemma, 'ending': ending, 'partofspeech': postag, 'feats': analysed_forms, 'deprel': '_', 'head': '_'}
