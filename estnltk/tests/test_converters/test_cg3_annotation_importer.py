@@ -91,11 +91,11 @@ def test_postag():
 def test_syntax():
     test_syntax = [
         {'syntax_analysis': '@FMV #3->0',
-         'expected': ('@FMV', '#3->0')},
+         'expected': (['@FMV'], '#3->0')},
         {'syntax_analysis': '@AN> @NN> #1->4',
-         'expected': ('@AN> @NN>', '#1->4')},
+         'expected': (['@AN>', '@NN>'], '#1->4')},
         {'syntax_analysis': '#1->1',
-         'expected': ('', '#1->1')}
+         'expected': ([], '#1->1')}
     ]
     assert parser.get_syntax(test_syntax[0]['syntax_analysis']) == test_syntax[0]['expected']
     assert parser.get_syntax(test_syntax[1]['syntax_analysis']) == test_syntax[1]['expected']
@@ -125,13 +125,13 @@ def test_split_visl_analysis_line():
 def test_process_visl_analysis_line():
     test_process_visl = [
         {'line': '	"käive" Ltega S com pl kom @NN> @<NN @ADVL #21->22',
-         'expected': {'deprel': '@NN> @<NN @ADVL', 'feats': OrderedDict([('substantive_type', ['com']),
+         'expected': {'deprel': ['@NN>', '@<NN', '@ADVL'], 'feats': OrderedDict([('substantive_type', ['com']),
                                                                          ('number', ['pl']), ('case', ['kom'])]),
                       'lemma': 'käive', 'ending': 'tega', 'partofspeech': 'S', 'head': '#21->22'}},
         {'line': '	"käive" Ltega S com pl kom',
          'expected': {'ending': 'tega', 'feats': OrderedDict([('substantive_type', ['com']),
                                                               ('number', ['pl']), ('case', ['kom'])]),
-                      'partofspeech': 'S', 'lemma': 'käive'}}
+                      'partofspeech': 'S', 'lemma': 'käive', 'deprel': '_', 'head': '_'}}
     ]
     assert parser.process_visl_analysis_line(test_process_visl[0]['line']) == test_process_visl[0]['expected']
     assert parser.process_visl_analysis_line(test_process_visl[1]['line']) == test_process_visl[1]['expected']
@@ -145,3 +145,4 @@ def test_supress_exceptions():
     parser = CG3AnnotationParser(supress_exceptions=True)
     assert parser.process_visl_analysis_line('<\s>') == {}
     assert parser.split_visl_analysis_line('<\s>') == ('', '', '', '')
+    assert parser.split_visl_analysis_line('\t<\s>') == ('', '', '', '')

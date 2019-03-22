@@ -135,9 +135,7 @@ class CG3AnnotationParser:
         """
         assert isinstance(syntax_analysis, str), '(!)Unexpected type for "syntax_analysis" argument! Expected a string.'
         syntax_chunks = syntax_analysis.split('#')
-        deprel, heads = syntax_chunks[0].strip(' '), '#' + syntax_chunks[1]
-        if deprel == '':
-            deprel = '_'
+        deprel, heads = syntax_chunks[0].strip(' ').split(), '#' + syntax_chunks[1]
         return deprel, heads
 
     def split_visl_analysis_line(self, line: str) -> Optional[Tuple[str]]:

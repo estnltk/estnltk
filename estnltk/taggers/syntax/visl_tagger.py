@@ -10,7 +10,7 @@ import os
 class VislTagger(Tagger):
     """Visl tagger"""
 
-    conf_param = ['_visl_line_processor']
+    conf_param = ['_visl_line_processor', '_parser']
 
     def __init__(self, output_layer: str = 'visl', morph_extended_layer: str = 'morph_extended'):
         self.input_layers = [morph_extended_layer]
@@ -21,6 +21,7 @@ class VislTagger(Tagger):
         vislcg_path = '/usr/bin/vislcg3'
 
         self._visl_line_processor = VISLCG3Pipeline(rules_dir=vislcgRulesDir, vislcg_cmd=vislcg_path).process_lines
+        self._parser = CG3AnnotationParser().process_visl_analysis_line
 
     def _make_layer(self, text, layers, status):
         morph_extended_layer = layers[self.input_layers[0]]
@@ -44,8 +45,7 @@ class VislTagger(Tagger):
 
         for token_lines, span in zip(visl_lines, morph_extended_layer):
             for token_line in token_lines:
-                parser = CG3AnnotationParser()
-                analysed_line = parser.process_visl_analysis_line(token_line)
+                analysed_line = self._parser(token_line)
                 feats = get_feats(analysed_line) if analysed_line['feats'] != '_' else analysed_line['feats']
                 layer.add_annotation(span,
                                      lemma=analysed_line['lemma'],
