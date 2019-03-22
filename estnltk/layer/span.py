@@ -45,11 +45,11 @@ class Span:
         if not self.is_dependant:
             self._base = self  # type:Span
 
-        annotation = Annotation(self)
-        self._annotations = [annotation]
+        self._annotations = []
+        self.add_annotation(**attributes)
 
         for k, v in attributes.items():
-            if k in legal_attributes:
+            if legal_attributes is None or k in legal_attributes:
                 setattr(self, k, v)
 
     def __len__(self):
@@ -58,13 +58,25 @@ class Span:
     def __getitem__(self, item):
         return self.annotations[item]
 
+    def add_annotation(self, **attributes) -> Annotation:
+        # TODO: try and remove if-s
+        assert not self._annotations
+        annotation = Annotation(self)
+        if self.layer:
+            for attr in self.layer.attributes:
+                if attr in attributes:
+                    setattr(annotation, attr, attributes[attr])
+        else:
+            for attr, value in attributes.items():
+                if attr == 'text':
+                    continue
+                setattr(annotation, attr, value)
+        self._annotations.append(annotation)
+        return annotation
+
     @property
     def annotations(self):
-        annotation = Annotation(self)
-        legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
-        for attr in legal_attribute_names:
-            setattr(annotation, attr, getattr(self, attr))
-        return [annotation]
+        return self._annotations
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
@@ -148,7 +160,8 @@ class Span:
                         right, '</span>'))
 
     def __setattr__(self, key, value):
-        if key != '_legal_attribute_names' and key in (self._legal_attribute_names or ()):
+        if key not in {'_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end', '_text_object',
+                       '_base', '_annotations', 'text_object'}:
             setattr(self._annotations[0], key, value)
         super().__setattr__(key, value)
 
@@ -160,10 +173,7 @@ class Span:
             raise AttributeError
 
         if item in self.__getattribute__('legal_attribute_names'):
-            try:
-                return self.__getattribute__(item)
-            except AttributeError:
-                return None
+            return getattr(self.annotations[0], item)
 
         elif item == getattr(self.layer, 'parent', None):
             return self.parent

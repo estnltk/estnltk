@@ -340,7 +340,7 @@ class Layer:
         target = self.classes.get(hash(span), None)
         if self.ambiguous:
             if target is None:
-                new = AmbiguousSpan(layer=self.layer, span=span)
+                new = AmbiguousSpan(layer=self, span=span)
                 new.add_span(span)
                 self.classes[hash(span)] = new
                 bisect.insort(self.span_list.spans, new)
@@ -359,44 +359,43 @@ class Layer:
     def remove_span(self, span):
         self.span_list.spans.remove(span)
 
-    def add_annotation(self, span, **attributes):
-        if span.text_object is None:
-            span.text_object = self.text_object
+    def add_annotation(self, base_span, **attributes):
+        if base_span.text_object is None:
+            base_span.text_object = self.text_object
         else:
-            assert span.text_object is self.text_object
+            assert base_span.text_object is self.text_object
         if self.parent is not None and self.ambiguous:
-            ambiguous_span = self.classes.get(hash(span), None)
-            if ambiguous_span is None:
-                ambiguous_span = AmbiguousSpan(self, span)
-                bisect.insort(self.span_list.spans, ambiguous_span)
-                self.classes[hash(span)] = ambiguous_span
-            assert isinstance(ambiguous_span, AmbiguousSpan), ambiguous_span
+            span = self.classes.get(hash(base_span), None)
+            if span is None:
+                span = AmbiguousSpan(self, base_span)
+                bisect.insort(self.span_list.spans, span)
+                self.classes[hash(base_span)] = span
+            assert isinstance(span, AmbiguousSpan), span
             attributes_pluss_default_values = self.default_values.copy()
             attributes_pluss_default_values.update(attributes)
-            return ambiguous_span.add_annotation(**attributes_pluss_default_values)
+            return span.add_annotation(**attributes_pluss_default_values)
 
         if self.parent is None and self.enveloping is None and self.ambiguous:
-            ambiguous_span = self.classes.get(hash(span), None)
-            if ambiguous_span is None:
-                ambiguous_span = AmbiguousSpan(self, span)
-                bisect.insort(self.span_list.spans, ambiguous_span)
-                self.classes[hash(span)] = ambiguous_span
-            assert isinstance(ambiguous_span, AmbiguousSpan), ambiguous_span
+            span = self.classes.get(hash(base_span), None)
+            if span is None:
+                span = AmbiguousSpan(self, base_span)
+                bisect.insort(self.span_list.spans, span)
+                self.classes[hash(base_span)] = span
+            assert isinstance(span, AmbiguousSpan), span
             attributes_pluss_default_values = self.default_values.copy()
             attributes_pluss_default_values.update(attributes)
-            return ambiguous_span.add_annotation(**attributes_pluss_default_values)
+            return span.add_annotation(**attributes_pluss_default_values)
 
         if self.parent is None and self.enveloping is None and not self.ambiguous:
-            ambiguous_span = self.classes.get(hash(span), None)
-            if ambiguous_span is None:
-                ambiguous_span = AmbiguousSpan(self, span)
-                bisect.insort(self.span_list.spans, ambiguous_span)
-                self.classes[hash(span)] = ambiguous_span
-            else:
+            if hash(base_span) in self.classes:
                 raise ValueError('the layer is not ambiguous and already contains this span')
+
             attributes_pluss_default_values = self.default_values.copy()
             attributes_pluss_default_values.update(attributes)
-            return ambiguous_span.add_annotation(**attributes_pluss_default_values)
+            span = Span(base_span.start, base_span.end, layer=self, **attributes_pluss_default_values)
+            bisect.insort(self.span_list.spans, span)
+            self.classes[hash(span)] = span
+            return span.annotations[0]
 
         # TODO: implement add_annotation
         raise NotImplementedError('add_annotation not yet implemented for this type of layer')
