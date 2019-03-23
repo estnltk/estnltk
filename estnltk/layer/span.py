@@ -82,14 +82,13 @@ class Span:
     def legal_attribute_names(self) -> Sequence[str]:
         if self.__getattribute__('_legal_attribute_names') is not None:
             return self.__getattribute__('_legal_attribute_names')
-        if self.__getattribute__('layer') is not None:
-            return self.__getattribute__('layer').__getattribute__('attributes')
+        if self.layer is not None:
+            return self.layer.attributes
         return ()
 
     def to_record(self, with_text=False) -> MutableMapping[str, Any]:
-        return {
-        **{k: self.__getattribute__(k) for k in list(self.legal_attribute_names) + (['text'] if with_text else [])},
-            **{'start': self.start, 'end': self.end}}
+        return {**{k: getattr(self, k) for k in list(self.legal_attribute_names) + (['text'] if with_text else [])},
+                **{'start': self.start, 'end': self.end}}
 
     def mark(self, mark_layer: str) -> 'Span':
         base_layer = self.text_object.layers[mark_layer]  # type: Layer
@@ -118,12 +117,13 @@ class Span:
             return self.parent.end
 
     @property
-    def base_spans(self):
-        return (self.start, self.end),
+    def base_span(self):
+        return self.start, self.end
 
     @property
     def text(self):
-        return self.text_object.text[self.start:self.end]
+        if self.text_object:
+            return self.text_object.text[self.start:self.end]
 
     @property
     def text_object(self):
@@ -163,20 +163,16 @@ class Span:
         if key not in {'_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end', '_text_object',
                        '_base', '_annotations', 'text_object'}:
             setattr(self._annotations[0], key, value)
+        else:
+            pass
         super().__setattr__(key, value)
 
     def __getattr__(self, item):
-        if item in {'start', 'end', 'layer', 'text'}:
-            return self.__getattribute__(item)
-
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
 
-        if item in self.__getattribute__('legal_attribute_names'):
+        if item in self.legal_attribute_names:
             return getattr(self.annotations[0], item)
-
-        elif item == getattr(self.layer, 'parent', None):
-            return self.parent
 
         elif self.layer is not None and self.layer.text_object is not None and self.layer.text_object._path_exists(
                 self.layer.name, item):
@@ -205,11 +201,11 @@ class Span:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Span):
             return False
-        if self.start != other.start or self.end != other.end:
+        if self.base_span != other.base_span:
             return False
         if self.legal_attribute_names != other.legal_attribute_names:
             return False
-        return all(self.__getattribute__(i) == other.__getattribute__(i) for i in self.legal_attribute_names)
+        return self.annotations == other.annotations
 
     def __hash__(self):
         return hash((self.start, self.end))
@@ -222,7 +218,7 @@ class Span:
         if self.layer.text_object is None:
             return 'Span(start={self.start}, end={self.end}, layer: {self.layer.name!r})'.format(self=self)
 
-        legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
+        legal_attribute_names = self.layer.attributes
 
         # Output key-value pairs in a sorted way
         # (to assure a consistent output, e.g. for automated testing)
