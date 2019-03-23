@@ -422,7 +422,7 @@ class PostMorphAnalysisTagger(Retagger):
                     _remove_duplicate_morph_spans( morph_spanlist )
 
             # A.2) Check for empty spans
-            word = morph_spanlist[0].parent
+            word = morph_spanlist[0].span.parent
             is_empty = _is_empty_span(morph_spanlist[0])
             if is_empty:
                 empty_morph_record = \

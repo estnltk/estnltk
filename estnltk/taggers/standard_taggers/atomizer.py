@@ -54,7 +54,8 @@ def _rebase_span(span, legal_attributes):
         new_span = SpanList()
         new_span.spans = span.spans
         return new_span
-    if span.parent is None:
+
+    if span.span.parent is None:
         return Span(start=span.start, end=span.end, legal_attributes=legal_attributes)
-    else:
-        return _rebase_span(span.parent, legal_attributes)
+
+    return _rebase_span(span.parent, legal_attributes)
