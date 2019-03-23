@@ -115,8 +115,8 @@ def _span_to_records_excl( span: Span, exclude_attribs ) -> MutableMapping[str, 
        Use this method iff Span.to_record() cannot be used 
        because "legal attributes" of the layer have already 
        been changed.'''
-    return { **{k: span.__getattribute__(k) for k in list(span.legal_attribute_names) if k not in exclude_attribs },
-             **{'start': span.start, 'end': span.end } }
+    return {**{k: getattr(span, k) for k in list(span.legal_attribute_names) if k not in exclude_attribs },
+            **{'start': span.start, 'end': span.end } }
 
 
 # ========================================================

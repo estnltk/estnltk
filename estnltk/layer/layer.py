@@ -332,7 +332,7 @@ class Layer:
                     if attr not in span._attributes:
                         raise AttributeError
                 else:
-                    span.__getattribute__(attr)
+                    getattr(span, attr)
             except AttributeError:
                 setattr(span, attr, self.default_values[attr])
 
@@ -423,13 +423,13 @@ class Layer:
                     for attr in self.attributes:
                         attrib_exists = True
                         try:
-                            annotation.__getattribute__(attr)
+                            getattr(annotation, attr)
                         except AttributeError:
                             attrib_exists = False
                         assert attrib_exists, \
                                '(!) Annotation missing attribute {}'.format(attr)
                     # Check for redundant attributes in Annotations
-                    for anno_attr in annotation.legal_attribute_names:
+                    for anno_attr in annotation._attributes:
                         assert anno_attr in self.attributes, \
                        '(!) Annotation has redundant attribute {}'.format(anno_attr)
             # Check attributes of EnvelopingSpan and Span
