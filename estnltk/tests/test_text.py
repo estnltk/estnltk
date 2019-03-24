@@ -907,7 +907,7 @@ def test_delete_annotation_in_ambiguous_span():
 
     assert len(text['test'][0]) == 2
 
-    (text['test'][0].spans
+    (text['test'][0].annotations
             .remove(
         text['test'][0][0] #this is the annotation we want to remove
     )
@@ -917,7 +917,7 @@ def test_delete_annotation_in_ambiguous_span():
     # removing the second
     assert len(text['test'][1]) == 2
 
-    (text['test'][1].spans
+    (text['test'][1].annotations
             .remove(
         text['test'][1][0] #this is the annotation we want to remove
     )

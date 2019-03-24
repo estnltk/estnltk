@@ -6,7 +6,7 @@ from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 from estnltk.taggers.morph_analysis.cb_disambiguator import RemoveDuplicateAndProblematicAnalysesRetagger
 
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 # ----------------------------------
 #   Helper functions
@@ -54,7 +54,7 @@ def count_analyses( docs ):
     for doc_id, doc in enumerate(docs):
         for wid, word in enumerate(doc['words']):
             for analysis in word.morph_analysis:
-                if _is_empty_span( analysis ):
+                if _is_empty_annotation(analysis):
                     raise Exception( '(!) Error: unexpectedly found an empty span: '+str(analysis) )
                 analyseCountTotal += 1
                 if analysis.partofspeech == 'H':

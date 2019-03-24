@@ -23,7 +23,7 @@ from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_span
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
 from estnltk.taggers.morph_analysis.morf_common import _convert_vm_dict_to_morph_analysis_spans
@@ -569,7 +569,7 @@ class VabamorfDisambiguator(Retagger):
                         morph_span = morph_spans[morph_span_id]
                         if word_span.start == morph_span.start and \
                            word_span.end == morph_span.end and \
-                           not _is_empty_span( morph_span.spans[0] ):
+                           not _is_empty_annotation(morph_span.annotations[0]):
                             # Word & morph found: collect items
                             sentence_word_spans.append( word_span )
                             sentence_morph_spans.append( morph_span )
@@ -593,7 +593,7 @@ class VabamorfDisambiguator(Retagger):
                         words_missing_morph.append( word_span )
                         word_span_id  += 1
                         # Advance morph position, if morph was empty
-                        if morph_span and _is_empty_span(morph_span.spans[0]):
+                        if morph_span and _is_empty_annotation(morph_span.annotations[0]):
                             morph_span_id += 1
                 elif sentence.end <= word_span.start:
                     # Word falls out of the sentence: break
@@ -690,7 +690,7 @@ class VabamorfDisambiguator(Retagger):
             layers[self.output_layer].attributes = new_attributes
             morph_spans = layers[self.output_layer].spans
             for ms_id, morph_span in enumerate(morph_spans):
-                for span in morph_span.spans:
-                    delattr( span, IGNORE_ATTR )
+                for annotation in morph_span.annotations:
+                    delattr(annotation, IGNORE_ATTR)
 
 

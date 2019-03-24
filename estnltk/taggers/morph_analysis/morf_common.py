@@ -94,19 +94,18 @@ def _create_empty_morph_span( word, layer_attributes = None ):
     return span
 
 
-def _is_empty_span( span:Span ):
-    '''Checks if the given span (from the layer 'morph_analysis')
-       is empty, that is: all of its morph attributes are set to 
-       None. 
-       This means that the word was unknown to morphological 
-       analyser. 
-    '''
-    all_none = [getattr(span, attr) is None for attr in ESTNLTK_MORPH_ATTRIBUTES]
-    return all(all_none)
+def _is_empty_annotation(annotation):
+    """
+    Checks if the given annotation (from the layer 'morph_analysis')
+    is empty, that is, all of its morph attributes are set to None.
+    This means that the word was unknown to morphological analyser.
+    """
+    return all(getattr(annotation, attr) is None for attr in ESTNLTK_MORPH_ATTRIBUTES)
 
 # ========================================================
 #   Convert Span to records, but ignore some attributes   
 # ========================================================
+
 
 def _span_to_records_excl( span: Span, exclude_attribs ) -> MutableMapping[str, Any]:
     '''Converts given Span to a dictionary of attributes and 

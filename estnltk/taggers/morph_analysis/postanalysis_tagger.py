@@ -18,7 +18,7 @@ from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_record
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
@@ -280,7 +280,7 @@ class PostMorphAnalysisTagger(Retagger):
                     morph_spanlist.end == comp_token.end):
                     #  In order to avoid errors in downstream processing, let's 
                     # fix only non-empty spans, and skip the empty spans
-                    is_empty = not morph_spanlist or _is_empty_span( morph_spanlist[0] )
+                    is_empty = not morph_spanlist or _is_empty_annotation(morph_spanlist[0])
                     if is_empty:
                         # Next compound token
                         comp_token_id += 1
@@ -364,11 +364,10 @@ class PostMorphAnalysisTagger(Retagger):
                 # all compound tokens have been exhausted
                 break
 
-
-    def _rewrite_layer_and_fix( self, raw_text: str, \
-                                layers: MutableMapping[str, Layer], \
-                                status: dict = None ):
-        '''Rewrites the morph_analysis layer by adding attribute 
+    def _rewrite_layer_and_fix(self, raw_text: str,
+                               layers: MutableMapping[str, Layer],
+                               status: dict = None ):
+        """Rewrites the morph_analysis layer by adding attribute
            IGNORE_ATTR to it. Also provides fixes that require 
            removal or addition of spans:
              1. Removes duplicate analyses;
@@ -396,7 +395,7 @@ class PostMorphAnalysisTagger(Retagger):
            status: dict
               This can be used to store metadata on layer retagging.
 
-        '''
+        """
         # Add IGNORE_ATTR to the input layer
         if IGNORE_ATTR not in layers[self.output_layer].attributes:
             layers[self.output_layer].attributes += (IGNORE_ATTR,)
@@ -413,21 +412,19 @@ class PostMorphAnalysisTagger(Retagger):
         morph_spans   = layers[self.output_layer].spans
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s
-            morph_spanlist = \
-                [span for span in morph_spans[morph_span_id].spans]
+            morph_annotations = morph_spans[morph_span_id].annotations
 
             # A) Remove duplicate analyses (if required)
             if self.remove_duplicates:
-                morph_spanlist = \
-                    _remove_duplicate_morph_spans( morph_spanlist )
+                morph_annotations = _remove_duplicate_morph_spans(morph_annotations)
 
             # A.2) Check for empty spans
-            word = morph_spanlist[0].span.parent
-            is_empty = _is_empty_span(morph_spanlist[0])
+            word = morph_annotations[0].span.parent
+            is_empty = _is_empty_annotation(morph_annotations[0])
             if is_empty:
                 empty_morph_record = \
-                    _create_empty_morph_record( word=word, \
-                        layer_attributes = current_attributes )
+                    _create_empty_morph_record(word=word,
+                                               layer_attributes=current_attributes )
                 # Add ignore attribute
                 empty_morph_record[IGNORE_ATTR] = False
                 # Carry over extra attributes
@@ -440,7 +437,7 @@ class PostMorphAnalysisTagger(Retagger):
                         empty_morph_record[extra_attr] = first_span_rec[extra_attr]
                 # Record the new span
                 ambiguous_span = \
-                    AmbiguousSpan(layer=morph_spans[morph_span_id].layer, \
+                    AmbiguousSpan(layer=morph_spans[morph_span_id].layer,
                                   span=morph_spans[morph_span_id].span)
                 # Add the new annotation
                 ambiguous_span.add_annotation( **empty_morph_record )
@@ -450,7 +447,7 @@ class PostMorphAnalysisTagger(Retagger):
                 continue
 
             # B) Convert spans to records
-            records = [ _span_to_records_excl(span, [IGNORE_ATTR]) for span in morph_spanlist ]
+            records = [_span_to_records_excl(annotation, [IGNORE_ATTR]) for annotation in morph_annotations]
             
             # B.1) Apply correction-rewriter:
             rewritten_recs = records

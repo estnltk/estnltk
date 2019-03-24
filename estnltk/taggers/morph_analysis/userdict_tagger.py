@@ -334,10 +334,6 @@ class UserDictTagger(Retagger):
         word_spans  = layers[self._input_words_layer].spans
         assert len(morph_spans) == len(word_spans)
         while morph_span_id < len(morph_spans):
-            # 0) Convert SpanList to list of Span-s
-            morph_spanlist = \
-                [span for span in morph_spans[morph_span_id].spans]
-
             # 1) Get corresponding word
             word_span = word_spans[morph_span_id]
             word_text = _get_word_text(word_span)
@@ -350,7 +346,7 @@ class UserDictTagger(Retagger):
                 # 2) If the word is inside user dictionary
 
                 # 2.1) Convert spans to records
-                records = [span.to_record() for span in morph_spanlist]
+                records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
 
                 # 2.2) Process records:
                 if self._dict[word_text]['merge']:

@@ -16,7 +16,7 @@ from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 from estnltk.taggers.morph_analysis.morf_common import _create_empty_morph_record
 
 # =========================================================================================
@@ -371,7 +371,7 @@ class GTMorphConverter( Tagger ):
                 vmstart = vabamorf_span.start
                 vmend   = vabamorf_span.end
                 if vmstart == wstart and vmend == wend:
-                    if not _is_empty_span( vabamorf_span.spans[0] ):
+                    if not _is_empty_annotation(vabamorf_span.annotations[0]):
                         new_analyses = vabamorf_span.to_record()
                         # Convert noun categories
                         new_analyses = [_convert_nominal_form( a ) for a in new_analyses ]

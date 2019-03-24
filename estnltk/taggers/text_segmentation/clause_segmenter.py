@@ -11,7 +11,7 @@ from estnltk.text import Layer, EnvelopingSpan
 
 from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 from estnltk.java.javaprocess import JavaProcess
 from estnltk.core import JAVARES_PATH
@@ -152,7 +152,7 @@ class ClauseSegmenter(Tagger):
                         if word_span.start == morph_span.start and \
                            word_span.end == morph_span.end and \
                            len(morph_span) > 0 and \
-                           (not _is_empty_span(morph_span[0])):
+                           (not _is_empty_annotation(morph_span[0])):
                             # Convert span to Vabamorf dict
                             word_morph_dict = \
                                     _convert_morph_analysis_span_to_vm_dict( \

@@ -55,7 +55,7 @@ class AmbiguousSpan(collections.Sequence):
         span = self._span
         if not isinstance(span, Span):
             # EnvelopingSpan
-            annotation.spans = span.spans
+            annotation.spans = span.annotations
         if annotation not in self._annotations:
             self._annotations.append(annotation)
             return annotation
@@ -68,10 +68,6 @@ class AmbiguousSpan(collections.Sequence):
     def add_layer(self, layer):
         self._layer = layer
         self._span.add_layer(layer)
-
-    @property
-    def spans(self):
-        return self._annotations
 
     @property
     def layer(self):
@@ -140,7 +136,7 @@ class AmbiguousSpan(collections.Sequence):
         return hash(self.span)
 
     def __str__(self):
-        return 'AS[{spans}]'.format(spans=', '.join(str(i) for i in self.spans))
+        return 'AS[{spans}]'.format(spans=', '.join(str(i) for i in self.annotations))
 
     def __repr__(self):
         return str(self)
