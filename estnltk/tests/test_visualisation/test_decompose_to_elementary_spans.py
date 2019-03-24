@@ -18,8 +18,20 @@ def test_decompose_text_with_empty_span():
 
 
 def test_decompose_text_and_span():
-    expected = "[['Tere', [Span(start=0, end=4, text='Tere')]], [',', [Span(start=4, end=5, text=',')]], [' ', []], ['maailm', [Span(start=6, end=12, text='maailm')]], ['!', [Span(start=12, end=13, text='!')]]]"
-    result = str(decompose_to_elementary_spans(new_text(3).layer_0,new_text(3).text))
+    text_3 = Text('Tere, maailm!')
+    layer_0 = Layer('layer_0', attributes=['attr', 'attr_0'], text_object=text_3)
+    layer_0.add_annotation(Span(start=0, end=4), attr='L0-0', attr_0='A')
+    layer_0.add_annotation(Span(start=4, end=5), attr='L0-1', attr_0='B')
+    layer_0.add_annotation(Span(start=6, end=12), attr='L0-2', attr_0='C')
+    layer_0.add_annotation(Span(start=12, end=13), attr='L0-3', attr_0='D')
+    text_3['layer_0'] = layer_0
+
+    expected = [['Tere', [layer_0[0]]],
+                [',', [layer_0[1]]],
+                [' ', []],
+                ['maailm', [layer_0[2]]],
+                ['!', [layer_0[3]]]]
+    result = decompose_to_elementary_spans(layer_0, text_3.text)
     assert expected == result
 
 
