@@ -51,6 +51,12 @@ def test_decompose_spans_partially_overlap():
     layer_0.add_span(Span(start=10, end=13, legal_attributes=['attr', 'attr_0'], attr='L0-3', attr_0='D'))
     text_3['layer_0'] = layer_0
 
-    result = str(decompose_to_elementary_spans(text_3.layer_0,text_3.text))
-    expected = "[['Tere', [Span(start=0, end=4, text='Tere')]], [', ', [Span(start=4, end=8, text=', ma')]], ['ma', [Span(start=4, end=8, text=', ma'), Span(start=6, end=12, text='maailm')]], ['ai', [Span(start=6, end=12, text='maailm')]], ['lm', [Span(start=6, end=12, text='maailm'), Span(start=10, end=13, text='lm!')]], ['!', [Span(start=10, end=13, text='lm!')]]]"
+    result = decompose_to_elementary_spans(text_3.layer_0,text_3.text)
+    expected = [['Tere', [layer_0[0]]],
+                [', ', [layer_0[1]]],
+                ['ma', [layer_0[1], layer_0[2]]],
+                ['ai', [layer_0[2]]],
+                ['lm', [layer_0[2], layer_0[3]]],
+                ['!', [layer_0[3]]]]
+
     assert result == expected
