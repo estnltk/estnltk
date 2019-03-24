@@ -360,10 +360,6 @@ class Layer:
         self.span_list.spans.remove(span)
 
     def add_annotation(self, base_span, **attributes):
-        if base_span.text_object is None:
-            base_span.text_object = self.text_object
-        else:
-            assert base_span.text_object is self.text_object
         if self.parent is not None and self.ambiguous:
             span = self.classes.get(hash(base_span), None)
             if span is None:
@@ -378,9 +374,9 @@ class Layer:
         if self.parent is None and self.enveloping is None and self.ambiguous:
             span = self.classes.get(hash(base_span), None)
             if span is None:
-                span = AmbiguousSpan(self, base_span)
+                span = AmbiguousSpan(self, Span(base_span.start, base_span.end, layer=self))
                 bisect.insort(self.span_list.spans, span)
-                self.classes[hash(base_span)] = span
+                self.classes[hash(span)] = span
             assert isinstance(span, AmbiguousSpan), span
             attributes_pluss_default_values = self.default_values.copy()
             attributes_pluss_default_values.update(attributes)
