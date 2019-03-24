@@ -5,8 +5,11 @@ from estnltk.layer.annotation import Annotation
 
 
 class Span:
+    # __slots__ = ['_annotations', '_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end',
+    #              '_base']
+
     def __init__(self, start: int = None, end: int = None, parent=None, *,
-                 layer=None, text_object=None, legal_attributes=None, **attributes) -> None:
+                 layer=None, legal_attributes=None, **attributes) -> None:
 
         # this is set up first, because attribute access depends on knowing attribute names as early as possible
         self._legal_attribute_names = legal_attributes
@@ -40,20 +43,14 @@ class Span:
         else:
             assert 0, 'What?'
 
-        self._text_object = text_object
-
         if not self.is_dependant:
             self._base = self  # type:Span
 
         self._annotations = []
         self.add_annotation(**attributes)
 
-        for k, v in attributes.items():
-            if legal_attributes is None or k in legal_attributes:
-                setattr(self, k, v)
-
     def __len__(self):
-        return 1
+        return len(self._annotations)
 
     def __getitem__(self, item):
         return self.annotations[item]
@@ -127,19 +124,11 @@ class Span:
 
     @property
     def text_object(self):
-        # TODO: remove next two lines
-        if self._text_object is None and self.layer is not None:
-            self._text_object = self.layer.text_object
-        return self._text_object
-
-    @text_object.setter
-    def text_object(self, text):
-        self._text_object = text
+        if self.layer is not None:
+            return self.layer.text_object
 
     def add_layer(self, layer):
-        if self._text_object is None:
-            self._text_object = layer.text_object
-        assert self.text_object is layer.text_object
+        assert self.layer is None
 
         self.layer = layer
 
@@ -160,8 +149,8 @@ class Span:
                         right, '</span>'))
 
     def __setattr__(self, key, value):
-        if key not in {'_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end', '_text_object',
-                       '_base', '_annotations', 'text_object'}:
+        if key not in {'_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end', '_base',
+                       '_annotations'}:
             setattr(self._annotations[0], key, value)
         else:
             pass
@@ -211,7 +200,7 @@ class Span:
         return hash((self.start, self.end))
 
     def __str__(self):
-        if self._text_object is not None:
+        if self.text_object is not None:
             return 'Span(start={self.start}, end={self.end}, text={self.text!r})'.format(self=self)
         if self.layer is None:
             return 'Span(start={self.start}, end={self.end}, layer={self.layer})'.format(self=self)
@@ -227,8 +216,7 @@ class Span:
         for k in sorted(legal_attribute_names):
             key_value_str = "{key_val}".format(key_val = {k:self.__getattribute__(k)})
             # Hack: Remove surrounding '{' and '}'
-            key_value_str = key_value_str[:-1]
-            key_value_str = key_value_str[1:]
+            key_value_str = key_value_str[1:-1]
             mapping_sorted.append(key_value_str)
 
         # Hack: Put back surrounding '{' and '}' (mimic dict's representation)
