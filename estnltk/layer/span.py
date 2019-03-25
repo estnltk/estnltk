@@ -128,9 +128,9 @@ class Span:
             return self.layer.text_object
 
     def add_layer(self, layer):
-        assert self.layer is None
-
-        self.layer = layer
+        if self.layer is None:
+            self.layer = layer
+        assert self.layer is layer
 
     @property
     def raw_text(self):
@@ -151,6 +151,7 @@ class Span:
     def __setattr__(self, key, value):
         if key not in {'_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end', '_base',
                        '_annotations'}:
+            # assert 0, key
             setattr(self._annotations[0], key, value)
         else:
             pass
