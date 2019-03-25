@@ -334,7 +334,10 @@ class Layer:
                 else:
                     getattr(span, attr)
             except AttributeError:
-                setattr(span, attr, self.default_values[attr])
+                if isinstance(span, Span):
+                    setattr(span[0], attr, self.default_values[attr])
+                else:
+                    setattr(span, attr, self.default_values[attr])
 
         span.add_layer(self)
         target = self.classes.get(hash(span), None)
