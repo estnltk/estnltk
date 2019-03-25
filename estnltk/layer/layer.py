@@ -650,7 +650,7 @@ class Layer:
         table_2 = ''
         if attributes:
             table_2 = self.attribute_list(attributes).to_html(index='text')
-        return '\n'.join(('<h4>Layer</h4>', text_object, table_1, table_2))
+        return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), text_object, table_1, table_2))
 
     def __repr__(self):
         return str(self)
