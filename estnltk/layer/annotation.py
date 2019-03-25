@@ -12,7 +12,10 @@ class Annotation:
         return {**{k: getattr(self, k) for k in list(self.legal_attribute_names) + (['text'] if with_text else [])},
                 **{'start': self.start, 'end': self.end}}
 
-    def attributes(self):
+    @property
+    def attributes(self) -> Mapping[str, Any]:
+        if self.legal_attribute_names is None:
+            return self._attributes.copy()
         return {attr: getattr(self, attr) for attr in self.legal_attribute_names}
 
     @property

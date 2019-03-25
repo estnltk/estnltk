@@ -4,7 +4,7 @@ from typing import List, Union, Sequence
 def annotation_to_dict(annotation: Union['Annotation', Sequence['Annotation']]) -> Union[dict, List[dict]]:
     if isinstance(annotation, Sequence):
         return [a.attributes() for a in annotation]
-    return annotation.attributes()
+    return annotation.attributes
 
 
 def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
