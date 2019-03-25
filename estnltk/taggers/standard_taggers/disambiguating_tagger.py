@@ -37,15 +37,19 @@ class DisambiguatingTagger(Tagger):
         for input_span in input_layer:
             assert isinstance(input_span, AmbiguousSpan)
             if parent:
+                # TODO: test and rewrite using add_annotation
                 span = Span(parent=parent,
-                            legal_attributes=self.output_attributes)
+                            layer=layer)
+                for k, v in self.decorator(input_span, text.text).items():
+                    setattr(span[0], k, v)
+                layer.add_span(span)
             elif enveloping:
                 span = EnvelopingSpan(spans=input_span[0].spans)
+                for k, v in self.decorator(input_span, text.text).items():
+                    setattr(span, k, v)
+                layer.add_span(span)
             else:
-                span = Span(start=input_span[0].start,
-                            end=input_span[0].end,
-                            legal_attributes=self.output_attributes)
-            for k, v in self.decorator(input_span, text.text).items():
-                setattr(span, k, v)
-            layer.add_span(span)
+                layer.add_annotation(Span(start=input_span.start, end=input_span.end),
+                                     **self.decorator(input_span, text.text))
+
         return layer
