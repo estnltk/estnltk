@@ -97,10 +97,7 @@ class RegexTagger(Tagger):
                       ambiguous=True
                       )
         for record in self._match(text.text):
-            span = Span(record['start'], record['end'], legal_attributes=self.output_attributes)
-            for attr in self.output_attributes:
-                setattr(span, attr, record[attr])
-            layer.add_span(span)
+            layer.add_annotation(Span(record['start'], record['end']), **record)
         layer = resolve_conflicts(layer=layer,
                                   conflict_resolving_strategy=self.conflict_resolving_strategy,
                                   priority_attribute=self.priority_attribute,
