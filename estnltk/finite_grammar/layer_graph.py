@@ -1,5 +1,5 @@
 from collections import defaultdict, Hashable
-from typing import Sequence, Union
+from typing import Sequence
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas
@@ -44,7 +44,6 @@ class Node:
 
     def __str__(self):
         result = ['{self.__class__.__name__}({self.name!r}, {self.start}, {self.end}'.format(self=self)]
-        #result.append('{self.start}, {self.end}'.format(self=self))
         # include hash because networkx.drawing.nx_pydot.pydot_layout overlaps nodes with equal str value
         if isinstance(self, Hashable):
             result.append(', {}'.format(hash(self)))
@@ -52,7 +51,22 @@ class Node:
         return ''.join(result)
 
     def __repr__(self):
-        return str(self)
+        lines = [self.__class__.__name__]
+        line = '  {:20} {}'.format
+        d = self.__dict__
+        keys = ['name', 'text', 'start', 'end', '_support_']
+        for k in keys:
+            if k in d:
+                value = d[k]
+                if isinstance(value, (list, tuple)):
+                    value = ', '.join(str(v) for v in value)
+                lines.append(line(k, value))
+        for k in sorted(set(d)-set(keys)):
+            value = d[k]
+            if isinstance(value, (list, tuple)):
+                value = ', '.join(str(v) for v in value)
+            lines.append(line(k, value))
+        return '\n'.join(lines)
 
     def to_html(self):
         keys = ['name', 'start', 'end']

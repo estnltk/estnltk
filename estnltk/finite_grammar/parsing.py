@@ -1,6 +1,7 @@
 import itertools
 from typing import Sequence
 
+from estnltk import logger
 from estnltk.finite_grammar import Grammar
 from estnltk.finite_grammar.layer_graph import LayerGraph, NonTerminalNode, PlusNode, MSeqNode
 
@@ -90,8 +91,11 @@ def add_node(graph: LayerGraph,
                     return False
 
     graph.remove_nodes_from(nodes_to_remove)
+    for n in nodes_to_remove:
+        logger.debug('removed node: {!r}'.format(n))
 
     graph.add_node(node)
+    logger.debug('added node: {!r}'.format(node))
     for pred in graph.pred[node.support[0]]:
         graph.add_edge(pred, node)
     for succ in graph.succ[node.support[-1]]:
