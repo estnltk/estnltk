@@ -61,6 +61,7 @@ class PostgresStorage:
 
     def close(self):
         """Closes database connection"""
+        self.conn.commit()
         self.conn.close()
 
     def closed(self):
