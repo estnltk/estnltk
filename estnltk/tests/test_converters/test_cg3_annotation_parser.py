@@ -1,7 +1,6 @@
-from collections import OrderedDict
 import pytest
-from estnltk.converters.cg3_annotation_importer import CG3AnnotationParser
-from estnltk.converters.cg3_annotation_importer import get_reversed_mapping
+from estnltk.converters.cg3_annotation_parser import CG3AnnotationParser
+from estnltk.converters.cg3_annotation_parser import get_reversed_mapping, get_cats
 
 parser = CG3AnnotationParser()
 
@@ -14,6 +13,12 @@ def test_get_reversed_mapping():
     with pytest.raises(Exception):
         get_reversed_mapping(cats)
 
+def test_get_cats():
+    cats = {'cat1': {'nom', 'gen'},
+            'cat2': {'gen'},
+            'lemma' : 'see'}
+    with pytest.raises(Exception):
+        get_cats(cats)
 
 def test_forms():
     test_forms = [
@@ -54,22 +59,25 @@ def test_forms():
 def test_analysed_forms():
     test_analysed_forms = [
         {'forms': ['pos', 'sg', 'ad'],
-         'postag': 'A',
-         'expected': OrderedDict([('adjective_type', ['pos']), ('number', ['sg']), ('case', ['ad'])])},
+         'expected': {'subtype': ['pos'], 'number': ['sg'], 'case': ['ad']}},
         {'forms': ['pos', 'det', 'refl', 'sg', 'gen'],
-         'postag': 'P',
-         'expected': OrderedDict([('pronoun_type', ['pos', 'det', 'refl']), ('number', ['sg']), ('case', ['gen'])])},
+         'expected': {'case': ['gen'], 'number': ['sg'], 'subtype': ['pos', 'det', 'refl']}},
         {'forms': ['mod', 'indic', 'pres', 'ps3', 'sg', 'ps', 'af', '<FinV>', '<Intr>'],
-         'postag': 'V',
-         'expected': OrderedDict([('verb_type', ['mod']), ('mood', ['indic']), ('tense', ['pres']), \
-                                  ('person', ['ps3']), ('number', ['sg']), ('voice', ['ps']), ('negation', ['af']), \
-                                  ('finiteness', ['<FinV>']), ('subcat', ['<Intr>'])])}
+         'expected': {'finiteness': ['<FinV>'],
+                      'mood': ['indic'],
+                      'number': ['sg'],
+                      'person': ['ps3'],
+                      'polarity': ['af'],
+                      'subcat': ['<Intr>'],
+                      'subtype': ['mod'],
+                      'tense': ['pres'],
+                      'voice': ['ps']}}
     ]
-    assert parser.get_analysed_forms(test_analysed_forms[0]['forms'], test_analysed_forms[0]['postag']) == \
+    assert parser.get_analysed_forms(test_analysed_forms[0]['forms']) == \
            test_analysed_forms[0]['expected']
-    assert parser.get_analysed_forms(test_analysed_forms[1]['forms'], test_analysed_forms[1]['postag']) == \
+    assert parser.get_analysed_forms(test_analysed_forms[1]['forms']) == \
            test_analysed_forms[1]['expected']
-    assert parser.get_analysed_forms(test_analysed_forms[2]['forms'], test_analysed_forms[2]['postag']) == \
+    assert parser.get_analysed_forms(test_analysed_forms[2]['forms']) == \
            test_analysed_forms[2]['expected']
 
 
@@ -91,11 +99,11 @@ def test_postag():
 def test_syntax():
     test_syntax = [
         {'syntax_analysis': '@FMV #3->0',
-         'expected': (['@FMV'], '#3->0')},
+         'expected': (['@FMV'], '3', '0')},
         {'syntax_analysis': '@AN> @NN> #1->4',
-         'expected': (['@AN>', '@NN>'], '#1->4')},
+         'expected': (['@AN>', '@NN>'], '1', '4')},
         {'syntax_analysis': '#1->1',
-         'expected': ([], '#1->1')}
+         'expected': ('_', '1', '1')}
     ]
     assert parser.get_syntax(test_syntax[0]['syntax_analysis']) == test_syntax[0]['expected']
     assert parser.get_syntax(test_syntax[1]['syntax_analysis']) == test_syntax[1]['expected']
@@ -125,24 +133,35 @@ def test_split_visl_analysis_line():
 def test_process_visl_analysis_line():
     test_process_visl = [
         {'line': '	"käive" Ltega S com pl kom @NN> @<NN @ADVL #21->22',
-         'expected': {'deprel': ['@NN>', '@<NN', '@ADVL'], 'feats': OrderedDict([('substantive_type', ['com']),
-                                                                         ('number', ['pl']), ('case', ['kom'])]),
-                      'lemma': 'käive', 'ending': 'tega', 'partofspeech': 'S', 'head': '#21->22'}},
+         'expected': {'case': ['kom'],
+                      'deprel': ['@NN>', '@<NN', '@ADVL'],
+                      'ending': 'tega',
+                      'head': '22',
+                      'id': '21',
+                      'lemma': 'käive',
+                      'number': ['pl'],
+                      'partofspeech': 'S',
+                      'subtype': ['com']}},
         {'line': '	"käive" Ltega S com pl kom',
-         'expected': {'ending': 'tega', 'feats': OrderedDict([('substantive_type', ['com']),
-                                                              ('number', ['pl']), ('case', ['kom'])]),
-                      'partofspeech': 'S', 'lemma': 'käive', 'deprel': '_', 'head': '_'}}
+         'expected': {'case': ['kom'],
+                      'deprel': '_',
+                      'ending': 'tega',
+                      'head': '_',
+                      'lemma': 'käive',
+                      'number': ['pl'],
+                      'partofspeech': 'S',
+                      'subtype': ['com']}}
     ]
-    assert parser.process_visl_analysis_line(test_process_visl[0]['line']) == test_process_visl[0]['expected']
-    assert parser.process_visl_analysis_line(test_process_visl[1]['line']) == test_process_visl[1]['expected']
+    assert parser.parse(test_process_visl[0]['line']) == test_process_visl[0]['expected']
+    assert parser.parse(test_process_visl[1]['line']) == test_process_visl[1]['expected']
 
     failed_analysis_case = {'line': '<s>'}
     with pytest.raises(Exception):
-        parser.process_visl_analysis_line(failed_analysis_case['line'])
+        parser.parse(failed_analysis_case['line'])
 
 
 def test_supress_exceptions():
     parser = CG3AnnotationParser(supress_exceptions=True)
-    assert parser.process_visl_analysis_line('<\s>') == {}
+    assert parser.parse('<\s>') == {}
     assert parser.split_visl_analysis_line('<\s>') == ('', '', '', '')
     assert parser.split_visl_analysis_line('\t<\s>') == ('', '', '', '')

@@ -1,4 +1,4 @@
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from typing import Tuple, Optional
 import re
 import sys
@@ -11,11 +11,21 @@ def get_reversed_mapping(cats) -> dict:
     reversed_cats_mapping = defaultdict(lambda: 'unknown_attribute')
     for cat, forms in cats.items():
         for form in forms:
-            if form != 'pos':
-                if form in reversed_cats_mapping:
-                    raise Exception("(!)Can't map form: '%s' and category: '%s'" % (form, cat))
-                reversed_cats_mapping[form] = cat
+            if form in reversed_cats_mapping:
+                raise Exception("(!)Can't map form: '%s' and category: '%s'" % (form, cat))
+            reversed_cats_mapping[form] = cat
     return reversed_cats_mapping
+
+
+def get_cats(cats):
+    """
+    Checks that attribute is valid.
+    """
+    wrong_cats = ['lemma', 'ending', 'partofspeech', 'deprel', 'head']
+    for key in cats.keys():
+        if key in wrong_cats:
+            raise Exception('(!)Wrong attribute for feature category: "%s"' % (key))
+    return cats
 
 
 class CG3AnnotationParser:
@@ -43,29 +53,22 @@ class CG3AnnotationParser:
             'tense': {'pres', 'past', 'impf'},
             'mood': {'indic', 'cond', 'imper', 'quot'},
             'person': {'ps1', 'ps2', 'ps3'},
-            'negation': {'af', 'neg'},
+            'polarity': {'af', 'neg'},
             'inf_form': {'sup', 'inf', 'ger', 'partic'},
-            'pronoun_type': {'pos', 'det', 'refl', 'dem', 'inter_rel', 'pers', 'rel', 'rec', 'indef'},
-            'adjective_type': {'pos', 'comp', 'super'},
-            'verb_type': {'main', 'mod', 'aux'},
-            'substantive_type': {'prop', 'com'},
-            'numeral_type': {'card', 'ord'},
+            'subtype': {'pos', 'det', 'refl', 'dem', 'inter_rel', 'pers', 'rel', 'rec', 'indef', 'comp', 'super',
+                        'main', 'mod', 'aux', 'prop', 'com', 'card', 'ord', 'pre', 'post', 'crd', 'sub', 'adjectival',
+                        'adverbial', 'nominal', 'verbal', 'Col', 'Com', 'Cpr', 'Cqu', 'Csq', 'Dsd', 'Dsh', 'Ell',
+                        'Els', 'Exc', 'Fst', 'Int', 'Opr', 'Oqu', 'Osq', 'Quo', 'Scl', 'Sla','Sml'},
             'number_format': {'l', 'roman', 'digit'},
-            'adposition_type': {'pre', 'post'},
-            'conjunction_type': {'crd', 'sub'},
-            'abbreviation_type': {'adjectival', 'adverbial', 'nominal', 'verbal'},
             'capitalized': {'cap'},
             'finiteness': {'<FinV>', '<Inf>', '<InfP>'},
             'subcat': {'<Abl>', '<Ad>', '<All>', '<El>', '<Es>', '<Ill>', '<In>', '<Kom>', '<Part>',
                        '<all>', '<el>', '<gen>', '<ja>', '<kom>', '<mata>', '<mine>', '<nom>', '<nu>',
                        '<nud>', '<part>', '<tav>', '<tu>', '<tud>', '<v>', '<Ter>', '<Tr>', '<Intr>',
                        '<NGP-P>', '<NGP>', '<Part-P>'},
-            'punctuation_type': {'Col', 'Com', 'Cpr', 'Cqu', 'Csq', 'Dsd', 'Dsh', 'Ell',
-                                 'Els', 'Exc', 'Fst', 'Int', 'Opr', 'Oqu', 'Osq', 'Quo', 'Scl', 'Sla',
-                                 'Sml'},
             'clause_boundary': {'CLB'}}
 
-    reversed_cats = get_reversed_mapping(cats)
+    reversed_cats = get_cats(get_reversed_mapping(cats))
 
     def __init__(self, supress_exceptions=False):
         self.supress_exceptions = supress_exceptions
@@ -92,22 +95,13 @@ class CG3AnnotationParser:
         return forms, postag
 
     @staticmethod
-    def get_analysed_forms(forms, postag):
+    def get_analysed_forms(forms):
         """
         Finds attribute to each feature element.
         """
         assert isinstance(forms, list), '(!)Unexpected type for "forms" argument! Expected a list.'
-        assert isinstance(postag, str), '(!)Unexpected type for "postag" argument! Expected a string.'
-        analysed_forms = OrderedDict()
+        analysed_forms = {}
         for form in forms:
-            # 'pos' is used in two different categories so this is handled separately from other forms and their categories.
-            if form == 'pos':
-                if postag == 'P':
-                    analysed_forms['pronoun_type'] = ['pos']
-                else:
-                    analysed_forms['adjective_type'] = ['pos']
-                continue
-            # Other forms using reversed categories mapping.
             if CG3AnnotationParser.reversed_cats[form] in analysed_forms:
                 analysed_forms[CG3AnnotationParser.reversed_cats[form]].append(form)
             else:
@@ -135,8 +129,11 @@ class CG3AnnotationParser:
         """
         assert isinstance(syntax_analysis, str), '(!)Unexpected type for "syntax_analysis" argument! Expected a string.'
         syntax_chunks = syntax_analysis.split('#')
-        deprel, heads = syntax_chunks[0].strip(' ').split(), '#' + syntax_chunks[1]
-        return deprel, heads
+        deprel = syntax_chunks[0].strip(' ').split()
+        id, head = syntax_chunks[1].split('->')
+        if deprel == []:
+            deprel = '_'
+        return deprel, id, head
 
     def split_visl_analysis_line(self, line: str) -> Optional[Tuple[str]]:
         """
@@ -154,7 +151,7 @@ class CG3AnnotationParser:
             return tuple(['', '', '', ''])
         return tuple(analysis_match.groups(default=''))
 
-    def process_visl_analysis_line(self, line) -> dict:
+    def parse(self, line) -> dict:
         """
         Processes visl analysis line.
         """
@@ -169,13 +166,14 @@ class CG3AnnotationParser:
         ending = ending.lstrip('L') if ending else '_'
         postag = self.get_postag(cats)
         forms, postag = self.get_forms(cats, postag, line)
-        analysed_forms = self.get_analysed_forms(forms, postag) if forms else '_'
+        analysed_forms = self.get_analysed_forms(forms)
         # Visl row with syntactic analysis, e.g. "ole" Ln V main indic pres ps1 sg ps af @FMV #3->0
         if '#' in analysis[3]:
-            deprel, heads = self.get_syntax(syntax)
-            return {'lemma': lemma, 'ending': ending, 'partofspeech': postag, 'feats': analysed_forms,
+            deprel, id, head = self.get_syntax(syntax)
+            return {'id': id, 'lemma': lemma, 'ending': ending, 'partofspeech': postag,
                     'deprel': deprel,
-                    'head': heads}
+                    'head': head, **analysed_forms}
         # Visl row with verb or adpositions info, e.g. "ole" Ln V main indic pres ps1 sg ps af <FinV> <Intr>
         else:
-            return {'lemma': lemma, 'ending': ending, 'partofspeech': postag, 'feats': analysed_forms, 'deprel': '_', 'head': '_'}
+            return {'lemma': lemma, 'ending': ending, 'partofspeech': postag, 'deprel': '_',
+                    'head': '_', **analysed_forms}

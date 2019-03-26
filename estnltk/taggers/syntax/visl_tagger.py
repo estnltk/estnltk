@@ -1,7 +1,7 @@
 from estnltk.taggers import Tagger
 from estnltk.layer.layer import Layer
 from estnltk.converters.CG3_exporter import export_CG3
-from estnltk.converters.cg3_annotation_importer import CG3AnnotationParser
+from estnltk.converters.cg3_annotation_parser import CG3AnnotationParser
 from estnltk.taggers.syntax.vislcg3_syntax import VISLCG3Pipeline
 from estnltk import PACKAGE_PATH
 import os
@@ -15,13 +15,15 @@ class VislTagger(Tagger):
     def __init__(self, output_layer: str = 'visl', morph_extended_layer: str = 'morph_extended'):
         self.input_layers = [morph_extended_layer]
         self.output_layer = output_layer
-        self.output_attributes = ['lemma','ending', 'partofspeech', 'feats', 'deprel', 'head']
+        self.output_attributes = ['id', 'lemma', 'ending', 'partofspeech', 'subtype', 'mood', 'tense', 'voice', 'person',
+                                  'inf_form', 'number', 'case', 'polarity', 'number_format', 'capitalized',
+                                  'finiteness', 'subcat', 'clause_boundary', 'deprel', 'head']
 
         vislcgRulesDir = os.path.relpath(os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'files'))
         vislcg_path = '/usr/bin/vislcg3'
 
         self._visl_line_processor = VISLCG3Pipeline(rules_dir=vislcgRulesDir, vislcg_cmd=vislcg_path).process_lines
-        self._parser = CG3AnnotationParser().process_visl_analysis_line
+        self._parser = CG3AnnotationParser().parse
 
     def _make_layer(self, text, layers, status):
         morph_extended_layer = layers[self.input_layers[0]]
@@ -46,19 +48,40 @@ class VislTagger(Tagger):
         for token_lines, span in zip(visl_lines, morph_extended_layer):
             for token_line in token_lines:
                 analysed_line = self._parser(token_line)
-                feats = get_feats(analysed_line) if analysed_line['feats'] != '_' else analysed_line['feats']
+                values = get_values(analysed_line, self.output_attributes)
                 layer.add_annotation(span,
-                                     lemma=analysed_line['lemma'],
-                                     ending=analysed_line['ending'],
-                                     partofspeech= analysed_line['partofspeech'],
-                                     feats=feats,
-                                     deprel=analysed_line['deprel'],
-                                     head=analysed_line['head']
+                                     id=values['id'],
+                                     lemma=values['lemma'],
+                                     ending=values['ending'],
+                                     partofspeech=values['partofspeech'],
+                                     subtype=values['subtype'],
+                                     mood=values['mood'],
+                                     tense=values['tense'],
+                                     voice=values['voice'],
+                                     person=values['person'],
+                                     inf_form=values['inf_form'],
+                                     number=values['number'],
+                                     case=values['case'],
+                                     polarity=values['polarity'],
+                                     number_format=values['number_format'],
+                                     capitalized=values['capitalized'],
+                                     finiteness=values['finiteness'],
+                                     subcat=values['subcat'],
+                                     clause_boundary=values['clause_boundary'],
+                                     deprel=values['deprel'],
+                                     head=values['head']
                                      )
         return layer
 
-def get_feats(analysed_line):
-    feats = []
-    for feat in analysed_line['feats']:
-        feats += analysed_line['feats'][feat]
-    return ' '.join(feats)
+
+def get_values(analysed_line, output_attributes):
+    values = {}
+    for attribute in output_attributes:
+        if attribute in analysed_line.keys():
+            if len(analysed_line[attribute]) == 1:
+                values[attribute] = analysed_line[attribute][0]
+            else:
+                values[attribute] = analysed_line[attribute]
+        else:
+            values[attribute] = '_'
+    return values
