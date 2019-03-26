@@ -227,6 +227,26 @@ class PgCollection:
         with self.insert() as collection_insert:
             collection_insert(text=text, key=key, meta_data=meta_data)
 
+    def _insert_first(self, text, key, meta_data, cursor, table_identifier, column_identifiers):
+        if key is None:
+            key = 0
+        assert not self._structure
+        for layer in text.layers:
+            self._structure.insert(layer=text[layer], layer_type='attached', meta={})
+
+        row = [Literal(key), Literal(text_to_json(text))]
+        for k in self.column_names[2:]:
+            if k in meta_data:
+                m = Literal(meta_data[k])
+            else:
+                m = DEFAULT
+            row.append(m)
+
+        query = SQL('({})').format(SQL(', ').join(row))
+
+        self._flush_insert_buffer(cursor=cursor, table_identifier=table_identifier,
+                                  column_identifiers=column_identifiers, buffer=[query])
+
     # TODO: merge this with buffered_layer_insert
     @contextmanager
     def insert(self, buffer_size=10000, query_length_limit=5000000):
@@ -237,18 +257,20 @@ class PgCollection:
         table_identifier = pg.collection_table_identifier(self.storage, self.name)
 
         self.storage.conn.commit()
-        self.storage.conn.autocommit = True
+        self.storage.conn.autocommit = False
         with self.storage.conn.cursor() as cursor:
 
             def wrap_buffered_insert(text, key=None, meta_data=None):
                 if self._is_empty:
                     self._is_empty = False
-                    if key is None:
-                        key = 0
-                    assert not self._structure
-                    for layer in text.layers:
-                        self._structure.insert(layer=text[layer], layer_type='attached', meta={})
-                elif any(struct['layer_type'] == 'detached' for struct in self._structure.structure.values()):
+                    cursor.execute(SQL('LOCK TABLE {}').format(table_identifier))
+                    if len(self) == 0:
+                        self._insert_first(text=text, key=key, meta_data=meta_data, cursor=cursor,
+                                           table_identifier=table_identifier, column_identifiers=column_identifiers)
+                        return
+                    self.storage.conn.commit()
+
+                if any(struct['layer_type'] == 'detached' for struct in self._structure.structure.values()):
                     # TODO: solve this case in a better way
                     raise PgCollectionException("this collection has detached layers, can't add new text objects")
                 else:
@@ -263,13 +285,12 @@ class PgCollection:
                         assert layer_struct['parent'] == layer.parent
                         assert layer_struct['enveloping'] == layer.enveloping
                         assert layer_struct['_base'] == layer._base
-                text = text_to_json(text)
                 if key is None:
                     key = DEFAULT
                 else:
                     key = Literal(key)
 
-                row = [key, Literal(text)]
+                row = [key, Literal(text_to_json(text))]
                 for k in self.column_names[2:]:
                     if k in meta_data:
                         m = Literal(meta_data[k])
@@ -332,6 +353,7 @@ class PgCollection:
                        table_identifier,
                        column_identifiers,
                        SQL(', ').join(buffer)))
+        cursor.connection.commit()
         logger.debug('flush buffer: {} rows, {} bytes, {} estimated characters'.format(
                      len(buffer), len(cursor.query), self._buffered_insert_query_length))
         buffer.clear()
@@ -673,6 +695,7 @@ class PgCollection:
                 raise exception
         logger.info('preparing to create a new layer: {!r}'.format(layer_name))
         conn = self.storage.conn
+        conn.commit()
         with conn.cursor() as c:
             try:
                 conn.autocommit = False
