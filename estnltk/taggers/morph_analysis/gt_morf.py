@@ -372,7 +372,7 @@ class GTMorphConverter( Tagger ):
                 vmend   = vabamorf_span.end
                 if vmstart == wstart and vmend == wend:
                     if not _is_empty_annotation(vabamorf_span.annotations[0]):
-                        new_analyses = vabamorf_span.to_record()
+                        new_analyses = vabamorf_span.to_records()
                         # Convert noun categories
                         new_analyses = [_convert_nominal_form( a ) for a in new_analyses ]
                         # Convert ambiguous verb categories
@@ -386,7 +386,7 @@ class GTMorphConverter( Tagger ):
                         analysis_dicts.extend( new_analyses )
                     else:
                         # Analysis is empty (an unknown word)
-                        new_analyses = vabamorf_span.to_record()
+                        new_analyses = vabamorf_span.to_records()
                         # Convert None to empty string
                         for analysis in new_analyses:
                             for key in analysis.keys():

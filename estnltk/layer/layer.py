@@ -40,8 +40,8 @@ class SpanList(collections.Sequence):
     def add_layer(self, layer):
         self._layer = layer
 
-    def to_record(self, with_text=False):
-        return [i.to_record(with_text) for i in self.spans]
+    def to_records(self, with_text=False):
+        return [i.to_records(with_text) for i in self.spans]
 
     @property
     def layer(self):
@@ -314,12 +314,8 @@ class Layer:
     def get_attributes(self, items):
         return self.__getattribute__('span_list').get_attributes(items)
 
-    # TODO: remove this
-    def to_record(self, with_text=False):
-        return self.span_list.to_record(with_text)
-
     def to_records(self, with_text=False):
-        return self.span_list.to_record(with_text)
+        return self.span_list.to_records(with_text)
 
     def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"

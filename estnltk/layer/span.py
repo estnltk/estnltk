@@ -83,9 +83,13 @@ class Span:
             return self.layer.attributes
         return ()
 
-    def to_record(self, with_text=False) -> MutableMapping[str, Any]:
-        return {**{k: getattr(self, k) for k in list(self.legal_attribute_names) + (['text'] if with_text else [])},
-                **{'start': self.start, 'end': self.end}}
+    def to_records(self, with_text=False) -> MutableMapping[str, Any]:
+        record = self.annotations[0].attributes
+        if with_text:
+            record['text'] = self.text
+        record['start'] = self.start
+        record['end'] = self.end
+        return record
 
     def mark(self, mark_layer: str) -> 'Span':
         base_layer = self.text_object.layers[mark_layer]  # type: Layer

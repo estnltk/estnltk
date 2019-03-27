@@ -114,7 +114,7 @@ def test_to_record():
     # siin on kaks võimalikku (ja põhjendatavat) käitumist.
 
     #esimene
-    assert t.words.morph_analysis.to_record() == t.words.to_record()
+    assert t.words.morph_analysis.to_records() == t.words.to_records()
 
     # või teine
     # assert t.words.morph_analysis.to_record() == t.morph_analysis.to_record()

@@ -152,7 +152,7 @@ def test_remove_duplicate_and_problematic_analyses():
     assert [countTotal, countH, countNonH] == [7, 2, 5]
     for word in doc['words']:
         if word.text == 'palk':
-            records = word.morph_analysis.to_record()
+            records = word.morph_analysis.to_records()
             for rec in records:
                 del rec['start']
                 del rec['end']
@@ -166,7 +166,7 @@ def test_remove_duplicate_and_problematic_analyses():
     duplicate_removal_tagger.retag( doc )
     for word in doc['words']:
         if word.text.endswith('tama'):
-            records = word.morph_analysis.to_record()
+            records = word.morph_analysis.to_records()
             for rec in records:
                 del rec['start']
                 del rec['end']

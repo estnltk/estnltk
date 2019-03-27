@@ -32,7 +32,7 @@ class AmbiguousSpan(collections.Sequence):
     def annotations(self, value):
         self._annotations = value
 
-    def to_record(self, with_text=False):
+    def to_records(self, with_text=False):
         return [i.to_record(with_text) for i in self._annotations]
 
     def add_span(self, span: Span) -> Span:

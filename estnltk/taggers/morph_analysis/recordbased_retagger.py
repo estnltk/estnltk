@@ -162,7 +162,7 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
         morph_analysis_records = []
         sentence_id = 0
         for wid, word_morph in enumerate( morph_analysis ):
-            word_records = word_morph.to_record()
+            word_records = word_morph.to_records()
             # Add normalized word forms (if required)
             if self.add_normalized_word_form:
                 normalized_text = _get_word_text( words_layer[wid] )

@@ -56,8 +56,8 @@ class EnvelopingSpan(collections.Sequence):
             return self.__getattribute__('layer').__getattribute__('attributes')
         return sorted(self.__getattribute__('_attributes'))
 
-    def to_record(self, with_text=False):
-        return [i.to_record(with_text) for i in self.spans]
+    def to_records(self, with_text=False):
+        return [i.to_records(with_text) for i in self.spans]
 
     @property
     def layer(self):
