@@ -1,6 +1,7 @@
 from estnltk.core import PACKAGE_PATH
 from estnltk.logger import logger
 
+from estnltk.layer.lambda_attribute import LambdaAttribute
 from estnltk.layer.annotation import Annotation
 from estnltk.layer.span import Span
 from estnltk.layer.ambiguous_span import AmbiguousSpan
