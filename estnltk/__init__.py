@@ -11,3 +11,4 @@ from estnltk.layer.layer import Layer
 from estnltk.text import Text
 
 from estnltk.taggers.tagger import Tagger
+from estnltk.taggers.retagger import Retagger

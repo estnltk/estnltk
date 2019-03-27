@@ -12,9 +12,9 @@ class Retagger(Tagger):
 
     The following needs to be implemented in a derived class:
     conf_param
-    depends_on
-    layer_name
-    attributes
+    input_layers
+    output_layer
+    output_attributes
     __init__(...)
     _change_layer(...)
     """
