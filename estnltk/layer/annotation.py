@@ -1,4 +1,5 @@
-from typing import Any, Sequence, Mapping
+from typing import Any, Sequence, Mapping, MutableMapping
+from estnltk.layer.lambda_attribute import LambdaAttribute
 
 
 class Annotation:
@@ -8,15 +9,12 @@ class Annotation:
         self._attributes = attributes
         self._span = span
 
-    def to_record(self, with_text=False) -> Mapping[str, Any]:
-        return {**{k: getattr(self, k) for k in list(self.legal_attribute_names) + (['text'] if with_text else [])},
-                **{'start': self.start, 'end': self.end}}
-
     @property
-    def attributes(self) -> Mapping[str, Any]:
+    def attributes(self) -> MutableMapping[str, Any]:
+        attributes = self._attributes
         if self.legal_attribute_names is None:
-            return self._attributes.copy()
-        return {attr: getattr(self, attr) for attr in self.legal_attribute_names}
+            return attributes.copy()
+        return {attr: attributes[attr] for attr in self.legal_attribute_names}
 
     @property
     def span(self):
@@ -31,6 +29,15 @@ class Annotation:
     def end(self) -> int:
         if self._span:
             return self._span.end
+
+    # TODO: get rid of this
+    def to_record(self, with_text=False) -> Mapping[str, Any]:
+        record = self.attributes
+        if with_text:
+            record['text'] = getattr(self, 'text')
+        record['start'] = self.start
+        record['end'] = self.end
+        return record
 
     @property
     def layer(self):
@@ -72,6 +79,8 @@ class Annotation:
             value = attributes[item]
             if isinstance(value, str) and value.startswith('lambda a: '):
                 return eval(value)(self)
+            elif isinstance(value, LambdaAttribute):
+                return value(self)
             return value
 
         # item == '__deepcopy__'
