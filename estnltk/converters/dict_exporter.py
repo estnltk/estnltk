@@ -1,4 +1,5 @@
 from typing import List, Union, Sequence
+from estnltk.text import Text
 
 
 def annotation_to_dict(annotation: Union['Annotation', Sequence['Annotation']]) -> Union[dict, List[dict]]:
@@ -58,7 +59,8 @@ def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
     return layer_dict
 
 
-def _text_to_dict(text: 'Text') -> dict:
+def _text_to_dict(text: Text) -> dict:
+    assert isinstance(text, Text), type(text)
     text_dict = {'text': text.text,
                  'meta': text.meta,
                  'layers': []}
