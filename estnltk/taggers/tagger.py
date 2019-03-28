@@ -49,7 +49,7 @@ class Tagger(metaclass=TaggerChecker):
     _initialized = False
     conf_param = None  # type: Sequence[str]
     output_layer = None  # type: str
-    output_attributes = None  # type: Tuple[str]
+    output_attributes = None  # type: Sequence[str]
     input_layers = None  # type: Sequence[str]
 
     def __init__(self):
