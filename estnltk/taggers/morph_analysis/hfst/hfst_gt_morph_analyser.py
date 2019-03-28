@@ -1,5 +1,5 @@
 #
-# HFST-based morphological analyser for Estonian. [WORK IN PROGRESS]
+# HFST-based morphological analyser for Estonian.
 # This analyser uses a finite-state transducer to look up morphological 
 # analyses of the words. The output of the analysis will be ambiguous.
 #
@@ -44,6 +44,7 @@ class HfstEstMorphAnalyser(Tagger):
     output_attributes = ()
     conf_param = ['transducer_file',
                   'output_extractor',
+                  'remove_guesses',
                   # Internal components:
                   '_transducer',
                   '_input_words_layer',
@@ -59,7 +60,8 @@ class HfstEstMorphAnalyser(Tagger):
                  input_words_layer:str='words',
                  output_format:str='morphemes_lemmas',
                  transducer_file:str=HFST_MODEL_FILE,
-                 transducer:hfst.HfstTransducer=None):
+                 transducer:hfst.HfstTransducer=None,
+                 remove_guesses:bool=False):
         """Initializes HfstEstMorphAnalyser class.
         
         Parameters
@@ -110,6 +112,15 @@ class HfstEstMorphAnalyser(Tagger):
             to analyse words for Estonian morphology.
             Note: if provided, then this argument overrides
             the argument transducer_file.
+        
+        remove_guesses:bool (default: False)
+            Specifies if guessed words need to be removed from 
+            the analyses.
+            By default, the guessed words will be kept in the
+            output, but this also depends on the transducer.
+            ( our default transducer model has the guesser 
+              component, but you can also compile a model 
+              without it )
         """
         # Set output_extractor
         self.output_extractor   = None
@@ -131,6 +142,7 @@ class HfstEstMorphAnalyser(Tagger):
         self.output_layer = output_layer
         self.input_layers = [ input_words_layer ]
         self._input_words_layer     = self.input_layers[0]
+        self.remove_guesses = remove_guesses
         self.depends_on = self.input_layers
         self.attributes = self.output_attributes
         
@@ -138,6 +150,7 @@ class HfstEstMorphAnalyser(Tagger):
         self._flag_cleaner_re = re.compile('@[PNDRCU][.][^@]*@')
         self._transducer = None
         self.transducer_file = None
+        
         
         if transducer:
             # Validate the type of the transducer
@@ -206,7 +219,8 @@ class HfstEstMorphAnalyser(Tagger):
             cleaned_analyses = self.filter_flags(raw_analyses)
             # Use output_extractor for getting the output
             self.output_extractor.extract_annotation_and_add_to_layer( \
-                        word, cleaned_analyses, new_layer )
+                                word, cleaned_analyses, new_layer, \
+                                remove_guesses = self.remove_guesses )
         return new_layer
 
 
@@ -227,7 +241,8 @@ class HfstEstMorphAnalyser(Tagger):
         # Remove flag diacritics
         cleaned_analyses = self.filter_flags(raw_analyses)
         # Use output_extractor for getting the output
-        return self.output_extractor.extract_annotation_records( cleaned_analyses )
+        return self.output_extractor.extract_annotation_records( cleaned_analyses, \
+                                             remove_guesses = self.remove_guesses  )
 
 
     def filter_flags(self, o_str):
@@ -255,18 +270,23 @@ class HfstMorphOutputExtractor(object):
         """
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
     
-    def extract_annotation_records(self, output_text:str ):
+    def extract_annotation_records(self, output_text:str, remove_guesses:bool ):
         """ Given an output of the HFST transducer, extracts morph analysis records from the 
             output, and returns as a list (of dictionaries). In case of an unknown word, returns 
             an empty list.
+            If the parameter remove_guesses is True, then the guessed words will be removed from 
+            the output records.
         """
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
-    def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer ):
+    def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer, \
+                                                  remove_guesses:bool ):
         """ Given word Span and the corresponding output of the HFST transducer, 
             extracts morph analysis records from the output, and saves as annotatons 
             of the layer. Note: implementations of this method should use extractor's 
             method extract_annotation_records() for getting the records;
+            If the parameter remove_guesses is True, then the guessed word analyses 
+            will not be added to the layer.
         """
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
@@ -285,7 +305,7 @@ class RawAnalysesHfstMorphOutputExtractor(HfstMorphOutputExtractor):
         # Update Tagger's output attributes
         tagger.output_attributes = ('raw_analysis', 'weight')
 
-    def extract_annotation_records(self, output_text:str ):
+    def extract_annotation_records(self, output_text:str, remove_guesses:bool ):
         records = []
         if len(output_text) == 0:
             # Empty analysis == unknown word
@@ -297,8 +317,15 @@ class RawAnalysesHfstMorphOutputExtractor(HfstMorphOutputExtractor):
                 analysis, weight = analysis_weight.split('\t')
                 record['weight'] = float(weight)
                 record['raw_analysis'] = analysis
+                add_record = True
+                # Remove guesses (if required)
+                if remove_guesses:
+                    for guess_mark in est_hfst_guess_strs:
+                        if guess_mark in analysis:
+                            add_record = False
                 # Add annotation to the layer
-                records.append( record )
+                if add_record:
+                    records.append( record )
             elif len(analysis_weight) > 0:
                 # Unknown word
                 record['weight'] = float("inf")
@@ -308,8 +335,9 @@ class RawAnalysesHfstMorphOutputExtractor(HfstMorphOutputExtractor):
         return records
 
 
-    def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer ):
-        records = self.extract_annotation_records( output_text )
+    def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer, \
+                                                  remove_guesses:bool ):
+        records = self.extract_annotation_records( output_text, remove_guesses=remove_guesses )
         if len(records) == 0:
             # Empty analysis == unknown word
             record = {}
@@ -586,7 +614,7 @@ class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
         return features
 
 
-    def extract_annotation_records(self, output_text:str ):
+    def extract_annotation_records(self, output_text:str, remove_guesses:bool ):
         records = []
         if len(output_text) == 0:
             # Empty analysis == unknown word
@@ -616,6 +644,9 @@ class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
                     else:
                         # convert list to tuple
                         record[mcf_key] = tuple( morpheme_chunk_feats[mcf_key] )
+                # Skip guessed word (if required)
+                if remove_guesses and record['is_guessed']:
+                    continue
                 # Add record
                 records.append( record )
             elif len(analysis_weight) > 0:
@@ -627,8 +658,9 @@ class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
         return records
 
 
-    def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer ):
-        records = self.extract_annotation_records( output_text )
+    def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer, \
+                                                  remove_guesses:bool ):
+        records = self.extract_annotation_records( output_text, remove_guesses=remove_guesses )
         if len(records) == 0:
             # Empty analysis == unknown word
             record = self._create_unknown_word_record()

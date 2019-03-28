@@ -105,7 +105,7 @@ def test_hfst_gt_morph_analyser_raw_output():
     assert records == expected_records
 
     # Case 5
-    records = hfstAnalyser.lookup('xyxrjxxf3tg5') # unknown word
+    records = hfstAnalyser.lookup('xyxrjxxf3tg5') # totally unknown word
     assert records == []
 
 
@@ -297,3 +297,37 @@ def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
     ]
     assert records == expected_records
 
+
+
+@pytest.mark.skipif(not check_if_hfst_is_available(),
+                    reason="package hfst is required for this test")
+@pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
+                         "leads to a segfault in other tests that are using vabamorf")
+def test_hfst_gt_morph_analyser_with_guessing_switched_on_and_off():
+    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
+    
+    from estnltk import Text
+    from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
+    
+    # Test HfstEstMorphAnalyser's with guessing switched on and off
+    # Case 1: lookup
+    hfstAnalyser = HfstEstMorphAnalyser( output_format='raw', remove_guesses=True )
+    hfstAnalyserGuesser = HfstEstMorphAnalyser( output_format='raw' )
+    records1 = hfstAnalyser.lookup('kiwikübarad')
+    assert records1 == []
+    records2 = hfstAnalyserGuesser.lookup('kiwikübarad')
+    assert records2 == [{'raw_analysis': 'kiwi+Guess#kübar+N+Pl+Nom', 'weight': 239.0}]
+    
+    # Case 2: tagging
+    text = Text('bronzemehikesed')
+    text.tag_layer(['compound_tokens', 'words'])
+    hfstAnalyser = HfstEstMorphAnalyser(remove_guesses=True)
+    hfstAnalyserGuesser = HfstEstMorphAnalyser(output_layer='hfst_gt_morph_analysis_w_guesses')
+    hfstAnalyser.tag(text)
+    results1 = text['hfst_gt_morph_analysis'].to_records()
+    assert results1 == [[{'weight': float('inf'), 'postags': None, 'forms': None, 'morphemes_lemmas': None, 'end': 15, 'usage': None, 'start': 0, 'has_clitic': None, 'is_guessed': None}]]
+    hfstAnalyserGuesser.tag(text)
+    results2 = text['hfst_gt_morph_analysis_w_guesses'].to_records()
+    assert results2 == [[{'weight': 240.0, 'postags': ('', 'N'), 'forms': ('', 'Pl+Nom'), 'morphemes_lemmas': ('bronze', 'mehike'), 'end': 15, 'usage': (), 'start': 0, 'has_clitic': False, 'is_guessed': True}, \
+                         {'weight': 242.0, 'postags': ('', 'N'), 'forms': ('', 'Pl+Nom'), 'morphemes_lemmas': ('bronze', 'mehikene'), 'end': 15, 'usage': (), 'start': 0, 'has_clitic': False, 'is_guessed': True}]] 
+    
