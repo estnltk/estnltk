@@ -56,3 +56,4 @@ from estnltk.taggers.syntax_preprocessing.morph_extended_tagger import MorphExte
 
 from estnltk.taggers.syntax.visl_tagger import VislTagger
 from estnltk.taggers.syntax.conll_morph_tagger import ConllMorphTagger
+from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
