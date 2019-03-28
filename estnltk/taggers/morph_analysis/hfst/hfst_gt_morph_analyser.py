@@ -114,13 +114,13 @@ class HfstEstMorphAnalyser(Tagger):
             the argument transducer_file.
         
         remove_guesses:bool (default: False)
-            Specifies if guessed words need to be removed from 
-            the analyses.
-            By default, the guessed words will be kept in the
-            output, but this also depends on the transducer.
+            Specifies if guessed analyses need to be removed 
+            from the output.
+            By default, the guessed analyses will be kept in 
+            the output, but this also depends on the transducer.
             ( our default transducer model has the guesser 
-              component, but you can also compile a model 
-              without it )
+              component, so it produces guesses. but you can 
+              also compile a model without the component )
         """
         # Set output_extractor
         self.output_extractor   = None
