@@ -77,10 +77,10 @@ class Span:
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
-        if self.__getattribute__('_legal_attribute_names') is not None:
-            return self.__getattribute__('_legal_attribute_names')
         if self.layer is not None:
             return self.layer.attributes
+        if self.__getattribute__('_legal_attribute_names') is not None:
+            return self.__getattribute__('_legal_attribute_names')
         return ()
 
     def to_records(self, with_text=False) -> MutableMapping[str, Any]:
