@@ -14,9 +14,9 @@ class VislTagger(Tagger):
     def __init__(self, output_layer: str = 'visl', morph_extended_layer: str = 'morph_extended'):
         self.input_layers = [morph_extended_layer]
         self.output_layer = output_layer
-        self.output_attributes = ['id', 'lemma', 'ending', 'partofspeech', 'subtype', 'mood', 'tense', 'voice', 'person',
-                                  'inf_form', 'number', 'case', 'polarity', 'number_format', 'capitalized',
-                                  'finiteness', 'subcat', 'clause_boundary', 'deprel', 'head']
+        self.output_attributes = ('id', 'lemma', 'ending', 'partofspeech', 'subtype', 'mood', 'tense', 'voice',
+                                  'person', 'inf_form', 'number', 'case', 'polarity', 'number_format', 'capitalized',
+                                  'finiteness', 'subcat', 'clause_boundary', 'deprel', 'head')
 
         vislcgRulesDir = rel_path('taggers/syntax/files')
         vislcg_path = '/usr/bin/vislcg3'
