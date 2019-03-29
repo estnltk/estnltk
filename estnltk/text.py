@@ -217,7 +217,7 @@ class Text:
                     return sofar
 
                 # from an enveloping layer to dependant layer (one step only, skipping base layer)
-                elif self.layers[frm].enveloping == self.layers[to].parent:
+                elif self.layers[frm].enveloping == self.layers[to].parent and self.layers[to].parent is not None:
                     spans = []
 
                     # path taken by text.sentences.morph_analysis
@@ -248,16 +248,17 @@ class Text:
                         return res[0]
 
                 # from layer to strictly dependant layer
-                elif frm == self.layers[to]._base:
+                elif self.layers[frm]._base == self.layers[to]._base:
 
-                    # if sofar is None:
-                    sofar = self.layers[to].span_list
+                    if sofar is None:
+                        return self.layers[to].span_list
 
-                    spans = []
-                    for i in sofar:
-                        spans.append(i.parent)
+                    to_spans = self.layers[to].span_list
+
                     res = SpanList(layer=self.layers[to])
-                    res.spans = spans
+                    for i in to_spans:
+                        if hash(i) in sofar:
+                            res.add_span(i)
                     return res
 
                 # through an enveloped layer (enveloping-enveloping-target)

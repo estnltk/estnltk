@@ -1,7 +1,7 @@
 import pytest
 
 import itertools
-from estnltk import Span
+from estnltk import Span, EnvelopingSpan
 from estnltk import Layer
 from estnltk import Text
 from estnltk.layer import AmbiguousAttributeList
@@ -114,10 +114,10 @@ def test_to_record():
     # siin on kaks võimalikku (ja põhjendatavat) käitumist.
 
     #esimene
-    assert t.words.morph_analysis.to_records() == t.words.to_records()
+    #assert t.words.morph_analysis.to_records() == t.words.to_records()
 
     # või teine
-    # assert t.words.morph_analysis.to_record() == t.morph_analysis.to_record()
+    assert t.words.morph_analysis.to_records() == t.morph_analysis.to_records()
 
     #teine tundub veidi loogilisem, aga piisavalt harv vajadus ja piisavalt tülikas implementeerida, et valida esimene
     # alati saab teha lihtsalt
@@ -166,7 +166,6 @@ def test_delete_layer():
     t.tag_layer(layer_names)
     assert set(layer_names) <= set(t.layers)
     assert set(layer_names) <= set(t.__dict__)
-
 
     #Should not raise NotImplementedError
     #deleting a root lalyer should also delete all its dependants
@@ -458,22 +457,6 @@ def test_dependant_span():
     #TODO: how should this work?
     # for i in t.words:
     #     assert (i.mark('reverse_lemmas').revlemma == i.lemma[::-1])
-#
-# def test_delete_layer():
-#     t = Text('Kui mitu kuud on aastas?')
-#     words = Layer('words', attributes=['lemma']).from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
-#                                            {'end': 8, 'lemma': 'mitu', 'start': 4},
-#                                            {'end': 13, 'lemma': 'kuu', 'start': 9},
-#                                            {'end': 16, 'lemma': 'olema', 'start': 14},
-#                                            {'end': 23, 'lemma': 'aasta', 'start': 17},
-#                                            {'end': 24, 'lemma': '?', 'start': 23}]
-#                                   )
-#     t._add_layer(words)
-#
-#     assert len(t.layers) == 1
-#     del t.words
-#     assert len(t.layers) == 0
-#
 
 
 def test_enveloping_layer():
@@ -493,28 +476,25 @@ def test_enveloping_layer():
     wordpairs = Layer(name='wordpairs', enveloping='words')
     t._add_layer(wordpairs)
 
-    wordpairs._add_spans_to_enveloping(t.words.span_list[0:2])
-    wordpairs._add_spans_to_enveloping(t.words.span_list[2:4])
-    wordpairs._add_spans_to_enveloping(t.words.span_list[4:6])
+    wordpairs.add_span(t.words[0:2])
+    wordpairs.add_span(t.words[2:4])
+    wordpairs.add_span(t.words[4:6])
 
     print(t.wordpairs.text)
-    assert (wordpairs.text == [['Kui', 'mitu'], ['kuud', 'on'], ['aastas', '?']])
+    assert (wordpairs.text == ['Kui', 'mitu', 'kuud', 'on', 'aastas', '?'])
 
-    wordpairs._add_spans_to_enveloping(t.words.span_list[1:3])
-    wordpairs._add_spans_to_enveloping(t.words.span_list[3:5])
+    wordpairs.add_span(t.words[1:3])
+    wordpairs.add_span(t.words[3:5])
     print(t.wordpairs.text)
-    assert (wordpairs.text == [['Kui', 'mitu'], ['mitu', 'kuud'], ['kuud', 'on'], ['on', 'aastas'], ['aastas', '?']])
-
+    assert (wordpairs.text == ['Kui', 'mitu', 'mitu', 'kuud', 'kuud', 'on', 'on', 'aastas', 'aastas', '?'])
 
     for wordpair in t.wordpairs:
         for word in wordpair.words:
             assert (word)
 
-
     print(t._g.nodes(), t._g.edges())
     for wordpair in t.wordpairs:
         (wordpair.lemma) #this should not give a keyerror
-
 
     #I have changed my mind about what this should raise so much, I'm leaving it free at the moment
     with pytest.raises(Exception):
@@ -984,7 +964,7 @@ def test_phrase_layer():
             l = Layer(enveloping='words', name='uppercasephrase', attributes=['phrasetext', 'tag'])
 
             for idx, s in enumerate(spans):
-                sps = l._add_spans_to_enveloping(s)
+                sps = l.add_span(EnvelopingSpan(spans=s, layer=l))
                 sps.phrasetext = ' '.join([i.text for i in s]).lower()
                 sps.tag = idx
             text._add_layer(l)
