@@ -113,6 +113,8 @@ class SpanList(collections.Sequence):
         ))
 
     def __contains__(self, item: Any) -> bool:
+        if item in self._hash_to_span:
+            return True
         if hash(item) not in self._hash_to_span:
             return False
         return self._hash_to_span[hash(item)] == item
@@ -123,13 +125,9 @@ class SpanList(collections.Sequence):
         if item == '_ipython_canary_method_should_not_exist_' and self.layer is not None and self is self.layer.span_list:
             raise AttributeError
 
-        layer = self.__getattribute__('layer')  # type: Layer
+        layer = self.layer  # type: Layer
         if item in layer.attributes:
             return self.attribute_list(item)
-        if item in self.__dict__.keys():
-            return self.__dict__[item]
-        if item == getattr(self.layer, 'parent', None):
-            return self.layer.parent
         if item in self.__dict__:
             return self.__dict__[item]
 
@@ -180,7 +178,7 @@ class SpanList(collections.Sequence):
         table_2 = ''
         if attributes:
             table_2 = self.attribute_list(attributes).to_html(index='text')
-        return '<h4>{self.__class__.__name__}</h4>\nLayer: {self.layer.name!r}\n{}\n{}'.format(
+        return '<h4>{self.__class__.__name__}</h4>\n<b>Layer</b>: {self.layer.name!r}\n{}\n{}'.format(
                           text_object, table_2, self=self)
 
 
