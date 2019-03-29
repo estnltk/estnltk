@@ -1,6 +1,6 @@
 from typing import Sequence
 from collections import defaultdict
-from estnltk.layer.layer import Layer
+from estnltk.layer.layer import Layer, SpanList
 
 
 class GroupBy:
@@ -46,4 +46,22 @@ class GroupBy:
         yield from ((key, self._groups[key]) for key in sorted(self._groups))
 
     def __repr__(self):
-        return '{self.__class__.__name__}(layer=<{self.layer.name}>, by={self.by}, return_type={self.return_type!r})'.format(self=self)
+        return '{self.__class__.__name__}(layer:{self.layer.name!r}, by={self.by}, return_type={self.return_type!r})'.format(self=self)
+
+
+def group_by(layer: Layer, by: Layer):
+    """
+    :param layer: Layer
+        EstNLTK Layer
+    :param by: Layer
+        Layer that envelopes Layer
+    :return:
+        iterator of SpanList
+    """
+    for enveloping_span in by:
+        span_list = SpanList(layer=layer)
+        for span in enveloping_span.spans:
+            sp = layer.span_list.get(span.base_span)
+            if sp is not None:
+                span_list.add_span(sp)
+        yield span_list

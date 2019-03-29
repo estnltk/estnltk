@@ -1,4 +1,5 @@
 from .groupby import GroupBy
+from .groupby import group_by
 from .rolling import Rolling
 from .layer_operations import apply_filter
 from .layer_operations import drop_annotations
