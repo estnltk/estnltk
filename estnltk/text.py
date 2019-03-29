@@ -228,8 +228,7 @@ class Text:
                                 if span.parent in envelop.spans:
                                     enveloped_spans.append(span)
                             if enveloped_spans:
-                                sl = SpanList(layer=self.layers[frm], spans=enveloped_spans)
-                                spans.append(sl)
+                                spans.append(EnvelopingSpan(layer=self.layers[frm], spans=enveloped_spans))
 
                         return SpanList(layer=self.layers[to], spans=spans)
 
