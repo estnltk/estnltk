@@ -36,10 +36,72 @@ def test_decompose_text_and_span():
 
 
 def test_decompose_with_span_inside_another_span():
-    #overlap at indexes 76-89 and 82-87
-    expected = "[['Sada', [AS[Annotation(Sada, {'attr': 'L1-0', 'attr_1': 'SADA'})]]], [' ', []], ['kaks', [AS[Annotation(kaks, {'attr': 'L1-1', 'attr_1': 'KAKS'})], AS[Annotation(kakskümmend, {'attr': 'L1-2', 'attr_1': 'KAKS'}), Annotation(kakskümmend, {'attr': 'L1-2', 'attr_1': 'KÜMME'}), Annotation(kakskümmend, {'attr': 'L1-2', 'attr_1': 'KAKSKÜMMEND'})]]], ['kümme', [AS[Annotation(kakskümmend, {'attr': 'L1-2', 'attr_1': 'KAKS'}), Annotation(kakskümmend, {'attr': 'L1-2', 'attr_1': 'KÜMME'}), Annotation(kakskümmend, {'attr': 'L1-2', 'attr_1': 'KAKSKÜMMEND'})], AS[Annotation(kümme, {'attr': 'L1-3', 'attr_1': 'KÜMME'})]]], ['nd', [AS[Annotation(kakskümmend, {'attr': 'L1-2', 'attr_1': 'KAKS'}), Annotation(kakskümmend, {'attr': 'L1-2', 'attr_1': 'KÜMME'}), Annotation(kakskümmend, {'attr': 'L1-2', 'attr_1': 'KAKSKÜMMEND'})]]], [' ', []], ['kolm', [AS[Annotation(kolm, {'attr': 'L1-4', 'attr_1': 'KOLM'})]]], ['. ', []], ['Neli', [AS[Annotation(Neli, {'attr': 'L1-5', 'attr_1': 'NELI'})]]], [' ', []], ['tuhat', [AS[Annotation(tuhat, {'attr': 'L1-6', 'attr_1': 'TUHAT'})]]], [' ', []], ['viis', [AS[Annotation(viis, {'attr': 'L1-7', 'attr_1': 'VIIS'})], AS[Annotation(viissada, {'attr': 'L1-8', 'attr_1': 'SADA'}), Annotation(viissada, {'attr': 'L1-8', 'attr_1': 'VIIS'}), Annotation(viissada, {'attr': 'L1-8', 'attr_1': 'VIISSADA'})]]], ['sada', [AS[Annotation(viissada, {'attr': 'L1-8', 'attr_1': 'SADA'}), Annotation(viissada, {'attr': 'L1-8', 'attr_1': 'VIIS'}), Annotation(viissada, {'attr': 'L1-8', 'attr_1': 'VIISSADA'})], AS[Annotation(sada, {'attr': 'L1-9', 'attr_1': 'SADA'})]]], [' ', []], ['kuus', [AS[Annotation(kuus, {'attr': 'L1-10', 'attr_1': 'KUUS'})], AS[Annotation(kuuskümmend, {'attr': 'L1-11', 'attr_1': 'KUUS'}), Annotation(kuuskümmend, {'attr': 'L1-11', 'attr_1': 'KÜMME'}), Annotation(kuuskümmend, {'attr': 'L1-11', 'attr_1': 'KUUSKÜMMEND'})]]], ['kümme', [AS[Annotation(kuuskümmend, {'attr': 'L1-11', 'attr_1': 'KUUS'}), Annotation(kuuskümmend, {'attr': 'L1-11', 'attr_1': 'KÜMME'}), Annotation(kuuskümmend, {'attr': 'L1-11', 'attr_1': 'KUUSKÜMMEND'})], AS[Annotation(kümme, {'attr': 'L1-12', 'attr_1': 'KÜMME'})]]], ['nd', [AS[Annotation(kuuskümmend, {'attr': 'L1-11', 'attr_1': 'KUUS'}), Annotation(kuuskümmend, {'attr': 'L1-11', 'attr_1': 'KÜMME'}), Annotation(kuuskümmend, {'attr': 'L1-11', 'attr_1': 'KUUSKÜMMEND'})]]], [' ', []], ['seitse', [AS[Annotation(seitse, {'attr': 'L1-13', 'attr_1': 'SEITSE'})]]], [' ', []], ['koma', [AS[Annotation(koma, {'attr': 'L1-14', 'attr_1': 'KOMA'})]]], [' ', []], ['kaheksa', [AS[Annotation(kaheksa, {'attr': 'L1-15', 'attr_1': 'KAHEKSA'})]]], ['. ', []], ['Üheksa', [AS[Annotation(Üheksa, {'attr': 'L1-16', 'attr_1': 'ÜHEKSA'})], AS[Annotation(Üheksakümmend, {'attr': 'L1-17', 'attr_1': 'ÜHEKSA'}), Annotation(Üheksakümmend, {'attr': 'L1-17', 'attr_1': 'KÜMME'}), Annotation(Üheksakümmend, {'attr': 'L1-17', 'attr_1': 'ÜHEKSAKÜMMEND'})]]], ['kümme', [AS[Annotation(Üheksakümmend, {'attr': 'L1-17', 'attr_1': 'ÜHEKSA'}), Annotation(Üheksakümmend, {'attr': 'L1-17', 'attr_1': 'KÜMME'}), Annotation(Üheksakümmend, {'attr': 'L1-17', 'attr_1': 'ÜHEKSAKÜMMEND'})], AS[Annotation(kümme, {'attr': 'L1-18', 'attr_1': 'KÜMME'})]]], ['nd', [AS[Annotation(Üheksakümmend, {'attr': 'L1-17', 'attr_1': 'ÜHEKSA'}), Annotation(Üheksakümmend, {'attr': 'L1-17', 'attr_1': 'KÜMME'}), Annotation(Üheksakümmend, {'attr': 'L1-17', 'attr_1': 'ÜHEKSAKÜMMEND'})]]], [' tuhat.', []]]"
-    result = str(decompose_to_elementary_spans(new_text(5).layer_1,new_text(5).text))
-    assert expected == result
+    t = 'Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.'
+    text_5 = Text(t)
+
+    layer_1 = Layer('layer_1', attributes=['attr', 'attr_1'], text_object=text_5, ambiguous=True)
+    layer_1.add_annotation(Span(start=0, end=4), attr='L1-0', attr_1='SADA')
+    layer_1.add_annotation(Span(start=5, end=9), attr='L1-1', attr_1='KAKS')
+    layer_1.add_annotation(Span(start=5, end=16), attr='L1-2', attr_1='KAKS')
+    layer_1.add_annotation(Span(start=5, end=16), attr='L1-2', attr_1='KÜMME')
+    layer_1.add_annotation(Span(start=5, end=16), attr='L1-2', attr_1='KAKSKÜMMEND')
+    layer_1.add_annotation(Span(start=9, end=14), attr='L1-3', attr_1='KÜMME')
+    layer_1.add_annotation(Span(start=17, end=21), attr='L1-4', attr_1='KOLM')
+    layer_1.add_annotation(Span(start=23, end=27), attr='L1-5', attr_1='NELI')
+    layer_1.add_annotation(Span(start=28, end=33), attr='L1-6', attr_1='TUHAT')
+    layer_1.add_annotation(Span(start=34, end=38), attr='L1-7', attr_1='VIIS')
+    layer_1.add_annotation(Span(start=34, end=42), attr='L1-8', attr_1='SADA')
+    layer_1.add_annotation(Span(start=34, end=42), attr='L1-8', attr_1='VIIS')
+    layer_1.add_annotation(Span(start=34, end=42), attr='L1-8', attr_1='VIISSADA')
+    layer_1.add_annotation(Span(start=38, end=42), attr='L1-9', attr_1='SADA')
+    layer_1.add_annotation(Span(start=43, end=47), attr='L1-10', attr_1='KUUS')
+    layer_1.add_annotation(Span(start=43, end=54), attr='L1-11', attr_1='KUUS')
+    layer_1.add_annotation(Span(start=43, end=54), attr='L1-11', attr_1='KÜMME')
+    layer_1.add_annotation(Span(start=43, end=54), attr='L1-11', attr_1='KUUSKÜMMEND')
+    layer_1.add_annotation(Span(start=47, end=52), attr='L1-12', attr_1='KÜMME')
+    layer_1.add_annotation(Span(start=55, end=61), attr='L1-13', attr_1='SEITSE')
+    layer_1.add_annotation(Span(start=62, end=66), attr='L1-14', attr_1='KOMA')
+    layer_1.add_annotation(Span(start=67, end=74), attr='L1-15', attr_1='KAHEKSA')
+    layer_1.add_annotation(Span(start=76, end=82), attr='L1-16', attr_1='ÜHEKSA')
+    layer_1.add_annotation(Span(start=76, end=89), attr='L1-17', attr_1='ÜHEKSA')
+    layer_1.add_annotation(Span(start=76, end=89), attr='L1-17', attr_1='KÜMME')
+    layer_1.add_annotation(Span(start=76, end=89), attr='L1-17', attr_1='ÜHEKSAKÜMMEND')
+    layer_1.add_annotation(Span(start=82, end=87), attr='L1-18', attr_1='KÜMME')
+    text_5['layer_1'] = layer_1
+
+    layer = layer_1
+
+    expected = [
+        ['Sada', [layer[0]]],
+        [' ', []],
+        ['kaks', [layer[1], layer[2]]],
+        ['kümme', [layer[2], layer[3]]],
+        ['nd', [layer[2]]],
+        [' ', []],
+        ['kolm', [layer[4]]],
+        ['. ', []],
+        ['Neli', [layer[5]]],
+        [' ', []],
+        ['tuhat', [layer[6]]],
+        [' ', []],
+        ['viis', [layer[7], layer[8]]],
+        ['sada', [layer[8], layer[9]]],
+        [' ', []],
+        ['kuus', [layer[10], layer[11]]],
+        ['kümme', [layer[11], layer[12]]],
+        ['nd', [layer[11]]],
+        [' ', []],
+        ['seitse', [layer[13]]],
+        [' ', []],
+        ['koma', [layer[14]]],
+        [' ', []],
+        ['kaheksa', [layer[15]]],
+        ['. ', []],
+        ['Üheksa', [layer[16], layer[17]]],
+        ['kümme', [layer[17], layer[18]]],
+        ['nd', [layer[17]]],
+        [' tuhat.', []]]
+    assert decompose_to_elementary_spans(layer, t) == expected
 
 
 def test_decompose_spans_partially_overlap():
