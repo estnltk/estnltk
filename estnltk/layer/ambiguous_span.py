@@ -52,10 +52,6 @@ class AmbiguousSpan(collections.Sequence):
         annotation = Annotation(self)
         for attr in self.layer.attributes:
             setattr(annotation, attr, attributes[attr])
-        span = self._span
-        if not isinstance(span, Span):
-            # EnvelopingSpan
-            annotation.spans = span.annotations
         if annotation not in self._annotations:
             self._annotations.append(annotation)
             return annotation
@@ -136,6 +132,8 @@ class AmbiguousSpan(collections.Sequence):
         return hash(self.span)
 
     def __str__(self):
+        if self.text_object is not None:
+            return 'AS(start={self.start}, end={self.end}, text:{self.text!r})'.format(self=self)
         return 'AS[{spans}]'.format(spans=', '.join(str(i) for i in self.annotations))
 
     def __repr__(self):
