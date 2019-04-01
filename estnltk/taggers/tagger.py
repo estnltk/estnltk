@@ -29,7 +29,7 @@ class TaggerChecker(type):
         tagger._initialized = True
 
         if tagger.__doc__ is None:
-            raise ValueError('{!r} object must have docstring'.format(cls.__name__))
+            raise ValueError('{!r} class must have a docstring'.format(cls.__name__))
 
         return tagger
 
