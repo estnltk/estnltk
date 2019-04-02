@@ -40,13 +40,6 @@ class PgCollectionException(Exception):
 
 RowMapperRecord = collections.namedtuple("RowMapperRecord", ["layer", "meta"])
 
-pytype2dbtype = {
-    "int": "integer",
-    "bigint": "bigint",
-    "float": "double precision",
-    "str": "text"
-}
-
 
 def get_query_length(q):
     """:returns
@@ -660,7 +653,7 @@ class PgCollection:
             meta: dict of str -> str
                 Specifies table column names and data types to create for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
-                See `pytype2dbtype` for supported types.
+                See `pytype2dbtype` in `pg_operations` for supported types.
             progressbar: str
                 if 'notebook', display progressbar as a jupyter notebook widget
                 if 'unicode', use unicode (smooth blocks) to fill the progressbar
@@ -775,7 +768,7 @@ class PgCollection:
             meta: dict of str -> str
                 Specifies table column names and data types for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
-                See `pytype2dbtype` for supported types.
+                See `pytype2dbtype` in `pg_operations` for supported types.
             progressbar: str
                 if 'notebook', display progressbar as a jupyter notebook widget
                 if 'unicode', use unicode (smooth blocks) to fill the progressbar
@@ -875,7 +868,7 @@ class PgCollection:
             meta: dict of str -> str
                 Specifies table column names and data types to create for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
-                See `pytype2dbtype` for supported types.
+                See `pytype2dbtype` in `pg_operations` for supported types.
             progressbar: str
                 if 'notebook', display progressbar as a jupyter notebook widget
                 if 'unicode', use unicode (smooth blocks) to fill the progressbar
@@ -1041,7 +1034,7 @@ class PgCollection:
 
         if meta is not None:
             cols = [Identifier(col).as_string(self.storage.conn) for col in meta.keys()]
-            types = [pytype2dbtype[py_type] for py_type in meta.values()]
+            types = [pg.pytype2dbtype[py_type] for py_type in meta.values()]
             meta_cols = ", %s" % ",".join(["%s %s" % (c, d) for c, d in zip(cols, types)])
         else:
             meta_cols = ""

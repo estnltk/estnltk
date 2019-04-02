@@ -15,7 +15,8 @@ pytype2dbtype = {
     "int": "integer",
     "bigint": "bigint",
     "float": "double precision",
-    "str": "text"
+    "str": "text",
+    'datetime': 'timestamp'
 }
 
 
