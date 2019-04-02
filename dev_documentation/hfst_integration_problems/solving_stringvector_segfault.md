@@ -7,7 +7,8 @@ Once you have [installed HFST via PyPI](https://pypi.org/project/hfst/#installat
 If you import `hfst` as a first thing in the program, everything works fine:
 
 	import hfst
-    from estnltk.vabamorf.vabamorf import Vabamorf, StringVector
+    from estnltk.vabamorf.vabamorf import StringVector
+    from estnltk.vabamorf.morf import Vabamorf
     
     sv = StringVector(1)
     sv[0] = 'Tere'
@@ -18,7 +19,8 @@ If you import `hfst` as a first thing in the program, everything works fine:
 
 But if you change the import order, like in this example:
 
-    from estnltk.vabamorf.vabamorf import Vabamorf, StringVector
+    from estnltk.vabamorf.vabamorf import StringVector
+    from estnltk.vabamorf.morf import Vabamorf
 	import hfst
     
     sv = StringVector(1)
