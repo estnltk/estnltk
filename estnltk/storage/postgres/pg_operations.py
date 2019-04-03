@@ -64,13 +64,14 @@ def get_all_tables(storage):
     if storage.closed():
         return None
     with storage.conn.cursor() as c:
-        c.execute(SQL(
+        sql = SQL(
             "SELECT table_name, "
                    "pg_size_pretty(pg_total_relation_size({schema}||'.'||table_name)), "
                    "obj_description(({schema}||'.'||table_name)::regclass) "
             "FROM information_schema.tables "
             "WHERE table_schema={schema} AND table_type='BASE TABLE';").format(schema=Literal(storage.schema))
-            )
+        logger.debug(sql.as_string(context=storage.conn))
+        c.execute(sql)
         tables = {row[0]: {'total_size': row[1], 'comment': row[2]} for row in c}
         return tables
 
