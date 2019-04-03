@@ -61,6 +61,7 @@ class PgCollection:
 
     def __init__(self, name: str, storage, meta: dict = None, temporary: bool = False, version='0.0'):
         assert isinstance(name, str), name
+        assert name.islower(), name
         assert name.isidentifier(), name
         if '__' in name:
             raise PgCollectionException('collection name must not contain double underscore: {!r}'.format(name))
