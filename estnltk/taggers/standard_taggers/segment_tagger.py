@@ -1,6 +1,6 @@
 from estnltk import Span
-from estnltk.layer.layer import Layer
-from estnltk.taggers import Tagger
+from estnltk import Layer
+from estnltk import Tagger
 
 
 class SegmentTagger(Tagger):
@@ -20,6 +20,9 @@ class SegmentTagger(Tagger):
         assert bool(output_attributes) is bool(decorator),\
             'decorator without attributes or attributes without decorator'
         self.output_attributes = output_attributes
+
+        if decorator is None:
+            decorator = lambda span: {}
         self.decorator = decorator
 
         if start_predicate is None:
