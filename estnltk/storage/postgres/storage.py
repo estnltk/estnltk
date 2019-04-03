@@ -131,6 +131,9 @@ class PostgresStorage:
             else:
                 collection_tables = '<br/>This storage has no collections.'
         return ('<b>{self.__class__.__name__}</b><br/>\n{self.conn.dsn} schema={self.schema}<br/>'
-                'temporary={self.temporary}\n'
+                'temporary={self.temporary}<br/>\n'
+                'collection count: {count}\n'
                 '{collections}').format(
-                self=self, collections=collection_tables)
+                self=self,
+                count=len([coll for coll, layer in structure if layer == '']),
+                collections=collection_tables)
