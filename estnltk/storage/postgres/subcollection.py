@@ -180,6 +180,8 @@ class PgSubCollection:
                                return_index=self.return_index
                                )
 
+    __read_cursor_counter = 0
+
     def __iter__(self):
         """
         Yields all subcollection elements ordered by the text_id 
@@ -202,7 +204,10 @@ class PgSubCollection:
             logger.debug(c.query.decode())
             total = next(c)[0]
 
-        with self.collection.storage.conn.cursor('read', withhold=True) as c:
+        self.__class__.__read_cursor_counter += 1
+
+        with self.collection.storage.conn.cursor('read_'+str(self.__class__.__read_cursor_counter),
+                                                 withhold=True) as c:
             c.execute(self.sql_query)
             logger.debug(c.query.decode())
             data_iterator = pg.Progressbar(iterable=c, total=total, initial=0, progressbar_type=self.progressbar)
