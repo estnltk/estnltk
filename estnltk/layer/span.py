@@ -23,7 +23,7 @@ class Span:
         self.parent = parent  # type: Span
 
         if isinstance(start, int) and isinstance(end, int):
-            assert start < end
+            assert start <= end, (start, end)
 
             self._start = start
             self._end = end
