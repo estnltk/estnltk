@@ -30,3 +30,27 @@
 .tables tbody tr:hover {
     background-color: ivory;
 }
+
+.attribute-names-table {
+    padding: 6px;
+}
+
+.attribute-column {
+    padding: 6px;
+}
+
+.attribute-names-table tbody tr:nth-child(even) {
+    background-color: white;
+}
+
+.attribute-names-table tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+.attribute-names-table tbody tr:hover {
+    background-color: white;
+}
+
+.attribute-column:hover {
+    border: 2px solid red;
+}

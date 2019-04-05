@@ -8,6 +8,7 @@ class DisplayAttributes:
 
     js_file = rel_path("visualisation/attribute_visualiser/prettyprinter.js")
     css_file = rel_path("visualisation/attribute_visualiser/prettyprinter.css")
+    #js_file_loaded = False
 
     def __init__(self):
         self.span_decorator = DirectAttributeVisualiser()
@@ -18,8 +19,9 @@ class DisplayAttributes:
     def html_output(self, layer):
         segments = decompose_to_elementary_spans(layer, layer.text_object.text)
 
-        outputs = self.event_handler_code()
-        outputs += self.css()
+        outputs = self.css()
+        outputs += self.event_handler_code()
+
         for segment in segments:
             outputs += self.span_decorator(segment).replace("\n", "<br>")
 
