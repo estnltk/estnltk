@@ -91,6 +91,7 @@ class Span:
         record['end'] = self.end
         return record
 
+    # TODO: remove
     def mark(self, mark_layer: str) -> 'Span':
         base_layer = self.text_object.layers[mark_layer]  # type: Layer
         base = base_layer._base
