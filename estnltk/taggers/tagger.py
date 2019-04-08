@@ -1,4 +1,4 @@
-from typing import MutableMapping, Sequence, Tuple
+from typing import MutableMapping, Sequence
 
 from estnltk.text import Text
 from estnltk.layer.layer import Layer
