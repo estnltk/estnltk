@@ -145,7 +145,9 @@ class Layer:
                 self.span_list = SpanList(layer=self)
                 tmpspans = []
                 for record_line in records:
-                    span = Span(**{**record_line[0], **{'layer': self}}, legal_attributes=self.attributes)
+                    span = Span(start=record_line[0]['start'], end=record_line[0]['end'], layer=self, legal_attributes=self.attributes)
+                    span.add_annotation(**record_line[0])
+
                     spns = AmbiguousSpan(layer=self, span=span)
                     for record in record_line:
                         spns.add_annotation(**record)
@@ -153,20 +155,22 @@ class Layer:
                 self.span_list.spans = tmpspans
             else:
                 for record_line in records:
-                    self._add_spans([Span(**record, legal_attributes=self.attributes) for record in record_line])
+                    for record in record_line:
+                        self.add_annotation(Span(start=record['start'], end=record['end']), **record)
         else:
             if rewriting:
                 spns = SpanList(layer=self)
-                spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes) for record in
-                              records if record is not None]
 
+                for record in records:
+                    if record is None:
+                        continue
+                    sp = Span(start=record['start'], end=record['end'], layer=self)
+                    sp.add_annotation(**record)
+                    spns.add_span(sp)
                 self.span_list = spns
             else:
                 for record in records:
-                    self.add_span(Span(
-                        **record,
-                        legal_attributes=self.attributes
-                    ))
+                    self.add_annotation(Span(start=record['start'], end=record['end']), **record)
         return self
 
     def attribute_list(self, attributes):
@@ -244,7 +248,8 @@ class Layer:
 
             attributes_pluss_default_values = self.default_values.copy()
             attributes_pluss_default_values.update(attributes)
-            span = Span(base_span.start, base_span.end, layer=self, **attributes_pluss_default_values)
+            span = Span(base_span.start, base_span.end, layer=self)
+            span.add_annotation(**attributes_pluss_default_values)
             self.span_list.add_span(span)
             return span.annotations[0]
 

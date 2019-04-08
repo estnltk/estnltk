@@ -8,8 +8,7 @@ class Span:
     # __slots__ = ['_annotations', '_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end',
     #              '_base']
 
-    def __init__(self, start: int = None, end: int = None, parent=None, *,
-                 layer=None, legal_attributes=None, **attributes) -> None:
+    def __init__(self, start: int = None, end: int = None, parent=None, layer=None, legal_attributes=None):
 
         # this is set up first, because attribute access depends on knowing attribute names as early as possible
         self._legal_attribute_names = legal_attributes
@@ -46,8 +45,7 @@ class Span:
         if not self.is_dependant:
             self._base = self  # type:Span
 
-        self._annotations = []
-        self.add_annotation(**attributes)
+        self._annotations = [Annotation(span=self)]
 
     def __len__(self):
         return len(self._annotations)
@@ -57,7 +55,7 @@ class Span:
 
     def add_annotation(self, **attributes) -> Annotation:
         # TODO: try and remove if-s
-        assert not self._annotations
+
         annotation = Annotation(self)
         if self.layer:
             for attr in self.layer.attributes:
@@ -68,7 +66,9 @@ class Span:
                 if attr == 'text':
                     continue
                 setattr(annotation, attr, value)
-        self._annotations.append(annotation)
+
+        self._annotations[0] = annotation
+
         return annotation
 
     @property

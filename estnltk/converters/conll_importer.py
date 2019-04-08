@@ -100,7 +100,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
                 token = w['form']
                 t.append(token)
                 len_w = len(token)
-                span = Span(cur, cur+len_w, text_object=text)
+                span = Span(cur, cur+len_w)
                 words.add_annotation(span)
 
                 syntax.add_annotation(span, **w)

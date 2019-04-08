@@ -35,8 +35,7 @@ def flatten(input_layer: Layer, output_layer: str, output_attributes: Sequence[s
                 new_layer.add_annotation(new_span, **attrs)
     else:
         for span in input_layer:
-            new_span = Span(span.start, span.end, text_object=text_object)
             attrs = {new_attr: getattr(span, old_attr) for old_attr, new_attr in attribute_mapping}
-            new_layer.add_annotation(new_span, **attrs)
+            new_layer.add_annotation(Span(span.start, span.end), **attrs)
 
     return new_layer

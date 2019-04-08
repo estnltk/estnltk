@@ -75,9 +75,8 @@ class WordTagger(Tagger):
         #    ( include 'normalized' word forms from 
         #      previous layers if available )
         compounds = dict()
-        for spl in layers[ self._input_compound_tokens_layer ]:
-            compounds[spl[0]] = Span(start=spl.start,
-                                     end=spl.end)
+        for spl in layers[self._input_compound_tokens_layer]:
+            compounds[spl[0]] = Span(start=spl.start, end=spl.end)
             compounds[spl[0]].normalized_form = spl.normalized
         words = Layer(name=self.output_layer, 
                       attributes=self.output_attributes,
@@ -88,15 +87,9 @@ class WordTagger(Tagger):
                 words.add_span(compounds[span])
             elif words.span_list:
                 if span.start >= words.span_list[-1].end:
-                    token_span = Span(start=span.start,
-                                      end=span.end)
-                    token_span.normalized_form = None
-                    words.add_span(token_span)
+                    words.add_annotation(Span(start=span.start, end=span.end), normalized_form=None)
             else:
-                token_span = Span(start=span.start,
-                                  end=span.end)
-                token_span.normalized_form = None
-                words.add_span(token_span)
+                words.add_annotation(Span(start=span.start, end=span.end), normalized_form=None)
 
         # 2) Apply custom word normalization 
         #    ( to be implemented if required )

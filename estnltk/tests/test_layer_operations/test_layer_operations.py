@@ -293,7 +293,7 @@ class TestLayerOperation():
         expected = {('üks', 1): 1, ('Üks', 1): 1, ('kaks', 2): 2, ('kolm', 3): 2, ('neli', 4): 1, ('Neli', 4): 1}
         assert counter == expected
 
-    # TODO: fix orremove
+    # TODO: fix or remove
     # broken in python 3.6
     def broken_test_dict_to_df(self):
         counter = {(2, 3): 4, (5, 6): 7}
@@ -337,25 +337,25 @@ class TestLayerOperation():
         assert result == expected
 
         layer_1 = Layer('layer_1', attributes=['label'])
-        layer_1.add_span(Span(0, 3, legal_attributes=['label'], label=1))
+        layer_1.add_annotation(Span(0, 3), label=1)
         layer_2 = Layer('layer_2', attributes=['label'])
-        layer_2.add_span(Span(0, 3, legal_attributes=['label'], label=2))
+        layer_2.add_annotation(Span(0, 3), label=2)
         result = list(diff_layer(layer_1, layer_2))
-        expected = [(Span(0, 3, legal_attributes=['label'], label=1), Span(0, 3, legal_attributes=['label'], label=2))]
+        expected = [(layer_1[0], layer_2[0])]
         assert result == expected
 
         def fun(x, y):
             return True
 
         layer_1 = Layer('layer_1', attributes=['label'])
-        layer_1.add_span(Span(0, 3, legal_attributes=['label'], label=1))
-        layer_1.add_span(Span(5, 7, legal_attributes=['label'], label=1))
+        layer_1.add_annotation(Span(0, 3), label=1)
+        layer_1.add_annotation(Span(5, 7), label=1)
         layer_2 = Layer('layer_2', attributes=['label'])
-        layer_2.add_span(Span(0, 3, legal_attributes=['label'], label=2))
-        layer_2.add_span(Span(6, 7, legal_attributes=['label'], label=1))
+        layer_2.add_annotation(Span(0, 3), label=2)
+        layer_2.add_annotation(Span(6, 7), label=1)
         result = list(diff_layer(layer_1, layer_2, fun))
-        expected = [(Span(5, 7, legal_attributes=['label'], label=1), None),
-                    (None, Span(6, 7, legal_attributes=['label'], label=1))]
+        expected = [(layer_1[1], None),
+                    (None, layer_2[1])]
         assert result == expected
 
     def test_group_by_spans(self):

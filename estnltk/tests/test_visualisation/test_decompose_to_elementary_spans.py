@@ -107,10 +107,10 @@ def test_decompose_with_span_inside_another_span():
 def test_decompose_spans_partially_overlap():
     text_3 = Text('Tere, maailm!')
     layer_0 = Layer('layer_0', attributes=['attr', 'attr_0'], text_object=text_3)
-    layer_0.add_span(Span(start=0, end=4, legal_attributes=['attr', 'attr_0'], attr='L0-0', attr_0='A'))
-    layer_0.add_span(Span(start=4, end=8, legal_attributes=['attr', 'attr_0'], attr='L0-1', attr_0='B'))
-    layer_0.add_span(Span(start=6, end=12, legal_attributes=['attr', 'attr_0'], attr='L0-2', attr_0='C'))
-    layer_0.add_span(Span(start=10, end=13, legal_attributes=['attr', 'attr_0'], attr='L0-3', attr_0='D'))
+    layer_0.add_annotation(Span(start=0,  end=4),  attr='L0-0', attr_0='A')
+    layer_0.add_annotation(Span(start=4,  end=8),  attr='L0-1', attr_0='B')
+    layer_0.add_annotation(Span(start=6,  end=12), attr='L0-2', attr_0='C')
+    layer_0.add_annotation(Span(start=10, end=13), attr='L0-3', attr_0='D')
     text_3['layer_0'] = layer_0
 
     result = decompose_to_elementary_spans(text_3.layer_0,text_3.text)
