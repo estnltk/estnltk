@@ -89,7 +89,20 @@ def extract_sections(text: Text,
                         map_spans[span] = sp
             else:
                 if ambiguous:
-                    raise NotImplementedError('ambiguous layer: '+ layer_name)
+                    for span in layer:
+                        span_start = span.start
+                        span_end = span.end
+                        if trim_overlapping:
+                            span_start = max(span_start, start)
+                            span_end = min(span_end, end)
+                            if span_start >= span_end:
+                                continue
+                        elif span_start < start or end < span_end:
+                            continue
+                        new_span = Span(span_start-start, span_end-start)
+                        for annotation in span:
+                            new_layer.add_annotation(new_span, **annotation.attributes)
+                        # map_spans[span] = new_span  # TODO
                 else:
                     for span in layer.spans:
                         span_start = span.start
