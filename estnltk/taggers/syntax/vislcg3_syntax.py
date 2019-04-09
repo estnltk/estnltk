@@ -13,7 +13,7 @@
 #    In the pipeline SYNTAX_PIPELINE_1_4:
 #      rule files (*._ub.rle) are from: http://math.ut.ee/~tiinapl/CGParser.tar.gz
 #
-#   Developed and tested under Python's versions:  2.7.11,  3.4.4
+#   Developed and tested under Python's versions:  3.4.4, 3.5
 #
 #   VISLCG3Pipeline executes a pipeline of VISLCG3 based analysis steps.
 #   *) Default steps in the pipeline:
@@ -52,10 +52,8 @@
 #      print( results2 )
 #
 
-from __future__ import unicode_literals, print_function
-
 from estnltk.core import rel_path
-from estnltk.legacy.core import as_unicode
+from estnltk.core import as_unicode
 
 import re
 import os, os.path, sys
