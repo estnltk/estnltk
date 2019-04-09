@@ -13,18 +13,36 @@ class VislTagger(Tagger):
 
     conf_param = ['_visl_line_processor', '_parser']
 
-    def __init__(self, output_layer: str = 'visl', morph_extended_layer: str = 'morph_extended'):
+    def __init__(self, output_layer: str = 'visl', 
+                       morph_extended_layer: str = 'morph_extended',
+                       vislcg3_pipeline: VISLCG3Pipeline = None, 
+                       annotation_parser: CG3AnnotationParser = None):
         self.input_layers = [morph_extended_layer]
         self.output_layer = output_layer
         self.output_attributes = ('id', 'lemma', 'ending', 'partofspeech', 'subtype', 'mood', 'tense', 'voice',
                                   'person', 'inf_form', 'number', 'case', 'polarity', 'number_format', 'capitalized',
                                   'finiteness', 'subcat', 'clause_boundary', 'deprel', 'head')
+        if vislcg3_pipeline is not None:
+             # Use a custom vislcg3_pipeline 
+             if isinstance(vislcg3_pipeline, VISLCG3Pipeline):
+                  self._visl_line_processor = vislcg3_pipeline.process_lines
+             else:
+                  raise TypeError('(!) vislcg3_pipeline must be an instance of VISLCG3Pipeline')
+        else:
+             # Use default vislcg3_pipeline 
+             vislcgRulesDir = rel_path('taggers/syntax/files')
+             self._visl_line_processor = VISLCG3Pipeline(rules_dir=vislcgRulesDir).process_lines
+        if annotation_parser is not None:
+             # Use a custom annotation_parser
+             if isinstance(annotation_parser, CG3AnnotationParser):
+                  self._parser = annotation_parser.parse
+             else:
+                  raise TypeError('(!) annotation_parser must be an instance of CG3AnnotationParser')
+        else:
+             # Use default annotation_parser
+             self._parser = CG3AnnotationParser().parse
 
-        vislcgRulesDir = rel_path('taggers/syntax/files')
-        vislcg_path = '/usr/bin/vislcg3'
 
-        self._visl_line_processor = VISLCG3Pipeline(rules_dir=vislcgRulesDir, vislcg_cmd=vislcg_path).process_lines
-        self._parser = CG3AnnotationParser().parse
 
     def _make_layer(self, text, layers, status):
         morph_extended_layer = layers[self.input_layers[0]]
