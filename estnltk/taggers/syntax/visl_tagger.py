@@ -1,3 +1,5 @@
+from os import linesep as OS_NEWLINE
+
 from estnltk.core import rel_path
 from estnltk.taggers import Tagger
 from estnltk.layer.layer import Layer
@@ -34,7 +36,7 @@ class VislTagger(Tagger):
 
         visl_lines = []
         token_in_progress = False
-        for line in visl_output.split('\n'):
+        for line in visl_output.split( OS_NEWLINE ):
             if line and line[0] == '\t':
                 if token_in_progress:
                     visl_lines[-1].append(line)
