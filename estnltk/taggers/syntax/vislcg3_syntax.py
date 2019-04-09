@@ -72,6 +72,26 @@ SYNTAX_PIPELINE_ESTCG = \
 
 
 # ==================================================================================
+#   Helper function
+# ==================================================================================
+
+def check_if_vislcg_is_in_path( vislcg_cmd:str ):
+    ''' Checks whether given vislcg_cmd is in system's PATH. Returns True, there is 
+        a file with given name (vislcg_cmd) in the PATH, otherwise returns False;
+
+        The idea borrows from:  http://stackoverflow.com/a/377028
+    '''
+    if os.getenv("PATH") == None:
+        return False
+    for path in os.environ["PATH"].split( os.pathsep ):
+        path1 = path.strip('"')
+        file1 = os.path.join(path1, vislcg_cmd)
+        if os.path.isfile(file1) or os.path.isfile(file1+'.exe'):
+           return True
+    return False
+
+
+# ==================================================================================
 # ==================================================================================
 #   Pipeline for VISLCG3 based syntactic analysis
 # ==================================================================================
@@ -144,7 +164,7 @@ class VISLCG3Pipeline:
         # Check for existence of VISLCG3 executable
         if not os.path.exists( self.vislcg_cmd ):
            # If the full path is not accessible, check whether the command is in PATH
-           if not self.check_if_vislcg_is_in_path( self.vislcg_cmd ):
+           if not check_if_vislcg_is_in_path( self.vislcg_cmd ):
               msg = " Could not find VISLCG3 executable: "+str(self.vislcg_cmd)+"!\n"+\
                     " Please make sure that VISLCG3 is installed in your system and\n"+\
                     " available from system's PATH variable. Alternatively, you can\n"+\
@@ -153,18 +173,6 @@ class VISLCG3Pipeline:
               raise Exception( msg )
 
 
-    def check_if_vislcg_is_in_path( self, vislcg_cmd1 ):
-        ''' Checks whether given vislcg_cmd1 is in system's PATH. Returns True, there is 
-            a file named  vislcg_cmd1  in the path, otherwise returns False;
-
-            The idea borrows from:  http://stackoverflow.com/a/377028
-        '''
-        for path in os.environ["PATH"].split( os.pathsep ):
-            path1 = path.strip('"')
-            file1 = os.path.join(path1, vislcg_cmd1)
-            if os.path.isfile(file1) or os.path.isfile(file1+'.exe'):
-               return True
-        return False
         
 
     def process_lines( self, input_lines, **kwargs ):

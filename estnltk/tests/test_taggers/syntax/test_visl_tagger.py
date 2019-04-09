@@ -1,6 +1,10 @@
+import pytest
+
 from estnltk import Text
 from estnltk.converters import layer_to_dict
 from estnltk.taggers import VislTagger
+
+from estnltk.taggers.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
 
 visl_dict = {'_base': 'words',
              'ambiguous': True,
@@ -397,6 +401,8 @@ visl_dict = {'_base': 'words',
                          'voice': '_'}]]}
 
 
+@pytest.mark.skipif(not check_if_vislcg_is_in_path('vislcg3'),
+                    reason="a directory containing vislcg3 executable must be inside the system PATH")
 def test_visl_tagger():
     text = Text('Juba tahab saada pagariks! Ise alles tee esimesel poolel , vaevu kolmekümnekolmene .').tag_layer(
         ['morph_extended'])
