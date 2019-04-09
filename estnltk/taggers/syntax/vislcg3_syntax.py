@@ -54,8 +54,7 @@
 
 from __future__ import unicode_literals, print_function
 
-from estnltk.legacy import names
-from estnltk.legacy.core import PACKAGE_PATH
+from estnltk.core import rel_path
 from estnltk.legacy.core import as_unicode
 
 import re
@@ -64,7 +63,7 @@ import codecs
 import tempfile
 from subprocess import Popen, PIPE
 
-SYNTAX_PATH = os.path.join(PACKAGE_PATH, 'syntax', 'files')
+SYNTAX_PATH = rel_path('taggers/syntax/files')
 SYNTAX_PIPELINE_1_4 = \
     ['clo_ub.rle', 'morfyhe_ub.rle', 'PhVerbs_ub.rle', 'pindsyn_ub.rle', 'strukt_ub.rle']
 SYNTAX_PIPELINE_ESTCG = \
