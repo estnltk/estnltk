@@ -29,6 +29,10 @@ def conll_to_str(text):
         conll_str += '\n'
     return conll_str
 
-def write_conll_to_file(filename, conll_str):
+def write_conll_to_file(filename, conll):
     with open(filename, 'w') as f:
-        f.write(conll_to_str(conll_str))
+        if isinstance(conll, str):
+            f.write(conll)
+        else:
+            f.write(conll_to_str(conll))
+

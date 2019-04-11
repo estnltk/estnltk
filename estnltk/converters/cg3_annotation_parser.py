@@ -1,3 +1,8 @@
+"""
+Parser for parsing VISL CG3 format analysis line.
+Based on EstNLTK 1.4 estnltk.syntax.parsers and estnltk.syntax.vislcg3_syntax.py.
+"""
+
 from collections import defaultdict
 from typing import Tuple, Optional
 import re
@@ -30,17 +35,22 @@ def get_cats(cats):
 
 class CG3AnnotationParser:
     """
-    Parser for parsing visl cg3 format analysis line.
-
     Example:
         line = '	"mari" Lle S com sg all cap @ADVL #1->4'
         parser = CG3AnnotationParser()
-        processed_line = parser.process_visl_analysis_line(line)
+        processed_line = parser.parse(line)
 
     Output:
-        {'lemma': 'mari', 'head': '#1->4', 'partofspeech': 'S', 'feats': \
-        OrderedDict([('substantive_type', ['com']), ('number', ['sg']), ('case', ['all']), ('capitalized', ['cap'])]), \
-        # 'deprel': '@ADVL ', 'ending': 'le'}
+        {'capitalized': ['cap'],
+         'case': ['all'],
+         'deprel': ['@ADVL'],
+         'ending': 'le',
+         'head': '4',
+         'id': '1',
+         'lemma': 'mari',
+         'number': ['sg'],
+         'partofspeech': 'S',
+         'subtype': ['com']}
     """
     pat_analysis_line = re.compile('^\s+"(?P<lemma>.+)" (?P<ending>L\w+)*(?P<cats>[^@#]*)(?P<syntax>[@#]*.*)$')
     pat_pos_form = re.compile('^ *[A-Z]\s*(?P<form>[^#@]*).*$')
