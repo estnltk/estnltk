@@ -30,8 +30,13 @@ include_dirs = [os.path.join('include', d) for d in dirs]
 
 # define the vabamorf SWIG wrapper generator interface file
 swig_interface = os.path.join('estnltk', 'vabamorf', 'vabamorf.i')
-swig_opts = ['-builtin']  # Note: this disables proxy classes and provides speed-up, but also leads to a conflict with hfst module
-#swig_opts = []           # Note: this enables proxy classes and avoids conflicts with hfst module, but vabamorf will be slower
+
+#swig_opts = ['-builtin']  # Disable proxy classes
+swig_opts = []             # Enable proxy classes 
+
+# How enabling proxy classes affects vabamorf's speed:
+#  https://github.com/estnltk/estnltk/blob/devel_1.6/dev_documentation/vabamorf_benchmarking/vabamorf_speed_benchmarking.md
+
 
 # Python 3 specific configuration
 extra = {}
