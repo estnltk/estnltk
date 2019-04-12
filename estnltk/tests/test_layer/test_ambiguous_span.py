@@ -64,3 +64,9 @@ def test_getitem():
 
     with pytest.raises(IndexError):
         span_1[2]
+
+
+def test_base_spans():
+    span_1 = AmbiguousSpan(layer=Layer('test', attributes=['attr_1'], ambiguous=True), span=Span(0, 1))
+
+    assert [(0, 1)] == span_1.base_spans

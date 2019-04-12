@@ -5,6 +5,10 @@ from estnltk.layer.annotation import Annotation
 
 
 class Span:
+    """
+    Basic element of an EstNLTK layer.
+    """
+
     # __slots__ = ['_annotations', '_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end',
     #              '_base']
 
@@ -121,6 +125,10 @@ class Span:
     @property
     def base_span(self):
         return self.start, self.end
+
+    @property
+    def base_spans(self):
+        return [(self.start, self.end)]
 
     @property
     def text(self):

@@ -105,7 +105,7 @@ class AmbiguousSpan(collections.Sequence):
         if item in self.__dict__:
             return self.__dict__[item]
 
-        raise AttributeError(item)
+        return self.__getattribute__(item)
 
     def __getitem__(self, idx: int) -> Union[Annotation, AttributeList]:
         if isinstance(idx, int):
