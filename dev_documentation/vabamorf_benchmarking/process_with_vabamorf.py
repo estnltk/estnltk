@@ -34,9 +34,13 @@ def summarize_times_and_find_speed( time_deltas, word_count ):
                    minutes=0, hours=0, weeks=0)
     for delta in time_deltas:
         time_delta_sum += delta
-    avg_time_delta = time_delta_sum / len(time_deltas)
+    avg_time_delta = 0.0
+    if len(time_deltas) > 0:
+        avg_time_delta = time_delta_sum / len(time_deltas)
     total_sec = time_delta_sum.total_seconds()
-    words_per_second = word_count / total_sec
+    words_per_second = 0.0
+    if total_sec > 0.0:
+        words_per_second = word_count / total_sec
     return [time_delta_sum, total_sec, avg_time_delta, words_per_second]
 
 # Calculates and reports average processing time and speed;
@@ -54,14 +58,29 @@ def report_statistics(total_end_time, iterations, text_count, word_count,
     print('   Text objects in iteration: {}'.format(text_count))
     print('          Words in iteration: {}'.format(word_count))
     print()
-    mean = statistics.mean(collected_total_secs)
-    stdev = statistics.stdev(collected_total_secs, xbar=mean)
-    print('  Avg corpus processing time: {:.3f} +/- {:.3f} s'.format( mean, stdev ))
-    mean = statistics.mean(collected_seconds_per_text)
-    stdev = statistics.stdev(collected_seconds_per_text, xbar=mean)
-    print('    Avg Text processing time: {:.3f} +/- {:.3f} s'.format( mean, stdev ))
-    mean = statistics.mean(collected_words_per_second)
-    stdev = statistics.stdev(collected_words_per_second, xbar=mean)
+    # collected_total_secs
+    mean  = 0.0
+    if len(collected_total_secs) > 0:
+        mean = statistics.mean(collected_total_secs)
+    stdev = 0.0 
+    if len(collected_total_secs) > 1:
+        stdev = statistics.stdev(collected_total_secs, xbar=mean)
+    print('  Avg corpus processing time: {:.2f} +/- {:.2f} s'.format( mean, stdev ))
+    # collected_seconds_per_text
+    mean  = 0.0
+    if len(collected_seconds_per_text) > 0:
+        mean = statistics.mean(collected_seconds_per_text)
+    stdev = 0.0
+    if len(collected_seconds_per_text) > 1:
+        stdev = statistics.stdev(collected_seconds_per_text, xbar=mean)
+    print('    Avg Text processing time: {:.2f} +/- {:.2f} s'.format( mean, stdev ))
+    # collected_words_per_second
+    mean  = 0.0
+    if len(collected_words_per_second) > 0:
+        mean = statistics.mean(collected_words_per_second)
+    stdev = 0.0
+    if len(collected_words_per_second) > 1:
+        stdev = statistics.stdev(collected_words_per_second, xbar=mean)
     print('        Avg words per second: {:.0f} +/- {:.0f}'.format( mean, stdev ))
     print()
 
