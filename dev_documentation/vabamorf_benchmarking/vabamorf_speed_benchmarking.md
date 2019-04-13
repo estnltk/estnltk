@@ -10,7 +10,7 @@ In this document, we evaluate how much this affects the processing speed of the 
 
 <table>
 <tr><td>Python</td><td>3.5.5 (64-bit)</td></tr>
-<tr><td>EstNLTK's version</td><td><a href="https://github.com/estnltk/estnltk/tree/89d067250a7132c26a7c1d70f212fd3a4418f9ce">devel_1.6 : 89d0672</a></td></tr>
+<tr><td>EstNLTK's version</td><td><a href="https://github.com/estnltk/estnltk/tree/353905537958f9984e2c3182602edae91ff9d153">devel_1.6 : 3539055</a></td></tr>
 <tr><td>System</td><td>Windows 10 running on <br> Intel Core i5-6200U CPU @ 2.40 GHz <br>with 16 GB of RAM</td></tr>
 <tr><td>Evaluation corpus</td><td>Files from the <a href="http://www.cl.ut.ee/korpused/segakorpus/">Estonian Reference Corpus</a>:<br><br>
 aja_EPL_2007_02_14.tasak.xml<br>
@@ -39,13 +39,13 @@ tea_toohoive.tasak.xml</td></tr>
 <table>
 <tr><td><b></b></td><td><b>without Python proxy classes</b></td><td><b>with Python proxy classes</b></td></tr>
 
-<tr><td><b>Vabamorf.analyse w/o disamb</b></td><td>whole corpus: 39.892 s <br> words per sec:   6440</td><td>whole corpus: 42.555 s <br> words per sec:   6037  <b>(-6.26 %)</b></td></tr>
+<tr><td><b>Vabamorf.analyse w/o disamb</b></td><td>whole corpus: 36.66 s <br> words per sec:   6477</td><td>whole corpus: 42.01 s <br> words per sec:   6114  <b>(-5.6 %)</b></td></tr>
 
-<tr><td><b>Vabamorf.analyse w disamb</b></td><td>whole corpus:    59.083 s<br>words per sec:   4347</td><td>whole corpus:   61.933 s <br> words per sec:   4147 <b>(-4.6%)</b></td></tr>
+<tr><td><b>Vabamorf.analyse w disamb</b></td><td>whole corpus:    57.88 s<br>words per sec:   4438</td><td>whole corpus:   61.27 s <br> words per sec:   4193 <b>(-5.5%)</b></td></tr>
 
-<tr><td><b>VabamorfTagger w/o disamb</b></td><td>whole corpus:    103.7 s <br> words per sec:   2477 </td><td>whole corpus:   140.970 s<br>words per sec:   1822  <b>(-26.44%)</b></td></tr>
+<tr><td><b>VabamorfTagger w/o disamb</b></td><td>whole corpus:    135.95 s <br> words per sec:   1889 </td><td>whole corpus:   140.76 s<br>words per sec:   1824  <b>(-3.4%)</b></td></tr>
 
-<tr><td><b>VabamorfTagger w disamb</b></td><td>whole corpus:    191.098 s<br>words per sec:   1344</td><td>whole corpus:   250.573 s <br> words per sec:   1025  <b>(-23.74%)</b></td></tr>
+<tr><td><b>VabamorfTagger w disamb</b></td><td>whole corpus:    237.95 s<br>words per sec:   1079</td><td>whole corpus:   246.01 s <br> words per sec:   1044  <b>(-3.2%)</b></td></tr>
 
 
 </table>
