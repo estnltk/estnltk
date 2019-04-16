@@ -444,7 +444,12 @@ class Text:
         if self._text is None:
             table = '<h4>Empty Text object</h4>'
         else:
-            text_html = '<div align = "left">' + html.escape(self.text).replace('\n', '</br>') + '</div>'
+            text = self.text
+            if len(text) > 10000:
+                text = '{}\n\n<skipping {} characters>\n\n{}'.format(text[:8000],
+                                                                     len(text)-9000,
+                                                                     text[-1000:])
+            text_html = '<div align = "left">' + html.escape(text).replace('\n', '</br>') + '</div>'
             df = pandas.DataFrame(columns=['text'], data=[text_html])
             table = df.to_html(index=False, escape=False)
 
