@@ -88,6 +88,9 @@ class ClauseSegmenter(Tagger):
 
 
     def __enter__(self):
+        # Initialize java process (only if we are inside the with context manager)
+        if self._java_process and self._java_process._process is None:
+            self._java_process.initialize_java_subprocess()
         return self
 
 

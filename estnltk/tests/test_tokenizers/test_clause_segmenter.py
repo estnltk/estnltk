@@ -129,13 +129,20 @@ def test_change_input_output_layer_names_of_clause_segmenter():
 
 
 
-def test_clause_segmenter_context_tear_down():
+def test_clause_segmenter_context_set_up_and_tear_down():
+    # Tests ClauseSegmenter's java process will be initialized in correct context;
     # Tests after exiting ClauseSegmenter's context manager, the process has been 
     # torn down and no longer available
     text = Text( 'Testimise tekst.' )
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
     # 1) Apply segmenter as a context manager
     with ClauseSegmenter() as segmenter:
+        # Check: Inside the with context, the java process 
+        # should already be initialized
+        assert segmenter._java_process._process is not None
+        # Check: the process should be up and running
+        assert segmenter._java_process._process.poll() is None
+        # Apply segmenter
         segmenter.tag(text)
     # Check: polling the process should not return None
     assert segmenter._java_process._process.poll() is not None
@@ -147,7 +154,9 @@ def test_clause_segmenter_context_tear_down():
     
     # 2) Create segmenter outside with, and use the __exit__() method
     segmenter2 = ClauseSegmenter()
-    # Check that there is not process at first (lazy initialization)
+    # Check that there is no process at first (lazy initialization)
+    # [if ClauseSegmenter() is created outside the with context, java 
+    #     should not be initiated before calling the tag() method]
     assert segmenter2._java_process._process is None
     text = Text( 'Testimise tekst.' )
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
@@ -186,3 +195,18 @@ def test_clause_segmenter_context_tear_down():
     # TODO: this option is currently not available, because__del__ 
     #       method causes some irregular and wierd subprocess errors 
     #       during pytest; needs further investigation;
+
+
+
+def test_clause_segmenter_no_java_initialization_in_make_resolver():
+    # Test that the ClauseSegmenter's java process will not be 
+    # initialized during the creation of the default resolver 
+    # (the initialization should occur later, only after the tag() 
+    #  method is called )
+    from estnltk.resolve_layer_dag import make_resolver
+    new_default_resolver = make_resolver()
+    for (layer, tagger) in new_default_resolver.taggers.rules.items():
+        if isinstance(tagger, ClauseSegmenter):
+            # Check that there is no process at first (lazy initialization)
+            assert tagger._java_process._process is None
+
