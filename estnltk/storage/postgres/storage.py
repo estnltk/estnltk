@@ -35,6 +35,8 @@ class PostgresStorage:
         if role is None:
             role = conn_param['user']
 
+        self.user = conn_param['user']
+
         logger.info('connecting to host: '
                     '{host!r}, port: {port!r}, dbname: {dbname!r}, user: {user!r}'.format(**conn_param))
 

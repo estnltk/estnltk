@@ -89,6 +89,9 @@ class PgCollection:
 
     def create(self, description=None, meta: dict = None, temporary=None):
         """Creates the database tables for the collection"""
+        if description is None:
+            description = 'created by {}'.format(self.storage.user)
+
         self.structure.create_table()
 
         pg.create_collection_table(self.storage,
