@@ -1,6 +1,6 @@
 from typing import List
 import networkx as nx
-
+import atexit
 
 class Taggers:
     """
@@ -104,3 +104,11 @@ def make_resolver(
 
 
 DEFAULT_RESOLVER = make_resolver()
+
+
+@atexit.register
+def _close_java_processes():
+    for (layer, tagger) in DEFAULT_RESOLVER.taggers.rules.items():
+        if isinstance(tagger, ClauseSegmenter):
+            # Close java process
+            tagger.close()
