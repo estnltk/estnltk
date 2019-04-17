@@ -1158,41 +1158,50 @@ class PgCollection:
             data = c.fetchall()
             return pandas.DataFrame(data=data, columns=columns)
 
-    def export_layer(self, layer, attributes, progressbar=None):
-        export_table = '{}__{}__export'.format(self.name, layer)
-        texts = self.select(layers=[layer], progressbar=progressbar)
+    def export_layer(self, layer, attributes, collection_meta=None, progressbar=None):
+        if collection_meta is None:
+            collection_meta = []
+
+        table_name = '{}__{}__export'.format(self.name, layer)
+        table_identifier = pg.table_identifier(storage=self.storage, table_name=table_name)
+
         logger.info('preparing to export layer {!r} with attributes {!r}'.format(layer, attributes))
 
         columns = [
             ('id', 'serial PRIMARY KEY'),
             ('text_id', 'int NOT NULL'),
-            ('span_nr', 'int NOT NULL')]
+            ('span_nr', 'int NOT NULL'),
+            ('span_start', 'int NOT NULL'),
+            ('span_end', 'int NOT NULL'),
+        ]
         columns.extend((attr, 'text') for attr in attributes)
+        columns.extend((attr, 'text') for attr in collection_meta)
 
         columns_sql = SQL(",\n").join(SQL("{} {}").format(Identifier(n), SQL(t)) for n, t in columns)
 
-        i = 0
+        self.storage.conn.commit()
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("DROP TABLE IF EXISTS {}.{};").format(Identifier(self.storage.schema),
-                                                                Identifier(export_table)))
             logger.debug(c.query)
-            c.execute(SQL("CREATE TABLE {}.{} ({});").format(Identifier(self.storage.schema),
-                                                             Identifier(export_table),
-                                                             columns_sql))
+            c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
+                                                          columns_sql))
             logger.debug(c.query)
+            self.storage.conn.commit()
 
-            for text_id, text in texts:
+        texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta)
+
+        with self.buffered_layer_insert(table_identifier=table_identifier,
+                                        columns=[c[0] for c in columns]) as insert:
+            i = 0
+            for text_id, text, meta in texts:
                 for span_nr, span in enumerate(text[layer]):
                     for annotation in span:
                         i += 1
-                        values = [i, text_id, span_nr]
-                        values.extend(str(getattr(annotation, attr)) for attr in attributes)
-                        c.execute(SQL("INSERT INTO {}.{} "
-                                      "VALUES ({});").format(Identifier(self.storage.schema),
-                                                             Identifier(export_table),
-                                                             SQL(', ').join(map(Literal, values))
-                                                             ))
-        logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, export_table))
+                        values = [Literal(i), Literal(text_id), Literal(span_nr), Literal(span.start), Literal(span.end)]
+                        values.extend(Literal(getattr(annotation, attr)) for attr in attributes)
+                        values.extend(Literal(meta[k]) for k in collection_meta)
+                        insert(values)
+
+        logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, table_name))
 
     def _repr_html_(self):
         if self._is_empty:
