@@ -6,10 +6,13 @@
 #
 
 import subprocess
+import atexit
 import os
 
 from estnltk.core import as_unicode, as_binary
 
+# keep track of started java processes
+_STARTED_JAVA_PROCESSES = []
 
 # ==============================================================================
 #   Class for processing texts with Java-based tools
@@ -100,6 +103,8 @@ class JavaProcess( object ):
                                           stdin=subprocess.PIPE,
                                           stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE)
+        # keep track of started java processes
+        _STARTED_JAVA_PROCESSES.append( self._process )
 
 
 
@@ -150,4 +155,24 @@ class JavaProcess( object ):
         except Exception:
             self._process.terminate()
             raise
+
+
+# ==============================================================================
+#   Clean-up : terminate all started java processes
+# ==============================================================================
+
+@atexit.register
+def _close_java_processes():
+    for process in _STARTED_JAVA_PROCESSES:
+        if process is not None: # if the process was initialized ...
+            if process.poll() is None: # ... and it is still up and running ...
+                # The proper way to terminate the process:
+                # 1) Send out the terminate signal
+                process.terminate()
+                # 2) Interact with the process. Read data from stdout and stderr, 
+                #    until end-of-file is reached. Wait for process to terminate.
+                process.communicate()
+                # 3) Assert that the process terminated
+                assert process.poll() is not None
+
 
