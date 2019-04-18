@@ -1188,6 +1188,9 @@ class PgCollection:
             c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
                                                           columns_sql))
             logger.debug(c.query)
+            c.execute(SQL("COMMENT ON TABLE {} IS {};").format(table_identifier,
+                                                               Literal('created by {}'.format(self.storage.user))))
+            logger.debug(c.query)
             self.storage.conn.commit()
 
         texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta)
