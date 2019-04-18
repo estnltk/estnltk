@@ -16,7 +16,7 @@ _STARTED_JAVA_PROCESSES = []
 
 # ==============================================================================
 #   Class for processing texts with Java-based tools
-#   Ported from EstNLTK 1.4.1.1:
+#   Base class ported from EstNLTK 1.4.1.1:
 #      https://github.com/estnltk/estnltk/blob/1.4.1.1/estnltk/javaprocess.py
 # ==============================================================================
 
@@ -174,5 +174,4 @@ def _close_java_processes():
                 process.communicate()
                 # 3) Assert that the process terminated
                 assert process.poll() is not None
-
 

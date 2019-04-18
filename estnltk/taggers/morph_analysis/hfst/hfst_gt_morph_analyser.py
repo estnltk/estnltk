@@ -373,6 +373,9 @@ est_hfst_postags = [
 # Separates one component of a derivative from another
 est_hfst_derivative_strs = ['+Der/', '+Dim/']
 
+# Special case of derivative: a shortening of stem
+est_hfst_shortening_strs = ['+Der/minus']
+
 # Separates one component of a compound word from another
 est_hfst_compound_seps = ['#']
 
@@ -398,6 +401,11 @@ def split_into_morphemes( raw_analysis: str ):
 
         2) Split by derivatives (symbol /):
             laulma+V+Der/ja+N+Sg+Nom => laulma+V+Der, ja+N+Sg+Nom
+           
+            An Exception: keep shortenings (+Der/minus) together with lemmas
+            
+            kohtumine+N+Der/minus#paik+N+Sg+Nom => kohtumine+N+Der/minus, paik+N+Sg+Nom
+            käitumine+N+Der/minus#mudel+N+Sg+Nom => käitumine+N+Der/minus, mudel+N+Sg+Nom
         
         Clitics and usage information will also be separated from
         the rest of the morphemes, e.g.
@@ -412,10 +420,21 @@ def split_into_morphemes( raw_analysis: str ):
         # Check for compounding
         for cp in est_hfst_compound_seps:
             if cid+len(cp) <= alen and cp == raw_analysis[cid:cid+len(cp)]:
-                locations.append( (start, cid) )
+                if start < cid: # avoid adding empty strings at this point
+                    locations.append( (start, cid) )
                 start = cid+len(cp) # next start position
                 breakpoint_found = True
                 break
+        if not breakpoint_found:
+            # Check for shortening 
+            # (this must come before other derivatives)
+            for sh in est_hfst_shortening_strs:
+                if cid+len(sh) <= alen and sh == raw_analysis[cid:cid+len(sh)]:
+                    assert len(sh) > 1 and not sh.endswith('/')
+                    locations.append( (start, cid+len(sh)) )
+                    start = cid+len(sh) # next start position
+                    breakpoint_found = True
+                    break
         if not breakpoint_found:
             # Check for derivative
             for dv in est_hfst_derivative_strs:

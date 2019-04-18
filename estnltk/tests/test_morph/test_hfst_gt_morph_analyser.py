@@ -143,6 +143,18 @@ def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
                   {'word':'iluaedasid',\
                    'raw_analysis':'ilu+N+Sg+Gen#aed+N+Pl+Par+Use/Rare' , \
                    'expected_morphemes':['ilu+N+Sg+Gen', 'aed+N+Pl+Par', '+Use/Rare']}, \
+                  {'word':'kohtumispaik',\
+                   'raw_analysis':'kohtumine+N+Der/minus#paik+N+Sg+Nom' , \
+                   'expected_morphemes':['kohtumine+N+Der/minus', 'paik+N+Sg+Nom']}, \
+                  {'word':'lahkumisvalust',\
+                   'raw_analysis':'lahkuma+V+Der/mine+N+Der/minus#valu+N+Sg+Ela' , \
+                   'expected_morphemes':['lahkuma+V+Der', 'mine+N+Der/minus', 'valu+N+Sg+Ela']}, \
+                  {'word':'hingamisteed',\
+                   'raw_analysis':'hingamine+N+Der/minus#tee+N+Pl+Nom' , \
+                   'expected_morphemes':['hingamine+N+Der/minus', 'tee+N+Pl+Nom']}, \
+                  {'word':'arvamis-',\
+                   'raw_analysis':'arvama+V+Der/mine+N+Der/minus' , \
+                   'expected_morphemes':['arvama+V+Der', 'mine+N+Der/minus']}, \
                 ]
     for test_item in test_data:
         input_raw_analysis = test_item['raw_analysis']
@@ -204,6 +216,19 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
                    'raw_analysis':'' , \
                    'expected_features': OrderedDict([('morphemes', []), ('postags', []), ('forms', []), ('has_clitic', []), \
                                                      ('is_guessed', []), ('usage', [])])}, \
+                  # Words containing shortenings
+                  {'word':'arvamis-',\
+                   'raw_analysis':'arvama+V+Der/mine+N+Der/minus' , \
+                   'expected_features': OrderedDict([('morphemes', ['arvama', 'mine']), ('postags', ['V', 'N']), ('forms', ['Der', 'Der/minus']), \
+                                                     ('has_clitic', [False,False]), ('is_guessed', [False,False]), ('usage', ['',''])])}, \
+                  {'word':'kohtumispaik',\
+                   'raw_analysis':'kohtumine+N+Der/minus#paik+N+Sg+Nom' , \
+                   'expected_features': OrderedDict([('morphemes', ['kohtumine', 'paik']), ('postags', ['N', 'N']), ('forms', ['Der/minus', 'Sg+Nom']), \
+                                                     ('has_clitic', [False,False]), ('is_guessed', [False,False]), ('usage', ['',''])])}, \
+                  {'word':'hingamisteed',\
+                   'raw_analysis':'hingamine+N+Der/minus#tee+N+Pl+Nom' , \
+                   'expected_features': OrderedDict([('morphemes', ['hingamine', 'tee']), ('postags', ['N', 'N']), ('forms', ['Der/minus', 'Pl+Nom']), \
+                                                     ('has_clitic', [False,False]), ('is_guessed', [False,False]), ('usage', ['',''])])}, \
                 ]
     for test_item in test_data:
         input_raw_analysis = test_item['raw_analysis']
@@ -330,4 +355,3 @@ def test_hfst_gt_morph_analyser_with_guessing_switched_on_and_off():
     results2 = text['hfst_gt_morph_analysis_w_guesses'].to_records()
     assert results2 == [[{'weight': 240.0, 'postags': ('', 'N'), 'forms': ('', 'Pl+Nom'), 'morphemes_lemmas': ('bronze', 'mehike'), 'end': 15, 'usage': (), 'start': 0, 'has_clitic': False, 'is_guessed': True}, \
                          {'weight': 242.0, 'postags': ('', 'N'), 'forms': ('', 'Pl+Nom'), 'morphemes_lemmas': ('bronze', 'mehikene'), 'end': 15, 'usage': (), 'start': 0, 'has_clitic': False, 'is_guessed': True}]] 
-    
