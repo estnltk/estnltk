@@ -35,7 +35,8 @@ class Grammar:
             self.legal_attributes = frozenset()
         else:
             legal_attributes = frozenset(legal_attributes)
-            assert not legal_attributes & self._internal_attributes, 'legal attributes contain internal attributes'
+            assert not legal_attributes & self._internal_attributes, \
+                'legal attributes contain internal attributes: ' + str(legal_attributes & self._internal_attributes)
             self.legal_attributes = legal_attributes
         if rules is None:
             self._rules = []
