@@ -9,6 +9,7 @@ from contextlib import contextmanager
 
 from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT, Composed
+import time
 
 from estnltk import logger
 from estnltk.converters import layer_to_dict
@@ -1161,11 +1162,12 @@ class PgCollection:
             data = c.fetchall()
             return pandas.DataFrame(data=data, columns=columns)
 
-    def export_layer(self, layer, attributes, collection_meta=None, progressbar=None):
+    def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None):
         if collection_meta is None:
             collection_meta = []
 
-        table_name = '{}__{}__export'.format(self.name, layer)
+        if table_name is None:
+            table_name = '{}__{}__export'.format(self.name, layer)
         table_identifier = pg.table_identifier(storage=self.storage, table_name=table_name)
 
         logger.info('preparing to export layer {!r} with attributes {!r}'.format(layer, attributes))
@@ -1189,7 +1191,8 @@ class PgCollection:
                                                           columns_sql))
             logger.debug(c.query)
             c.execute(SQL("COMMENT ON TABLE {} IS {};").format(table_identifier,
-                                                               Literal('created by {}'.format(self.storage.user))))
+                                                               Literal('created by {} on {}'.format(self.storage.user,
+                                                                                                    time.asctime()))))
             logger.debug(c.query)
             self.storage.conn.commit()
 
