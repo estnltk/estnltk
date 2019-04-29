@@ -23,7 +23,7 @@ tea_perekond.tasak.xml<br>
 tea_toohoive.tasak.xml</td></tr>
 <tr><td>Corpus size in Text objects</td><td>389</td></tr>
 <tr><td>Corpus size in words</td><td>256805</td></tr>
-<tr><td>Number of repetitions in evaluation</td><td>4</td></tr>
+<tr><td>Number of repetitions in evaluation</td><td>3</td></tr>
 <tr><td>Processing scripts</td><td>Derived from <a href="https://github.com/estnltk/estnltk/tree/cbda73f36b3c358add47e1e3256af1e6f074ce3f/dev_documentation/vabamorf_benchmarking">Vabamorf's speed benchmarking<br>  scripts</a></td></tr>
 </table>
 
