@@ -405,16 +405,17 @@ class Layer:
             wrapped = self.span_list.spans.__getitem__(item)
             layer.span_list.spans = wrapped
             return layer
-        if isinstance(item, (list, tuple)) and all(isinstance(i, bool) for i in item):
-            if len(item) != len(self):
-                warnings.warn('Index boolean list not equal to length of layer: {}!={}'.format(len(item), len(self)))
-            wrapped = [s for s, i in zip(self.span_list.spans, item) if i]
-            layer.span_list.spans = wrapped
-            return layer
-        if isinstance(item, (list, tuple)) and all(isinstance(i, int) for i in item):
-            wrapped = [self.span_list.spans.__getitem__(i) for i in item]
-            layer.span_list.spans = wrapped
-            return layer
+        if isinstance(item, (list, tuple)):
+            if all(isinstance(i, bool) for i in item):
+                if len(item) != len(self):
+                    warnings.warn('Index boolean list not equal to length of layer: {}!={}'.format(len(item), len(self)))
+                wrapped = [s for s, i in zip(self.span_list.spans, item) if i]
+                layer.span_list.spans = wrapped
+                return layer
+            if all(isinstance(i, int) for i in item):
+                wrapped = [self.span_list.spans.__getitem__(i) for i in item]
+                layer.span_list.spans = wrapped
+                return layer
         if callable(item):
             wrapped = [span for span in self.span_list.spans if item(span)]
             layer.span_list.spans = wrapped
@@ -422,8 +423,30 @@ class Layer:
 
         raise TypeError('index not supported: ' + str(item))
 
-    def get(self, span):
-        return self.span_list.get(span=span)
+    def get(self, item):
+        if isinstance(item, Span):
+            return self.span_list.get(span=item)
+        if isinstance(item, EnvelopingSpan):
+            result = self.span_list.get(span=item)
+            if result is not None:
+                return result
+            item = item.spans
+        if isinstance(item, (list, tuple)):
+            layer = Layer(name=self.name,
+                          attributes=self.attributes,
+                          text_object=self.text_object,
+                          parent=self.parent,
+                          enveloping=self.enveloping,
+                          ambiguous=self.ambiguous,
+                          default_values=self.default_values)
+            layer._base = self._base
+
+            wrapped = [self.span_list.get(i) for i in item]
+            assert all(s is not None for s in wrapped)
+            layer.span_list.spans = wrapped
+            return layer
+
+        raise ValueError(item)
 
     def __len__(self):
         return len(self.span_list)
