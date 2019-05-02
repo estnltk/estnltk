@@ -2,7 +2,7 @@ import collections
 from typing import Any, Union, Sequence
 import itertools
 
-from estnltk.layer.span import Span
+from estnltk.layer.span import Span, Annotation
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 
 
@@ -27,6 +27,29 @@ class EnvelopingSpan(collections.Sequence):
 
         # placeholder for dependant layer
         self._base = None  # type:Union[Span, None]
+
+        self._annotations = []
+
+    def add_annotation(self, **attributes) -> Annotation:
+        # TODO: remove self._attributes
+        for k, v in attributes.items():
+            self._attributes[k] = v
+
+        # TODO: try and remove if-s
+        annotation = Annotation(self)
+        if self.layer:
+            for attr in self.layer.attributes:
+                if attr in attributes:
+                    setattr(annotation, attr, attributes[attr])
+        else:
+            for attr, value in attributes.items():
+                if attr == 'text':
+                    continue
+                setattr(annotation, attr, value)
+
+        self._annotations.append(annotation)
+
+        return annotation
 
     def add_layer(self, layer):
         self._layer = layer
@@ -75,6 +98,10 @@ class EnvelopingSpan(collections.Sequence):
     @property
     def end(self):
         return self.spans[-1].end
+
+    @property
+    def base_span(self):
+        return tuple(s.base_span for s in self.spans)
 
     @property
     def base_spans(self):
