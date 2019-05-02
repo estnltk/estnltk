@@ -210,6 +210,16 @@ def diff_layer(a: Layer, b: Layer, comp=eq):
         yield from ((x, None) for x in a)
 
 
+def get_enclosing_spans(layer: Layer, span):
+    base_span = span.base_span
+    end = span.end
+    for sp in layer:
+        if base_span in sp.base_span:
+            yield sp
+        if end < sp.start:
+            break
+
+
 # def delete_layer(text, layers):
     # """Deletes layers in input list but except the 'text' layer. Modifies the *text*."""
     # delete = set(text.keys())

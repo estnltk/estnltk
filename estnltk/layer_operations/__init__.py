@@ -10,6 +10,7 @@ from .layer_operations import count_by
 from .layer_operations import count_by_document
 from .layer_operations import dict_to_df
 from .layer_operations import diff_layer
+from .layer_operations import get_enclosing_spans
 from .layer_operations import group_by_spans
 from .layer_operations import conflicts
 from .merge import merge_layers
