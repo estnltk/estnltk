@@ -232,6 +232,15 @@ class Layer:
             attributes_pluss_default_values.update(attributes)
             return span.add_annotation(**attributes_pluss_default_values)
 
+        if self.enveloping is not None:
+            span = EnvelopingSpan(spans=base_span, layer=self)
+
+            attributes_pluss_default_values = self.default_values.copy()
+            attributes_pluss_default_values.update(attributes)
+            annotation = span.add_annotation(**attributes_pluss_default_values)
+            self.span_list.add_span(span)
+            return annotation
+
         if self.parent is None and self.enveloping is None and self.ambiguous:
             span = self.span_list.get(base_span)
             if span is None:
@@ -412,6 +421,9 @@ class Layer:
             return layer
 
         raise TypeError('index not supported: ' + str(item))
+
+    def get(self, span):
+        return self.span_list.get(span=span)
 
     def __len__(self):
         return len(self.span_list)
