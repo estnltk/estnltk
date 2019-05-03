@@ -231,7 +231,7 @@ class Layer:
 
         if self.enveloping is not None:
             if self.ambiguous:
-                span = EnvelopingSpan(spans=base_span, layer=self, attributes=attributes)
+                span = EnvelopingSpan(spans=base_span, layer=self)
 
                 target = self.span_list.get(span)
                 if target is None:

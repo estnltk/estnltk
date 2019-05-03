@@ -1,4 +1,3 @@
-import collections
 from typing import Any, Union, Sequence
 import itertools
 
@@ -6,8 +5,8 @@ from estnltk.layer.span import Span, Annotation
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 
 
-class EnvelopingSpan(collections.Sequence):
-    def __init__(self, spans, layer=None, attributes=None):
+class EnvelopingSpan:
+    def __init__(self, spans, layer=None):
         spans = tuple(spans)
         assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)) for span in spans), [type(span) for span in spans]
         self.spans = spans
@@ -22,11 +21,7 @@ class EnvelopingSpan(collections.Sequence):
         self._annotations = []
 
         # TODO: remove self._attributes
-        # assert attributes is None
         self._attributes = {}
-        if attributes is not None:
-            assert isinstance(attributes, dict), attributes
-            self.add_annotation(**attributes)
 
     def add_annotation(self, **attributes) -> Annotation:
         self._attributes.update(attributes)
