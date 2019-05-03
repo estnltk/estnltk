@@ -2,11 +2,13 @@ from typing import List
 import html
 
 
-def decompose_to_elementary_spans(layer, text) -> List:
+def decompose_to_elementary_spans(layer, text) -> (List, List):
     '''Function to map all the spans on a layer to corresponding text.
     Arguments should be a layer and the text the layer is applied to.
-    Output is a list where each element is composed of text and the list
-    of spans that cover this part of the text.'''
+    Output is two lists: first is a list where each element is composed
+    of text and a list of numbers that correspond to the number of spans
+    that cover this part of the text. The second list is composed of
+    all the spans.'''
 
     if not layer.spans:
         # Default for when there are no spans
@@ -33,7 +35,7 @@ def decompose_to_elementary_spans(layer, text) -> List:
         html_spans.append([spanindexes[i], spanindexes[i + 1], span_text])
 
     i = 0
-    for span in layer.spans:
+    for k, span in enumerate(layer.spans):
         # Safe as there exist  html_spans[i][0] == span.start
         while html_spans[i][0] != span.start:
             i += 1
@@ -42,7 +44,7 @@ def decompose_to_elementary_spans(layer, text) -> List:
         while html_spans[j][1] <= span.end:
             if len(html_spans[j]) == 3:
                 html_spans[j].append([])
-            html_spans[j][3].append(span)
+            html_spans[j][3].append(k)
             if len(html_spans) != j + 1:
                 j += 1
             else:
@@ -53,4 +55,4 @@ def decompose_to_elementary_spans(layer, text) -> List:
         if len(html_span) == 1:
             html_span.append([])
 
-    return html_spans
+    return html_spans, layer.spans

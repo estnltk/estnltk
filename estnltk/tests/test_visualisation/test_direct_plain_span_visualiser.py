@@ -4,7 +4,7 @@ from estnltk.core import rel_path
 
 
 def test_html():
-    display = DisplaySpans()
+    display = DisplaySpans(styling="direct")
     result = display.html_output(new_text(5).layer_1)
     file = rel_path(
         "tests/test_visualisation/expected_outputs/direct_plain_span_visualiser_outputs/direct_html_test_input.txt")

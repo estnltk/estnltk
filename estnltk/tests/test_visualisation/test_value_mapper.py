@@ -5,21 +5,35 @@ from estnltk.visualisation.core.span_decomposition import decompose_to_elementar
 
 
 def test_empty_mapper():
-    segment = decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text)[0]
+    decomposed = decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text)
+    spans = decomposed[1]
+    segment = decomposed[0][0]
+    spanlist = []
+    for span_index in segment[1]:
+        spanlist.append(spans[span_index])
+    segment[1] = spanlist
     result = empty_mapper(segment)
     expected = "default"
     assert result == expected
 
 
 def test_conflicting_mapper():
-    segment = decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text)[2]
+    segment = decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text)[0][2]
     result = conflicting_mapper(segment)
     expected = "conflict_value"
     assert result == expected
 
 
 def test_usual_mapper():
-    segments = decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text)
+    decomposed = decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text)
+    spans = decomposed[1]
+    segments = decomposed[0]
+
+    for segment in segments:
+        spanlist = []
+        for span_index in segment[1]:
+            spanlist.append(spans[span_index])
+        segment[1] = spanlist
 
     assert 'red' == my_best_color_mapper(segments[0])
     assert 'green' == my_best_color_mapper(segments[1])

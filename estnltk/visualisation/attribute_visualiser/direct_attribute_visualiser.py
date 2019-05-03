@@ -3,13 +3,15 @@ from estnltk.core import rel_path
 import html
 from estnltk.converters import annotation_to_json
 
+
 class DirectAttributeVisualiser(SpanVisualiser):
     """Attribute visualiser that maps css elements one by one to the segment and has javascript to display
     attributes in tables. Takes css_file as argument (path to the file) and the same css elements as in
     direct_span_visualiser"""
+
     def __init__(self, colour_mapping=None, bg_mapping=None, font_mapping=None,
                  weight_mapping=None, italics_mapping=None, underline_mapping=None,
-                 size_mapping=None, tracking_mapping=None,fill_empty_spans=False,
+                 size_mapping=None, tracking_mapping=None, fill_empty_spans=False,
                  event_attacher=None, js_added=False, css_added=False,
                  css_file=rel_path("visualisation/attribute_visualiser/prettyprinter.css")):
         self.bg_mapping = bg_mapping or self.default_bg_mapping
@@ -28,9 +30,8 @@ class DirectAttributeVisualiser(SpanVisualiser):
         self.js_file = rel_path("visualisation/attribute_visualiser/prettyprinter.js")
         self.class_mapping = self.default_class_mapper
 
-    def __call__(self, segment):
+    def __call__(self, segment, spans):
         segment[0] = html.escape(segment[0])
-
 
         if not self.fill_empty_spans and self.is_pure_text(segment):
             return segment[0]
@@ -65,15 +66,20 @@ class DirectAttributeVisualiser(SpanVisualiser):
             # for attribute_span in spans:
             #     output.append("".join(attribute_span).replace(" ",""))  # span info for javascript
             # output.append('>')
-            for i, span in enumerate(segment[1]):
+            for segment_index, all_spans_index in enumerate(segment[1]):
                 output.append(" span_info")
-                output.append(str(i))
+                output.append(str(segment_index))
                 output.append("='")
-                output.append(annotation_to_json(span))
+                output.append(annotation_to_json(spans[all_spans_index]))
+                output.append("'")
+                output.append(" span_index")
+                output.append(str(segment_index))
+                output.append("='")
+                output.append(str(all_spans_index))
                 output.append("'")
             rows = []
-            for row in segment[1]:
-                rows.append(row.text)
+            for i in segment[1]:
+                rows.append(spans[i].text)
             output.append(' span_texts=' + ','.join(rows))  # text of spans for javascript
             output.append(">")
             output.append(segment[0])

@@ -52,5 +52,31 @@
 }
 
 .attribute-column:hover {
+    border: 2px solid green;
+}
+
+.chosen-span {
     border: 2px solid red;
+}
+
+.highlighted {
+    border: 2px solid red;
+}
+
+.alt-tables {
+    position: absolute;
+    width: fit-content;
+    width: -moz-fit-content;
+}
+
+.alt-tables tbody tr:nth-child(even) {
+    background-color: lightgray;
+}
+
+.alt-tables tbody tr:nth-child(odd) {
+    background-color: beige;
+}
+
+.alt-tables tbody tr:hover {
+    background-color: ivory;
 }

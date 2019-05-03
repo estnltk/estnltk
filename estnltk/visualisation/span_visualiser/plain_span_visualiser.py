@@ -6,7 +6,7 @@ class PlainSpanVisualiser(SpanVisualiser):
         self.fill_empty_spans = fill_empty_spans
         self.mapping_dict = mapping_dict
 
-    def __call__(self, segment):
+    def __call__(self, segment, spans):
 
         if not self.fill_empty_spans and self.is_pure_text(segment):
             return segment[0]
@@ -26,8 +26,8 @@ class PlainSpanVisualiser(SpanVisualiser):
                 output.append(' ' + key + "=" + value(segment))
         if len(segment[1]) > 1:
             rows = []
-            for row in segment[1]:
-                rows.append(row.text)
+            for i in segment[1]:
+                rows.append(spans[i].text)
             output.append(' span_info=' + ','.join(rows))  # text of spans for javascript
         output.append('>')
         output.append(segment[0])

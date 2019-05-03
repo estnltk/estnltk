@@ -23,7 +23,7 @@ class DirectPlainSpanVisualiser(SpanVisualiser):
         self.tracking_mapping = tracking_mapping
         self.fill_empty_spans = fill_empty_spans
 
-    def __call__(self, segment):
+    def __call__(self, segment, spans):
 
         segment[0] = html.escape(segment[0])
 
@@ -52,8 +52,8 @@ class DirectPlainSpanVisualiser(SpanVisualiser):
         if len(segment[1]) > 1:
             output.append(' class=overlapping-span ')
             rows = []
-            for row in segment[1]:
-                rows.append(row.text)
+            for i in segment[1]:
+                rows.append(spans[i].text)
             output.append(' span_info=' + html.escape(','.join(rows)))  # text of spans for javascript
         output.append('>')
         output.append(segment[0])

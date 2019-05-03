@@ -12,8 +12,7 @@ class SpanVisualiser:
         if len(segment[1]) > 0:
             return False
         return True
-
     def default_class_mapper(self, segment):
         if len(segment[1]) > 1:
-            return "overlapping-span"
-        return "span"
+            return "'span overlapping-span'"
+        return "'span plain-span'"

@@ -14,7 +14,7 @@ class DisplaySpans:
     js_file = rel_path("visualisation/span_visualiser/span_visualiser.js")
     css_file = rel_path("visualisation/span_visualiser/prettyprinter.css")
 
-    def __init__(self, styling="direct", **kwargs):
+    def __init__(self, styling="both", **kwargs):
         self.styling = styling
         if self.styling == "direct":
             self.span_decorator = DirectPlainSpanVisualiser(**kwargs)
@@ -31,7 +31,7 @@ class DisplaySpans:
 
     def html_output(self, layer):
 
-        segments = decompose_to_elementary_spans(layer, layer.text_object.text)
+        segments, span_list = decompose_to_elementary_spans(layer, layer.text_object.text)
 
         outputs = [self.js()]
         outputs.append(self.css())
@@ -40,7 +40,7 @@ class DisplaySpans:
         if self.styling == "indirect":
             outputs.append(self.css())
         for segment in segments:
-            outputs.append(self.span_decorator(segment).replace("\n","<br>"))
+            outputs.append(self.span_decorator(segment, span_list).replace("\n","<br>"))
 
         return "".join(outputs)
 

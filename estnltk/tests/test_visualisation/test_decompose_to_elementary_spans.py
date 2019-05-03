@@ -26,12 +26,12 @@ def test_decompose_text_and_span():
     layer_0.add_annotation(Span(start=12, end=13), attr='L0-3', attr_0='D')
     text_3['layer_0'] = layer_0
 
-    expected = [['Tere', [layer_0[0]]],
-                [',', [layer_0[1]]],
+    expected = [['Tere', [0]],
+                [',', [1]],
                 [' ', []],
-                ['maailm', [layer_0[2]]],
-                ['!', [layer_0[3]]]]
-    result = decompose_to_elementary_spans(layer_0, text_3.text)
+                ['maailm', [2]],
+                ['!', [3]]]
+    result = decompose_to_elementary_spans(layer_0, text_3.text)[0]
     assert expected == result
 
 
@@ -72,53 +72,53 @@ def test_decompose_with_span_inside_another_span():
     layer = layer_1
 
     expected = [
-        ['Sada', [layer[0]]],
+        ['Sada', [0]],
         [' ', []],
-        ['kaks', [layer[1], layer[2]]],
-        ['kümme', [layer[2], layer[3]]],
-        ['nd', [layer[2]]],
+        ['kaks', [1,2]],
+        ['kümme', [2,3]],
+        ['nd', [2]],
         [' ', []],
-        ['kolm', [layer[4]]],
+        ['kolm', [4]],
         ['. ', []],
-        ['Neli', [layer[5]]],
+        ['Neli', [5]],
         [' ', []],
-        ['tuhat', [layer[6]]],
+        ['tuhat', [6]],
         [' ', []],
-        ['viis', [layer[7], layer[8]]],
-        ['sada', [layer[8], layer[9]]],
+        ['viis', [7,8]],
+        ['sada', [8,9]],
         [' ', []],
-        ['kuus', [layer[10], layer[11]]],
-        ['kümme', [layer[11], layer[12]]],
-        ['nd', [layer[11]]],
+        ['kuus', [10,11]],
+        ['kümme', [11,12]],
+        ['nd', [11]],
         [' ', []],
-        ['seitse', [layer[13]]],
+        ['seitse', [13]],
         [' ', []],
-        ['koma', [layer[14]]],
+        ['koma', [14]],
         [' ', []],
-        ['kaheksa', [layer[15]]],
+        ['kaheksa', [15]],
         ['. ', []],
-        ['Üheksa', [layer[16], layer[17]]],
-        ['kümme', [layer[17], layer[18]]],
-        ['nd', [layer[17]]],
+        ['Üheksa', [16,17]],
+        ['kümme', [17,18]],
+        ['nd', [17]],
         [' tuhat.', []]]
-    assert decompose_to_elementary_spans(layer, t) == expected
+    assert decompose_to_elementary_spans(layer, t)[0] == expected
 
 
 def test_decompose_spans_partially_overlap():
     text_3 = Text('Tere, maailm!')
     layer_0 = Layer('layer_0', attributes=['attr', 'attr_0'], text_object=text_3)
-    layer_0.add_annotation(Span(start=0,  end=4),  attr='L0-0', attr_0='A')
-    layer_0.add_annotation(Span(start=4,  end=8),  attr='L0-1', attr_0='B')
-    layer_0.add_annotation(Span(start=6,  end=12), attr='L0-2', attr_0='C')
-    layer_0.add_annotation(Span(start=10, end=13), attr='L0-3', attr_0='D')
+    layer_0.add_span(Span(start=0, end=4, legal_attributes=['attr', 'attr_0'], attr='L0-0', attr_0='A'))
+    layer_0.add_span(Span(start=4, end=8, legal_attributes=['attr', 'attr_0'], attr='L0-1', attr_0='B'))
+    layer_0.add_span(Span(start=6, end=12, legal_attributes=['attr', 'attr_0'], attr='L0-2', attr_0='C'))
+    layer_0.add_span(Span(start=10, end=13, legal_attributes=['attr', 'attr_0'], attr='L0-3', attr_0='D'))
     text_3['layer_0'] = layer_0
 
-    result = decompose_to_elementary_spans(text_3.layer_0,text_3.text)
-    expected = [['Tere', [layer_0[0]]],
-                [', ', [layer_0[1]]],
-                ['ma', [layer_0[1], layer_0[2]]],
-                ['ai', [layer_0[2]]],
-                ['lm', [layer_0[2], layer_0[3]]],
-                ['!', [layer_0[3]]]]
+    result = decompose_to_elementary_spans(text_3.layer_0,text_3.text)[0]
+    expected = [['Tere', [0]],
+                [', ', [1]],
+                ['ma', [1,2]],
+                ['ai', [2]],
+                ['lm', [2,3]],
+                ['!', [3]]]
 
     assert result == expected
