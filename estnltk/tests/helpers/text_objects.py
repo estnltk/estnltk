@@ -125,11 +125,11 @@ layer_3 = Layer('layer_3', attributes=['attr', 'attr_3'], ambiguous=True, parent
 text_5['layer_3'] = layer_3
 
 layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], ambiguous=False, enveloping='layer_0')
-layer_4.add_span(EnvelopingSpan(spans=[layer_0[0], layer_0[2], layer_0[4]], layer=layer_4, attributes={'attr': 'L4-0', 'attr_4': '123'}))
-layer_4.add_span(EnvelopingSpan(spans=[layer_0[5], layer_0[6], layer_0[8], layer_0[11], layer_0[13]], layer=layer_4, attributes={'attr': 'L4-1', 'attr_4': '4567'}))
-layer_4.add_span(EnvelopingSpan(spans=[layer_0[15]], layer=layer_4, attributes={'attr': 'L4-2', 'attr_4': '8'}))
-layer_4.add_span(EnvelopingSpan(spans=[layer_0[14]], layer=layer_4, attributes={'attr': 'L4-3', 'attr_4': ','}))
-layer_4.add_span(EnvelopingSpan(spans=[layer_0[17], layer_0[19]], layer=layer_4, attributes={'attr': 'L4-4', 'attr_4': '90 000'}))
+layer_4.add_annotation([layer_0[0], layer_0[2], layer_0[4]], attr='L4-0', attr_4='123')
+layer_4.add_annotation([layer_0[5], layer_0[6], layer_0[8], layer_0[11], layer_0[13]], attr='L4-1', attr_4='4567')
+layer_4.add_annotation([layer_0[15]], attr='L4-2', attr_4='8')
+layer_4.add_annotation([layer_0[14]], attr='L4-3', attr_4=',')
+layer_4.add_annotation([layer_0[17], layer_0[19]], attr='L4-4', attr_4='90 000')
 text_5['layer_4'] = layer_4
 
 layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], ambiguous=True, enveloping='layer_1')
