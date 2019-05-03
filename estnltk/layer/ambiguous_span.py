@@ -13,16 +13,15 @@ class AmbiguousSpan(collections.Sequence):
 
         assert not isinstance(span, Annotation), span
         self._span = span
-        self._annotations = []
 
-        self._layer = layer
+        self.layer = layer
 
         self.parent = span.parent  # type:Union[Span, None]
 
         # placeholder for dependant layer
         self._base = None  # type:Union[Span, None]
 
-        self.text_object = layer.text_object
+        self._annotations = []
 
     @property
     def annotations(self):
@@ -61,14 +60,6 @@ class AmbiguousSpan(collections.Sequence):
         if not self._annotations:
             self.layer.remove_span(self)
 
-    def add_layer(self, layer):
-        self._layer = layer
-        self._span.add_layer(layer)
-
-    @property
-    def layer(self):
-        return self._layer
-
     @property
     def span(self):
         return self._span
@@ -88,6 +79,11 @@ class AmbiguousSpan(collections.Sequence):
     @property
     def text(self):
         return self._span.text
+
+    @property
+    def text_object(self):
+        if self.layer is not None:
+            return self.layer.text_object
 
     def __len__(self) -> int:
         return len(self.annotations)

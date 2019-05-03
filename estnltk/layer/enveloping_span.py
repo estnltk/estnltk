@@ -7,21 +7,12 @@ from estnltk.layer.ambiguous_span import AmbiguousSpan
 
 
 class EnvelopingSpan(collections.Sequence):
-    def __init__(self,
-                 spans,
-                 layer=None,
-                 attributes=None
-                 ) -> None:
+    def __init__(self, spans, layer=None, attributes=None):
         spans = tuple(spans)
         assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)) for span in spans), [type(span) for span in spans]
         self.spans = spans
 
         self._layer = layer
-
-        if attributes is None:
-            attributes = {}
-        assert isinstance(attributes, dict), attributes
-        self._attributes = attributes
 
         self.parent = None  # type:Union[Span, None]
 
@@ -30,10 +21,15 @@ class EnvelopingSpan(collections.Sequence):
 
         self._annotations = []
 
-    def add_annotation(self, **attributes) -> Annotation:
         # TODO: remove self._attributes
-        for k, v in attributes.items():
-            self._attributes[k] = v
+        # assert attributes is None
+        self._attributes = {}
+        if attributes is not None:
+            assert isinstance(attributes, dict), attributes
+            self.add_annotation(**attributes)
+
+    def add_annotation(self, **attributes) -> Annotation:
+        self._attributes.update(attributes)
 
         # TODO: try and remove if-s
         annotation = Annotation(self)
@@ -150,12 +146,12 @@ class EnvelopingSpan(collections.Sequence):
         return item in self.spans
 
     def __setattr__(self, key, value):
-        if key in {'spans', '_attributes', 'parent', '_base', '_layer'}:
+        if key in {'spans', '_attributes', 'parent', '_base', '_layer', '_annotations'}:
             super().__setattr__(key, value)
-        elif key == 'layer':
-            super().__setattr__('_layer', value)
         else:
             self._attributes[key] = value
+            for annotation in self._annotations:
+                setattr(annotation, key, value)
 
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
@@ -179,8 +175,7 @@ class EnvelopingSpan(collections.Sequence):
             return getattr(self, idx)
 
         if isinstance(idx, slice):
-            res = EnvelopingSpan(spans=self.spans[idx])
-            res.layer = self.layer
+            res = EnvelopingSpan(spans=self.spans[idx], layer=self.layer)
             res.parent = self.parent
             return res
 

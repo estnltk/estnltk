@@ -165,7 +165,8 @@ class Span:
         if key not in {'_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end', '_base',
                        '_annotations'}:
             # assert 0, key
-            setattr(self._annotations[0], key, value)
+            for annotation in self._annotations:
+                setattr(annotation, key, value)
         else:
             pass
         super().__setattr__(key, value)
