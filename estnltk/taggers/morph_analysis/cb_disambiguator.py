@@ -12,17 +12,19 @@
 import re
 from collections import defaultdict
 
-from estnltk import Text
+from estnltk import Text, EnvelopingSpan, Layer
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 from estnltk.layer.span_operations import nested_aligned_left, left
+from estnltk.layer.span_operations import equal as equal_spans
 
-from estnltk.taggers import Retagger
+from estnltk.taggers import Tagger, Retagger
 
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf import VabamorfTagger
 from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 
 
@@ -294,10 +296,159 @@ class CorpusBasedMorphDisambiguator( object ):
         #       1, then keep only proper name analyses. 
         #       Otherwise, leave analyses intact;
         self.__disambiguate_proper_names_2(docs, lexicon)
-        
-        
-    
-    
+
+
+    # =========================================================
+    # =========================================================
+    #     Corpus-based post-disambiguation
+    # =========================================================
+    # =========================================================
+
+    def _remove_duplicate_and_problematic_analyses(self, docs):
+        """ Removes duplicate and problematic analyses from the 
+            document collection. 
+            See RemoveDuplicateAndProblematicAnalysesRetagger for 
+            details.
+         """
+        duplicate_remover = RemoveDuplicateAndProblematicAnalysesRetagger(
+                                morph_analysis_layer=self._morph_analysis_layer )
+        for doc in docs:
+            duplicate_remover.retag( doc )
+
+
+    def _add_hidden_analyses_layers(self, 
+              docs, 
+              hidden_words_layer:str='_hidden_morph_analysis',
+              remove_old_hidden_words_layer:bool=False):
+        """ Finds morphological ambiguities that should be ignored 
+            by the post-disambiguator. Adds findings as a temporary 
+            hidden_morph_analysis layer.
+            See IgnoredByPostDisambiguationTagger for details.
+        """
+        hidden_words_tagger = IgnoredByPostDisambiguationTagger(
+                                     input_morph_analysis_layer = self._morph_analysis_layer,\
+                                     output_layer = hidden_words_layer )
+        if remove_old_hidden_words_layer:
+            # Clean-up old layers (if required)
+            self._remove_hidden_analyses_layers( docs, 
+                         hidden_words_layer = hidden_words_layer )
+        for doc in docs:
+            # Create temporary hidden words layer
+            hidden_words_tagger.tag( doc )
+
+
+
+    def _remove_hidden_analyses_layers(self, docs, 
+                                       hidden_words_layer:str='_hidden_morph_analysis'):
+        """ Removes temporary hidden_words_layer-s that were 
+            created with the method _add_hidden_analyses_layers().
+        """
+        for doc in docs:
+            if hidden_words_layer in doc.layers.keys():
+                # Delete existing layer
+                doc[ hidden_words_layer ]._bound = False
+                delattr(doc, hidden_words_layer)
+
+
+
+    def _supplement_lemma_frequency_lexicon(self, docs, lexicon, amb_lexicon,
+                                                  hidden_words_layer:str='_hidden_morph_analysis' ):
+        """ Counts lemma frequencies in docs, and amends given lexicon and amb_lexicon.
+            *) lexicon -- frequencies of all lemmas in the corpus, except lemmas 
+               in the hidden_words_layer; 
+               If a lemma already exist in the lexicon, the old frequency will be
+               increased by the new one;
+            *) amb_lexicon -- frequencies of lemmas of ambiguous words, except the lemmas
+               in the hidden_words_layer; 
+               If a lemma already exist in the lexicon, the old frequency will be
+               increased by the new one;
+        """
+        for d in range( len(docs) ):
+            morph_analysis = docs[d][ self._morph_analysis_layer ]
+            assert hidden_words_layer in docs[d].layers.keys(), \
+                   '(!) Text is missing layer {!r}'.format( hidden_words_layer )
+            hidden_words = docs[d][ hidden_words_layer ]
+            hidden_words_id = 0
+            for w, word_morph in enumerate( morph_analysis ):
+                # Skip so-called hidden word / hidden ambiguities
+                # ( these are not related to content words, and thus are 
+                #   less likely to be (correctly) resolved by the corpus- 
+                #   based disambiguation )
+                hidden_word = hidden_words[hidden_words_id] if hidden_words_id < len(hidden_words) else []
+                if word_morph in hidden_word:
+                    # Take the next hidden word id
+                    hidden_words_id += 1
+                    # Skip the word
+                    continue
+                isAmbiguous = len(word_morph) > 1
+                # Record lemma frequencies
+                for a in word_morph:
+                    # Use -ma ending to distinguish verb lemmas from other lemmas
+                    lemma = a.root+'ma' if a.partofspeech=='V' else a.root
+                    # 1) Record the general frequency
+                    if lemma not in lexicon:
+                        lexicon[lemma] = 1
+                    else:
+                        lexicon[lemma] += 1
+                    # 2) Mark the existence of the ambiguous lemma
+                    #    (do not mark the frequency yet)
+                    if isAmbiguous:
+                        amb_lexicon[lemma] = 1
+        # Sanity check: all hidden words should be exhausted by now 
+        assert hidden_words_id == len(hidden_words)
+        # Use the general frequency lexicon to populate the lexicon of ambiguous 
+        # lemmas with frequencies
+        for lemma in amb_lexicon.keys():
+            amb_lexicon[lemma] = lexicon[lemma]
+
+
+
+    def _disambiguate_with_lexicon(self, docs, lexicon, \
+                      hidden_words_layer:str='_hidden_morph_analysis' ):
+        """ Performs lemma-based post-disambiguation. 
+            Very roughly uses the idea "one sense per discourse" for lemmas.
+            See LemmaBasedPostDisambiguationRetagger for details.
+        """
+        lemma_based_disambiguator = \
+              LemmaBasedPostDisambiguationRetagger(lexicon=lexicon,
+                            morph_analysis_layer=self._morph_analysis_layer,\
+                            input_hidden_morph_analysis_layer=hidden_words_layer )
+        for doc in docs:
+            lemma_based_disambiguator.retag( doc )
+
+
+
+    def _test_postdisambiguation(self, collections):  # Only for testing purposes
+        #
+        #  1st phase:  post-disambiguate inside a single document collection
+        #     (e.g. disambiguate all news articles published on the same day)
+        #
+        for docs in collections:
+            # 1) Remove duplicate and problematic analyses
+            self._remove_duplicate_and_problematic_analyses( docs )
+            # 2) Find ambiguities that should be ignored by the post-disambiguator
+            #    add results as a new (temporary) layer
+            self._add_hidden_analyses_layers( docs )
+            # 3) Collect two types of lemma frequencies:
+            #    *) general lemma frequencies over all words (except words marked
+            #       as ignored words);
+            #    *) lemma frequencies of ambiguous words (except words marked
+            #       as ignored words);
+            genLemmaLex = dict()
+            ambLemmaLex = dict()
+            self._supplement_lemma_frequency_lexicon(docs, genLemmaLex, ambLemmaLex)
+            # 4) Perform lemma-based post-disambiguation;
+            #    In case of ambiguous words, keep analyses with the highest lemma 
+            #    frequency. An exception: if all lemma frequencies are equal, then 
+            #    keep all the analyses;
+            self._disambiguate_with_lexicon( docs, ambLemmaLex )
+            # 5) Clean-up: remove hidden analyses layers
+            self._remove_hidden_analyses_layers( docs )
+        #
+        #  2nd phase:  TODO
+        #
+
+
     # =========================================================
     # =========================================================
     #     Object representation
@@ -312,6 +463,20 @@ class CorpusBasedMorphDisambiguator( object ):
         # TODO
         raise NotImplementedError('_repr_html_ method not implemented in ' + self.__class__.__name__)
 
+
+# =========================================================
+# =========================================================
+#     Helpers
+# =========================================================
+# =========================================================
+
+def is_unknown_word( word_morph_analyses ):
+    """ Detects whether word's morphological analyses indicate 
+        that this is an unknown word. 
+    """
+    if word_morph_analyses is not None:
+        return any( [_is_empty_annotation(a) for a in word_morph_analyses] )
+    return True
 
 
 # ----------------------------------------
@@ -374,8 +539,10 @@ class CorpusBasedMorphDisambiguationSubstepRetagger(Retagger):
         self.depends_on = self.input_layers  # <- For backward compatibility ...
 
 # ----------------------------------------
-
-
+# ----------------------------------------
+#   P r e - d i s a m b i g u a t i o n
+# ----------------------------------------
+# ----------------------------------------
 
 class ProperNamesDisambiguationStep1Retagger(CorpusBasedMorphDisambiguationSubstepRetagger):
     """ First Retagger for removal of redundant proper names analyses.
@@ -537,7 +704,13 @@ class ProperNamesDisambiguationStep3Retagger(CorpusBasedMorphDisambiguationSubst
 
 
 
-class RemoveDuplicateAndProblematicAnalysesRetagger(CorpusBasedMorphDisambiguationSubstepRetagger):
+# ------------------------------------------
+# ------------------------------------------
+#   P o s t - d i s a m b i g u a t i o n
+# ------------------------------------------
+# ------------------------------------------
+
+class RemoveDuplicateAndProblematicAnalysesRetagger( CorpusBasedMorphDisambiguationSubstepRetagger ):
     """ A Retagger in corpus-based post-disambiguation preparation step. 
         Removes:
         1) duplicate morphological analyses. For instance, word 'palk'
@@ -590,3 +763,147 @@ class RemoveDuplicateAndProblematicAnalysesRetagger(CorpusBasedMorphDisambiguati
                 for aid in sorted(tamaIDs, reverse=True):
                     morph_analyses.annotations.pop( aid )
 
+
+
+class IgnoredByPostDisambiguationTagger( Tagger ):
+    """ A Tagger that finds and tags morphological ambiguities that 
+        should be ignored by the post-disambiguator of lemmas. 
+        The following cases will be ignored:
+        *) ambiguities between nud, dud, tud forms;
+        *) partofspeech ambiguities of non-inflecting words;
+        *) the ambiguity of 'olema' in present ('nad on' vs 'ta on');
+        *) singular/plural ambiguities of pronouns;
+        *) partofspeech ambiguities between numerals and pronouns;
+        Results will be formed as a temporary _hidden_morph_analysis 
+        layer;
+    """
+    conf_param = [ # input layers
+                   '_input_morph_analysis_layer',\
+                   # For backward compatibility:
+                   'depends_on', 'layer_name', 'attributes' ]
+
+    def __init__(self, output_layer:str='_hidden_morph_analysis',\
+                       input_morph_analysis_layer:str='morph_analysis' ):
+        self.output_layer = output_layer
+        self._input_morph_analysis_layer = input_morph_analysis_layer
+        self.input_layers = [ input_morph_analysis_layer ]
+        self.output_attributes = ()
+        self.attributes = self.output_attributes  # <- For backward compatibility ...
+        self.layer_name = self.output_layer       # <- For backward compatibility ...
+        self.depends_on = self.input_layers       # <- For backward compatibility ...
+
+
+    def _make_layer(self, text: Text, layers, status):
+        hidden_words = Layer(name=self.output_layer,
+                      text_object=text,
+                      enveloping=self._input_morph_analysis_layer,
+                      attributes=self.output_attributes,
+                      ambiguous=False)
+        nudTudEndings = re.compile('^.*[ntd]ud$')
+        morph_analysis = text[ self._input_morph_analysis_layer ]
+        for w, word_morph in enumerate( morph_analysis ):
+            if not is_unknown_word( word_morph ) and len( word_morph ) > 1:
+                #
+                # 1) If most of the analyses indicate nud/tud/dud forms, then hide the ambiguity:
+                #    E.g.    kõla+nud //_V_ nud, //    kõla=nud+0 //_A_ //    kõla=nud+0 //_A_ sg n, //    kõla=nud+d //_A_ pl n, //
+                nudTud = [ nudTudEndings.match(a.root) != None or \
+                           nudTudEndings.match(a.ending) != None \
+                           for a in word_morph ]
+                if nudTud.count( True ) > 1:
+                    hidden_words.add_span( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
+                #
+                # 2) If analyses have same lemma and no form, then hide the ambiguity:
+                #    E.g.    kui+0 //_D_ //    kui+0 //_J_ //
+                #            nagu+0 //_D_ //    nagu+0 //_J_ //
+                lemmas = set([ a.root for a in word_morph ])
+                forms  = set([ a.form for a in word_morph ])
+                if len(lemmas) == 1 and len(forms) == 1 and (list(forms))[0] == '':
+                    hidden_words.add_span( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
+                #
+                # 3) If 'olema' analyses have the same lemma and the same ending, then hide 
+                #    the ambiguity:
+                #    E.g.    'nad on' vs 'ta on' -- both get the same 'olema'-analysis, 
+                #                                   which will remain ambiguous;
+                endings = set([ a.ending for a in word_morph ])
+                if len(lemmas) == 1 and (list(lemmas))[0] == 'ole' and len(endings) == 1 \
+                   and (list(endings))[0] == '0':
+                    hidden_words.add_span( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
+                #
+                # 4) If pronouns have the the same lemma and the same ending, then hide the 
+                #    singular/plural ambiguity:
+                #    E.g.     kõik+0 //_P_ sg n //    kõik+0 //_P_ pl n //
+                #             kes+0 //_P_ sg n //    kes+0 //_P_ pl n //
+                postags  = set([ a.partofspeech for a in word_morph ])
+                if len(lemmas) == 1 and len(postags) == 1 and 'P' in postags and \
+                   len(endings) == 1:
+                    hidden_words.add_span( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
+                #
+                # 5) If lemmas and endings are exactly the same, then hide the ambiguity 
+                #    between numerals and pronouns:
+                #    E.g.     teine+0 //_O_ pl n, //    teine+0 //_P_ pl n, //
+                #             üks+l //_N_ sg ad, //    üks+l //_P_ sg ad, //
+                if len(lemmas) == 1 and 'P' in postags and ('O' in postags or \
+                   'N' in postags) and len(endings) == 1:
+                    hidden_words.add_span( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
+        return hidden_words
+
+
+
+class LemmaBasedPostDisambiguationRetagger(CorpusBasedMorphDisambiguationSubstepRetagger):
+    """A Retagger that performs lemma-based post-disambiguation. 
+       Very roughly uses the idea "one sense per discourse" for lemmas.
+       If an ambiguous lemma also occurs in other places of the text or in the corpus, 
+       and it is more frequent than other lemmas (among ambiguous variants), then it is 
+       likely the correct lemma, and it will be chosen. However, if all ambiguous lemmas 
+       have the same corpus frequency, no disambiguation choice can be made, and the 
+       lemmas will remain as they are.
+    """
+
+    def __init__(self, lexicon:dict, 
+                       morph_analysis_layer:str='morph_analysis',
+                       input_hidden_morph_analysis_layer:str='_hidden_morph_analysis' ):
+        super().__init__( morph_analysis_layer=morph_analysis_layer )
+        self.conf_param.append('_lexicon')
+        self.conf_param.append('_hidden_morph_analysis_layer')
+        self._lexicon = lexicon
+        self._hidden_morph_analysis_layer = input_hidden_morph_analysis_layer
+        self.input_layers.append( input_hidden_morph_analysis_layer )
+
+
+    def _change_layer(self, text, layers, status: dict):
+        morph_analysis_layer = layers[ self._input_morph_analysis_layer ]
+        hidden_words = layers[ self._hidden_morph_analysis_layer ]
+        hidden_words_id = 0
+        for w, word_morph in enumerate( morph_analysis_layer ):
+            # Skip so-called hidden word / hidden ambiguities
+            # ( these are not related to content words, and thus are 
+            #   less likely to be (correctly) resolved by the corpus- 
+            #   based disambiguation )
+            hidden_word = hidden_words[hidden_words_id] if hidden_words_id < len(hidden_words) else []
+            if word_morph in hidden_word:
+                # Take the next hidden word id
+                hidden_words_id += 1
+                # Skip the word
+                continue
+            # Consider only ambiguous words
+            if len( word_morph ) > 1:
+                # 1) Find highest among the lemma frequencies
+                highestFreq = 0
+                for analysis in word_morph:
+                    # Use -ma ending to distinguish verb lemmas from other lemmas
+                    lemma = analysis.root+'ma' if analysis.partofspeech=='V' else analysis.root
+                    if lemma in self._lexicon and self._lexicon[lemma] > highestFreq:
+                        highestFreq = self._lexicon[lemma]
+                # 2) Remove all analyses that have (the lemma) frequency lower than 
+                #    the highest frequency
+                if highestFreq > 0:
+                    toDelete = []
+                    for analysis in word_morph:
+                        lemma = analysis.root+'ma' if analysis.partofspeech=='V' else analysis.root
+                        freq = self._lexicon[lemma] if lemma in self._lexicon else 0
+                        if freq < highestFreq:
+                            toDelete.append( analysis )
+                    for analysis in toDelete:
+                        word_morph.annotations.remove( analysis )
+        # Sanity check: all hidden words should be exhausted by now 
+        assert hidden_words_id == len( hidden_words )
