@@ -186,7 +186,7 @@ class Layer:
         assert not self.is_frozen, "can't add spans to frozen layer"
         assert isinstance(span, (EnvelopingSpan, Span, Layer, Annotation)), str(type(span))
         if isinstance(span, Layer):
-            span = EnvelopingSpan(spans=span.spans)
+            span = EnvelopingSpan(spans=span.spans, layer=self)
         for attr in self.attributes:
             try:
                 if isinstance(span, EnvelopingSpan):
@@ -195,10 +195,7 @@ class Layer:
                 else:
                     getattr(span, attr)
             except AttributeError:
-                if isinstance(span, Span):
-                    setattr(span[0], attr, self.default_values[attr])
-                else:
-                    setattr(span, attr, self.default_values[attr])
+                setattr(span, attr, self.default_values[attr])
 
         span.add_layer(self)
         target = self.span_list.get(span)
@@ -233,12 +230,21 @@ class Layer:
             return span.add_annotation(**attributes_pluss_default_values)
 
         if self.enveloping is not None:
-            span = EnvelopingSpan(spans=base_span, layer=self)
+            if self.ambiguous:
+                span = EnvelopingSpan(spans=base_span, layer=self, attributes=attributes)
 
-            attributes_pluss_default_values = self.default_values.copy()
-            attributes_pluss_default_values.update(attributes)
-            annotation = span.add_annotation(**attributes_pluss_default_values)
-            self.span_list.add_span(span)
+                target = self.span_list.get(span)
+                if target is None:
+                    target = AmbiguousSpan(layer=self, span=span)
+                    self.span_list.add_span(target)
+                annotation = target.add_annotation(**attributes)
+            else:
+                span = EnvelopingSpan(spans=base_span, layer=self)
+
+                attributes_pluss_default_values = self.default_values.copy()
+                attributes_pluss_default_values.update(attributes)
+                annotation = span.add_annotation(**attributes_pluss_default_values)
+                self.span_list.add_span(span)
             return annotation
 
         if self.parent is None and self.enveloping is None and self.ambiguous:

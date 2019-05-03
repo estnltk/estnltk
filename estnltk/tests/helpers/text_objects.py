@@ -1,7 +1,6 @@
 from copy import deepcopy
 
 from estnltk import Span
-from estnltk import EnvelopingSpan
 from estnltk import Layer
 from estnltk import Text
 
@@ -133,19 +132,19 @@ layer_4.add_annotation([layer_0[17], layer_0[19]], attr='L4-4', attr_4='90 000')
 text_5['layer_4'] = layer_4
 
 layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], ambiguous=True, enveloping='layer_1')
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[0], layer_1[1]], layer=layer_5, attributes={'attr': 'L5-0-0', 'attr_5': 'SADA KAKS'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[0], layer_1[2]], layer=layer_5, attributes={'attr': 'L5-1-1', 'attr_5': 'SADA KAKS'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[0], layer_1[2]], layer=layer_5, attributes={'attr': 'L5-1-2', 'attr_5': 'SADA KÜMME'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[0], layer_1[2]], layer=layer_5, attributes={'attr': 'L5-1-3', 'attr_5': 'SADA KAKSKÜMMEND'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[0], layer_1[2], layer_1[4]], layer=layer_5, attributes={'attr': 'L5-2-4', 'attr_5': 'SADA KAKSKÜMMEND KOLM'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[5], layer_1[6]], layer=layer_5, attributes={'attr': 'L5-3-5', 'attr_5': 'NELI TUHAT'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[7]], layer=layer_5, attributes={'attr': 'L5-5-7', 'attr_5': 'VIIS'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[6], layer_1[7]], layer=layer_5, attributes={'attr': 'L5-4-6', 'attr_5': 'TUHAT VIIS'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[8], layer_1[11]], layer=layer_5, attributes={'attr': 'L5-6-8', 'attr_5': 'VIISSADA KUUS'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[8], layer_1[11]], layer=layer_5, attributes={'attr': 'L5-6-9', 'attr_5': 'VIISSADA KÜMME'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[8], layer_1[11]], layer=layer_5, attributes={'attr': 'L5-6-10', 'attr_5': 'VIISSADA KUUSKÜMMEND'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[12], layer_1[14], layer_1[15]], layer=layer_5, attributes={'attr': 'L5-7-11', 'attr_5': 'KÜMME KOMA KAHEKSA'}))
-layer_5.add_span(EnvelopingSpan(spans=[layer_1[13], layer_1[14], layer_1[15]], layer=layer_5, attributes={'attr': 'L5-8-12', 'attr_5': 'SEITSE KOMA KAHEKSA'}))
+layer_5.add_annotation([layer_1[0], layer_1[1]],                attr='L5-0-0',  attr_5='SADA KAKS')
+layer_5.add_annotation([layer_1[0], layer_1[2]],                attr='L5-1-1',  attr_5='SADA KAKS')
+layer_5.add_annotation([layer_1[0], layer_1[2]],                attr='L5-1-2',  attr_5='SADA KÜMME')
+layer_5.add_annotation([layer_1[0], layer_1[2]],                attr='L5-1-3',  attr_5='SADA KAKSKÜMMEND')
+layer_5.add_annotation([layer_1[0], layer_1[2], layer_1[4]],    attr='L5-2-4',  attr_5='SADA KAKSKÜMMEND KOLM')
+layer_5.add_annotation([layer_1[5], layer_1[6]],                attr='L5-3-5',  attr_5='NELI TUHAT')
+layer_5.add_annotation([layer_1[7]],                            attr='L5-5-7',  attr_5='VIIS')
+layer_5.add_annotation([layer_1[6], layer_1[7]],                attr='L5-4-6',  attr_5='TUHAT VIIS')
+layer_5.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-8',  attr_5='VIISSADA KUUS')
+layer_5.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-9',  attr_5='VIISSADA KÜMME')
+layer_5.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-10', attr_5='VIISSADA KUUSKÜMMEND')
+layer_5.add_annotation([layer_1[12], layer_1[14], layer_1[15]], attr='L5-7-11', attr_5='KÜMME KOMA KAHEKSA')
+layer_5.add_annotation([layer_1[13], layer_1[14], layer_1[15]], attr='L5-8-12', attr_5='SEITSE KOMA KAHEKSA')
 text_5['layer_5'] = layer_5
 
 texts = {0: text_0,  # empty text, no layers

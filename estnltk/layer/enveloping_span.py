@@ -176,7 +176,6 @@ class EnvelopingSpan(collections.Sequence):
 
         if isinstance(idx, slice):
             res = EnvelopingSpan(spans=self.spans[idx], layer=self.layer)
-            res.parent = self.parent
             return res
 
         raise KeyError(idx)
@@ -191,7 +190,7 @@ class EnvelopingSpan(collections.Sequence):
                and self.spans == other.spans
 
     def __hash__(self):
-        return hash((tuple(self.spans), self.parent))
+        return hash((tuple(self.spans), None))
 
     def __str__(self):
         return 'ES[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
