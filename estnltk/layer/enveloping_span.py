@@ -38,9 +38,14 @@ class EnvelopingSpan:
                     continue
                 setattr(annotation, attr, value)
 
-        self._annotations.append(annotation)
+        if annotation not in self._annotations:
+            self._annotations.append(annotation)
 
         return annotation
+
+    @property
+    def annotations(self):
+        return self._annotations
 
     def add_layer(self, layer):
         self._layer = layer
