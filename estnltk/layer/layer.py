@@ -219,6 +219,8 @@ class Layer:
         self.span_list.remove_span(span)
 
     def add_annotation(self, base_span, **attributes):
+        attributes = {**self.default_values, **{k: v for k, v in attributes.items() if k in self.attributes}}
+
         if self.parent is not None and self.ambiguous:
             span = self.span_list.get(base_span)
             if span is None:
@@ -228,6 +230,11 @@ class Layer:
             attributes_pluss_default_values = self.default_values.copy()
             attributes_pluss_default_values.update(attributes)
             return span.add_annotation(**attributes_pluss_default_values)
+
+        if self.parent is not None and not self.ambiguous:
+            assert self.span_list.get(base_span) is None
+            span = Span(parent=base_span, layer=self)
+            return span.add_annotation(**attributes)
 
         if self.enveloping is not None:
             if self.ambiguous:
@@ -269,16 +276,17 @@ class Layer:
             return span.annotations[0]
 
         # TODO: implement add_annotation
-        raise NotImplementedError('add_annotation not yet implemented for this type of layer')
+        raise NotImplementedError(('add_annotation not yet implemented for this type of layer: '
+                                   'ambiguous={self.ambiguous}, parent={self.parent!r}, enveloping={self.enveloping!r}'
+                                   ).format(self=self))
 
     def check_span_consistency(self) -> None:
         # Checks for layer's span consistency
         starts_ends = set()
         for span in self.span_list.spans:
             # Check for duplicate locations
-            assert (span.start, span.end) not in starts_ends, \
-                   '(!) {} is a span with duplicate location!'.format(span)
-            starts_ends.add( (span.start, span.end) )
+            assert (span.start, span.end) not in starts_ends, '{} is a span with duplicate location'.format(span)
+            starts_ends.add((span.start, span.end))
             # Check for ambiguous spans
             if self.ambiguous:
                 assert isinstance(span, AmbiguousSpan), \

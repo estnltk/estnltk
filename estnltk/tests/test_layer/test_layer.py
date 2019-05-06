@@ -253,12 +253,12 @@ def test_check_layer_consistency():
     layer1 = Layer(name='test_layer1',
                    attributes=['a', 'b', 'c'],
                    ambiguous=True)
-    amb_span1 = AmbiguousSpan(layer=layer1, span=Span(start=0, end=1))
-    layer1.spans.append(amb_span1)
-    broken_annotation = Annotation(amb_span1)
-    for attr in ['a', 'c']:
-        setattr(broken_annotation, attr, '')
-    layer1.spans[0].annotations.append(broken_annotation)
+    layer1.add_annotation(Span(start=0, end=1))
+    assert layer1[0][0].a is None
+    assert layer1[0][0].b is None
+    assert layer1[0][0].c is None
+    layer1.check_span_consistency()
+    del layer1[0][0].b
     with pytest.raises(AssertionError) as e4:
         # Assertion error because layer's Annotation had missing attributes
         layer1.check_span_consistency()
