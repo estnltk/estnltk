@@ -45,15 +45,9 @@ def merge_layers(layers: Sequence[Layer],
     if enveloping:
         if ambiguous:
             for layer in layers:
-                layer_attributes = layer.attributes
-                none_attributes = [attr for attr in output_attributes if attr not in layer_attributes]
-                for span in iterate_spans(layer):
-                    new_span = EnvelopingSpan(spans=span.spans, layer=new_layer)
-                    for attr in layer_attributes:
-                        setattr(new_span, attr, getattr(span, attr))
-                    for attr in none_attributes:
-                        setattr(new_span, attr, None)
-                    new_layer.add_span(new_span)
+                for span in layer:
+                    for annotation in span.annotations:
+                        new_layer.add_annotation(span.span, **annotation.attributes)
         # TODO: remove else part, delete if ambiguous
         else:
             for layer in layers:
