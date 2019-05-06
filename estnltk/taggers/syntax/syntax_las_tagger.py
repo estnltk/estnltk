@@ -36,11 +36,7 @@ class SyntaxLasTagger(Tagger):
                 score = sum(scores[start:end]) / (end - start)
                 aggregate_deprels[deprel_sequence].append(score)
 
-                span = EnvelopingSpan(spans=spans[start:end],
-                                      layer=layer,
-                                      attributes={'deprel_sequence': deprel_sequence,
-                                                  'score': score})
-                layer.add_span(span)
+                layer.add_annotation(spans[start:end], deprel_sequence=deprel_sequence, score=score)
 
         layer.meta['aggregate_deprel_sequences'] = dict(aggregate_deprels)
 
