@@ -54,11 +54,11 @@ def extract_sections(text: Text,
             if parent:
                 if ambiguous:
                     for span in layer:
-                        span_parent = map_spans.get(span.parent)
+                        span_parent = map_spans.get((span.parent.base_span, span.parent.layer.name))
                         if span_parent:
                             new_span = Span(parent=span_parent, layer=new_layer)
+                            map_spans[(span.base_span, span.layer.name)] = new_span
                             for sp in span:
-                                map_spans[sp] = new_span
                                 attributes = {attr: getattr(sp, attr) for attr in attribute_names}
                                 new_layer.add_annotation(new_span, **attributes)
                 else:
@@ -79,14 +79,14 @@ def extract_sections(text: Text,
                             continue
                         spans = []
                         for s in span:
-                            parent = map_spans.get(s)
+                            parent = map_spans.get((s.base_span, s.layer.name))
                             if parent:
                                 spans.append(parent)
                         sp = EnvelopingSpan(spans=spans)
                         for attr in attribute_names:
                             setattr(sp, attr, getattr(span, attr))
                         new_layer.add_span(sp)
-                        map_spans[span] = sp
+                        map_spans[(span.base_span, span.layer.name)] = sp
             else:
                 if ambiguous:
                     for span in layer:
@@ -102,7 +102,7 @@ def extract_sections(text: Text,
                         new_span = Span(span_start-start, span_end-start)
                         for annotation in span:
                             new_layer.add_annotation(new_span, **annotation.attributes)
-                        # map_spans[span] = new_span  # TODO
+                        map_spans[(span.base_span, span.layer.name)] = new_span
                 else:
                     for span in layer.spans:
                         span_start = span.start
@@ -118,7 +118,7 @@ def extract_sections(text: Text,
                         for attr in attribute_names:
                             setattr(new_span, attr, getattr(span, attr))
                         new_layer.add_span(new_span)
-                        map_spans[span] = new_span
+                        map_spans[(span.base_span, span.layer.name)] = new_span
         result.append(new_text)
     return result
 
