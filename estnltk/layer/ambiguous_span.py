@@ -77,6 +77,10 @@ class AmbiguousSpan(collections.Sequence):
         return self._span.base_spans
 
     @property
+    def base_span(self):
+        return self._span.base_span
+
+    @property
     def text(self):
         return self._span.text
 
