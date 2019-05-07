@@ -47,7 +47,9 @@ class SpanList(collections.Sequence):
         self._hash_to_span[hash(span)] = span
 
     def get(self, span):
-        return self._hash_to_span.get(hash(span))
+        result = self._hash_to_span.get(hash(span))
+        if result is not None and result.start == span.start and result.end == span.end:
+            return result
 
     def remove_span(self, span):
         del self._hash_to_span[hash(span)]
