@@ -11,10 +11,8 @@ class Annotation:
 
     @property
     def attributes(self) -> MutableMapping[str, Any]:
-        attributes = self._attributes
-        if self.legal_attribute_names is None:
-            return attributes.copy()
-        return {attr: attributes[attr] for attr in self.legal_attribute_names}
+        # assert set(self.legal_attribute_names) == set(self._attributes), self._attributes
+        return self._attributes.copy()
 
     @property
     def span(self):
