@@ -1054,8 +1054,8 @@ class PgCollection:
         logger.debug(cursor.query.decode())
 
         q = SQL("COMMENT ON TABLE {} IS {};").format(
-            layer_identifier,
-            Literal("%s %s layer" % (self.name, layer_name)))
+                layer_identifier,
+                Literal('created by {} on {}'.format(self.storage.user, time.asctime())))
         cursor.execute(q)
         logger.debug(cursor.query.decode())
 
