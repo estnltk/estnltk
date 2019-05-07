@@ -143,20 +143,10 @@ class Layer:
         if self.ambiguous:
             if rewriting:
                 self.span_list = SpanList(layer=self)
-                tmpspans = []
-                for record_line in records:
-                    span = Span(start=record_line[0]['start'], end=record_line[0]['end'], layer=self, legal_attributes=self.attributes)
-                    span.add_annotation(**record_line[0])
 
-                    spns = AmbiguousSpan(layer=self, span=span)
-                    for record in record_line:
-                        spns.add_annotation(**record)
-                    tmpspans.append(spns)
-                self.span_list.spans = tmpspans
-            else:
-                for record_line in records:
-                    for record in record_line:
-                        self.add_annotation(Span(start=record['start'], end=record['end']), **record)
+            for record_line in records:
+                for record in record_line:
+                    self.add_annotation(Span(start=record['start'], end=record['end']), **record)
         else:
             if rewriting:
                 spns = SpanList(layer=self)
@@ -234,6 +224,7 @@ class Layer:
         if self.parent is not None and not self.ambiguous:
             assert self.span_list.get(base_span) is None
             span = Span(parent=base_span, layer=self)
+            # TODO: self.span_list.add_span(span) ?
             return span.add_annotation(**attributes)
 
         if self.enveloping is not None:
@@ -314,6 +305,8 @@ class Layer:
             # Check attributes of EnvelopingSpan and Span
             elif isinstance(span, (EnvelopingSpan, Span)):
                 # Check for existence of layer's attributes
+                # for annotation in span.annotations:
+                #     assert set(annotation.attributes) == set(self.attributes), annotation.attributes
                 for attr in self.attributes:
                     assert hasattr(span, attr), \
                        '(!) missing attribute {} in {}'.format(attr, span)
