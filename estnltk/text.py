@@ -257,7 +257,7 @@ class Text:
 
                     res = SpanList(layer=self.layers[to])
                     for i in to_spans:
-                        if hash(i) in sofar:
+                        if i.base_span in sofar:
                             res.add_span(i)
                     return res
 

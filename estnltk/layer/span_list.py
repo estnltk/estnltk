@@ -1,9 +1,9 @@
 import bisect
-from typing import Union, Any
+from typing import Union, Any, Hashable
 import collections
 import itertools
 
-from estnltk import Span
+from estnltk import Span, AmbiguousSpan, EnvelopingSpan
 from estnltk.layer import AmbiguousAttributeTupleList, AttributeTupleList, AttributeList, AmbiguousAttributeList
 
 
@@ -12,7 +12,7 @@ class SpanList(collections.Sequence):
                  layer,  # type: Layer
                  spans: list = None):
         self._layer = layer
-        self._hash_to_span = {}
+        self._base_span_to_span = {}
         self.spans = []
         # TODO: remove next lines
         for span in spans or ():
@@ -42,17 +42,15 @@ class SpanList(collections.Sequence):
 
     def add_span(self, span):
         # assert span.layer is self.layer  # TODO
-        assert hash(span) not in self._hash_to_span
+        assert span.base_span not in self._base_span_to_span
         bisect.insort(self.spans, span)
-        self._hash_to_span[hash(span)] = span
+        self._base_span_to_span[span.base_span] = span
 
     def get(self, span):
-        result = self._hash_to_span.get(hash(span))
-        if result is not None and result.start == span.start and result.end == span.end:
-            return result
+        return self._base_span_to_span.get(span.base_span)
 
     def remove_span(self, span):
-        del self._hash_to_span[hash(span)]
+        del self._base_span_to_span[span.base_span]
         self.spans.remove(span)
 
     def attribute_list(self, attributes):
@@ -111,11 +109,11 @@ class SpanList(collections.Sequence):
         ))
 
     def __contains__(self, item: Any) -> bool:
-        if item in self._hash_to_span:
+        if isinstance(item, Hashable) and item in self._base_span_to_span:
             return True
-        if hash(item) not in self._hash_to_span:
-            return False
-        return self._hash_to_span[hash(item)] == item
+        if isinstance(item, (Span, AmbiguousSpan, EnvelopingSpan)):
+            span = self._base_span_to_span.get(item.base_span)
+            return span is item
 
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
