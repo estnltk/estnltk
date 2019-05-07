@@ -13,6 +13,7 @@ class Span:
     #              '_base']
 
     def __init__(self, start: int = None, end: int = None, parent=None, layer=None, legal_attributes=None):
+        # assert legal_attributes is None, legal_attributes
 
         # this is set up first, because attribute access depends on knowing attribute names as early as possible
         self._legal_attribute_names = legal_attributes
@@ -88,7 +89,8 @@ class Span:
         return ()
 
     def to_records(self, with_text=False) -> MutableMapping[str, Any]:
-        record = self.annotations[0].attributes
+        attributes = self.annotations[0].attributes
+        record = {k: attributes[k] for k in self.layer.attributes}
         if with_text:
             record['text'] = self.text
         record['start'] = self.start
