@@ -286,10 +286,10 @@ def test_check_layer_consistency():
     layer = Layer(name='test_layer',
                   attributes=['a', 'b', 'c'],
                   ambiguous=False)
-    span1 = Span(start=0, end=1, legal_attributes=['a', 'b'])
+    span1 = Span(start=0, end=1, layer=layer)
     span1.add_annotation(a=1, b=11)
 
-    span2 = Span(start=1, end=2, legal_attributes=['b', 'c'])
+    span2 = Span(start=1, end=2, layer=layer)
     span2.add_annotation(b=11, c=21)
 
     layer.spans.append(span1)
