@@ -526,11 +526,17 @@ def extract_morpheme_features( morpheme_chunks: list, clear_surrounding_plus_sig
     features['is_guessed'] = []
     features['usage']      = []
     for chunk_str in morpheme_chunks:
-        analysisExtracted = False
         is_guessed = False
+        analysisExtracted = False
         # Try to extract a guessing label
         for guess in est_hfst_guess_strs:
             if chunk_str.endswith(guess):
+                is_guessed = True
+                # Remove guessed label
+                chunk_str = chunk_str.replace(guess,'')
+                break
+            # Special case: guessed proper names (Guess+N+Prop)
+            elif guess+'+N+Prop' in chunk_str:
                 is_guessed = True
                 # Remove guessed label
                 chunk_str = chunk_str.replace(guess,'')

@@ -394,8 +394,8 @@ class CorpusBasedMorphDisambiguator( object ):
                     #    (do not mark the frequency yet)
                     if isAmbiguous:
                         amb_lexicon[lemma] = 1
-        # Sanity check: all hidden words should be exhausted by now 
-        assert hidden_words_id == len(hidden_words)
+            # Sanity check: all hidden words should be exhausted by now 
+            assert hidden_words_id == len(hidden_words)
         # Use the general frequency lexicon to populate the lexicon of ambiguous 
         # lemmas with frequencies
         for lemma in amb_lexicon.keys():

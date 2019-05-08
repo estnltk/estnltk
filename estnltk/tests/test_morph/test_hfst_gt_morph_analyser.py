@@ -229,6 +229,15 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
                    'raw_analysis':'hingamine+N+Der/minus#tee+N+Pl+Nom' , \
                    'expected_features': OrderedDict([('morphemes', ['hingamine', 'tee']), ('postags', ['N', 'N']), ('forms', ['Der/minus', 'Pl+Nom']), \
                                                      ('has_clitic', [False,False]), ('is_guessed', [False,False]), ('usage', ['',''])])}, \
+                  # Guessed proper nouns
+                  {'word':'Sallamaa',\
+                   'raw_analysis':'Sallamaa+Guess+N+Prop+Sg+Gen' , \
+                   'expected_features': OrderedDict([('morphemes', ['Sallamaa']), ('postags', ['N+Prop']), ('forms', ['Sg+Gen']), \
+                                                     ('has_clitic', [False]), ('is_guessed', [True]), ('usage', [''])])}, \
+                  {'word':'Inglismaal',\
+                   'raw_analysis':'Inglismaa+Guess+N+Prop+Sg+Ade' , \
+                   'expected_features': OrderedDict([('morphemes', ['Inglismaa']), ('postags', ['N+Prop']), ('forms', ['Sg+Ade']), \
+                                                     ('has_clitic', [False]), ('is_guessed', [True]), ('usage', [''])])}, \
                 ]
     for test_item in test_data:
         input_raw_analysis = test_item['raw_analysis']
