@@ -30,6 +30,10 @@ def test_annotation_without_span():
     with pytest.raises(AttributeError):
         annotation.span = span
 
+    assert Annotation(attr_1=1, attr_2=2) == Annotation(attr_1=1, attr_2=2)
+    assert Annotation(attr_1=1, attr_2=2) != Annotation(attr_1=1, attr_2=22)
+    assert Annotation(attr_1=1, attr_2=None) != Annotation(attr_1=1)
+
 
 def test_annotation_with_text_object():
     text = Text('Tere!')
