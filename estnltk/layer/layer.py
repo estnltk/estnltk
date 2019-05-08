@@ -217,14 +217,14 @@ class Layer:
                 span = AmbiguousSpan(self, base_span)
                 self.span_list.add_span(span)
             assert isinstance(span, AmbiguousSpan), span
-            attributes_pluss_default_values = self.default_values.copy()
-            attributes_pluss_default_values.update(attributes)
-            return span.add_annotation(**attributes_pluss_default_values)
+            return span.add_annotation(**attributes)
 
         if self.parent is not None and not self.ambiguous:
+            if self.span_list.get(base_span) is not None:
+                raise ValueError('the layer is not ambiguous and already contains this span')
             assert self.span_list.get(base_span) is None
             span = Span(parent=base_span, layer=self)
-            # TODO: self.span_list.add_span(span) ?
+            self.span_list.add_span(span)
             return span.add_annotation(**attributes)
 
         if self.enveloping is not None:
@@ -238,10 +238,7 @@ class Layer:
                 annotation = target.add_annotation(**attributes)
             else:
                 span = EnvelopingSpan(spans=base_span, layer=self)
-
-                attributes_pluss_default_values = self.default_values.copy()
-                attributes_pluss_default_values.update(attributes)
-                annotation = span.add_annotation(**attributes_pluss_default_values)
+                annotation = span.add_annotation(**attributes)
                 self.span_list.add_span(span)
             return annotation
 
@@ -251,25 +248,18 @@ class Layer:
                 span = AmbiguousSpan(self, Span(base_span.start, base_span.end, layer=self))
                 self.span_list.add_span(span)
             assert isinstance(span, AmbiguousSpan), span
-            attributes_pluss_default_values = self.default_values.copy()
-            attributes_pluss_default_values.update(attributes)
-            return span.add_annotation(**attributes_pluss_default_values)
+            return span.add_annotation(**attributes)
+
+        assert self.parent is None and self.enveloping is None and not self.ambiguous
 
         if self.parent is None and self.enveloping is None and not self.ambiguous:
             if self.span_list.get(base_span) is not None:
                 raise ValueError('the layer is not ambiguous and already contains this span')
 
-            attributes_pluss_default_values = self.default_values.copy()
-            attributes_pluss_default_values.update(attributes)
             span = Span(base_span.start, base_span.end, layer=self)
-            span.add_annotation(**attributes_pluss_default_values)
+            span.add_annotation(**attributes)
             self.span_list.add_span(span)
             return span.annotations[0]
-
-        # TODO: implement add_annotation
-        raise NotImplementedError(('add_annotation not yet implemented for this type of layer: '
-                                   'ambiguous={self.ambiguous}, parent={self.parent!r}, enveloping={self.enveloping!r}'
-                                   ).format(self=self))
 
     def check_span_consistency(self) -> None:
         # Checks for layer's span consistency

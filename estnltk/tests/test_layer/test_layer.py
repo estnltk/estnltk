@@ -76,6 +76,50 @@ def test_add_span():
     assert isinstance(layer[2], Span)
 
 
+def test_add_annotation():
+    # layer_0
+    layer_0 = Layer('layer_0', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=False)
+    assert len(layer_0) == 0
+    layer_0.add_annotation(Span(10, 11), attr_1=11)
+    assert len(layer_0) == 1
+    assert layer_0[0].annotations == [Annotation(attr_1=11, attr_2=None)]
+    with pytest.raises(ValueError):
+        layer_0.add_annotation(Span(10, 11), attr_1=111)
+
+    layer_0.add_annotation(Span(0, 1))
+    assert len(layer_0) == 2
+    assert layer_0[0].annotations == [Annotation(attr_1=None, attr_2=None)]
+
+    # layer_1
+    layer_1 = Layer('layer_1', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=True)
+    assert len(layer_1) == 0
+    layer_1.add_annotation(Span(10, 11), attr_1=11)
+    assert len(layer_1) == 1
+    assert layer_1[0].annotations == [Annotation(attr_1=11, attr_2=None)]
+
+    layer_1.add_annotation(Span(10, 11), attr_1=111)
+    assert layer_1[0].annotations == [Annotation(attr_1=11, attr_2=None), Annotation(attr_1=111, attr_2=None)]
+
+    layer_1.add_annotation(Span(0, 1))
+    assert len(layer_1) == 2
+    assert layer_1[0].annotations == [Annotation(attr_1=None, attr_2=None)]
+
+    # layer_2
+    layer_2 = Layer('layer_2', attributes=['attr_1', 'attr_2'], parent='layer_0', enveloping=None, ambiguous=False)
+    assert len(layer_2) == 0
+    layer_2.add_annotation(layer_0[1], attr_1=2)
+    assert len(layer_2) == 1
+    assert layer_2[0].annotations == [Annotation(attr_1=2, attr_2=None)]
+    with pytest.raises(ValueError):
+        layer_2.add_annotation(layer_0[1], attr_1=111)
+
+    layer_2.add_annotation(Span(0, 1))
+    assert len(layer_2) == 2
+    assert layer_2[0].annotations == [Annotation(attr_1=None, attr_2=None)]
+
+    # TODO: continue with all layer types
+
+
 def test_layer_indexing():
     t = Text("0123456789")
     layer = Layer(name='base',
