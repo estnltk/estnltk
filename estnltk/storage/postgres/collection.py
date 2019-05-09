@@ -808,6 +808,7 @@ class PgCollection:
         conn = self.storage.conn
         with conn.cursor() as c:
             try:
+                conn.commit()
                 conn.autocommit = True
                 # create table and indices
                 self._create_layer_table(cursor=c,
