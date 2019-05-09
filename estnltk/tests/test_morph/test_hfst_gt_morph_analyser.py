@@ -1,6 +1,6 @@
 import pytest
 import pkgutil
-import os.path
+import os, os.path
 import sys, faulthandler
 faulthandler.enable(file=sys.stderr, all_threads=True)
 
@@ -9,11 +9,15 @@ def check_if_hfst_is_available():
     # Check that HFST is available
     return pkgutil.find_loader("hfst") is not None
 
+# Environment variable that enables testing HFST Tagger (to see if the import conflict has been resolved)
+TEST_HFST_TAGGER = os.environ.get('TEST_HFST_TAGGER', None)
+skip_reason_msg = "Skipped because of a potential import conflict between hfst and vabamorf. "+\
+                  "Set environment variable TEST_HFST_TAGGER=1 to enable the test. "
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
-                         "leads to a segfault in other tests that are using vabamorf")
+@pytest.mark.skipif(TEST_HFST_TAGGER is None,
+                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_raw_output():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -112,8 +116,8 @@ def test_hfst_gt_morph_analyser_raw_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
-                         "leads to a segfault in other tests that are using vabamorf")
+@pytest.mark.skipif(TEST_HFST_TAGGER is None,
+                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -164,8 +168,8 @@ def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
-                         "leads to a segfault in other tests that are using vabamorf")
+@pytest.mark.skipif(TEST_HFST_TAGGER is None,
+                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_extract_morpheme_features():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -250,8 +254,8 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
-                         "leads to a segfault in other tests that are using vabamorf")
+@pytest.mark.skipif(TEST_HFST_TAGGER is None,
+                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -335,8 +339,8 @@ def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skip(reason="skipped because an import conflict between hfst and vabamorf "+\
-                         "leads to a segfault in other tests that are using vabamorf")
+@pytest.mark.skipif(TEST_HFST_TAGGER is None,
+                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_with_guessing_switched_on_and_off():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -364,3 +368,4 @@ def test_hfst_gt_morph_analyser_with_guessing_switched_on_and_off():
     results2 = text['hfst_gt_morph_analysis_w_guesses'].to_records()
     assert results2 == [[{'weight': 240.0, 'postags': ('', 'N'), 'forms': ('', 'Pl+Nom'), 'morphemes_lemmas': ('bronze', 'mehike'), 'end': 15, 'usage': (), 'start': 0, 'has_clitic': False, 'is_guessed': True}, \
                          {'weight': 242.0, 'postags': ('', 'N'), 'forms': ('', 'Pl+Nom'), 'morphemes_lemmas': ('bronze', 'mehikene'), 'end': 15, 'usage': (), 'start': 0, 'has_clitic': False, 'is_guessed': True}]] 
+
