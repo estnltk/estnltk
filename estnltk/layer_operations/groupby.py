@@ -61,7 +61,7 @@ def group_by(layer: Layer, by: Layer):
     for enveloping_span in by:
         span_list = SpanList(layer=layer)
         for span in enveloping_span.spans:
-            sp = layer.span_list.get(span.base_span)
+            sp = layer.get(span)
             if sp is not None:
                 span_list.add_span(sp)
         yield span_list
