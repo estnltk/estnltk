@@ -5,77 +5,139 @@
 #  clauses.
 # 
 
-from typing import Union
-
 import json
 
-from estnltk.text import Text, Layer, EnvelopingSpan
+from estnltk.text import Layer, EnvelopingSpan
 
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 from estnltk.java.javaprocess import JavaProcess
 from estnltk.core import JAVARES_PATH
 
 
-class ClauseSegmenter(TaggerOld):
-    description   = 'Tags clause boundaries inside sentences. Uses Java-based clause '+\
-                    'segmenter (Osalausestaja) to perform the tagging.'
-    layer_name    = 'clauses'
-    attributes    = ('clause_type', )
-    depends_on    = ['words', 'sentences', 'morph_analysis']
-    configuration = None
+class ClauseSegmenter(Tagger):
+    """Tags clause boundaries inside sentences. 
+       Uses Java-based clause segmenter (Osalausestaja) to perform the tagging."""
+    output_layer      = 'clauses'
+    output_attributes = ('clause_type',)
+    input_layers      = ['words', 'sentences', 'morph_analysis']
+    conf_param = [ 'ignore_missing_commas',
+                   # Names of specific input layers
+                   '_input_words_layer',
+                   '_input_sentences_layer',
+                   '_input_morph_analysis_layer',
+                   # Inner parameters
+                   '_java_process',
+                   # For backward compatibility:
+                   'depends_on', 'layer_name'
+                 ]
+    # For backward compatibility:
+    layer_name = output_layer
+    attributes = output_attributes
+    depends_on = input_layers
 
 
-    def __init__(self, ignore_missing_commas:bool=False):
+    def __init__( self,
+                  output_layer:str='clauses',
+                  input_words_layer:str='words',
+                  input_sentences_layer:str='sentences',
+                  input_morph_analysis_layer:str='morph_analysis',
+                  ignore_missing_commas:bool=False):
         """Initializes Java-based ClauseSegmenter.
         
         Parameters
         ----------
+        output_layer: str (default: 'clauses')
+            Name for the clauses layer;
+
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+
+        input_sentences_layer: str (default: 'sentences')
+            Name of the input sentences layer;
+
+        input_morph_analysis_layer: str (default: 'morph_analysis')
+            Name of the input morph_analysis layer;
+
         ignore_missing_commas: boolean (default: False)
              Initializes ClauseSegmenter in a mode where the segmenter attempts to 
              guess clause boundaries even if the commas are missing in the input.
              Note that compared to the default mode, this mode may introduce some
              additional errors;
         """
+        # Set input/output layer names
+        self.output_layer = output_layer
+        self._input_words_layer          = input_words_layer
+        self._input_sentences_layer      = input_sentences_layer
+        self._input_morph_analysis_layer = input_morph_analysis_layer
+        self.input_layers = [ input_words_layer, input_sentences_layer, \
+                              input_morph_analysis_layer ]
+        self.layer_name = self.output_layer  # <- For backward compatibility ...
+        self.depends_on = self.input_layers  # <- For backward compatibility ...
+        # Set flag
+        self.ignore_missing_commas = ignore_missing_commas
+        # Initialize JavaProcess
         args = ['-pyvabamorf']
-        if ignore_missing_commas:
+        if self.ignore_missing_commas:
             args.append('-ins_comma_mis')
+        # Initiate Java process
         self._java_process = \
-            JavaProcess( 'Osalau.jar', jar_path=JAVARES_PATH, args=args )
-        # Record configuration
-        self.configuration = {'ignore_missing_commas': ignore_missing_commas}
+            JavaProcess( 'Osalau.jar', jar_path=JAVARES_PATH, check_java=True, lazy_initialize=True, args=args )
 
 
-    def tag(self, text: Text, return_layer=False) ->  Union['Text', Layer]:
+    def __enter__(self):
+        # Initialize java process (only if we are inside the with context manager)
+        if self._java_process and self._java_process._process is None:
+            self._java_process.initialize_java_subprocess()
+        return self
+
+
+    def __exit__(self, *args):
+        """ Terminates Java process. """
+        if self._java_process._process is not None: # if the process was initialized
+            # The proper way to terminate the process:
+            # 1) Send out the terminate signal
+            self._java_process._process.terminate()
+            # 2) Interact with the process. Read data from stdout and stderr, 
+            #    until end-of-file is reached. Wait for process to terminate.
+            self._java_process._process.communicate()
+            # 3) Assert that the process terminated
+            assert self._java_process._process.poll() is not None
+        return False
+
+
+    def close(self):
+        if self._java_process._process is not None: # if the process was initialized
+            if self._java_process._process.poll() is None:
+                self.__exit__()
+
+
+    def _make_layer(self, text, layers, status: dict):
         """Tags clauses layer.
         
         Parameters
         ----------
-        text: estnltk.text.Text
-            Text object that is to be analysed. It needs to have
-            layers 'words', 'sentences', 'morph_analysis'.
-
-        return_layer: boolean (default: False)
-            If True, then the new layer is returned; otherwise 
-            the new layer is attached to the Text object, and 
-            the Text object is returned;
-
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the new layer, 
-            otherwise attaches the new layer to the Text object 
-            and returns the Text object;
+        raw_text: str
+           Text string corresponding to the text which 
+           will be split into clauses;
+          
+        layers: MutableMapping[str, Layer]
+           Layers of the raw_text. Contains mappings from the 
+           name of the layer to the Layer object. Must contain
+           the words, sentences and morph_analysis layers.
+          
+        status: dict
+           This can be used to store metadata on layer tagging.
         """
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
-        morph_spans  = text['morph_analysis'].span_list
-        word_spans   = text['words'].span_list
+        morph_spans  = layers[ self._input_morph_analysis_layer ].span_list
+        word_spans   = layers[ self._input_words_layer ].span_list
         assert len(morph_spans) == len(word_spans)
         word_span_id = 0
-        for sentence in text['sentences'].span_list:
+        for sentence in layers[ self._input_sentences_layer ].span_list:
             #  Collect all words/morph_analyses inside the sentence
             #  Assume: len(word_spans) == len(morph_spans)
             sentence_morph_dicts = []
@@ -93,7 +155,7 @@ class ClauseSegmenter(TaggerOld):
                         if word_span.start == morph_span.start and \
                            word_span.end == morph_span.end and \
                            len(morph_span) > 0 and \
-                           (not _is_empty_span(morph_span[0])):
+                           (not _is_empty_annotation(morph_span[0])):
                             # Convert span to Vabamorf dict
                             word_morph_dict = \
                                     _convert_morph_analysis_span_to_vm_dict( \
@@ -115,10 +177,16 @@ class ClauseSegmenter(TaggerOld):
                 sentence_vm_json = json.dumps({'words': sentence_morph_dicts})
                 result_vm_str    = \
                     self._java_process.process_line(sentence_vm_json)
-                result_vm_json   = json.loads( result_vm_str )
-                # Sanity check: the number of words in the output must match 
-                # the number of words in the input;
-                assert len(result_vm_json['words']) == len(sentence_words)
+                result_vm_json = json.loads( result_vm_str )
+                # Sanity check: 'words' must be present and the number of words in 
+                # the output must match the number of words in the input;
+                # If not, then we likely have problems with the Java subprocess;
+                assert 'words' in result_vm_json, \
+                       "(!) Unexpected mismatch between ClauseSegmenter's input and output. "+\
+                       "Probably there are problems with the Java subprocess. "
+                assert len(result_vm_json['words']) == len(sentence_words), \
+                       "(!) Unexpected mismatch between ClauseSegmenter's input and output. "+\
+                       "Probably there are problems with the Java subprocess. "
                 # Rewrite clause annotations to clause indices
                 result_vm_json = \
                     self.annotate_clause_indices( result_vm_json['words'] )
@@ -144,16 +212,15 @@ class ClauseSegmenter(TaggerOld):
                     #clause_spans.spans = clause_index[clause_id]
                     clause_spanlists.append( clause_spans )
         # Create and populate layer
-        layer = Layer(name=self.layer_name, 
-                      enveloping ='words', 
-                      attributes=self.attributes, 
+        layer = Layer(name=self.output_layer, 
+                      enveloping=self._input_words_layer,
+                      text_object=text,
+                      attributes=self.output_attributes, 
                       ambiguous=False)
         for clause_spl in clause_spanlists:
             layer.add_span( clause_spl )
-        if return_layer:
-            return layer
-        text[self.layer_name] = layer
-        return text
+        return layer
+
 
 
     def annotate_clause_indices( self, sentence ):

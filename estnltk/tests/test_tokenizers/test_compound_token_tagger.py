@@ -1,7 +1,7 @@
 import unittest
 
 from estnltk import Text
-from estnltk.taggers import CompoundTokenTagger
+from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 
 class CompoundTokenTaggerTest(unittest.TestCase):
 
@@ -490,6 +490,35 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                     self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
 
 
+    def test_do_not_compound_on_paragraphs(self):
+        # Tests that compound tokens will not be created if compoundable tokens are separated by 
+        # paragraph separator strings ('\n\n')
+        test_texts = [ 
+                       # Note: these examples are rather artificial: it seems rather difficult 
+                       # to find contexts where the current compounding patterns can actually be 
+                       # broken by paragraph separators
+                       { 'text': "Robot Mihkel sai skooriks 26.\n\nI 2000 ületas teda ja sai 28.",\
+                         'expected_compound_tokens': [['28', '.']] },\
+                       { 'text': "I\n\n.\nouo\nII\n\n.\noeo",\
+                         'expected_compound_tokens': [[]] },\
+                     ]
+        cp_tagger = CompoundTokenTagger()
+        #cp_tagger = CompoundTokenTagger(do_not_join_on_strings=[])
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            text.tag_layer(['tokens'])
+            cp_tagger.tag(text)
+            # Check results
+            for ctid, comp_token in enumerate(text['compound_tokens']):
+                tokens = [text.text[sp.start:sp.end] for sp in comp_token.spans]
+                #print('>>',tokens)
+                # Assert that the tokenization is correct
+                self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
+                if 'expected_normalizations' in test_text:
+                    self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
+
+
     def test_compound_token_normalization(self):
         # Tests that the compound tokens are normalized properly
         test_texts = [ # Normalization of words from tokenization hints
@@ -558,3 +587,73 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         text.tag_layer(['sentences'])
         sentences = [ s.enclosing_text for s in text['sentences'] ]
         self.assertListEqual( ["Ekspluateerijal on vastavalt §-dele 84 jj. hüvitamise kohustus ."], sentences )
+
+
+
+    def test_change_compound_tokens_layer_name(self):
+        # Tests that tokens and compound tokens layer names can
+        # be changed (and it still works!)
+        tokens_tagger = TokensTagger(output_layer='my_tokens')
+        cp_tagger = CompoundTokenTagger(output_layer='my_compounds', input_tokens_layer='my_tokens')
+        word_tagger = WordTagger(input_tokens_layer='my_tokens', input_compound_tokens_layer='my_compounds')
+        test_texts = [ 
+            { 'text': 'Mis lil-li müüs Tiit 10e krooniga?', \
+              'expected_words': ['Mis', 'lil-li', 'müüs', 'Tiit', '10e', 'krooniga', '?'] }, \
+            
+            { 'text': 'Maja on fantastiline, mõte on hea :-)', \
+              'expected_words': ['Maja', 'on', 'fantastiline', ',', 'mõte', 'on', 'hea', ':-)'] }, \
+            
+            { 'text': "SKT -st või LinkedIn -ist ma eriti ei hoolinudki, aga workshop ' e külastasin küll.", \
+              'expected_words': ['SKT -st', 'või', 'LinkedIn -ist', 'ma', 'eriti', 'ei', 'hoolinudki', ',', 'aga', "workshop ' e", 'külastasin', 'küll', '.'] },\
+            { 'text': "Lisaks sellele, et B260a oskab 3G’st WiFi’t teha, saab hakkama ta ka lauatelefoni kõnede vahendamisega.",\
+              'expected_words': ['Lisaks', 'sellele', ',', 'et', 'B260a', 'oskab', '3G’st', 'WiFi’t', 'teha', ',', 'saab', 'hakkama', 'ta', 'ka', 'lauatelefoni', 'kõnede', 'vahendamisega', '.'] },\
+            { 'text': "Kes meist ei oleks kuulnud Big Benist, Westminster Abbey’st, London Towerist, Buckingham Palace’ist?",\
+              'expected_words': ['Kes', 'meist', 'ei', 'oleks', 'kuulnud', 'Big', 'Benist', ',', 'Westminster', 'Abbey’st', ',', 'London', 'Towerist', ',', 'Buckingham', 'Palace’ist', '?'] },\
+            { 'text': "Tööajal kella 8.00-st 16.00- ni võtavad sel telefonil kõnesid vastu kuni üheksa IT töötajat.",\
+              'expected_words': ['Tööajal', 'kella', '8.00-st', '16.00- ni', 'võtavad', 'sel', 'telefonil', 'kõnesid', 'vastu', 'kuni', 'üheksa', 'IT', 'töötajat', '.'] },\
+            
+            { 'text': "P.S. Õppige viisakalt kirjutama.", \
+              'expected_words': ['P.S.', 'Õppige', 'viisakalt', 'kirjutama', '.'] },\
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            tokens_tagger.tag(text)
+            cp_tagger.tag(text)
+            self.assertTrue( 'my_tokens' in text.layers.keys() )
+            self.assertTrue( 'my_compounds' in text.layers.keys() )
+            self.assertFalse( 'tokens' in text.layers.keys() )
+            self.assertFalse( 'compound_tokens' in text.layers.keys() )
+            word_tagger.tag(text)
+            words_spans = text['words'].span_list
+            # Fetch result
+            word_segmentation = [] 
+            for wid, word in enumerate( words_spans ):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
+
+
+
+from estnltk.taggers.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
+from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
+
+class PretokenizedTextCompoundTokenTaggerTest(unittest.TestCase):
+
+    def test_change_pretokenized_text_compound_tokens_layer_name(self):
+        text = Text('New York nõuab metroo renoveerimiseks raha autojuhtidelt')
+        tokens_tagger = WhiteSpaceTokensTagger(output_layer='ws_tokens')
+        compound_tokens_tagger = PretokenizedTextCompoundTokensTagger( multiword_units = [['New', 'York']],
+                                 input_tokens_layer='ws_tokens', output_layer='ws_compound_tokens' )
+        tokens_tagger.tag(text)
+        compound_tokens_tagger.tag(text)
+        # assert layers
+        self.assertTrue( 'ws_tokens' in text.layers.keys() )
+        self.assertTrue( 'ws_compound_tokens' in text.layers.keys() )
+        self.assertFalse( 'tokens' in text.layers.keys() )
+        self.assertFalse( 'compound_tokens' in text.layers.keys() )
+        # assert compound tokens
+        self.assertListEqual(text['ws_compound_tokens'].text, ['New', 'York']) 
+        

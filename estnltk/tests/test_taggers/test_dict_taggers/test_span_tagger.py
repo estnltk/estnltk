@@ -12,7 +12,7 @@ def test_basic():
                         vocabulary=vocabulary,
                         output_attributes=['number', 'letter', '_priority_'],
                         key='_token_',
-                        validator_attribute='_validator_',
+                        validator_attribute=None,
                         priority_attribute=None,
                         ambiguous=True
                         )

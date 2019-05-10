@@ -11,19 +11,20 @@ from estnltk.layer_operations.intersections import iterate_intersecting_spans
 from estnltk.layer_operations.intersections import iterate_nested_spans
 from estnltk.layer_operations.intersections import iterate_overlapping_spans
 
-# --------------------- Iterate over hovering Spans in SpanList 
+# --------------------- Iterate over hovering Spans in SpanList
+
 
 def test_iterate_hovering_spans_in_spanlist_1():
     # Example text:
     text = 'A B C D'
     
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=1))   # A
     spanlist.add_span(Span(start=2, end=3))   # B
     spanlist.add_span(Span(start=4, end=5))   # C
     spanlist.add_span(Span(start=6, end=7))   # D
-    hovering = list( iterate_hovering_spans(spanlist) )
+    hovering = list(iterate_hovering_spans(spanlist, text))
     expected_hovering_span_texts = \
         [('A', 'B'), ('B', 'C'), ('C', 'D')]
     hovering_span_texts = \
@@ -35,20 +36,17 @@ def test_iterate_hovering_spans_in_spanlist_1():
 def test_iterate_hovering_spans_in_spanlist_2():
     # Example text:
     text = 'üks kaks kolmneli viiskuus seitse'
-    
-    #t = Text('üks kaks kolmneli viiskuus seitse')
-    #t.tag_layer(['words'])
-    
+
     # Create a SpanList
-    spanlist = SpanList()
-    spanlist.add_span(Span(start=0, end=3))   # üks
-    spanlist.add_span(Span(start=4, end=8))   # kaks 
-    spanlist.add_span(Span(start=9, end=13))  # kolm
-    spanlist.add_span(Span(start=13, end=17)) # neli
-    spanlist.add_span(Span(start=22, end=26)) # kuus
-    spanlist.add_span(Span(start=18, end=22)) # viis 
-    spanlist.add_span(Span(start=27, end=33)) # seitse
-    hovering = list( iterate_hovering_spans(spanlist) )
+    spanlist = Layer('layer_1')
+    spanlist.add_span(Span(start=0, end=3))    # üks
+    spanlist.add_span(Span(start=4, end=8))    # kaks
+    spanlist.add_span(Span(start=9, end=13))   # kolm
+    spanlist.add_span(Span(start=13, end=17))  # neli
+    spanlist.add_span(Span(start=22, end=26))  # kuus
+    spanlist.add_span(Span(start=18, end=22))  # viis
+    spanlist.add_span(Span(start=27, end=33))  # seitse
+    hovering = list(iterate_hovering_spans(spanlist, text))
     expected_hovering_span_texts = \
         [('üks', 'kaks'), ('kaks', 'kolm'), ('neli', 'viis'), ('kuus', 'seitse')]
     hovering_span_texts = \
@@ -62,13 +60,13 @@ def test_iterate_hovering_spans_in_spanlist_with_min_gap():
     text = 'A  B C  D E'
     
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=1))     # A
     spanlist.add_span(Span(start=3, end=4))     # B
     spanlist.add_span(Span(start=5, end=6))     # C
     spanlist.add_span(Span(start=8, end=9))     # D
     spanlist.add_span(Span(start=10, end=11))   # E
-    hovering = list( iterate_hovering_spans(spanlist, min_gap = 2) )
+    hovering = list(iterate_hovering_spans(spanlist, text, min_gap=2))
     expected_hovering_span_texts = \
         [('A', 'B'), ('C', 'D')]
     hovering_span_texts = \
@@ -79,13 +77,12 @@ def test_iterate_hovering_spans_in_spanlist_with_min_gap():
 
 # --------------------- Iterate over consecutive Spans in SpanList 
 
-# TODO: fix test
-def _test_iterate_consecutive_spans_in_spanlist():
+def test_iterate_consecutive_spans_in_spanlist():
     # Example text:
     text = 'üks kaks kolmneli viis'
-    
+
     # Test on SpanList
-    spanlist = SpanList(ambiguous=True)
+    spanlist = Layer('layer_1', ambiguous=True)
     spanlist.add_span(Span(start=0, end=3))    # üks
     spanlist.add_span(Span(start=4, end=8))    # kaks
     spanlist.add_span(Span(start=9, end=13))   # kolm
@@ -93,13 +90,13 @@ def _test_iterate_consecutive_spans_in_spanlist():
     spanlist.add_span(Span(start=13, end=17))  # neli
     spanlist.add_span(Span(start=9, end=17))   # kolmneli
     spanlist.add_span(Span(start=18, end=22))  # viis
-    consecutive = list( iterate_consecutive_spans(spanlist) )
+    consecutive = list(iterate_consecutive_spans(spanlist, text))
     expected_consecutive_span_texts = \
-        [('üks', 'kaks'), ('üks', 'kaks kolm'), ('kaks', 'kolm'), ('kaks', 'kolmneli'), \
+        [('üks', 'kaks'), ('üks', 'kaks kolm'), ('kaks', 'kolm'), ('kaks', 'kolmneli'),
          ('kaks kolm', 'neli'), ('kolm', 'neli'), ('kolmneli', 'viis'), ('neli', 'viis')]
     consecutive_span_texts = \
-        [(text[s1.start:s1.end],text[s2.start:s2.end]) for s1, s2 in consecutive]
-    #print( consecutive_span_texts )
+        [(text[s1.start:s1.end], text[s2.start:s2.end]) for s1, s2 in consecutive]
+    #print(consecutive_span_texts)
     assert consecutive_span_texts == expected_consecutive_span_texts
     
     # Test on list of Spans
@@ -111,12 +108,12 @@ def _test_iterate_consecutive_spans_in_spanlist():
     spanlist.append(Span(start=9, end=17))  # kolmneli
     spanlist.append(Span(start=18, end=22)) # viis 
     spanlist.append(Span(start=4, end=13))  # 'kaks kolm'
-    consecutive = list( iterate_consecutive_spans(spanlist) )
+    consecutive = list(iterate_consecutive_spans(spanlist, text))
     consecutive_span_texts = \
         [(text[s1.start:s1.end],text[s2.start:s2.end]) for s1, s2 in consecutive]
-    #print( consecutive_span_texts )
+    #print(consecutive_span_texts)
     expected_consecutive_span_texts = \
-        [('üks', 'kaks'), ('üks', 'kaks kolm'), ('kaks', 'kolm'), ('kaks', 'kolmneli'), \
+        [('üks', 'kaks'), ('üks', 'kaks kolm'), ('kaks', 'kolm'), ('kaks', 'kolmneli'),
          ('kaks kolm', 'neli'), ('kolm', 'neli'), ('kolmneli', 'viis'), ('neli', 'viis')]
     assert consecutive_span_texts == expected_consecutive_span_texts
 
@@ -124,23 +121,65 @@ def _test_iterate_consecutive_spans_in_spanlist():
 def test_iterate_consecutive_spans_in_spanlist_with_max_gap():
     # Example text:
     text = 'A  B    CD  E    F'
-    
+
     # Test on SpanList
-    spanlist = SpanList()
-    spanlist.add_span(Span(start=0, end=1))   # A
-    spanlist.add_span(Span(start=3, end=4))   # B
-    spanlist.add_span(Span(start=8, end=9))   # C
-    spanlist.add_span(Span(start=8, end=10))  # CD
-    spanlist.add_span(Span(start=9, end=10))  # D
-    spanlist.add_span(Span(start=12, end=13)) # E
-    spanlist.add_span(Span(start=17, end=18)) # F
-    
-    consecutive = list( iterate_consecutive_spans(spanlist, max_gap=2) )
+    spanlist = Layer('layer_1')
+    spanlist.add_span(Span(start=0, end=1))    # A
+    spanlist.add_span(Span(start=3, end=4))    # B
+    spanlist.add_span(Span(start=8, end=9))    # C
+    spanlist.add_span(Span(start=8, end=10))   # CD
+    spanlist.add_span(Span(start=9, end=10))   # D
+    spanlist.add_span(Span(start=12, end=13))  # E
+    spanlist.add_span(Span(start=17, end=18))  # F
+
+    consecutive = list( iterate_consecutive_spans(spanlist, text, max_gap=2) )
     consecutive_span_texts = \
         [(text[s1.start:s1.end],text[s2.start:s2.end]) for s1, s2 in consecutive]
     #print( consecutive_span_texts )
     expected_consecutive_span_texts = \
         [('A', 'B'), ('C', 'D'), ('CD', 'E'), ('D', 'E')]
+    assert consecutive_span_texts == expected_consecutive_span_texts
+
+
+def test_iterate_consecutive_spans_in_spanlist_with_gap_validator():
+    def gap_validator(s):
+        return False
+
+    # Example text:
+    text = 'A  B    CD  E    F'
+
+    # Test on SpanList
+    spanlist = Layer('layer_1')
+    spanlist.add_span(Span(start=0, end=1))    # A
+    spanlist.add_span(Span(start=3, end=4))    # B
+    spanlist.add_span(Span(start=8, end=9))    # C
+    spanlist.add_span(Span(start=8, end=10))   # CD
+    spanlist.add_span(Span(start=9, end=10))   # D
+    spanlist.add_span(Span(start=12, end=13))  # E
+    spanlist.add_span(Span(start=17, end=18))  # F
+
+    consecutive = tuple(iterate_consecutive_spans(spanlist, text, max_gap=2, gap_validator=gap_validator))
+    assert consecutive == ()
+
+    #########################################
+
+    def gap_validator(s):
+        return s.strip() == ''
+
+    # Example text:
+    text = 'A  B    CD  E    F'
+
+    spanlist = [
+        Span(start=0, end=1),    # A
+        Span(start=3, end=4),    # B
+        Span(start=12, end=13),  # E
+        Span(start=17, end=18)   # F
+        ]
+
+    consecutive = tuple(iterate_consecutive_spans(spanlist, text, gap_validator=gap_validator))
+    consecutive_span_texts = \
+        [(text[s1.start:s1.end], text[s2.start:s2.end]) for s1, s2 in consecutive]
+    expected_consecutive_span_texts = [('A', 'B'), ('E', 'F')]
     assert consecutive_span_texts == expected_consecutive_span_texts
 
 
@@ -151,12 +190,12 @@ def test_iterate_touching_spans_in_spanlist_1():
     text = 'AB'
     
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span( Span(start=0, end=1) )  # A
     spanlist.add_span( Span(start=1, end=2) )  # B
     spanlist.add_span( Span(start=0, end=2) )  # AB
     
-    touching = list( iterate_touching_spans(spanlist) )
+    touching = list(iterate_touching_spans(spanlist, text))
     touching_span_texts = \
         [(text[s1.start:s1.end],text[s2.start:s2.end]) for s1, s2 in touching]
     #print( touching_span_texts )
@@ -173,7 +212,7 @@ def test_iterate_touching_spans_in_spanlist_2():
     #t.tag_layer(['words'])
     
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=3))   # üks
     spanlist.add_span(Span(start=4, end=8))   # kaks 
     spanlist.add_span(Span(start=9, end=13))  # kolm
@@ -182,7 +221,7 @@ def test_iterate_touching_spans_in_spanlist_2():
     spanlist.add_span(Span(start=18, end=22)) # viis 
     spanlist.add_span(Span(start=27, end=33)) # seitse
     
-    touching = list( iterate_touching_spans(spanlist) )
+    touching = list(iterate_touching_spans(spanlist, text))
     touching_span_texts = \
         [(text[s1.start:s1.end],text[s2.start:s2.end]) for s1, s2 in touching]
     #print( touching_span_texts )
@@ -196,7 +235,7 @@ def test_iterate_touching_spans_in_spanlist_3():
     text = 'üks kaks kolmneli viis'
     
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=3))   # üks
     spanlist.add_span(Span(start=4, end=8))   # kaks 
     spanlist.add_span(Span(start=9, end=13))  # kolm
@@ -204,7 +243,7 @@ def test_iterate_touching_spans_in_spanlist_3():
     spanlist.add_span(Span(start=13, end=17)) # neli
     spanlist.add_span(Span(start=9, end=17))  # kolmneli
     spanlist.add_span(Span(start=18, end=22)) # viis 
-    touching = list( iterate_touching_spans(spanlist) )
+    touching = list(iterate_touching_spans(spanlist, text))
     touching_span_texts = \
         [(text[s1.start:s1.end],text[s2.start:s2.end]) for s1, s2 in touching]
     #print( touching_span_texts )
@@ -219,10 +258,9 @@ def test_iterate_terminal_spans():
     s1 = Span(0,  3)
     s2 = Span(1, 10)
     s3 = Span(5,  7)
-    #s4 = Span(5,  7)
     s5 = Span(8,  9)
 
-    span_list = SpanList()
+    span_list = Layer('layer_1')
     assert tuple(iterate_starting_spans(span_list)) == ()
     assert tuple(iterate_ending_spans(span_list)) == ()
 
@@ -230,17 +268,13 @@ def test_iterate_terminal_spans():
     assert tuple(iterate_starting_spans(span_list)) == (s3,)
     assert tuple(iterate_ending_spans(span_list)) == (s3,)
 
-    #span_list.add_span(s4)
-    #assert tuple(iterate_starting_spans(span_list)) == (s3, s4)
-    #assert tuple(iterate_ending_spans(span_list)) == (s3, s4)
-
     span_list.add_span(s1)
     span_list.add_span(s5)
     assert tuple(iterate_starting_spans(span_list)) == (s1,)
     assert tuple(iterate_ending_spans(span_list)) == (s5,)
 
     span_list.add_span(s2)
-    assert tuple(iterate_starting_spans(span_list)) == (s1,s2)
+    assert tuple(iterate_starting_spans(span_list)) == (s1, s2)
     assert tuple(iterate_ending_spans(span_list)) == (s2, s5)
 
 
@@ -251,7 +285,7 @@ def test_yield_spanlist_intersections():
     text = 'üks kaks kolmneli viiskuus seitse'
     
     # Test on SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=3))   # üks
     spanlist.add_span(Span(start=4, end=8))   # kaks 
     spanlist.add_span(Span(start=9, end=13))  # kolm
@@ -279,7 +313,7 @@ def test_yield_no_spanlist_intersections():
     text = 'üks kaks'
     
     # Test items
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=3))  # üks
     spanlist.add_span(Span(start=4, end=8))  # kaks 
     
@@ -325,7 +359,7 @@ def test_yield_spanlist_nested_positions():
     text = 'A B CD EF G'
     
     # Create SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=1))    # A
     spanlist.add_span(Span(start=2, end=3))    # B
     spanlist.add_span(Span(start=4, end=5))    # C
@@ -351,7 +385,7 @@ def test_yield_spanlist_overlapping_positions():
     text = 'A B CD EF G'
     
     # Create SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=1))    # A
     spanlist.add_span(Span(start=2, end=3))    # B
     spanlist.add_span(Span(start=4, end=5))    # C

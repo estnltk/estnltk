@@ -1,19 +1,21 @@
 import regex as re
 from collections import defaultdict
-from pandas import read_csv, DataFrame, set_option
-from typing import Iterable, Union
+import pandas as pd
+from pandas import DataFrame, set_option
+from typing import Sequence, Mapping
 
 from estnltk.taggers.tagger import to_str
 
 
+class VocabularyException(Exception):
+    pass
+
+
 class Vocabulary:
     def __init__(self,
-                 vocabulary: Union[str, list, dict, 'Vocabulary'],
-                 key: str=None,
-                 default_rec: dict=None,
-                 string_attributes=(),
-                 regex_attributes=(),
-                 callable_attributes=()
+                 mapping: Mapping[str, Sequence[Mapping]],
+                 key: str,
+                 attributes: Sequence[str],
                  ):
         """
         Input data object for SpanTagger, PhraseTagger, RegexTagger.
@@ -53,142 +55,135 @@ class Vocabulary:
             regex, callable, string
             \d+, lambda s, t: True, number
         """
-        assert isinstance(vocabulary, (str, list, dict)), 'unknown vocabulary type: ' + str(type(vocabulary))
+        assert isinstance(mapping, Mapping), 'vocabulary must be dict, not ' + str(type(mapping))
+        assert isinstance(key, str), 'key must be a string, not ' + str(type(key))
+        assert key in attributes, (key, attributes)
+
+        attribute_set = set(attributes)
+        assert all(set(record) == attribute_set for records in mapping.values() for record in records)
+        assert all(record[key] == key_value for key_value, records in mapping.items() for record in records)
+
         self.key = key
-        if default_rec is None:
-            default_rec = {}
+        self.attributes = attributes
+        self.mapping = dict(mapping)
 
-        self.string_attributes = string_attributes
-        self.regex_attributes = regex_attributes
-        self.callable_attributes = callable_attributes
+    def to_lower(self):
+        """Changes vocabulary key value to lowercase. If an exception occurs the vocabulary stays unchanged."""
+        return Vocabulary.from_vocabulary(self, to_lower=True)
 
-        if isinstance(vocabulary, str):
-            self.vocabulary = self._csv_to_vocabulary(vocabulary_file=vocabulary,
-                                                      default_rec=default_rec)
-
-        elif isinstance(vocabulary, list):
-            self.vocabulary = self._records_to_vocabulary(records=vocabulary,
-                                                          default_rec=default_rec,
-                                                          string_attributes=string_attributes,
-                                                          regex_attributes=regex_attributes,
-                                                          callable_attributes=callable_attributes)
-            rec = tuple(self.vocabulary.values())[0][0]
-            self.attributes = (self.key, *sorted(attr for attr in rec if attr != self.key))
-
-        elif isinstance(vocabulary, dict):
-            self.vocabulary = vocabulary
-            if default_rec:
-                self.vocabulary = {}
-                for k, records in vocabulary.items():
-                    self.vocabulary[k] = []
-                    for record in records:
-                        rec = default_rec.copy()
-                        rec.update(record)
-                        self.vocabulary[k].append(rec)
-            self.attributes = (self.key, *sorted(attr for attr in rec if attr != self.key))
-
-        elif isinstance(vocabulary, Vocabulary):
-            self.vocabulary = vocabulary.vocabulary
-            self.attributes = vocabulary.attributes
-            if default_rec:
-                self.vocabulary = {}
-                for k, records in vocabulary.items():
-                    self.vocabulary[k] = []
-                    for record in records:
-                        rec = default_rec.copy()
-                        rec.update(record)
-                        self.vocabulary[k].append(rec)
-
-        else:
-            raise TypeError('unkonown vocabulary type: ' + str(type(vocabulary)))
-
-        self.attributes = sorted(tuple(self.vocabulary.values())[0][0])
-        #for attr in sorted(default_rec):
-        #    if attr not in self.attributes:
-        #        self.attributes.append(attr)
+    def to_regex(self, ignore_case=False):
+        """compiles vocabulary key values to regex expressions if the key is str"""
+        return Vocabulary.from_vocabulary(self, to_regex=True, ignore_case=ignore_case)
 
     def items(self):
-        return self.vocabulary.items()
+        return self.mapping.items()
 
     def values(self):
-        return self.vocabulary.values()
+        return self.mapping.values()
 
     def __getitem__(self, item):
-        return self.vocabulary[item]
+        return self.mapping[item]
 
     def __contains__(self, item):
-        return item in self.vocabulary
+        return item in self.mapping
 
     def __iter__(self):
-        return iter(self.vocabulary)
+        return iter(self.mapping)
 
-    def _csv_to_records(self, vocabulary_file: str) -> list:
-        df = read_csv(vocabulary_file,
-                      na_filter=False,
-                      index_col=False,
-                      dtype=str
-                      )
-        lines = df.to_dict('records')
-        self.attributes = tuple(df.columns)
+    @staticmethod
+    def from_vocabulary(vocabulary: 'Vocabulary', attributes: Sequence[str] = None, default_rec: Mapping=None,
+                        to_lower=False, to_regex=False, ignore_case=False):
+        mapping = vocabulary.mapping
+        key = vocabulary.key
+        if attributes is None:
+            attributes = vocabulary.attributes
+        else:
+            attribute_set = set(attributes)
+            default_rec = {k: v for k, v in default_rec.items() if k in attribute_set-set(vocabulary.attributes)}
+            assert attribute_set <= set(vocabulary.attributes) | set(default_rec)
+            new_mapping = defaultdict(list)
+            for k, records in mapping.items():
+                for record in records:
+                    rec = default_rec.copy()
+                    rec.update({k: v for k, v in record.items() if k in attribute_set})
+                    new_mapping[k].append(rec)
+            mapping = new_mapping
+        if to_lower:
+            lower_case_mapping = defaultdict(list)
+            for k, records in mapping.items():
+                if isinstance(k, str):
+                    k_low = k.lower()
+                elif isinstance(k, tuple):
+                    k_low = tuple(t.lower() for t in k)
+                elif isinstance(k, (int, float)):
+                    k_low = k
+                else:
+                    raise VocabularyException("can't convert vocabulary key to lowercase: {!r}".format(k))
+                if k_low in lower_case_mapping:
+                    raise VocabularyException("this vocabulary contains keys that are lowercase equal: {!r}".format(k))
+                for record in records:
+                    record = dict(record)
+                    record[key] = k_low
+                    lower_case_mapping[k_low].append(record)
+                mapping = lower_case_mapping
+        if to_regex:
+            new_mapping = defaultdict(list)
+            flag = re.IGNORECASE if ignore_case else 0
+            for k, records in mapping.items():
+                if ignore_case and isinstance(k, re.Pattern):
+                    k = k.pattern
+                try:
+                    k_new = re.compile(k, flag)
+                except Exception as e:
+                    e.args += ("can't compile vocabulary key as regex pattern",)
+                    raise
+                for record in records:
+                    record = dict(record)
+                    record[key] = k_new
+                    new_mapping[k_new].append(record)
+                mapping = new_mapping
 
-        lines = iter(lines)
-        attribute_types = next(lines)
-        string_attributes = []
-        regex_attributes = []
-        callable_attributes = []
-        for k, v in attribute_types.items():
-            if v == 'string':
-                string_attributes.append(k)
-            elif v == 'callable':
-                callable_attributes.append(k)
-            elif v == 'regex':
-                regex_attributes.append(k)
-            else:
-                raise ValueError('unexpected format type: ' + k)
+        return Vocabulary(mapping=mapping, key=key, attributes=attributes)
 
-        records = []
-        for record in lines:
-            rec = {}
-            for k in string_attributes:
-                rec[k] = record[k]
-            for k in callable_attributes:
-                rec[k] = eval(record[k])
-            for k in regex_attributes:
-                rec[k] = re.compile(record[k])
-            records.append(rec)
+    @staticmethod
+    def from_records(records: Sequence[dict], key: str, attributes: Sequence[str],
+                     default_rec: dict=None) -> 'Vocabulary':
 
-        return records
+        if attributes is None:
+            for record in records:
+                if attributes is None:
+                    attributes = set(record)
+                attributes &= set(record)
+            assert key in attributes, (key, attributes)
+            attributes = (key, *sorted(attributes - {key}))
+        else:
+            if key not in attributes:
+                attributes = (key, *attributes)
 
-    def _records_to_vocabulary(self,
-                               records: Iterable[dict],
-                               default_rec: dict = None,
-                               string_attributes=(),
-                               regex_attributes=(),
-                               callable_attributes=()
-                              ) -> dict:
+        attribute_set = set(attributes)
 
-        vocabulary = defaultdict(list)
+        default_rec = default_rec or {}
+        default_rec = {k: v for k, v in default_rec.items() if k in attribute_set}
+
+        assert key in attribute_set, (key, attributes)
+        mapping = defaultdict(list)
         for record in records:
             rec = default_rec.copy()
-            rec.update(record)
-            for attr in callable_attributes:
-                rec[attr] = eval(rec[attr])
-            for attr in regex_attributes:
-                rec[attr] = re.compile(rec[attr])
-            for attr in string_attributes:
-                rec[attr] = str(rec[attr])
+            rec.update({k: v for k, v in record.items() if k in attribute_set})
             # TODO: remove next 3 lines
             for k, v in rec.items():
                 if isinstance(v, str) and v.startswith('lambda m'):
                     rec[k] = eval(v)
-            value = rec[self.key]
-            vocabulary[value].append(rec)
-        return dict(vocabulary)
 
-    def _csv_to_vocabulary(self,
-                           vocabulary_file: str,
-                           default_rec: dict
-                           ):
+            mapping[rec[key]].append(rec)
+        return Vocabulary(mapping=mapping, key=key, attributes=attributes)
+
+    # TODO:
+    def write_csv(self):
+        raise NotImplementedError()
+
+    @staticmethod
+    def read_csv(vocabulary_file: str, key: str = None, attributes: Sequence = None, default_rec: dict = None):
         """
         Reads a csv file and returns a dict that is used by several taggers as an input vocabulary.
 
@@ -196,26 +191,81 @@ class Vocabulary:
             Map key value to a list of dicts.
 
         """
-        records = self._csv_to_records(vocabulary_file=vocabulary_file)
+        df = pd.read_csv(vocabulary_file,
+                         na_filter=False,
+                         index_col=False,
+                         dtype=str
+                         )
+        default_rec = default_rec or {}
+        if attributes is None:
+            attributes = list(df.columns)
+            for attr in default_rec:
+                if attr not in attributes:
+                    attributes.append(attr)
+            key = key or attributes[0]
+        else:
+            if key not in attributes:
+                attributes = tuple((key, *attributes))
+        attributes = tuple(attributes)
+        assert isinstance(key, str), key
+        assert key in attributes, (key, attributes)
 
-        return self._records_to_vocabulary(records=records,
-                                           default_rec=default_rec,
-                                           )
+        lines = df.to_dict('records')
+        lines = iter(lines)
+        attribute_types = next(lines)
+        string_attributes = []
+        regex_attributes = []
+        callable_attributes = []
+        for k, v in attribute_types.items():
+            if k not in attributes:
+                continue
+            if v == 'string':
+                string_attributes.append(k)
+            elif v == 'callable':
+                callable_attributes.append(k)
+            elif v == 'regex':
+                regex_attributes.append(k)
+            else:
+                raise ValueError('unexpected column format type: ' + k)
+
+        records = []
+        for record in lines:
+            rec = {}
+            for k in string_attributes:
+                rec[k] = str(record[k])
+            try:
+                for k in callable_attributes:
+                    rec[k] = eval(record[k])
+            except SyntaxError as e:
+                e.msg += ": can't eval value {!r} from the callable vocabulary column {!r}".format(record[k], k)
+                raise
+            for k in regex_attributes:
+                rec[k] = re.compile(record[k])
+            records.append(rec)
+
+        return Vocabulary.from_records(records=records, key=key, attributes=attributes, default_rec=default_rec)
+
+    @staticmethod
+    def parse(vocabulary, key=None, attributes=None, default_rec=None):
+        if key is not None and attributes is not None and key not in attributes:
+            attributes = tuple((key, *attributes))
+        if isinstance(vocabulary, Vocabulary):
+            return Vocabulary.from_vocabulary(vocabulary=vocabulary, attributes=attributes, default_rec=default_rec)
+        if isinstance(vocabulary, list):
+            return Vocabulary.from_records(records=vocabulary, key=key, default_rec=default_rec, attributes=attributes)
+        if isinstance(vocabulary, str):
+            return Vocabulary.read_csv(vocabulary_file=vocabulary,key=key, attributes=attributes, default_rec=default_rec)
+        raise TypeError('unexpected type of vocabulary', type(vocabulary))
 
     def to_dict(self):
-        return self.vocabulary
+        return self.mapping
 
     def to_records(self):
-        records = []
         try:
-            key_value_list = sorted(self.vocabulary)
+            key_value_list = sorted(self.mapping)
         except TypeError:
-            key_value_list = list(self.vocabulary)
-        for key_value in key_value_list:
-            for record in self.vocabulary[key_value]:
-                record[self.key] = key_value
-                records.append(record)
-        return records
+            key_value_list = sorted(self.mapping, key=lambda x: to_str(x))
+        return [rec for key_value in key_value_list for rec in self.mapping[key_value]]
 
     def _records_to_df(self, records):
         return DataFrame(data=records, columns=self.attributes)
@@ -224,24 +274,55 @@ class Vocabulary:
         return self._records_to_df(self.to_records())
 
     def __repr__(self):
-        return 'Vocabulary(key={!r}, len={})'.format(self.key, len(self.vocabulary))
+        return 'Vocabulary(key={!r}, len={})'.format(self.key, len(self.mapping))
+
+    class Instance:
+        def __init__(self, instance):
+            self.instance = instance
+
+        def __str__(self):
+            return ''
+
+    def color_value_types(self, val):
+        color = 'white'
+        if isinstance(val, self.Instance):
+            val = val.instance
+        if isinstance(val, tuple):
+            color = 'LightPink'
+        elif isinstance(val, list):
+            color = 'OrangeRed'
+        elif isinstance(val, str):
+            color = 'LightSteelBlue'
+        elif isinstance(val, int):
+            color = 'Moccasin'
+        elif isinstance(val, float):
+            color = 'cyan'
+        elif isinstance(val, re.Pattern):
+            color = 'yellow'
+        elif callable(val):
+            color = 'magenta'
+
+        return 'background-color: %s;' % color
 
     def _repr_html_(self):
+        set_option('display.max_colwidth', -1)
+
         res = []
-        keys = sorted(self.vocabulary, key=lambda x: to_str(x))
+        keys = sorted(self.mapping, key=lambda x: to_str(x))
         for k in keys:
             first = True
-            for rec in self.vocabulary[k]:
-                line = {k: to_str(v) for k, v in rec.items()}
+            for rec in self.mapping[k]:
+                line = {k: v for k, v in rec.items()}
                 if first:
-                    line[self.key] = to_str(k)
+                    line[self.key] = k
                     first = False
                 else:
-                    line[self.key] = ''
+                    line[self.key] = self.Instance(k)
                 res.append(line)
         columns = tuple(self.attributes)
-        df = DataFrame.from_records(res, columns=columns)
-        set_option('display.max_colwidth', -1)
-        table = df.to_html(index=False)
+        style = DataFrame.from_records(res, columns=columns).style
+        style = style.applymap(self.color_value_types).format(lambda v: to_str(v, escape_html=True)).hide_index()
+        style = style.set_table_styles(dict(selector="tr:hover", props=[("background-color", "%s" % "#11ff99")]))
+        table = style.render()
 
         return '\n'.join(('<h4>' + 'Vocabulary' + '</h4>', 'key: '+repr(self.key), table))

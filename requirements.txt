@@ -8,3 +8,10 @@ cached-property
 beautifulsoup4
 html5lib
 lxml
+matplotlib
+requests
+IPython
+tensorflow
+numpy
+tqdm
+conllu

@@ -1,5 +1,6 @@
 from estnltk.taggers import TaggerOld
-from estnltk import Layer, EnvelopingSpan
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 
@@ -23,6 +24,7 @@ class PhraseListTagger(TaggerOld):
                  decorator=None,
                  consistency_checker=None,
                  conflict_resolving_strategy='MAX',
+                 output_ambiguous=False
                  ):
         """Initialize a new EventSequenceTagger instance.
 
@@ -70,6 +72,7 @@ class PhraseListTagger(TaggerOld):
         self.configuration['decorator'] = str(decorator)
         self.configuration['validator'] = str(consistency_checker)
         self.configuration['conflict_resolving_strategy'] = conflict_resolving_strategy
+        self.output_ambiguous=output_ambiguous
         
         self.heads = defaultdict(list)
         for phrase in phrase_list:
@@ -81,7 +84,7 @@ class PhraseListTagger(TaggerOld):
                       name=self.layer_name,
                       attributes = self.attributes,
                       enveloping=self._input_layer,
-                      ambiguous=False)
+                      ambiguous=self.output_ambiguous)
         heads = self.heads
         value_list = getattr(input_layer, self._input_attribute)
         if input_layer.ambiguous:
@@ -96,7 +99,8 @@ class PhraseListTagger(TaggerOld):
                                         match = False
                                         break
                                 if match:
-                                    span = EnvelopingSpan(spans=input_layer[i:i+len(tail)+1].spans)
+                                    span = EnvelopingSpan(spans=input_layer[i:i+len(tail)+1].spans,
+                                                          layer=layer)
                                     phrase = (value,)+tail
                                     if self._consistency_checker(text, span, phrase):
                                         rec = self._decorator(text, span, phrase)

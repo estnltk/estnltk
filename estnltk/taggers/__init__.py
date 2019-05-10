@@ -3,7 +3,7 @@ from estnltk.taggers.retagger import Retagger
 
 from estnltk.taggers.tagger_old import TaggerOld
 
-from estnltk.taggers.tagger_test_maker import make_tagger_test
+from estnltk.taggers.tagger_tester import TaggerTester
 
 from estnltk.taggers.standard_taggers.atomizer import Atomizer
 
@@ -29,12 +29,17 @@ from estnltk.taggers.sequential_tagger import SequentialTagger
 
 from estnltk.taggers.standard_taggers.disambiguating_tagger import DisambiguatingTagger
 from estnltk.taggers.standard_taggers.enveloping_gap_tagger import EnvelopingGapTagger
+from estnltk.taggers.standard_taggers.flatten_tagger import FlattenTagger
 from estnltk.taggers.standard_taggers.gap_tagger import GapTagger
 from estnltk.taggers.standard_taggers.layer_merge_tagger import MergeTagger
 from estnltk.taggers.standard_taggers.robust_date_number_tagger import RobustDateNumberTagger
 from estnltk.taggers.standard_taggers.address_tagger import AddressPartTagger
 from estnltk.taggers.standard_taggers.address_tagger import AddressGrammarTagger
 from estnltk.taggers.standard_taggers.adjective_phrase_tagger import AdjectivePhraseTagger
+from estnltk.taggers.standard_taggers.diff_tagger import DiffTagger
+from estnltk.taggers.standard_taggers.flesch_tagger import SentenceFleschScoreRetagger
+
+from estnltk.taggers.standard_taggers.timex_tagger import TimexTagger
 
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger
@@ -48,3 +53,8 @@ from estnltk.taggers.syntax_preprocessing.finite_form_tagger import FiniteFormTa
 from estnltk.taggers.syntax_preprocessing.verb_extension_suffix_tagger import VerbExtensionSuffixTagger
 from estnltk.taggers.syntax_preprocessing.subcat_tagger import SubcatTagger
 from estnltk.taggers.syntax_preprocessing.morph_extended_tagger import MorphExtendedTagger
+
+from estnltk.taggers.syntax.visl_tagger import VislTagger
+from estnltk.taggers.syntax.conll_morph_tagger import ConllMorphTagger
+from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
+from estnltk.taggers.syntax.syntax_diff_retagger import SyntaxDiffRetagger

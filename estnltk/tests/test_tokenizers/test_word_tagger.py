@@ -1,12 +1,15 @@
 import unittest
 
 from estnltk import Text
-
+from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
+from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
+from estnltk.taggers.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
+     
+normalized_attr_nm = 'normalized_form'
 
 class WordTaggerTest(unittest.TestCase):
 
     def test_compound_token_word_normalization(self):
-        normalized_attr_nm = 'normalized_form'
         test_texts = [ 
             { 'text': 'Kel huvi http://www.youtube.com/watch?v=PFD2yIVn4IE\npets 11.07.2012 20:37 lugesin enne kommentaarid ära.', \
               'normalized_words': [ (2,'http://www.youtube.com/watch?v=PFD2yIVn4IE'), (4,'11.07.2012'), (5,'20:37') ] }, \
@@ -40,4 +43,92 @@ class WordTaggerTest(unittest.TestCase):
             #print(normalized)
             # Check normalized words
             self.assertListEqual(test_text['normalized_words'], normalized)
+
+
+    def test_restore_original_word_tokenization(self):
+        # Tests that the original word tokenization of a pretokenized text can be 
+        # restored using WhiteSpaceTokensTagger, PretokenizedTextCompoundTokensTagger
+        # and WordTagger in combination
+        tokens_tagger = WhiteSpaceTokensTagger()
+        compound_tokens_tagger = PretokenizedTextCompoundTokensTagger()
+        test_texts = [ 
+            { 'text': 'Eurorebimises võidab kavalam\n'+
+                      'Tallinna päevalehtede ühinemisuudise varju jäi möödunud nädalal massiteabes teenimatul hoopis kaalukam sündmus .\n'+
+                      'Nimelt otsustas valitsus neljapäevasel kabinetiistungil , et Eesti esitab veel sel aastal ametliku avalduse Euroopa Liitu astumiseks .', \
+              'expected_words': ['Eurorebimises', 'võidab', 'kavalam', 'Tallinna', 'päevalehtede', \
+                                  'ühinemisuudise', 'varju', 'jäi', 'möödunud', 'nädalal', 'massiteabes',\
+                                  'teenimatul', 'hoopis', 'kaalukam', 'sündmus', '.', 'Nimelt', 'otsustas',\
+                                  'valitsus', 'neljapäevasel', 'kabinetiistungil', ',', 'et', 'Eesti', \
+                                  'esitab', 'veel', 'sel', 'aastal', 'ametliku', 'avalduse', 'Euroopa', \
+                                  'Liitu', 'astumiseks', '.'] }, \
+            { 'text': 'See oli pool lehekülge umbes aasta vanusest Timesist - lehekülje ülemine pool , '+
+                      'nii et sel oli ka kuupäev , - ja sinna oli trükitud ka mingi Partei ülesandega '+
+                      'New Yorki saabunud delegatsiooni foto .', \
+              'expected_words': ['See', 'oli', 'pool', 'lehekülge', 'umbes', 'aasta', 'vanusest', 'Timesist', \
+                                 '-', 'lehekülje', 'ülemine', 'pool', ',', 'nii', 'et', 'sel', 'oli', 'ka', \
+                                 'kuupäev', ',', '-', 'ja', 'sinna', 'oli', 'trükitud', 'ka', 'mingi', \
+                                 'Partei', 'ülesandega', 'New Yorki', 'saabunud', 'delegatsiooni', 'foto', \
+                                 '.' ],\
+              'multiwords': [['New', 'Yorki']] }, \
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            tokens_tagger.tag(text)
+            if 'multiwords' in test_text:
+                # Create new PretokenizedTextCompoundTokensTagger for 
+                # analysing specific multiword units
+                compound_tokens_tagger = PretokenizedTextCompoundTokensTagger( \
+                    multiword_units = test_text['multiwords'])
+            compound_tokens_tagger.tag(text)
+            text.tag_layer(['words'])
+            # Collect results 
+            words = []
+            for wid, word in enumerate( text.words ):
+                if hasattr(word, normalized_attr_nm) and \
+                   getattr(word, normalized_attr_nm) != None:
+                    # Take normalized word, if available
+                    normalized.append( (wid, getattr(word, normalized_attr_nm) ) )
+                else:
+                    # Take surface form of the word
+                    words.append( word.text )
+            # Check results
+            #print( words )
+            self.assertListEqual(test_text['expected_words'], words)
+
+
+    def test_change_input_and_output_layers_of_wordtagger(self):
+        # Tests that input and output layer names of wordtagger can be changed
+        tokens_tagger = TokensTagger(output_layer='my_tokens')
+        cp_tagger = CompoundTokenTagger(output_layer='my_compounds', input_tokens_layer='my_tokens')
+        word_tagger = WordTagger(output_layer='my_words', input_tokens_layer='my_tokens', 
+                                 input_compound_tokens_layer='my_compounds')
+        test_texts = [ 
+            { 'text': 'Mis lil-li müüs Tiit 10e krooniga?', \
+              'expected_words': ['Mis', 'lil-li', 'müüs', 'Tiit', '10e', 'krooniga', '?'] }, \
+           
+            { 'text': "SKT -st või LinkedIn -ist ma eriti ei hoolinudki, aga workshop ' e külastasin küll.", \
+              'expected_words': ['SKT -st', 'või', 'LinkedIn -ist', 'ma', 'eriti', 'ei', 'hoolinudki', ',', 'aga', "workshop ' e", 'külastasin', 'küll', '.'] },\
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            tokens_tagger.tag(text)
+            cp_tagger.tag(text)
+            word_tagger.tag(text)
+            self.assertTrue( 'my_tokens' in text.layers.keys() )
+            self.assertTrue( 'my_compounds' in text.layers.keys() )
+            self.assertTrue( 'my_words' in text.layers.keys() )
+            self.assertFalse( 'tokens' in text.layers.keys() )
+            self.assertFalse( 'compound_tokens' in text.layers.keys() )
+            self.assertFalse( 'words' in text.layers.keys() )
+            words_spans = text['my_words'].span_list
+            # Fetch result
+            word_segmentation = [] 
+            for wid, word in enumerate( words_spans ):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
 

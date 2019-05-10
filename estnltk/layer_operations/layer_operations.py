@@ -1,118 +1,83 @@
 """
-Low-level layer operations for Estnltk Text object.
+Operations for Estnltk Layer object.
 
 """
+from typing import Container
+from itertools import groupby
 from operator import eq
 from pandas import DataFrame
 
-import regex as re
 from collections import Counter, defaultdict
 
-
-# ? Sven palus üles kirjutada küsimused, mis koodi silmitsedes tekivad.
-# ? Kas kõik järgmised konstandid on mõttekad? 
-# ? UNION on allpool ainult osaliselt kasutusel.
-# ? ehk võiks enamlevinud konstandid importida
 from estnltk.layer.layer import Layer
-
-TEXT = 'text'
-AND = 'AND'
-OR = 'OR'
-
-UNION = 'union'
-INTERSECTION = 'intersection'
-EXACT = 'exact'
-
-START = 'start'
-END = 'end'
+from estnltk.layer.span_operations import equal_support
 
 
-
-#NEW API
-def new_layer_with_regex(text, name='', patterns=[], flags=0):
-    """Creates new layer to the Text instance with the name the user inputs."""
-    spans = []
-    for elem in patterns:
-        for match in re.finditer(elem, text.text, flags=flags):
-            spans.append(match.span())
-    layer = Layer.from_span_tuples(name=name, spans=spans)
-    text._add_layer(layer)
-    return text
-
-
-# def delete_layer(text, layers):
-    # """Deletes layers in input list but except the 'text' layer. Modifies the *text*."""
-    # delete = set(text.keys())
-    # delete.intersection_update(set(layers))
-    # delete.difference_update({TEXT})
-    # for layer in delete:
-        # del text[layer]
-    # return text
-
-
-# def keep_layer(text, layers):
-    # """Keeps layers in input list and the 'text' layer. Modifies the *text*."""
-    # delete = set(text.keys())
-    # delete.difference_update(layers)
-    # delete.difference_update({TEXT})
-    # for layer in delete:
-        # del text[layer]
-    # return text
+def apply_filter(layer: Layer, function: callable, preserve_spans: bool = False, drop_immediately: bool = False):
+    if drop_immediately:
+        i = 0
+        while i < len(layer):
+            j = 0
+            while j < len(layer[i]):
+                if preserve_spans and len(layer[i]) == 1:
+                    break
+                if function(layer, i, j):
+                    j += 1
+                    continue
+                if len(layer[i]) == 1:
+                    del layer[i][j]
+                    i -= 1
+                    break
+                else:
+                    del layer[i][j]
+            i += 1
+    else:
+        to_remove = []
+        for i, span in enumerate(layer):
+            for j, annotation in enumerate(span):
+                if not function(layer, i, j):
+                    to_remove.append((i, j))
+        for i, j in reversed(to_remove):
+            if not preserve_spans or len(layer[i]) > 1:
+                del layer[i][j]
 
 
-# def sort_layer(text, layer, update=False):
-    # layer_to_sort = text[layer]
-    # print('Layer to sort: ', layer_to_sort)
-    # if update:
-        # layer_sorted = sort(layer_to_sort, key=lambda e: (e[START], e[END]))
-# # ? miks layer_sorted kasutusel pole. ehk võiks selle return-ida? või on siin tahetud kasutada ühel juhul meetodit 'sorted'?
-    # else:
-        # return sort(layer_to_sort, key=lambda e: (e[START], e[END]))
+def drop_annotations(layer: Layer, attribute: str, values: Container, preserve_spans=False):
+    to_remove = []
+
+    for i, span in enumerate(layer):
+        for j, annotation in enumerate(span):
+            if getattr(annotation, attribute) in values:
+                to_remove.append((i, j))
+    for i, j in reversed(to_remove):
+        if not preserve_spans or len(layer[i]) > 1:
+            del layer[i][j]
 
 
+def keep_annotations(layer: Layer, attribute: str, values: Container, preserve_spans=False):
+    to_remove = []
 
-###############################################################
-
-# def get_text(text, start=None, end=None, layer_element=None, span=None, marginal=0):
-    # """Get text by start and end or by layer_element or by span.
-
-    # Parameters
-    # ----------
-    # start: int, default: 0
-    
-    # end: int, default: len(text.text)
-    
-    # layer_element: dict, default: None
-        # dict that contains 'start' and 'end'.
-    
-    # span: (int, int), default: None
-
-    # marginal: int, default: 0
-        # The number of extra characters at the beginning and at end of the 
-        # returned text.
-    
-    # Returns
-    # -------
-    # str
-        # Strings that corresponds to given *(start, end)* span. 
-        # Default values return the whole text.
-    # """
-    # if layer_element != None:
-        # start = layer_element[START]
-        # end = layer_element[END]
-    # elif span != None:
-        # start, end = span
-    # if start == None:
-        # start = 0
-    # if end == None:
-        # end = len(text.text)
-    # start = max(0, start - marginal)
-    # end = min(len(text.text), end + marginal)
-    # return text.text[start:end]
+    for i, span in enumerate(layer):
+        for j, annotation in enumerate(span):
+            if getattr(annotation, attribute) not in values:
+                to_remove.append((i, j))
+    for i, j in reversed(to_remove):
+        if not preserve_spans or len(layer[i]) > 1:
+            del layer[i][j]
 
 
-#NEW API
-def unique_texts(layer, order=None):
+def apply_to_annotations(layer: Layer, function: callable):
+    for span in layer:
+        for annotation in span:
+            function(annotation)
+
+
+def apply_to_spans(layer: Layer, function: callable):
+    for span in layer:
+        function(span)
+
+
+def unique_texts(layer: Layer, order=None):
     """Retrive unique texts of layer optionally ordered.
 
     Parameters
@@ -140,8 +105,7 @@ def unique_texts(layer, order=None):
     raise ValueError('Incorrect order type.')
 
 
-#NEW API
-def count_by(layer, attributes, counter=None):
+def count_by(layer: Layer, attributes, counter=None):
     """Create table of counts for every *layer* *attributes* value combination.
     
     Parameters
@@ -178,24 +142,21 @@ def count_by(layer, attributes, counter=None):
     return counter
 
 
-
-#NEW API
-def diff_layer(a, b, comp=eq):
+def diff_layer(a: Layer, b: Layer, comp=eq):
     """Generator of layer differences.
 
     Parameters
     ----------
-    a and b:
-        Layer.
-        No (start, end) duplicates may exist.
+    a: Layer
+    b: Layer
     comp: compare function, default: operator.eq
         Function that returns True if layer elements are equal and False otherwise.
         Only layer elements with equal spans are compared.
 
     Yields
     ------
-    tuple(dict)
-        Pairs of different layer elements. In place of missing layer element,
+    tuple(Span)
+        Pairs of different spans. In place of missing layer element,
         None is returned.
     """
     a = iter(a)
@@ -212,14 +173,14 @@ def diff_layer(a, b, comp=eq):
         b_end = True
 
     while not a_end and not b_end:
-        if x.start < y.start or x.start == y.start and x.end < y.end:
+        if x < y:
             yield (x, None)
             try:
                 x = next(a)
             except StopIteration:
                 a_end = True
             continue
-        if x.start == y.start and x.end == y.end:
+        if equal_support(x, y):
             if not comp(x, y):
                 yield (x, y)
             try:
@@ -241,19 +202,109 @@ def diff_layer(a, b, comp=eq):
         return
 
     if a_end:
-        while True:
-            yield (None, y)
-            y = next(b)
+        yield (None, y)
+        yield from ((None, y) for y in b)
 
     if b_end:
-        while True:
-            yield (x, None)
-            x = next(a)
+        yield (x, None)
+        yield from ((x, None) for x in a)
+
+
+def get_enclosing_spans(layer: Layer, span):
+    base_span = span.base_span
+    end = span.end
+    for sp in layer:
+        if base_span in sp.base_span:
+            yield sp
+        if end < sp.start:
+            break
+
+
+# def delete_layer(text, layers):
+    # """Deletes layers in input list but except the 'text' layer. Modifies the *text*."""
+    # delete = set(text.keys())
+    # delete.intersection_update(set(layers))
+    # delete.difference_update({TEXT})
+    # for layer in delete:
+        # del text[layer]
+    # return text
+
+
+# def keep_layer(text, layers):
+    # """Keeps layers in input list and the 'text' layer. Modifies the *text*."""
+    # delete = set(text.keys())
+    # delete.difference_update(layers)
+    # delete.difference_update({TEXT})
+    # for layer in delete:
+        # del text[layer]
+    # return text
+
+
+# def sort_layer(text, layer, update=False):
+    # layer_to_sort = text[layer]
+    # print('Layer to sort: ', layer_to_sort)
+    # if update:
+        # layer_sorted = sort(layer_to_sort, key=lambda e: (e[START], e[END]))
+# # ? miks layer_sorted kasutusel pole. ehk võiks selle return-ida? või on siin tahetud kasutada ühel juhul meetodit 'sorted'?
+    # else:
+        # return sort(layer_to_sort, key=lambda e: (e[START], e[END]))
+
+
+###############################################################
+
+# def get_text(text, start=None, end=None, layer_element=None, span=None, marginal=0):
+    # """Get text by start and end or by layer_element or by span.
+
+    # Parameters
+    # ----------
+    # start: int, default: 0
+
+    # end: int, default: len(text.text)
+
+    # layer_element: dict, default: None
+        # dict that contains 'start' and 'end'.
+
+    # span: (int, int), default: None
+
+    # marginal: int, default: 0
+        # The number of extra characters at the beginning and at end of the
+        # returned text.
+
+    # Returns
+    # -------
+    # str
+        # Strings that corresponds to given *(start, end)* span.
+        # Default values return the whole text.
+    # """
+    # if layer_element != None:
+        # start = layer_element[START]
+        # end = layer_element[END]
+    # elif span != None:
+        # start, end = span
+    # if start == None:
+        # start = 0
+    # if end == None:
+        # end = len(text.text)
+    # start = max(0, start - marginal)
+    # end = min(len(text.text), end + marginal)
+    # return text.text[start:end]
 
 
 ############################################################
 ####### OLD API BELOW ######################################
 ############################################################
+# TODO: cleanup
+
+TEXT = 'text'
+AND = 'AND'
+OR = 'OR'
+
+UNION = 'union'
+INTERSECTION = 'intersection'
+EXACT = 'exact'
+
+START = 'start'
+END = 'end'
 
 
 def compute_layer_intersection(text, layer1, layer2, method='union'):
@@ -311,6 +362,7 @@ def compute_layer_intersection(text, layer1, layer2, method='union'):
 
 
 
+# TODO: merge into remove_annotations
 def apply_simple_filter(text, layer='', restriction='', option=OR):
     """Creates a layer with the options from user input. """
     dicts = []
@@ -352,6 +404,7 @@ def apply_simple_filter(text, layer='', restriction='', option=OR):
                     if dicts == []:
                         print('No results.')
                     return dicts
+
 
 def count_by_document(text, layer, attributes, counter=None):
     """Create table of counts for every *layer* *attributes* value combination.
@@ -426,31 +479,6 @@ def dict_to_df(counter, table_type='keyvalue', attributes=[0, 1]):
         return DataFrame.from_dict(table, orient='index').fillna(value=0)
 
 
-def duplicates_of(head, layer):
-    """ Generator of all duplicates (by (start, end) values) of head[0] in layer.
-    
-    Parameters
-    ----------
-    head: list
-        head[0] is a layer element
-    layer: list of dict
-        Must be ordered by *(start, end)* values.
-    
-    Yields
-    ------
-    dict
-        head[0] and all duplicates of head[0] in layer.
-    """
-
-    old_head = head[0]
-    yield old_head
-    head[0] = next(layer)
-    while head[0][START] == old_head[START] and head[0][END] == old_head[END]:
-        old_head = head[0]
-        yield old_head
-        head[0] = next(layer)
-
-
 def group_by_spans(layer, fun):
     """ Merge elements with equal spans. Generate a new layer with no duplicate spans.
     
@@ -476,13 +504,9 @@ def group_by_spans(layer, fun):
         Layer elements with no span duplicates. 
         Duplicates of input are merged by *merge_fun*.
     """
-    layer = iter(layer)
-    head = [next(layer)]
-    while True:
-        start, end = head[0][START], head[0][END]
-        yield fun(duplicates_of(head, layer))
-        while (start, end) == (head[0][START], head[0][END]):
-            head = [next(layer)]
+    for g in groupby(layer, lambda s: (s[START], s[END])):
+        yield fun(g[1])
+    return
 
 
 def conflicts(text, layer, multilayer=True):

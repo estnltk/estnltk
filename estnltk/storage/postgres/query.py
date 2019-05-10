@@ -1,3 +1,5 @@
+from psycopg2.sql import SQL
+
 """
 The module provides tools to compose boolean queries.
 
@@ -21,7 +23,7 @@ class Node:
         """Or operation with "|" operator"""
         return Or(self, other)
 
-    def eval(self):
+    def eval(self, storage, collection_name):
         """Operations and leaf nodes should implement it"""
         raise NotImplemented()
 
@@ -32,21 +34,24 @@ class BinaryOperation(Node):
 
 
 class And(BinaryOperation):
-    def eval(self):
-        return "({} AND {})".format(self.left.eval(), self.right.eval())
+    def eval(self, storage, collection_name):
+        return SQL("({} AND {})").format(self.left.eval(storage, collection_name),
+                                         self.right.eval(storage, collection_name))
 
 
 class Or(BinaryOperation):
-    def eval(self):
-        return "({} OR {})".format(self.left.eval(), self.right.eval())
+    def eval(self, storage, collection_name):
+        return SQL("({} OR {})").format(self.left.eval(storage, collection_name),
+                                        self.right.eval(storage, collection_name))
 
 
 class Query(Node):
-    def eval(self):
+    def eval(self, storage, collection_name):
         """Returns string representation of a (leaf) node"""
         raise NotImplemented()
 
 
+# TODO: test or remove
 class SimpleQuery(Query):
     """Example implementation of `Query`.
 
@@ -58,5 +63,5 @@ class SimpleQuery(Query):
     def _init__(self, **kwargs):
         self.kwargs = kwargs
 
-    def eval(self):
-        return ' AND '.join("%s = '%s'" % (k, v) for k, v in self.kwargs.items())
+    def eval(self, storage, collection_name):
+        return SQL(' AND '.join("%s = '%s'" % (k, v) for k, v in self.kwargs.items()))

@@ -1,178 +1,12 @@
-import bisect
-from typing import Union, List, Sequence, MutableMapping, Tuple, Any
+import keyword
+from typing import Union, List, Sequence
 import pandas
 import collections
-import itertools
 import warnings
 
-from estnltk import Span, EnvelopingSpan, AmbiguousSpan
-from estnltk.layer import AmbiguousAttributeTupleList, AttributeTupleList, AttributeList, AmbiguousAttributeList
-
-
-class SpanList(collections.Sequence):
-    def __init__(self,
-                 layer=None,  # type: Layer
-                 ambiguous: bool=False) -> None:
-        # TODO:
-        # assert layer is not None
-        self.classes = {}  # type: MutableMapping[Tuple[int, int], AmbiguousSpan]
-
-        self.spans = []  # type: List
-
-        self._layer = layer
-        self.ambiguous = ambiguous
-
-        # placeholder for ambiguous layer
-        self.parent = None  # type:Union[Span, None]
-
-        # placeholder for dependant layer
-        self._base = None  # type:Union[Span, None]
-
-    def get_equivalence(self, span):
-        return self.classes.get((span.start, span.end), None)
-
-    def get_attributes(self, items):
-        r = []
-        for x in zip(*[[i
-                        if isinstance(i, (list, tuple))
-                        else itertools.cycle([i]) for i in getattr(self, item)] for item in items]
-
-                     ):
-
-            quickbreak = all(isinstance(i, itertools.cycle) for i in x)
-
-            tmp = []
-            for pair in zip(*x):
-                tmp.append(pair)
-                if quickbreak:
-                    break
-
-            r.append(tmp)
-        return r
-
-    def to_record(self, with_text=False):
-        return [i.to_record(with_text) for i in self.spans]
-
-    def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
-        # the assumption is that this method is called by Layer.add_span
-        assert isinstance(span, (EnvelopingSpan, Span)), str(type(span))
-        span.layer = self.layer
-        target = self.get_equivalence(span)
-        if self.ambiguous:
-            if target is None:
-                new = AmbiguousSpan(layer=self.layer)
-                new.add_span(span)
-                self.classes[(span.start, span.end)] = new
-                bisect.insort(self.spans, new)
-                new.parent = span.parent
-            else:
-                assert isinstance(target, AmbiguousSpan)
-                target.add_span(span)
-        else:
-            if target is None:
-                bisect.insort(self.spans, span)
-                self.classes[(span.start, span.end)] = span
-            else:
-                raise ValueError('span is already in spanlist: ' + str(span))
-        return span
-
-    @property
-    def layer(self):
-        return self._layer
-
-    @layer.setter
-    def layer(self, value):
-        # assert isinstance(value, Layer) or value is None
-        self._layer = value
-
-    @property
-    def start(self):
-        return self.spans[0].start
-
-    @property
-    def end(self):
-        return self.spans[-1].end
-
-    @property
-    def text(self):
-        return [span.text for span in self.spans]
-        # return AttributeList([span.text for span in self.spans], 'text')
-
-    @property
-    def enclosing_text(self):
-        return self.layer.text_object.text[self.start:self.end]
-
-    def __iter__(self):
-        yield from self.spans
-
-    def __len__(self) -> int:
-        return len(self.__getattribute__(
-            'spans'
-        ))
-
-    def __contains__(self, item: Any) -> bool:
-        return item in self.spans
-
-    def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__'}:
-            raise AttributeError
-        if item == '_ipython_canary_method_should_not_exist_' and self.layer is not None and self is self.layer.span_list:
-            raise AttributeError
-
-        layer = self.__getattribute__('layer')  # type: Layer
-        if item in layer.attributes:
-            return layer.attribute_list(item)#[getattr(span, item) for span in self.spans]
-        if item in self.__dict__.keys():
-            return self.__dict__[item]
-        if item == getattr(self.layer, 'parent', None):
-            return self.parent
-        if item in self.__dict__:
-            return self.__dict__[item]
-
-        target = layer.text_object._resolve(layer.name, item, sofar=self)
-        return target
-
-    def __getitem__(self, idx: int) -> Union[Span, 'SpanList', list]:
-        if isinstance(idx, str) or isinstance(idx, (list, tuple)) and all(isinstance(s, str) for s in idx):
-            return self.attribute_list(idx)
-
-        wrapped = self.spans.__getitem__(idx)
-        if isinstance(idx, int):
-            return wrapped
-
-        res = SpanList(layer=self.layer, ambiguous=self.ambiguous)
-        res.spans = wrapped
-        res.ambiguous = self.ambiguous
-        res.parent = self.parent
-        return res
-
-    def __lt__(self, other: Any) -> bool:
-        return (self.start, self.end) < (other.start, other.end)
-
-    def __eq__(self, other: Any) -> bool:
-        return hash(self) == hash(other)
-        # try:
-        #    return (self.start, self.end) == (other.start, other.end)
-        # except AttributeError:
-        #    return False
-
-    def __le__(self, other: Any) -> bool:
-        return self < other or self == other
-
-    def __hash__(self):
-        return hash((tuple(self.spans), self.ambiguous, self.parent))
-
-    def __str__(self):
-        return 'SL[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
-
-    def __repr__(self):
-        return str(self)
-
-    def _repr_html_(self):
-        if self.layer and self is self.layer.span_list:
-            return self.layer.to_html(header='SpanList', start_end=True)
-        return str(self)
-
+from estnltk import Span, EnvelopingSpan, AmbiguousSpan, Annotation, SpanList
+from estnltk.layer import AmbiguousAttributeTupleList
+from estnltk.visualisation import DisplaySpans
 
 
 def whitelist_record(record, source_attributes):
@@ -192,29 +26,31 @@ def whitelist_record(record, source_attributes):
 
 class Layer:
     def __init__(self,
-                 name: str = None,
+                 name: str,
                  attributes: Sequence[str] = (),
+                 text_object=None,
                  parent: str = None,
                  enveloping: str = None,
                  ambiguous: bool = False,
-                 default_values=None
+                 default_values: dict = None
                  ) -> None:
-        assert parent is None or enveloping is None, "Can't be derived AND enveloping"
-
-        assert name is not None, 'Layer must have a name'
-
-        # name of the layer
-        self.name = name
+        assert parent is None or enveloping is None, "can't be derived AND enveloping"
 
         # list of legal attribute names for the layer
+        assert not isinstance(attributes, str), attributes
+        attributes = tuple(attributes)
+        assert all(attr.isidentifier() for attr in attributes), attributes
         self.attributes = attributes
-        assert len(attributes) == len(set(attributes)), 'repetitive attribute name'
+        assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
+
+        # name of the layer
+        assert name.isidentifier() and not \
+               keyword.iskeyword(name), 'layer name must be a valid python identifier, {!r}'.format(name)
+        assert name != 'text'
+        self.name = name
 
         # the name of the parent layer.
         self.parent = parent
-
-        # has this layer been added to a text object
-        self._bound = False
 
         self._is_frozen = False
 
@@ -237,22 +73,22 @@ class Layer:
         self.enveloping = enveloping
 
         # Container for spans
-        self.span_list = SpanList(layer=self, ambiguous=ambiguous)
+        self.span_list = SpanList(layer=self)
 
         # boolean for if this is an ambiguous layer
         # if True, add_span will behave differently and add a SpanList instead.
         self.ambiguous = ambiguous  # type: bool
 
-        if default_values is None:
-            self.default_values = {}
-        else:
-            self.default_values = default_values
+        self.default_values = default_values or {}
+
         for attr in self.attributes:
             if attr not in self.default_values:
                 self.default_values[attr] = None
 
         # placeholder. is set when `_add_layer` is called on text object
-        self.text_object = None  # type: Text
+        self.text_object = text_object  # type: Text
+
+        self.meta = {}
 
     @property
     def layer(self):
@@ -272,7 +108,13 @@ class Layer:
 
     @property
     def text(self):
-        return [span.text for span in self.span_list.spans]
+        result = []
+        for span in self.span_list.spans:
+            if isinstance(span, EnvelopingSpan):
+                result.extend(span.text)
+            else:
+                result.append(span.text)
+        return result
 
     @property
     def enclosing_text(self):
@@ -295,83 +137,173 @@ class Layer:
         return self._is_frozen
 
     def from_records(self, records, rewriting=False) -> 'Layer':
-        if self.parent is not None and not self._bound:
+        if self.parent is not None:
             self._is_lazy = True
 
         if self.ambiguous:
             if rewriting:
-                self.span_list = SpanList(ambiguous=True, layer=self)
-                tmpspans = []
-                for record_line in records:
-                    if record_line is not None:
-                        spns = SpanList(layer=self, ambiguous=False)
-                        spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes)
-                                      for record in record_line]
-                        tmpspans.append(spns)
-                        self.span_list.classes[(spns.spans[0].start, spns.spans[0].end)] = spns
-                self.span_list.spans = tmpspans
-            else:
-                for record_line in records:
-                    self._add_spans([Span(**record, legal_attributes=self.attributes) for record in record_line])
+                self.span_list = SpanList(layer=self)
+
+            for record_line in records:
+                for record in record_line:
+                    self.add_annotation(Span(start=record['start'], end=record['end']), **record)
         else:
             if rewriting:
-                spns = SpanList(layer=self, ambiguous=False)
-                spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes) for record in
-                              records if record is not None]
+                spns = SpanList(layer=self)
 
+                for record in records:
+                    if record is None:
+                        continue
+                    sp = Span(start=record['start'], end=record['end'], layer=self)
+                    sp.add_annotation(**record)
+                    spns.add_span(sp)
                 self.span_list = spns
             else:
                 for record in records:
-                    self.add_span(Span(
-                        **record,
-                        legal_attributes=self.attributes
-                    ))
+                    self.add_annotation(Span(start=record['start'], end=record['end']), **record)
         return self
 
     def attribute_list(self, attributes):
-        assert isinstance(attributes, (str, list, tuple)), str(type(attributes))
-        if not attributes:
-            raise IndexError('no attributes: ' + str(attributes))
-
-        if self.ambiguous:
-            if isinstance(attributes, (list, tuple)):
-                return AmbiguousAttributeTupleList((((getattr(sp, name) for name in attributes) for sp in asp)
-                                                    for asp in self.spans), attributes)
-            else:
-                return AmbiguousAttributeList(((getattr(sp, attributes) for sp in asp)
-                                               for asp in self.spans), attributes)
-        else:
-            if isinstance(attributes, (list, tuple)):
-                return AttributeTupleList([[getattr(sp, attr)for attr in attributes] for sp in self.spans], attributes)
-            else:
-                return AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
+        return self.span_list.attribute_list(attributes)
 
     def get_attributes(self, items):
         return self.__getattribute__('span_list').get_attributes(items)
 
-    # TODO: remove this
-    def to_record(self, with_text=False):
-        return self.span_list.to_record(with_text)
-
     def to_records(self, with_text=False):
-        records = []
-
-        for item in self.span_list:
-            records.append(item.to_record(with_text))
-
-        return records
+        return self.span_list.to_records(with_text)
 
     def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
-        assert isinstance(span, (EnvelopingSpan, Span, Layer)), str(type(span))
+        assert isinstance(span, (EnvelopingSpan, Span, Layer, Annotation)), str(type(span))
         if isinstance(span, Layer):
-            span = EnvelopingSpan(spans=span.spans)
+            span = EnvelopingSpan(spans=span.spans, layer=self)
         for attr in self.attributes:
             try:
-                span.__getattribute__(attr)
+                if isinstance(span, EnvelopingSpan):
+                    if attr not in span._attributes:
+                        raise AttributeError
+                else:
+                    getattr(span, attr)
             except AttributeError:
                 setattr(span, attr, self.default_values[attr])
-        return self.span_list.add_span(span)
+
+        span.add_layer(self)
+        target = self.span_list.get(span)
+        if self.ambiguous:
+            if target is None:
+                new = AmbiguousSpan(layer=self, span=span)
+                new.add_span(span)
+                self.span_list.add_span(new)
+                new.parent = span.parent
+            else:
+                assert isinstance(target, AmbiguousSpan)
+                target.add_span(span)
+        else:
+            if target is None:
+                self.span_list.add_span(span)
+            else:
+                raise ValueError('this layer is not ambiguous and the span is already in the spanlist', span)
+        return span
+
+    def remove_span(self, span):
+        self.span_list.remove_span(span)
+
+    def add_annotation(self, base_span, **attributes):
+        attributes = {**self.default_values, **{k: v for k, v in attributes.items() if k in self.attributes}}
+
+        if self.parent is not None and self.ambiguous:
+            span = self.span_list.get(base_span)
+            if span is None:
+                span = AmbiguousSpan(self, base_span)
+                self.span_list.add_span(span)
+            assert isinstance(span, AmbiguousSpan), span
+            return span.add_annotation(**attributes)
+
+        if self.parent is not None and not self.ambiguous:
+            if self.span_list.get(base_span) is not None:
+                raise ValueError('the layer is not ambiguous and already contains this span')
+            assert self.span_list.get(base_span) is None
+            span = Span(parent=base_span, layer=self)
+            self.span_list.add_span(span)
+            return span.add_annotation(**attributes)
+
+        if self.enveloping is not None:
+            if self.ambiguous:
+                span = EnvelopingSpan(spans=base_span, layer=self)
+
+                target = self.span_list.get(span)
+                if target is None:
+                    target = AmbiguousSpan(layer=self, span=span)
+                    self.span_list.add_span(target)
+                annotation = target.add_annotation(**attributes)
+            else:
+                span = EnvelopingSpan(spans=base_span, layer=self)
+                annotation = span.add_annotation(**attributes)
+                self.span_list.add_span(span)
+            return annotation
+
+        if self.parent is None and self.enveloping is None and self.ambiguous:
+            span = self.span_list.get(base_span)
+            if span is None:
+                span = AmbiguousSpan(self, Span(base_span.start, base_span.end, layer=self))
+                self.span_list.add_span(span)
+            assert isinstance(span, AmbiguousSpan), span
+            return span.add_annotation(**attributes)
+
+        assert self.parent is None and self.enveloping is None and not self.ambiguous
+
+        if self.parent is None and self.enveloping is None and not self.ambiguous:
+            if self.span_list.get(base_span) is not None:
+                raise ValueError('the layer is not ambiguous and already contains this span')
+
+            span = Span(base_span.start, base_span.end, layer=self)
+            span.add_annotation(**attributes)
+            self.span_list.add_span(span)
+            return span.annotations[0]
+
+    def check_span_consistency(self) -> None:
+        # Checks for layer's span consistency
+        starts_ends = set()
+        for span in self.span_list.spans:
+            # Check for duplicate locations
+            assert (span.start, span.end) not in starts_ends, '{} is a span with duplicate location'.format(span)
+            starts_ends.add((span.start, span.end))
+            # Check for ambiguous spans
+            if self.ambiguous:
+                assert isinstance(span, AmbiguousSpan), \
+                       '(!) {} should be AmbiguousSpan'.format(span)
+            # Check that the span is connected with the layer
+            if isinstance(span, (EnvelopingSpan, AmbiguousSpan)):
+                assert self == span.layer, \
+                       '(!) missing or wrong layer: {}'.format(span.layer)
+            # Check attributes of AmbiguousSpan
+            if isinstance(span, AmbiguousSpan):
+                for annotation in span.annotations:
+                    # Check for missing attributes in Annotations
+                    for attr in self.attributes:
+                        attrib_exists = True
+                        try:
+                            getattr(annotation, attr)
+                        except AttributeError:
+                            attrib_exists = False
+                        assert attrib_exists, \
+                               '(!) Annotation missing attribute {}'.format(attr)
+                    # Check for redundant attributes in Annotations
+                    for anno_attr in annotation._attributes:
+                        assert anno_attr in self.attributes, \
+                       '(!) Annotation has redundant attribute {}'.format(anno_attr)
+            # Check attributes of EnvelopingSpan and Span
+            elif isinstance(span, (EnvelopingSpan, Span)):
+                # Check for existence of layer's attributes
+                # for annotation in span.annotations:
+                #     assert set(annotation.attributes) == set(self.attributes), annotation.attributes
+                for attr in self.attributes:
+                    assert hasattr(span, attr), \
+                       '(!) missing attribute {} in {}'.format(attr, span)
+                # Check for redundant attributes
+                for span_attr in span.legal_attribute_names:
+                    assert span_attr in self.attributes, \
+                       '(!) redundant attribute {} in {}'.format(span_attr, span)
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
@@ -389,15 +321,6 @@ class Layer:
 
         return resulting_layer
 
-    def _add_spans_to_enveloping(self, spans):
-        assert not self.is_frozen, "can't add spans to frozen layer"
-        spanlist = SpanList(
-            layer=self
-        )
-        spanlist.spans = spans
-        bisect.insort(self.span_list.spans, spanlist)
-        return spanlist
-
     def _add_spans(self, spans: List['Span']) -> List['Span']:
         assert not self.is_frozen, "can't add spans to frozen layer"
         assert self.ambiguous or self.enveloping
@@ -412,6 +335,23 @@ class Layer:
         else:
             return self.text_object._resolve(self.name, target)
 
+    def count_values(self, attribute: str):
+        """count attribute values, return frequency table"""
+        if self.ambiguous:
+            return collections.Counter(getattr(annotation, attribute)
+                                       for span in self.spans for annotation in span.annotations)
+        return collections.Counter(getattr(span, attribute) for span in self.spans)
+
+    def groupby(self, by: Sequence[str], return_type: str = 'spans'):
+        if isinstance(by, Sequence) and all(isinstance(b, str) for b in by):
+            return layer_operations.GroupBy(layer=self, by=by, return_type=return_type)
+        elif isinstance(by, Layer):
+            return layer_operations.group_by(layer=self, by=by)
+        raise ValueError(by)
+
+    def rolling(self, window: int, min_periods: int = None, inside: str = None):
+        return layer_operations.Rolling(self, window=window,  min_periods=min_periods, inside=inside)
+
     def __getattr__(self, item):
         if item in {'_ipython_canary_method_should_not_exist_', '__getstate__'}:
             raise AttributeError
@@ -419,17 +359,21 @@ class Layer:
             return self.__getattribute__('__dict__')[item]
         if item in self.__getattribute__('attributes'):
             return self.__getitem__(item)
-            #return self.__getattribute__('span_list').__getattr__(item)
 
-        target = self.text_object._resolve(self.name, item, sofar=self.span_list)
-        return target
+        return self.text_object._resolve(self.name, item, sofar=self.span_list)
+
+    def __setattr__(self, key, value):
+        # TODO: can 'name' be an attribute name?
+        if key != 'attributes' and key != 'name' and key in self.attributes:
+            raise AttributeError(key)
+        super().__setattr__(key, value)
 
     def __getitem__(self, item) -> Union[Span, 'Layer', AmbiguousAttributeTupleList]:
         if item == [] or item == ():
             raise IndexError('no attributes: ' + str(item))
 
         if isinstance(item, str) or isinstance(item, (list, tuple)) and all(isinstance(s, str) for s in item):
-            return self.attribute_list(item)
+            return self.span_list.attribute_list(item)
 
         if isinstance(item, int):
             wrapped = self.span_list.spans.__getitem__(item)
@@ -447,29 +391,28 @@ class Layer:
 
         layer = Layer(name=self.name,
                       attributes=self.attributes,
+                      text_object=self.text_object,
                       parent=self.parent,
                       enveloping=self.enveloping,
                       ambiguous=self.ambiguous,
                       default_values=self.default_values)
         layer._base = self._base
-        span_list = SpanList(layer=layer, ambiguous=self.ambiguous)
-        span_list.parent = self.span_list.parent
-        layer.span_list = span_list
 
         if isinstance(item, slice):
             wrapped = self.span_list.spans.__getitem__(item)
             layer.span_list.spans = wrapped
             return layer
-        if isinstance(item, (list, tuple)) and all(isinstance(i, bool) for i in item):
-            if len(item) != len(self):
-                warnings.warn('Index boolean list not equal to length of layer: {}!={}'.format(len(item), len(self)))
-            wrapped = [s for s, i in zip(self.span_list.spans, item) if i]
-            layer.span_list.spans = wrapped
-            return layer
-        if isinstance(item, (list, tuple)) and all(isinstance(i, int) for i in item):
-            wrapped = [self.span_list.spans.__getitem__(i) for i in item]
-            layer.span_list.spans = wrapped
-            return layer
+        if isinstance(item, (list, tuple)):
+            if all(isinstance(i, bool) for i in item):
+                if len(item) != len(self):
+                    warnings.warn('Index boolean list not equal to length of layer: {}!={}'.format(len(item), len(self)))
+                wrapped = [s for s, i in zip(self.span_list.spans, item) if i]
+                layer.span_list.spans = wrapped
+                return layer
+            if all(isinstance(i, int) for i in item):
+                wrapped = [self.span_list.spans.__getitem__(i) for i in item]
+                layer.span_list.spans = wrapped
+                return layer
         if callable(item):
             wrapped = [span for span in self.span_list.spans if item(span)]
             layer.span_list.spans = wrapped
@@ -477,11 +420,36 @@ class Layer:
 
         raise TypeError('index not supported: ' + str(item))
 
+    def get(self, item):
+        if isinstance(item, Span):
+            return self.span_list.get(span=item)
+        if isinstance(item, EnvelopingSpan):
+            result = self.span_list.get(span=item)
+            if result is not None:
+                return result
+            item = item.spans
+        if isinstance(item, (list, tuple)):
+            layer = Layer(name=self.name,
+                          attributes=self.attributes,
+                          text_object=self.text_object,
+                          parent=self.parent,
+                          enveloping=self.enveloping,
+                          ambiguous=self.ambiguous,
+                          default_values=self.default_values)
+            layer._base = self._base
+
+            wrapped = [self.span_list.get(i) for i in item]
+            assert all(s is not None for s in wrapped)
+            layer.span_list.spans = wrapped
+            return layer
+
+        raise ValueError(item)
+
     def __len__(self):
         return len(self.span_list)
 
     def __str__(self):
-        return 'Layer(name={self.name}, spans={self.span_list})'.format(self=self)
+        return 'Layer(name={self.name!r}, attributes={self.attributes}, spans={self.span_list})'.format(self=self)
 
     def metadata(self):
         """
@@ -497,6 +465,10 @@ class Layer:
                                              columns=['layer name', 'attributes',
                                                       'parent', 'enveloping',
                                                       'ambiguous', 'span count'])
+
+    def display(self):
+        display_spans = DisplaySpans()
+        display_spans(self)
 
     def to_html(self, header='Layer', start_end=False):
         res = []
@@ -539,7 +511,7 @@ class Layer:
         pandas.set_option('display.max_colwidth', -1)
         table1 = self.metadata().to_html(index=False, escape=False)
         if table2 is None:
-            table2 = df.to_html(index=False, escape=False)
+            table2 = df.to_html(index=False, escape=True)
         if header:
             return '\n'.join(('<h4>' + header + '</h4>', table1, table2))
         return '\n'.join((table1, table2))
@@ -547,17 +519,28 @@ class Layer:
     print_start_end = False
 
     def _repr_html_(self):
-        if self.print_start_end:
-            attributes = ['text', 'start', 'end']
+        attributes = []
+        if self.text_object is None:
+            text_object = 'No Text object.'
         else:
-            attributes = ['text']
+            attributes.append('text')
+            text_object = ''
+        if self.print_start_end:
+            attributes.extend(['start', 'end'])
         attributes.extend(self.attributes)
+        if not attributes:
+            attributes = ['start', 'end']
         table_1 = self.metadata().to_html(index=False, escape=False)
-        table_2 = self.attribute_list(attributes).to_html(index='text')
-        return '\n'.join(('<h4>Layer</h4>', table_1, table_2))
+        table_2 = ''
+        if attributes:
+            table_2 = self.span_list.attribute_list(attributes).to_html(index='text')
+        return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), text_object, table_1, table_2))
 
     def __repr__(self):
         return str(self)
+
+    def diff_spans(self, other: 'Layer'):
+        return sorted(set(self.span_list).symmetric_difference(other.span_list))
 
     def diff(self, other):
         if not isinstance(other, Layer):
@@ -582,4 +565,7 @@ class Layer:
         return None
 
     def __eq__(self, other):
-        return not self.diff(other)
+        return self.diff(other) is None
+
+
+import estnltk.layer_operations as layer_operations

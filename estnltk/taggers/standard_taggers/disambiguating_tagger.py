@@ -1,4 +1,7 @@
-from estnltk import Layer, AmbiguousSpan, Span, EnvelopingSpan
+from estnltk.layer.span import Span
+from estnltk.layer.ambiguous_span import AmbiguousSpan
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 
 
@@ -18,30 +21,35 @@ class DisambiguatingTagger(Tagger):
                  decorator=default_decorator):
         self.input_layers = [input_layer]
         self.output_layer = output_layer
-        self.output_attributes = output_attributes
+        self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
 
-    def _make_layer(self, raw_text, layers, status):
+    def _make_layer(self, text, layers, status):
         input_layer = layers[self.input_layers[0]]
         parent = input_layer.parent
         enveloping = input_layer.enveloping
         layer = Layer(name=self.output_layer,
                       attributes=self.output_attributes,
+                      text_object=text,
                       parent=parent,
                       enveloping=enveloping,
                       ambiguous=False)
         for input_span in input_layer:
             assert isinstance(input_span, AmbiguousSpan)
             if parent:
+                # TODO: test and rewrite using add_annotation
                 span = Span(parent=parent,
-                            legal_attributes=self.output_attributes)
+                            layer=layer)
+                for k, v in self.decorator(input_span, text.text).items():
+                    setattr(span[0], k, v)
+                layer.add_span(span)
             elif enveloping:
                 span = EnvelopingSpan(spans=input_span[0].spans)
+                for k, v in self.decorator(input_span, text.text).items():
+                    setattr(span, k, v)
+                layer.add_span(span)
             else:
-                span = Span(start=input_span[0].start,
-                            end=input_span[0].end,
-                            legal_attributes=self.output_attributes)
-            for k, v in self.decorator(input_span, raw_text).items():
-                setattr(span, k, v)
-            layer.add_span(span)
+                layer.add_annotation(Span(start=input_span.start, end=input_span.end),
+                                     **self.decorator(input_span, text.text))
+
         return layer

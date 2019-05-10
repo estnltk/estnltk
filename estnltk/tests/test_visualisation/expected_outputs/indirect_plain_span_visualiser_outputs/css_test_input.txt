@@ -1,0 +1,39 @@
+<style>
+.span {
+    background-color: yellow;
+}
+
+.overlapping-span {
+    background-color: red;
+}
+
+.spanline {
+    background-color: blue;
+    position: relative;
+    height: 3px;
+    margin-left: 0px;
+}
+
+.tables {
+    position: absolute;
+    width: fit-content;
+    width: -moz-fit-content;
+    border: 1px solid black;
+}
+
+.maintext{0} {
+    position: relative;
+}
+
+.tables tbody tr:nth-child(even) {
+    background-color: lightgray;
+}
+
+.tables tbody tr:nth-child(odd) {
+    background-color: beige;
+}
+
+.tables tbody tr:hover {
+    background-color: ivory;
+}
+</style>

@@ -1,8 +1,40 @@
 from typing import MutableMapping, Sequence
-from estnltk.text import Layer, Text
+
+from estnltk.text import Text
+from estnltk.layer.layer import Layer
+from estnltk.layer.ambiguous_attribute_tuple_list import to_str
 
 
-class Tagger:
+class TaggerChecker(type):
+    def __call__(cls, *args, **kwargs):
+        tagger = type.__call__(cls, *args, **kwargs)
+
+        assert isinstance(tagger.conf_param, Sequence), "'conf_param' not defined in {!r}".format(cls.__name__)
+        assert not isinstance(tagger.conf_param, str)
+        assert all(isinstance(k, str) for k in tagger.conf_param), tagger.conf_param
+        tagger.conf_param = tuple(tagger.conf_param)
+
+        assert isinstance(tagger.input_layers, Sequence), "'input_layers' not defined in {!r}".format(cls.__name__)
+        assert not isinstance(tagger.input_layers, str)
+        assert all(isinstance(k, str) for k in tagger.input_layers), tagger.input_layers
+        tagger.input_layers = tuple(tagger.input_layers)
+
+        assert isinstance(tagger.output_layer, str), "'output_layer' not defined in {!r}".format(cls.__name__)
+
+        assert isinstance(tagger.output_attributes, Sequence), "'output_attributes' not defined in {!r}".format(cls.__name__)
+        assert not isinstance(tagger.output_attributes, str)
+        assert all(isinstance(attr, str) for attr in tagger.output_attributes), tagger.output_attributes
+        tagger.output_attributes = tuple(tagger.output_attributes)
+
+        tagger._initialized = True
+
+        if tagger.__doc__ is None:
+            raise ValueError('{!r} class must have a docstring'.format(cls.__name__))
+
+        return tagger
+
+
+class Tagger(metaclass=TaggerChecker):
     """
     Base class for taggers. Proposed new version.
 
@@ -14,6 +46,7 @@ class Tagger:
     __init__(...)
     _make_layer(...)
     """
+    _initialized = False
     conf_param = None  # type: Sequence[str]
     output_layer = None  # type: str
     output_attributes = None  # type: Sequence[str]
@@ -23,20 +56,48 @@ class Tagger:
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
     def __setattr__(self, key, value):
-        assert key in {'conf_param', 'output_layer', 'output_attributes', 'input_layers'} or\
+        if self._initialized:
+            raise AttributeError('changing of the tagger attributes is not allowed: {!r}, {!r}'.format(
+                    self.__class__.__name__, key))
+        assert key in {'conf_param', 'output_layer', 'output_attributes', 'input_layers', '_initialized'} or\
                key in self.conf_param,\
-               'attribute must be listed in conf_param: ' + key
+               'attribute {!r} not listed in {}.conf_param'.format(key, self.__class__.__name__)
         super().__setattr__(key, value)
 
-    def _make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> Layer:
+    # TODO: rename layers -> detached_layers ?
+    def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
-    def make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
+    # TODO: rename layers -> detached_layers ?
+    def make_layer(self, text: Text, layers: MutableMapping[str, Layer] = None, status: dict = None) -> Layer:
+        assert status is None or isinstance(status, dict), 'status should be None or dict, not {!r}'.format(type(status))
         if status is None:
             status = {}
-        layer = self._make_layer(raw_text, layers, status)
-        assert isinstance(layer, Layer), 'make_layer must return Layer'
-        assert layer.name == self.output_layer, 'incorrect layer name: {} != {}'.format(layer.name, self.output_layer)
+        layers = layers or {}
+        for layer in self.input_layers:
+            if layer in layers:
+                continue
+            if layer in text.layers:
+                layers[layer] = text.layers[layer]
+            else:
+                raise ValueError('missing input layer: {!r}'.format(layer))
+
+        try:
+            layer = self._make_layer(text=text, layers=layers, status=status)
+        except Exception as e:
+            e.args += ('in the {!r}'.format(self.__class__.__name__),)
+            raise
+        assert isinstance(layer, Layer), '{}._make_layer did not return a Layer object, but {!r}'.format(
+                                           self.__class__.__name__, type(layer))
+        assert layer.text_object is text, '{}._make_layer returned a layer with incorrect Text object'.format(
+                                           self.__class__.__name__)
+        assert layer.attributes == self.output_attributes,\
+            '{}._make_layer returned layer with unexpected attributes: {} != {}'.format(
+                    self.__class__.__name__, layer.attributes, self.output_attributes)
+        assert isinstance(layer, Layer), self.__class__.__name__ + '._make_layer must return Layer'
+        assert layer.name == self.output_layer,\
+            '{}._make_layer returned a layer with incorrect name: {} != {}'.format(
+                    self.__class__.__name__, layer.name, self.output_layer)
         return layer
 
     def tag(self, text: Text, status: dict = None) -> Text:
@@ -45,7 +106,7 @@ class Tagger:
         status: dict, default {}
             This can be used to store layer creation metadata.
         """
-        text[self.output_layer] = self.make_layer(text.text, text.layers, status)
+        text[self.output_layer] = self.make_layer(text=text, layers=text.layers, status=status)
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
@@ -82,7 +143,11 @@ class Tagger:
         conf_str = ''
         if self.conf_param:
             params = ['input_layers', 'output_layer', 'output_attributes'] + list(self.conf_param)
-            conf = [attr+'='+to_str(getattr(self, attr)) for attr in params if not attr.startswith('_')]
+            try:
+                conf = [attr+'='+to_str(getattr(self, attr)) for attr in params if not attr.startswith('_')]
+            except AttributeError as e:
+                e.args = e.args[0] + ", but it is listed in 'conf_param'",
+                raise
             conf_str = ', '.join(conf)
         return self.__class__.__name__ + '(' + conf_str + ')'
 
@@ -98,18 +163,3 @@ class Tagger:
                   'configuration': [p+'='+str(getattr(self, p)) for p in self.conf_param if not p.startswith('_')]
                   }
         return record
-
-
-def to_str(value):
-    if callable(value) and hasattr(value, '__name__') and hasattr(value, '__module__'):
-        value_str = '<function {}.{}>'.format(value.__module__, value.__name__)
-    elif hasattr(value, 'pattern'):
-        value_str = '<Regex {}>'.format(value.pattern)
-    else:
-        value_str = str(value)
-    if len(value_str) < 100:
-        return value_str
-    value_str = value_str[:80] + ' ..., type: ' + str(type(value))
-    if hasattr(value, '__len__'):
-        value_str += ', length: ' + str(len(value))
-    return value_str

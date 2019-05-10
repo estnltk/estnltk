@@ -1,12 +1,25 @@
-from typing import MutableMapping, Any, List
+from typing import MutableMapping, Any, Sequence
+from html import escape
+
+from estnltk.layer.annotation import Annotation
 
 
 class Span:
-    def __init__(self, start: int=None, end: int=None, parent=None, *,
-                 layer=None, legal_attributes=None, **attributes) -> None:
+    """
+    Basic element of an EstNLTK layer.
+    """
+
+    # __slots__ = ['_annotations', '_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end',
+    #              '_base']
+
+    def __init__(self, start: int = None, end: int = None, parent=None, layer=None, legal_attributes=None):
+        # assert legal_attributes is None, legal_attributes
 
         # this is set up first, because attribute access depends on knowing attribute names as early as possible
         self._legal_attribute_names = legal_attributes
+        if isinstance(self._legal_attribute_names, list):
+            # TODO: remove this if
+            self._legal_attribute_names = tuple(self._legal_attribute_names)
         self.is_dependant = parent is None
 
         # Placeholder, set when span added to spanlist
@@ -14,7 +27,7 @@ class Span:
         self.parent = parent  # type: Span
 
         if isinstance(start, int) and isinstance(end, int):
-            assert start < end
+            assert start <= end, (start, end)
 
             self._start = start
             self._end = end
@@ -22,8 +35,6 @@ class Span:
 
         # parent is a Span of dependant Layer
         elif parent is not None:
-            # TODO:
-            #assert isinstance(parent, (Span, SpanList))
             assert start is None
             assert end is None
             self.is_dependant = True
@@ -39,22 +50,54 @@ class Span:
         if not self.is_dependant:
             self._base = self  # type:Span
 
-        for k, v in attributes.items():
-            if k in legal_attributes:
-                self.__setattr__(k, v)
+        self._annotations = [Annotation(span=self)]
+
+    def __len__(self):
+        return len(self._annotations)
+
+    def __getitem__(self, item):
+        return self.annotations[item]
+
+    def add_annotation(self, **attributes) -> Annotation:
+        # TODO: try and remove if-s
+
+        annotation = Annotation(self)
+        if self.layer:
+            for attr in self.layer.attributes:
+                if attr in attributes:
+                    setattr(annotation, attr, attributes[attr])
+        else:
+            for attr, value in attributes.items():
+                if attr == 'text':
+                    continue
+                setattr(annotation, attr, value)
+
+        self._annotations[0] = annotation
+
+        return annotation
 
     @property
-    def legal_attribute_names(self) -> List[str]:
+    def annotations(self):
+        return self._annotations
+
+    @property
+    def legal_attribute_names(self) -> Sequence[str]:
+        if self.layer is not None:
+            return self.layer.attributes
         if self.__getattribute__('_legal_attribute_names') is not None:
             return self.__getattribute__('_legal_attribute_names')
-        else:
-            return self.__getattribute__('layer').__getattribute__('attributes')
+        return ()
 
-    def to_record(self, with_text=False) -> MutableMapping[str, Any]:
-        return {
-        **{k: self.__getattribute__(k) for k in list(self.legal_attribute_names) + (['text'] if with_text else [])},
-            **{'start': self.start, 'end': self.end}}
+    def to_records(self, with_text=False) -> MutableMapping[str, Any]:
+        attributes = self.annotations[0].attributes
+        record = {k: attributes[k] for k in self.layer.attributes}
+        if with_text:
+            record['text'] = self.text
+        record['start'] = self.start
+        record['end'] = self.end
+        return record
 
+    # TODO: remove
     def mark(self, mark_layer: str) -> 'Span':
         base_layer = self.text_object.layers[mark_layer]  # type: Layer
         base = base_layer._base
@@ -74,11 +117,6 @@ class Span:
         else:
             return self.parent.start
 
-    @start.setter
-    def start(self, value: int):
-        assert not self.is_bound, 'setting start is allowed on special occasions only'
-        self._start = value
-
     @property
     def end(self) -> int:
         if not self.is_dependant:
@@ -86,178 +124,61 @@ class Span:
         else:
             return self.parent.end
 
-    @end.setter
-    def end(self, value: int):
-        assert not self.is_bound, 'setting end is allowed on special occasions only'
-        self._end = value
+    @property
+    def base_span(self):
+        return self.start, self.end
+
+    @property
+    def base_spans(self):
+        return [(self.start, self.end)]
 
     @property
     def text(self):
-        return self.text_object.text[self.start:self.end]
+        if self.text_object:
+            return self.text_object.text[self.start:self.end]
 
     @property
     def text_object(self):
-        return self.layer.text_object
+        if self.layer is not None:
+            return self.layer.text_object
+
+    def add_layer(self, layer):
+        if self.layer is None:
+            self.layer = layer
+        assert self.layer is layer
 
     @property
     def raw_text(self):
         return self.text_object.text
 
-    @property
-    def html_text(self):
-        return '<b>' + self.raw_text[self.start:self.end] + '</b>'
+    def html_text(self, margin: int = 0):
+        t = self.raw_text
+        s = self.start
+        e = self.end
+        left = escape(t[max(0, s - margin):s])
+        middle = escape(t[s:e])
+        right = escape(t[e:e + margin])
+        return ''.join(('<span style="font-family: monospace; white-space: pre-wrap;">',
+                        left,
+                        '<span style="text-decoration: underline;">', middle, '</span>',
+                        right, '</span>'))
 
-    # --------------------------------------
-    
-    #  Layer operations are ported from:
-    #    https://github.com/estnltk/estnltk/blob/master/estnltk/single_layer_operations/layer_positions.py
-    
-    def touching_right(self, y:Any) -> bool:
-        """ 
-        Tests if Span y is touching this Span (x) from the right.
-        Pictorial example:
-        xxxxxxxx
-                yyyyy
-        """
-        assert isinstance(y, Span)
-        return self.end == y.start
+    def __setattr__(self, key, value):
+        if key not in {'_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end', '_base',
+                       '_annotations'}:
+            # assert 0, key
+            for annotation in self._annotations:
+                setattr(annotation, key, value)
+        else:
+            pass
+        super().__setattr__(key, value)
 
-    def touching_left(self, y:Any) -> bool:
-        """ 
-        Tests if Span y is touching this Span (x) from the left.
-        Pictorial example:
-             xxxxxxxx
-        yyyyy
-        """
-        assert isinstance(y, Span)
-        return y.touching_right(self)
-
-    def hovering_right(self, y:Any) -> bool:
-        """
-        Tests if Span y is hovering right from this Span (x).
-        Pictorial example:
-        xxxxxxxx
-                  yyyyy
-        """
-        assert isinstance(y, Span)
-        return self.end < y.start
-
-    def hovering_left(self, y:Any) -> bool:
-        """
-        Tests if Span y is hovering left from this Span (x).
-        Pictorial example:
-                xxxxxxxx
-        yyyyy
-        """
-        assert isinstance(y, Span)
-        return y.hovering_right(self)
-
-    def right(self, y:Any) -> bool:
-        '''
-        Tests if Span y is either touching or hovering right with respect to this Span.
-        '''
-        assert isinstance(y, Span)
-        return self.touching_right(y) or self.hovering_right(y)
-
-    def left(self, y:Any) -> bool:
-        '''
-        Tests if Span y is either touching or hovering left with respect to this Span.
-        '''
-        assert isinstance(y, Span)
-        return y.right(self)
-
-    def nested(self, y:Any) -> bool:
-        """
-        Tests if Span y is nested inside this Span (x).
-        Pictorial example:
-        xxxxxxxx
-          yyyyy
-        """
-        assert isinstance(y, Span)
-        return self.start <= y.start <= y.end <= self.end
-
-    def equal(self, y:Any) -> bool:
-        """
-        Tests if Span y is positionally equal to this Span (x). 
-        (Both are nested within each other).
-        Pictorial example:
-        xxxxxxxx
-        yyyyyyyy
-        """
-        assert isinstance(y, Span)
-        return self.nested(y) and y.nested(self)
-
-    def nested_aligned_right(self, y:Any) -> bool:
-        """
-        Tests if Span y is nested inside this Span (x), and 
-        Span y is aligned with the right ending of this Span.
-        Pictorial example:
-        xxxxxxxx
-           yyyyy
-        """
-        assert isinstance(y, Span)
-        return self.nested(y) and self.end == y.end
-
-    def nested_aligned_left(self, y:Any) -> bool:
-        """
-        Tests if Span y is nested inside this Span (x), and 
-        Span y is aligned with the left ending of this Span.
-        Pictorial example:
-        xxxxxxxx
-        yyyyy
-        """
-        assert isinstance(y, Span)
-        return self.nested(y) and self.start == y.start
-
-    def overlapping_left(self, y:Any) -> bool:
-        """
-        Tests if left side of this Span (x) overlaps with 
-        the Span y, but y is not nested within this Span.
-        Pictorial example:
-          xxxxxxxx
-        yyyyy
-        """
-        assert isinstance(y, Span)
-        return y.start < self.start < y.end
-
-    def overlapping_right(self, y:Any) -> bool:
-        """
-        Tests if right side of this Span (x) overlaps with
-        the Span y, but y is not nested within this Span.
-        Pictorial example:
-        xxxxxxxx
-              yyyyy
-        """
-        assert isinstance(y, Span)
-        return y.start < self.end < y.end
-
-    def conflict(self, y:Any) -> bool:
-        """
-        Tests if there is a conflict between this Span and the 
-        Span y: one of the Spans is either nested within other, 
-        or there is an overlapping from right or left side.
-        """
-        assert isinstance(y, Span)
-        return self.nested(y) or y.nested(self) or \
-               self.overlapping_left(y) or self.overlapping_right(y)
-
-    # --------------------------------------
-    
     def __getattr__(self, item):
-        if item in {'start', 'end', 'layer', 'text'}:
-            return self.__getattribute__(item)
-
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
 
-        if item in self.__getattribute__('legal_attribute_names'):
-            try:
-                return self.__getattribute__(item)
-            except AttributeError:
-                return None
-
-        elif item == getattr(self.layer, 'parent', None):
-            return self.parent
+        if item in self.legal_attribute_names:
+            return getattr(self.annotations[0], item)
 
         elif self.layer is not None and self.layer.text_object is not None and self.layer.text_object._path_exists(
                 self.layer.name, item):
@@ -284,25 +205,26 @@ class Span:
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
-        try:
-            return (self.start, self.end) == (other.start, other.end)
-        except AttributeError:
+        if not isinstance(other, Span):
             return False
+        if self.base_span != other.base_span:
+            return False
+        if self.legal_attribute_names != other.legal_attribute_names:
+            return False
+        return self.annotations == other.annotations
 
     def __hash__(self):
-        return hash((self.start, self.end, tuple(self.__getattribute__(i) for i in self.legal_attribute_names)))
-
-    def __le__(self, other: Any) -> bool:
-        return self < other or self == other
+        return hash((self.start, self.end))
 
     def __str__(self):
+        if self.text_object is not None:
+            return 'Span(start={self.start}, end={self.end}, text={self.text!r})'.format(self=self)
         if self.layer is None:
-            return 'Span(start={self.start}, end={self.end}, layer={self.layer}, parent={self.parent})'.\
-                format(self=self)
+            return 'Span(start={self.start}, end={self.end}, layer={self.layer})'.format(self=self)
         if self.layer.text_object is None:
-            return 'Span(start={self.start}, end={self.end}, layer_name={self.layer.name}, parent={self.parent})'.\
-                format(self=self)
-        legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
+            return 'Span(start={self.start}, end={self.end}, layer: {self.layer.name!r})'.format(self=self)
+
+        legal_attribute_names = self.layer.attributes
 
         # Output key-value pairs in a sorted way
         # (to assure a consistent output, e.g. for automated testing)
@@ -311,8 +233,7 @@ class Span:
         for k in sorted(legal_attribute_names):
             key_value_str = "{key_val}".format(key_val = {k:self.__getattribute__(k)})
             # Hack: Remove surrounding '{' and '}'
-            key_value_str = key_value_str[:-1]
-            key_value_str = key_value_str[1:]
+            key_value_str = key_value_str[1:-1]
             mapping_sorted.append(key_value_str)
 
         # Hack: Put back surrounding '{' and '}' (mimic dict's representation)
@@ -321,4 +242,3 @@ class Span:
 
     def __repr__(self):
         return str(self)
-

@@ -1,49 +1,64 @@
-from estnltk.text import Text
+from estnltk.text import Layer, Text
+from estnltk.taggers import Tagger
+
+from typing import MutableMapping
 
 
-class Retagger:
+class Retagger(Tagger):
     """
     Base class for retaggers. Retagger modifies existing layer.
+    For the sake of simplicity, we currently just use Tagger as 
+    the super class.
 
     The following needs to be implemented in a derived class:
     conf_param
-    depends_on
-    layer_name
-    attributes
+    input_layers
+    output_layer
+    output_attributes
     __init__(...)
-    change_layer(...)
+    _change_layer(...)
     """
 
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
-    def __setattr__(self, key, value):
-        assert key in {'conf_param', 'description', 'output_layer', 'output_attributes', 'input_layers'} or\
-               key in self.conf_param,\
-               'attribute must be listed in conf_param: ' + key
-        super.__setattr__(self, key, value)
+    def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> None:
+        raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
 
-    def change_layer(self, raw_text: str, input_layers: dict, status: dict) -> None:
-        raise NotImplementedError('change_layer method not implemented in ' + self.__class__.__name__)
-
-    def _change_layer(self, text: Text, status: dict) -> None:
+    def retag(self, text: Text, status: dict = None, 
+              check_output_consistency: bool=True ) -> Text:
+        """
+        Modifies output_layer of given Text object.
+        
+        Parameters
+        ----------
+        text: 
+            Text object to be retagged
+        status: dict, default {}
+            This can be used to store metadata on layer modification.
+        check_output_consistency: boolean (default: True)
+            If set, then applies layer's method check_span_consistency()
+            after modification of the layer.
+        """
+        # In order to change the layer, the layer must already exist
+        assert self.output_layer in text.layers, \
+          "output_layer '{}' missing from Text's layers {}".format(
+                                                 self.output_layer, 
+                                                 list(text.layers.keys()))
         layers = {name: text.layers[name] for name in self.input_layers}
         # TODO: check that layer is not frozen
-        self.change_layer(text.text, layers, status)
 
-    def change(self, text: Text, status: dict = None) -> Text:
-        if status is None:
-            status = {}
-        self._change_layer(text, status)
-        return text
-
-    def retag(self, text: Text, status: dict = None) -> Text:
-        """
-        text: Text object to be retagged
-        status: dict, default {}
-            This can be used to store metadata on layer creation.
-        """
-        self._change_layer(text, status)
+        # Used _change_layer to get the retagged variant of the layer
+        self._change_layer(text, layers, status)
+        # Check that the layer exists
+        assert self.output_layer in layers, \
+               "output_layer '{}' missing from layers {}".format(
+                                                 self.output_layer, 
+                                                 list(layers.keys()))
+        if check_output_consistency:
+            # Validate changed layer: check span consistency
+            layers[self.output_layer].check_span_consistency()
+        text.setup_structure()
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
@@ -72,8 +87,8 @@ class Retagger:
             return value_str
 
         if self.conf_param:
-            conf_vals = [to_str(getattr(self, attr)) for attr in self.conf_param]
-            conf_table = pandas.DataFrame(conf_vals, index=self.conf_param)
+            conf_vals = [to_str(getattr(self, attr)) for attr in self.conf_param if not attr.startswith('_')]
+            conf_table = pandas.DataFrame(conf_vals, index=[attr for attr in self.conf_param if not attr.startswith('_')])
             conf_table = conf_table.to_html(header=False)
             conf_table = ('<h4>Configuration</h4>', conf_table)
         else:
@@ -85,6 +100,9 @@ class Retagger:
     def __repr__(self):
         conf_str = ''
         if self.conf_param:
-            conf = [attr+'='+str(getattr(self, attr)) for attr in self.conf_param]
+            conf = [attr+'='+str(getattr(self, attr)) for attr in self.conf_param if not attr.startswith('_')]
             conf_str = ', '.join(conf)
         return self.__class__.__name__+'('+conf_str+')'
+
+    def __str__(self):
+        return self.__class__.__name__ + '(' + str(self.input_layers) + '->' + self.output_layer + ')'

@@ -116,19 +116,19 @@ class AdjectivePhrasePartTagger(Tagger):
                                         input_layers=['adv_', 'adv2_', 'adj_', 'conj_', 'gaps'],
                                         output_attributes=['grammar_symbol'])
 
-    def _make_layer(self, raw_text, layers, status):
+    def _make_layer(self, text, layers, status):
         tmp_layers = layers.copy()
-        tmp_layers['adv'] = self.adv_tagger.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['adj'] = self.adj_tagger.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['adv2'] = self.adv_tagger2.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['conj'] = self.conj_tagger.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['adv_'] = self.atomizer1.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['adv2_'] = self.atomizer2.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['adj_'] = self.atomizer3.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['conj_'] = self.atomizer4.make_layer(raw_text, tmp_layers, status) 
-        tmp_layers['gaps'] = self.gaps_tagger.make_layer(raw_text, tmp_layers, status)
+        tmp_layers['adv'] = self.adv_tagger.make_layer(text, tmp_layers, status)
+        tmp_layers['adj'] = self.adj_tagger.make_layer(text, tmp_layers, status)
+        tmp_layers['adv2'] = self.adv_tagger2.make_layer(text, tmp_layers, status)
+        tmp_layers['conj'] = self.conj_tagger.make_layer(text, tmp_layers, status)
+        tmp_layers['adv_'] = self.atomizer1.make_layer(text, tmp_layers, status)
+        tmp_layers['adv2_'] = self.atomizer2.make_layer(text, tmp_layers, status)
+        tmp_layers['adj_'] = self.atomizer3.make_layer(text, tmp_layers, status)
+        tmp_layers['conj_'] = self.atomizer4.make_layer(text, tmp_layers, status)
+        tmp_layers['gaps'] = self.gaps_tagger.make_layer(text, tmp_layers, status)
 
-        return self.merge_tagger.make_layer(raw_text, tmp_layers, status)
+        return self.merge_tagger.make_layer(text, tmp_layers, status)
 
 
 class AdjectivePhraseGrammarTagger(Tagger):
@@ -139,12 +139,13 @@ class AdjectivePhraseGrammarTagger(Tagger):
     def __init__(self,
                  output_layer='adjective_phrases',
                  input_layer='grammar_tags'):
-        self.tagger = GrammarParsingTagger(
-            layer_name=output_layer,
-            layer_of_tokens=input_layer,
-            attributes=['type', 'adverb_class', 'adverb_weight'],
-            grammar=self.grammar(),
-            output_nodes=['ADJ_PHRASE', 'COMP_PHRASE', 'PART_PHRASE'])
+        self.output_attributes = ['type', 'adverb_class', 'adverb_weight']
+
+        self.tagger = GrammarParsingTagger(output_layer=output_layer,
+                                           layer_of_tokens=input_layer,
+                                           attributes=self.output_attributes,
+                                           grammar=self.grammar(),
+                                           output_nodes=['ADJ_PHRASE', 'COMP_PHRASE', 'PART_PHRASE'])
         self.input_layers = [input_layer]
         self.output_layer = output_layer
 
@@ -155,8 +156,8 @@ class AdjectivePhraseGrammarTagger(Tagger):
                                       phonetic=False,
                                       compound=True)
 
-    def _make_layer(self, raw_text, layers, status):
-        return self.tagger.make_layer(raw_text, layers, status)
+    def _make_layer(self, text, layers, status):
+        return self.tagger.make_layer(text, layers, status)
 
     def adj_phrase_decorator(self, nodes):
         participle = False
@@ -250,6 +251,8 @@ class AdjectivePhraseTagger(Tagger):
     def __init__(self):
         self.tagger1 = AdjectivePhrasePartTagger()
         self.tagger2 = AdjectivePhraseGrammarTagger()
+        self.output_attributes = []
+        self.output_layer = ''
 
     def tag(self, text):
         self.tagger1.tag(text)

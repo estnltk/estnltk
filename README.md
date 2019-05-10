@@ -8,7 +8,7 @@ The project is funded by EKT (Eesti Keeletehnoloogia Riiklik Programm, https://w
 
 
 ## Installation
-The recommended way of installing estnltk is by using the [anaconda python distribution](https://www.continuum.io/downloads) and python 3.5+.
+The recommended way of installing estnltk is by using the [anaconda python distribution](https://www.anaconda.com/download) and python 3.5+.
 
 We have installable packages built for osx, windows-64/windows-32, and linux-64.
 

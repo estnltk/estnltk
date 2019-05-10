@@ -30,7 +30,13 @@ include_dirs = [os.path.join('include', d) for d in dirs]
 
 # define the vabamorf SWIG wrapper generator interface file
 swig_interface = os.path.join('estnltk', 'vabamorf', 'vabamorf.i')
-swig_opts = ['-builtin']
+
+#swig_opts = ['-builtin']  # Disable proxy classes
+swig_opts = []             # Enable proxy classes 
+
+# How enabling proxy classes affects vabamorf's speed:
+#  https://github.com/estnltk/estnltk/blob/devel_1.6/dev_documentation/vabamorf_benchmarking/vabamorf_speed_benchmarking.md
+
 
 # Python 3 specific configuration
 extra = {}
@@ -40,19 +46,21 @@ swig_opts.append('-c++')
 
 setup(
     name="estnltk",
-    version="1.6.2beta",
+    version="1.6.3beta",
 
     packages=find_packages(),
     include_package_data=True,
     package_data={
         'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java/res/*.*'],
-        'estnltk.tests': ['test_morph/*.csv', 'test_taggers/test_dict_taggers/*.csv'],
+        'estnltk.taggers': ['standard_taggers/*.csv', 'syntax/files/*.*', 'syntax/files/LICENSE', 'morph_analysis/hfst/models/*.*'],
+        'estnltk.tests': ['test_morph/*.csv', 'test_corpus_processing/*.vert', 'test_taggers/test_dict_taggers/*.csv', 'test_taggers/test_standard_taggers/*.json', 'test_visualisation/expected_outputs/direct_plain_span_visualiser_outputs/*.txt', 'test_visualisation/expected_outputs/indirect_plain_span_visualiser_outputs/*.txt', 'test_converters/*.conll'],
         'estnltk.vabamorf': ['dct/*.dct'],
         'estnltk.estner': ['gazetteer/*', 'models/py2_default/*', 'models/py3_default/*'],
         'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
         'estnltk.mw_verbs': ['res/*'],
         'estnltk.converters': ['*.mrf'],
-        'estnltk.syntax': ['files/*']
+        'estnltk.syntax': ['files/*'],
+        'estnltk.visualisation': ['attribute_visualiser/*.css', 'attribute_visualiser/*.js', 'span_visualiser/*.css', 'span_visualiser/*.js']
     },
 
     author="University of Tartu",

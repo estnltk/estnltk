@@ -1,4 +1,4 @@
-from typing import Sequence, Union
+from typing import Sequence, Union, Iterable
 from collections import defaultdict
 import regex as re
 import networkx as nx
@@ -6,10 +6,20 @@ import networkx as nx
 _search_parenthesis = re.compile('\(|\)').search
 
 
-def contains_parenthesis(s):
+def contains_parenthesis(s: str) -> bool:
     return _search_parenthesis(s) is not None
 
-_match_SEQ_pattern = re.compile('(SEQ|REP)\((.*)\)$').match
+
+def match_SEQ_pattern(s: str) -> Union[str, None]:
+    m = re.compile('SEQ\((.*)\)$').match(s)
+    if m is not None:
+        return m.group(1)
+
+
+def match_mseq_pattern(s: str) -> Union[str, None]:
+    m = re.compile('MSEQ\((.*)\)$').match(s)
+    if m is not None:
+        return m.group(1)
 
 
 class Grammar:
@@ -18,14 +28,15 @@ class Grammar:
     def __init__(self,
                  start_symbols: Sequence = (),
                  rules: list=None,
-                 depth_limit: int = float('inf'),
-                 width_limit: int = float('inf'),
-                 legal_attributes = None):
+                 depth_limit: Union[int, float] = float('inf'),
+                 width_limit: Union[int, float] = float('inf'),
+                 legal_attributes: Iterable[str] = None):
         if legal_attributes is None:
             self.legal_attributes = frozenset()
         else:
             legal_attributes = frozenset(legal_attributes)
-            assert not legal_attributes & self._internal_attributes, 'legal attributes contain internal attributes'
+            assert not legal_attributes & self._internal_attributes, \
+                'legal attributes contain internal attributes: ' + str(legal_attributes & self._internal_attributes)
             self.legal_attributes = legal_attributes
         if rules is None:
             self._rules = []
@@ -44,6 +55,16 @@ class Grammar:
         return self._rules
 
     @property
+    def terminals(self):
+        self._setup_grammar()
+        return self._terminals
+
+    @property
+    def nonterminals(self):
+        self._setup_grammar()
+        return self._nonterminals
+
+    @property
     def rule_map(self):
         self._setup_grammar()
         return self._rule_map
@@ -52,6 +73,11 @@ class Grammar:
     def hidden_rule_map(self):
         self._setup_grammar()
         return self._hidden_rule_map
+
+    @property
+    def mseq_rule_map(self):
+        self._setup_grammar()
+        return self._mseq_rule_map
 
     def has_finite_max_depth(self):
         """
@@ -72,27 +98,43 @@ class Grammar:
         return nx.is_directed_acyclic_graph(rule_graph)
 
     def _terminals_and_nonterminals(self):
-        self.nonterminals = frozenset(r['lhs'] for r in self._rules)
+        nonterminals = {r['lhs'] for r in self._rules}
         terminals = set()
-        for i in (set(i.rhs) for i in self._rules):
-            terminals.update(i)
-        self.terminals = frozenset(terminals - self.nonterminals)
+        for r in {r for rule in self._rules for r in rule.rhs}:
+            m = match_SEQ_pattern(r)
+            if m is not None:
+                nonterminals.add(r)
+                terminals.add(m)
+            else:
+                terminals.add(r)
+        self._nonterminals = frozenset(nonterminals)
+        self._terminals = frozenset(terminals - nonterminals)
 
     def _rule_maps(self):
         self._rule_map = defaultdict(list)
         self._plus_symbols = set()
+        self._mseq_symbols = set()
         for rule in self._rules:
             for pos, rhs in enumerate(rule.rhs):
                 self._rule_map[rhs].append((rule, pos))
-                m = _match_SEQ_pattern(rhs)
-                if m is not None:
-                    self._plus_symbols.add((rhs, m.group(2)))
+                seq = match_SEQ_pattern(rhs)
+                mseq = match_mseq_pattern(rhs)
+                if seq is not None:
+                    self._plus_symbols.add((rhs, seq))
+                elif mseq is not None:
+                    self._mseq_symbols.add((rhs, mseq))
 
         self._hidden_rule_map = {}
         for ps, s in self._plus_symbols:
             self._hidden_rule_map[ps] = [(Rule(ps, (ps, ps)), 0),
                                          (Rule(ps, (ps, ps)), 1)]
             self._hidden_rule_map[s] = [(Rule(ps, s), 0)]
+
+        self._mseq_rule_map = {}
+        for ps, s in self._mseq_symbols:
+            self._mseq_rule_map[ps] = [(Rule(ps, (ps, ps)), 0),
+                                       (Rule(ps, (ps, ps)), 1)]
+            self._mseq_rule_map[s] = [(Rule(ps, s), 0)]
 
     def _setup_grammar(self):
         if self._setup:
@@ -106,6 +148,10 @@ class Grammar:
 
     def add(self, rule):
         self._rules.append(rule)
+        self._setup = False
+
+    def add_rule(self, *args, **kwargs):
+        self._rules.append(Rule(*args, **kwargs))
         self._setup = False
 
     def __getitem__(self, key):
@@ -158,14 +204,16 @@ class Rule:
                  validator=None,
                  scoring=None
                  ):
-        assert not contains_parenthesis(lhs) or _match_SEQ_pattern(lhs), 'parenthesis not allowed: ' + lhs
+        assert not contains_parenthesis(lhs) or match_SEQ_pattern(lhs) or match_mseq_pattern(lhs),\
+            'parenthesis not allowed: ' + lhs
         self.lhs = lhs
         if isinstance(rhs, str):
             rhs = rhs.split()
         for r in rhs:
             assert isinstance(r, str), 'rhs must be a str or sequence of str'
             if contains_parenthesis(r):
-                assert _match_SEQ_pattern(r) is not None, 'parenthesis only allowed with SEQ or REP: ' + str(rhs)
+                assert match_SEQ_pattern(r) is not None or match_mseq_pattern(r) is not None,\
+                    'parenthesis only allowed with SEQ or REP: ' + str(rhs)
         self.rhs = tuple(rhs)
 
         self.priority = priority

@@ -16,11 +16,12 @@ class SpanTagger(Tagger):
                  input_attribute: str,
                  vocabulary: Union[dict, str, Vocabulary],
                  key: str = '_token_',
-                 output_attributes: Sequence[str] = None,
+                 output_attributes: Sequence[str] = (),
                  global_validator: callable = None,
-                 validator_attribute: str = '_validator_',
+                 validator_attribute: str = None,
                  priority_attribute: str = None,
-                 ambiguous: bool = False
+                 ambiguous: bool = False,
+                 case_sensitive=True
                  ):
         """Initialize a new TokenListTagger instance.
 
@@ -48,14 +49,12 @@ class SpanTagger(Tagger):
             Whether the output layer should be ambiguous or not.
         """
         self.conf_param = ('input_attribute', '_vocabulary', 'global_validator', 'validator_attribute',
-                           'priority_attribute', 'ambiguous')
+                           'priority_attribute', 'ambiguous', 'case_sensitive')
         self.priority_attribute = priority_attribute
         self.output_layer = output_layer
         self.input_attribute = input_attribute
-        if output_attributes is None:
-            self.output_attributes = []
-        else:
-            self.output_attributes = list(output_attributes)
+
+        self.output_attributes = tuple(output_attributes)
 
         self.validator_attribute = validator_attribute
 
@@ -70,47 +69,62 @@ class SpanTagger(Tagger):
         if isinstance(vocabulary, Vocabulary):
             self._vocabulary = vocabulary
         else:
-            self._vocabulary = Vocabulary(vocabulary=vocabulary,
-                                          key=key,
-                                          default_rec={self.validator_attribute: default_validator}
-                                          )
+            self._vocabulary = Vocabulary.parse(vocabulary=vocabulary,
+                                                key=key,
+                                                attributes=self.output_attributes,
+                                                default_rec={self.validator_attribute: default_validator}
+                                                )
+        self.case_sensitive = case_sensitive
+        if not self.case_sensitive:
+            self._vocabulary = self._vocabulary.to_lower()
+
         if not self.ambiguous:
             assert all(len(values) == 1 for values in self._vocabulary.values()),\
                 'ambiguous==False but vocabulary contains ambiguous keywords: '\
                 + str([k for k, v in self._vocabulary.items() if len(v) > 1])
 
-    def _make_layer(self, raw_text: str, layers: dict, status: dict):
+    def _make_layer(self, text, layers: dict, status: dict):
+        raw_text = text.text
         input_layer = layers[self.input_layers[0]]
         layer = Layer(
             name=self.output_layer,
             attributes=self.output_attributes,
+            text_object=text,
             parent=input_layer.name,
             ambiguous=self.ambiguous)
         vocabulary = self._vocabulary
         input_attribute = self.input_attribute
         validator_key = self.validator_attribute
 
+        case_sensitive = self.case_sensitive
         if input_layer.ambiguous:
             for parent_span in input_layer:
-                values = set(getattr(parent_span, input_attribute))
+                if case_sensitive:
+                    values = set(getattr(parent_span, input_attribute))
+                else:
+                    values = {v.lower() for v in getattr(parent_span, input_attribute)}
                 for value in values:
                     if value in vocabulary:
                         for rec in vocabulary[value]:
                             span = Span(parent=parent_span, legal_attributes=self.output_attributes)
                             for attr in self.output_attributes:
                                 setattr(span, attr, rec[attr])
-                            if self.global_validator(raw_text, span) and rec[validator_key](raw_text, span):
-                                layer.add_span(span)
+                            if self.global_validator(raw_text, span):
+                                if validator_key is None or rec[validator_key](raw_text, span):
+                                    layer.add_span(span)
         else:
             for parent_span in input_layer:
                 value = getattr(parent_span, input_attribute)
+                if not case_sensitive:
+                    value = value.lower()
                 if value in vocabulary:
                     for rec in vocabulary[value]:
                         span = Span(parent=parent_span, legal_attributes=self.output_attributes)
                         for attr in self.output_attributes:
                             setattr(span, attr, rec[attr])
-                        if self.global_validator(raw_text, span) and rec[validator_key](raw_text, span):
-                            layer.add_span(span)
+                        if self.global_validator(raw_text, span):
+                            if validator_key is None or rec[validator_key](raw_text, span):
+                                layer.add_span(span)
 
         resolve_conflicts(layer,
                           conflict_resolving_strategy='ALL',

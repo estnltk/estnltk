@@ -1,0 +1,9 @@
+_phrase_,value,_priority_
+callable,string,callable
+"'surmateate', 'koostamise', 'aeg', ':'",doc_time,1
+"'surmateate', 'number', ':'",doc_nr,1
+"'surma', 'aeg', ':'",death_time,1
+"'patsient', 'surnud', ':'",death_time,1
+'aeg',test,1
+
+

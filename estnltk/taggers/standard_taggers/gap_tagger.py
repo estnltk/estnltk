@@ -27,20 +27,25 @@ class GapTagger(Tagger):
         self.decorator = decorator
         self.ambiguous = ambiguous
 
-    def _make_layer(self, raw_text, layers, status):
+    def _make_layer(self, text, layers, status):
         layer = Layer(
             name=self.output_layer,
             attributes=self.output_attributes,
+            text_object=text,
             parent=None,
             enveloping=None,
             ambiguous=self.ambiguous
             )
+        raw_text = text.text
         layers = [layers[layer] for layer in self.input_layers]
         for start, end in find_gaps(layers, len(raw_text)):
-            assert start < end
+            assert start < end, (start, end)
             if self.trim:
                 t = self.trim(raw_text[start:end])
-                start = raw_text.find(t, start)
+                start_new = raw_text.find(t, start)
+                if start_new < start:
+                    raise ValueError('misbehaving trim function: "{}"->"{}"'.format(raw_text[start:end], t))
+                start = start_new
                 end = start + len(t)
             if start < end:
                 span = Span(start, end)
@@ -53,6 +58,8 @@ class GapTagger(Tagger):
 
 
 def find_gaps(layers, text_length):
+    if text_length == 0:
+        return
     cover_change = defaultdict(int)
     for layer in layers:
         for span in layer.span_list:

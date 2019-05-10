@@ -1,19 +1,18 @@
-from collections import defaultdict
-from typing import Sequence, Union
+from collections import defaultdict, Hashable
+from typing import Sequence
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas
 
 from estnltk import Span
 from estnltk.layer_operations.consecutive import iterate_consecutive_spans
-from estnltk.layer_operations.consecutive import iterate_starting_spans
-from estnltk.layer_operations.consecutive import iterate_ending_spans
 
 
 class Node:
-    def __init__(self, name: str, start: Union[int, float], end: Union[int, float]):
+    def __init__(self, name: str, start: int, end: int):
         self.name = name
-        assert start <= end
+        assert 0 <= start, start
+        assert start <= end, (start, end)
         self.start = start
         self.end = end
 
@@ -44,15 +43,30 @@ class Node:
             print(line(k, d[k]))
 
     def __str__(self):
-        result = ['{self.__class__.__name__}({self.name}'.format(self=self)]
-        if hasattr(self, 'start') and hasattr(self, 'end'):
-            result.append('({self.start}, {self.end})'.format(self=self))
+        result = ['{self.__class__.__name__}({self.name!r}, {self.start}, {self.end}'.format(self=self)]
         # include hash because networkx.drawing.nx_pydot.pydot_layout overlaps nodes with equal str value
-        result.append('{h})'.format(h=hash(self)))
-        return ', '.join(result)
+        if isinstance(self, Hashable):
+            result.append(', {}'.format(hash(self)))
+        result.append(')')
+        return ''.join(result)
 
     def __repr__(self):
-        return str(self)
+        lines = [self.__class__.__name__]
+        line = '  {:20} {}'.format
+        d = self.__dict__
+        keys = ['name', 'text', 'start', 'end', '_support_']
+        for k in keys:
+            if k in d:
+                value = d[k]
+                if isinstance(value, (list, tuple)):
+                    value = ', '.join(str(v) for v in value)
+                lines.append(line(k, value))
+        for k in sorted(set(d)-set(keys)):
+            value = d[k]
+            if isinstance(value, (list, tuple)):
+                value = ', '.join(str(v) for v in value)
+            lines.append(line(k, value))
+        return '\n'.join(lines)
 
     def to_html(self):
         keys = ['name', 'start', 'end']
@@ -83,10 +97,6 @@ class PhonyNode(Node):
     def __eq__(self, other):
         return isinstance(other, PhonyNode) and self.name == other.name and\
                self.start == other.start and self.end == other.end
-
-
-START_NODE = PhonyNode('START', float('-inf'), float('-inf'))
-END_NODE = PhonyNode('END', float('inf'), float('inf'))
 
 
 class SpanNode(Node):
@@ -166,7 +176,7 @@ class NonTerminalNode(GrammarNode):
         super().__init__(rule.lhs, support, group=rule.group, priority=rule.priority, score=score)
 
 
-class PlusNode(GrammarNode):
+class PlusNode(NonTerminalNode):
     def __init__(self, rule, support: Sequence[GrammarNode]):
         new_support = []
         # maybe too general, but let it be
@@ -176,7 +186,12 @@ class PlusNode(GrammarNode):
             else:
                 new_support.append(node)
         new_support = tuple(new_support)
-        super().__init__(rule.lhs, new_support, group=rule.group, priority=rule.priority)
+        # super().__init__(rule.lhs, new_support, group=rule.group, priority=rule.priority)
+        super().__init__(rule, new_support)
+
+
+class MSeqNode(PlusNode):
+    pass
 
 
 class LayerGraph(nx.DiGraph):
@@ -281,7 +296,7 @@ def get_spans(node):
     return [t.span for t in node.terminals]
 
 
-def layer_to_graph(layer, name_attribute='grammar_symbol', attributes=None):
+def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=None, gap_validator=None):
     if attributes is None:
         attributes = layer.attributes
     assert not attributes or set(attributes) <= set(layer.attributes)
@@ -290,34 +305,24 @@ def layer_to_graph(layer, name_attribute='grammar_symbol', attributes=None):
     spans = layer.span_list
 
     if layer.ambiguous:
-        for sp in iterate_starting_spans(spans):
-            names = {getattr(b, name_attribute) for b in sp}
-            for name in names:
-                graph.add_edge(START_NODE, TerminalNode(name, sp, attributes))
-        for sp in iterate_ending_spans(spans):
-            names = {getattr(b, name_attribute) for b in sp}
-            for name in names:
-                graph.add_edge(TerminalNode(name, sp, attributes), END_NODE)
-        for sp_1, sp_2 in iterate_consecutive_spans(spans):
+        for sp in layer:
+            assert sp.start >= 0, sp
+            names_1 = {getattr(b, name_attribute) for b in sp}
+            for name_1 in names_1:
+                graph.add_node(TerminalNode(name_1, sp, attributes))
+        for sp_1, sp_2 in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
             names_1 = {getattr(b, name_attribute) for b in sp_1}
             names_2 = {getattr(b, name_attribute) for b in sp_2}
             for name_1 in names_1:
                 for name_2 in names_2:
                     graph.add_edge(TerminalNode(name_1, sp_1, attributes), TerminalNode(name_2, sp_2, attributes))
     else:
-        for b in iterate_starting_spans(spans):
-            name = getattr(b, name_attribute)
-            graph.add_edge(START_NODE, TerminalNode(name, b, attributes))
-        for a in iterate_ending_spans(spans):
-            name = getattr(a, name_attribute)
-            graph.add_edge(TerminalNode(name, a, attributes), END_NODE)
-        for a, b in iterate_consecutive_spans(spans):
+        for sp in layer:
+            graph.add_node(TerminalNode(getattr(sp, name_attribute), sp, attributes))
+        for a, b in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
             name_a = getattr(a, name_attribute)
             name_b = getattr(b, name_attribute)
             graph.add_edge(TerminalNode(name_a, a, attributes), TerminalNode(name_b, b, attributes))
-
-    if not spans:
-        graph.add_edge(START_NODE, END_NODE)
 
     return graph
 

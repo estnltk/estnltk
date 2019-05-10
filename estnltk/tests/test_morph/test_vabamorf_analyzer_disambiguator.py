@@ -1,3 +1,5 @@
+import pytest
+
 from estnltk import Text
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.morf import IGNORE_ATTR
@@ -132,7 +134,7 @@ def test_morph_disambiguator_1():
     text=Text('Mitmenda koha sai kohale jõudnud mees ?')
     text.tag_layer(['words','sentences'])
     analyzer2.tag(text)
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     expected_records = [ \
         [{'ending': '0', 'root': 'mitmes', 'root_tokens': ('mitmes',), 'start': 0, 'end': 8, 'clitic': '', 'partofspeech': 'P', 'lemma': 'mitmes', 'form': 'sg g'}], \
         [{'ending': '0', 'root': 'koha', 'root_tokens': ('koha',), 'start': 9, 'end': 13, 'clitic': '', 'partofspeech': 'S', 'lemma': 'koha', 'form': 'sg g'}, \
@@ -155,9 +157,36 @@ def test_morph_disambiguator_1():
 
 # ----------------------------------
 #   Test
+#     that  disambiguator  throws 
+#     an exception iff some words 
+#     do not have analyses 
+# ----------------------------------
+
+def test_morph_disambiguation_exception_on_unknown_words():
+    text=Text('Mulll on yks rõlgelt hea netikeelelause')
+    text.tag_layer(['words','sentences'])
+    analyzer2.tag(text, guess=False, propername=False)
+    
+    # Check for unknown word placeholders
+    assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
+    assert AmbiguousAttributeList([[None],
+                                   ['ole', 'ole'], [None], [None],
+                                   ['hea', 'hea', 'hea', 'hea'],
+                                   ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
+
+    with pytest.raises(Exception) as e1:
+        # Disambiguate text
+        disambiguator.retag(text)
+    #print(e1)
+    # >>> (!) Unable to perform morphological disambiguation because words at positions [(0, 5), (9, 12), (13, 20)] have no morphological analyses.
+
+
+# ----------------------------------
+#   Test
 #     that disambiguation preserves
 #     extra attributes
 # ----------------------------------
+
 
 def test_morph_disambiguation_preserves_extra_attributes():
     text=Text('Mees kees üle. Naeris naeris.')
@@ -175,11 +204,11 @@ def test_morph_disambiguation_preserves_extra_attributes():
                 for s_id, span in enumerate(spanlist):
                     setattr(span, 'sentence_id', str(sent_id))
     # Disambiguate text
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     # Check that extra attributes are preserved
-    expected_records = [ \
-        [{'analysis_id': '0_4', 'clitic': '', 'root': 'mees', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '0', 'start': 0, 'root_tokens': ('mees',), 'end': 4, 'form': 'sg n', 'lemma': 'mees'}], 
+    expected_records = [
+        [{'analysis_id': '0_3', 'clitic': '', 'root': 'mees', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '0', 'start': 0, 'root_tokens': ('mees',), 'end': 4, 'form': 'sg n', 'lemma': 'mees'}],
         [{'analysis_id': '1_1', 'clitic': '', 'root': 'kee', 'ending': 's', 'partofspeech': 'V', 'sentence_id': '0', 'start': 5, 'root_tokens': ('kee',), 'end': 9, 'form': 's', 'lemma': 'keema'}], 
         [{'analysis_id': '2_0', 'clitic': '', 'root': 'üle', 'ending': '0', 'partofspeech': 'D', 'sentence_id': '0', 'start': 10, 'root_tokens': ('üle',), 'end': 13, 'form': '', 'lemma': 'üle'}], 
         [{'analysis_id': '3_0', 'clitic': '', 'root': '.', 'ending': '', 'partofspeech': 'Z', 'sentence_id': '0', 'start': 13, 'root_tokens': ('.',), 'end': 14, 'form': '', 'lemma': '.'}], 
@@ -202,30 +231,31 @@ def test_morph_disambiguation_preserves_extra_attributes():
 def test_morph_disambiguation_with_ignore():
     # Tests that morphological disambiguator can be set to ignore some words
     # Case 1 : test ignoring random words ( do not try this at home! )
-    text=Text('Mitmenda koha sai kohale jõudnud mees ?')
+    text = Text('Mitmenda koha sai kohale jõudnud mees ?')
     text.tag_layer(['words','sentences'])
     analyzer1.tag(text)  # analyze and add empty IGNORE_ATTR-s
-    mark_ignore = { (14,17) : [],  # sai
-                    (33,37) : [],  # mees
-                  }
-    for spanlist in text.morph_analysis.span_list:
-        pos_key = (spanlist.start, spanlist.end)
+    mark_ignore = {(14,17): [],  # sai
+                   (33,37): [],  # mees
+                   }
+    for amb_span in text.morph_analysis:
+        pos_key = (amb_span.start, amb_span.end)
         if pos_key in mark_ignore:
-            # Record the pervious spanlist
-            mark_ignore[pos_key] = spanlist
-        for span in spanlist:
+            # Record the previous spanlist
+            # (so that we can compare after disambiguation)
+            mark_ignore[pos_key] = amb_span
+        for span in amb_span:
             if pos_key in mark_ignore:
                 setattr(span, IGNORE_ATTR, True)
             else:
                 setattr(span, IGNORE_ATTR, False)
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
     # Check that marked spans remain the same in the new layer
-    for spanlist in text.morph_analysis.span_list:
-        pos_key = (spanlist.start, spanlist.end)
+    for amb_span in text.morph_analysis:
+        pos_key = (amb_span.start, amb_span.end)
         if pos_key in mark_ignore:
-            assert mark_ignore[pos_key] == spanlist
+            assert len(mark_ignore[pos_key]) == len(amb_span)
 
 
 def test_morph_disambiguation_with_ignore_all():
@@ -239,7 +269,7 @@ def test_morph_disambiguation_with_ignore_all():
     for spanlist in text.morph_analysis.span_list:
         for span in spanlist:
             setattr(span, IGNORE_ATTR, True)
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
@@ -247,20 +277,20 @@ def test_morph_disambiguation_with_ignore_all():
 
 def test_morph_disambiguation_with_ignore_emoticons():
     # Case 2 : test ignoring emoticons
-    text=Text('Mõte on hea :-) Tuleme siis kolmeks :)')
+    text = Text('Mõte on hea :-) Tuleme siis kolmeks :)')
     text.tag_layer(['words','sentences'])
     analyzer1.tag(text)
     # ignore emoticons
     mark_ignore = \
       _ignore_morph_analyses_overlapping_with_compound_tokens(text, ['emoticon'])
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
     # Check that marked spans remain the same in the new layer
-    for spanlist in text.morph_analysis.span_list:
-        pos_key = (spanlist.start, spanlist.end)
+    for amb_span in text.morph_analysis:
+        pos_key = (amb_span.start, amb_span.end)
         if pos_key in mark_ignore:
-            assert mark_ignore[pos_key] == spanlist
+            assert len(mark_ignore[pos_key]) == len(amb_span)
 
 
 def test_morph_disambiguation_with_ignore_xml_tags():
@@ -272,10 +302,11 @@ def test_morph_disambiguation_with_ignore_xml_tags():
     mark_ignore = \
       _ignore_morph_analyses_overlapping_with_compound_tokens(text, ['xml_tag'])
     #print(text['morph_analysis'].to_records())
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
     for spanlist in text.morph_analysis.span_list:
         # assert that all words have been disambiguated
         assert len(spanlist) == 1
+        assert not hasattr(spanlist, IGNORE_ATTR)

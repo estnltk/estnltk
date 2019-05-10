@@ -1,0 +1,19 @@
+1	Iga	iga	P	P	det|sg|nom	2	@NN>	_	_
+2	üheksas	üheksas	N	A	ord|sg|nom|l	3	@AN>	_	_
+3	kroon	kroon	S	S	sg|nom	4	@SUBJ	_	_
+4	tuli	tule	V	V	indic|impf|ps3|sg	0	ROOT	_	_
+5	salapärastelt	sala_pärane	A	A	pl|abl	6	@AN>	_	_
+6	isikutelt	isik	S	S	pl|abl	4	@ADVL	_	_
+7	.	.	Z	Z	Fst	6	@Punc	_	_
+
+1	See	see	P	P	dem|sg|nom	2	@SUBJ	_	_
+2	oli	ole	V	V	indic|impf|ps3|sg	0	ROOT	_	_
+3	rohkem	rohkem	D	D	_	2	@OBJ	_	_
+4	kui	kui	J	Jc	_	5	@J	_	_
+5	10	10	N	N	card|sg|nom	3	@ADVL	_	_
+6	protsenti	protsent	S	S	sg|part	5	@<Q	_	_
+7	kogu	kogu	A	A	_	10	@AN>	_	_
+8	Hansapanka	Hansa_pank	S	H	sg|adit	9	@ADVL	_	_
+9	paigutatud	paiguta=tud	A	A	partic	10	@AN>	_	_
+10	rahast	raha	S	S	sg|el	5	@ADVL	_	_
+11	.	.	Z	Z	Fst	10	@Punc	_	_

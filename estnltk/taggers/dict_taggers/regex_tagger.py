@@ -1,8 +1,8 @@
-from pandas import DataFrame
 from typing import Sequence, Union
 
 from estnltk.taggers import Tagger
-from estnltk import Layer, Span
+from estnltk.layer.span import Span
+from estnltk.layer.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from estnltk.taggers import Vocabulary
 
@@ -25,13 +25,15 @@ class RegexTagger(Tagger):
                   )
 
     def __init__(self,
-                 vocabulary: Union[str, dict, list, DataFrame, Vocabulary],
+                 vocabulary: Union[str, dict, list, Vocabulary],
+                 vocabulary_key='_regex_pattern_',
                  output_layer: str = 'regexes',
                  output_attributes: Sequence = None,
                  conflict_resolving_strategy: str = 'MAX',
                  overlapped: bool = False,
                  priority_attribute: str = None,
-                 ambiguous: bool = False
+                 ambiguous: bool = False,
+                 ignore_case=False
                  ):
         """Initialize a new RegexTagger instance.
 
@@ -54,9 +56,9 @@ class RegexTagger(Tagger):
         """
         self.output_layer = output_layer
         if output_attributes is None:
-            self.output_attributes = []
+            self.output_attributes = ()
         else:
-            self.output_attributes = output_attributes
+            self.output_attributes = tuple(output_attributes)
 
         self._illegal_keywords = {'start', 'end'}
 
@@ -71,14 +73,16 @@ class RegexTagger(Tagger):
                                                    input_layer=self.output_layer,
                                                    output_attributes=self.output_attributes,
                                                    decorator=decorator)
-        if isinstance(vocabulary, Vocabulary):
-            self.vocabulary = vocabulary
-        else:
-            self.vocabulary = Vocabulary(vocabulary=vocabulary,
-                                         key='_regex_pattern_',
-                                         regex_attributes=['_regex_pattern_'],
-                                         default_rec={'_group_': 0, '_validator_': lambda s: True}
-                                         )
+
+        def default_validator(s):
+            return True
+
+        vocabulary = Vocabulary.parse(vocabulary=vocabulary,
+                                      key=vocabulary_key,
+                                      attributes=('_regex_pattern_', '_group_', '_validator_', *self.output_attributes),
+                                      default_rec={'_group_': 0, '_validator_': default_validator})
+        self.vocabulary = vocabulary.to_regex(ignore_case=ignore_case)
+
         self.overlapped = overlapped
         if conflict_resolving_strategy not in ['ALL', 'MIN', 'MAX']:
             raise ValueError("Unknown conflict_resolving_strategy '%s'." % conflict_resolving_strategy)
@@ -86,23 +90,21 @@ class RegexTagger(Tagger):
         self.priority_attribute = priority_attribute
         self.ambiguous = ambiguous
 
-    def _make_layer(self, raw_text, layers=None, status=None):
+    def _make_layer(self, text, layers=None, status=None):
         layer = Layer(name=self.output_layer,
                       attributes=self.output_attributes,
+                      text_object=text,
                       ambiguous=True
                       )
-        for record in self._match(raw_text):
-            span = Span(record['start'], record['end'], legal_attributes=self.output_attributes)
-            for attr in self.output_attributes:
-                setattr(span, attr, record[attr])
-            layer.add_span(span)
+        for record in self._match(text.text):
+            layer.add_annotation(Span(record['start'], record['end']), **record)
         layer = resolve_conflicts(layer=layer,
                                   conflict_resolving_strategy=self.conflict_resolving_strategy,
                                   priority_attribute=self.priority_attribute,
                                   status=status)
 
         if not self.ambiguous:
-            layer = self._disamb_tagger.make_layer(raw_text, {self.output_layer: layer}, status)
+            layer = self._disamb_tagger.make_layer(text=text, layers={self.output_layer: layer}, status=status)
         return layer
 
     def _match(self, text):

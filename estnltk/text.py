@@ -1,29 +1,20 @@
-import keyword
+import html
 from bisect import bisect_left
 from collections import defaultdict
 from typing import MutableMapping, Union, List, Sequence
 import pandas
 import networkx as nx
 
-from estnltk import Span
-from estnltk import EnvelopingSpan
-from estnltk import SpanList
-from estnltk import Layer
-from estnltk.layer import AttributeList, AmbiguousAttributeList
-
-
-def _get_span_by_start_and_end(spans: SpanList, start: int=None, end: int=None, span: Span=None) -> Union[Span, None]:
-    if span:
-        i = bisect_left(spans, span)
-    else:
-        i = bisect_left(spans, Span(start=start, end=end))
-    if i != len(spans):
-        return spans[i]
-    return None
+from estnltk.layer.span import Span
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.layer import SpanList
+from estnltk.layer.layer import Layer
+from estnltk.layer.attribute_list import AttributeList
+from estnltk.layer.ambiguous_attribute_list import AmbiguousAttributeList
 
 
 class Text:
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: str = None) -> None:
         self._text = text  # type: str
         self.layers = {}  # type: MutableMapping[str, Layer]
         self.meta = {}  # type: MutableMapping
@@ -31,6 +22,10 @@ class Text:
         self.base_to_dependant = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self.enveloping_to_enveloped = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self._setup_structure()
+
+    def set_text(self, text: str):
+        assert self._text is None, "raw text has already been set"
+        self._text = text
 
     def tag_layer(self, layer_names: Sequence[str] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
         if resolver is None:
@@ -83,6 +78,17 @@ class Text:
     def text(self):
         return self._text
 
+    @text.setter
+    def text(self, t):
+        if self._text is not None:
+            raise AttributeError('raw text has already been set')
+        if not isinstance(t, str):
+            raise TypeError('')
+        self._text = t
+
+    def setup_structure(self):
+        return self._setup_structure()
+
     def _setup_structure(self):
         pairs = []
         attributes = []
@@ -97,6 +103,10 @@ class Text:
             for to in tos:
                 pairs.append((frm, to))
                 pairs.append((to, frm))
+
+        self.layers_to_attributes = defaultdict(list)
+        for name, layer in self.layers.items():
+            self.layers_to_attributes[name] = layer.attributes
 
         # we can go from layer to attribute
         for frm, tos in self.layers_to_attributes.items():
@@ -138,24 +148,24 @@ class Text:
         return self.__getattribute__(item)
 
     def _add_layer(self, layer: Layer):
+        assert isinstance(layer, Layer), 'Layer expected, got {!r}'.format(type(layer))
+
         name = layer.name
-        attributes = layer.attributes
 
-        #
-        # ASSERTS
-        #
+        assert name not in self.layers, 'this Text object already has a layer with name {!r}'.format(name)
 
-        assert not layer._bound
-        assert name not in ['text'], 'Restricted for layer name'
-        assert name.isidentifier() and not keyword.iskeyword(name), 'Layer name must be a valid python identifier'
-        assert name not in self.layers.keys(), 'Layer with name {name} already exists'.format(name=name)
+        if layer.text_object is None:
+            layer.text_object = self
+        else:
+            assert layer.text_object is self, \
+                "can't add layer {!r}, this layer is already bound to another Text object".format(name)
 
         if layer.parent:
             assert layer.parent in self.layers.keys(), 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
                 parent=layer.parent, layer=layer.name)
 
         if layer.enveloping:
-            assert layer.enveloping in self.layers.keys(), 'Cant add an enveloping layer before adding the layer it envelops'
+            assert layer.enveloping in self.layers.keys(), "can't add an enveloping layer before adding the layer it envelops"
 
         #
         # ASSERTS DONE,
@@ -165,8 +175,6 @@ class Text:
         if layer.parent:
             layer._base = self.layers[layer.parent]._base
             self.layers[layer.parent].freeze()
-
-        self.layers_to_attributes[name] = attributes
 
         if layer.parent:
             # This is a change to accommodate pruning of the layer tree.
@@ -181,66 +189,48 @@ class Text:
             # this means the layer might already have spans, and the spans might need to have their parents reset
             if layer.parent is not None:
                 for span in layer:
-                    span.parent = _get_span_by_start_and_end(
-                        self.layers[layer._base].span_list,
-                        span=span
-                    )
+                    base_layer = self.layers[layer._base]
+                    i = bisect_left(base_layer, span)
+                    span.parent = base_layer[i]
                     span._base = span.parent
 
         self.layers[name] = layer
-        layer.text_object = self
-        layer._bound = True
+
+        setattr(self, layer.name, layer)
 
         self._setup_structure()
 
-    def _resolve(self, frm, to, sofar: 'SpanList'=None) -> Union['SpanList', List[None]]:
+    def _resolve(self, frm: str, to: str, sofar: SpanList = None) -> Union['SpanList', List[None]]:
         # must return the correct object
         # this method is supposed to centralize attribute access
 
         # if sofar is set, it must be a SpanList at point "frm" with a path to "to"
         # going down a level of enveloping layers adds a layer SpanLists
 
-        GENERAL_KEYS = ['text', 'parent']
-        if to in GENERAL_KEYS:
-            if sofar:
-                return sofar.__getattribute__(to)
-            else:
-                return self.layers[frm].span_list.__getattribute__(to)
+        if not self._path_exists(frm, to):
+            raise AttributeError('{} -> {} not implemented - path does not exist'.format(frm, to))
 
-        path_exists = self._path_exists(frm, to)
-        if path_exists and to in self.layers.keys():
-            if frm in self.layers.keys():
-                # from layer to its attribute
-                if to in self.layers[frm].attributes or (to in GENERAL_KEYS):
-                    return getattr(self.layers[frm], to)
-
+        if to in self.layers:
+            if frm in self.layers:
                 # from enveloping layer to its direct descendant
-                elif to == self.layers[frm].enveloping:
+                if to == self.layers[frm].enveloping:
                     return sofar
 
                 # from an enveloping layer to dependant layer (one step only, skipping base layer)
-                elif self.layers[frm].enveloping == self.layers[to].parent:
-                    if sofar is None:
-                        sofar = self.layers[frm].span_list
-
+                elif self.layers[frm].enveloping == self.layers[to].parent and self.layers[to].parent is not None:
                     spans = []
 
-                    # path taken by text.sentences.lemma
-                    # TODO: is SpanList needed here?
-                    if isinstance(sofar[0], (SpanList, EnvelopingSpan)):
+                    # path taken by text.sentences.morph_analysis
+                    if isinstance(sofar[0], EnvelopingSpan):
                         for envelop in sofar:
                             enveloped_spans = []
                             for span in self.layers[to]:
                                 if span.parent in envelop.spans:
                                     enveloped_spans.append(span)
                             if enveloped_spans:
-                                sl = SpanList(layer=self.layers[frm])
-                                sl.spans = enveloped_spans
-                                spans.append(sl)
+                                spans.append(EnvelopingSpan(layer=self.layers[frm], spans=enveloped_spans))
 
-                        res = SpanList(layer=self.layers[to])
-                        res.spans = spans
-                        return res
+                        return SpanList(layer=self.layers[to], spans=spans)
 
                     # path taken by text.sentences[0].lemma
                     elif isinstance(sofar[0], Span):
@@ -258,16 +248,17 @@ class Text:
                         return res[0]
 
                 # from layer to strictly dependant layer
-                elif frm == self.layers[to]._base:
+                elif self.layers[frm]._base == self.layers[to]._base:
 
-                    # if sofar is None:
-                    sofar = self.layers[to].span_list
+                    if sofar is None:
+                        return self.layers[to].span_list
 
-                    spans = []
-                    for i in sofar:
-                        spans.append(i.parent)
+                    to_spans = self.layers[to].span_list
+
                     res = SpanList(layer=self.layers[to])
-                    res.spans = spans
+                    for i in to_spans:
+                        if i.base_span in sofar:
+                            res.add_span(i)
                     return res
 
                 # through an enveloped layer (enveloping-enveloping-target)
@@ -276,9 +267,8 @@ class Text:
                                          to=to,
                                          sofar=sofar
                                          )
-
         # attribute access
-        elif path_exists:
+        else:
             to_layer_name = self.attributes[to][0]
             path = self._get_path(frm, to_layer_name) + ['{}.{}'.format(to_layer_name, to)]
 
@@ -336,10 +326,6 @@ class Text:
                         )
                     return res
 
-        raise AttributeError('{} -> {} not implemented'.format(frm, to) +
-                                  (' but path exists' if path_exists else ' - path does not exist')
-                                  )
-
     def _path_exists(self, frm, to):
         paths = self._get_all_paths(frm, to)
         assert len(paths) in (0, 1), 'ambiguous path to attribute {}'.format(to)
@@ -387,13 +373,13 @@ class Text:
                         tos.append(k + '.' + i)
         return tos
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, name, layer):
         # always sets layer
-        assert key not in self.layers.keys(), 'Re-adding a layer not implemented yet: ' + key
-        assert value.name == key, 'Name mismatch between layer name and value: {}!={}'.format(value.name, key)
-        return self._add_layer(
-            value
-        )
+        if not isinstance(layer, Layer):
+            raise TypeError('Layer expected, got {!r}'.format(type(layer)))
+        if layer.name != name:
+            raise ValueError('Mismatch between layer name and index value: {!r}!={!r}'.format(layer.name, name))
+        self._add_layer(layer)
 
     def __getitem__(self, item):
         # always returns layer
@@ -420,6 +406,7 @@ class Text:
 
         for item in to_delete:
             self.layers.pop(item)
+            super().__delattr__(item)
 
         self._setup_structure()
 
@@ -439,10 +426,14 @@ class Text:
         return None
 
     def __eq__(self, other):
+        if self is other:
+            return True
         return not self.diff(other)
 
     def __str__(self):
-        return 'Text(text="{self.text}")'.format(self=self)
+        if self._text is None:
+            return 'Text()'
+        return 'Text(text={self.text!r})'.format(self=self)
 
     def __repr__(self):
         return str(self)
@@ -450,9 +441,18 @@ class Text:
     def _repr_html_(self):
         pandas.set_option('display.max_colwidth', -1)
 
-        rec = [{'text': self.text.replace('\n', '<br/>')}]
-        table = pandas.DataFrame.from_records(rec)
-        table = table.to_html(index=False, escape=False)
+        if self._text is None:
+            table = '<h4>Empty Text object</h4>'
+        else:
+            text = self.text
+            if len(text) > 10000:
+                text = '{}\n\n<skipping {} characters>\n\n{}'.format(text[:8000],
+                                                                     len(text)-9000,
+                                                                     text[-1000:])
+            text_html = '<div align = "left">' + html.escape(text).replace('\n', '</br>') + '</div>'
+            df = pandas.DataFrame(columns=['text'], data=[text_html])
+            table = df.to_html(index=False, escape=False)
+
         if self.meta:
             data = {'key': sorted(self.meta), 'value': [self.meta[k] for k in sorted(self.meta)]}
             table_meta = pandas.DataFrame(data, columns=['key', 'value'])
@@ -473,7 +473,7 @@ class Text:
                 'morph_extended')
             for layer_name in presort:
                 layer = self.layers.get(layer_name)
-                if layer:
+                if layer is not None:
                     layers.append(layer)
             for layer_name in sorted(self.layers):
                 if layer_name not in presort:

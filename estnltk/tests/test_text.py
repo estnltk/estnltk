@@ -1,8 +1,13 @@
 import pytest
 
 import itertools
-from estnltk.text import *
+from estnltk import Span, EnvelopingSpan
+from estnltk import Layer
+from estnltk import Text
 from estnltk.layer import AmbiguousAttributeList
+from estnltk.layer import AttributeList
+from estnltk.tests import new_text
+
 
 def test_general():
     t = Text('Minu nimi on Uku. Mis Sinu nimi on? Miks me seda arutame?').tag_layer()
@@ -14,13 +19,15 @@ def test_general():
     assert len(t.words) == 15
     assert len(t.sentences.words) == 3
     assert t.sentences.words == t.sentences.span_list
+
+    assert {'tokens', 'compound_tokens', 'sentences', 'words', 'morph_analysis'} <= set(t.__dict__)
+
     with pytest.raises(Exception):
         t.words.sentences
 
     assert len(t.words) == len(t.words.text)
-    assert len(t.sentences) == len(t.sentences.text)
-    assert len(t.sentences.words.text) == len(t.sentences.text)
-    print(t.morph_analysis.lemma)
+    #assert len(t.sentences) == len(t.sentences.text)
+    #assert len(t.sentences.words.text) == len(t.sentences.text)
     assert t.morph_analysis.lemma == AmbiguousAttributeList([['mina'], ['nimi'], ['olema', 'olema'], ['Uku'],
                                                              ['.'], ['mis', 'mis'], ['sina'], ['nimi'],
                                                              ['olema', 'olema'], ['?'], ['miks'], ['mina'],
@@ -30,22 +37,16 @@ def test_general():
     assert len(t.morph_analysis.lemma) == len(t.words)
     assert len(t.morph_analysis) == len(t.words)
 
-    print(t.words.morph_analysis)
-    print(t.words.lemma)
-    #assert t.words.morph_analysis.lemma == t.words.lemma
+    assert t.words.morph_analysis.lemma == t.words.lemma
     #assert len(t.sentences[1:].words) == len(t.sentences[1:].text)
 
-    #print('mrf', (t.sentences[1:].morph_analysis))
-    print(t.sentences[1:].text)
     #assert len(t.sentences[1:].morph_analysis) == len(t.sentences[1:].text)
-
 
     #assert len(t.sentences[:].morph_analysis) == len(t.sentences[:].text)
     #assert t.sentences[:] == t.sentences.span_list
     #assert t.words[:] == t.words.span_list
     #assert (t.words[:].lemma) == (t.words.lemma)
     #assert (t.words[:].text) == (t.words.text)
-
 
 
 def test_equivalences():
@@ -63,13 +64,16 @@ def test_equivalences():
 
     assert t.sentences.lemma == [sentence.lemma for sentence in t.sentences] == [[word.lemma for word in sentence] for sentence in t.sentences]
 
-    assert t.words.text == list(itertools.chain(*t.sentences.text))
+    #assert t.words.text == list(itertools.chain(*t.sentences.text))
+    assert t.words.text == t.sentences.text
 
-    assert [list(set(i))[0] for i in t.morph_analysis.text] == t.words.text
+    #assert [list(set(i))[0] for i in t.morph_analysis.text] == t.words.text
+    assert t.morph_analysis.text == t.words.text
 
     # assert t.morph_analysis.get_attributes(['text', 'lemma']) == t.words.get_attributes(['text', 'lemma'])
 
     assert [[i[0]] for i in t.morph_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
+
 
 def test_equal():
     t_1 = Text('Tekst algab. Tekst lõpeb.')
@@ -88,6 +92,13 @@ def test_equal():
     t_1['morph_analysis'][0][0].form = 'x'
     assert t_1 != t_2
 
+    t_1 = new_text(5)
+    t_2 = new_text(5)
+    assert t_1 == t_2
+    t_1.layer_5[1][1].attr_5 = 'bla'
+    assert t_1 != t_2
+
+
 def test_pickle():
     # Text object can be pickled
     import pickle
@@ -96,16 +107,17 @@ def test_pickle():
     t_2 = pickle.loads(b)
     assert t_1 == t_2
 
+
 def test_to_record():
     t = Text('Minu nimi on Uku.').tag_layer()
 
     # siin on kaks võimalikku (ja põhjendatavat) käitumist.
 
     #esimene
-    assert t.words.morph_analysis.to_record() == t.words.to_record()
+    #assert t.words.morph_analysis.to_records() == t.words.to_records()
 
     # või teine
-    # assert t.words.morph_analysis.to_record() == t.morph_analysis.to_record()
+    assert t.words.morph_analysis.to_records() == t.morph_analysis.to_records()
 
     #teine tundub veidi loogilisem, aga piisavalt harv vajadus ja piisavalt tülikas implementeerida, et valida esimene
     # alati saab teha lihtsalt
@@ -120,30 +132,30 @@ Mis sinu nimi on?
 
     #Should not raise NotImplementedError
     t.paragraphs
-    assert (t.paragraphs.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+    assert t.paragraphs.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?', 'Mis', 'sinu', 'nimi', 'on', '?']
 
     #Should not raise NotImplementedError
     t.paragraphs.sentences
-    assert (t.paragraphs.sentences.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+    assert t.paragraphs.sentences.text == [['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?'],
+                                           ['Mis', 'sinu', 'nimi', 'on', '?']]
 
     #Should not raise NotImplementedError
     t.paragraphs.sentences.words
-    assert (t.paragraphs.sentences.words.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+    assert t.paragraphs.sentences.words.text == [['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?'], ['Mis', 'sinu', 'nimi', 'on', '?']]
 
     #Should not raise NotImplementedError
     t.paragraphs.words
-    assert (t.paragraphs.words.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+    assert (t.paragraphs.words.text == [['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?'], ['Mis', 'sinu', 'nimi', 'on', '?']])
 
 
 
-    assert t.paragraphs.text == t.paragraphs.sentences.text
+    #assert t.paragraphs.text == t.paragraphs.sentences.text
     assert t.paragraphs.sentences.text == t.paragraphs.sentences.words.text
     assert t.paragraphs.sentences.words.text == t.paragraphs.words.text
-    assert t.paragraphs.words.text == t.paragraphs.text
+    #assert t.paragraphs.words.text == t.paragraphs.text
 
     #these are not implemented yet
     # t.paragraphs.sentences.words.morph_analysis.lemma
-
 
 
 def test_delete_layer():
@@ -152,12 +164,21 @@ def test_delete_layer():
 
     layer_names = 'words sentences morph_analysis'.split()
     t.tag_layer(layer_names)
-    assert  set(t.layers.keys()).issuperset(set(layer_names))
+    assert set(layer_names) <= set(t.layers)
+    assert set(layer_names) <= set(t.__dict__)
 
     #Should not raise NotImplementedError
     #deleting a root lalyer should also delete all its dependants
     del t.tokens
+
+    assert 'tokens' not in t.__dict__
+    assert 'compound_tokens' not in t.__dict__
+
     del t.words
+
+    assert 'words' not in t.__dict__
+    assert 'sentences' not in t.__dict__
+    assert 'morph_analysis' not in t.__dict__
 
     assert t.layers == {}
 
@@ -212,38 +233,35 @@ def test_text():
     assert t.text == 'test'
     with pytest.raises(AttributeError):
         t.text = 'asd'
-#
-#
-def test_spanList():
+
+
+def test_layer_1():
     text = Text('')
 
     layer = Layer(name='test')
     text._add_layer(layer)
-    sl = SpanList(layer=layer)
     span = Span(0, 1)
-    sl.add_span(span)
+    layer.add_span(span)
 
-    assert len(sl) == 1
-    assert list(sl)[0] is span
+    assert len(layer) == 1
+    assert list(layer)[0] is span
 
     #with pytest.raises(TypeError):
     #    sl['asd']
 
-    # insertion keeps items in sorted order
-    sl = SpanList(layer=layer)
+    # insertion keeps spans in sorted order
+    layer = Layer(name='test')
     a, b, c, d = [Span(i, i + 1, layer) for i in range(4)]
-    sl.add_span(b)
-    sl.add_span(c)
-    sl.add_span(a)
-    sl.add_span(d)
-    assert sl[0] == a
-    assert sl[1] == b
-    assert sl[2] == c
-    assert sl[3] == d
+    layer.add_span(b)
+    layer.add_span(c)
+    layer.add_span(a)
+    layer.add_span(d)
+    assert layer[0] == a
+    assert layer[1] == b
+    assert layer[2] == c
+    assert layer[3] == d
 
 
-#
-#
 def test_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
@@ -287,7 +305,6 @@ def test_layer():
     )
 
 
-
 def test_annotated_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
@@ -302,6 +319,7 @@ def test_annotated_layer():
     # with pytest.raises(AttributeError):
     #     for i in t.test:
     #         i.test2 = 'mock'
+
 
 def test_count_by():
     def count_by(layer, attributes, counter=None):
@@ -333,7 +351,7 @@ def test_count_by():
         break
 
     assert (count_by(l, ['text', 'asd'])) == {('ösel', 123): 1, ('sel ', None): 1}
-#
+
 
 def test_from_dict():
     t = Text('Kui mitu kuud on aastas?')
@@ -351,6 +369,7 @@ def test_from_dict():
         print(span.lemma, lemma)
         assert span.lemma == lemma
 
+
 def test_ambiguous_from_dict():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words', attributes=['lemma'], ambiguous = True)
@@ -367,7 +386,8 @@ def test_ambiguous_from_dict():
                        ]
                     )
 
-    assert t.words[0].lemma == ['kui', 'KUU']
+    assert t.words[0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
+
 
 def test_ambiguous_from_dict_unbound():
     words = Layer(name='words', attributes=['lemma'], ambiguous = True)
@@ -387,7 +407,7 @@ def test_ambiguous_from_dict_unbound():
     t = Text('Kui mitu kuud on aastas?')
     t['words'] = words
 
-    assert t.words[0].lemma == ['kui', 'KUU']
+    assert t.words[0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
 
 
     words2 = Layer(name='words2', attributes=['lemma2'], ambiguous = True, parent='words')
@@ -402,9 +422,10 @@ def test_ambiguous_from_dict_unbound():
                        ]
                     )
     t['words2'] = words2
-    assert t.words2[0].lemma2 == ['kui', 'KUU']
+    assert t.words2[0].lemma2 == AttributeList(['kui', 'KUU'], 'lemma2')
 
     assert t.words2[0].parent is t.words[0]
+
 
 def test_dependant_span():
     t = Text('Kui mitu kuud on aastas?')
@@ -436,22 +457,6 @@ def test_dependant_span():
     #TODO: how should this work?
     # for i in t.words:
     #     assert (i.mark('reverse_lemmas').revlemma == i.lemma[::-1])
-#
-# def test_delete_layer():
-#     t = Text('Kui mitu kuud on aastas?')
-#     words = Layer('words', attributes=['lemma']).from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
-#                                            {'end': 8, 'lemma': 'mitu', 'start': 4},
-#                                            {'end': 13, 'lemma': 'kuu', 'start': 9},
-#                                            {'end': 16, 'lemma': 'olema', 'start': 14},
-#                                            {'end': 23, 'lemma': 'aasta', 'start': 17},
-#                                            {'end': 24, 'lemma': '?', 'start': 23}]
-#                                   )
-#     t._add_layer(words)
-#
-#     assert len(t.layers) == 1
-#     del t.words
-#     assert len(t.layers) == 0
-#
 
 
 def test_enveloping_layer():
@@ -471,28 +476,25 @@ def test_enveloping_layer():
     wordpairs = Layer(name='wordpairs', enveloping='words')
     t._add_layer(wordpairs)
 
-    wordpairs._add_spans_to_enveloping(t.words.span_list[0:2])
-    wordpairs._add_spans_to_enveloping(t.words.span_list[2:4])
-    wordpairs._add_spans_to_enveloping(t.words.span_list[4:6])
+    wordpairs.add_span(t.words[0:2])
+    wordpairs.add_span(t.words[2:4])
+    wordpairs.add_span(t.words[4:6])
 
     print(t.wordpairs.text)
-    assert (wordpairs.text == [['Kui', 'mitu'], ['kuud', 'on'], ['aastas', '?']])
+    assert (wordpairs.text == ['Kui', 'mitu', 'kuud', 'on', 'aastas', '?'])
 
-    wordpairs._add_spans_to_enveloping(t.words.span_list[1:3])
-    wordpairs._add_spans_to_enveloping(t.words.span_list[3:5])
+    wordpairs.add_span(t.words[1:3])
+    wordpairs.add_span(t.words[3:5])
     print(t.wordpairs.text)
-    assert (wordpairs.text == [['Kui', 'mitu'], ['mitu', 'kuud'], ['kuud', 'on'], ['on', 'aastas'], ['aastas', '?']])
-
+    assert (wordpairs.text == ['Kui', 'mitu', 'mitu', 'kuud', 'kuud', 'on', 'on', 'aastas', 'aastas', '?'])
 
     for wordpair in t.wordpairs:
         for word in wordpair.words:
             assert (word)
 
-
     print(t._g.nodes(), t._g.edges())
     for wordpair in t.wordpairs:
         (wordpair.lemma) #this should not give a keyerror
-
 
     #I have changed my mind about what this should raise so much, I'm leaving it free at the moment
     with pytest.raises(Exception):
@@ -537,11 +539,11 @@ def test_various():
 def test_words_sentences():
     t = Text('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?').tag_layer()
 
-    assert t.sentences.text == [['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?'], ['Miks', 'me', 'seda', 'arutame', '?']]
+    assert t.sentences.text == ['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?', 'Miks', 'me', 'seda', 'arutame', '?']
     assert t.words.text == ['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?', 'Miks', 'me', 'seda', 'arutame', '?']
     assert t.text == 'Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?'
 
-    assert [sentence.text for sentence in t.sentences] == t.sentences.text
+    #assert [sentence.text for sentence in t.sentences] == t.sentences.text
 
     with pytest.raises(AttributeError):
         t.nonsense
@@ -609,7 +611,6 @@ def test_morph():
     #assert len(text.sentences[:1].words.lemma) > 0
 
 
-
 def test_change_lemma():
     text = Text('Olnud aeg.').tag_layer()
     setattr(text.morph_analysis[0][0], 'lemma', 'blabla')
@@ -638,8 +639,6 @@ def test_to_records():
     assert (text['sentences'].to_records() == [[{'end': 5, 'start': 0, 'normalized_form': None}, {'end': 9, 'start': 6, 'normalized_form': None}, {'end': 10, 'start': 9, 'normalized_form': None}]])
 
 
-
-
 def test_morph2():
     text = Text('''
     Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.
@@ -655,9 +654,19 @@ def test_morph2():
     print(text.morph_analysis[5])
     print(text.morph_analysis[5].lemma)
     assert len(text.morph_analysis[5].lemma) == 2
-    assert text.morph_analysis[5].lemma == ['olema', 'olema']
-    assert text.morph_analysis.lemma == AmbiguousAttributeList([['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'], ['soome'], ['keel'], ['tõlgitud', 'tõlgitud', 'tõlgitud', 'tõlkima'], ['teos'], ['ilmuma'], ['äsja'], ['ka'], ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'], ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'], ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala'], ['ja'], ['Vahemeri'], ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'], ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','], ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['"'], ['.']],
-                                                               'lemma')
+    assert text.morph_analysis[5].lemma == AttributeList(['olema', 'olema'], 'lemma')
+    assert text.morph_analysis.lemma == AmbiguousAttributeList(
+        [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'],
+         ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'],
+         ['soome'], ['keel'], ['tõlgitud', 'tõlgitud', 'tõlgitud', 'tõlkima'], ['teos'], ['ilmuma'], ['äsja'], ['ka'],
+         ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'],
+         ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'],
+         ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala'], ['ja'], ['Vahemeri'],
+         ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'],
+         ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','],
+         ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['"'], ['.']
+         ],
+        'lemma')
 
 
 def test_text_setitem():
@@ -668,7 +677,7 @@ def test_text_setitem():
     assert text['test'] is l
 
     #assigning something that is not a layer
-    with pytest.raises(AssertionError):
+    with pytest.raises(TypeError):
         text['test'] = '123'
 
     #getting something that is not in the dict
@@ -858,7 +867,7 @@ def test_rewriting_api():
     assert list(text.plain.esrever) == text.words.text
 
 
-def test_delete_ambig_span():
+def test_delete_annotation_in_ambiguous_span():
     text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
     l = Layer(name='test',
               parent='words',
@@ -869,42 +878,40 @@ def test_delete_ambig_span():
 
     c = 0
     for word in text.words:
-        word.mark('test').test1 = c
+        l.add_annotation(word, test1=c)
         c += 1
 
     for word in text.words:
-        word.mark('test').test1 = c
+        l.add_annotation(word, test1=c)
         c += 1
 
-    assert len(text['test'].span_list.spans[0]) == 2
+    assert len(text['test'][0]) == 2
 
-    (text['test'].span_list.spans[0].spans
+    (text['test'][0].annotations
             .remove(
-        text['test'].span_list.spans[0] #this is the span we want to remove
+        text['test'][0][0] #this is the annotation we want to remove
     )
           )
     assert len(text['test'].span_list.spans[0]) == 1
 
+    # removing the second
+    assert len(text['test'][1]) == 2
 
-
-    #removing the second
-    assert len(text['test'].span_list.spans[1]) == 2
-
-    (text['test'].span_list.spans[1].spans
+    (text['test'][1].annotations
             .remove(
-        text['test'].span_list.spans[1] #this is the span we want to remove
+        text['test'][1][0] #this is the annotation we want to remove
     )
           )
-    assert len(text['test'].span_list.spans[1]) == 1
-    
-    
+    assert len(text['test'][1]) == 1
+
+
 def test_span_morph_access():
     text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
-    assert text.sentences[0].words[0].morph_analysis.lemma == ['olema']
+    assert text.sentences[0].words[0].morph_analysis.lemma == AttributeList(['olema'], 'lemma')
 
 
 def test_lemma_access_from_text_object():
-    '''See on oluline, sest Dage tungivalt soovib säärast varianti.'''
+    """See on oluline, sest Dage tungivalt soovib säärast varianti."""
     text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
     assert (text.lemma) == text.words.lemma
 
@@ -924,7 +931,11 @@ def test_sentences_morph_analysis_lemma():
     #assert text.sentences[:].morph_analysis.lemma == text.sentences[:].words.lemma
     #assert (text.sentences.morph_analysis.lemma == [[['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']], [['kus'], ['mina'], ['olema'], ['?']]])
     #assert (text.sentences.morph_analysis.lemma == text.sentences.words.lemma)
-    assert (text.sentences[0].words.lemma == [['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']])
+    assert text.sentences[0].words.lemma == \
+            [AttributeList(['olema'], 'lemma'),
+             AttributeList(['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], 'lemma'),
+             AttributeList(['koha', 'koht'], 'lemma'),
+             AttributeList(['.'], 'lemma')]
     assert text.sentences[0].morph_analysis.lemma == text.sentences[0].words.lemma
 
 
@@ -953,7 +964,7 @@ def test_phrase_layer():
             l = Layer(enveloping='words', name='uppercasephrase', attributes=['phrasetext', 'tag'])
 
             for idx, s in enumerate(spans):
-                sps = l._add_spans_to_enveloping(s)
+                sps = l.add_span(EnvelopingSpan(spans=s, layer=l))
                 sps.phrasetext = ' '.join([i.text for i in s]).lower()
                 sps.tag = idx
             text._add_layer(l)
@@ -967,7 +978,11 @@ def test_phrase_layer():
 
     assert (t.phrasetext) == AttributeList(['karu on punane', 'sinu karu'], 'phrasetext')
 
-    assert (t.uppercasephrase.lemma) == [[['karu'], ['olema', 'olema'], ['punane']], [['sina'], ['karu']]]
+    assert t.uppercasephrase.lemma == [[AttributeList(['karu'], 'lemma'),
+                                        AttributeList(['olema', 'olema'], 'lemma'),
+                                        AttributeList(['punane'], 'lemma')],
+                                       [AttributeList(['sina'], 'lemma'),
+                                        AttributeList(['karu'], 'lemma')]]
 
     assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.span_list))]) ==  ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
 

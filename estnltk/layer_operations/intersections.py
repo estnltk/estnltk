@@ -2,13 +2,16 @@
 #   Functions for yielding intersecting spans.
 #
 
-from estnltk.text import Layer, SpanList, Span
-from typing import MutableMapping, Tuple, Any, Union, List
+from typing import Union, List
 
-def iterate_intersecting_spans( spanlist:Union[List[Span], SpanList], \
-                                yield_nested:bool=True, \
-                                yield_equal:bool=True, \
-                                yield_overlapped:bool=True ):
+from estnltk import SpanList, Span
+from estnltk.layer.span_operations import nested
+
+
+def iterate_intersecting_spans(spanlist: Union[List[Span], SpanList],
+                               yield_nested: bool=True,
+                               yield_equal: bool=True,
+                               yield_overlapped: bool=True):
     """ Given a Layer or a SpanList, yields pairs of Spans that are 
         positionally intersecting.
         
@@ -39,8 +42,8 @@ def iterate_intersecting_spans( spanlist:Union[List[Span], SpanList], \
             following_span = spl_enum[span_id_2][1]
             if span.start <= following_span.start < span.end:
                 # Check for nestings
-                following_nested = span.nested(following_span)
-                this_nested      = following_span.nested(span)
+                following_nested = nested(span, following_span)
+                this_nested = nested(following_span, span)
                 # Yield nested, equal, overlapped or all of them (default)
                 if yield_nested and (following_nested or this_nested) and \
                                 not (following_nested and this_nested):

@@ -453,3 +453,38 @@ def find_camel_case_word_pairs_generator( text: 'Text', \
                         'word_text':  word.text, \
                         'subwords':   subwords }
             yield results
+
+
+
+def find_newlines_inside_tokens_generator( text: 'Text', focus_layer='words' ):
+    '''Analyses given Text object, and yields tokens (from the focus_layer) 
+       that contain (at least one) newline character within them, that is, 
+       tokens that can potentially conflict with newlines used for marking 
+       sentence and paragraph boundaries.
+        
+       The parameter focus_layer specifies which token layer should be analysed
+       (should be one of the following: ['words', 'tokens', 'compound_tokens']).
+        
+       As a result, yields a dict containing start/end position of the conflicting
+       token (under keys 'start' and 'end'), its id inside layer ('tokeni_id'),
+       and its textual content ('token_text').
+    '''
+    # Check the requirements
+    assert focus_layer and \
+           focus_layer in ['words', 'tokens', 'compound_tokens'], \
+           "(!) The focus_layer should be either 'words','tokens',or 'compound_tokens'"
+    requirements = [focus_layer]
+    for requirement in requirements:
+        assert requirement in text.layers, \
+               '(!) The input text is missing the layer "'+requirement+'"!'
+    # Iterate over tokens and find tokens that contain newlines
+    token_spans = text[focus_layer].spans
+    for tid, token in enumerate( token_spans ):
+        content = token.text
+        if '\n' in content:
+            results = { 'tokeni_id':   tid, \
+                        'token_text':  content, \
+                        'start':       token.start, \
+                        'end':         token.end }
+            yield results
+

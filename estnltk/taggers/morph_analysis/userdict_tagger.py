@@ -6,8 +6,12 @@
 import copy
 import csv
 
-from estnltk.text import Span, Layer, Text
-from estnltk.taggers import TaggerOld
+from typing import MutableMapping
+
+from estnltk.text import Layer
+from estnltk.layer.ambiguous_span import AmbiguousSpan
+
+from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
@@ -19,26 +23,28 @@ from estnltk.taggers.morph_analysis.morf_common import VABAMORF_NOUN_FORMS
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_VERB_FORMS
 
 
-
-class UserDictTagger(TaggerOld):
-    description   = "Makes user-specified post-corrections to morphological analyses. "+\
-                    "This tagger can be applied after text has been morphologically analysed."
-    layer_name    = None
-    attributes    = ESTNLTK_MORPH_ATTRIBUTES
-    depends_on    = None
-    configuration = None
+class UserDictTagger(Retagger):
+    """Makes user-specified post-corrections to morphological analyses.
+       This tagger can be applied after text has been morphologically analysed."""
+    output_attributes = ESTNLTK_MORPH_ATTRIBUTES
+    conf_param = ['depends_on', 'ignore_case', 'validate_vm_categories',
+                  'autocorrect_root', '_dict', '_input_words_layer']
 
     def __init__(self,
-                 layer_name='morph_analysis', \
-                 ignore_case:bool=False, \
-                 validate_vm_categories:bool=True, \
-                 autocorrect_root:bool=True ):
+                 output_layer: str = 'morph_analysis',
+                 input_words_layer: str = 'words',
+                 ignore_case: bool = False,
+                 validate_vm_categories: bool = True,
+                 autocorrect_root: bool = True):
         """ Initialize UserDictTagger class.
 
         Parameters
         ----------
-        layer_name: str (default: 'morph_analysis')
-            Name of the input / output layer.
+        output_layer: str (default: 'morph_analysis')
+            Name of the morphological analysis layer that is to be changed;
+        
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
         
         ignore_case: bool (default: False)
             If True, then case will be ignored when matching words in the text
@@ -61,12 +67,15 @@ class UserDictTagger(TaggerOld):
             be specified (otherwise 'lemma' cannot be generated);
 
         """
-        self.layer_name    = layer_name
-        self.configuration = {'ignore_case':ignore_case,\
-                              'validate_vm_categories': validate_vm_categories,\
-                              'autocorrect_root': autocorrect_root }
-        self.depends_on    = ['morph_analysis', 'words']
-        self._dict         = {}
+        self.output_layer = output_layer
+        self.input_layers = [input_words_layer, output_layer]
+        self._input_words_layer = self.input_layers[0]
+        self.depends_on   = self.input_layers
+        
+        self.ignore_case  = ignore_case
+        self.validate_vm_categories = validate_vm_categories
+        self.autocorrect_root       = autocorrect_root
+        self._dict                  = {}
 
 
 
@@ -128,7 +137,7 @@ class UserDictTagger(TaggerOld):
         assert isinstance(word, str)
         assert isinstance(analysis_struct, (dict, list))
         # Ignore case (if required)
-        if self.configuration['ignore_case']:
+        if self.ignore_case:
             word = word.lower()
         if isinstance(analysis_struct, dict):
             # validate attributes & attribute names
@@ -139,14 +148,14 @@ class UserDictTagger(TaggerOld):
                     '(!) Entry '+str(analysis_struct)+' should contain at least one key '+\
                    'from the following: '+str(VABAMORF_ATTRIBUTES)
             # validate category names
-            if self.configuration['validate_vm_categories']:
+            if self.validate_vm_categories:
                 self.validate_morph_record_for_vm_categories(analysis_struct)
             self._dict[word] = {}
             self._dict[word]['analysis'] = \
                 [ copy.deepcopy(analysis_struct) ]
             # Autocorrect root analysis: 
             #    generate cleaned root, root_tokens & lemma
-            if self.configuration['autocorrect_root']:
+            if self.autocorrect_root:
                 if 'root' in self._dict[word]['analysis'][0]:
                     assert 'partofspeech' in self._dict[word]['analysis'][0], \
                         "(!) Please provide 'partofspeech' value in "+str(self._dict[word]['analysis'][0])+\
@@ -175,11 +184,11 @@ class UserDictTagger(TaggerOld):
                 assert not missing, \
                     '(!) Entry '+str(record)+' misses the following keys: '+str(missing)
                 # Validate category names
-                if self.configuration['validate_vm_categories']:
+                if self.validate_vm_categories:
                     self.validate_morph_record_for_vm_categories(record)
                 # Autocorrect root analysis: 
                 #    generate cleaned root, root_tokens & lemma
-                if self.configuration['autocorrect_root']:
+                if self.autocorrect_root:
                     if 'root' in record:
                         assert 'partofspeech' in record, \
                             "(!) Please provide 'partofspeech' value in "+str(record)+\
@@ -277,7 +286,7 @@ class UserDictTagger(TaggerOld):
                 assert word_text, \
                     "'(!) Key 'text' not specified in line: "+str(row)
                 # Ignore case (if required)
-                if self.configuration['ignore_case']:
+                if self.ignore_case:
                     word_text = word_text.lower()
                 # Add new analysis to the dict
                 if word_text not in collected_analyses:
@@ -290,92 +299,77 @@ class UserDictTagger(TaggerOld):
 
 
 
-    def tag(self, text: Text, return_layer=False) -> Text:
-        """Provides dictionary-based corrections on morphological 
-        analyses of given Text object.
-        More technically: rewrites the layer 'morph_analysis' 
-        by replacing existing analyses with analyses from the 
-        user dictionary. Dictionary lookup is made via word texts:
-        word which text matches a word in dictionary will have 
-        its analyses overwritten. If ignore_case is switched on,
-        then the lookup is also case-insensitive.
-        
-        Parameters
-        ----------
-        text: estnltk.text.Text
-            Text object on which morphological analyses are to be
-            corrected.
-            The Text object must have layers 'morph_analysis' and 
-            'words'.
-        return_layer: boolean (default: False)
-            If True, then the corrected 'morph_analysis' will be 
-            returned. Note: the returned layer will still belong 
-            to the input text.
-            Otherwise, the Text object with the corrected layer 
-            is returned;
+    def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
+        """Retags the morphological analyses layer, providing dictionary-
+           based corrections to it.
+           More technically: replaces existing analyses of the layer 
+           'morph_analysis' with analyses from the user dictionary. 
+           Dictionary lookup is made via word texts: word which text 
+           matches a word in dictionary will have its analyses 
+           overwritten. If ignore_case is switched on, then the lookup 
+           is also case-insensitive.
 
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the corrected 
-            'morph_analysis' layer (which still belongs to the
-            Text object); otherwise returns the Text containing
-            the corrected layer;
+           Parameters
+           ----------
+           raw_text: str
+              Text string corresponding to the text which annotation
+              layers will be corrected;
+           layers: MutableMapping[str, Layer]
+              Layers of the raw_text. Contains mappings from the name 
+              of the layer to the Layer object. The mapping must 
+              contain morph_analysis and words layers. 
+              The morph_analysis layer will be retagged;
+           status: dict
+              This can be used to store metadata on layer retagging.
         """
+        assert self.output_layer in layers
+        assert self._input_words_layer in layers
         # Take attributes from the input layer
-        current_attributes = text[self.layer_name].attributes
-        # Create a new layer
-        new_morph_layer = Layer(name=self.layer_name,
-                            parent=text[self.layer_name].parent,
-                            ambiguous=True,
-                            attributes=current_attributes
-        )
-
+        current_attributes = layers[self.output_layer].attributes
         # --------------------------------------------
         #   Rewrite spans according to the dict
         # --------------------------------------------
         morph_span_id = 0
-        morph_spans   = text[self.layer_name].span_list
-        word_spans    = text['words'].span_list
+        morph_spans = layers[self.output_layer].spans
+        word_spans  = layers[self._input_words_layer].spans
         assert len(morph_spans) == len(word_spans)
         while morph_span_id < len(morph_spans):
-            # 0) Convert SpanList to list of Span-s
-            morph_spanlist = \
-                [span for span in morph_spans[morph_span_id].spans]
-
             # 1) Get corresponding word
             word_span = word_spans[morph_span_id]
-            word_text = _get_word_text( word_span )
+            word_text = _get_word_text(word_span)
             # Check the dictionary
-            if self.configuration['ignore_case']:
+            if self.ignore_case:
                 word_text = word_text.lower()
-            
+
             new_morph_spans_added = False
             if word_text in self._dict:
                 # 2) If the word is inside user dictionary
 
                 # 2.1) Convert spans to records
-                records = [ span.to_record() for span in morph_spanlist ]
-                
+                records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
+
                 # 2.2) Process records:
                 if self._dict[word_text]['merge']:
                     # 2.2.1) Merge existing records with new ones
                     new_analysis = self._dict[word_text]['analysis'][0]
                     for rec in records:
-                        # Overwrite keys in dict, keep all other 
+                        # Overwrite keys in dict, keep all other
                         # keys-values as they were before
                         for key in new_analysis:
                             rec[key] = new_analysis[key]
-                else: 
+                else:
                     # 2.2.2) Overwrite existing records with new ones
-                    # NB! This assumes that records in the dict are 
+                    # NB! This assumes that records in the dict are
                     #     in the valid format;
                     records = self._dict[word_text]['analysis']
-                
-                # 2.3) Convert records back to spans
-                record_added = False
+
+                # 2.3) Create new AmbiguousSpan
+                ambiguous_span = \
+                    AmbiguousSpan(layer=morph_spans[morph_span_id].layer, \
+                                  span=morph_spans[morph_span_id].span)
+
+                # 2.4) Populate it with new records
                 for rec in records:
-                    new_morph_span = Span(parent=word_span)
                     # Carry over attributes
                     for attr in current_attributes:
                         if attr in ['start', 'end', 'text', 'word_normal']:
@@ -383,33 +377,24 @@ class UserDictTagger(TaggerOld):
                         attr_value = rec[attr] if attr in rec else None
                         if attr == 'root_tokens':
                             # make it hashable for Span.__hash__
-                            setattr(new_morph_span, attr, tuple(attr_value))
+                            rec[attr] = tuple(attr_value)
                         else:
-                            setattr(new_morph_span, attr, attr_value)
-                    # Record the new span
-                    new_morph_layer.add_span( new_morph_span )
-                    new_morph_spans_added = True
+                            rec[attr] = attr_value
+                    # Add record as an annotation
+                    ambiguous_span.add_annotation( **rec )
+
+                # 2.5) Overwrite the old span
+                morph_spans[morph_span_id] = ambiguous_span
 
             # 3) If the word was not inside user dictionary
-            #       or a new analysis was not added, 
-            #    then add the old morph analysis
+            #       or a new analysis was not added,
+            #    then we do not have to do anything: the old analysis
+            #    span will be preserved in the layer
             if not new_morph_spans_added:
-                for old_morph_span in morph_spanlist:
-                    new_morph_layer.add_span( old_morph_span )
+                pass
 
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
-
-        # --------------------------------------------
-        #   Return layer or Text
-        # --------------------------------------------
-        # Return layer
-        if return_layer:
-            return new_morph_layer
-        # Overwrite the old layer
-        delattr(text, self.layer_name)
-        text[self.layer_name] = new_morph_layer
-        return text
 
 
 

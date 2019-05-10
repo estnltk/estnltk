@@ -17,11 +17,11 @@ class Atomizer(Tagger):
                  ):
         self.output_layer = output_layer
         self.input_layers = [input_layer]
-        self.output_attributes = output_attributes
+        self.output_attributes = tuple(output_attributes)
         self.enveloping = enveloping
 
-    def _make_layer(self, raw_text, input_layers, status):
-        layer = input_layers[self.input_layers[0]]
+    def _make_layer(self, text, layers, status):
+        layer = layers[self.input_layers[0]]
         if self.output_attributes is None:
             output_attributes = layer.attributes
         else:
@@ -29,16 +29,15 @@ class Atomizer(Tagger):
 
         result = Layer(name=self.output_layer,
                        attributes=output_attributes,
+                       text_object=text,
                        parent=None,
                        enveloping=self.enveloping,
                        ambiguous=layer.ambiguous)
         if layer.ambiguous:
-            for span_list in layer:
-                for sp in span_list:
-                    span = _rebase_span(span=sp, legal_attributes=output_attributes)
-                    for attr in output_attributes:
-                        setattr(span, attr, getattr(sp, attr))
-                    result.add_span(span)
+            for span in layer:
+                base_span = Span(span.start, span.end)
+                for annotation in span:
+                    result.add_annotation(base_span, **annotation.attributes)
         else:
             for sp in layer:
                 span = _rebase_span(span=sp, legal_attributes=output_attributes)
@@ -53,7 +52,8 @@ def _rebase_span(span, legal_attributes):
         new_span = SpanList()
         new_span.spans = span.spans
         return new_span
-    if span.parent is None:
+
+    if span.span.parent is None:
         return Span(start=span.start, end=span.end, legal_attributes=legal_attributes)
-    else:
-        return _rebase_span(span.parent, legal_attributes)
+
+    return _rebase_span(span.parent, legal_attributes)

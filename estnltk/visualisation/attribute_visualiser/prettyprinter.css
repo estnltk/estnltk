@@ -1,0 +1,82 @@
+.span {
+    background-color: yellow;
+}
+
+.overlapping-span {
+    background-color: red;
+}
+
+.spanline {
+    background-color: blue;
+    position: relative;
+    height: 3px;
+    margin-left: 0px;
+}
+
+.tables {
+    position: absolute;
+    width: fit-content;
+    width: -moz-fit-content;
+}
+
+.tables tbody tr:nth-child(even) {
+    background-color: lightgray;
+}
+
+.tables tbody tr:nth-child(odd) {
+    background-color: beige;
+}
+
+.tables tbody tr:hover {
+    background-color: ivory;
+}
+
+.attribute-names-table {
+    padding: 6px;
+}
+
+.attribute-column {
+    padding: 6px;
+}
+
+.attribute-names-table tbody tr:nth-child(even) {
+    background-color: white;
+}
+
+.attribute-names-table tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+.attribute-names-table tbody tr:hover {
+    background-color: white;
+}
+
+.attribute-column:hover {
+    border: 2px solid green;
+}
+
+.chosen-span {
+    border: 2px solid red;
+}
+
+.highlighted {
+    border: 2px solid red;
+}
+
+.alt-tables {
+    position: absolute;
+    width: fit-content;
+    width: -moz-fit-content;
+}
+
+.alt-tables tbody tr:nth-child(even) {
+    background-color: lightgray;
+}
+
+.alt-tables tbody tr:nth-child(odd) {
+    background-color: beige;
+}
+
+.alt-tables tbody tr:hover {
+    background-color: ivory;
+}

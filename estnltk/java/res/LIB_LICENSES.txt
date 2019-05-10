@@ -1,10 +1,20 @@
 
  Libraries and their respective licenses:
 
+  Ajavt.jar
+  source: https://github.com/soras/Ajavt
+  license:  * GNU General Public License v2.0
+            https://github.com/soras/Ajavt/blob/master/LICENSE
+
   Osalau.jar
   source: https://github.com/soras/osalausestaja
   license:  * GNU General Public License v2.0
             https://github.com/soras/osalausestaja/blob/master/LICENSE
+
+  joda-time-2.9.4.jar
+  web page: http://www.joda.org/joda-time/
+  license:  * Apache License Version 2.0
+            http://www.joda.org/joda-time/license.html
 
   javax.json-1.0.4.jar
   web page: https://jsonp.java.net/

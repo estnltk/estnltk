@@ -24,9 +24,8 @@ def import_TCF(string:str=None, file:str=None):
         id_to_token = {}
         layer = Layer(name='words', attributes=['normalized_form'])
         for token in element:
-            token_span = Span(start=int(token.get('start')), end=int(token.get('end')), legal_attributes=('normalized_form',))
-            layer.add_span(token_span)
-            id_to_token[token.get('ID')] = token_span
+            annotation = layer.add_annotation(Span(start=int(token.get('start')), end=int(token.get('end'))))
+            id_to_token[token.get('ID')] = annotation.span
         text['words'] = layer
 
     # sentences layer
@@ -129,10 +128,11 @@ def import_TCF(string:str=None, file:str=None):
                       )
         for word, analyses in zip(text.words, morph_analysis_records):
             for analysis in analyses:
-                span = morph.add_span(Span(parent=word))
+                span = Span(parent=word)
                 for attr in morph_attributes:
                     setattr(span, attr, analysis[attr])
-    
+                morph.add_span(span)
+
         text['morph_analysis'] = morph
 
     return text

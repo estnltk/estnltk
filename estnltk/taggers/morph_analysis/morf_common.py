@@ -6,6 +6,8 @@
 import operator
 from functools import reduce
 
+from typing import MutableMapping, Any
+
 from estnltk.text import Span
 
 from estnltk.vabamorf.morf import get_group_tokens
@@ -57,6 +59,25 @@ def _get_word_text( word:Span ):
         return word.text
 
 
+def _create_empty_morph_record( word = None, layer_attributes = None ):
+    ''' Creates an empty 'morph_analysis' record that will 
+        have all of its attribute values set to None.
+        If word is provided, then 'start' and 'end' attributes
+        of the record will be copied from the word.
+        
+        Returns the record.
+    '''
+    current_attributes = \
+        layer_attributes if layer_attributes else ESTNLTK_MORPH_ATTRIBUTES
+    record = {}
+    if word is not None:
+        record['start'] = word.start
+        record['end']   = word.end
+    for attr in current_attributes:
+        record[attr] = None
+    return record
+
+
 def _create_empty_morph_span( word, layer_attributes = None ):
     ''' Creates an empty 'morph_analysis' span that will 
         have word as its parent span. 
@@ -73,24 +94,36 @@ def _create_empty_morph_span( word, layer_attributes = None ):
     return span
 
 
-def _is_empty_span( span:Span ):
-    '''Checks if the given span (from the layer 'morph_analysis')
-       is empty, that is: all of its morph attributes are set to 
-       None. 
-       This means that the word was unknown to morphological 
-       analyser. 
-    '''
-    all_none = [getattr(span, attr) is None for attr in ESTNLTK_MORPH_ATTRIBUTES]
-    return all(all_none)
+def _is_empty_annotation(annotation):
+    """
+    Checks if the given annotation (from the layer 'morph_analysis')
+    is empty, that is, all of its morph attributes are set to None.
+    This means that the word was unknown to morphological analyser.
+    """
+    return all(getattr(annotation, attr) is None for attr in ESTNLTK_MORPH_ATTRIBUTES)
 
+# ========================================================
+#   Convert Span to records, but ignore some attributes   
+# ========================================================
+
+
+def _span_to_records_excl( span: Span, exclude_attribs ) -> MutableMapping[str, Any]:
+    '''Converts given Span to a dictionary of attributes and 
+       values (records), but excludes attributes from the 
+       list exclude_attribs.
+       Use this method iff Span.to_record() cannot be used 
+       because "legal attributes" of the layer have already 
+       been changed.'''
+    return {**{k: getattr(span, k) for k in list(span.legal_attribute_names) if k not in exclude_attribs },
+            **{'start': span.start, 'end': span.end } }
 
 
 # ========================================================
 #    Utils for converting Vabamorf dict <-> EstNLTK Span
 # ========================================================
 
-def _convert_morph_analysis_span_to_vm_dict( span:Span ):
-    ''' Converts a SpanList from the layer 'morph_analysis'
+def _convert_morph_analysis_span_to_vm_dict(span: Span):
+    """ Converts a SpanList from the layer 'morph_analysis'
         into a dictionary object that has the structure
         required by the Vabamorf:
         { 'text' : ..., 
@@ -105,7 +138,7 @@ def _convert_morph_analysis_span_to_vm_dict( span:Span ):
           ]
         }
         Returns the dictionary.
-    '''
+    """
     attrib_dicts = {}
     # Get lists corresponding to attributes
     for attr in ESTNLTK_MORPH_ATTRIBUTES:
@@ -113,9 +146,9 @@ def _convert_morph_analysis_span_to_vm_dict( span:Span ):
     # Rewrite attributes in Vabamorf's analysis format
     # Collect analysis dicts
     nr_of_analyses = len(attrib_dicts['lemma'])
-    word_dict = { 'text' : span.text[0], \
-                  'analysis' : [] }
-    for i in range( nr_of_analyses ):
+    word_dict = {'text': span.text,
+                 'analysis': []}
+    for i in range(nr_of_analyses):
         analysis = {}
         for attr in attrib_dicts.keys():
             attr_value = attrib_dicts[attr][i]

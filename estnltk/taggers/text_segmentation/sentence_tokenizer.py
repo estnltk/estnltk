@@ -1,13 +1,14 @@
 #
-#  Tags sentence boundaries, and applies sentence tokenization post-corrections, if required.
+#  Tags sentence boundaries, and applies post-correction rules to sentence tokenization.
 #
 from typing import Iterator, Tuple
+from typing import MutableMapping
 
 import re
 
 from estnltk import EnvelopingSpan
 from estnltk.text import Layer, SpanList
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import Tagger
 
 _hyphen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
 _lc_letter  = '[a-zöäüõžš]'
@@ -20,7 +21,7 @@ _ending_punct_regexp = re.compile('^[.?!…]+$')
 
 # Patterns describing how two mistakenly split 
 # adjacent sentences can be merged into one sentence
-merge_patterns = [ \
+merge_patterns = [
    # ***********************************
    #   Fixes related to numbers, number ranges, dates and times 
    # ***********************************
@@ -273,15 +274,32 @@ merge_patterns = [ \
 ]
 
 
-class SentenceTokenizer(TaggerOld):
-    description   = 'Groups words into sentences, and applies sentence tokenization post-corrections, if required.'
-    layer_name    = 'sentences'
-    attributes    = ()
-    depends_on    = ['compound_tokens', 'words']
-    configuration = {}
-    sentence_tokenizer = None
-    
+class SentenceTokenizer( Tagger ):
+    """Tokenizes text into sentences, and makes sentence tokenization post-corrections where necessary."""
+    output_layer = 'sentences'
+    output_attributes = ()
+    conf_param = ['base_sentence_tokenizer',
+                  'fix_paragraph_endings', 'fix_compound_tokens',
+                  'fix_numeric', 'fix_parentheses', 'fix_double_quotes',
+                  'fix_inner_title_punct', 'fix_repeated_ending_punct',
+                  'use_emoticons_as_endings',
+                  'record_fix_types',
+                  # Inner parameters:
+                  '_merge_rules',
+                  '_apply_sentences_from_tokens',
+                  # Names of the specific input layers
+                  '_input_words_layer', '_input_compound_tokens_layer',
+                  # For backward compatibility:
+                  'depends_on', 'layer_name', 'attributes'
+                  ]
+    # For backward compatibility:
+    layer_name = 'sentences'
+    attributes = ()
+
     def __init__(self, 
+                 output_layer:str='sentences',
+                 input_words_layer:str='words',
+                 input_compound_tokens_layer:str='compound_tokens',
                  fix_paragraph_endings:bool = True,
                  fix_compound_tokens:bool = True,
                  fix_numeric:bool = True,
@@ -290,19 +308,29 @@ class SentenceTokenizer(TaggerOld):
                  fix_inner_title_punct:bool = True,
                  fix_repeated_ending_punct:bool = True,
                  use_emoticons_as_endings:bool = True,
+                 record_fix_types:bool = False,
                  base_sentence_tokenizer = None,
                  ):
         """Initializes this SentenceTokenizer.
         
         Parameters
         ----------
+        output_layer: str (default: 'sentences')
+            Name for the sentences layer;
+        
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+
+        input_compound_tokens_layer: str (default: 'compound_tokens')
+            Name of the input compound_tokens layer;
+        
         fix_paragraph_endings: boolean (default: True)
             Paragraph endings (double newlines) will be treated as sentence 
             endings.
         
         fix_compound_tokens: boolean (default: True)
             If True, then following sentence boundary fixes are applied:
-            *) a built-in logic is used to remove all sentence endings 
+            *) a built-in logic  is used to remove all sentence endings
                that fall inside compound_tokens;
             *) sentence endings that are added after compound_tokens of 
                type non_ending_abbreviation are removed;
@@ -337,6 +365,14 @@ class SentenceTokenizer(TaggerOld):
         use_emoticons_as_endings: boolean (default: True)
             If switched on, then emoticons are treated as sentence endings.
         
+        record_fix_types: boolean (default: False)
+            If True, then attribute 'fix_types' is added to the sentences
+            layer, which contains names of the applied postcorrection (merging) 
+            fixes.
+            Note: this attribute is only used for developing and debugging 
+            purposes, it may change in the future and should not be relied 
+            upon;
+        
         base_sentence_tokenizer: nltk.tokenize.api.TokenizerI (default: None)
             Base string tokenizer to be used for initial sentence tokenization.
             If not set, then NLTK's PunktSentenceTokenizer with the Estonian-
@@ -353,7 +389,29 @@ class SentenceTokenizer(TaggerOld):
               used for initial sentence tokenization;
 
         """
-        # 0.1) Set or initialize base sentence tokenizer
+        # Set input/output layer names
+        self.output_layer = output_layer
+        self._input_words_layer = input_words_layer
+        self._input_compound_tokens_layer = input_compound_tokens_layer
+        self.input_layers = [input_words_layer, input_compound_tokens_layer]
+        self.layer_name = self.output_layer
+        self.depends_on = self.input_layers
+        # Set flags
+        self.fix_paragraph_endings = fix_paragraph_endings
+        self.fix_compound_tokens = fix_compound_tokens
+        self.fix_numeric = fix_numeric
+        self.fix_parentheses = fix_parentheses
+        self.fix_double_quotes = fix_double_quotes
+        self.fix_inner_title_punct = fix_inner_title_punct
+        self.fix_repeated_ending_punct = fix_repeated_ending_punct
+        self.use_emoticons_as_endings = use_emoticons_as_endings
+        self.record_fix_types = record_fix_types
+
+        self.output_attributes = ()
+        if record_fix_types:
+            self.output_attributes = ('fix_types', )
+        
+        # 1) Set or initialize base sentence tokenizer
         import nltk as nltk
         from nltk.tokenize.punkt import PunktSentenceTokenizer
         from nltk.tokenize.api import TokenizerI
@@ -363,124 +421,102 @@ class SentenceTokenizer(TaggerOld):
             #    use NLTK-s sentence tokenizer for Estonian, in case it is not 
             #    downloaded yet, try to download it first
             try:
-                self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+                self.base_sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
             except LookupError:
                 import nltk.downloader
                 nltk.downloader.download('punkt')
             finally:
-                if self.sentence_tokenizer is None:
-                    self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+                if self.base_sentence_tokenizer is None:
+                    self.base_sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
         else:
             # If base tokenizer was given by the user:
             #    check that it implements the correct interface
             assert isinstance(base_sentence_tokenizer, TokenizerI), \
                    ' (!) base_sentence_tokenizer should be an instance of nltk.tokenize.api.TokenizerI.'
-            self.sentence_tokenizer = base_sentence_tokenizer
-        # 0.2) Fix the tokenization method: 
+            self.base_sentence_tokenizer = base_sentence_tokenizer
+        # 2) Fix the tokenization method: 
         #  * use sentences_from_tokens() for PunktSentenceTokenizer()
         #  * use span_tokenize() for other / custom tokenizers;
-        self.apply_sentences_from_tokens = True
-        if not isinstance(self.sentence_tokenizer, PunktSentenceTokenizer):
-            self.apply_sentences_from_tokens = False
-        # 1) Record configuration
-        self.configuration = {'fix_paragraph_endings': fix_paragraph_endings,
-                              'fix_compound_tokens': fix_compound_tokens,
-                              'fix_numeric': fix_numeric,
-                              'fix_parentheses': fix_parentheses,
-                              'fix_double_quotes': fix_double_quotes,
-                              'fix_inner_title_punct':fix_inner_title_punct,
-                              'fix_repeated_ending_punct':fix_repeated_ending_punct,
-                              'use_emoticons_as_endings':use_emoticons_as_endings,
-                              'base_sentence_tokenizer': \
-                                   self.sentence_tokenizer.__class__.__name__ }
-        # 2) Filter rules according to the given configuration
-        self.merge_rules = []
+        self._apply_sentences_from_tokens = True
+        if not isinstance(self.base_sentence_tokenizer, PunktSentenceTokenizer):
+            self._apply_sentences_from_tokens = False
+        # 3) Filter rules according to the given configuration
+        self._merge_rules = []
         for merge_pattern in merge_patterns:
             # Fixes that use both built-in logic, and merge rules
             if fix_compound_tokens and merge_pattern['fix_type'].startswith('abbrev'):
-                self.merge_rules.append( merge_pattern )
+                self._merge_rules.append( merge_pattern )
             if fix_repeated_ending_punct and merge_pattern['fix_type'].startswith('repeated_ending_punct'):
-                self.merge_rules.append( merge_pattern )
+                self._merge_rules.append( merge_pattern )
             # Fixes that only use merge rules
             if fix_numeric and merge_pattern['fix_type'].startswith('numeric'):
-                self.merge_rules.append( merge_pattern )
+                self._merge_rules.append( merge_pattern )
             if fix_parentheses and merge_pattern['fix_type'].startswith('parentheses'):
-                self.merge_rules.append( merge_pattern )
+                self._merge_rules.append( merge_pattern )
             if fix_double_quotes and merge_pattern['fix_type'].startswith('double_quotes'):
-                self.merge_rules.append( merge_pattern )
+                self._merge_rules.append( merge_pattern )
             if fix_inner_title_punct and merge_pattern['fix_type'].startswith('inner_title_punct'):
-                self.merge_rules.append( merge_pattern )
+                self._merge_rules.append( merge_pattern )
 
+    def _tokenize_text(self, raw_text: str) -> Iterator[Tuple[int, int]]:
+        """Tokenizes into sentences based on the input text."""
+        return self.base_sentence_tokenizer.span_tokenize(raw_text)
 
-    def _tokenize_text(self, text: 'Text') -> Iterator[Tuple[int, int]]:
-        ''' Tokenizes into sentences based on the input text. '''
-        return self.sentence_tokenizer.span_tokenize(text.text)
-
-    def _sentences_from_tokens(self, text: 'Text') -> Iterator[Tuple[int, int]]:
-        ''' Tokenizes into sentences based on the word tokens of the input text. '''
-        words = list(text.words)
-        word_texts = text.words.text
+    def _sentences_from_tokens(self, layers) -> Iterator[Tuple[int, int]]:
+        """Tokenizes into sentences based on the word tokens of the input text."""
+        words = list(layers[self._input_words_layer])
+        word_texts = layers[self._input_words_layer].text
         i = 0
-        for sentence_words in self.sentence_tokenizer.sentences_from_tokens(word_texts):
+        for sentence_words in self.base_sentence_tokenizer.sentences_from_tokens(word_texts):
             if sentence_words:
                 first_token = i
                 last_token  = i + len(sentence_words) - 1
                 yield (words[first_token].start, words[last_token].end)
                 i += len(sentence_words)
 
-    def tag(self, text:'Text', return_layer:bool=False,
-                               record_fix_types:bool=False) -> 'Text':
-        """Tags sentences layer.
+    def _make_layer(self, text, layers, status: dict):
+        """Creates the sentences layer.
         
         Parameters
         ----------
-        text: estnltk.text.Text
-            Text object that is to be segmented into sentences. 
-            Needs to have layers 'compound_tokens' and 'words' 
-            available; 
-
-        return_layer: boolean (default: False)
-            If True, then the new layer is returned; otherwise 
-            the new layer is attached to the Text object, and 
-            the Text object is returned;
-        
-        record_fix_types: boolean (default: False)
-            If True, then attribute 'fix_types' is added to the 
-            layer, which contains names of the applied post-
-            correction (merging) fixes.
-            Note: this attribute is only used for developing and 
-            debugging purposes, it may change in the future and 
-            should not be relied upon;
-        
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the new layer, 
-            otherwise attaches the new layer to the Text object 
-            and returns the Text object;
+        raw_text: str
+           Text string corresponding to the text which
+           will be segmented into sentences.
+          
+        layers: MutableMapping[str, Layer]
+           Layers of the raw_text. Contains mappings from the 
+           name of the layer to the Layer object. Must contain
+           words and compound_tokens layers.
+          
+        status: dict
+           This can be used to store metadata on layer tagging.
         """
+        raw_text = text.text
         # Apply the base sentence tokenizer
         # Depending on the available interface, use either
         # sentences_from_tokens() or span_tokenize()
-        if self.apply_sentences_from_tokens:
+        if self._apply_sentences_from_tokens:
             # Note: this should be the default choice for EstNLTK
-            sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
+            sentence_ends = {end for _, end in self._sentences_from_tokens(layers)}
         else:
             # Note: this is a customization, not default
-            sentence_ends = {end for _, end in self._tokenize_text(text)}
+            sentence_ends = {end for _, end in self._tokenize_text(raw_text)}
+        # Required layers:
+        words = layers[self._input_words_layer]
+        compound_tokens = layers[self._input_compound_tokens_layer]
         # A) Remove sentence endings that:
         #   A.1) coincide with endings of non_ending_abbreviation's
         #   A.2) fall in the middle of compound tokens
-        if self.configuration['fix_compound_tokens']:
-            for ct in text.compound_tokens:
+        if self.fix_compound_tokens:
+            for ct in compound_tokens:
                 if 'non_ending_abbreviation' in ct.type:
                     sentence_ends -= {span.end for span in ct}
                 else:
                     sentence_ends -= {span.end for span in ct[0:-1]}
         # B) Use repeated/prolonged sentence punctuation as sentence endings
-        if self.configuration['fix_repeated_ending_punct']:
+        if self.fix_repeated_ending_punct:
             repeated_ending_punct = []
-            for wid, word in enumerate(text.words):
+            for wid, word in enumerate( words ):
                 # Collect prolonged punctuation
                 if _ending_punct_regexp.match( word.text ):
                     repeated_ending_punct.append( word.text )
@@ -492,8 +528,8 @@ class SentenceTokenizer(TaggerOld):
                     (repeated_ending_punct[0] == '…' or \
                     len(repeated_ending_punct[0]) > 1)):
                     # Check if the next word is titlecased
-                    if wid+1 < len(text.words):
-                        next_word = text.words[wid+1].text
+                    if wid+1 < len(words):
+                        next_word = words[wid+1].text
                         if len(next_word) > 1 and \
                            next_word[0].isupper() and \
                            next_word[1].islower():
@@ -504,19 +540,19 @@ class SentenceTokenizer(TaggerOld):
                             # '(' or '"'; If so, then discard the sentence 
                             # ending ...
                             if wid - len(repeated_ending_punct) > -1:
-                                prev_word = text.words[wid-len(repeated_ending_punct)]
+                                prev_word = words[wid-len(repeated_ending_punct)]
                                 if prev_word.text in ['[', '(', '"']:
                                     sentence_ends -= { word.end }
         # C) Use emoticons as sentence endings
-        if self.configuration['use_emoticons_as_endings']:
+        if self.use_emoticons_as_endings:
             # C.1) Collect all emoticons (record start locations)
             emoticon_locations = {}
-            for ct in text.compound_tokens:
+            for ct in compound_tokens:
                 if 'emoticon' in ct.type:
                     emoticon_locations[ct.start] = ct
             # C.2) Iterate over words and check emoticons
             repeated_emoticons = []
-            for wid, word in enumerate( text.words ):
+            for wid, word in enumerate( words ):
                 if word.start in emoticon_locations:
                     repeated_emoticons.append( emoticon_locations[word.start] )
                 else:
@@ -524,9 +560,9 @@ class SentenceTokenizer(TaggerOld):
                 # Check that there is an emoticon (or even few of them)
                 if len(repeated_emoticons) > 0:
                     # Check if the next word is not emoticon, and is titlecased
-                    if wid+1 < len(text.words):
-                        next_word = text.words[wid+1].text
-                        if text.words[wid+1].start not in emoticon_locations and \
+                    if wid+1 < len( words ):
+                        next_word = words[wid+1].text
+                        if words[wid+1].start not in emoticon_locations and \
                            len(next_word) > 1 and \
                            next_word[0].isupper() and \
                            next_word[1].islower():
@@ -537,54 +573,48 @@ class SentenceTokenizer(TaggerOld):
                             # ending; if so, remove it's ending (assuming that 
                             # emoticons belong to the previous sentence)
                             if wid - len(repeated_emoticons) > -1:
-                                prev_word = text.words[wid-len(repeated_emoticons)]
+                                prev_word = words[wid-len(repeated_emoticons)]
                                 sentence_ends -= { prev_word.end }
         # D) Align sentence endings with word startings and endings
         #    Collect span lists of potential sentences
         start = 0
-        if len(text.words) > 0:
-            sentence_ends.add( text.words[-1].end )
+        if len( words ) > 0:
+            sentence_ends.add( words[-1].end )
         sentences_list = []
         sentence_fixes_list = []
-        for i, token in enumerate(text.words):
+        for i, token in enumerate( words ):
             if token.end in sentence_ends:
-                sentences_list.append(text.words[start:i+1])
+                sentences_list.append(words[start:i+1])
                 start = i + 1
         # E) Use '\n\n' (usually paragraph endings) as sentence endings
-        if self.configuration['fix_paragraph_endings']:
+        if self.fix_paragraph_endings:
             sentences_list, sentence_fixes_list = \
                 self._split_by_double_newlines( 
-                            text,
+                            raw_text,
                             sentences_list)
         # F) Apply postcorrection fixes to sentence spans
         # F.1) Try to merge mistakenly split sentences
-        if self.merge_rules:
+        if self._merge_rules:
             sentences_list, sentence_fixes_list = \
-                self._merge_mistakenly_split_sentences(text,
+                self._merge_mistakenly_split_sentences(raw_text,
                                                        sentences_list,
                                                        sentence_fixes_list)
         # G) Create the layer and attach sentences
-        layer_attributes = self.attributes
-        if record_fix_types and 'fix_types' not in layer_attributes:
-            layer_attributes += ('fix_types',)
-        layer = Layer(enveloping='words',
+        layer = Layer(enveloping=self._input_words_layer,
                       name=self.layer_name,
-                      attributes=layer_attributes,
+                      attributes=self.output_attributes,
+                      text_object=text,
                       ambiguous=False)
         for sid, sentence_span_list in enumerate(sentences_list):
-            if record_fix_types:
+            if self.record_fix_types:
                 # Add information about which types of fixes 
                 # were applied to sentences
                 sentence_span_list.fix_types = sentence_fixes_list[sid]
             layer.add_span(sentence_span_list)
-        if return_layer:
-            return layer
-        text[self.layer_name] = layer
-        return text
+        return layer
 
-    def _merge_mistakenly_split_sentences(self, text:'Text', sentences_list:list,
-                                                             sentence_fixes_list:list):
-        ''' Uses regular expression patterns (defined in self.merge_rules) to 
+    def _merge_mistakenly_split_sentences(self, raw_text: str, sentences_list:list, sentence_fixes_list:list):
+        """ Uses regular expression patterns (defined in self._merge_rules) to
             discover adjacent sentences (in sentences_list) that should actually 
             form a single sentence. Merges those adjacent sentences.
             
@@ -596,7 +626,7 @@ class SentenceTokenizer(TaggerOld):
             Returns a tuple of two lists:
             *) new version of sentences_list where merges have been made;
             *) correspondingly updated sentence_fixes_list;
-        '''
+        """
         assert len(sentences_list) == len(sentence_fixes_list)
         new_sentences_list = []
         new_sentence_fixes_list = []
@@ -607,7 +637,7 @@ class SentenceTokenizer(TaggerOld):
             this_sentence_fixes = sentence_fixes_list[sid]
             # get text of the current sentence
             this_sent = \
-                text.text[sentence_spl.start:sentence_spl.end].lstrip()
+                raw_text[sentence_spl.start:sentence_spl.end].lstrip()
             current_fix_types = []
             shiftEnding = None
             mergeSpanLists = False
@@ -620,20 +650,30 @@ class SentenceTokenizer(TaggerOld):
                     last_sentence_spl   = new_sentences_list[-1]
                     last_sentence_fixes = new_sentence_fixes_list[-1]
                 prev_sent = \
-                    text.text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
-                # Check if the adjacent sentences should be joined / merged according 
-                # to one of the patterns ...
-                for pattern in self.merge_rules:
-                    [beginPat, endPat] = pattern['regexes']
-                    if endPat.match(this_sent) and beginPat.match(prev_sent):
-                        mergeSpanLists = True
-                        current_fix_types.append(pattern['fix_type'])
-                        # Check if ending also needs to be shifted
-                        if 'shift_end' in pattern:
-                            # Find new sentence ending position and validate it
-                            shiftEnding = self._find_new_sentence_ending(text, \
-                                          pattern, sentence_spl, last_sentence_spl )
-                        break
+                    raw_text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
+                discard_merge = False
+                if self.fix_paragraph_endings:
+                    # If fixing paragraph endings has been switched on, then 
+                    # do not merge over paragraph endings!
+                    # ( otherwise, it may ruin paragraph ending fixes )
+                    this_start = sentence_spl.start
+                    last_end   = last_sentence_spl.end
+                    if '\n\n' in raw_text[last_end:this_start]:
+                        discard_merge = True
+                if not discard_merge:
+                    # Check if the adjacent sentences should be joined / merged according 
+                    # to one of the patterns ...
+                    for pattern in self._merge_rules:
+                        [beginPat, endPat] = pattern['regexes']
+                        if endPat.match(this_sent) and beginPat.match(prev_sent):
+                            mergeSpanLists = True
+                            current_fix_types.append(pattern['fix_type'])
+                            # Check if ending also needs to be shifted
+                            if 'shift_end' in pattern:
+                                # Find new sentence ending position and validate it
+                                shiftEnding = self._find_new_sentence_ending(raw_text, \
+                                              pattern, sentence_spl, last_sentence_spl )
+                            break
             if mergeSpanLists:
                 # -------------------------------------------
                 #   1) Split-and-merge: First merge two sentences, then split at some 
@@ -642,8 +682,7 @@ class SentenceTokenizer(TaggerOld):
                 if shiftEnding:
                     prev_sent_spl = \
                         new_sentences_list[-1] if new_sentences_list else last_sentence_spl
-                    merge_split_result = self._perform_merge_split( text, \
-                                              shiftEnding, sentence_spl, prev_sent_spl )
+                    merge_split_result = self._perform_merge_split(shiftEnding, sentence_spl, prev_sent_spl)
                     if merge_split_result != None:
                         if new_sentences_list:
                             # Update sentence spans
@@ -652,28 +691,27 @@ class SentenceTokenizer(TaggerOld):
                             # Update fix types list
                             new_sentence_fixes_list[-1] = \
                                 last_sentence_fixes + current_fix_types
-                            new_sentence_fixes_list.append( \
-                                this_sentence_fixes + current_fix_types )
+                            new_sentence_fixes_list.append(
+                                this_sentence_fixes + current_fix_types)
                         else:
                             # Update sentence spans
                             new_sentences_list.append ( merge_split_result[0] )
                             new_sentences_list.append ( merge_split_result[1] )
                             # Update fix types list
-                            new_sentence_fixes_list.append( \
-                                last_sentence_fixes + current_fix_types )
-                            new_sentence_fixes_list.append( \
-                                this_sentence_fixes + current_fix_types )
+                            new_sentence_fixes_list.append(
+                                last_sentence_fixes + current_fix_types)
+                            new_sentence_fixes_list.append(
+                                this_sentence_fixes + current_fix_types)
                     else:
                         # if merge-and-split failed, then discard the rule
                         # (sentences will remain split as they were)
                         new_spanlist = EnvelopingSpan()
-                        if record_fix_types:
+                        if self.record_fix_types:
                             new_spanlist.fix_types = []
                         new_spanlist.spans = sentence_spl.spans
                         new_sentences_list.append( new_spanlist )
                         # Update fix types list
-                        new_sentence_fixes_list.append( \
-                            this_sentence_fixes )
+                        new_sentence_fixes_list.append(this_sentence_fixes)
                 else:
                     # -------------------------------------------
                     #   2) Merge only: join two consecutive sentences into one
@@ -690,10 +728,10 @@ class SentenceTokenizer(TaggerOld):
                             this_sentence_fixes + \
                             current_fix_types
                         new_sentence_fixes_list.append( all_fixes )
-                    else: 
-                        # At least one sentence has already been added: 
+                    else:
+                        # At least one sentence has already been added:
                         # extend the last sentence
-                        spans = new_sentences_list[-1].spans+sentence_spl.spans
+                        spans = new_sentences_list[-1].spans + tuple(sentence_spl.spans)
                         merged_spanlist = EnvelopingSpan(spans=spans)
                         new_sentences_list[-1] = merged_spanlist
                         # Update fix types list
@@ -710,17 +748,16 @@ class SentenceTokenizer(TaggerOld):
                 # new_spanlist.spans = sentence_spl.spans
                 new_sentences_list.append( new_spanlist )
                 # Update fix types list
-                new_sentence_fixes_list.append( \
-                    this_sentence_fixes )
+                new_sentence_fixes_list.append(this_sentence_fixes)
                 #print('>>0',this_sent)
         assert len(new_sentences_list) == len(new_sentence_fixes_list)
         return new_sentences_list, new_sentence_fixes_list
 
-
-
-    def _find_new_sentence_ending(self, text:'Text', merge_split_pattern:dict, \
-                                        this_sent:SpanList, \
-                                        prev_sent:SpanList):
+    @staticmethod
+    def _find_new_sentence_ending(raw_text: str,
+                                  merge_split_pattern: dict,
+                                  this_sent: SpanList,
+                                  prev_sent: SpanList):
         ''' Finds the position where sentence ending should be shifted while 
             attempting to merge and re-split consecutive sentences prev_sent
             and this_sent. Returns the new ending position if it passes the 
@@ -744,7 +781,7 @@ class SentenceTokenizer(TaggerOld):
             if '?P<end>' in endPat.pattern:
                 # extract ending from the current sentence
                 this_sent_str = \
-                    text.text[this_sent.start:this_sent.end].lstrip()
+                    raw_text[this_sent.start:this_sent.end].lstrip()
                 m = endPat.match(this_sent_str)
                 if m and m.span('end') != (-1, -1):
                     end_span = m.span('end')
@@ -764,7 +801,7 @@ class SentenceTokenizer(TaggerOld):
             if '?P<end>' in beginPat.pattern:
                 # extract ending from the previous sentence
                 prev_sent_str = \
-                    text.text[prev_sent.start:prev_sent.end].lstrip()
+                    raw_text[prev_sent.start:prev_sent.end].lstrip()
                 m = beginPat.match(prev_sent_str)
                 if m and m.span('end') != (-1, -1):
                     end_span = m.span('end')
@@ -783,12 +820,11 @@ class SentenceTokenizer(TaggerOld):
                         return ( start_in_text, end_in_text )
         # The new sentence ending was either not found, or did not pass 
         # the validation
-        return None 
+        return None
 
-
-    def _perform_merge_split(self, text:'Text', end_span:tuple, \
-                                   this_sent:SpanList, prev_sent:SpanList ):
-        ''' Performs merge-split operation: 1) consecutive sentences prev_sent
+    @staticmethod
+    def _perform_merge_split(end_span: tuple, this_sent: SpanList, prev_sent: SpanList):
+        """ Performs merge-split operation: 1) consecutive sentences prev_sent
             and this_sent will be joined into one sentence, 2) the new joined 
             sentence will be split (into two sentences) at the position end_span;
             
@@ -800,7 +836,7 @@ class SentenceTokenizer(TaggerOld):
             and-split. For instance, returns None if one of the new sentences 
             would be empty, or if the merge-and-split would result in duplication 
             of tokens;
-        '''
+        """
         if end_span and end_span != (-1, -1):
             new_sentence1 = []
             new_sentence2 = []
@@ -831,8 +867,8 @@ class SentenceTokenizer(TaggerOld):
             return merged_spanlist1, merged_spanlist2
         return None
 
-    def _split_by_double_newlines(self, text: 'Text',
-                                  sentences_list: list):
+    @staticmethod
+    def _split_by_double_newlines(raw_text: str, sentences_list: list):
         """ Splits sentences inside the given list of sentences by double
             newlines (usually paragraph endings).
             
@@ -849,7 +885,7 @@ class SentenceTokenizer(TaggerOld):
         for sentence_spl in sentences_list:
             # get text of the current sentence
             this_sent_text = \
-                text.text[sentence_spl.start:sentence_spl.end]
+                raw_text[sentence_spl.start:sentence_spl.end]
             # check for double newline (paragraph ending)
             if double_newline in this_sent_text:
                 # iterate over words
@@ -860,7 +896,7 @@ class SentenceTokenizer(TaggerOld):
                         next_span = sentence_spl.spans[wid+1]
                         # check what is between two word spans
                         space_between = \
-                            text.text[span.end:next_span.start]
+                            raw_text[span.end:next_span.start]
                         if double_newline in space_between:
                             # Create a new split 
                             split_spanlist = EnvelopingSpan(spans=current_words)

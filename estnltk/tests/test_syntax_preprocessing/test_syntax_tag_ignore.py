@@ -2,6 +2,7 @@
 """
 
 from estnltk.text import Text
+from estnltk.taggers import WordTagger, SentenceTokenizer
 from estnltk.taggers.syntax_preprocessing.syntax_ignore_tagger import SyntaxIgnoreTagger
 
 def test_ignore_content_in_parentheses_1():
@@ -63,7 +64,7 @@ def test_ignore_content_in_parentheses_1():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -91,7 +92,7 @@ def test_ignore_content_in_parentheses_1_1():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -196,7 +197,7 @@ def test_ignore_content_in_parentheses_2():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -245,7 +246,7 @@ def test_ignore_consecutive_sentences_with_parentheses():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -344,7 +345,7 @@ def test_ignore_consecutive_enum_name_num_sentences():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -382,7 +383,7 @@ def test_ignore_sentences_starting_with_time_schedule():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -434,7 +435,48 @@ def test_ignore_sentences_with_comma_separated_name_num_lists():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
+        #print(ignored_texts)
+        # Check results
+        assert ignored_texts == test_text['expected_ignore_texts']
+
+
+
+def test_change_input_output_layer_names_of_syntax_ignore_tagger():
+    # Tests that input/output layer names of syntax_ignore_tagger can be changed
+    word_tagger = WordTagger(output_layer='my_words')
+    sentence_tokenizer = SentenceTokenizer(output_layer='my_sentences', 
+                                           input_words_layer='my_words')
+    syntax_ignore_tagger = SyntaxIgnoreTagger(input_words_layer='my_words',
+                                              input_sentences_layer='my_sentences',
+                                              output_layer='my_syntax_ignore')
+    test_texts = [ 
+        { 'text': 'Suursoosikutele järgnevad AC Milan ( 7 : 1 ) , Manchester United ( 8 : 1 ) , Londoni Arsenal ja Müncheni Bayern ( 9 : 1 ) ning Torino Juventus ( 10 : 1 ) .', \
+          'expected_ignore_texts': ['( 7 : 1 )', '( 8 : 1 )', '( 9 : 1 )', '( 10 : 1 )'] }, \
+        { 'text': 'Nädala kolm parimat olid seekord kasutajad dieedipaevik (2,3 kg), Elfie (1,6 kg) ja RiinRiin (1,5 kg).', \
+          'expected_ignore_texts': ['(2,3 kg)', '(1,6 kg)', '(1,5 kg)'] }, \
+        { 'text': 'Meeste slaalom : \n'+\
+                  '1. Tom Stiansen ( Norra ) 1.51 , 70 ( 55,81 /55 , 89 ) ,\n'+\
+                  '2. Sebastien Amiez ( Prantsusmaa ) 1.51 , 75 ( 54,71 /57 , 04 ) ,\n'+\
+                  '3. Alberto Tomba ( Itaalia ) 1.52 , 14 ( 56,21 /55 , 93 ) ,\n',\
+          'expected_ignore_texts': ['Meeste slaalom : \n1.',\
+                                    'Tom Stiansen ( Norra ) 1.51 , 70 ( 55,81 /55 , 89 ) ,\n2.', \
+                                    'Sebastien Amiez ( Prantsusmaa ) 1.51 , 75 ( 54,71 /57 , 04 ) ,\n3.', \
+                                    'Alberto Tomba ( Itaalia ) 1.52 , 14 ( 56,21 /55 , 93 ) ,'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['tokens', 'compound_tokens'])
+        word_tagger.tag(text)
+        sentence_tokenizer.tag(text)
+        syntax_ignore_tagger.tag(text)
+        # Assertion for layer existence
+        assert 'my_syntax_ignore' in text.layers.keys()
+        assert 'syntax_ignore' not in text.layers.keys()
+        # Collect results 
+        ignored_texts = \
+            [span.enclosing_text for span in text['my_syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
