@@ -5,26 +5,42 @@ All notable changes to this project will be documented in this file.
 
 # [1.6.3-beta] - 2019-05-10
 ## Changed
+ * EstNLTK core classes `Span`, `AmbiguousSpan`, `EnvelopingSpan`, `Layer`, `Text`, `SpanList`, `Annotation` are under reconstruction. The easiest and recommended way of adding spans and annotations to layers is the `Layer.add_Annotation` method.
  * Major refactoring in Koondkorpus processing module (`parse_koondkorpus.py`): A) during the reconstruction of text strings, you can now change the default paragraph and sentence separators, B) reconstruction of the tokenization layers can now be made independently of the concrete paragraph and sentence separators present in the text string; C) `reconstruct_text` now also creates layers 'tokens' and 'compound_tokens' (to enable morph analysis); D) a custom prefix can now be added to names of original tokenization layers, E) XML content can be loaded from the zipped files, F) Text objects can be reconstructed from a string content;
+ * Improved `Tagger`, the abstract base class for taggers.
  * Made `Retagger` as a subclass of `Tagger`, and introduced span consistency checks that take place after retagging of a layer;
  * Converted the following taggers to `Retagger`: `UserDictTagger`, `PostMorphAnalysisTagger`, `VabamorfDisambiguator`;
  * Converted the following taggers from `TaggerOld` to `Tagger`: `TokensTagger`, `WordTagger`, `SentenceTokenizer`, `ClauseSegmenter`, `GTMorphConverter`, `SyntaxIgnoreTagger`, `TimexTagger`. Also, input layer  names are now changeable in `CompoundTokenTagger`, `WordTagger`, `ParagraphTokenizer`, `SentenceTokenizer`, `PostMorphAnalysisTagger`, `PostMorphAnalysisTagger`, `UserDictTagger`, `VabamorfTagger` (and in its subtaggers), `ClauseSegmenter`, `GTMorphConverter`, `SyntaxIgnoreTagger`, `TimexTagger`;
  * Java-based taggers (`ClauseSegmenter` and `TimexTagger`) can now be used as context managers, which ensures that the corresponding Java processes will be properly terminated after the `with` statement. Alternatively,  now they also have the `close()` method, which can be used for manually terminating the process if the tagger is no longer needed; 
  * EstNLTK's `Vabamorf` extension now uses Python proxy classes in order to avoid a [conflict](https://github.com/estnltk/estnltk/blob/eca541f64d29a633ef0dcefbba3ca445bde0d4e3/dev_documentation/hfst_integration_problems/solving_stringvector_segfault.md) with the [hfst](https://pypi.org/project/hfst) package. This has a small effect on processing speed, see [this evaluation report](https://github.com/estnltk/estnltk/blob/0aaf0b43d10ea5fcf4888618a6dafeb4f3e9fae2/dev_documentation/vabamorf_benchmarking/vabamorf_speed_benchmarking.md) for details;
+ * Taggers: `SpanTagger`, `PhraseTagger`, `RegexTagger`, `GrammarParsingTagger`, `AddressTagger`, `AddressPartTagger`, `DiffTagger`, `GapsTagger`, `CombinedTagger`, `VabamorphTagger`, `SentenceTokenizer`
+ * `Vocabulary` class for dict taggers.
+ * Improved storage of EstNLTK objects in PostgreSQL database.
 
 ## Added
- * Added `TimexTagger` -- a tool which can be used to detect and normalize time expressions. Initial source of the `TimexTagger` was ported from the version 1.4.1. For details on the usage, see [this tutorial](https://github.com/estnltk/estnltk/blob/0aaf0b43d10ea5fcf4888618a6dafeb4f3e9fae2/tutorials/taggers/temporal_expression_tagger.ipynb). _Note_: in order to run the tool with EstNLTK, Java SE Runtime Environment must be installed into the system and available from the PATH environment variable. Improvements in `TimexTagger` (compared to the version 1.4.1):
+ * `TimexTagger` -- a tool which can be used to detect and normalize time expressions. Initial source of the `TimexTagger` was ported from the version 1.4.1. For details on the usage, see [this tutorial](https://github.com/estnltk/estnltk/blob/0aaf0b43d10ea5fcf4888618a6dafeb4f3e9fae2/tutorials/taggers/temporal_expression_tagger.ipynb). _Note_: in order to run the tool with EstNLTK, Java SE Runtime Environment must be installed into the system and available from the PATH environment variable. Improvements in `TimexTagger` (compared to the version 1.4.1):
  	* added a possibility to use custom rules. Upon the initialization of `TimexTagger`, user can now specify from which XML file the tagging rules will be loaded;
  	* document creation time can now also be specified as an ISO date string, and there can be gaps in the creation time (an experimental feature);
  	* improved `TimexTagger`'s default rules: rules for absolute date detection now take account the tokenization specifics of EstNLTK v1.6;
  	* changed annotation format: implicit timexes ("timexes without textual content") were removed from the layer `timexes`, and attributes `begin_point`, `end_point` and (a newly introduced attribute) `part_of_interval` now contain these timexes (represented as `OrderedDict`-s);     
 
- * Added `WhiteSpaceTokensTagger` (can be used for restoring the original tokenization of a pretokenized corpus);
- * Added `PretokenizedTextCompoundTokensTagger` (can be used for restoring the original tokenization of a pretokenized corpus);
- * Added module `parse_ettenten.py` that encapsulates the logic of importing Texts from the [etTenTen 2013](https://metashare.ut.ee/repository/browse/ettenten-korpus-toortekst/b564ca760de111e6a6e4005056b4002419cacec839ad4b7a93c3f7c45a97c55f) corpus. In addition to importing the whole corpus, you can now also load specific documents by their `id`-s;
- * Added module `parse_enc2017.py` that can be used for importing Texts from files of the [Estonian National Corpus 2017](https://metashare.ut.ee/repository/browse/estonian-national-corpus-2017/b616ceda30ce11e8a6e4005056b40024880158b577154c01bd3d3fcfc9b762b3/). Texts can loaded with original tokenization or with estnltk's tokenization; original morphological analyses from the file can also be restored as a layer. Importing Texts can be restricted to documents with specific ids, documents from specific sources (e.g. a Web Corpus, or Estonian Wikipedia), and documents in specific language. See [this tutorial](https://github.com/estnltk/estnltk/blob/0aaf0b43d10ea5fcf4888618a6dafeb4f3e9fae2/tutorials/importing_text_objects_from_corpora.ipynb) for further details;
- * Added `HfstEstMorphAnalyser` which can be used to perform morphological analysis with the help of [HFST-based analyser of Estonian](https://victorio.uit.no/langtech/trunk/experiment-langs/est/). This also introduces a new dependency: the library [hfst](https://pypi.org/project/hfst) must be installed before the analyser can be used. See [this tutorial](https://github.com/estnltk/estnltk/blob/0aaf0b43d10ea5fcf4888618a6dafeb4f3e9fae2/tutorials/hfst/morph_analysis_with_hfst_analyser.ipynb) for further details;
- 
+ * `WhiteSpaceTokensTagger` (can be used for restoring the original tokenization of a pretokenized corpus);
+ * `PretokenizedTextCompoundTokensTagger` (can be used for restoring the original tokenization of a pretokenized corpus);
+ * `parse_ettenten.py` module  that encapsulates the logic of importing Texts from the [etTenTen 2013](https://metashare.ut.ee/repository/browse/ettenten-korpus-toortekst/b564ca760de111e6a6e4005056b4002419cacec839ad4b7a93c3f7c45a97c55f) corpus. In addition to importing the whole corpus, you can now also load specific documents by their `id`-s;
+ * `parse_enc2017.py` module  that can be used for importing Texts from files of the [Estonian National Corpus 2017](https://metashare.ut.ee/repository/browse/estonian-national-corpus-2017/b616ceda30ce11e8a6e4005056b40024880158b577154c01bd3d3fcfc9b762b3/). Texts can loaded with original tokenization or with estnltk's tokenization; original morphological analyses from the file can also be restored as a layer. Importing Texts can be restricted to documents with specific ids, documents from specific sources (e.g. a Web Corpus, or Estonian Wikipedia), and documents in specific language. See [this tutorial](https://github.com/estnltk/estnltk/blob/0aaf0b43d10ea5fcf4888618a6dafeb4f3e9fae2/tutorials/importing_text_objects_from_corpora.ipynb) for further details;
+ * `HfstEstMorphAnalyser` which can be used to perform morphological analysis with the help of [HFST-based analyser of Estonian](https://victorio.uit.no/langtech/trunk/experiment-langs/est/). This also introduces a new dependency: the library [hfst](https://pypi.org/project/hfst) must be installed before the analyser can be used. See [this tutorial](https://github.com/estnltk/estnltk/blob/0aaf0b43d10ea5fcf4888618a6dafeb4f3e9fae2/tutorials/hfst/morph_analysis_with_hfst_analyser.ipynb) for further details;
+ * `SyntaxLasTagger`
+ * `SyntaxDependencyRetagger`
+ * `ConllMorphTagger`
+ * `SegmentTagger`
+ * `VislTagger`
+ * `NeuralMorphTagger`
+ * `SentenceFleschScoreRetagger`
+ * `FlattenTagger`
+ * `TextaExporter`
+ * importers from `conll` fromat: `conll_to_text`, `add_layer_from_conll`
+ * visulisation module for colorful dispaly of layers and attributes
+ * `DiffSampler` class for iterating over diff layer (the output layer of `DiffTagger`)
 
 Fixed
 -----
