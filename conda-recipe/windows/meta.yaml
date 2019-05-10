@@ -39,6 +39,10 @@ requirements:
     - html5lib
     - networkx
     - lxml
+    - tqdm
+    - IPython
+    - requests
+    - matplotlib
 
 about:
   home: https://github.com/estnltk/estnltk
