@@ -1,6 +1,5 @@
 from estnltk import Span, Layer, Text
 from estnltk.converters import export_CG3
-from estnltk.converters import text_to_dict, dict_to_text
 from estnltk.converters import text_to_json, json_to_text
 from estnltk.converters import export_TCF, import_TCF
 from estnltk.converters import annotation_to_json, json_to_annotation
@@ -41,27 +40,6 @@ T_1 = "Tere, maailm!"
 T_2 = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
 
 Teine lõik.'''
-
-
-def test_dict_export_import():
-    text = Text('')
-    dict_text = text_to_dict(text)
-    text_import = dict_to_text(dict_text)
-    assert text_import == text
-    assert dict_text == text_to_dict(text_import)
-    
-    text = Text(T_2).tag_layer(['morph_analysis', 'paragraphs'])
-    text.meta['year'] = 2017
-    dict_text = text_to_dict(text)
-    text_import = dict_to_text(dict_text)
-    assert text_import == text
-    assert text_to_dict(text) == text_to_dict(dict_to_text(text_to_dict(text)))
-
-    text = new_text(5)
-    assert text == dict_to_text(text_to_dict(text))
-
-    text_list = [Text(''), Text(T_1), Text(T_2)]
-    assert text_list == dict_to_text(text_to_dict(text_list))
 
 
 def test_json_export_import():
