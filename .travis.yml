@@ -36,7 +36,7 @@ install:
   - git fetch --unshallow
   # Fetch and install miniconda
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-      choco install miniconda3 --params="'/AddToPath:1 /D:$MINICONDA_PATH_WIN'";
+      choco install miniconda3 -yv --params="'/AddToPath:1 /D:$MINICONDA_PATH_WIN'";
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
