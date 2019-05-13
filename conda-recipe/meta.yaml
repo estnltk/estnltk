@@ -6,7 +6,7 @@ package:
   version: {{ data.get('version')  }}
 
 source:
-    path: ../..
+    path: ..
 
 build:
  number: {{ environ.get('GIT_DESCRIBE_NUMBER', '0') }}
