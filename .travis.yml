@@ -20,31 +20,56 @@ env:
     - PYTHON_TARGET=3.6
 
 before_install:
-  - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
+  - if [[ "$TRAVIS_OS_NAME" != "windows"  ]]; then
+      python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
+    elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      MINICONDA_PATH=/c/tools/miniconda3/;
+      MINICONDA_PATH_WIN=`cygpath --windows $MINICONDA_PATH`;
+      MINICONDA_SUB_PATH=$MINICONDA_PATH/Scripts;
+    fi;
 
 install:
   - git fetch --unshallow
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  # Fetch and install miniconda
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      choco install miniconda3 --params="'/AddToPath:1 /D:$MINICONDA_PATH_WIN'";
+  - elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     else
       rvm get stable --auto-dotfiles;
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
-    fi
+    fi;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
+  - echo "Python $PYTHON_TARGET running on $TRAVIS_OS_NAME";
 
   # Install build tools
-  - conda install conda-build anaconda-client swig cython
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then
+      # Linux & MacOSX
+      conda install conda-build anaconda-client swig cython
+    else
+      # Windows
+      conda install conda-build python$PYTHON_TARGET swig cython
+    fi;
   - conda update conda-build
 
 script:
   # build estnltk
-  - conda build -c conda-forge --py $PYTHON_TARGET conda-recipe
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then
+      # Linux & MacOSX
+      # (TODO: put Linux & MacOSX recipe separately from Windows' one)
+      conda build -c conda-forge --py $PYTHON_TARGET conda-recipe
+    else
+      # Windows
+      # (TODO: put Windows recipe separately from Linux & MacOSX one)
+      call vcvarsall.bat x64
+      conda build -c conda-forge --py $PYTHON_TARGET conda-recipe
+    fi;
 
 after_success:
   # upload build to conda repository with a label "dev"
