@@ -130,6 +130,9 @@ class SpanList(collections.Sequence):
         target = layer.text_object._resolve(layer.name, item, sofar=self)
         return target
 
+    def index(self, x, *args) -> int:
+        return self.spans.index(x, *args)
+
     def __getitem__(self, idx) -> Union[Span, 'SpanList', list, AmbiguousAttributeTupleList]:
         if isinstance(idx, str) or isinstance(idx, (list, tuple)) and all(isinstance(s, str) for s in idx):
             return self.attribute_list(idx)
