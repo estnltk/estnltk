@@ -27,7 +27,7 @@ def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
                 for rec in record:
                     rec['_index_'] = index
             else:
-                index = parent_spanlist.index(span, last_index)
+                index = parent_spanlist.index(span.parent, last_index)
                 record['_index_'] = index
             last_index = index
             layer_dict['spans'].append(record)
