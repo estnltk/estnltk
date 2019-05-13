@@ -1,18 +1,20 @@
+# ref: https://github.com/kangwonlee/travis-yml-conda-posix-nt/blob/master/.travis.yml
+# online yaml validator:  http://www.yamllint.com/
 language: c
 
 # build only specified branches
 branches:
   only:
-  - version_1.6_travis
+    - version_1.6_travis
 
 os:
   - windows
-  #- linux
-  #- osx
+  # - linux
+  # - osx
 
 env:
   global:
-    - MACOSX_DEPLOYMENT_TARGET="10.9" 
+    - MACOSX_DEPLOYMENT_TARGET="10.9"
     - GIT_DESCRIBE_NUMBER=$TRAVIS_BUILD_NUMBER
     - GIT_BUILD_STR=$TRAVIS_COMMIT
   matrix:
@@ -22,6 +24,8 @@ env:
 before_install:
   - if [[ "$TRAVIS_OS_NAME" != "windows"  ]]; then
       python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
+      MINICONDA_PATH=$HOME/miniconda;
+      MINICONDA_SUB_PATH=$MINICONDA_PATH/bin;
     elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       MINICONDA_PATH=/c/tools/miniconda3/;
       MINICONDA_PATH_WIN=`cygpath --windows $MINICONDA_PATH`;
@@ -33,42 +37,36 @@ install:
   # Fetch and install miniconda
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       choco install miniconda3 --params="'/AddToPath:1 /D:$MINICONDA_PATH_WIN'";
-  - elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
+      bash miniconda.sh -b -p $HOME/miniconda;
+    elif  [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       rvm get stable --auto-dotfiles;
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+      bash miniconda.sh -b -p $HOME/miniconda;
     fi;
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
+  - export PATH="$MINICONDA_PATH:$MINICONDA_SUB_PATH:$PATH";
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - echo "Python $PYTHON_TARGET running on $TRAVIS_OS_NAME";
-
+  - echo "Python $PYTHON_TARGET running on $TRAVIS_OS_NAME"
   # Install build tools
   - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then
-      # Linux & MacOSX
-      conda install conda-build anaconda-client swig cython
-    else
-      # Windows
-      conda install conda-build python$PYTHON_TARGET swig cython
+      conda install conda-build anaconda-client swig cython;
+    else;
+      conda install conda-build python$PYTHON_TARGET anaconda-client swig cython;
     fi;
   - conda update conda-build
 
 script:
   # build estnltk
   - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then
-      # Linux & MacOSX
-      # (TODO: put Linux & MacOSX recipe separately from Windows' one)
-      conda build -c conda-forge --py $PYTHON_TARGET conda-recipe
+      conda build -c conda-forge --py $PYTHON_TARGET conda-recipe;
     else
-      # Windows
-      # (TODO: put Windows recipe separately from Linux & MacOSX one)
-      call vcvarsall.bat x64
-      conda build -c conda-forge --py $PYTHON_TARGET conda-recipe
+      call vcvarsall.bat x64;
+      conda build -c conda-forge --py $PYTHON_TARGET conda-recipe;
     fi;
 
 after_success:
