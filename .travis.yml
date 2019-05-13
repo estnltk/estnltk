@@ -6,8 +6,9 @@ branches:
   - version_1.6_travis
 
 os:
-  - linux
-  - osx
+  - windows
+  #- linux
+  #- osx
 
 env:
   global:
