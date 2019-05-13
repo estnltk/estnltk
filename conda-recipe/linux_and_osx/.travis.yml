@@ -1,0 +1,52 @@
+language: c
+
+# build only specified branches
+branches:
+  only:
+  - version_1.6_travis
+
+os:
+  - linux
+  - osx
+
+env:
+  global:
+    - MACOSX_DEPLOYMENT_TARGET="10.9" 
+    - GIT_DESCRIBE_NUMBER=$TRAVIS_BUILD_NUMBER
+    - GIT_BUILD_STR=$TRAVIS_COMMIT
+  matrix:
+    - PYTHON_TARGET=3.5
+    - PYTHON_TARGET=3.6
+
+before_install:
+  - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
+
+install:
+  - git fetch --unshallow
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      sudo apt-get update;
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      rvm get stable --auto-dotfiles;
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+
+  # Install build tools
+  - conda install conda-build anaconda-client swig cython
+  - conda update conda-build
+
+script:
+  # build estnltk
+  - conda build -c conda-forge --py $PYTHON_TARGET conda-recipe
+
+after_success:
+  # upload build to conda repository with a label "dev"
+  - yes | anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
+  - filename=`conda build --output --py $PYTHON_TARGET conda-recipe`
+  - anaconda upload -l dev --force $filename
