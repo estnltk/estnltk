@@ -47,12 +47,15 @@ layer_1.add_annotation(Span(start=12, end=13), attr='L1-3',  attr_1='F')
 text_3['layer_1'] = layer_1
 
 layer_2 = Layer('layer_2', attributes=['attr', 'attr_2'], text_object=text_3, ambiguous=False, parent='layer_0')
-layer_3 = Layer('layer_3', attributes=['attr', 'attr_3'], text_object=text_3, ambiguous=True, parent='layer_1')
-layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], text_object=text_3, ambiguous=False, enveloping='layer_1')
-layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], text_object=text_3, ambiguous=True, enveloping='layer_0')
 text_3['layer_2'] = layer_2
+
+layer_3 = Layer('layer_3', attributes=['attr', 'attr_3'], text_object=text_3, ambiguous=True, parent='layer_1')
 text_3['layer_3'] = layer_3
+
+layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], text_object=text_3, ambiguous=False, enveloping='layer_1')
 text_3['layer_4'] = layer_4
+
+layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], text_object=text_3, ambiguous=True, enveloping='layer_0')
 text_3['layer_5'] = layer_5
 
 t = 'Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.'
@@ -116,8 +119,26 @@ layer_1.add_annotation(Span(start=76, end=89),  attr='L1-17', attr_1='ÜHEKSAKÜ
 layer_1.add_annotation(Span(start=82, end=87),  attr='L1-18', attr_1='KÜMME')
 text_5['layer_1'] = layer_1
 
-
 layer_2 = Layer('layer_2', attributes=['attr', 'attr_2'], ambiguous=False, parent='layer_0')
+layer_2.add_annotation(layer_0[0],  attr='L2-0',  attr_2=100)
+layer_2.add_annotation(layer_0[1],  attr='L2-1',  attr_2=2)
+layer_2.add_annotation(layer_0[2],  attr='L2-2',  attr_2=20)
+layer_2.add_annotation(layer_0[3],  attr='L2-3',  attr_2=10)
+layer_2.add_annotation(layer_0[4],  attr='L2-4',  attr_2=3)
+layer_2.add_annotation(layer_0[5],  attr='L2-5',  attr_2=4)
+layer_2.add_annotation(layer_0[6],  attr='L2-6',  attr_2=1000)
+layer_2.add_annotation(layer_0[7],  attr='L2-7',  attr_2=5)
+layer_2.add_annotation(layer_0[8],  attr='L2-8',  attr_2=500)
+layer_2.add_annotation(layer_0[9],  attr='L2-9',  attr_2=100)
+layer_2.add_annotation(layer_0[10], attr='L2-10', attr_2=6)
+layer_2.add_annotation(layer_0[11], attr='L2-11', attr_2=60)
+layer_2.add_annotation(layer_0[12], attr='L2-12', attr_2=10)
+layer_2.add_annotation(layer_0[13], attr='L2-13', attr_2=7)
+layer_2.add_annotation(layer_0[15], attr='L2-14', attr_2=8)
+layer_2.add_annotation(layer_0[16], attr='L2-15', attr_2=9)
+layer_2.add_annotation(layer_0[17], attr='L2-16', attr_2=90)
+layer_2.add_annotation(layer_0[18], attr='L2-17', attr_2=10)
+layer_2.add_annotation(layer_0[19], attr='L2-18', attr_2=1000)
 text_5['layer_2'] = layer_2
 
 layer_3 = Layer('layer_3', attributes=['attr', 'attr_3'], ambiguous=True, parent='layer_1')
