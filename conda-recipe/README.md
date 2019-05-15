@@ -8,19 +8,26 @@ We depend on the _conda-forge_ project for most of our dependencies and publish 
 
 ## Details
 
-### Building for Linux and MacOSX
+### Before making the build
 
-Building for these platforms has been fully automated with the help of [Travis CI](https://travis-ci.org). 
-Detailed building instructions are in the file [.travis.yml](https://github.com/estnltk/estnltk/blob/version_1.6_travis/.travis.yml).
+All developments and fixes should be made on the [`devel_1.6`](https://github.com/estnltk/estnltk/tree/devel_1.6)  branch.
 Before making the build, make sure that:
  
  1. all the files required by EstNLTK (especially files without the `py` extension) are included `package_data` in [`setup.py`](https://github.com/estnltk/estnltk/blob/devel_1.6/setup.py); 
  2. package requirements in [`linux_and_osx/meta.yaml`](
-https://github.com/estnltk/estnltk/blob/devel_1.6/conda-recipe/linux_and_osx/meta.yaml) are up to date;
+https://github.com/estnltk/estnltk/blob/devel_1.6/conda-recipe/linux_and_osx/meta.yaml) and [`windows/meta.yaml`](
+https://github.com/estnltk/estnltk/blob/devel_1.6/conda-recipe/windows/meta.yaml) are up to date;
  
-After you have updated `setup.py` and `meta.yaml` in the `devel_1.6` branch, merge the `devel_1.6` branch into the `version_1.6_travis` branch. 
-This will launch an [automated building process](https://travis-ci.org/estnltk/estnltk/requests) in travis.
-If the build is successful (✓), then created packages will be uploaded into [estnltk's anaconda channel](https://anaconda.org/estnltk/estnltk).
+After you have updated `setup.py` and `meta.yaml` files in the `devel_1.6` branch, merge the `devel_1.6` branch into the `version_1.6` breach. 
+This branch should always maintain the source of the most recent release.
+
+### Building for Linux and MacOSX
+
+Building for these platforms has been fully automated with the help of [Travis CI](https://travis-ci.org). 
+Detailed building instructions are in the file [.travis.yml](https://github.com/estnltk/estnltk/blob/version_1.6_travis/.travis.yml). 
+After you have merged the `devel_1.6` branch into the `version_1.6`, merge the `version_1.6` branch into the `version_1.6_travis` branch. 
+This will launch an [automated building process](https://travis-ci.org/estnltk/estnltk/requests) in Travis.
+If the build is successful (✓), then created packages will also be uploaded into [estnltk's anaconda channel](https://anaconda.org/estnltk/estnltk).
 
 Notes:
 
@@ -80,7 +87,7 @@ This instruction assumes that you have already completed a Travis CI build for L
         cd conda-recipe\windows
         conda build -c conda-forge --py 3.5  .
 
-    If the build was successful, you should also see an upload instruction in the build log, for instance:
+    If the build was successful, you should also see an upload instruction in the output, for instance:
 
         # If you want to upload package(s) to anaconda.org later, type:
  
@@ -100,7 +107,7 @@ This instruction assumes that you have already completed a Travis CI build for L
         conda create -n test_35 python=3.5 -y
 		conda activate test_35
 		conda install -c estnltk/label/dev estnltk -y
-		python -c "import estnltk; print(estnltk.Text('Tere, maailm\!').analyse('all'))"
+		python -c "import estnltk; print(estnltk.Text('Tere, maailm!').analyse('all'))"
 			
 		conda deactivate
 		conda env remove -n test_35
