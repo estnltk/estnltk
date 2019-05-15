@@ -64,7 +64,7 @@ This instruction assumes that you have already completed a Travis CI build for L
 
     Note: If you are using win-64, and you want to build for win-32, you can call `set CONDA_FORCE_32BIT=1` before creating the new environment. This will force conda to use 32-bit Python in the new environment. 
 
-3. In order to compile estnltk's _Vabamorf_ extension, you'll need to have [Microsoft Visual Studio](https://visualstudio.microsoft.com) installed in the system. In the following instructions, _Microsoft Visual Studio Community Edition 2017_ was used, but you can also try out a newer version.
+3. In order to compile estnltk's _Vabamorf_ extension, you'll need to have [Microsoft Visual Studio](https://visualstudio.microsoft.com) installed in the system. Note: which Visual C++ compiler you need depends on the specific Python version (see [this document](https://wiki.python.org/moin/WindowsCompilers) for details). In the following, _Microsoft Visual Studio Community Edition 2017_ (Visual C++ 14.0) was used.
 
 	3.1. Locate `vcvarsall.bat` in the Visual Studio installation directory, and use it to initialize compiling environment for `x64` (win-64) or `x86` (win-32). For instance:
 
