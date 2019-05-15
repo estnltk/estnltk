@@ -219,6 +219,7 @@ class PgCollection:
                 Literal(layer_name)
             )
             )
+            self.storage.conn.commit()
             logger.debug(c.query.decode())
 
     def old_slow_insert(self, text, key=None, meta_data=None):
