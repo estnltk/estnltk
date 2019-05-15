@@ -810,7 +810,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                            nudTudEndings.match(a.ending) != None \
                            for a in word_morph ]
                 if nudTud.count( True ) > 1:
-                    hidden_words.add_span( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
+                    hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
                 #
                 # 2) If analyses have same lemma and no form, then hide the ambiguity:
                 #    E.g.    kui+0 //_D_ //    kui+0 //_J_ //
@@ -818,7 +818,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 lemmas = set([ a.root for a in word_morph ])
                 forms  = set([ a.form for a in word_morph ])
                 if len(lemmas) == 1 and len(forms) == 1 and (list(forms))[0] == '':
-                    hidden_words.add_span( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
+                    hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
                 #
                 # 3) If 'olema' analyses have the same lemma and the same ending, then hide 
                 #    the ambiguity:
@@ -827,7 +827,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 endings = set([ a.ending for a in word_morph ])
                 if len(lemmas) == 1 and (list(lemmas))[0] == 'ole' and len(endings) == 1 \
                    and (list(endings))[0] == '0':
-                    hidden_words.add_span( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
+                    hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
                 #
                 # 4) If pronouns have the the same lemma and the same ending, then hide the 
                 #    singular/plural ambiguity:
@@ -836,7 +836,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 postags  = set([ a.partofspeech for a in word_morph ])
                 if len(lemmas) == 1 and len(postags) == 1 and 'P' in postags and \
                    len(endings) == 1:
-                    hidden_words.add_span( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
+                    hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
                 #
                 # 5) If lemmas and endings are exactly the same, then hide the ambiguity 
                 #    between numerals and pronouns:
@@ -844,7 +844,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 #             üks+l //_N_ sg ad, //    üks+l //_P_ sg ad, //
                 if len(lemmas) == 1 and 'P' in postags and ('O' in postags or \
                    'N' in postags) and len(endings) == 1:
-                    hidden_words.add_span( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
+                    hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1]) )
         return hidden_words
 
 
