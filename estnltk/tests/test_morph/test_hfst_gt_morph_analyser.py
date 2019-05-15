@@ -9,15 +9,10 @@ def check_if_hfst_is_available():
     # Check that HFST is available
     return pkgutil.find_loader("hfst") is not None
 
-# Environment variable that enables testing HFST Tagger (to see if the import conflict has been resolved)
-TEST_HFST_TAGGER = os.environ.get('TEST_HFST_TAGGER', None)
-skip_reason_msg = "Skipped because of a potential import conflict between hfst and vabamorf. "+\
-                  "Set environment variable TEST_HFST_TAGGER=1 to enable the test. "
+
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(TEST_HFST_TAGGER is None,
-                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_raw_output():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -116,8 +111,6 @@ def test_hfst_gt_morph_analyser_raw_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(TEST_HFST_TAGGER is None,
-                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -168,8 +161,6 @@ def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(TEST_HFST_TAGGER is None,
-                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_extract_morpheme_features():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -254,8 +245,6 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(TEST_HFST_TAGGER is None,
-                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
@@ -339,8 +328,6 @@ def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(TEST_HFST_TAGGER is None,
-                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_with_guessing_switched_on_and_off():
     import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
     
