@@ -1,5 +1,4 @@
 from typing import Union, Any
-import collections
 import pandas as pd
 from IPython.core.display import display_html
 
@@ -8,7 +7,7 @@ from estnltk import Annotation
 from estnltk.layer import AttributeList
 
 
-class AmbiguousSpan(collections.Sequence):
+class AmbiguousSpan:
     def __init__(self, layer: 'Layer', span: Span) -> None:
 
         assert not isinstance(span, Annotation), span
@@ -83,6 +82,10 @@ class AmbiguousSpan(collections.Sequence):
     @property
     def text(self):
         return self._span.text
+
+    @property
+    def enclosing_text(self):
+        return self.layer.text_object.text[self.start:self.end]
 
     @property
     def text_object(self):

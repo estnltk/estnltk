@@ -5,10 +5,9 @@ from estnltk.layer.annotation import Annotation
 
 
 class Span:
-    """
-    Basic element of an EstNLTK layer.
-    """
+    """Basic element of an EstNLTK layer.
 
+    """
     # __slots__ = ['_annotations', '_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end',
     #              '_base']
 
@@ -136,6 +135,10 @@ class Span:
     def text(self):
         if self.text_object:
             return self.text_object.text[self.start:self.end]
+
+    @property
+    def enclosing_text(self):
+        return self.layer.text_object.text[self.start:self.end]
 
     @property
     def text_object(self):
