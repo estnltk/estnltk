@@ -14,7 +14,7 @@ def check_if_hfst_is_available():
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_raw_output():
-    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
+    import hfst
     
     from estnltk import Text
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
@@ -112,7 +112,7 @@ def test_hfst_gt_morph_analyser_raw_output():
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
-    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
+    import hfst
     
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import split_into_morphemes
     
@@ -162,7 +162,7 @@ def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_extract_morpheme_features():
-    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
+    import hfst
     
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import split_into_morphemes, extract_morpheme_features
     from collections import OrderedDict
@@ -246,7 +246,7 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
-    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
+    import hfst
     
     from estnltk import Text
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
@@ -329,7 +329,7 @@ def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_with_guessing_switched_on_and_off():
-    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
+    import hfst
     
     from estnltk import Text
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser

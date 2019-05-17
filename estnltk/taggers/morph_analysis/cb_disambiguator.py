@@ -445,8 +445,40 @@ class CorpusBasedMorphDisambiguator( object ):
             # 5) Clean-up: remove hidden analyses layers
             self._remove_hidden_analyses_layers( docs )
         #
-        #  2nd phase:  TODO
+        #  2nd phase:  post-disambiguate over all document collections
+        #              (for instance, disambiguate over all news editions published
+        #               in a single year, each edition consists of articles published
+        #               on a single day)
         #
+        if len(collections) > 1:
+            # lexicons over the whole corpus
+            genLemmaLex = dict()
+            ambLemmaLex = dict()
+            for docs in collections:
+                # 1) Find ambiguities that should be ignored by the post-
+                #    disambiguator; add results as a new (temporary) layer
+                self._add_hidden_analyses_layers( docs )
+                # 2) Collect two types of lemma frequencies:
+                #    *) general lemma frequencies over all words (except words 
+                #       marked as ignored words);
+                #    *) lemma frequencies of ambiguous words (except words 
+                #       marked as ignored words);
+                self._supplement_lemma_frequency_lexicon(docs, genLemmaLex, ambLemmaLex)
+            # perform the second phase of post-disambiguation
+            for docs in collections:
+                # 1) Find ambiguities that should be ignored by the post-
+                #    disambiguator; add results as a new (temporary) layer
+                #    TODO: why it is necessary to add the layer 2nd time?
+                self._add_hidden_analyses_layers( docs, remove_old_hidden_words_layer=True )
+                # 2) Perform lemma-based post-disambiguation;
+                #    In case of ambiguous words, keep analyses with the highest lemma 
+                #    frequency. An exception: if all lemma frequencies are equal, then 
+                #    keep all the analyses;
+                self._disambiguate_with_lexicon( docs, ambLemmaLex )
+                # 3) Clean-up: remove hidden analyses layers
+                self._remove_hidden_analyses_layers( docs )
+            # And we're done! (for now)
+
 
 
     # =========================================================

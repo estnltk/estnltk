@@ -23,6 +23,17 @@ def collect_analyses( docs ):
             all_analyses[(doc_id,wid)] = analyses
     return all_analyses
 
+def collect_2nd_level_analyses( corpus ):
+    # Collect 2nd level analyses
+    all_analyses = dict()
+    for corp_id, docs in enumerate( corpus ):
+        collected = collect_analyses( docs )
+        for (k, v) in collected.items():
+            k = (corp_id,) + k
+            assert k not in all_analyses
+            all_analyses[k] = v
+    return all_analyses
+
 def find_ambiguities_diff( analyses_a, analyses_b ):
     # Finds a difference between analyses_a and analyses_b:
     #  *) which ambiguities were removed;
@@ -230,9 +241,9 @@ def test_mark_ambiguities_to_be_ignored():
 
 
 
-def test_postdisambiguation_first_phase():
+def test_postdisambiguation_one_level():
     #
-    #  Tests the 1st phase of lemma-based post-disambiguation
+    #  Tests the one level of lemma-based post-disambiguation
     #
     docs = [Text('Esimesele kohale tuleb Jänes, kuigi tema punktide summa pole kõrgeim.'),\
             Text('Lõpparvestuses läks Konnale esimene koht. Teine koht seekord Jänesele. Uus võistlus toimub 2. mail.'), \
@@ -307,4 +318,81 @@ def test_post_disambiguation_ver_1_4():
     [countTotal, countH, countNonH] = count_analyses( docs )
     #print( [countTotal, countH, countNonH] )
     assert [countTotal, countH, countNonH] == [47, 4, 43]
+
+
+def test_postdisambiguation_two_level():
+    #
+    #  Tests the two level of lemma-based post-disambiguation
+    #  Basically, the corpus division is 2-level this time:
+    #      a corpus consists of subsets, and each subsets 
+    #      contains a list of documents;
+    #
+    cb_disambiguator = CorpusBasedMorphDisambiguator()
+    #
+    #   TestCase 1
+    #
+    corpus = [[Text('Esimesele kohale tuleb Jänes, kuigi tema punktide summa pole kõrgeim.'),\
+               Text('Lõpparvestuses läks Konnale esimene koht. Teine koht seekord Jänesele. Uus võistlus toimub 2. mail.')], \
+              [Text('Konn paistis silma suurima punktide summaga. Uue võistluse toimumisajaks on 2. mai.'),
+               Text('Kordame: summat, summat, summat.')],]
+    for docs in corpus:
+        for doc in docs:
+            doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+            morf_analyzer.tag(doc, propername=False)  # Analyse without proper name guessing
+    # collect analyses from all subcorpora
+    analyses_before = collect_2nd_level_analyses( corpus )
+    # Use corpus-based disambiguation:
+    cb_disambiguator._test_postdisambiguation( corpus )
+    # Find difference in ambiguities
+    analyses_after = collect_2nd_level_analyses( corpus )
+    removed, added = find_ambiguities_diff( analyses_before, analyses_after )
+    #for a in sorted(list(removed.items())):
+    #    print( a )
+    #print()
+    assert sorted(list(removed.items())) == [ ((0, 0, 1), [('kohale', 'D', ''), ('kohale', 'K', ''), ('koha', 'S', 'sg all')]), \
+                                              ((0, 0, 8), [('summa', 'S', 'sg g'), ('summa', 'S', 'sg n')]), \
+                                              ((0, 1, 15), [('maa', 'S', 'pl ad'), ('mail', 'S', 'sg n')]), \
+                                              ((1, 0, 2), [('silma', 'V', 'o')]), \
+                                              ((1, 0, 5), [('summ', 'S', 'sg kom')]) 
+                                            ]
+    assert list(added.items()) == []
+    #
+    #   TestCase 2
+    #
+    corpus = [[Text('Põhja suunas olla sõna läinud, et saak on suur.'),\
+               Text('Oma või vaenlase saagist räägite?'),\
+               Text('Kulda ja karda jätkus ning leidsime isegi talle.')], \
+              [Text('Saagi koju vedanud, saatis ta sõna põhja: omi sõnu me ei söö!'),
+               Text('Saak missugune, kulla ja karra tõime koju, tallesid samuti.')],]
+    for docs in corpus:
+        for doc in docs:
+            doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+            morf_analyzer.tag(doc, propername=False)  # Analyse without proper name guessing
+    # collect analyses from all subcorpora
+    analyses_before = collect_2nd_level_analyses( corpus )
+    # Use corpus-based disambiguation:
+    cb_disambiguator._test_postdisambiguation( corpus )
+    # Find difference in ambiguities
+    analyses_after = collect_2nd_level_analyses( corpus )
+    removed, added = find_ambiguities_diff( analyses_before, analyses_after )
+    #for a in sorted(list(removed.items())):
+    #    print( a )
+    #print()
+    #for a in sorted(list(analyses_before)):
+    #    print(a, analyses_before[a], '|', analyses_after[a])
+    assert sorted(list(removed.items())) == [ ((0, 0, 0), [('põhja', 'V', 'o')]), \
+                                              ((0, 0, 3), [('sõna', 'V', 'o')]), \
+                                              ((0, 1, 0), [('oma', 'V', 'o')]), \
+                                              ((0, 1, 1), [('või', 'V', 'o')]), \
+                                              ((0, 1, 3), [('saagis', 'S', 'sg p')]), \
+                                              ((0, 2, 0), [('kulda', 'V', 'o')]), \
+                                              ((0, 2, 2), [('kart', 'V', 'o')]), \
+                                              ((0, 2, 7), [('tema', 'P', 'sg all')]), \
+                                              ((1, 0, 0), [('saa', 'V', 'o'), ('saag', 'S', 'adt'), ('saag', 'S', 'sg p')]), \
+                                              ((1, 0, 6), [('sõna', 'V', 'o')]), \
+                                              ((1, 0, 7), [('põhja', 'V', 'o')]), \
+                                              ((1, 0, 10), [('sõnu', 'V', 'o')]), \
+                                              ((1, 1, 3), [('kulla', 'A', '')]), 
+                                            ]
+    assert list(added.items()) == []
 
