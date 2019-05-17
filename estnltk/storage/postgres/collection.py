@@ -58,8 +58,9 @@ def get_query_length(q):
 
 
 class PgCollection:
-    """Convenience wrapper over PostgresStorage"""
+    """Convenience wrapper over PostgresStorage
 
+    """
     def __init__(self, name: str, storage, meta: dict = None, temporary: bool = False, version='0.0'):
         assert isinstance(name, str), name
         assert name.islower(), name
@@ -89,7 +90,9 @@ class PgCollection:
         self._is_empty = not self.exists() or len(self) == 0
 
     def create(self, description=None, meta: dict = None, temporary=None):
-        """Creates the database tables for the collection"""
+        """Creates the database tables for the collection
+
+        """
         if description is None:
             description = 'created by {} on {}'.format(self.storage.user, time.asctime())
 
@@ -171,7 +174,9 @@ class PgCollection:
         return layers_extended
 
     def create_index(self):
-        """create index for the collection table"""
+        """Create index for the collection table.
+
+        """
         with self.storage.conn.cursor() as c:
             c.execute(
                 SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
@@ -179,7 +184,9 @@ class PgCollection:
                     table=pg.collection_table_identifier(self.storage, self.name)))
 
     def drop_index(self):
-        """drop index of the collection table"""
+        """Drop index of the collection table.
+
+        """
         with self.storage.conn.cursor() as c:
             c.execute(
                 SQL("DROP INDEX {schema}.{index}").format(
@@ -319,7 +326,9 @@ class PgCollection:
 
     @contextmanager
     def buffered_layer_insert(self, table_identifier, columns, buffer_size=10000, query_length_limit=5000000):
-        """General context manager for buffered insert"""
+        """General context manager for buffered insert
+
+        """
         buffer = []
         column_identifiers = SQL(', ').join(map(Identifier, columns))
 
@@ -366,9 +375,7 @@ class PgCollection:
         return collection_table
 
     def select_fragment_raw(self, fragment_name, parent_layer_name, query=None, ngram_query=None):
-        """
-
-        Args:
+        """Args:
             fragment_name:
             collection_name:
             parent_layer_name:
@@ -384,6 +391,7 @@ class PgCollection:
                 parent_layer
                 fragment_id
                 fragment_layer
+
         """
         # 1. Build query
         q = SQL("""
@@ -490,8 +498,7 @@ class PgCollection:
         return counter
 
     def find_fingerprint(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
-        """
-        A wrapper over `select` method, which enables to conveniently build composite AND/OR queries.
+        """A wrapper over `select` method, which enables to conveniently build composite AND/OR queries.
 
         Args:
             table: str
@@ -538,6 +545,7 @@ class PgCollection:
                     "query": ["ööbik"],
                     "ambiguous": True
                 }}
+
         """
         if query is None and layer_query is None and layer_ngram_query is None:
             raise PgCollectionException("One of 'query', 'layer_query' or 'layer_ngramm_query' should be specified.")
@@ -582,8 +590,7 @@ class PgCollection:
 
     def create_fragment(self, fragment_name, data_iterator, row_mapper,
                         create_index=False, ngram_index=None):
-        """
-        Creates and fills a fragment table.
+        """Creates and fills a fragment table.
 
         Args:
             fragment_name: str
@@ -636,8 +643,7 @@ class PgCollection:
 
     def old_slow_create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
                               create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None):
-        """
-        Creates layer
+        """Creates layer
 
         Args:
             layer_name:
@@ -1089,9 +1095,9 @@ class PgCollection:
 
     def delete_layer(self, layer_name, cascade=False):
         if layer_name not in self._structure:
-            raise PgCollectionException("collection does not have a layer {!}".format(layer_name))
+            raise PgCollectionException("collection does not have a layer {!r}".format(layer_name))
         if self._structure[layer_name]['layer_type'] == 'attached':
-            raise PgCollectionException("can't delete attached layer {!}".format(layer_name))
+            raise PgCollectionException("can't delete attached layer {!r}".format(layer_name))
 
         for ln, struct in self._structure.structure.items():
             if ln == layer_name:
