@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 # [1.6.3-beta] - 2019-05-10
 ## Changed
- * EstNLTK core classes `Span`, `AmbiguousSpan`, `EnvelopingSpan`, `Layer`, `Text`, `SpanList`, `Annotation` are under reconstruction. The easiest and recommended way of adding spans and annotations to layers is the `Layer.add_Annotation` method.
+ * EstNLTK core classes `Span`, `AmbiguousSpan`, `EnvelopingSpan`, `Layer`, `Text`, `SpanList`, `Annotation` are under reconstruction. The easiest and recommended way of adding spans and annotations to layers is the `Layer.add_annotation` method.
  * Major refactoring in Koondkorpus processing module (`parse_koondkorpus.py`): A) during the reconstruction of text strings, you can now change the default paragraph and sentence separators, B) reconstruction of the tokenization layers can now be made independently of the concrete paragraph and sentence separators present in the text string; C) `reconstruct_text` now also creates layers 'tokens' and 'compound_tokens' (to enable morph analysis); D) a custom prefix can now be added to names of original tokenization layers, E) XML content can be loaded from the zipped files, F) Text objects can be reconstructed from a string content;
  * Improved `Tagger`, the abstract base class for taggers.
  * Made `Retagger` as a subclass of `Tagger`, and introduced span consistency checks that take place after retagging of a layer;
