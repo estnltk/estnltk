@@ -102,8 +102,9 @@ class PostgresStorage:
         for layer, v in self[collection_name].structure.structure.items():
             if v['layer_type'] == 'detached':
                 drop_layer_table(self, collection_name, layer)
-        pg.drop_structure_table(self, collection_name)
+                # TODO: delete layer from structure immediately
         pg.drop_collection_table(self, collection_name)
+        pg.drop_structure_table(self, collection_name)
 
         del self._collections[collection_name]
 
