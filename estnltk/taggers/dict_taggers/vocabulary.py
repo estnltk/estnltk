@@ -130,7 +130,7 @@ class Vocabulary:
             new_mapping = defaultdict(list)
             flag = re.IGNORECASE if ignore_case else 0
             for k, records in mapping.items():
-                if ignore_case and isinstance(k, re.Pattern):
+                if ignore_case and isinstance(k, re.regex.Pattern):
                     k = k.pattern
                 try:
                     k_new = re.compile(k, flag)
@@ -297,7 +297,7 @@ class Vocabulary:
             color = 'Moccasin'
         elif isinstance(val, float):
             color = 'cyan'
-        elif isinstance(val, re.Pattern):
+        elif isinstance(val, re.regex.Pattern):
             color = 'yellow'
         elif callable(val):
             color = 'magenta'
