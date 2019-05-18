@@ -346,7 +346,7 @@ def test_check_layer_consistency():
     # print(ex1)
 
     # B2) Check for redundant Span attributes
-    span3 = Span(start=0, end=1, legal_attributes=['a', 'b', 'c', 'd'])
+    span3 = Span(start=0, end=1)
     span3.add_annotation(a=1, b=11, c=0, d=12)
 
     layer.spans.append(span3)

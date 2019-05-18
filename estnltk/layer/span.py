@@ -8,20 +8,12 @@ class Span:
     """Basic element of an EstNLTK layer.
 
     """
-    # __slots__ = ['_annotations', '_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end',
-    #              '_base']
+    # __slots__ = ['_annotations', 'is_dependant', 'layer', 'parent', '_start', '_end', '_base']
 
-    def __init__(self, start: int = None, end: int = None, parent=None, layer=None, legal_attributes=None):
-        # assert legal_attributes is None, legal_attributes
+    def __init__(self, start: int = None, end: int = None, parent=None, layer=None):
 
-        # this is set up first, because attribute access depends on knowing attribute names as early as possible
-        self._legal_attribute_names = legal_attributes
-        if isinstance(self._legal_attribute_names, list):
-            # TODO: remove this if
-            self._legal_attribute_names = tuple(self._legal_attribute_names)
         self.is_dependant = parent is None
 
-        # Placeholder, set when span added to spanlist
         self.layer = layer  # type: Layer
         self.parent = parent  # type: Span
 
@@ -83,8 +75,6 @@ class Span:
     def legal_attribute_names(self) -> Sequence[str]:
         if self.layer is not None:
             return self.layer.attributes
-        if self.__getattribute__('_legal_attribute_names') is not None:
-            return self.__getattribute__('_legal_attribute_names')
         return ()
 
     def to_records(self, with_text=False) -> MutableMapping[str, Any]:
@@ -167,8 +157,7 @@ class Span:
                         right, '</span>'))
 
     def __setattr__(self, key, value):
-        if key not in {'_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end', '_base',
-                       '_annotations'}:
+        if key not in {'is_dependant', 'layer', 'parent', '_start', '_end', '_base', '_annotations'}:
             # assert 0, key
             for annotation in self._annotations:
                 setattr(annotation, key, value)
@@ -180,7 +169,7 @@ class Span:
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
 
-        if item in self.legal_attribute_names:
+        if item in self.layer.attributes:
             return getattr(self.annotations[0], item)
 
         elif self.layer is not None and self.layer.text_object is not None and self.layer.text_object._path_exists(
@@ -212,8 +201,6 @@ class Span:
             return False
         if self.base_span != other.base_span:
             return False
-        if self.legal_attribute_names != other.legal_attribute_names:
-            return False
         return self.annotations == other.annotations
 
     def __hash__(self):
@@ -227,13 +214,11 @@ class Span:
         if self.layer.text_object is None:
             return 'Span(start={self.start}, end={self.end}, layer: {self.layer.name!r})'.format(self=self)
 
-        legal_attribute_names = self.layer.attributes
-
         # Output key-value pairs in a sorted way
         # (to assure a consistent output, e.g. for automated testing)
         mapping_sorted = []
 
-        for k in sorted(legal_attribute_names):
+        for k in sorted(self.layer.attributes):
             key_value_str = "{key_val}".format(key_val = {k:self.__getattribute__(k)})
             # Hack: Remove surrounding '{' and '}'
             key_value_str = key_value_str[1:-1]

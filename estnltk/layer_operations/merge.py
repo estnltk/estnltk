@@ -73,7 +73,7 @@ def merge_layers(layers: Sequence[Layer],
                     if isinstance(amb_span, Span):
                         amb_span = [amb_span]
                     for span in amb_span:
-                        new_span = Span(span.start, span.end, legal_attributes=output_attributes)
+                        new_span = Span(span.start, span.end, layer=new_layer)
                         for attr in layer_attributes:
                             setattr(new_span, attr, getattr(span, attr))
                         for attr in none_attributes:
@@ -84,7 +84,7 @@ def merge_layers(layers: Sequence[Layer],
                 layer_attributes = layer.attributes
                 none_attributes = [attr for attr in output_attributes if attr not in layer_attributes]
                 for span in layer:
-                    new_span = Span(span.start, span.end, legal_attributes=output_attributes)
+                    new_span = Span(span.start, span.end, layer=new_layer)
                     for attr in layer_attributes:
                         setattr(new_span, attr, getattr(span, attr))
                     for attr in none_attributes:

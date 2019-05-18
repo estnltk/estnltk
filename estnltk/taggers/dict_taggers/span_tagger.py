@@ -119,7 +119,7 @@ class SpanTagger(Tagger):
                     value = value.lower()
                 if value in vocabulary:
                     for rec in vocabulary[value]:
-                        span = Span(parent=parent_span, legal_attributes=self.output_attributes)
+                        span = Span(parent=parent_span, layer=layer)
                         for attr in self.output_attributes:
                             setattr(span, attr, rec[attr])
                         if self.global_validator(raw_text, span):
