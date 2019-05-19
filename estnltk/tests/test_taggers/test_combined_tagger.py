@@ -4,7 +4,9 @@ from estnltk.taggers import CombinedTagger
 
 
 class Tagger_1(Tagger):
-    """Test tagger 1"""
+    """Test tagger 1
+
+    """
     conf_param = []
     input_layers = []
     output_layer = 'layer_1'
@@ -15,12 +17,14 @@ class Tagger_1(Tagger):
 
     def _make_layer(self, text: Text, layers, status: dict):
         layer = Layer(name='layer_1', attributes=['attr_1', 'attr_2', 'attr_a'], text_object=text)
-        layer.add_annotation(Span(0, 5), attr_1='1', attr_2='', attr_a='a')
+        layer.add_annotation((0, 5), attr_1='1', attr_2='', attr_a='a')
         return layer
 
 
 class Tagger_2(Tagger):
-    """Test tagger 1"""
+    """Test tagger 1
+
+    """
     conf_param = []
     input_layers = []
     output_layer = 'layer_1'
@@ -31,12 +35,14 @@ class Tagger_2(Tagger):
 
     def _make_layer(self, text: Text, layers, status: dict):
         layer = Layer(name='layer_1', attributes=['attr_1', 'attr_2', 'attr_b'], text_object=text)
-        layer.add_annotation(Span(6, 10), attr_1='2', attr_2='', attr_b='b')
+        layer.add_annotation((6, 10), attr_1='2', attr_2='', attr_b='b')
         return layer
 
 
 class Tagger_3(Tagger):
-    """Test tagger 1"""
+    """Test tagger 1
+
+    """
     conf_param = []
     input_layers = []
     output_layer = 'layer_1'
@@ -47,7 +53,7 @@ class Tagger_3(Tagger):
 
     def _make_layer(self, text: Text, layers, status: dict):
         layer = Layer(name='layer_1', attributes=['attr_1', 'attr_2', 'attr_c'], text_object=text)
-        layer.add_annotation(Span(11, 15), attr_1='3', attr_2='', attr_c='c')
+        layer.add_annotation((11, 15), attr_1='3', attr_2='', attr_c='c')
         return layer
 
 

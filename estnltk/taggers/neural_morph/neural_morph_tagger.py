@@ -31,8 +31,8 @@ MORPH_ATTRIBUTES = ('morphtag',)
 
 
 class NeuralMorphTagger(Tagger):
-    """
-    Neural morphological tagger.
+    """Neural morphological tagger.
+
     """
     conf_param = ("base_tagger",)
     input_layers = ("morph_analysis",)
@@ -90,7 +90,7 @@ class NeuralMorphTagger(Tagger):
             snt_tags = self.base_tagger.predict(snt_words, snt_analyses)
 
             for word, tag in zip(sentence.words, snt_tags):
-                span = Span(parent=word)
+                span = Span(base_span=word.base_span, parent=word)
                 span.morphtag = tag
                 layer.add_span(span)
 

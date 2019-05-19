@@ -1,4 +1,5 @@
 from typing import Iterable, Sequence
+from estnltk import ElementaryBaseSpan
 from estnltk.layer.span import Span
 from estnltk.layer.layer import Layer
 from estnltk.text import Text
@@ -56,7 +57,7 @@ def extract_sections(text: Text,
                     for span in layer:
                         span_parent = map_spans.get((span.parent.base_span, span.parent.layer.name))
                         if span_parent:
-                            new_span = Span(parent=span_parent, layer=new_layer)
+                            new_span = Span(base_span=span_parent.base_span, parent=span_parent, layer=new_layer)
                             map_spans[(span.base_span, span.layer.name)] = new_span
                             for sp in span:
                                 attributes = {attr: getattr(sp, attr) for attr in attribute_names}
@@ -114,7 +115,7 @@ def extract_sections(text: Text,
                                 continue
                         elif span_start < start or end < span_end:
                             continue
-                        new_span = Span(span_start-start, span_end-start)
+                        new_span = Span(base_span=ElementaryBaseSpan(span_start-start, span_end-start), layer=new_layer)
                         for attr in attribute_names:
                             setattr(new_span, attr, getattr(span, attr))
                         new_layer.add_span(new_span)

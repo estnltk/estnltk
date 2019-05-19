@@ -1,6 +1,6 @@
 import pytest
 
-from estnltk import Text, Layer, Span
+from estnltk import Text, Layer
 from estnltk.taggers import GrammarParsingTagger
 from estnltk.finite_grammar import Grammar
 
@@ -10,8 +10,8 @@ def test_raises_error():
 
     layer = Layer(name='address_parts', text_object=text, attributes=['grammar_symbol'], ambiguous=True)
 
-    layer.add_annotation(Span(63, 68), grammar_symbol='TÄNAV')
-    layer.add_annotation(Span(69, 70), grammar_symbol='MAJA')
+    layer.add_annotation((63, 68), grammar_symbol='TÄNAV')
+    layer.add_annotation((69, 70), grammar_symbol='MAJA')
 
     text['address_parts'] = layer
 

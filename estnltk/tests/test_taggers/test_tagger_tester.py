@@ -19,8 +19,9 @@ target_file = path('test_tagger_tester_target.json')
 
 def test_tagger_tester():
     class NumberTagger(Tagger):
-        """Tags numbers."""
+        """Tags numbers.
 
+        """
         conf_param = ['regex']
 
         def __init__(self,
@@ -36,8 +37,7 @@ def test_tagger_tester():
         def _make_layer(self, text, layers, status=None):
             layer = Layer(self.output_layer, text_object=text)
             for m in self.regex.finditer(text.text):
-                span = Span(m.start(), m.end())
-                layer.add_span(span)
+                layer.add_annotation((m.start(), m.end()))
             if isinstance(status, dict):
                 status['NumberTagger message'] = self.output_layer + ' layer created successfully'
             return layer
@@ -75,8 +75,9 @@ def test_tagger_tester():
     tester.run_tests()
 
     class NumberTagger(Tagger):
-        """Tags numbers."""
+        """Tags numbers.
 
+        """
         conf_param = ['regex']
 
         def __init__(self,
@@ -92,8 +93,7 @@ def test_tagger_tester():
         def _make_layer(self, text, layers, status=None):
             layer = Layer(self.output_layer, text_object=text)
             for m in self.regex.finditer(text.text):
-                span = Span(m.start(), m.end())
-                layer.add_span(span)
+                layer.add_annotation((m.start(), m.end()))
             if isinstance(status, dict):
                 status['NumberTagger message'] = self.output_layer + ' layer created successfully'
             return layer

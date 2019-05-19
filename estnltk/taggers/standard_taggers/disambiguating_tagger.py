@@ -49,7 +49,6 @@ class DisambiguatingTagger(Tagger):
                     setattr(span, k, v)
                 layer.add_span(span)
             else:
-                layer.add_annotation(Span(start=input_span.start, end=input_span.end),
-                                     **self.decorator(input_span, text.text))
+                layer.add_annotation((input_span.start, input_span.end), **self.decorator(input_span, text.text))
 
         return layer

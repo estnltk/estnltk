@@ -5,8 +5,9 @@
 #  succeeding phase of morphological analysis.
 # 
 
-from typing import MutableMapping, Sequence
+from typing import MutableMapping
 
+from estnltk import ElementaryBaseSpan
 from estnltk.text import Layer, Span
 from estnltk.taggers import Tagger
 
@@ -69,27 +70,26 @@ class WordTagger(Tagger):
           
         status: dict
            This can be used to store metadata on layer tagging.
+
         """
         # 1) Create layer 'words' based on the layers 
         #    'tokens' and 'compound_tokens';
         #    ( include 'normalized' word forms from 
         #      previous layers if available )
-        compounds = dict()
-        for spl in layers[self._input_compound_tokens_layer]:
-            compounds[spl[0]] = Span(start=spl.start, end=spl.end)
-            compounds[spl[0]].normalized_form = spl.normalized
-        words = Layer(name=self.output_layer, 
+        words = Layer(name=self.output_layer,
                       attributes=self.output_attributes,
                       text_object=text,
                       ambiguous=False)
-        for span in layers[ self._input_tokens_layer ]:
-            if span in compounds:
-                words.add_span(compounds[span])
-            elif words.span_list:
-                if span.start >= words.span_list[-1].end:
-                    words.add_annotation(Span(start=span.start, end=span.end), normalized_form=None)
-            else:
-                words.add_annotation(Span(start=span.start, end=span.end), normalized_form=None)
+
+        compounds = set()
+        for spl in layers[self._input_compound_tokens_layer]:
+            words.add_annotation(ElementaryBaseSpan(spl.start, spl.end), normalized_form=spl.normalized)
+            for sp in spl:
+                compounds.add(sp.base_span)
+
+        for span in layers[self._input_tokens_layer]:
+            if span.base_span not in compounds:
+                words.add_annotation(span.base_span, normalized_form=None)
 
         # 2) Apply custom word normalization 
         #    ( to be implemented if required )

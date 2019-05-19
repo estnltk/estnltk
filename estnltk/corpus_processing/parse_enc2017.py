@@ -581,7 +581,7 @@ class ENC2017TextReconstructor:
         while word_id < len(raw_morph_analyses):
             raw_analysis = raw_morph_analyses[word_id]
             word = word_spans[word_id]
-            span = Span(parent=word)
+            span = Span(base_span=word.base_span, parent=word)
             # A) Parse morph analysis from the raw analysis
             analysis_dict = self._create_morph_analysis_dict(raw_analysis)
             # B) Normalize and set attributes

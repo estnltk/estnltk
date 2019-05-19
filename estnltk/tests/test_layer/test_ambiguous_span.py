@@ -1,11 +1,11 @@
 import pytest
 
-from estnltk import AmbiguousSpan, Span, Layer, Annotation
+from estnltk import ElementaryBaseSpan, AmbiguousSpan, Span, Layer, Annotation
 from estnltk.layer import AttributeList
 
 
 def test_add_annotation():
-    span_1 = AmbiguousSpan(Layer('test', attributes=['attr_1']), Span(0, 1))
+    span_1 = AmbiguousSpan(Layer('test', attributes=['attr_1']), Span(base_span=ElementaryBaseSpan(0, 1)))
 
     span_1.add_annotation(attr_1=0)
     span_1.add_annotation(attr_1=3)
@@ -13,7 +13,7 @@ def test_add_annotation():
 
     assert len(span_1) == 2
 
-    span_2 = AmbiguousSpan(Layer('test', attributes=['attr_1']), Span(0, 1))
+    span_2 = AmbiguousSpan(Layer('test', attributes=['attr_1']), Span(base_span=ElementaryBaseSpan(0, 1)))
 
     span_2.add_annotation(attr_1=3)
     span_2.add_annotation(attr_1=0)
@@ -24,7 +24,7 @@ def test_add_annotation():
 
 
 def test_getattr():
-    span_1 = AmbiguousSpan(Layer('test', attributes=['attr_1'], ambiguous=True), Span(0, 1))
+    span_1 = AmbiguousSpan(Layer('test', attributes=['attr_1'], ambiguous=True), Span(base_span=ElementaryBaseSpan(0, 1)))
 
     span_1.add_annotation(attr_1=0)
     span_1.add_annotation(attr_1=3)
@@ -45,7 +45,7 @@ def test_getattr():
 
 
 def test_getitem():
-    span_1 = AmbiguousSpan(Layer('test', attributes=['attr_1'], ambiguous=True), Span(0, 1))
+    span_1 = AmbiguousSpan(Layer('test', attributes=['attr_1'], ambiguous=True), Span(base_span=ElementaryBaseSpan(0, 1)))
 
     span_1.add_annotation(attr_1=0)
     span_1.add_annotation(attr_1=3)
@@ -67,6 +67,6 @@ def test_getitem():
 
 
 def test_base_spans():
-    span_1 = AmbiguousSpan(layer=Layer('test', attributes=['attr_1'], ambiguous=True), span=Span(0, 1))
+    span_1 = AmbiguousSpan(layer=Layer('test', attributes=['attr_1'], ambiguous=True), span=Span(base_span=ElementaryBaseSpan(0, 1)))
 
     assert [(0, 1)] == span_1.base_spans

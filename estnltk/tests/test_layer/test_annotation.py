@@ -1,5 +1,5 @@
 import pytest
-from estnltk import Text, Layer, Span, Annotation
+from estnltk import Text, ElementaryBaseSpan, Layer, Span, Annotation
 
 
 def test_annotation_without_span():
@@ -24,7 +24,7 @@ def test_annotation_without_span():
     assert str(annotation) == "Annotation(None, {'attr_1': 'üks', 'attr_2': 2, 'attr_3': 3})"
     assert repr(annotation) == "Annotation(None, {'attr_1': 'üks', 'attr_2': 2, 'attr_3': 3})"
 
-    span = Span(2, 6)
+    span = Span(base_span=ElementaryBaseSpan(2, 6))
     annotation.span = span
     assert annotation.span is span
     with pytest.raises(AttributeError):
@@ -38,15 +38,15 @@ def test_annotation_without_span():
 def test_annotation_with_text_object():
     text = Text('Tere!')
     layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
-    span = Span(0, 4, layer=layer)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
     annotation = Annotation(span=span, attr_1='üks', attr_2=2, attr_3='lambda a: 12 - 9')
 
     layer_1 = Layer('test_layer_1', attributes=['attr_3', 'attr_1', 'attr_2'], text_object=text)
-    span_1 = Span(0, 4, layer=layer_1)
+    span_1 = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer_1)
     annotation_1 = Annotation(span=span_1, attr_1='üks', attr_2=2, attr_3='lambda a: 12 - 9')
 
     layer_2 = Layer('test_layer_1', attributes=['attr_1', 'attr_2'], text_object=text)
-    span_2 = Span(0, 4, layer=layer_2)
+    span_2 = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer_2)
     annotation_2 = Annotation(span=span_2, attr_1='üks', attr_2=2)
 
     assert annotation.span is span

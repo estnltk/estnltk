@@ -1,4 +1,4 @@
-from estnltk import Text, Layer, Span
+from estnltk import Text, Layer, Span, ElementaryBaseSpan
 
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.tests import new_text
@@ -313,33 +313,33 @@ class TestLayerOperation():
         assert result == expected
 
         layer_1 = Layer('layer_1')
-        layer_1.add_span(Span(0, 3))
+        layer_1.add_span(Span(base_span=ElementaryBaseSpan(0, 3)))
         layer_2 = Layer('layer_2')
         result = list(diff_layer(layer_1, layer_2))
-        expected = [(Span(0, 3), None)]
+        expected = [(Span(base_span=ElementaryBaseSpan(0, 3)), None)]
         assert result == expected
 
         layer_1 = Layer('layer_1')
-        layer_1.add_span(Span(0, 3))
-        layer_1.add_span(Span(6, 9))
-        layer_1.add_span(Span(12, 15))
-        layer_1.add_span(Span(18, 21))
+        layer_1.add_annotation((0, 3))
+        layer_1.add_annotation((6, 9))
+        layer_1.add_annotation((12, 15))
+        layer_1.add_annotation((18, 21))
         layer_2 = Layer('layer_2')
-        layer_2.add_span(Span(1, 3))
-        layer_2.add_span(Span(6, 9))
-        layer_2.add_span(Span(12, 15))
-        layer_2.add_span(Span(18, 20))
+        layer_2.add_annotation((1, 3))
+        layer_2.add_annotation((6, 9))
+        layer_2.add_annotation((12, 15))
+        layer_2.add_annotation((18, 20))
         result = list(diff_layer(layer_1, layer_2))
-        expected = [(Span(start=0, end=3), None),
-                    (None, Span(start=1, end=3)),
-                    (None, Span(start=18, end=20)),
-                    (Span(start=18, end=21), None)]
+        expected = [(layer_1[0], None),
+                    (None, layer_2[0]),
+                    (None, layer_2[3]),
+                    (layer_1[3], None)]
         assert result == expected
 
         layer_1 = Layer('layer_1', attributes=['label'])
-        layer_1.add_annotation(Span(0, 3), label=1)
+        layer_1.add_annotation((0, 3), label=1)
         layer_2 = Layer('layer_2', attributes=['label'])
-        layer_2.add_annotation(Span(0, 3), label=2)
+        layer_2.add_annotation((0, 3), label=2)
         result = list(diff_layer(layer_1, layer_2))
         expected = [(layer_1[0], layer_2[0])]
         assert result == expected
@@ -348,11 +348,11 @@ class TestLayerOperation():
             return True
 
         layer_1 = Layer('layer_1', attributes=['label'])
-        layer_1.add_annotation(Span(0, 3), label=1)
-        layer_1.add_annotation(Span(5, 7), label=1)
+        layer_1.add_annotation((0, 3), label=1)
+        layer_1.add_annotation((5, 7), label=1)
         layer_2 = Layer('layer_2', attributes=['label'])
-        layer_2.add_annotation(Span(0, 3), label=2)
-        layer_2.add_annotation(Span(6, 7), label=1)
+        layer_2.add_annotation((0, 3), label=2)
+        layer_2.add_annotation((6, 7), label=1)
         result = list(diff_layer(layer_1, layer_2, fun))
         expected = [(layer_1[1], None),
                     (None, layer_2[1])]

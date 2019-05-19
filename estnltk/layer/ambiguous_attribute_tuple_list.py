@@ -11,7 +11,7 @@ def to_str(value, escape_html=False):
         value_str = value
     elif callable(value) and hasattr(value, '__name__') and hasattr(value, '__module__'):
         value_str = '<function {}.{}>'.format(value.__module__, value.__name__)
-    elif isinstance(value, re.Pattern):
+    elif isinstance(value, re.regex.Pattern):
         value_str = '<Regex {}>'.format(value.pattern)
     elif isinstance(value, Span):
         value_str = 'Span({})'.format(value.text)

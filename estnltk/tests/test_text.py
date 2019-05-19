@@ -212,7 +212,6 @@ def test_new_span_hierarchy():
     for i in text.words:
         i.mark('layer1').test1 = '1234'
 
-
     l = Layer(
         name='layer2',
         parent='layer1',
@@ -223,9 +222,7 @@ def test_new_span_hierarchy():
     for i in text.layer1:
         i.mark('layer2').test2 = '1234'
 
-    #the parent is now changed to "words"
-    #it is confusing, but it stays right now to save me from a rewrite
-    assert text.layer2[0].parent.layer.name == 'words'
+    assert text.layer2[0].parent.layer.name == 'layer1'
 
 
 def test_text():
@@ -238,28 +235,23 @@ def test_text():
 def test_layer_1():
     text = Text('')
 
-    layer = Layer(name='test')
-    text._add_layer(layer)
-    span = Span(0, 1)
-    layer.add_span(span)
+    layer = Layer(name='test', text_object=text)
+    layer.add_annotation((0, 1))
 
     assert len(layer) == 1
-    assert list(layer)[0] is span
-
-    #with pytest.raises(TypeError):
-    #    sl['asd']
+    assert layer[0].start == 0
+    assert layer[0].end == 1
 
     # insertion keeps spans in sorted order
     layer = Layer(name='test')
-    a, b, c, d = [Span(i, i + 1, layer) for i in range(4)]
-    layer.add_span(b)
-    layer.add_span(c)
-    layer.add_span(a)
-    layer.add_span(d)
-    assert layer[0] == a
-    assert layer[1] == b
-    assert layer[2] == c
-    assert layer[3] == d
+    layer.add_annotation((1, 2))
+    layer.add_annotation((0, 1))
+    layer.add_annotation((3, 4))
+    layer.add_annotation((2, 3))
+    assert layer[0].start == 0
+    assert layer[1].start == 1
+    assert layer[2].start == 2
+    assert layer[3].start == 3
 
 
 def test_layer():
@@ -295,14 +287,10 @@ def test_layer():
     assert t.text == text
 
     layer = t.test  # type: Layer
-    layer.add_span(
-        Span(start=0, end=2)
-    )
+    layer.add_annotation((0, 2))
     assert t.test.text == [text[:2]]
 
-    t.test.add_span(
-        Span(start=2, end=4)
-    )
+    t.test.add_annotation((2, 4))
 
 
 def test_annotated_layer():
@@ -310,7 +298,7 @@ def test_annotated_layer():
     t = Text(text)
     l = Layer(name='test', attributes=['test', 'asd'])
     t._add_layer(l)
-    l.add_span(Span(1, 5))
+    l.add_annotation((1, 5))
 
     for i in t.test:
         i.test = 'mock'
@@ -343,8 +331,8 @@ def test_count_by():
     t = Text(text)
     l = Layer(name='test', attributes=['test', 'asd'])
     t._add_layer(l)
-    l.add_span(Span(1, 5))
-    l.add_span(Span(2, 6))
+    l.add_annotation((1, 5))
+    l.add_annotation((2, 6))
 
     for i in l:
         i.asd = 123

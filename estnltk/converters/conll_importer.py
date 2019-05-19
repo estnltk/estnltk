@@ -1,5 +1,5 @@
 from conllu import parse_incr
-from estnltk import Span, Layer, Text
+from estnltk import Layer, Text, ElementaryBaseSpan
 from estnltk.taggers import SyntaxDependencyRetagger
 
 
@@ -44,10 +44,9 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
                         raise Exception("can't match file with words layer")
 
                 w_span = words[word_index]
-                span = Span(w_span.start, w_span.end)
 
                 # add values for 'id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc'
-                syntax.add_annotation(span, **conll_word)
+                syntax.add_annotation((w_span.start, w_span.end), **conll_word)
                 word_index += 1
 
     text[syntax_layer] = syntax
@@ -100,10 +99,10 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
                 token = w['form']
                 t.append(token)
                 len_w = len(token)
-                span = Span(cur, cur+len_w)
-                words.add_annotation(span)
+                base_span = ElementaryBaseSpan(cur, cur+len_w)
+                words.add_annotation(base_span)
 
-                syntax.add_annotation(span, **w)
+                syntax.add_annotation(base_span, **w)
                 cur += len_w + 1
 
             sentences.add_span(words[sentence_start:])

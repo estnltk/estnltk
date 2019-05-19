@@ -5,8 +5,8 @@ from estnltk.layer.layer import Layer
 
 def flatten(input_layer: Layer, output_layer: str, output_attributes: Sequence[str]=None,
             attribute_mapping: Sequence=None, default_values: dict = None) -> Layer:
-    """
-    Reduces enveloping layer or layer with parent to a detached ambiguous layer of simple text spans.
+    """Reduces enveloping layer or layer with parent to a detached ambiguous layer of simple text spans.
+
     """
     layer_attributes = input_layer.attributes
 
@@ -36,6 +36,6 @@ def flatten(input_layer: Layer, output_layer: str, output_attributes: Sequence[s
     else:
         for span in input_layer:
             attrs = {new_attr: getattr(span, old_attr) for old_attr, new_attr in attribute_mapping}
-            new_layer.add_annotation(Span(span.start, span.end), **attrs)
+            new_layer.add_annotation((span.start, span.end), **attrs)
 
     return new_layer

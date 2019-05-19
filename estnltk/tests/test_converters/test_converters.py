@@ -1,4 +1,4 @@
-from estnltk import Span, Layer, Text
+from estnltk import Span, Layer, Text, ElementaryBaseSpan
 from estnltk.converters import export_CG3
 from estnltk.converters import text_to_json, json_to_text
 from estnltk.converters import export_TCF, import_TCF
@@ -88,7 +88,7 @@ def test_json_export_import():
 
 def test_annotation_json_export_import():
     layer = Layer('my_layer', attributes=['attr', 'attr_0'])
-    span = Span(0, 1, layer=layer)
+    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
 
     annotation = new_text(5).layer_0[0][0]
 

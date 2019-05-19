@@ -8,6 +8,7 @@ from functools import reduce
 
 from typing import MutableMapping, Any
 
+from estnltk import ElementaryBaseSpan
 from estnltk.text import Span
 
 from estnltk.vabamorf.morf import get_group_tokens
@@ -78,19 +79,19 @@ def _create_empty_morph_record( word = None, layer_attributes = None ):
     return record
 
 
-def _create_empty_morph_span( word, layer_attributes = None ):
-    ''' Creates an empty 'morph_analysis' span that will 
-        have word as its parent span. 
-        All attribute values of the span will be set 
-        to None.
+def _create_empty_morph_span(word, layer_attributes=None):
+    """Creates an empty 'morph_analysis' span that will
+    have word as its parent span.
+    All attribute values of the span will be set
+    to None.
         
-        Returns the Span.
-    '''
-    current_attributes = \
-        layer_attributes if layer_attributes else ESTNLTK_MORPH_ATTRIBUTES
-    span = Span(parent=word)
-    for attr in current_attributes:
-        setattr(span, attr, None)
+    Returns the Span.
+
+    """
+    current_attributes = layer_attributes or ESTNLTK_MORPH_ATTRIBUTES
+    annotation = {attr: None for attr in current_attributes}
+    span = Span(base_span=word.base_span, parent=word)
+    span.add_annotation(**annotation)
     return span
 
 
@@ -185,7 +186,7 @@ def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
             lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'], 
             reverse=False )
     for analysis in word_analyses:
-        span = Span(parent=word)
+        span = Span(base_span=word.base_span, parent=word)
         for attr in current_attributes:
             if attr in analysis:
                 # We have a Vabamorf's attribute

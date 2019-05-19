@@ -4,7 +4,7 @@ import pandas
 import collections
 import warnings
 
-from estnltk import Span, EnvelopingSpan, AmbiguousSpan, Annotation, SpanList
+from estnltk import ElementaryBaseSpan, Span, EnvelopingSpan, AmbiguousSpan, Annotation, SpanList
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.visualisation import DisplaySpans
 
@@ -146,7 +146,7 @@ class Layer:
 
             for record_line in records:
                 for record in record_line:
-                    self.add_annotation(Span(start=record['start'], end=record['end']), **record)
+                    self.add_annotation(ElementaryBaseSpan(record['start'], record['end']), **record)
         else:
             if rewriting:
                 spns = SpanList(layer=self)
@@ -154,13 +154,13 @@ class Layer:
                 for record in records:
                     if record is None:
                         continue
-                    sp = Span(start=record['start'], end=record['end'], layer=self)
+                    sp = Span(base_span=ElementaryBaseSpan(record['start'], end=record['end']), layer=self)
                     sp.add_annotation(**record)
                     spns.add_span(sp)
                 self.span_list = spns
             else:
                 for record in records:
-                    self.add_annotation(Span(start=record['start'], end=record['end']), **record)
+                    self.add_annotation(ElementaryBaseSpan(record['start'], record['end']), **record)
         return self
 
     def attribute_list(self, attributes):
@@ -209,6 +209,11 @@ class Layer:
         self.span_list.remove_span(span)
 
     def add_annotation(self, base_span, **attributes):
+        if isinstance(base_span, ElementaryBaseSpan):
+            base_span = Span(base_span=base_span, layer=self)
+        elif isinstance(base_span, tuple) and len(base_span) == 2 \
+                and isinstance(base_span[0], int) and isinstance(base_span[1], int):
+            base_span = Span(base_span=ElementaryBaseSpan(*base_span), layer=self)
         attributes = {**self.default_values, **{k: v for k, v in attributes.items() if k in self.attributes}}
 
         if self.parent is not None and self.ambiguous:
@@ -223,7 +228,7 @@ class Layer:
             if self.span_list.get(base_span) is not None:
                 raise ValueError('the layer is not ambiguous and already contains this span')
             assert self.span_list.get(base_span) is None
-            span = Span(parent=base_span, layer=self)
+            span = Span(base_span=base_span.base_span, parent=base_span, layer=self)
             self.span_list.add_span(span)
             return span.add_annotation(**attributes)
 
@@ -245,7 +250,7 @@ class Layer:
         if self.parent is None and self.enveloping is None and self.ambiguous:
             span = self.span_list.get(base_span)
             if span is None:
-                span = AmbiguousSpan(self, Span(base_span.start, base_span.end, layer=self))
+                span = AmbiguousSpan(self, Span(base_span=ElementaryBaseSpan(base_span.start, base_span.end), layer=self))
                 self.span_list.add_span(span)
             assert isinstance(span, AmbiguousSpan), span
             return span.add_annotation(**attributes)
@@ -256,7 +261,7 @@ class Layer:
             if self.span_list.get(base_span) is not None:
                 raise ValueError('the layer is not ambiguous and already contains this span')
 
-            span = Span(base_span.start, base_span.end, layer=self)
+            span = Span(base_span=ElementaryBaseSpan(base_span.start, base_span.end), layer=self)
             span.add_annotation(**attributes)
             self.span_list.add_span(span)
             return span.annotations[0]

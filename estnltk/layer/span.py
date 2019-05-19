@@ -1,6 +1,7 @@
 from typing import MutableMapping, Any, Sequence
 from html import escape
 
+from estnltk.layer.base_span import BaseSpan
 from estnltk.layer.annotation import Annotation
 
 
@@ -8,38 +9,18 @@ class Span:
     """Basic element of an EstNLTK layer.
 
     """
-    # __slots__ = ['_annotations', 'is_dependant', 'layer', 'parent', '_start', '_end', '_base']
+    # __slots__ = ['_annotations', 'is_dependant', 'layer', 'parent', '_start', '_end', '_base', '_base_span']
 
-    def __init__(self, start: int = None, end: int = None, parent=None, layer=None):
+    def __init__(self, base_span: BaseSpan, layer=None, parent=None):
+        assert isinstance(base_span, BaseSpan)
 
-        self.is_dependant = parent is None
-
+        self._base_span = base_span
         self.layer = layer  # type: Layer
         self.parent = parent  # type: Span
 
-        if isinstance(start, int) and isinstance(end, int):
-            assert start <= end, (start, end)
+        self._base = self  # type:Span
 
-            self._start = start
-            self._end = end
-            self.is_dependant = False
-
-        # parent is a Span of dependant Layer
-        elif parent is not None:
-            assert start is None
-            assert end is None
-            self.is_dependant = True
-
-            # The _base of a root-layer Span is the span itself.
-            # So, if the parent is a root-layer the following must hold (self._base == self.parent == self.parent._base)
-            # If the parent is not a root-layer Span, (self._base == self.parent._base)
-            self._base = parent._base  # type: Span
-
-        else:
-            assert 0, 'What?'
-
-        if not self.is_dependant:
-            self._base = self  # type:Span
+        self.is_dependant = False
 
         self._annotations = [Annotation(span=self)]
 
@@ -93,29 +74,23 @@ class Span:
 
         assert base == self.layer._base, "Expected '{self.layer._base}' got '{base}'".format(self=self, base=base)
         res = base_layer.add_span(
-            Span(
-                parent=self._base  # this is the base span
+            Span(base_span=self._base.base_span,
+                 parent=self._base  # this is the base span
             )
         )
         return res
 
     @property
     def start(self) -> int:
-        if not self.is_dependant:
-            return self._start
-        else:
-            return self.parent.start
+        return self.base_span.start
 
     @property
     def end(self) -> int:
-        if not self.is_dependant:
-            return self._end
-        else:
-            return self.parent.end
+        return self.base_span.end
 
     @property
     def base_span(self):
-        return self.start, self.end
+        return self._base_span
 
     @property
     def base_spans(self):
@@ -157,7 +132,7 @@ class Span:
                         right, '</span>'))
 
     def __setattr__(self, key, value):
-        if key not in {'is_dependant', 'layer', 'parent', '_start', '_end', '_base', '_annotations'}:
+        if key not in {'is_dependant', 'layer', 'parent', '_base', '_base_span', '_annotations'}:
             # assert 0, key
             for annotation in self._annotations:
                 setattr(annotation, key, value)

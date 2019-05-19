@@ -21,7 +21,7 @@ def test_dict_export_import():
     text.meta['year'] = 2017
     dict_text = text_to_dict(text)
     text_import = dict_to_text(dict_text)
-    assert text_import == text
+    assert text_import == text, text.diff(text_import)
     assert text_to_dict(text) == text_to_dict(dict_to_text(text_to_dict(text)))
 
     text = new_text(5)
