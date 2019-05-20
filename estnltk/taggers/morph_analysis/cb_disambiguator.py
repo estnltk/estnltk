@@ -97,9 +97,6 @@ class CorpusBasedMorphDisambiguator( object ):
         use_predisambiguation : bool (default: True)
             If set (default), then corpus-based pre-disambiguation 
             of proper names will be applied;
-        use_postdisambiguation : bool (default: True)
-            If set (default), then corpus-based post-disambiguation 
-            step will be applied;
         use_postanalysis : bool (default: True)
             If set (default), then postanalysis corrections will 
             be applied using the given postanalysis_tagger (if set),
@@ -111,6 +108,9 @@ class CorpusBasedMorphDisambiguator( object ):
             (if set), or the default VabamorfDisambiguator.
             Otherwise, vabamorf's statistical disambiguation will not 
             be applied at all.
+        use_postdisambiguation : bool (default: True)
+            If set (default), then corpus-based post-disambiguation 
+            step will be applied;
         vabamorf_analyser : VabamorfAnalyzer (default: VabamorfAnalyzer())
             Argument for overriding the default vabamorf analyser used
             by this corpus-based disambiguator;
@@ -186,14 +186,15 @@ class CorpusBasedMorphDisambiguator( object ):
                 '(!) postanalysis_tagger should modify layer "'+str(morph_analysis_layer)+'".'+\
                 ' Currently, it modifies layer "'+str(postanalysis_tagger.output_layer)+'".'
             self._postanalysis_tagger = postanalysis_tagger
-            # Add new dependencies from post-analysis tagger
-            for postanalysis_dependency in postanalysis_tagger.input_layers:
-                if postanalysis_dependency not in self.input_layers and \
-                   postanalysis_dependency != morph_analysis_layer:
-                    self.input_layers.append( postanalysis_dependency )
         else:
             # Sry, no post analysis this time
             self._postanalysis_tagger = None
+        if self._postanalysis_tagger is not None:
+            # Add new dependencies from post-analysis tagger
+            for postanalysis_dependency in self._postanalysis_tagger.input_layers:
+                if postanalysis_dependency not in self.input_layers and \
+                   postanalysis_dependency != morph_analysis_layer:
+                    self.input_layers.append( postanalysis_dependency )        
         #
         # C) VabamorfDisambiguator (can be turned off for testing purposes)
         #
@@ -690,6 +691,22 @@ class CorpusBasedMorphDisambiguator( object ):
         """
         return self._is_list_of_texts( docs ) or \
                self._is_list_of_lists_of_texts( docs )
+
+
+    def _validate_docs_for_required_layers( self, docs:list ):
+        """ Checks that all documens have the layers required
+            by this disambiguator.  If  one  of  the documents 
+            in the collection misses some of the layers, raises
+            an expection.
+        """
+        for doc_id, doc in enumerate( docs ):
+            assert isinstance(doc, Text)
+            missing = []
+            for layer in self.input_layers:
+                if layer not in doc.layers.keys():
+                    missing.append( layer )
+            if missing:
+                raise Exception('(!) {!r} is missing layers: {!r}'.format(doc, missing))
 
     # =========================================================
     # =========================================================
