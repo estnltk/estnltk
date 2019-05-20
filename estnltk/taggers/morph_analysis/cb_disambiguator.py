@@ -69,7 +69,7 @@ class CorpusBasedMorphDisambiguator( object ):
                ('põhi', 'S', 'sg p'), ('põhja', 'V', 'o') ].
             If count_position_duplicates_once==False (default),
             then the counter will find {'põhi':4, 'põhja':1}, but 
-            if count_position_duplicates_once==False, then 
+            if count_position_duplicates_once==True, then 
             counts will be: {'põhi':1, 'põhja':1}.
             Note: this is an experimental feature, needs further
             testing;
@@ -97,7 +97,7 @@ class CorpusBasedMorphDisambiguator( object ):
     # =========================================================
 
 
-    def __create_proper_names_lexicon(self, docs):
+    def _create_proper_names_lexicon(self, docs):
         """ Creates a proper name frequency dictionary based on the 
             collection of documents.
             Each entry in the dictionary describes how many times
@@ -119,7 +119,7 @@ class CorpusBasedMorphDisambiguator( object ):
         return lemmaFreq
 
 
-    def __disambiguate_proper_names_1(self, docs, lexicon):
+    def _disambiguate_proper_names_1(self, docs, lexicon):
         """ Step 1 in removal of redundant proper names analyses: 
             if a word has multiple proper name analyses with different 
             frequencies, keep only the analysis that has the highest
@@ -131,7 +131,7 @@ class CorpusBasedMorphDisambiguator( object ):
             disamb_retagger.retag( doc )
 
 
-    def __find_certain_proper_names(self, docs):
+    def _find_certain_proper_names(self, docs):
         """ Creates the list of certain proper names: finds words that 
             only have proper name analyses and, gathers all unique proper 
             name lemmas from there;
@@ -147,7 +147,7 @@ class CorpusBasedMorphDisambiguator( object ):
         return certainNames
 
 
-    def __find_sentence_initial_proper_names(self, docs):
+    def _find_sentence_initial_proper_names(self, docs):
         """ Creates the list of sentence-initial proper names.
             Finds words that have ambiguities between proper name and 
             regular analyses, and that are in the beginning of sentence, 
@@ -194,7 +194,7 @@ class CorpusBasedMorphDisambiguator( object ):
         return sentInitialNames
 
 
-    def __find_sentence_central_proper_names(self, docs):
+    def _find_sentence_central_proper_names(self, docs):
         """ Creates the list of sentence-central proper names.
             Finds words that have ambiguities between proper name and 
             regular analyses, and that in central position of the 
@@ -240,7 +240,7 @@ class CorpusBasedMorphDisambiguator( object ):
         return sentCentralNames
 
 
-    def __remove_redundant_proper_names(self, docs, notProperNames):
+    def _remove_redundant_proper_names(self, docs, notProperNames):
         """ Step 2 in removal of redundant proper names analyses: 
             if a word has  multiple  analyses, and  some  of  these 
             are in the lexicon notProperNames, then delete analyses 
@@ -252,7 +252,7 @@ class CorpusBasedMorphDisambiguator( object ):
             disamb_retagger.retag( doc )
 
 
-    def __disambiguate_proper_names_2(self, docs, lexicon):
+    def _disambiguate_proper_names_2(self, docs, lexicon):
         """ Step 3 in removal of redundant proper names analyses: 
             -- in case of sentence-central ambiguous proper names, keep 
                only proper name analyses;
@@ -271,16 +271,16 @@ class CorpusBasedMorphDisambiguator( object ):
 
     def _test_predisambiguation(self, docs):  # Only for testing purposes
         # 1) Find frequencies of proper name lemmas
-        lexicon = self.__create_proper_names_lexicon( docs )
+        lexicon = self._create_proper_names_lexicon( docs )
         # 2) First disambiguation: if a word has multiple proper name
         #    analyses with different frequencies, keep only the analysis
         #    with the highest corpus frequency ...
-        self.__disambiguate_proper_names_1( docs, lexicon )
+        self._disambiguate_proper_names_1( docs, lexicon )
         # 3) Find certain proper names, sentence-initial proper names,
         #    and sentence-central proper names 
-        certainNames     = self.__find_certain_proper_names(docs)
-        sentInitialNames = self.__find_sentence_initial_proper_names(docs)
-        sentCentralNames = self.__find_sentence_central_proper_names(docs)
+        certainNames     = self._find_certain_proper_names(docs)
+        sentInitialNames = self._find_sentence_initial_proper_names(docs)
+        sentCentralNames = self._find_sentence_central_proper_names(docs)
         
         # 3.1) Find names only sentence initial, not sentence central
         onlySentenceInitial = sentInitialNames.difference(sentCentralNames)
@@ -291,7 +291,7 @@ class CorpusBasedMorphDisambiguator( object ):
         notProperNames = onlySentenceInitial.difference(certainNames)
         # 3.3) Second disambiguation: remove sentence initial proper names
         #      that are most likely false positives
-        self.__remove_redundant_proper_names(docs, notProperNames)
+        self._remove_redundant_proper_names(docs, notProperNames)
         #print( lexicon )
         #print( certainNames )
         #print( 'sentInitial->',sentInitialNames )
@@ -300,7 +300,7 @@ class CorpusBasedMorphDisambiguator( object ):
         
         # 4) Find frequencies of proper name lemmas once again
         #    ( taking account that frequencies may have been changed )
-        lexicon = self.__create_proper_names_lexicon( docs )
+        lexicon = self._create_proper_names_lexicon( docs )
         #print( lexicon )
         
         # 5) Remove redundant proper name analyses from words 
@@ -312,7 +312,7 @@ class CorpusBasedMorphDisambiguator( object ):
         #       if the proper name has corpus frequency greater than
         #       1, then keep only proper name analyses. 
         #       Otherwise, leave analyses intact;
-        self.__disambiguate_proper_names_2(docs, lexicon)
+        self._disambiguate_proper_names_2(docs, lexicon)
 
 
     # =========================================================
