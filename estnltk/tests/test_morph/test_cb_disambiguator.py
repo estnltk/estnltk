@@ -94,7 +94,7 @@ def test_proper_names_disambiguation():
     analyses_a = collect_analyses( docs )
     # Use corpus-based disambiguation:
     cb_disambiguator = CorpusBasedMorphDisambiguator()
-    cb_disambiguator._test_predisambiguation(docs)
+    cb_disambiguator._predisambiguate(docs)
     # Find difference in ambiguities
     analyses_b = collect_analyses( docs )
     removed, added = find_ambiguities_diff( analyses_a, analyses_b )
@@ -120,7 +120,7 @@ def test_proper_names_disambiguation():
     analyses_a = collect_analyses( docs )
     # Use corpus-based disambiguation:
     cb_disambiguator = CorpusBasedMorphDisambiguator()
-    cb_disambiguator._test_predisambiguation(docs)
+    cb_disambiguator._predisambiguate(docs)
     # Find difference in ambiguities
     analyses_b = collect_analyses( docs )
     removed, added = find_ambiguities_diff( analyses_a, analyses_b )
@@ -145,7 +145,7 @@ def test_pre_disambiguation_ver_1_4():
     assert [countTotal, countH, countNonH] == [104, 19, 85]
     # Use corpus-based disambiguation:
     cb_disambiguator = CorpusBasedMorphDisambiguator()
-    cb_disambiguator._test_predisambiguation(docs)
+    cb_disambiguator._predisambiguate(docs)
     [countTotal, countH, countNonH] = count_analyses( docs )
     assert [countTotal, countH, countNonH] == [85, 5, 80]
 
@@ -255,7 +255,7 @@ def test_postdisambiguation_one_level():
     analyses_a = collect_analyses( docs )
     # Use corpus-based disambiguation:
     cb_disambiguator = CorpusBasedMorphDisambiguator()
-    cb_disambiguator._test_postdisambiguation( [docs] )
+    cb_disambiguator._postdisambiguate( [docs] )
     # Find difference in ambiguities
     analyses_b = collect_analyses( docs )
     removed, added = find_ambiguities_diff( analyses_a, analyses_b )
@@ -301,7 +301,7 @@ def test_post_disambiguation_ver_1_4():
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])
         morf_analyzer.tag(doc)
         vm_disamb.retag(doc)
-    cb_disambiguator._test_postdisambiguation( [docs] )
+    cb_disambiguator._postdisambiguate( [docs] )
     [countTotal, countH, countNonH] = count_analyses( docs )
     #print( [countTotal, countH, countNonH] )
     assert [countTotal, countH, countNonH] == [47, 0, 47]
@@ -311,10 +311,10 @@ def test_post_disambiguation_ver_1_4():
     for doc in docs:
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])
         morf_analyzer.tag(doc)
-    cb_disambiguator._test_predisambiguation( docs )
+    cb_disambiguator._predisambiguate( docs )
     for doc in docs:
         vm_disamb.retag(doc)
-    cb_disambiguator._test_postdisambiguation( [docs] )
+    cb_disambiguator._postdisambiguate( [docs] )
     [countTotal, countH, countNonH] = count_analyses( docs )
     #print( [countTotal, countH, countNonH] )
     assert [countTotal, countH, countNonH] == [47, 4, 43]
@@ -342,7 +342,7 @@ def test_postdisambiguation_two_level():
     # collect analyses from all subcorpora
     analyses_before = collect_2nd_level_analyses( corpus )
     # Use corpus-based disambiguation:
-    cb_disambiguator._test_postdisambiguation( corpus )
+    cb_disambiguator._postdisambiguate( corpus )
     # Find difference in ambiguities
     analyses_after = collect_2nd_level_analyses( corpus )
     removed, added = find_ambiguities_diff( analyses_before, analyses_after )
@@ -371,7 +371,7 @@ def test_postdisambiguation_two_level():
     # collect analyses from all subcorpora
     analyses_before = collect_2nd_level_analyses( corpus )
     # Use corpus-based disambiguation:
-    cb_disambiguator._test_postdisambiguation( corpus )
+    cb_disambiguator._postdisambiguate( corpus )
     # Find difference in ambiguities
     analyses_after = collect_2nd_level_analyses( corpus )
     removed, added = find_ambiguities_diff( analyses_before, analyses_after )
@@ -424,7 +424,7 @@ def test_postdisambiguation_two_phase_count_position_duplicates_once():
     # collect analyses from all subcorpora
     analyses_before = collect_2nd_level_analyses( corpus )
     # Use corpus-based disambiguation:
-    cb_disambiguator._test_postdisambiguation( corpus )
+    cb_disambiguator._postdisambiguate( corpus )
     # Find difference in ambiguities
     analyses_after = collect_2nd_level_analyses( corpus )
     removed, added = find_ambiguities_diff( analyses_before, analyses_after )

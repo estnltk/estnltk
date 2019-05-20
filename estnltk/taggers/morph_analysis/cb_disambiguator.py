@@ -269,7 +269,12 @@ class CorpusBasedMorphDisambiguator( object ):
             disamb_retagger.retag( doc )
 
 
-    def _test_predisambiguation(self, docs):  # Only for testing purposes
+    def _predisambiguate(self, docs):
+        """ Pre-disambiguates proper names based on lemma counts 
+            obtained from the corpus (list of docs). 
+            General goal is to reduce proper name ambiguities of title
+            cased words. 
+        """
         # 1) Find frequencies of proper name lemmas
         lexicon = self._create_proper_names_lexicon( docs )
         # 2) First disambiguation: if a word has multiple proper name
@@ -448,7 +453,14 @@ class CorpusBasedMorphDisambiguator( object ):
 
 
 
-    def _test_postdisambiguation(self, collections):  # Only for testing purposes
+    def _postdisambiguate(self, collections):
+        """ Post-disambiguates ambiguous analyses based on lemma counts 
+            obtained from the corpus (list of lists of docs).
+            In a nutshell: uses the idea "one sense per discourse" for 
+            lemmas. If an ambiguous lemma has a "wide spread" in the corpus
+            (it occurs in many places of the corpus), then it will be chosen 
+            as the correct lemma among the other (less spread) lemmas.
+        """ 
         #
         #  1st phase:  post-disambiguate inside a single document collection
         #     (e.g. disambiguate all news articles published on the same day)
