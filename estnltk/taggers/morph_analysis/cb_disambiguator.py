@@ -159,6 +159,9 @@ class CorpusBasedMorphDisambiguator( object ):
         else:
             # Use given VabamorfAnalyzer
             assert isinstance(vabamorf_analyser, VabamorfAnalyzer)
+            assert vabamorf_analyser.layer_name == morph_analysis_layer, \
+                '(!) vabamorf_analyser should modify layer "'+str(morph_analysis_layer)+'".'+\
+                ' Currently, it modifies layer "'+str(vabamorf_analyser.layer_name)+'".'
             self._vabamorf_analyser = vabamorf_analyser
             # Get vm instance from VabamorfAnalyzer
             vm_instance = self._vabamorf_analyser.vm_instance
@@ -205,6 +208,9 @@ class CorpusBasedMorphDisambiguator( object ):
             # Use custom vabamorf disambiguator
             assert isinstance(vabamorf_disambiguator, VabamorfDisambiguator), \
                 '(!) vabamorf_disambiguator should be an instance of VabamorfDisambiguator.'
+            assert vabamorf_disambiguator.output_layer == morph_analysis_layer, \
+                '(!) vabamorf_disambiguator should modify layer "'+str(morph_analysis_layer)+'".'+\
+                ' Currently, it modifies layer "'+str(vabamorf_disambiguator.output_layer)+'".'
             self._vabamorf_disambiguator = vabamorf_disambiguator
         else:
             # Sry, no vm disambiguation this time
