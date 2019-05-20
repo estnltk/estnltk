@@ -47,7 +47,8 @@ class CorpusBasedMorphDisambiguator( object ):
     def __init__(self,
                  morph_analysis_layer:str='morph_analysis',
                  input_words_layer:str='words',
-                 input_sentences_layer:str='sentences'):
+                 input_sentences_layer:str='sentences',
+                 count_position_duplicates_once:bool=False):
         """Initialize CorpusBasedMorphDisambiguator class.
 
         Parameters
@@ -58,6 +59,20 @@ class CorpusBasedMorphDisambiguator( object ):
             Name of the input words layer;
         input_sentences_layer: str (default: 'sentences')
             Name of the input sentences layer;
+        count_position_duplicates_once: bool (default: False)
+            If set, then duplicate lemmas appearing in one word 
+            position will be only counted once during the post-
+            disambiguation. 
+            For example: the word 'põhja' is ambiguous between 
+            4 analyses:
+             [ ('põhi', 'S', 'adt'),  ('põhi', 'S', 'sg g'), 
+               ('põhi', 'S', 'sg p'), ('põhja', 'V', 'o') ].
+            If count_position_duplicates_once==False (default),
+            then the counter will find {'põhi':4, 'põhja':1}, but 
+            if count_position_duplicates_once==False, then 
+            counts will be: {'põhi':1, 'põhja':1}.
+            Note: this is an experimental feature, needs further
+            testing;
         """
         # Set attributes & configuration
         self.input_layers = [ input_words_layer, \
@@ -66,6 +81,8 @@ class CorpusBasedMorphDisambiguator( object ):
         self._input_words_layer     = input_words_layer
         self._input_sentences_layer = input_sentences_layer
         self._morph_analysis_layer  = morph_analysis_layer
+        self._count_position_duplicates_once = \
+             count_position_duplicates_once
 
 
     def disambiguate(self, docs:list, **kwargs):
@@ -380,11 +397,24 @@ class CorpusBasedMorphDisambiguator( object ):
                     hidden_words_id += 1
                     # Skip the word
                     continue
+                # find out whether the word is ambiguous
                 isAmbiguous = len(word_morph) > 1
+                # keep track of lemmas already seen at this position:
+                encounteredLemmas = set() 
                 # Record lemma frequencies
                 for a in word_morph:
                     # Use -ma ending to distinguish verb lemmas from other lemmas
                     lemma = a.root+'ma' if a.partofspeech=='V' else a.root
+                    if self._count_position_duplicates_once and lemma in encounteredLemmas:
+                        # Skip the lemma, if it has already appeared in this 
+                        # position
+                        # For instance, if we have:
+                        #     põhja -> [ ('põhi', 'S', 'adt'), ('põhi', 'S', 'sg g'), 
+                        #                ('põhi', 'S', 'sg p'), ('põhja', 'V', 'o') ]
+                        # then counts will be: {'põhi': 1, 'põhjama': 1}
+                        # [ an experimental feature ]
+                        continue
+                    encounteredLemmas.add( lemma )
                     # 1) Record the general frequency
                     if lemma not in lexicon:
                         lexicon[lemma] = 1

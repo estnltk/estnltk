@@ -324,7 +324,7 @@ def test_postdisambiguation_two_level():
     #
     #  Tests the two level of lemma-based post-disambiguation
     #  Basically, the corpus division is 2-level this time:
-    #      a corpus consists of subsets, and each subsets 
+    #      a corpus consists of subsets, and each subset 
     #      contains a list of documents;
     #
     cb_disambiguator = CorpusBasedMorphDisambiguator()
@@ -393,6 +393,56 @@ def test_postdisambiguation_two_level():
                                               ((1, 0, 7), [('põhja', 'V', 'o')]), \
                                               ((1, 0, 10), [('sõnu', 'V', 'o')]), \
                                               ((1, 1, 3), [('kulla', 'A', '')]), 
+                                            ]
+    assert list(added.items()) == []
+    
+    
+    
+def test_postdisambiguation_two_phase_count_position_duplicates_once():
+    #
+    #  Tests the two-phase of lemma-based post-disambiguation
+    #      in which position duplicates will be counted only 
+    #      once. For instance, if we have:
+    #         põhja -> [ ('põhi', 'S', 'adt'), ('põhi', 'S', 'sg g'), 
+    #                    ('põhi', 'S', 'sg p'), ('põhja', 'V', 'o') ]
+    #      then counts will be: {'põhi': 1, 'põhja': 1}
+    #  [ an experimental feature ]
+    #
+    cb_disambiguator = CorpusBasedMorphDisambiguator(count_position_duplicates_once=True)
+    #
+    #   TestCase 1
+    #
+    corpus = [[Text('Põhja poole olla sõna läinud, et saak on suur.'),\
+               Text('Oma või vaenlase saagist räägite?'),\
+               Text('Kulda ja karda jätkus ning leidsime isegi talle.')], \
+              [Text('Saagi koju vedanud, saatis ta sõna põhja poole: omi sõnu me ei söö!'),
+               Text('Saak missugune, kulla ja karra tõime koju, tallesid samuti.')],]
+    for docs in corpus:
+        for doc in docs:
+            doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+            morf_analyzer.tag(doc, propername=False)  # Analyse without proper name guessing
+    # collect analyses from all subcorpora
+    analyses_before = collect_2nd_level_analyses( corpus )
+    # Use corpus-based disambiguation:
+    cb_disambiguator._test_postdisambiguation( corpus )
+    # Find difference in ambiguities
+    analyses_after = collect_2nd_level_analyses( corpus )
+    removed, added = find_ambiguities_diff( analyses_before, analyses_after )
+    #for a in sorted(list(removed.items())):
+    #    print( a )
+    #print()
+    #for a in sorted(list(analyses_before)):
+    #    print(a, analyses_before[a], '|', analyses_after[a])
+    assert sorted(list(removed.items())) == [ ((0, 0, 3), [('sõna', 'V', 'o')]),\
+                                              ((0, 1, 0), [('oma', 'V', 'o')]),\
+                                              ((0, 1, 3), [('saagis', 'S', 'sg p')]),\
+                                              ((0, 2, 0), [('kulda', 'V', 'o')]),\
+                                              ((0, 2, 2), [('kart', 'V', 'o')]),\
+                                              ((0, 2, 7), [('tema', 'P', 'sg all')]),\
+                                              ((1, 0, 0), [('saa', 'V', 'o'), ('saag', 'S', 'adt'), ('saag', 'S', 'sg p')]),\
+                                              ((1, 0, 6), [('sõna', 'V', 'o')]),\
+                                              ((1, 0, 11), [('sõnu', 'V', 'o')]),\
+                                              ((1, 1, 3), [('kulla', 'A', '')]),\
                                             ]
     assert list(added.items()) == []
 
