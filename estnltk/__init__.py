@@ -3,6 +3,7 @@ from estnltk.logger import logger
 
 from estnltk.layer.lambda_attribute import LambdaAttribute
 from estnltk.layer.annotation import Annotation
+from estnltk.layer.base_span import BaseSpan
 from estnltk.layer.base_span import ElementaryBaseSpan
 from estnltk.layer.base_span import EnvelopingBaseSpan
 from estnltk.layer.span import Span
