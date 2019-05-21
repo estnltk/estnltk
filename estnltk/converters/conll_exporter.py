@@ -20,4 +20,5 @@ def sentence_to_conll(sentence_span, conll_layer):
                              ('misc', a.misc)])
         tokens.append(token)
 
-    return TokenList(tokens).serialize()
+    result = TokenList(tokens).serialize()
+    return result.replace('=|', '|').replace('=\t', '\t')
