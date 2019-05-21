@@ -3,6 +3,9 @@ from estnltk.layer.lambda_attribute import LambdaAttribute
 
 
 class Annotation:
+    """Span attribute values are stored here.
+
+    """
     __slots__ = ['_attributes', '_span']
 
     def __init__(self, span=None, **attributes):
