@@ -69,8 +69,8 @@ class Annotation:
             self._attributes[key] = value
 
     def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__'}:
-            raise AttributeError
+        if item in {'__getstate__', '__setstate__', '__deepcopy__'}:
+            raise AttributeError(item)
 
         attributes = self._attributes
         if item in attributes:
@@ -81,8 +81,7 @@ class Annotation:
                 return value(self)
             return value
 
-        # item == '__deepcopy__'
-        return self.__getattribute__('__class__').__getattribute__(self, item)
+        raise AttributeError(item)
 
     def __delattr__(self, item):
         attributes = self._attributes
