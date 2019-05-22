@@ -1,6 +1,5 @@
 #
 #  Corpus-based (CB) morphological disambiguator.
-#  [ WORK IN PROGRESS ]
 #
 #  Based on the disambiguator source from the version 1.4.1.1:
 #    https://github.com/estnltk/estnltk/blob/1.4.1.1/estnltk/disambiguator.py
@@ -30,6 +29,8 @@ class CorpusBasedMorphDisambiguator( object ):
        *) predisambiguate(docs) -- disambiguates proper names based on lemma counts in the 
           corpus (docs); this step should be applied after morphological analysis and before 
           vabamorf's statistical disambiguation;
+          (!) Note: this only has an effect when the propername guessing was used during the 
+              morphological analysis ( options: guess=True and propername=True );
           
        *) postdisambiguate(docs) -- disambiguates analyses based on lemma counts in the 
           corpus (docs); this step should be applied after vabamorf's statistical 
@@ -83,12 +84,6 @@ class CorpusBasedMorphDisambiguator( object ):
              count_position_duplicates_once
         self._validate_inputs  = validate_inputs
         self.output_attributes = ESTNLTK_MORPH_ATTRIBUTES
-
-
-
-    def disambiguate(self, docs:list, **kwargs):
-        # TODO
-        raise NotImplementedError('disambiguate method not implemented in ' + self.__class__.__name__)
 
 
     # =========================================================
@@ -597,12 +592,26 @@ class CorpusBasedMorphDisambiguator( object ):
     # =========================================================
     
     def __repr__(self):
-        # TODO
-        raise NotImplementedError('__repr__ method not implemented in ' + self.__class__.__name__)
+        conf_str = ''
+        conf_str = 'input_layers=['+(', '.join([l for l in self.input_layers]))+']'
+        conf_str += ', output_layer='+self._morph_analysis_layer
+        return self.__class__.__name__ + '(' + conf_str + ')'
+
 
     def _repr_html_(self):
-        # TODO
-        raise NotImplementedError('_repr_html_ method not implemented in ' + self.__class__.__name__)
+        import pandas
+        pandas.set_option('display.max_colwidth', -1)
+        parameters = {'output layer': self._morph_analysis_layer,
+                      'output attributes': str(self.output_attributes),
+                      'input layers': str(self.input_layers)}
+        table = pandas.DataFrame(data=parameters,
+                                 columns=['output layer', 'output attributes', 'input layers'],
+                                 index=[0])
+        table = table.to_html(index=False)
+        description = self.__class__.__doc__.strip().split('\n')[0]
+        table = ['<h4>'+self.__class__.__name__+'</h4>', description, table]
+        # TODO: add conf parameters?
+        return '\n'.join(table)
 
 
 # =========================================================
