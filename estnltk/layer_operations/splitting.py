@@ -89,37 +89,25 @@ def extract_sections(text: Text,
                         new_layer.add_span(sp)
                         map_spans[(span.base_span, span.layer.name)] = sp
             else:
-                if ambiguous:
-                    for span in layer:
-                        span_start = span.start
-                        span_end = span.end
-                        if trim_overlapping:
-                            span_start = max(span_start, start)
-                            span_end = min(span_end, end)
-                            if span_start >= span_end:
-                                continue
-                        elif span_start < start or end < span_end:
+                for span in layer:
+                    span_start = span.start
+                    span_end = span.end
+                    if trim_overlapping:
+                        span_start = max(span_start, start)
+                        span_end = min(span_end, end)
+                        if span_start >= span_end:
                             continue
-                        new_span = Span(span_start-start, span_end-start)
-                        for annotation in span:
-                            new_layer.add_annotation(new_span, **annotation.attributes)
-                        map_spans[(span.base_span, span.layer.name)] = new_span
-                else:
-                    for span in layer.spans:
-                        span_start = span.start
-                        span_end = span.end
-                        if trim_overlapping:
-                            span_start = max(span_start, start)
-                            span_end = min(span_end, end)
-                            if span_start >= span_end:
-                                continue
-                        elif span_start < start or end < span_end:
-                            continue
-                        new_span = Span(base_span=ElementaryBaseSpan(span_start-start, span_end-start), layer=new_layer)
-                        for attr in attribute_names:
-                            setattr(new_span, attr, getattr(span, attr))
-                        new_layer.add_span(new_span)
-                        map_spans[(span.base_span, span.layer.name)] = new_span
+                    elif span_start < start or end < span_end:
+                        continue
+
+                    base_span = ElementaryBaseSpan(span_start-start, span_end-start)
+                    new_annotation = None
+                    for annotation in span.annotations:
+                        new_annotation = new_layer.add_annotation(base_span, **annotation.attributes)
+
+                    assert new_annotation is not None
+                    map_spans[(span.base_span, span.layer.name)] = new_annotation.span
+
         result.append(new_text)
     return result
 
