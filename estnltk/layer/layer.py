@@ -4,7 +4,8 @@ import pandas
 import collections
 import warnings
 
-from estnltk import ElementaryBaseSpan, Span, EnvelopingSpan, AmbiguousSpan, Annotation, SpanList
+from estnltk import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
+from estnltk import Span, EnvelopingSpan, AmbiguousSpan, Annotation, SpanList
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.visualisation import DisplaySpans
 
@@ -22,6 +23,18 @@ def whitelist_record(record, source_attributes):
     else:
         # record might be nested
         return [whitelist_record(i, source_attributes) for i in record]
+
+
+def to_base_span(x):
+    if isinstance(x, BaseSpan):
+        return x
+    if isinstance(x, (Span, EnvelopingSpan, AmbiguousSpan)):
+        return x.base_span
+    if isinstance(x, Annotation):
+        return x.span.base_span
+    if isinstance(x, List) and len(x) == 2 and isinstance(x[0], int) and isinstance(x[1], int):
+        return ElementaryBaseSpan(*x)
+    return EnvelopingBaseSpan([to_base_span(y) for y in x])
 
 
 class Layer:
@@ -209,6 +222,7 @@ class Layer:
         self.span_list.remove_span(span)
 
     def add_annotation(self, base_span, **attributes):
+        # base_span = to_base_span(base_span)
         if isinstance(base_span, ElementaryBaseSpan):
             base_span = Span(base_span=base_span, layer=self)
         elif isinstance(base_span, tuple) and len(base_span) == 2 \
