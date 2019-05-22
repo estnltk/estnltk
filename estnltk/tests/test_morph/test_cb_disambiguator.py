@@ -1,4 +1,5 @@
 from collections import defaultdict
+import pytest
 
 from estnltk import Text
 
@@ -100,7 +101,7 @@ def test_proper_names_disambiguation():
     analyses_a = collect_analyses( docs )
     # Use corpus-based disambiguation:
     cb_disambiguator = CorpusBasedMorphDisambiguator()
-    cb_disambiguator._predisambiguate(docs)
+    cb_disambiguator.predisambiguate(docs)
     # Find difference in ambiguities
     analyses_b = collect_analyses( docs )
     removed, added = find_ambiguities_diff( analyses_a, analyses_b )
@@ -126,7 +127,7 @@ def test_proper_names_disambiguation():
     analyses_a = collect_analyses( docs )
     # Use corpus-based disambiguation:
     cb_disambiguator = CorpusBasedMorphDisambiguator()
-    cb_disambiguator._predisambiguate(docs)
+    cb_disambiguator.predisambiguate(docs)
     # Find difference in ambiguities
     analyses_b = collect_analyses( docs )
     removed, added = find_ambiguities_diff( analyses_a, analyses_b )
@@ -151,7 +152,7 @@ def test_pre_disambiguation_ver_1_4():
     assert [countTotal, countH, countNonH] == [104, 19, 85]
     # Use corpus-based disambiguation:
     cb_disambiguator = CorpusBasedMorphDisambiguator()
-    cb_disambiguator._predisambiguate(docs)
+    cb_disambiguator.predisambiguate(docs)
     [countTotal, countH, countNonH] = count_analyses( docs )
     assert [countTotal, countH, countNonH] == [85, 5, 80]
 
@@ -261,7 +262,7 @@ def test_postdisambiguation_one_level():
     analyses_a = collect_analyses( docs )
     # Use corpus-based disambiguation:
     cb_disambiguator = CorpusBasedMorphDisambiguator()
-    cb_disambiguator._postdisambiguate( docs )
+    cb_disambiguator.postdisambiguate( docs )
     # Find difference in ambiguities
     analyses_b = collect_analyses( docs )
     removed, added = find_ambiguities_diff( analyses_a, analyses_b )
@@ -307,7 +308,7 @@ def test_post_disambiguation_ver_1_4():
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])
         morf_analyzer.tag(doc)
         vm_disamb.retag(doc)
-    cb_disambiguator._postdisambiguate( [docs] )
+    cb_disambiguator.postdisambiguate( [docs] )
     [countTotal, countH, countNonH] = count_analyses( docs )
     #print( [countTotal, countH, countNonH] )
     assert [countTotal, countH, countNonH] == [47, 0, 47]
@@ -317,10 +318,10 @@ def test_post_disambiguation_ver_1_4():
     for doc in docs:
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])
         morf_analyzer.tag(doc)
-    cb_disambiguator._predisambiguate( docs )
+    cb_disambiguator.predisambiguate( docs )
     for doc in docs:
         vm_disamb.retag(doc)
-    cb_disambiguator._postdisambiguate( docs )
+    cb_disambiguator.postdisambiguate( docs )
     [countTotal, countH, countNonH] = count_analyses( docs )
     #print( [countTotal, countH, countNonH] )
     assert [countTotal, countH, countNonH] == [47, 4, 43]
@@ -348,7 +349,7 @@ def test_postdisambiguation_two_level():
     # collect analyses from all subcorpora
     analyses_before = collect_2nd_level_analyses( corpus )
     # Use corpus-based disambiguation:
-    cb_disambiguator._postdisambiguate( corpus )
+    cb_disambiguator.postdisambiguate( corpus )
     # Find difference in ambiguities
     analyses_after = collect_2nd_level_analyses( corpus )
     removed, added = find_ambiguities_diff( analyses_before, analyses_after )
@@ -377,7 +378,7 @@ def test_postdisambiguation_two_level():
     # collect analyses from all subcorpora
     analyses_before = collect_2nd_level_analyses( corpus )
     # Use corpus-based disambiguation:
-    cb_disambiguator._postdisambiguate( corpus )
+    cb_disambiguator.postdisambiguate( corpus )
     # Find difference in ambiguities
     analyses_after = collect_2nd_level_analyses( corpus )
     removed, added = find_ambiguities_diff( analyses_before, analyses_after )
@@ -430,7 +431,7 @@ def test_postdisambiguation_two_phase_count_position_duplicates_once():
     # collect analyses from all subcorpora
     analyses_before = collect_2nd_level_analyses( corpus )
     # Use corpus-based disambiguation:
-    cb_disambiguator._postdisambiguate( corpus )
+    cb_disambiguator.postdisambiguate( corpus )
     # Find difference in ambiguities
     analyses_after = collect_2nd_level_analyses( corpus )
     removed, added = find_ambiguities_diff( analyses_before, analyses_after )
@@ -466,8 +467,8 @@ def test_pre_and_postdisambiguation_different_input_structures():
     for doc in docs0:
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])
         morf_analyzer.tag( doc )
-    cb_disambiguator._predisambiguate( docs0 )
-    cb_disambiguator._postdisambiguate( docs0 )
+    cb_disambiguator.predisambiguate( docs0 )
+    cb_disambiguator.postdisambiguate( docs0 )
     assert count_analyses( docs0 ) == [10, 0, 10]
     #
     #   TestCase 1 : list of Texts
@@ -478,8 +479,8 @@ def test_pre_and_postdisambiguation_different_input_structures():
     for doc in docs:
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])
         morf_analyzer.tag( doc )
-    cb_disambiguator._predisambiguate( docs )
-    cb_disambiguator._postdisambiguate( docs )
+    cb_disambiguator.predisambiguate( docs )
+    cb_disambiguator.postdisambiguate( docs )
     assert count_analyses( docs ) == [38, 5, 33]
     #
     #   TestCase 2 : list of lists of Texts
@@ -491,8 +492,8 @@ def test_pre_and_postdisambiguation_different_input_structures():
         for doc in sub_docs:
             doc.tag_layer(['compound_tokens', 'words', 'sentences'])
             morf_analyzer.tag( doc )
-    cb_disambiguator._predisambiguate( docs2 )
-    cb_disambiguator._postdisambiguate( docs2 )
+    cb_disambiguator.predisambiguate( docs2 )
+    cb_disambiguator.postdisambiguate( docs2 )
     assert count_analyses( docs2 ) == [38, 5, 33]
     #
     #   TestCase X : a list with an empty Text
@@ -501,22 +502,34 @@ def test_pre_and_postdisambiguation_different_input_structures():
     for doc in docsx:
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])
         morf_analyzer.tag( doc )
-    cb_disambiguator._predisambiguate( docsx )
-    cb_disambiguator._postdisambiguate( docsx )
+    cb_disambiguator.predisambiguate( docsx )
+    cb_disambiguator.postdisambiguate( docsx )
     #
     #   TestCase Y : an empty list
     #
     docsy = []
-    cb_disambiguator._predisambiguate( docsy )
-    cb_disambiguator._postdisambiguate( docsy )
+    cb_disambiguator.predisambiguate( docsy )
+    cb_disambiguator.postdisambiguate( docsy )
     #
-    #   TestCase Z : a Text gives AssertionError
+    #   TestCase Z : a Text as input gives AssertionError
+    #        ( a collection of Text-s is required )
     #
-    import pytest
+    
     # Giving Text as an input gives AssertionError: 
     #   a list of Texts is expected
     text = Text('Tahtis kulda. Aga sai kasside kulla.')
     with pytest.raises(AssertionError) as e1:
-        cb_disambiguator._predisambiguate( text )
+        cb_disambiguator.predisambiguate( text )
     with pytest.raises(AssertionError) as e2:
-        cb_disambiguator._postdisambiguate( text )
+        cb_disambiguator.postdisambiguate( text )
+    #
+    #   TestCase Cthulhu : the pre- and post-disambiguation 
+    #       raises an Exception if some of the required 
+    #       layers are missing
+    #
+    text = Text('Tahtis kulda. Aga sai kasside kulla.')
+    with pytest.raises(Exception) as ex1:
+        cb_disambiguator.predisambiguate( [text] )
+    with pytest.raises(Exception) as ex2:
+        cb_disambiguator.postdisambiguate( [text] )
+

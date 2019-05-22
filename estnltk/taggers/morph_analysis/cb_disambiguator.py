@@ -270,7 +270,7 @@ class CorpusBasedMorphDisambiguator( object ):
             disamb_retagger.retag( doc )
 
 
-    def _predisambiguate(self, docs):
+    def predisambiguate(self, docs):
         """ Pre-disambiguates proper names based on lemma counts 
             obtained from the input corpus. 
             General goal is to reduce proper name ambiguities of 
@@ -472,7 +472,7 @@ class CorpusBasedMorphDisambiguator( object ):
 
 
 
-    def _postdisambiguate(self, collections):
+    def postdisambiguate(self, collections):
         """ Post-disambiguates ambiguous analyses based on lemma counts 
             obtained from the input corpus.
             In a nutshell: uses the idea "one sense per discourse" for 
