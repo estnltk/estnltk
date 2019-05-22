@@ -220,9 +220,6 @@ class CorpusBasedMorphDisambiguator( object ):
 
 
     def disambiguate(self, docs:list, **kwargs):
-        if self._validate_inputs:
-            assert self._validate_docs_structure( docs ), \
-                   '(!) Unexpected input structure: {!r}'.format( docs )
         # TODO
         raise NotImplementedError('disambiguate method not implemented in ' + self.__class__.__name__)
 
@@ -408,24 +405,45 @@ class CorpusBasedMorphDisambiguator( object ):
 
     def _predisambiguate(self, docs):
         """ Pre-disambiguates proper names based on lemma counts 
-            obtained from the corpus (list of docs). 
-            General goal is to reduce proper name ambiguities of title
-            cased words. 
+            obtained from the input corpus. 
+            General goal is to reduce proper name ambiguities of 
+            title cased words. 
+            The input corpus should be either:
+              a) a list of Text objects;
+              b) a list of lists of Text objects;
         """
+        # 0) Determine input structure
+        flat_docs = []
+        input_format = None
+        if is_list_of_texts( docs ):
+            input_format = 'I'
+        elif is_list_of_lists_of_texts( docs ):
+            input_format = 'II'
+        if input_format in ['I', 'II'] and len(docs) == 0:
+            input_format = '0'
+        if input_format in ['I', '0']:
+            flat_docs = docs
+        elif input_format == 'II':
+            # Flatten the collection
+            flat_docs = [doc for sub_docs in docs for doc in sub_docs]
         if self._validate_inputs:
-            assert self._is_list_of_texts( docs ), \
-                   '(!) Unexpected input structure: {!r}'.format(docs)
+            # Validate input structure
+            assert input_format is not None, \
+                   '(!) Unexpected input structure. Input argument docs should be '+\
+                   'either a list of Text objects, or a list of lists of Text objects.'
+            # Validate input Texts for required layers
+            self._validate_docs_for_required_layers( flat_docs, require_morph=True )
         # 1) Find frequencies of proper name lemmas
-        lexicon = self._create_proper_names_lexicon( docs )
+        lexicon = self._create_proper_names_lexicon( flat_docs )
         # 2) First disambiguation: if a word has multiple proper name
         #    analyses with different frequencies, keep only the analysis
         #    with the highest corpus frequency ...
-        self._disambiguate_proper_names_1( docs, lexicon )
+        self._disambiguate_proper_names_1( flat_docs, lexicon )
         # 3) Find certain proper names, sentence-initial proper names,
         #    and sentence-central proper names 
-        certainNames     = self._find_certain_proper_names(docs)
-        sentInitialNames = self._find_sentence_initial_proper_names(docs)
-        sentCentralNames = self._find_sentence_central_proper_names(docs)
+        certainNames     = self._find_certain_proper_names(flat_docs)
+        sentInitialNames = self._find_sentence_initial_proper_names(flat_docs)
+        sentCentralNames = self._find_sentence_central_proper_names(flat_docs)
         
         # 3.1) Find names only sentence initial, not sentence central
         onlySentenceInitial = sentInitialNames.difference(sentCentralNames)
@@ -436,18 +454,12 @@ class CorpusBasedMorphDisambiguator( object ):
         notProperNames = onlySentenceInitial.difference(certainNames)
         # 3.3) Second disambiguation: remove sentence initial proper names
         #      that are most likely false positives
-        self._remove_redundant_proper_names(docs, notProperNames)
-        #print( lexicon )
-        #print( certainNames )
-        #print( 'sentInitial->',sentInitialNames )
-        #print( 'sentCentral->',sentCentralNames )
-        #print( 'notProperNames->', notProperNames )
-        
+        self._remove_redundant_proper_names(flat_docs, notProperNames)
+
         # 4) Find frequencies of proper name lemmas once again
         #    ( taking account that frequencies may have been changed )
-        lexicon = self._create_proper_names_lexicon( docs )
-        #print( lexicon )
-        
+        lexicon = self._create_proper_names_lexicon( flat_docs )
+
         # 5) Remove redundant proper name analyses from words 
         #    that are ambiguous between proper name analyses 
         #    and regular analyses:
@@ -457,7 +469,7 @@ class CorpusBasedMorphDisambiguator( object ):
         #       if the proper name has corpus frequency greater than
         #       1, then keep only proper name analyses. 
         #       Otherwise, leave analyses intact;
-        self._disambiguate_proper_names_2(docs, lexicon)
+        self._disambiguate_proper_names_2(flat_docs, lexicon)
 
 
     # =========================================================
@@ -595,20 +607,46 @@ class CorpusBasedMorphDisambiguator( object ):
 
     def _postdisambiguate(self, collections):
         """ Post-disambiguates ambiguous analyses based on lemma counts 
-            obtained from the corpus (list of lists of docs).
+            obtained from the input corpus.
             In a nutshell: uses the idea "one sense per discourse" for 
             lemmas. If an ambiguous lemma has a "wide spread" in the corpus
             (it occurs in many places of the corpus), then it will be chosen 
             as the correct lemma among the other (less spread) lemmas.
+            The input corpus should be either:
+              a) a list of Text objects;
+              b) a list of lists of Text objects;
+            Note: if the input corpus is in the format b), then two level
+            disambiguation will be performed: first disambiguation is 
+            performed within each sub list of Texts, and then performed
+            within the whole collection.
         """ 
+        # 0) Determine input structure
+        in_collections = []
+        input_format = None
+        if is_list_of_texts( collections ):
+            input_format = 'I'
+        elif is_list_of_lists_of_texts( collections ):
+            input_format = 'II'
+        if input_format in ['I', 'II'] and len(collections) == 0:
+            input_format = '0'
+        if input_format == 'I':
+            in_collections = [ collections ]
+        elif input_format == 'II':
+            # Flatten the collection
+            in_collections = collections
         if self._validate_inputs:
-            assert self._is_list_of_lists_of_texts( collections ), \
-                   '(!) Unexpected input structure: {!r}'.format(docs)
+            # Validate input structure
+            assert input_format is not None, \
+                   '(!) Unexpected input structure. Input argument collections should be '+\
+                   'either a list of Text objects, or a list of lists of Text objects.'
+            # Validate input Texts for required layers
+            for docs in in_collections:
+                self._validate_docs_for_required_layers( docs, require_morph=True )
         #
         #  1st phase:  post-disambiguate inside a single document collection
         #     (e.g. disambiguate all news articles published on the same day)
         #
-        for docs in collections:
+        for docs in in_collections:
             # 1) Remove duplicate and problematic analyses
             self._remove_duplicate_and_problematic_analyses( docs )
             # 2) Find ambiguities that should be ignored by the post-disambiguator
@@ -635,11 +673,11 @@ class CorpusBasedMorphDisambiguator( object ):
         #               in a single year, each edition consists of articles published
         #               on a single day)
         #
-        if len(collections) > 1:
+        if len(in_collections) > 1:
             # lexicons over the whole corpus
             genLemmaLex = dict()
             ambLemmaLex = dict()
-            for docs in collections:
+            for docs in in_collections:
                 # 1) Find ambiguities that should be ignored by the post-
                 #    disambiguator; add results as a new (temporary) layer
                 self._add_hidden_analyses_layers( docs )
@@ -650,7 +688,7 @@ class CorpusBasedMorphDisambiguator( object ):
                 #       marked as ignored words);
                 self._supplement_lemma_frequency_lexicon(docs, genLemmaLex, ambLemmaLex)
             # perform the second phase of post-disambiguation
-            for docs in collections:
+            for docs in in_collections:
                 # 1) Find ambiguities that should be ignored by the post-
                 #    disambiguator; add results as a new (temporary) layer
                 #    TODO: why it is necessary to add the layer 2nd time?
@@ -669,40 +707,19 @@ class CorpusBasedMorphDisambiguator( object ):
     #     Input validation
     # =========================================================
 
-    @staticmethod
-    def _is_list_of_texts( docs:list ):
-        is_list = isinstance(docs, list)
-        is_empty = is_list and len(docs) == 0
-        return is_list and (is_empty or all(isinstance(d, Text) for d in docs))
-
-    @staticmethod
-    def _is_list_of_lists_of_texts( docs:list ):
-        is_list = isinstance(docs, list)
-        is_empty = is_list and len(docs) == 0
-        return is_list and (is_empty or (all(isinstance(ds, list) for ds in docs) and \
-                                         all([all([isinstance(d, Text) for d in ds]) for ds in docs])) )
-
-    @staticmethod
-    def _validate_docs_structure( docs:list ):
-        """ Checks whether the input docs is either:
-            *) an empty list, or 
-            *) a list of Text-s, or 
-            *) a list of lists of Text-s;
-        """
-        return self._is_list_of_texts( docs ) or \
-               self._is_list_of_lists_of_texts( docs )
-
-
-    def _validate_docs_for_required_layers( self, docs:list ):
+    def _validate_docs_for_required_layers( self, docs:list, require_morph:bool=False ):
         """ Checks that all documens have the layers required
             by this disambiguator.  If  one  of  the documents 
             in the collection misses some of the layers, raises
             an expection.
         """
+        required_layers = self.input_layers[:]
+        if require_morph:
+            required_layers.append( self._morph_analysis_layer )
         for doc_id, doc in enumerate( docs ):
             assert isinstance(doc, Text)
             missing = []
-            for layer in self.input_layers:
+            for layer in required_layers:
                 if layer not in doc.layers.keys():
                     missing.append( layer )
             if missing:
@@ -729,6 +746,31 @@ class CorpusBasedMorphDisambiguator( object ):
 # =========================================================
 # =========================================================
 
+def is_list_of_texts( docs:list ):
+    """ Checks that the input list docs is:
+        *) an empty list, or
+        *) a list of Text objects;
+        This is an input structure suitable for 
+        corpus-based morphological disambiguator.
+    """ 
+    is_list = isinstance(docs, list)
+    is_empty = is_list and len(docs) == 0
+    return is_list and (is_empty or all(isinstance(d, Text) for d in docs))
+
+
+def is_list_of_lists_of_texts( docs:list ):
+    """ Checks that the input list docs is:
+        *) an empty list, or
+        *) a list of lists of Text objects;
+        This is an input structure suitable for 
+        corpus-based morphological disambiguator.
+    """ 
+    is_list = isinstance(docs, list)
+    is_empty = is_list and len(docs) == 0
+    return is_list and (is_empty or (all(isinstance(ds, list) for ds in docs) and \
+                                         all([all([isinstance(d, Text) for d in ds]) for ds in docs])) )
+
+
 def is_unknown_word( word_morph_analyses ):
     """ Detects whether word's morphological analyses indicate 
         that this is an unknown word. 
@@ -736,6 +778,7 @@ def is_unknown_word( word_morph_analyses ):
     if word_morph_analyses is not None:
         return any( [_is_empty_annotation(a) for a in word_morph_analyses] )
     return True
+
 
 
 # ----------------------------------------

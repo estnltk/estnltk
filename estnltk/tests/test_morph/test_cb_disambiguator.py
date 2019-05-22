@@ -59,22 +59,28 @@ def find_ambiguities_diff( analyses_a, analyses_b ):
             added_ambiguities[key_b] = analyses_b[key_b]
     return removed_ambiguities, added_ambiguities
 
-def count_analyses( docs ):
+def count_analyses( collection ):
     # Finds count of all analyses, and how the counts distribute
     # between proper name analyses, and other analyses
     analyseCountTotal = 0
     analyseCountH     = 0
     analyseCountNotH  = 0
-    for doc_id, doc in enumerate(docs):
-        for wid, word in enumerate(doc['words']):
-            for analysis in word.morph_analysis:
-                if _is_empty_annotation(analysis):
-                    raise Exception( '(!) Error: unexpectedly found an empty span: '+str(analysis) )
-                analyseCountTotal += 1
-                if analysis.partofspeech == 'H':
-                    analyseCountH += 1
-                else:
-                    analyseCountNotH += 1
+    for item_id, item in enumerate(collection):
+        sub_collection = None
+        if isinstance(item, Text):
+            sub_collection = [ item ]
+        elif isinstance(item, list):
+            sub_collection = item
+        for doc_id, doc in enumerate(sub_collection):
+            for wid, word in enumerate(doc['words']):
+                for analysis in word.morph_analysis:
+                    if _is_empty_annotation(analysis):
+                        raise Exception( '(!) Error: unexpectedly found an empty span: '+str(analysis) )
+                    analyseCountTotal += 1
+                    if analysis.partofspeech == 'H':
+                        analyseCountH += 1
+                    else:
+                        analyseCountNotH += 1
     return [analyseCountTotal, analyseCountH, analyseCountNotH]
 
 morf_analyzer = VabamorfAnalyzer()
@@ -255,7 +261,7 @@ def test_postdisambiguation_one_level():
     analyses_a = collect_analyses( docs )
     # Use corpus-based disambiguation:
     cb_disambiguator = CorpusBasedMorphDisambiguator()
-    cb_disambiguator._postdisambiguate( [docs] )
+    cb_disambiguator._postdisambiguate( docs )
     # Find difference in ambiguities
     analyses_b = collect_analyses( docs )
     removed, added = find_ambiguities_diff( analyses_a, analyses_b )
@@ -314,7 +320,7 @@ def test_post_disambiguation_ver_1_4():
     cb_disambiguator._predisambiguate( docs )
     for doc in docs:
         vm_disamb.retag(doc)
-    cb_disambiguator._postdisambiguate( [docs] )
+    cb_disambiguator._postdisambiguate( docs )
     [countTotal, countH, countNonH] = count_analyses( docs )
     #print( [countTotal, countH, countNonH] )
     assert [countTotal, countH, countNonH] == [47, 4, 43]
@@ -446,3 +452,71 @@ def test_postdisambiguation_two_phase_count_position_duplicates_once():
                                             ]
     assert list(added.items()) == []
 
+
+
+def test_pre_and_postdisambiguation_different_input_structures():
+    #
+    #  Tests the pre- and post-disambiguation works on different input structures
+    #
+    cb_disambiguator = CorpusBasedMorphDisambiguator()
+    #
+    #   TestCase 0 : a list with one Text object
+    #
+    docs0 = [ Text('Tahtis kulda. Aga sai kasside kulla.') ]
+    for doc in docs0:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+        morf_analyzer.tag( doc )
+    cb_disambiguator._predisambiguate( docs0 )
+    cb_disambiguator._postdisambiguate( docs0 )
+    assert count_analyses( docs0 ) == [10, 0, 10]
+    #
+    #   TestCase 1 : list of Texts
+    #
+    docs = [ Text('Ott tahab võita ka Kuldgloobust ja kulda.'), \
+             Text('Kuidas see Otil õnnestub, ei tea. Aga Ott lubas pingutada kulla nimel.'), \
+             Text('Võib-olla tuleks siiski teha Kuldgloobuse eesti variant.') ]
+    for doc in docs:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+        morf_analyzer.tag( doc )
+    cb_disambiguator._predisambiguate( docs )
+    cb_disambiguator._postdisambiguate( docs )
+    assert count_analyses( docs ) == [38, 5, 33]
+    #
+    #   TestCase 2 : list of lists of Texts
+    #
+    docs2 = [ [Text('Ott tahab võita ka Kuldgloobust ja kulda.')], \
+              [Text('Kuidas see Otil õnnestub, ei tea. Aga Ott lubas pingutada kulla nimel.'), \
+               Text('Võib-olla tuleks siiski teha Kuldgloobuse eesti variant.') ] ]
+    for sub_docs in docs2:
+        for doc in sub_docs:
+            doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+            morf_analyzer.tag( doc )
+    cb_disambiguator._predisambiguate( docs2 )
+    cb_disambiguator._postdisambiguate( docs2 )
+    assert count_analyses( docs2 ) == [38, 5, 33]
+    #
+    #   TestCase X : a list with an empty Text
+    #
+    docsx = [ Text('') ]
+    for doc in docsx:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+        morf_analyzer.tag( doc )
+    cb_disambiguator._predisambiguate( docsx )
+    cb_disambiguator._postdisambiguate( docsx )
+    #
+    #   TestCase Y : an empty list
+    #
+    docsy = []
+    cb_disambiguator._predisambiguate( docsy )
+    cb_disambiguator._postdisambiguate( docsy )
+    #
+    #   TestCase Z : a Text gives AssertionError
+    #
+    import pytest
+    # Giving Text as an input gives AssertionError: 
+    #   a list of Texts is expected
+    text = Text('Tahtis kulda. Aga sai kasside kulla.')
+    with pytest.raises(AssertionError) as e1:
+        cb_disambiguator._predisambiguate( text )
+    with pytest.raises(AssertionError) as e2:
+        cb_disambiguator._postdisambiguate( text )
