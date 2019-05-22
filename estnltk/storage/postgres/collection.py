@@ -439,7 +439,7 @@ class PgCollection:
                keys: Sequence[int] = None, collection_meta: Sequence[str] = None, progressbar: str = None,
                missing_layer: str = None, return_index: bool = True):
         if not self.exists():
-            raise PgCollectionException('collection does not exist')
+            raise PgCollectionException('collection {!r} does not exist'.format(self.name))
 
         where_clause = pg.WhereClause(collection=self,
                                       query=query,
@@ -926,7 +926,7 @@ class PgCollection:
             elif mode == 'append':
                 logger.info("appending existing layer: {!r}".format(layer_name))
             else:
-                exception = PgCollectionException("can't create layer {!r}, layer already exists".format(layer_name))
+                exception = PgCollectionException("can't create {!r} layer, the layer already exists".format(layer_name))
                 logger.error(exception)
                 raise exception
         else:
@@ -968,6 +968,7 @@ class PgCollection:
                                              meta=meta)
                 # insert data
                 structure_written = (mode == 'append')
+                logger.info('inserting data into the {!r} layer table'.format(layer_name))
                 with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer_name),
                                                 columns=columns,
                                                 query_length_limit=query_length_limit) as buffered_insert:
@@ -1018,7 +1019,7 @@ class PgCollection:
                 if layer_table_exists(self.storage, self.name, layer_name):
                     drop_layer_table(self.storage, self.name, layer_name)
         elif table_exists(self.storage, layer_table):
-            raise PgCollectionException("Table {!r} for layer {!r} already exists.".format(layer_table, layer_name))
+            raise PgCollectionException("The table {!r} of the {!r} layer already exists.".format(layer_table, layer_name))
 
         if self._temporary:
             temporary = SQL('TEMPORARY')
