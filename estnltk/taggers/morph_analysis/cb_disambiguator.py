@@ -13,55 +13,35 @@ import re
 from collections import defaultdict
 
 from estnltk import Text, EnvelopingSpan, Layer
-from estnltk.layer.ambiguous_span import AmbiguousSpan
-from estnltk.layer.span_operations import nested_aligned_left, left
-from estnltk.layer.span_operations import equal as equal_spans
-
 from estnltk.taggers import Tagger, Retagger
 
 from estnltk.vabamorf.morf import Vabamorf
-from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
-from estnltk.taggers.morph_analysis.morf import VabamorfTagger
-from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
-from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 
-
-
 class CorpusBasedMorphDisambiguator( object ):
-    """ Disambiguator that performs morphological analysis along with different 
-        morphological disambiguation steps -- pre-disambiguation, vabamorf's 
-        disambiguation  and  post-disambiguation --  in  the  input  document 
-        collection.
-        
-        In detail, different morphological disambiguation steps are 
-        the following:
-        *) pre-disambiguation of proper names based on lemma counts 
-           in the corpus;
-        *) vabamorf's statistical disambiguation;
-        *) post-disambiguation of analyses based on lemma counts in 
-           the corpus;
+    """Provides corpus-based pre-disambiguation and post-disambiguation for morphological analysis.
+       Unlike ordinary Taggers, this disambiguator operates on a collection of Text objects.
+       
+       Two steps:
+       *) predisambiguate(docs) -- disambiguates proper names based on lemma counts in the 
+          corpus (docs); this step should be applied after morphological analysis and before 
+          vabamorf's statistical disambiguation;
+          
+       *) postdisambiguate(docs) -- disambiguates analyses based on lemma counts in the 
+          corpus (docs); this step should be applied after vabamorf's statistical 
+          disambiguation;
     """
 
     def __init__(self,
                  morph_analysis_layer:str='morph_analysis',
                  input_words_layer:str='words',
                  input_sentences_layer:str='sentences',
-                 input_compound_tokens_layer='compound_tokens',
                  count_position_duplicates_once:bool=False,
-                 validate_inputs:bool=True,
-                 # switch analysis steps on/off
-                 use_predisambiguation:bool=True,
-                 use_postanalysis:bool=True,
-                 use_vabamorf_disambiguator:bool=True,
-                 use_postdisambiguation:bool=True,
-                 # customize taggers
-                 vabamorf_analyser:VabamorfAnalyzer=None, 
-                 postanalysis_tagger:Retagger=None, 
-                 vabamorf_disambiguator:VabamorfDisambiguator=None ):
+                 validate_inputs:bool=True ):
         """Initialize CorpusBasedMorphDisambiguator class.
 
         Parameters
@@ -72,9 +52,6 @@ class CorpusBasedMorphDisambiguator( object ):
             Name of the input words layer;
         input_sentences_layer: str (default: 'sentences')
             Name of the input sentences layer;
-        input_compound_tokens_layer: str (default: 'compound_tokens')
-            Name of the input compound_tokens layer. 
-            This layer is required by the default postanalysis_tagger.
         count_position_duplicates_once: bool (default: False)
             If set, then duplicate lemmas appearing in one word 
             position will be only counted once during the post-
@@ -94,128 +71,18 @@ class CorpusBasedMorphDisambiguator( object ):
             be validated for having the appropriate structure, and 
             all documents will be checked for the existence of 
             required layers.
-        use_predisambiguation : bool (default: True)
-            If set (default), then corpus-based pre-disambiguation 
-            of proper names will be applied;
-        use_postanalysis : bool (default: True)
-            If set (default), then postanalysis corrections will 
-            be applied using the given postanalysis_tagger (if set),
-            or the default PostMorphAnalysisTagger().
-            Otherwise, not postanalysis corrections will be made.
-        use_vabamorf_disambiguator : bool (default: True)
-            If set (default), then vabamorf's statistical disambiguation
-            will be applied using the given vabamorf_disambiguator
-            (if set), or the default VabamorfDisambiguator.
-            Otherwise, vabamorf's statistical disambiguation will not 
-            be applied at all.
-        use_postdisambiguation : bool (default: True)
-            If set (default), then corpus-based post-disambiguation 
-            step will be applied;
-        vabamorf_analyser : VabamorfAnalyzer (default: VabamorfAnalyzer())
-            Argument for overriding the default vabamorf analyser used
-            by this corpus-based disambiguator;
-            If not set (default), then the default vabamorf analyser is 
-            initialized and used for the process.
-        postanalysis_tagger: estnltk.taggers.Retagger (default: PostMorphAnalysisTagger())
-            Argument for overriding the default post-analysis tagger used
-            by this corpus-based disambiguator;
-            It must be a Retagger that corrects morphological analyses, and 
-            prepares morphological analyses for vabamorf's disambiguation 
-            (if required).
-            If not set (default), then the default post-analysis tagger is 
-            initialized and used for the process.
-            Note: the tagger will only be applied if use_postanalysis==True,
-            regardless the value of this setting;
-        vabamorf_disambiguator : VabamorfDisambiguator (default: VabamorfDisambiguator())
-            Argument for overriding the default vabamorf disambiguator used
-            by this corpus-based disambiguator;
-            If not set (default), then the default vabamorf disambiguator is 
-            initialized and used for the process.
-            Note: the disambiguator will only be applied if 
-            use_vabamorf_disambiguator==True, regardless the value of this setting;
         """
         # Set attributes & configuration
         self.input_layers = [ input_words_layer, \
-                              input_sentences_layer ]
+                              input_sentences_layer, \
+                              morph_analysis_layer ]
         self._input_words_layer     = input_words_layer
         self._input_sentences_layer = input_sentences_layer
         self._morph_analysis_layer  = morph_analysis_layer
         self._count_position_duplicates_once = \
              count_position_duplicates_once
-        self._use_predisambiguation  = use_predisambiguation
-        self._use_postdisambiguation = use_postdisambiguation
-        self._validate_inputs = validate_inputs
-        # Initialize required taggers
-        #
-        # A) VabamorfAnalyzer (we always need it)
-        #
-        vm_instance = None
-        if not vabamorf_analyser:
-            vm_instance = Vabamorf.instance()
-            self._vabamorf_analyser = VabamorfAnalyzer( vm_instance=vm_instance,
-                                                        layer_name=morph_analysis_layer,
-                                                        input_words_layer=input_words_layer,
-                                                        input_sentences_layer=input_sentences_layer)
-        else:
-            # Use given VabamorfAnalyzer
-            assert isinstance(vabamorf_analyser, VabamorfAnalyzer)
-            assert vabamorf_analyser.layer_name == morph_analysis_layer, \
-                '(!) vabamorf_analyser should modify layer "'+str(morph_analysis_layer)+'".'+\
-                ' Currently, it modifies layer "'+str(vabamorf_analyser.layer_name)+'".'
-            self._vabamorf_analyser = vabamorf_analyser
-            # Get vm instance from VabamorfAnalyzer
-            vm_instance = self._vabamorf_analyser.vm_instance
-        #
-        # B) PostMorphAnalysisTagger (can be turned off)
-        #
-        if use_postanalysis and not postanalysis_tagger:
-            # Initialize default postanalysis_tagger
-            self._postanalysis_tagger = PostMorphAnalysisTagger(output_layer=morph_analysis_layer,\
-                                                 input_compound_tokens_layer=input_compound_tokens_layer, \
-                                                 input_words_layer=input_words_layer, \
-                                                 input_sentences_layer=input_sentences_layer )
-        elif use_postanalysis and postanalysis_tagger:
-            # Use a custom PostMorphAnalysisTagger
-            # Check for Retagger
-            assert isinstance(postanalysis_tagger, Retagger), \
-                '(!) postanalysis_tagger should be of type estnltk.taggers.Retagger.'
-            # Check for layer match
-            assert hasattr(postanalysis_tagger, 'output_layer'), \
-                '(!) postanalysis_tagger does not define output_layer.'
-            assert postanalysis_tagger.output_layer == morph_analysis_layer, \
-                '(!) postanalysis_tagger should modify layer "'+str(morph_analysis_layer)+'".'+\
-                ' Currently, it modifies layer "'+str(postanalysis_tagger.output_layer)+'".'
-            self._postanalysis_tagger = postanalysis_tagger
-        else:
-            # Sry, no post analysis this time
-            self._postanalysis_tagger = None
-        if self._postanalysis_tagger is not None:
-            # Add new dependencies from post-analysis tagger
-            for postanalysis_dependency in self._postanalysis_tagger.input_layers:
-                if postanalysis_dependency not in self.input_layers and \
-                   postanalysis_dependency != morph_analysis_layer:
-                    self.input_layers.append( postanalysis_dependency )        
-        #
-        # C) VabamorfDisambiguator (can be turned off for testing purposes)
-        #
-        if use_vabamorf_disambiguator and not vabamorf_disambiguator:
-            # Initialize default vabamorf disambiguator
-            self._vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
-                                                                  output_layer=morph_analysis_layer,
-                                                                  input_words_layer=input_words_layer,
-                                                                  input_sentences_layer=input_sentences_layer )
-            self._vabamorf_disambiguator = self._vabamorf_disambiguator
-        elif use_vabamorf_disambiguator and vabamorf_disambiguator:
-            # Use custom vabamorf disambiguator
-            assert isinstance(vabamorf_disambiguator, VabamorfDisambiguator), \
-                '(!) vabamorf_disambiguator should be an instance of VabamorfDisambiguator.'
-            assert vabamorf_disambiguator.output_layer == morph_analysis_layer, \
-                '(!) vabamorf_disambiguator should modify layer "'+str(morph_analysis_layer)+'".'+\
-                ' Currently, it modifies layer "'+str(vabamorf_disambiguator.output_layer)+'".'
-            self._vabamorf_disambiguator = vabamorf_disambiguator
-        else:
-            # Sry, no vm disambiguation this time
-            self._vabamorf_disambiguator = None
+        self._validate_inputs  = validate_inputs
+        self.output_attributes = ESTNLTK_MORPH_ATTRIBUTES
 
 
 
@@ -432,7 +299,7 @@ class CorpusBasedMorphDisambiguator( object ):
                    '(!) Unexpected input structure. Input argument docs should be '+\
                    'either a list of Text objects, or a list of lists of Text objects.'
             # Validate input Texts for required layers
-            self._validate_docs_for_required_layers( flat_docs, require_morph=True )
+            self._validate_docs_for_required_layers( flat_docs )
         # 1) Find frequencies of proper name lemmas
         lexicon = self._create_proper_names_lexicon( flat_docs )
         # 2) First disambiguation: if a word has multiple proper name
@@ -641,7 +508,7 @@ class CorpusBasedMorphDisambiguator( object ):
                    'either a list of Text objects, or a list of lists of Text objects.'
             # Validate input Texts for required layers
             for docs in in_collections:
-                self._validate_docs_for_required_layers( docs, require_morph=True )
+                self._validate_docs_for_required_layers( docs )
         #
         #  1st phase:  post-disambiguate inside a single document collection
         #     (e.g. disambiguate all news articles published on the same day)
@@ -707,15 +574,13 @@ class CorpusBasedMorphDisambiguator( object ):
     #     Input validation
     # =========================================================
 
-    def _validate_docs_for_required_layers( self, docs:list, require_morph:bool=False ):
+    def _validate_docs_for_required_layers( self, docs:list ):
         """ Checks that all documens have the layers required
             by this disambiguator.  If  one  of  the documents 
             in the collection misses some of the layers, raises
             an expection.
         """
-        required_layers = self.input_layers[:]
-        if require_morph:
-            required_layers.append( self._morph_analysis_layer )
+        required_layers = self.input_layers
         for doc_id, doc in enumerate( docs ):
             assert isinstance(doc, Text)
             missing = []
@@ -792,7 +657,7 @@ class CorpusBasedMorphDisambiguationSubstepRetagger(Retagger):
         the method:
             change_layer(...)
     """
-    output_attributes = VabamorfTagger.attributes
+    output_attributes = ESTNLTK_MORPH_ATTRIBUTES
     conf_param = [ # input layers
                    '_input_morph_analysis_layer',\
                    '_input_words_layer',\
