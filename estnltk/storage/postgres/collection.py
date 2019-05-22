@@ -357,11 +357,17 @@ class PgCollection:
         if len(buffer) == 0:
             return []
 
-        cursor.execute(SQL('INSERT INTO {} ({}) VALUES {};').format(
-                       table_identifier,
-                       column_identifiers,
-                       SQL(', ').join(buffer)))
-        cursor.connection.commit()
+        try:
+            cursor.execute(SQL('INSERT INTO {} ({}) VALUES {};').format(
+                           table_identifier,
+                           column_identifiers,
+                           SQL(', ').join(buffer)))
+            cursor.connection.commit()
+        except Exception:
+            logger.error('flush insert buffer failed')
+            logger.error('number of rows in the buffer: {}'.format(len(buffer)))
+            logger.error('estimated insert query length: {}'.format(self._buffered_insert_query_length))
+            raise
         logger.debug('flush buffer: {} rows, {} bytes, {} estimated characters'.format(
                      len(buffer), len(cursor.query), self._buffered_insert_query_length))
         buffer.clear()
