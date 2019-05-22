@@ -78,9 +78,13 @@ def get_all_tables(storage):
 
 def drop_table(storage, table_name):
     with storage.conn.cursor() as c:
-        c.execute(SQL('DROP TABLE {};').format(table_identifier(storage, table_name)))
-        logger.debug(c.query.decode())
-    storage.conn.commit()
+        try:
+            c.execute(SQL('DROP TABLE {};').format(table_identifier(storage, table_name)))
+        except Exception:
+            raise
+        finally:
+            storage.conn.commit()
+            logger.debug(c.query.decode())
 
 
 def count_rows(storage, table=None, table_identifier=None):
