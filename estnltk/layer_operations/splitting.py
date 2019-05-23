@@ -1,4 +1,4 @@
-from typing import Iterable, Sequence
+from typing import Iterable, Sequence, List
 from estnltk import ElementaryBaseSpan
 from estnltk.layer.span import Span
 from estnltk.layer.layer import Layer
@@ -12,16 +12,23 @@ def extract_sections(text: Text,
                      sections: Iterable,
                      layers_to_keep: Sequence = None,
                      trim_overlapping: bool = False):
-    """
-    layers_to_keep
-        List of layer names to be kept. 
-        The dependencies must also be included, that is, if a layer in the list
+    """Split text into a list of texts by sections.
+
+    This method is slow on long texts.
+
+    :param text: `Text` object
+    :param sections: list of ``(start, end)`` pairs
+    :param layers_to_keep: list of layer names to be kept
+        The dependencies must be included, that is, if a layer in the list
         has a parent or is enveloping, then the parent or enveloped layer
-        must also be included.
+        must also be in this list.
         If None (default), all layers are kept
-    trim_overlapping
-        If False (default), overlapping spans are not kept.
-        If True, overlapping spans are trimmed to fit the boundaries.
+    :param trim_overlapping
+        If `False` (default), overlapping spans are not kept.
+        If `True`, overlapping spans are trimmed to fit the boundaries.
+    :return list of texts
+        A `Text` object for every section in `sections`.
+
     """
     if layers_to_keep:
         for layer in layers_to_keep:
@@ -131,7 +138,26 @@ def layers_to_keep_default(text, layer):
     return nx.descendants(graph, layer) | {layer}
 
 
-def split_by(text, layer, layers_to_keep=None, trim_overlapping=False):
+def split_by(text: Text, layer: str, layers_to_keep: Sequence[str] = None, trim_overlapping: bool = False
+             ) -> List[Text]:
+    """Split text into a list of texts by layer.
+
+    This method is slow on long texts.
+
+    :param text: `Text` object
+    :param layer: name of the layer to split by
+    :param layers_to_keep: list of layer names to be kept
+        The dependencies must be included, that is, if a layer in the list
+        has a parent or is enveloping, then the parent or enveloped layer
+        must also be in this list.
+        If None (default), all layers are kept
+    :param trim_overlapping
+        If `False` (default), overlapping spans are not kept.
+        If `True`, overlapping spans are trimmed to fit the boundaries.
+    :return list of texts
+        A `Text` object for every span in the `layer`.
+
+    """
     if layers_to_keep is None:
         layers_to_keep = layers_to_keep_default(text, layer)
     sections = [(span.start, span.end) for span in text[layer]]
@@ -139,4 +165,8 @@ def split_by(text, layer, layers_to_keep=None, trim_overlapping=False):
 
 
 def split_by_sentences(text, layers_to_keep=None, trim_overlapping=False):
+    """The same as
+    >>> split_by(text, 'sentences', layers_to_keep, trim_overlapping)
+
+    """
     return split_by(text, 'sentences', layers_to_keep, trim_overlapping)
