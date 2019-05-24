@@ -28,6 +28,7 @@ from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
 from estnltk.taggers.morph_analysis.morf_common import _convert_vm_dict_to_morph_analysis_spans
 
+from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 
 class VabamorfTagger(TaggerOld):
     description   = "Tags morphological analysis on words. Uses Vabamorf's morphological analyzer and disambiguator."
@@ -42,6 +43,8 @@ class VabamorfTagger(TaggerOld):
                  input_sentences_layer='sentences',
                  input_compound_tokens_layer='compound_tokens',
                  postanalysis_tagger=None,
+                 use_predisambiguation =False,
+                 use_postdisambiguation=False,
                  **kwargs):
         """Initialize VabamorfTagger class.
 
@@ -68,6 +71,15 @@ class VabamorfTagger(TaggerOld):
             This tagger corrects morphological analyses, prepares morpho-
             logical analyses for disambiguation (if required) and fills in 
             values of extra attributes in morph_analysis Spans.
+        use_predisambiguation:  bool (default: False)
+            If set, then text-based predisambiguation of proper names is applied
+            before Vabamorf's statistical disambiguation. This will reduce an 
+            amount of redundant proper name guesses.
+        use_postdisambiguation: bool (default: False)
+            If set, then text-based postdisambiguation is applied after 
+            Vabamorf's statistical disambiguation. This will reduce an 
+            amount of redundant analyses with the help of lemma counts 
+            from the whole text object.
         """
         # Check if the user has provided a custom postanalysis_tagger
         if not postanalysis_tagger:
@@ -85,7 +97,6 @@ class VabamorfTagger(TaggerOld):
         self._input_words_layer = input_words_layer
         self._input_sentences_layer = input_sentences_layer
         self.input_layers = (self._input_compound_tokens_layer, self._input_words_layer, self._input_sentences_layer)
-       
         if postanalysis_tagger:
             # Check for Retagger
             assert isinstance(postanalysis_tagger, Retagger), \
@@ -111,10 +122,25 @@ class VabamorfTagger(TaggerOld):
                                                              input_words_layer=self._input_words_layer,
                                                              input_sentences_layer=self._input_sentences_layer )
 
+        # Initialize CorpusBasedMorphDisambiguator (if required)
+        self.corpusbased_disambiguator = None
+        self.kwargs['predisambiguate']  = False
+        self.kwargs['postdisambiguate'] = False
+        if use_predisambiguation or use_postdisambiguation:
+            self.corpusbased_disambiguator = \
+                 CorpusBasedMorphDisambiguator( 
+                       morph_analysis_layer  = layer_name,
+                       input_words_layer     = self._input_words_layer,
+                       input_sentences_layer = self._input_sentences_layer )
+            self.kwargs['predisambiguate']  = use_predisambiguation
+            self.kwargs['postdisambiguate'] = use_postdisambiguation
+        
         self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
         #                      'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
         #                      'vabamorf_disambiguator':self.vabamorf_disambiguator.__class__.__name__ }
         self.configuration.update(self.kwargs)
+        if self.corpusbased_disambiguator:
+            self.configuration['pre_and_post_disambiguator'] = self.corpusbased_disambiguator.__class__.__name__
 
         self.depends_on = [self._input_words_layer, self._input_sentences_layer]
         # Update dependencies: add dependencies specific to postanalysis_tagger
@@ -173,11 +199,17 @@ class VabamorfTagger(TaggerOld):
             # 1) Retagging "morph_analysis" layer with post-corrections;
             # 2) Adding and filling in extra_attributes in "morph_analysis" layer;
             self.postanalysis_tagger.retag(text)
+        if self.kwargs['predisambiguate']:
+            # Apply text-based pre-disambiguation of proper names
+            self.corpusbased_disambiguator.predisambiguate( [text] )
         # --------------------------------------------
         #   Morphological disambiguation
         # --------------------------------------------
         if disambiguate:
             self.vabamorf_disambiguator.retag(text)
+        if self.kwargs['postdisambiguate']:
+            # Apply text-based post-disambiguation
+            self.corpusbased_disambiguator.postdisambiguate( [text] )
         # --------------------------------------------
         #   Return layer or Text
         # --------------------------------------------
