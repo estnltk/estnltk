@@ -11,7 +11,7 @@
 import re
 from collections import defaultdict
 
-from estnltk import Text, EnvelopingSpan, Layer
+from estnltk.text import Text, EnvelopingSpan, Layer
 from estnltk.taggers import Tagger, Retagger
 
 from estnltk.vabamorf.morf import Vabamorf
