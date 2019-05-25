@@ -73,13 +73,14 @@ class VabamorfTagger(TaggerOld):
             values of extra attributes in morph_analysis Spans.
         use_predisambiguation:  bool (default: False)
             If set, then text-based predisambiguation of proper names is applied
-            before Vabamorf's statistical disambiguation. This will reduce an 
-            amount of redundant proper name guesses.
+            before Vabamorf's statistical disambiguation. This will reduce the 
+            amount of redundant proper name guesses based on the lemma counts
+            from the whole text.
         use_postdisambiguation: bool (default: False)
             If set, then text-based postdisambiguation is applied after 
             Vabamorf's statistical disambiguation. This will reduce an 
             amount of redundant analyses with the help of lemma counts 
-            from the whole text object.
+            from the whole text.
         """
         # Check if the user has provided a custom postanalysis_tagger
         if not postanalysis_tagger:
