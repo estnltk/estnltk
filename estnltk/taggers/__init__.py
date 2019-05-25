@@ -25,6 +25,9 @@ from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.userdict_tagger import UserDictTagger
 
+from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
+from estnltk.taggers.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
+
 from estnltk.taggers.sequential_tagger import SequentialTagger
 
 from estnltk.taggers.standard_taggers.disambiguating_tagger import DisambiguatingTagger
