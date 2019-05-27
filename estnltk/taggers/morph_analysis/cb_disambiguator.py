@@ -602,6 +602,7 @@ class CorpusBasedMorphDisambiguator( object ):
 
 
     def _repr_html_(self):
+        # Add description
         import pandas
         pandas.set_option('display.max_colwidth', -1)
         parameters = {'output layer': self._morph_analysis_layer,
@@ -613,7 +614,15 @@ class CorpusBasedMorphDisambiguator( object ):
         table = table.to_html(index=False)
         description = self.__class__.__doc__.strip().split('\n')[0]
         table = ['<h4>'+self.__class__.__name__+'</h4>', description, table]
-        # TODO: add conf parameters?
+        # Add configuration parameters
+        public_param = ['_count_position_duplicates_once', '_validate_inputs']
+        conf_values  = []
+        for attr in public_param:
+            conf_values.append( str(getattr(self, attr)) )
+        conf_table = pandas.DataFrame(conf_values, index=public_param)
+        conf_table = conf_table.to_html(header=False)
+        conf_table = ('<h4>Configuration</h4>', conf_table)
+        table.extend( conf_table )
         return '\n'.join(table)
 
 
