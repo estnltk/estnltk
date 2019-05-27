@@ -1,5 +1,5 @@
 #
-#  VabamorfTagger that operates on a collection of Text objects.
+#  VabamorfTagger that operates on a corpus of Text objects, and includes corpus-based disambiguation.
 #  Includes the following substeps of morphological processing:
 #    1) Vabamorf's morphological analysis (VabamorfAnalyzer);
 #    2) post-corrections to morphological analysis (PostMorphAnalysisTagger);
@@ -26,7 +26,7 @@ from estnltk.taggers.morph_analysis.cb_disambiguator import is_list_of_lists_of_
 
 
 class VabamorfCorpusTagger( object ):
-    """ VabamorfTagger that includes corpus-based disambiguation and operates on a collection of Text objects.
+    """ VabamorfTagger that operates on a corpus of Text objects, and includes corpus-based disambiguation.
         
         Includes the following substeps of morphological processing:
          1) Vabamorf's morphological analysis (VabamorfAnalyzer);
@@ -51,9 +51,7 @@ class VabamorfCorpusTagger( object ):
                  vabamorf_analyser:VabamorfAnalyzer=None, 
                  postanalysis_tagger:Retagger=None, 
                  vabamorf_disambiguator:VabamorfDisambiguator=None,
-                 cb_disambiguator:CorpusBasedMorphDisambiguator=None,
-                 # cb_disambiguator's arguments
-                 count_position_duplicates_once:bool=False ):
+                 cb_disambiguator:CorpusBasedMorphDisambiguator=None ):
         """Initialize CorpusBasedMorphDisambiguator class.
 
         Parameters
@@ -119,20 +117,6 @@ class VabamorfCorpusTagger( object ):
             Note: the disambiguator will only be applied if either
             use_postdisambiguation or use_predisambiguation is True, regardless 
             the value of this setting;
-        count_position_duplicates_once: bool (default: False)
-            If set, then duplicate lemmas appearing in one word 
-            position will be only counted once during the post-
-            disambiguation. 
-            For example: the word 'põhja' is ambiguous between 
-            4 analyses:
-             [ ('põhi', 'S', 'adt'),  ('põhi', 'S', 'sg g'), 
-               ('põhi', 'S', 'sg p'), ('põhja', 'V', 'o') ].
-            If count_position_duplicates_once==False (default),
-            then the counter will find {'põhi':4, 'põhja':1}, but 
-            if count_position_duplicates_once==True, then 
-            counts will be: {'põhi':1, 'põhja':1}.
-            Note: this is an experimental feature, needs further
-            testing;
         """
         # Set attributes & configuration
         self.input_layers = [ input_words_layer, \
@@ -143,6 +127,7 @@ class VabamorfCorpusTagger( object ):
         self._use_predisambiguation  = use_predisambiguation
         self._use_postdisambiguation = use_postdisambiguation
         self._validate_inputs        = validate_inputs
+        self.output_attributes       = ESTNLTK_MORPH_ATTRIBUTES
         # Initialize required taggers
         #
         # A) VabamorfAnalyzer (we always need it)
@@ -223,7 +208,6 @@ class VabamorfCorpusTagger( object ):
                        morph_analysis_layer  = morph_analysis_layer,
                        input_words_layer     = self._input_words_layer,
                        input_sentences_layer = self._input_sentences_layer,
-                       count_position_duplicates_once = count_position_duplicates_once,
                        validate_inputs = validate_inputs )
         else:
             # Use custom CorpusBasedMorphDisambiguator
@@ -237,13 +221,16 @@ class VabamorfCorpusTagger( object ):
 
 
     def tag( self, docs:list ):
-        """ Processes given list of documents morphologically.
+        """ Processes given corpus of documents morphologically.
             By default, the morphological processing includes: 
             1) Vabamorf's morphological analysis;
             2) post-corrections to morphological analysis;
             3) corpus-based pre-disambiguation;
             4) Vabamorf's statistical disambiguation;
             5) corpus-based post-disambiguation;
+            The corpus can be either:
+              a) a list of Text objects;
+              b) a list of lists of Text objects;
         """
         # 0) Determine input structure & validate inputs
         in_docs = []
@@ -264,25 +251,22 @@ class VabamorfCorpusTagger( object ):
                    '(!) Unexpected input structure. Input argument collections should be '+\
                    'either a list of Text objects, or a list of lists of Text objects.'
             # Validate input Texts for required layers
-            for collection in in_docs:
-                for docs in collection:
-                    self._validate_docs_for_required_layers( docs )
+            for c_docs in in_docs:
+                self._validate_docs_for_required_layers( c_docs )
         # 1) Perform regular morphological analysis and post-analysis
         for collection in in_docs:
-            for docs in collection:
-                for doc in docs:
-                    self._vabamorf_analyser.tag( doc )
-                    if self._postanalysis_tagger is not None:
-                        self._postanalysis_tagger.retag( doc )
+            for doc in collection:
+                self._vabamorf_analyser.tag( doc )
+                if self._postanalysis_tagger is not None:
+                    self._postanalysis_tagger.retag( doc )
         # 2) Perform corpus-based pre-disambiguation
         if self._use_predisambiguation:
             self._cb_disambiguator.predisambiguate( in_docs )
         # 3) Perform vabamorf's disambiguation
         if self._vabamorf_disambiguator:
             for collection in in_docs:
-                for docs in collection:
-                    for doc in docs:
-                        self._vabamorf_disambiguator.retag( doc )
+                for doc in collection:
+                    self._vabamorf_disambiguator.retag( doc )
         # 4) Perform corpus-based post-disambiguation
         if self._use_postdisambiguation:
             self._cb_disambiguator.postdisambiguate( in_docs )
@@ -296,6 +280,7 @@ class VabamorfCorpusTagger( object ):
             in the collection misses some of the layers, raises
             an expection.
         """
+        assert isinstance(docs, list)
         required_layers = self.input_layers
         for doc_id, doc in enumerate( docs ):
             assert isinstance(doc, Text)
