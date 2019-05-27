@@ -9,7 +9,7 @@
 #
 
 import re
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from estnltk.text import Text, Layer
 from estnltk.taggers import Tagger, Retagger
@@ -133,6 +133,7 @@ class VabamorfCorpusTagger( object ):
         # A) VabamorfAnalyzer (we always need it)
         #
         vm_instance = None
+        self._vabamorf_analyser = None
         if not vabamorf_analyser:
             vm_instance = Vabamorf.instance()
             self._vabamorf_analyser = VabamorfAnalyzer( vm_instance=vm_instance,
@@ -292,13 +293,60 @@ class VabamorfCorpusTagger( object ):
                 raise Exception('(!) {!r} is missing layers: {!r}'.format(doc, missing))
 
 
+    def _reconstruct_morph_pipeline_params(self):
+        """ Reconstructs parameters that turn on/off steps in the morphological
+            analysis pipeline of this corpus tagger.
+            Parameters are returned in an OrderedDict, which represent the order 
+            in which taggers are applied.
+            Note: returns also a parameter named '*use_analysis', but this cannot
+            be changed in the constructor;
+        """
+        conf_mappings = OrderedDict()
+        conf_mappings['*use_analysis'] = self._vabamorf_analyser is not None
+        conf_mappings['use_postanalysis'] = self._postanalysis_tagger is not None
+        conf_mappings['use_predisambiguation'] = self._use_predisambiguation
+        conf_mappings['use_vabamorf_disambiguator'] = self._vabamorf_disambiguator is not None
+        conf_mappings['use_postdisambiguation'] = self._use_postdisambiguation
+        return conf_mappings
+
 
     def __repr__(self):
-        raise NotImplementedError('__repr__ method not implemented in ' + self.__class__.__name__)
-
+        conf_str = ''
+        conf_str = 'input_layers=['+(', '.join([l for l in self.input_layers]))+']'
+        conf_str += ', output_layer='+self._morph_analysis_layer
+        return self.__class__.__name__ + '(' + conf_str + ')'
 
 
     def _repr_html_(self):
-        raise NotImplementedError('_repr_html_ method not implemented in ' + self.__class__.__name__)
+        # Add description
+        import pandas
+        pandas.set_option('display.max_colwidth', -1)
+        parameters = {'output layer': self._morph_analysis_layer,
+                      'output attributes': str(self.output_attributes),
+                      'input layers': str(self.input_layers)}
+        table = pandas.DataFrame(data=parameters,
+                                 columns=['output layer', 'output attributes', 'input layers'],
+                                 index=[0])
+        table = table.to_html(index=False)
+        description = self.__class__.__doc__.strip().split('\n')[0]
+        table = ['<h4>'+self.__class__.__name__+'</h4>', description, table]
+        # Add configuration parameters
+        # 1) add general parameters
+        public_param = ['validate_inputs']
+        conf_values  = []
+        for attr in public_param:
+            conf_values.append( str(getattr(self, '_'+attr)) )
+        # 2) add pipeline's configuration parameters
+        pipeline_parameters = self._reconstruct_morph_pipeline_params()
+        for (key, value) in pipeline_parameters.items():
+            if not key.startswith('*'):
+                public_param.append(key)
+                conf_values.append(value)
+        conf_table = pandas.DataFrame(conf_values, index=public_param)
+        conf_table = conf_table.to_html(header=False)
+        conf_table = ('<h4>Configuration</h4>', conf_table)
+        table.extend( conf_table )
+        return '\n'.join(table)
+
 
 
