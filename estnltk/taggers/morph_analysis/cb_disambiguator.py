@@ -416,6 +416,9 @@ class CorpusBasedMorphDisambiguator( object ):
                     hidden_words_id += 1
                     # Skip the word
                     continue
+               # Skip an unknown word
+                if is_unknown_word( word_morph ):
+                    continue
                 # find out whether the word is ambiguous
                 isAmbiguous = len(word_morph) > 1
                 # keep track of lemmas already seen at this position:

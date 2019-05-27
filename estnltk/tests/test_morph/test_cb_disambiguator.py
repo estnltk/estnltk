@@ -60,7 +60,7 @@ def find_ambiguities_diff( analyses_a, analyses_b ):
             added_ambiguities[key_b] = analyses_b[key_b]
     return removed_ambiguities, added_ambiguities
 
-def count_analyses( collection ):
+def count_analyses( collection, skipEmptyAnalyses=True ):
     # Finds count of all analyses, and how the counts distribute
     # between proper name analyses, and other analyses
     analyseCountTotal = 0
@@ -76,7 +76,10 @@ def count_analyses( collection ):
             for wid, word in enumerate(doc['words']):
                 for analysis in word.morph_analysis:
                     if _is_empty_annotation(analysis):
-                        raise Exception( '(!) Error: unexpectedly found an empty span: '+str(analysis) )
+                        if skipEmptyAnalyses:
+                            continue
+                        else:
+                            raise Exception( '(!) Error: unexpectedly found an empty span: '+str(analysis) )
                     analyseCountTotal += 1
                     if analysis.partofspeech == 'H':
                         analyseCountH += 1
@@ -532,4 +535,33 @@ def test_pre_and_postdisambiguation_different_input_structures():
         cb_disambiguator.predisambiguate( [text] )
     with pytest.raises(Exception) as ex2:
         cb_disambiguator.postdisambiguate( [text] )
+
+
+
+def test_cb_disambiguator_on_unknown_words():
+    #
+    #  Tests CorpusBasedMorphDisambiguator works (==does not fail) on texts
+    #        that contain unknown words
+    #
+    cb_disambiguator = CorpusBasedMorphDisambiguator()
+    docs = [ Text('Mulll on yks hea netikeelelause'), \
+             Text('Davai siis, mul ka yks'), ]
+    for doc in docs:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+        # Analyse, but do not guess anything
+        morf_analyzer.tag( doc, guess= False, propername=False )
+    #print ( count_analyses( docs ) )
+    cb_disambiguator.predisambiguate( docs )
+    cb_disambiguator.postdisambiguate( docs )
+    # Assert that unknowns still exist
+    unknowns = []
+    for doc in docs:
+        for word_analyses in doc.morph_analysis:
+            for analysis in word_analyses:
+                if _is_empty_annotation(analysis):
+                    unknowns.append( word_analyses.text )
+    assert unknowns == ['Mulll', 'yks', 'Davai', ',', 'yks']
+    # Assert analysis count
+    [countTotal, countH, countNonH] = count_analyses( docs )
+    assert [countTotal, countH, countNonH] == [12, 0, 12]
 
