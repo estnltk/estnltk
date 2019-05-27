@@ -626,6 +626,10 @@ class CorpusBasedMorphDisambiguator( object ):
         return '\n'.join(table)
 
 
+    def __str__(self):
+        return self.__class__.__name__ + '(' + str(self.input_layers) + '*->' + self._morph_analysis_layer + '*)'
+
+
 # =========================================================
 # =========================================================
 #     Helpers

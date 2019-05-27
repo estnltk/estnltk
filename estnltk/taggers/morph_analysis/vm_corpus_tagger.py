@@ -14,6 +14,8 @@ from collections import defaultdict, OrderedDict
 from estnltk.text import Text, Layer
 from estnltk.taggers import Tagger, Retagger
 
+from estnltk.layer.ambiguous_attribute_tuple_list import to_str
+
 from estnltk.vabamorf.morf import Vabamorf
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
@@ -293,11 +295,25 @@ class VabamorfCorpusTagger( object ):
                 raise Exception('(!) {!r} is missing layers: {!r}'.format(doc, missing))
 
 
+    def _get_morph_pipeline_taggers(self):
+        """ Returns taggers and components that are applied in the morphological
+            analysis pipeline of this corpus tagger.
+            Parameters are returned in an OrderedDict, which roughly represents 
+            the order in which taggers and components are applied.
+        """
+        conf_mappings = OrderedDict()
+        conf_mappings['vabamorf_analyser'] = self._vabamorf_analyser
+        conf_mappings['postanalysis_tagger'] = self._postanalysis_tagger
+        conf_mappings['vabamorf_disambiguator'] = self._vabamorf_disambiguator
+        conf_mappings['cb_disambiguator'] = self._cb_disambiguator
+        return conf_mappings
+
+
     def _reconstruct_morph_pipeline_params(self):
         """ Reconstructs parameters that turn on/off steps in the morphological
             analysis pipeline of this corpus tagger.
             Parameters are returned in an OrderedDict, which represent the order 
-            in which taggers are applied.
+            of steps.
             Note: returns also a parameter named '*use_analysis', but this cannot
             be changed in the constructor;
         """
@@ -342,6 +358,11 @@ class VabamorfCorpusTagger( object ):
             if not key.startswith('*'):
                 public_param.append(key)
                 conf_values.append(value)
+        # 3) add tagger's and components
+        pipeline_components = self._get_morph_pipeline_taggers()
+        for (key, value) in pipeline_components.items():
+            public_param.append(key)
+            conf_values.append(to_str(value))
         conf_table = pandas.DataFrame(conf_values, index=public_param)
         conf_table = conf_table.to_html(header=False)
         conf_table = ('<h4>Configuration</h4>', conf_table)
@@ -349,4 +370,6 @@ class VabamorfCorpusTagger( object ):
         return '\n'.join(table)
 
 
+    def __str__(self):
+        return self.__class__.__name__ + '(' + str(self.input_layers) + '*->' + self._morph_analysis_layer + '*)'
 
