@@ -43,8 +43,6 @@ class VabamorfTagger(TaggerOld):
                  input_sentences_layer='sentences',
                  input_compound_tokens_layer='compound_tokens',
                  postanalysis_tagger=None,
-                 use_predisambiguation =False,
-                 use_postdisambiguation=False,
                  **kwargs):
         """Initialize VabamorfTagger class.
 
@@ -71,16 +69,6 @@ class VabamorfTagger(TaggerOld):
             This tagger corrects morphological analyses, prepares morpho-
             logical analyses for disambiguation (if required) and fills in 
             values of extra attributes in morph_analysis Spans.
-        use_predisambiguation:  bool (default: False)
-            If set, then text-based predisambiguation of proper names is applied
-            before Vabamorf's statistical disambiguation. This will reduce the 
-            amount of redundant proper name guesses based on the lemma counts
-            from the whole text.
-        use_postdisambiguation: bool (default: False)
-            If set, then text-based postdisambiguation is applied after 
-            Vabamorf's statistical disambiguation. This will reduce an 
-            amount of redundant analyses with the help of lemma counts 
-            from the whole text.
         """
         # Check if the user has provided a custom postanalysis_tagger
         if not postanalysis_tagger:
@@ -124,17 +112,18 @@ class VabamorfTagger(TaggerOld):
                                                              input_sentences_layer=self._input_sentences_layer )
 
         # Initialize CorpusBasedMorphDisambiguator (if required)
-        self.corpusbased_disambiguator = None
+        #  TODO: Find out iff applying either predisambiguation or 
+        #        postdisambiguation (or both) by default in VabamorfTagger 
+        #        improves accuracy
+        self.corpusbased_disambiguator  = None
         self.kwargs['predisambiguate']  = False
         self.kwargs['postdisambiguate'] = False
-        if use_predisambiguation or use_postdisambiguation:
+        if self.kwargs['predisambiguate'] or self.kwargs['postdisambiguate']:
             self.corpusbased_disambiguator = \
                  CorpusBasedMorphDisambiguator( 
                        morph_analysis_layer  = layer_name,
                        input_words_layer     = self._input_words_layer,
                        input_sentences_layer = self._input_sentences_layer )
-            self.kwargs['predisambiguate']  = use_predisambiguation
-            self.kwargs['postdisambiguate'] = use_postdisambiguation
         
         self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
         #                      'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
