@@ -50,7 +50,7 @@ Notes:
 
 #### Building in a local machine
 
-This instruction assumes that you have already completed a Travis CI build for Linux and MacOSX, and the source of required for the build is in the branch  `version_1.6_travis`.
+This instruction assumes that you have already completed a Travis CI build for Linux and MacOSX, and the source required for the build is in the branch  `version_1.6_travis`.
 
 1. Download the source from github: 
 
