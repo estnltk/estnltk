@@ -151,6 +151,12 @@ class VabamorfCorpusTagger( object ):
             self._vabamorf_analyser = vabamorf_analyser
             # Get vm instance from VabamorfAnalyzer
             vm_instance = self._vabamorf_analyser.vm_instance
+        # Add new dependencies from VabamorfAnalyzer (if there are any)
+        if self._vabamorf_analyser is not None:
+            for vm_dependency in self._vabamorf_analyser.depends_on:
+                if vm_dependency not in self.input_layers and \
+                   vm_dependency != morph_analysis_layer:
+                    self.input_layers.append( vm_dependency )
         #
         # B) PostMorphAnalysisTagger (can be turned off)
         #
@@ -175,8 +181,8 @@ class VabamorfCorpusTagger( object ):
         else:
             # Sry, no post analysis this time
             self._postanalysis_tagger = None
+        # Add new dependencies from post-analysis tagger
         if self._postanalysis_tagger is not None:
-            # Add new dependencies from post-analysis tagger
             for postanalysis_dependency in self._postanalysis_tagger.input_layers:
                 if postanalysis_dependency not in self.input_layers and \
                    postanalysis_dependency != morph_analysis_layer:
@@ -201,6 +207,12 @@ class VabamorfCorpusTagger( object ):
         else:
             # Sry, no vm disambiguation this time
             self._vabamorf_disambiguator = None
+        # Add new dependencies from VabamorfDisambiguator (if there are any)
+        if self._vabamorf_disambiguator is not None:
+            for vm_dependency in self._vabamorf_disambiguator.input_layers:
+                if vm_dependency not in self.input_layers and \
+                   vm_dependency != morph_analysis_layer:
+                    self.input_layers.append( vm_dependency )
         #
         # D) CorpusBasedMorphDisambiguator
         #
@@ -220,6 +232,12 @@ class VabamorfCorpusTagger( object ):
                 '(!) cb_disambiguator should modify layer "'+str(morph_analysis_layer)+'".'+\
                 ' Currently, it modifies layer "'+str(cb_disambiguator.morph_analysis_layer)+'".'
             self._cb_disambiguator = cb_disambiguator
+        # Add new dependencies from CorpusBasedMorphDisambiguator (if there are any)
+        if self._cb_disambiguator is not None:
+            for cbd_dependency in self._cb_disambiguator.input_layers:
+                if cbd_dependency not in self.input_layers and \
+                   cbd_dependency != morph_analysis_layer:
+                    self.input_layers.append( cbd_dependency )
 
 
 
