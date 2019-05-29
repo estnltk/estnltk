@@ -10,12 +10,17 @@ class DisplayAttributes:
     js_file = rel_path("visualisation/attribute_visualiser/prettyprinter.js")
     css_file = rel_path("visualisation/attribute_visualiser/prettyprinter.css")
     _text_id = 0
+    html_displayed = False
+    original_layer = None
+    accepted_array = None
 
-    def __init__(self):
+    def __init__(self, name=""):
         self.span_decorator = DirectAttributeVisualiser()
+        self.name = name
 
     def __call__(self, layer):
         display_html(self.html_output(layer), raw=True)
+        self.original_layer = layer
         self.__class__._text_id += 1
 
     def html_output(self, layer):
@@ -28,6 +33,7 @@ class DisplayAttributes:
             outputs += self.span_decorator(segment, span_list).replace("\n", "<br>")
 
         outputs += '<button onclick="export_data()">Export data</button>'
+        self.html_displayed = True
         return outputs
 
     def css(self):
@@ -41,3 +47,9 @@ class DisplayAttributes:
             contents = js_file.read()
             output = ''.join(["<script>\n var text_id=", str(self._text_id),"\n", contents, "</script>"])
         return output
+
+    def delete_chosen_spans(self):
+        assert self.html_displayed, "HTML of this attribute visualiser hasn't been displayed yet!" \
+                                    " Call this visualiser with a layer as an argument to do it."
+
+        assert self.accepted_array is not None, "The annotation choices weren't saved! Click \"Export data\" to do it!"
