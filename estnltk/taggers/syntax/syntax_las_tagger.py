@@ -1,10 +1,23 @@
 from collections import defaultdict
-from estnltk import Tagger, Layer, EnvelopingSpan
+from estnltk import Tagger, Layer
 
 
 class SyntaxLasTagger(Tagger):
-    """Tag sliding las scores"""
+    """Tag sliding Labeled Attachment Scores (LAS) and attach `aggregate_deprel_sequences` to the output layer meta.
 
+    LAS is a standard evaluation metric in dependency syntax. It is the ratio of the number of words that are assigned
+    both the correct syntactic head and the correct dependency label and the number of all words.
+    This tagger creates an enveloping `las` layer each span of which is a `window`-tuple (3-tuple by default) of words
+    annotated with `deprel_sequence` and 'score' attributes.
+
+    There are two input layers: `layer_a` and `layer_b`. The output layer envelopes `layer_a`.
+    The `deprel_sequence` is the sequence of `deprel` values of the corresponding `window`-tuple of spans of `layer_a`.
+    The `score` attribute is calculated by comparing the corresponding `window`-tuple of spans in `layer_a` and
+    `layer_b`.
+
+    The `aggregate_deprel_sequences` field of the meta lists all LAS scores for every `deprel` sequence encountered.
+
+    """
     conf_param = ['window']
 
     def __init__(self, layer_a: str, layer_b: str, output_layer: str = 'las', window: int = 3):
