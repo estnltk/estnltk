@@ -6,7 +6,20 @@ from estnltk.taggers.retagger import Retagger
 
 
 class SyntaxDependencyRetagger(Retagger):
-    """Adds 'parent_span' and 'children' attributes to syntax layer."""
+    """Adds `parent_span` and `children` attributes to the syntax layer.
+
+    Here the syntax layer is a layer that has at least `id` and `head` attributes as described by the `conll` format.
+
+    The `parent_span` and `children` attributes help to navigate from a span to the parent and children of that span.
+
+    The value of the `parent_span` attribute is the `span` in the current sentence for which `span.id == HEAD` and the
+    value of the `children` attribute is a list of `span`s of the current sentence for each of which `span.head == ID`
+    where `HEAD` is the value of the `head` attribute and `ID` is the value of the `id` attribute of the current span.
+
+    If 'parent_span' or 'children' attribute already exists in the layer then the values are updated. Therefore, to
+    update the dependencies in the syntax layer first update the values of head attributes and then run this retagger.
+
+    """
     conf_param = []
 
     def __init__(self, conll_syntax_layer='conll_syntax'):
