@@ -2,6 +2,7 @@ from estnltk.visualisation.core.span_visualiser import SpanVisualiser
 from estnltk.core import rel_path
 import html
 from estnltk.converters import annotation_to_json
+import copy
 
 
 class DirectAttributeVisualiser(SpanVisualiser):
@@ -13,7 +14,8 @@ class DirectAttributeVisualiser(SpanVisualiser):
                  weight_mapping=None, italics_mapping=None, underline_mapping=None,
                  size_mapping=None, tracking_mapping=None, fill_empty_spans=False,
                  event_attacher=None, js_added=False, css_added=False,
-                 css_file=rel_path("visualisation/attribute_visualiser/prettyprinter.css")):
+                 css_file=rel_path("visualisation/attribute_visualiser/prettyprinter.css"),
+                 mapping_dict=None):
         self.bg_mapping = bg_mapping or self.default_bg_mapping
         self.colour_mapping = colour_mapping
         self.font_mapping = font_mapping
@@ -29,6 +31,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
         self.css_file = css_file
         self.js_file = rel_path("visualisation/attribute_visualiser/prettyprinter.js")
         self.class_mapping = self.default_class_mapper
+        self.mapping_dict = {"class": self.default_class_mapper}
 
     def __call__(self, segment, spans):
         segment[0] = html.escape(segment[0])
@@ -38,39 +41,23 @@ class DirectAttributeVisualiser(SpanVisualiser):
         else:
             # There is a span to decorate
             output = ['<span style=']
-            if self.colour_mapping is not None:
-                output.append('color:' + self.colour_mapping(segment) + ";")
-            if self.bg_mapping is not None:
-                output.append('background:' + self.bg_mapping(segment) + ";")
-            if self.font_mapping is not None:
-                output.append('font-family:' + self.font_mapping(segment) + ";")
-            if self.weight_mapping is not None:
-                output.append('font-weight:' + self.weight_mapping(segment) + ";")
-            if self.italics_mapping is not None:
-                output.append('font-style:' + self.italics_mapping(segment) + ";")
-            if self.underline_mapping is not None:
-                output.append('text-decoration:' + self.underline_mapping(segment) + ";")
-            if self.size_mapping is not None:
-                output.append('font-size:' + self.size_mapping(segment) + ";")
-            if self.tracking_mapping is not None:
-                output.append('letter-spacing:' + self.tracking_mapping(segment) + ";")
-            if self.class_mapping is not None:
-                output.append(' class=' + self.class_mapping(segment) + " ")
+            mapping_segment = copy.deepcopy(segment)
+            if len(segment[1]) == 1:
+                mapping_segment[1] = spans[mapping_segment[1][0]]
+            for key, value in self.mapping_dict.items():
+                if key == "class" or key == "id":
+                    pass
+                else:
+                    output.append(key + ":" + value(mapping_segment) + ";")
+            for key, value in self.mapping_dict.items():
+                if key == "class" or key == "id":
+                    output.append(' ' + key + "=" + value(mapping_segment))
 
-            # spans = []
-            # for a_span in segment[1]:
-            #     print(a_span)
-            #     spans.append(str(a_span))
-            #
-            # output.append(' span_info=')
-            # for attribute_span in spans:
-            #     output.append("".join(attribute_span).replace(" ",""))  # span info for javascript
-            # output.append('>')
             for segment_index, all_spans_index in enumerate(segment[1]):
                 output.append(" span_info")
                 output.append(str(segment_index))
                 output.append("='")
-                output.append(annotation_to_json(spans[all_spans_index]))
+                output.append(annotation_to_json(spans[all_spans_index].annotations))
                 output.append("'")
                 output.append(" span_index")
                 output.append(str(segment_index))
@@ -80,8 +67,11 @@ class DirectAttributeVisualiser(SpanVisualiser):
             rows = []
             for i in segment[1]:
                 rows.append(spans[i].text)
-            output.append(' span_texts=' + ','.join(rows))  # text of spans for javascript
-            output.append(">")
+            if type(rows[0]) is list:  # if the text objects are as lists (e.g. diff layer)
+                for i in range(len(rows)):
+                    rows[i] = '●'.join(rows[i])
+            output.append(' span_texts="' + ','.join(rows))  # text of spans for javascript
+            output.append('">')
             output.append(segment[0])
             output.append('</span>')
         return "".join(output)

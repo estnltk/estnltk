@@ -157,3 +157,27 @@ def test_vm_corpus_tagger_with_changed_layer_names():
     for doc in docs:
         assert 'my_morph' in doc.layers.keys()
 
+
+
+def test_vm_corpus_tagger_with_changed_analyser_parameters():
+    #
+    #  Tests that VabamorfAnalyzer's settings can be changed inside VabamorfCorpusTagger
+    #  ( Note: normally, you should go with the default settings )
+    #
+    #  A. Enable propername guessing (default)
+    vm_corpus_tagger = VabamorfCorpusTagger()
+    docs = [ Text('Perekonnanimi oli Nõmm.'), \
+             Text('Teisel tüübil oli nimeks Kass või Karu.') ]
+    for doc in docs:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+    vm_corpus_tagger.tag(docs)
+    assert count_analyses(docs) == [13, 3, 10]
+    #  B. Disable propername guessing
+    vm_corpus_tagger = VabamorfCorpusTagger( propername=False )
+    docs = [ Text('Perekonnanimi oli Nõmm.'), \
+             Text('Teisel tüübil oli nimeks Kass või Karu.') ]
+    for doc in docs:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+    vm_corpus_tagger.tag(docs)
+    assert count_analyses(docs) == [13, 0, 13]
+

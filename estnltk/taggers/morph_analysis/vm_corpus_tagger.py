@@ -20,7 +20,10 @@ from estnltk.vabamorf.morf import Vabamorf
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
+
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_GUESS, DEFAULT_PARAM_PROPERNAME
+from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_PHONETIC, DEFAULT_PARAM_COMPOUND
 
 from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 from estnltk.taggers.morph_analysis.cb_disambiguator import is_list_of_texts
@@ -53,7 +56,8 @@ class VabamorfCorpusTagger( object ):
                  vabamorf_analyser:VabamorfAnalyzer=None, 
                  postanalysis_tagger:Retagger=None, 
                  vabamorf_disambiguator:VabamorfDisambiguator=None,
-                 cb_disambiguator:CorpusBasedMorphDisambiguator=None ):
+                 cb_disambiguator:CorpusBasedMorphDisambiguator=None, 
+                 **kwargs ):
         """Initialize CorpusBasedMorphDisambiguator class.
 
         Parameters
@@ -121,8 +125,7 @@ class VabamorfCorpusTagger( object ):
             the value of this setting;
         """
         # Set attributes & configuration
-        self.input_layers = [ input_words_layer, \
-                              input_sentences_layer ]
+        self.input_layers            = [] # dependencies will be taken from taggers
         self._input_words_layer      = input_words_layer
         self._input_sentences_layer  = input_sentences_layer
         self._morph_analysis_layer   = morph_analysis_layer
@@ -130,6 +133,8 @@ class VabamorfCorpusTagger( object ):
         self._use_postdisambiguation = use_postdisambiguation
         self._validate_inputs        = validate_inputs
         self.output_attributes       = ESTNLTK_MORPH_ATTRIBUTES
+        # Extra arguments that can be passed to VabamorfAnalyzer:
+        self._kwargs = kwargs if isinstance(kwargs, dict) else {}
         # Initialize required taggers
         #
         # A) VabamorfAnalyzer (we always need it)
@@ -275,9 +280,19 @@ class VabamorfCorpusTagger( object ):
             for c_docs in in_docs:
                 self._validate_docs_for_required_layers( c_docs )
         # 1) Perform regular morphological analysis and post-analysis
+        # Prepare input parameters
+        param_propername = self._kwargs.get("propername", DEFAULT_PARAM_PROPERNAME)
+        param_guess      = self._kwargs.get("guess",      DEFAULT_PARAM_GUESS)
+        param_compound   = self._kwargs.get("compound",   DEFAULT_PARAM_COMPOUND)
+        param_phonetic   = self._kwargs.get("phonetic",   DEFAULT_PARAM_PHONETIC)
+        # Perform analysis
         for collection in in_docs:
             for doc in collection:
-                self._vabamorf_analyser.tag( doc )
+                self._vabamorf_analyser.tag( doc, propername=param_propername,
+                                                  guess     =param_guess,
+                                                  compound  =param_compound,
+                                                  phonetic  =param_phonetic
+                )
                 if self._postanalysis_tagger is not None:
                     self._postanalysis_tagger.retag( doc )
         # 2) Perform corpus-based pre-disambiguation
@@ -376,7 +391,12 @@ class VabamorfCorpusTagger( object ):
             if not key.startswith('*'):
                 public_param.append(key)
                 conf_values.append(value)
-        # 3) add tagger's and components
+        # 3 add vabamorf_analyser's settings (if provided)
+        for (key, value) in self._kwargs.items():
+            if key in ['propername', 'guess', 'compound', 'phonetic']:
+                public_param.append(key)
+                conf_values.append(value)
+        # 4) add tagger's and components
         pipeline_components = self._get_morph_pipeline_taggers()
         for (key, value) in pipeline_components.items():
             public_param.append(key)
