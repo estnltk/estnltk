@@ -86,6 +86,14 @@ class Annotation:
 
         raise AttributeError(item)
 
+    def __getitem__(self, item):
+        value = self._attributes[item]
+        if isinstance(value, str) and value.startswith('lambda a: '):
+            return eval(value)(self)
+        elif isinstance(value, LambdaAttribute):
+            return value(self)
+        return value
+
     def __delattr__(self, item):
         attributes = self._attributes
         if item in attributes:
