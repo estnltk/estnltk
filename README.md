@@ -23,7 +23,7 @@ As some of the EstNLTK's dependencies are not yet compatible with the newest ver
 
 1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.6, for instance:
 ```
-conda create -n py36 python=3.6 anaconda
+conda create -n py36 python=3.6
 ```
 
 2. [activate the environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment), for instance:
@@ -41,6 +41,57 @@ The alternative way for installing if you are unable to use the anaconda distrib
 `python -m pip install estnltk`
 
 This is slower, more error-prone and requires you to have the appropriate compilers for building the scientific computation packages for your platform. 
+
+_Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
+
+### Documentation
+
+Documentation for 1.6 currently comes in the form of [jupyter notebooks](http://jupyter.org), which are available here: https://github.com/estnltk/estnltk/tree/version_1.6/tutorials
+
+Note: if you have trouble viewing jupyter notebooks in github (you get an error message _Sorry, something went wrong. Reload?_ at loading a notebook), then try to open notebooks with the help of [https://nbviewer.jupyter.org](https://nbviewer.jupyter.org)
+
+
+## Version 1.4.1
+
+### Installation
+The recommended way of installing estnltk is by using the [anaconda python distribution](https://www.anaconda.com/download) and python 3.5.
+
+We have installable packages built for osx, windows-64, and linux-64. Installation steps:
+
+1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.5, for instance:
+```
+conda create -n py35 python=3.5
+```
+
+2. [activate the environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment), for instance:
+```
+conda activate py35
+```
+
+3. install estnltk with the command:
+```
+conda install -c estnltk -c conda-forge estnltk=1.4.1
+```
+
+_Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
+
+If you have [jupyter notebook installed](https://test-jupyter.readthedocs.io/en/rtd-theme/install.html#using-anaconda-and-conda-recommended), you can use EstNLTK in an interactive web application. For that, type the command:
+
+```
+jupyter notebook
+```
+
+To run our tutorials, [download them as a zip file](https://github.com/estnltk/tutorials/archive/master.zip), unpack them to a directory and run the command `jupyter notebook` in that directory.  
+
+---------
+
+The alternative way for installing if you are unable to use the anaconda distribution is:
+
+`python -m pip install estnltk==1.4.1.1`
+
+This is slower, more error-prone and requires you to have the appropriate compilers for building the scientific computation packages for your platform. 
+
+ 
 
 Find more details in the [installation tutorial for version 1.4](https://estnltk.github.io/estnltk/1.4/tutorials/installation.html).
 
