@@ -92,6 +92,11 @@ class AmbiguousSpan:
         if self.layer is not None:
             return self.layer.text_object
 
+    @property
+    def raw_text(self):
+        if self.text_object is not None:
+            return self.text_object.text
+
     def __len__(self) -> int:
         return len(self.annotations)
 
