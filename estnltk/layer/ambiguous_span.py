@@ -1,10 +1,10 @@
 from typing import Union, Any
-import pandas as pd
 from IPython.core.display import display_html
 
 from estnltk import Span
 from estnltk import Annotation
 from estnltk.layer import AttributeList
+from .to_html import html_table
 
 
 class AmbiguousSpan:
@@ -143,21 +143,9 @@ class AmbiguousSpan:
         return str(self)
 
     def _to_html(self, margin=0) -> str:
-        pd.set_option("display.max_colwidth", -1)
-
-        records = [{attr: getattr(annotation, attr) for attr in self.layer.attributes}
-                   for annotation in self.annotations]
-        first = True
-        for rec in records:
-            rec['start'] = self.span.start
-            rec['end'] = self.span.end
-            if first:
-                rec['text'] = self.span.html_text(margin)
-                first = False
-            else:
-                rec['text'] = ''
-        df = pd.DataFrame.from_records(records, columns=('text', 'start', 'end')+self.layer.attributes)
-        return '<b>{}</b>\n{}'.format(self.__class__.__name__, df.to_html(escape=False, justify='left', index=False))
+        return '<b>{}</b>\n{}'.format(
+                self.__class__.__name__,
+                html_table(spans=[self], attributes=self.layer.attributes, margin=margin, index=False))
 
     def display(self, margin: int=0):
         display_html(self._to_html(margin), raw=True)
