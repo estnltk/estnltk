@@ -287,7 +287,10 @@ class VabamorfAnalyzer( Tagger ):
     output_attributes = VabamorfTagger.attributes
     input_layers      = ['words', 'sentences']
     conf_param = [ # Configuration flags:
-                   'analysis_parameters', \
+                   "guess",
+                   "propername",
+                   "compound",
+                   "phonetic",
                    # Internal stuff:
                    '_vm_instance', \
                    # Names of the specific input layers:
@@ -295,7 +298,7 @@ class VabamorfAnalyzer( Tagger ):
                    '_input_sentences_layer', \
                    # For backward compatibility:
                    'depends_on', 'layer_name', 'attributes',
-                   # Configuration flags:
+                   # Extra configuration flags:
                    'extra_attributes', \
                  ]
     layer_name = output_layer       # <- For backward compatibility ...
@@ -354,15 +357,12 @@ class VabamorfAnalyzer( Tagger ):
             self._vm_instance = vm_instance
         else:
             self._vm_instance = Vabamorf.instance()
-        # Set analysis parameters. Priority:
-        #  1) arguments given to the constructor;
-        #  2) overall default parameters of the vm analysis;
-        self.analysis_parameters = {
-            "guess"     : kwargs.get("guess",      DEFAULT_PARAM_GUESS),
-            "propername": kwargs.get("propername", DEFAULT_PARAM_PROPERNAME),
-            "compound"  : kwargs.get("compound",   DEFAULT_PARAM_COMPOUND),
-            "phonetic"  : kwargs.get("phonetic",   DEFAULT_PARAM_PHONETIC),
-        }
+        # Set analysis parameters:
+        self.guess      = kwargs.get("guess",      DEFAULT_PARAM_GUESS)
+        self.propername = kwargs.get("propername", DEFAULT_PARAM_PROPERNAME)
+        self.compound   = kwargs.get("compound",   DEFAULT_PARAM_COMPOUND)
+        self.phonetic   = kwargs.get("phonetic",   DEFAULT_PARAM_PHONETIC)
+        # Other stuff
         self.layer_name = self.output_layer  # <- For backward compatibility ...
         self.depends_on = self.input_layers  # <- For backward compatibility ...
 
@@ -387,9 +387,13 @@ class VabamorfAnalyzer( Tagger ):
         status: dict
            This can be used to store metadata on layer tagging.
         """
-        # Get parameters of the analysis
-        current_kwargs = self.analysis_parameters.copy()
+        # Fetch parameters of the analysis
+        current_kwargs = {}
         current_kwargs["disambiguate"] = False # perform analysis without disambiguation
+        current_kwargs["guess"]      = self.guess
+        current_kwargs["propername"] = self.propername
+        current_kwargs["compound"]   = self.compound
+        current_kwargs["phonetic"]   = self.phonetic
         # --------------------------------------------
         #   Use Vabamorf for morphological analysis
         # --------------------------------------------
