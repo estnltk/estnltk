@@ -198,12 +198,12 @@ def test_gt_conversion_4_empty():
 
 def test_gt_conversion_5_unknown_words():
     # Tests that the conversion does not crash on unknown words
-    analyzer = VabamorfAnalyzer()
+    analyzer = VabamorfAnalyzer(guess=False, propername=False)
     gt_converter = GTMorphConverter()
     
     text = Text('Ma tahax minna järve ääde')
     text.tag_layer(['words','sentences'])
-    analyzer.tag(text, guess=False, propername=False)
+    analyzer.tag(text)
     text.tag_layer(['clauses'])
     gt_converter.tag( text )
     #print(text['gt_morph_analysis'].to_records())

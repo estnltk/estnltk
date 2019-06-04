@@ -144,9 +144,10 @@ class VabamorfCorpusTagger( object ):
         if not vabamorf_analyser:
             vm_instance = Vabamorf.instance()
             self._vabamorf_analyser = VabamorfAnalyzer( vm_instance=vm_instance,
-                                                        layer_name=morph_analysis_layer,
+                                                        output_layer=morph_analysis_layer,
                                                         input_words_layer=input_words_layer,
-                                                        input_sentences_layer=input_sentences_layer)
+                                                        input_sentences_layer=input_sentences_layer,
+                                                        **kwargs)
         else:
             # Use given VabamorfAnalyzer
             assert isinstance(vabamorf_analyser, VabamorfAnalyzer)
@@ -280,19 +281,10 @@ class VabamorfCorpusTagger( object ):
             for c_docs in in_docs:
                 self._validate_docs_for_required_layers( c_docs )
         # 1) Perform regular morphological analysis and post-analysis
-        # Prepare input parameters
-        param_propername = self._kwargs.get("propername", DEFAULT_PARAM_PROPERNAME)
-        param_guess      = self._kwargs.get("guess",      DEFAULT_PARAM_GUESS)
-        param_compound   = self._kwargs.get("compound",   DEFAULT_PARAM_COMPOUND)
-        param_phonetic   = self._kwargs.get("phonetic",   DEFAULT_PARAM_PHONETIC)
         # Perform analysis
         for collection in in_docs:
             for doc in collection:
-                self._vabamorf_analyser.tag( doc, propername=param_propername,
-                                                  guess     =param_guess,
-                                                  compound  =param_compound,
-                                                  phonetic  =param_phonetic
-                )
+                self._vabamorf_analyser.tag( doc )
                 if self._postanalysis_tagger is not None:
                     self._postanalysis_tagger.retag( doc )
         # 2) Perform corpus-based pre-disambiguation

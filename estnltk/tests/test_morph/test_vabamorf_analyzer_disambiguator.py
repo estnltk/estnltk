@@ -106,9 +106,10 @@ def test_morph_analyzer_1():
 
 def test_morph_analyzer_without_guessing():
     # Tests that positions of unknown words will be filled with [None]
+    analyzer2x = VabamorfAnalyzer(guess=False, propername=False)
     text=Text('Mulll on yks rõlgelt hea netikeelelause')
     text.tag_layer(['words','sentences'])
-    analyzer2.tag(text, guess=False, propername=False)
+    analyzer2x.tag(text)
     
     # Check for unknown word placeholders
     assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
@@ -163,9 +164,10 @@ def test_morph_disambiguator_1():
 # ----------------------------------
 
 def test_morph_disambiguation_exception_on_unknown_words():
+    analyzer2x = VabamorfAnalyzer(guess=False, propername=False)
     text=Text('Mulll on yks rõlgelt hea netikeelelause')
     text.tag_layer(['words','sentences'])
-    analyzer2.tag(text, guess=False, propername=False)
+    analyzer2x.tag(text)
     
     # Check for unknown word placeholders
     assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text

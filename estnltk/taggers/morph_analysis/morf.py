@@ -10,7 +10,7 @@ from typing import MutableMapping, Any
 from estnltk.text import Layer, Span, SpanList, Text
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import TaggerOld, Tagger
 from estnltk.vabamorf.morf import Vabamorf
 from estnltk.taggers import PostMorphAnalysisTagger, Retagger
 
@@ -103,9 +103,10 @@ class VabamorfTagger(TaggerOld):
         # Initialize morf analyzer and disambiguator; 
         # Also propagate layer names to submodules;
         self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance,
-                                                        layer_name=layer_name,
+                                                        output_layer=layer_name,
                                                         input_words_layer=self._input_words_layer,
-                                                        input_sentences_layer=self._input_sentences_layer)
+                                                        input_sentences_layer=self._input_sentences_layer,
+                                                        **kwargs)
         self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
                                                              output_layer=layer_name,
                                                              input_words_layer=self._input_words_layer,
@@ -166,20 +167,12 @@ class VabamorfTagger(TaggerOld):
             otherwise attaches the new layer to the Text object 
             and returns the Text object;
         """
-        # Fetch parameters ( if missing, use the defaults )
+        # Do we need to use disambiguation? (default: yes)
         disambiguate = self.kwargs.get('disambiguate', DEFAULT_PARAM_DISAMBIGUATE)
-        guess        = self.kwargs.get('guess',        DEFAULT_PARAM_GUESS)
-        propername   = self.kwargs.get('propername',   DEFAULT_PARAM_PROPERNAME)
-        phonetic     = self.kwargs.get('phonetic',     DEFAULT_PARAM_PHONETIC)
-        compound     = self.kwargs.get('compound',     DEFAULT_PARAM_COMPOUND)
         # --------------------------------------------
         #   Morphological analysis
         # --------------------------------------------
-        self.vabamorf_analyser.tag( text, \
-                                    guess=guess,\
-                                    propername=propername,\
-                                    phonetic=phonetic, \
-                                    compound=compound )
+        self.vabamorf_analyser.tag( text )
         morph_layer = text[self.layer_name]
         # --------------------------------------------
         #   Post-processing
@@ -287,16 +280,30 @@ def _is_ignore_span( span ):
 #    VabamorfAnalyzer
 # ===============================
 
-class VabamorfAnalyzer(TaggerOld):
-    description   = "Analyzes texts morphologically. Uses Vabamorf's analyzer. "+\
-                    "Note: resulting analyses can be ambiguous. "
-    layer_name    = None
-    attributes    = VabamorfTagger.attributes
-    depends_on    = None
-    configuration = None
+class VabamorfAnalyzer( Tagger ):
+    """Performs morphological analysis with Vabamorf's analyzer.
+       Note: resulting analyses will be ambiguous."""
+    output_layer      = 'morph_analysis'
+    output_attributes = VabamorfTagger.attributes
+    input_layers      = ['words', 'sentences']
+    conf_param = [ # Configuration flags:
+                   'analysis_parameters', \
+                   # Internal stuff:
+                   '_vm_instance', \
+                   # Names of the specific input layers:
+                   '_input_words_layer', \
+                   '_input_sentences_layer', \
+                   # For backward compatibility:
+                   'depends_on', 'layer_name', 'attributes',
+                   # Configuration flags:
+                   'extra_attributes', \
+                 ]
+    layer_name = output_layer       # <- For backward compatibility ...
+    depends_on = input_layers       # <- For backward compatibility ...
+    attributes = output_attributes  # <- For backward compatibility ...
     
     def __init__(self,
-                 layer_name='morph_analysis',
+                 output_layer='morph_analysis',
                  input_words_layer='words',
                  input_sentences_layer='sentences',
                  extra_attributes=None,
@@ -320,31 +327,47 @@ class VabamorfAnalyzer(TaggerOld):
         vm_instance: estnltk.vabamorf.morf.Vabamorf
             An instance of Vabamorf that is to be used for analysing
             text morphologically.
-        """
-        self.kwargs = kwargs
-        if vm_instance:
-            self.vm_instance = vm_instance
-        else:
-            self.vm_instance  = Vabamorf.instance()
-        self.extra_attributes = extra_attributes
-        self.layer_name = layer_name
-        self._input_words_layer = input_words_layer
-        self._input_sentences_layer = input_sentences_layer
         
-        self.configuration = { 'vm_instance':self.vm_instance.__class__.__name__ }
+        **kwargs: keyword arguments for Vabamorf's analyser.
+            Expected keyword arguments are:
+            propername: boolean (default: True)
+                Propose additional analysis variants for proper names 
+                (a.k.a. proper name guessing).
+            guess: boolean (default: True)
+                Use guessing in case of unknown words.
+            compound: boolean (default: True)
+                Add compound word markers to root forms.
+            phonetic: boolean (default: False)
+                Add phonetic information to root forms.
+        """
+        # Set input/output layer names
+        self.output_layer = output_layer
+        self._input_words_layer          = input_words_layer
+        self._input_sentences_layer      = input_sentences_layer
+        self.input_layers = [input_words_layer, input_sentences_layer]
+        self.extra_attributes = extra_attributes
         if self.extra_attributes:
-            self.configuration['extra_attributes'] = self.extra_attributes
-        self.configuration.update(self.kwargs)
+            for extra_attr in self.extra_attributes:
+                self.output_attributes += (extra_attr,)
+            self.attributes = self.output_attributes  # <- For backward compatibility ...
+        if vm_instance:
+            self._vm_instance = vm_instance
+        else:
+            self._vm_instance = Vabamorf.instance()
+        # Set analysis parameters. Priority:
+        #  1) arguments given to the constructor;
+        #  2) overall default parameters of the vm analysis;
+        self.analysis_parameters = {
+            "guess"     : kwargs.get("guess",      DEFAULT_PARAM_GUESS),
+            "propername": kwargs.get("propername", DEFAULT_PARAM_PROPERNAME),
+            "compound"  : kwargs.get("compound",   DEFAULT_PARAM_COMPOUND),
+            "phonetic"  : kwargs.get("phonetic",   DEFAULT_PARAM_PHONETIC),
+        }
+        self.layer_name = self.output_layer  # <- For backward compatibility ...
+        self.depends_on = self.input_layers  # <- For backward compatibility ...
 
-        self.depends_on = [self._input_words_layer, self._input_sentences_layer]
 
-
-    def tag(self, text: Text,
-                  return_layer=False,
-                  propername=DEFAULT_PARAM_PROPERNAME,
-                  guess     =DEFAULT_PARAM_GUESS,
-                  compound  =DEFAULT_PARAM_COMPOUND,
-                  phonetic  =DEFAULT_PARAM_PHONETIC ) -> Text:
+    def _make_layer(self, text: Text, layers, status: dict):
         """Anayses given Text object morphologically. 
         
         Note: disambiguation is not performed, so the results of
@@ -355,42 +378,26 @@ class VabamorfAnalyzer(TaggerOld):
         text: estnltk.text.Text
             Text object that is to be analysed morphologically.
             The Text object must have layers 'words', 'sentences'.
-        return_layer: boolean (default: False)
-            If True, then the new layer is returned; otherwise 
-            the new layer is attached to the Text object, and the 
-            Text object is returned;
-        propername: boolean (default: True)
-            Propose additional analysis variants for proper names 
-            (a.k.a. proper name guessing).
-        guess: boolean (default: True)
-            Use guessing in case of unknown words.
-        compound: boolean (default: True)
-            Add compound word markers to root forms.
-        phonetic: boolean (default: False)
-            Add phonetic information to root forms.
-
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the new layer, 
-            otherwise attaches the new layer to the Text object 
-            and returns the Text object;
+        
+        layers: MutableMapping[str, Layer]
+           Layers of the text. Contains mappings from the 
+           name of the layer to the Layer object. Must contain
+           words, and sentences;
+          
+        status: dict
+           This can be used to store metadata on layer tagging.
         """
+        # Get parameters of the analysis
+        current_kwargs = self.analysis_parameters.copy()
+        current_kwargs["disambiguate"] = False # perform analysis without disambiguation
         # --------------------------------------------
         #   Use Vabamorf for morphological analysis
         # --------------------------------------------
-        kwargs = {
-            "disambiguate": False,  # perform analysis without disambiguation
-            "guess"     : guess,
-            "propername": propername,
-            "compound"  : compound,
-            "phonetic"  : phonetic,
-        }
         # Perform morphological analysis sentence by sentence
-        word_spans = text[ self._input_words_layer ].span_list
+        word_spans = layers[ self._input_words_layer ].span_list
         word_span_id = 0
         analysis_results = []
-        for sentence in text[ self._input_sentences_layer ].span_list:
+        for sentence in layers[ self._input_sentences_layer ].span_list:
             # A) Collect all words inside the sentence
             sentence_words = []
             while word_span_id < len(word_spans):
@@ -409,12 +416,12 @@ class VabamorfAnalyzer(TaggerOld):
             if len(sentence_words) > 15000:
                 # if 149129 < len(wordlist) on Linux,
                 # if  15000 < len(wordlist) < 17500 on Windows,
-                # then self.instance.analyze(words=wordlist, **self.kwargs) raises
+                # then self.instance.analyze(words=wordlist, **self.current_kwargs) raises
                 # RuntimeError: CFSException: internal error with vabamorf
                 for i in range(0, len(sentence_words), 15000):
-                    analysis_results.extend( self.vm_instance.analyze(words=sentence_words[i:i+15000], **kwargs) )
+                    analysis_results.extend( self._vm_instance.analyze(words=sentence_words[i:i+15000], **current_kwargs) )
             else:
-                analysis_results.extend( self.vm_instance.analyze(words=sentence_words, **kwargs) )
+                analysis_results.extend( self._vm_instance.analyze(words=sentence_words, **current_kwargs) )
 
         # Assert that all words obtained an analysis 
         # ( Note: there must be empty analyses for unknown 
@@ -427,12 +434,9 @@ class VabamorfAnalyzer(TaggerOld):
         #   Store analysis results in a new layer     
         # --------------------------------------------
         # A) Create layer
-        morph_attributes   = self.attributes
+        morph_attributes   = self.output_attributes
         current_attributes = morph_attributes
-        if self.extra_attributes:
-            for extra_attr in self.extra_attributes:
-                current_attributes = current_attributes + (extra_attr,)
-        morph_layer = Layer(name  =self.layer_name,
+        morph_layer = Layer(name  =self.output_layer,
                             parent=self._input_words_layer,
                             text_object=text,
                             ambiguous=True,
@@ -459,13 +463,10 @@ class VabamorfAnalyzer(TaggerOld):
                         layer_attributes=current_attributes )
                 morph_layer.add_span( empty_span )
 
-        # --------------------------------------------
-        #   Return layer or Text
-        # --------------------------------------------
-        if return_layer:
-            return morph_layer
-        text[self.layer_name] = morph_layer
-        return text
+        # C) Return the layer
+        return morph_layer
+
+
 
 # ===============================
 #    VabamorfDisambiguator

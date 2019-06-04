@@ -95,7 +95,7 @@ This is slower, more error-prone and requires you to have the appropriate compil
 
 Find more details in the [installation tutorial for version 1.4](https://estnltk.github.io/estnltk/1.4/tutorials/installation.html).
 
-## Documentation
+### Documentation
 
 Release 1.4.1 documentation is available at https://estnltk.github.io/estnltk/1.4.1/index.html.
 For previous versions refer to https://estnltk.github.io/estnltk.
