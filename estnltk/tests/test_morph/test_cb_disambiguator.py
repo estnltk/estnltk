@@ -255,13 +255,14 @@ def test_postdisambiguation_one_level():
     #
     #  Tests the one level of lemma-based post-disambiguation
     #
+    morf_analyzer2 = VabamorfAnalyzer(propername=False)
     docs = [Text('Esimesele kohale tuleb Jänes, kuigi tema punktide summa pole kõrgeim.'),\
             Text('Lõpparvestuses läks Konnale esimene koht. Teine koht seekord Jänesele. Uus võistlus toimub 2. mail.'), \
             Text('Konn paistis silma suurima punktide summaga. Uue võistluse toimumisajaks on 2. mai.'),
             Text('Kordame: summat, summat, summat.'),]
     for doc in docs:
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])
-        morf_analyzer.tag(doc, propername=False)  # Analyse without proper name guessing
+        morf_analyzer2.tag( doc )  # Analyse without proper name guessing
     analyses_a = collect_analyses( docs )
     # Use corpus-based disambiguation:
     cb_disambiguator = CorpusBasedMorphDisambiguator()
@@ -341,6 +342,7 @@ def test_postdisambiguation_two_level():
     #
     #   TestCase 1
     #
+    morf_analyzer2 = VabamorfAnalyzer(propername=False)
     corpus = [[Text('Esimesele kohale tuleb Jänes, kuigi tema punktide summa pole kõrgeim.'),\
                Text('Lõpparvestuses läks Konnale esimene koht. Teine koht seekord Jänesele. Uus võistlus toimub 2. mail.')], \
               [Text('Konn paistis silma suurima punktide summaga. Uue võistluse toimumisajaks on 2. mai.'),
@@ -348,7 +350,7 @@ def test_postdisambiguation_two_level():
     for docs in corpus:
         for doc in docs:
             doc.tag_layer(['compound_tokens', 'words', 'sentences'])
-            morf_analyzer.tag(doc, propername=False)  # Analyse without proper name guessing
+            morf_analyzer2.tag(doc)  # Analyse without proper name guessing
     # collect analyses from all subcorpora
     analyses_before = collect_2nd_level_analyses( corpus )
     # Use corpus-based disambiguation:
@@ -369,6 +371,7 @@ def test_postdisambiguation_two_level():
     #
     #   TestCase 2
     #
+    morf_analyzer2 = VabamorfAnalyzer(propername=False)
     corpus = [[Text('Põhja suunas olla sõna läinud, et saak on suur.'),\
                Text('Oma või vaenlase saagist räägite?'),\
                Text('Kulda ja karda jätkus ning leidsime isegi talle.')], \
@@ -377,7 +380,7 @@ def test_postdisambiguation_two_level():
     for docs in corpus:
         for doc in docs:
             doc.tag_layer(['compound_tokens', 'words', 'sentences'])
-            morf_analyzer.tag(doc, propername=False)  # Analyse without proper name guessing
+            morf_analyzer2.tag(doc)  # Analyse without proper name guessing
     # collect analyses from all subcorpora
     analyses_before = collect_2nd_level_analyses( corpus )
     # Use corpus-based disambiguation:
@@ -422,6 +425,7 @@ def test_postdisambiguation_two_phase_count_position_duplicates_once():
     #
     #   TestCase 1
     #
+    morf_analyzer2 = VabamorfAnalyzer(propername=False)
     corpus = [[Text('Põhja poole olla sõna läinud, et saak on suur.'),\
                Text('Oma või vaenlase saagist räägite?'),\
                Text('Kulda ja karda jätkus ning leidsime isegi talle.')], \
@@ -430,7 +434,7 @@ def test_postdisambiguation_two_phase_count_position_duplicates_once():
     for docs in corpus:
         for doc in docs:
             doc.tag_layer(['compound_tokens', 'words', 'sentences'])
-            morf_analyzer.tag(doc, propername=False)  # Analyse without proper name guessing
+            morf_analyzer2.tag(doc)  # Analyse without proper name guessing
     # collect analyses from all subcorpora
     analyses_before = collect_2nd_level_analyses( corpus )
     # Use corpus-based disambiguation:
@@ -544,12 +548,13 @@ def test_cb_disambiguator_on_unknown_words():
     #        that contain unknown words
     #
     cb_disambiguator = CorpusBasedMorphDisambiguator()
+    morf_analyzer3 = VabamorfAnalyzer(guess= False, propername=False)
     docs = [ Text('Mulll on yks hea netikeelelause'), \
              Text('Davai siis, mul ka yks'), ]
     for doc in docs:
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])
         # Analyse, but do not guess anything
-        morf_analyzer.tag( doc, guess= False, propername=False )
+        morf_analyzer3.tag( doc )
     #print ( count_analyses( docs ) )
     cb_disambiguator.predisambiguate( docs )
     cb_disambiguator.postdisambiguate( docs )
