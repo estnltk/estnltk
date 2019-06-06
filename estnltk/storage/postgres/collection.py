@@ -7,6 +7,7 @@ from typing import Sequence
 from functools import reduce
 from contextlib import contextmanager
 
+import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT, Composed
 import time
@@ -236,9 +237,6 @@ class PgCollection:
     def _insert_first(self, text, key, meta_data, cursor, table_identifier, column_identifiers):
         if key is None:
             key = 0
-        assert not self._structure
-        for layer in text.layers:
-            self._structure.insert(layer=text[layer], layer_type='attached', meta={})
 
         row = [Literal(key), Literal(text_to_json(text))]
         for k in self.column_names[2:]:
@@ -252,6 +250,11 @@ class PgCollection:
 
         self._flush_insert_buffer(cursor=cursor, table_identifier=table_identifier,
                                   column_identifiers=column_identifiers, buffer=[query])
+
+        assert not self._structure, self._structure.structure
+        for layer in text.layers:
+            # TODO: meta = ???
+            self._structure.insert(layer=text[layer], layer_type='attached', meta={})
 
     # TODO: merge this with buffered_layer_insert
     @contextmanager
@@ -275,6 +278,7 @@ class PgCollection:
                                            table_identifier=table_identifier, column_identifiers=column_identifiers)
                         return
                     self.storage.conn.commit()
+                    self._structure.load()
 
                 if any(struct['layer_type'] == 'detached' for struct in self._structure.structure.values()):
                     # TODO: solve this case in a better way
@@ -441,9 +445,26 @@ class PgCollection:
                 fragment_layer = dict_to_layer(fragment_dict, text)
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
-    def select(self, query=None, layer_query=None, layer_ngram_query=None, layers: Sequence[str] = None,
+    def select(self, query=None, layer_query=None, layer_ngram_query=None, block=None, layers: Sequence[str] = None,
                keys: Sequence[int] = None, collection_meta: Sequence[str] = None, progressbar: str = None,
                missing_layer: str = None, return_index: bool = True):
+        """
+
+        :param query:
+        :param layer_query:
+        :param layer_ngram_query:
+        :param block: Tuple[int, int]
+            pair of integers `(module, remainder)`. If not `None` then only texts with `id % module = remainder`
+            are selected
+        :param layers:
+        :param keys:
+        :param collection_meta:
+        :param progressbar:
+        :param missing_layer:
+        :param return_index:
+        :return: PgSubCollection
+
+        """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
 
@@ -451,6 +472,7 @@ class PgCollection:
                                       query=query,
                                       layer_query=layer_query,
                                       layer_ngram_query=layer_ngram_query,
+                                      block=block,
                                       keys=keys,
                                       missing_layer=missing_layer)
 
@@ -1010,6 +1032,97 @@ class PgCollection:
                     conn.commit()
 
         logger.info('layer created: {!r}'.format(layer_name))
+
+    def create_layer_block(self, tagger, block, meta=None, query_length_limit=5000000):
+        """Creates a layer block
+
+        :param tagger: Tagger
+
+        :param block: Tuple[int, int]
+            pair of integers `(module, remainder)`. Only texts with `id % module = remainder` are tagged.
+        :param meta: dict of str -> str
+            Specifies table column names and data types to create for storing additional
+            meta information. E.g. meta={"sum": "int", "average": "float"}.
+            See `pytype2dbtype` in `pg_operations` for supported types.
+        :param query_length_limit: int
+            soft approximate query length limit in unicode characters, can be exceeded by the length of last buffer
+            insert
+
+        """
+        layer_name = tagger.output_layer
+
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
+                self.name, layer_name))
+
+        meta_columns = ()
+        if meta is not None:
+            meta_columns = tuple(meta)
+
+        columns = ["id", "text_id", "data"]
+        columns.extend(meta_columns)
+
+        logger.info('inserting data into the {!r} layer table block {}'.format(layer_name, block))
+
+        with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer_name),
+                                        columns=columns,
+                                        query_length_limit=query_length_limit) as buffered_insert:
+            layer_structure = None
+            for collection_id, text in self.select(block=block, layers=tagger.input_layers):
+                layer = tagger.make_layer(text=text, status=None)
+
+                if layer_structure is None:
+                    if layer_name not in self._structure:
+                        self._structure.load()
+                    if layer_name not in self._structure:
+                        try:
+                            self._structure.insert(layer, layer_type='detached', meta=meta)
+                        except psycopg2.IntegrityError:
+                            pass
+                        self._structure.load()
+                    struct = self._structure[layer_name]
+                    layer_structure = (layer_name, struct['attributes'], struct['ambiguous'], struct['parent'],
+                                       struct['enveloping'])
+
+                assert layer_structure == (layer.name, layer.attributes, layer.ambiguous, layer.parent, layer.enveloping)
+
+                layer_dict = layer_to_dict(layer, text)
+                layer_json = json.dumps(layer_dict, ensure_ascii=False)
+
+                values = [Literal(collection_id), Literal(collection_id), Literal(layer_json)]
+                values.extend(Literal(layer.meta[k]) for k in meta_columns)
+
+                buffered_insert(values=values)
+
+        logger.info('layer created: {!r}'.format(layer_name))
+
+    def create_layer_table(self, layer_name, meta=None):
+        layer_table = pg.layer_table_name(self.name, layer_name)
+
+        if pg.table_exists(self.storage, layer_table):
+            raise PgCollectionException("The table {!r} of the {!r} layer already exists.".format(layer_table, layer_name))
+
+        layer_identifier = pg.table_identifier(self.storage, pg.layer_table_name(self.name, layer_name))
+
+        columns = [('id', 'SERIAL PRIMARY KEY'), ('text_id', 'int NOT NULL'), ('data', 'jsonb')]
+        if meta is not None:
+            columns.extend([(name, pg.pytype2dbtype[py_type]) for name, py_type in meta.items()])
+
+        columns = SQL(', ').join(SQL('{} {}').format(Identifier(name), SQL(db_type)) for name, db_type in columns)
+        q = SQL('CREATE TABLE {layer_identifier} ({columns})').format(layer_identifier=layer_identifier,
+                                                                      columns=columns)
+
+        with self.storage.conn.cursor() as cursor:
+            cursor.execute(q)
+            logger.debug(cursor.query.decode())
+
+            q = SQL("COMMENT ON TABLE {} IS {};").format(
+                    layer_identifier,
+                    Literal('created by {} on {}'.format(self.storage.user, time.asctime())))
+            cursor.execute(q)
+            logger.debug(cursor.query.decode())
+
+        self.storage.conn.commit()
 
     def _create_layer_table(self, cursor, layer_name, is_fragment=False, create_index=True,
                             ngram_index=None, overwrite=False, meta=None):
