@@ -1298,7 +1298,7 @@ class PgCollection:
             table_name = '{}__{}__export'.format(self.name, layer)
         table_identifier = pg.table_identifier(storage=self.storage, table_name=table_name)
 
-        logger.info('preparing to export layer {!r} with attributes {!r}'.format(layer, attributes))
+        logger.info('preparing to export {!r} layer with attributes {!r}'.format(layer, attributes))
 
         columns = [
             ('id', 'serial PRIMARY KEY'),
