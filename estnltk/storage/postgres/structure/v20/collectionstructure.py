@@ -46,6 +46,7 @@ class CollectionStructure(pg.CollectionStructureBase):
                 Literal('')
             )
             )
+        self.collection.storage.conn.commit()
 
     def load(self):
         if not self.collection.exists():
