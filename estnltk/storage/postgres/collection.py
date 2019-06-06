@@ -1094,7 +1094,7 @@ class PgCollection:
 
                 buffered_insert(values=values)
 
-        logger.info('layer created: {!r}'.format(layer_name))
+        logger.info('block {} of {!r} layer created'.format(block, layer_name))
 
     def create_layer_table(self, layer_name, meta=None):
         layer_table = pg.layer_table_name(self.name, layer_name)
