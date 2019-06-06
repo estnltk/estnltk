@@ -11,6 +11,7 @@ class WhereClause(Composed):
                  layer_ngram_query: dict = None,
                  keys: list = None,
                  missing_layer: str = None,
+                 block=None,
                  seq=None,
                  required_layers=None):
         self.collection = collection
@@ -21,6 +22,7 @@ class WhereClause(Composed):
                                     layer_query=layer_query,
                                     layer_ngram_query=layer_ngram_query,
                                     keys=keys,
+                                    block=block,
                                     missing_layer=missing_layer)
 
         super().__init__(seq)
@@ -60,6 +62,7 @@ class WhereClause(Composed):
                      layer_query: dict = None,
                      layer_ngram_query: dict = None,
                      keys: list = None,
+                     block=None,
                      missing_layer: str = None):
         sql_parts = []
         collection_name = collection.name
@@ -78,6 +81,12 @@ class WhereClause(Composed):
             sql_parts.append(SQL('{table}."id" = ANY({keys})').format(
                     table=pg.collection_table_identifier(storage, collection_name),
                     keys=Literal(list(keys))))
+        if block is not None:
+            module, reminder = block
+            assert module > reminder >= 0, block
+            sql_parts.append(SQL('{table}."id" % {module} = {reminder}').format(
+                    table=pg.collection_table_identifier(storage, collection_name),
+                    module=Literal(module), reminder=Literal(reminder)))
         if layer_ngram_query:
             # build constraint on related layer's ngram index
             sql_parts.append(pg.build_layer_ngram_query(storage, collection_name, layer_ngram_query))
