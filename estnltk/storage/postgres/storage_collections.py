@@ -1,3 +1,4 @@
+import psycopg2
 from psycopg2.sql import SQL, Literal
 
 from estnltk.logger import logger
@@ -8,7 +9,8 @@ class StorageCollections:
     def __init__(self, storage):
         self._storage = storage
         self._table_identifier = pg.table_identifier(self._storage, '__collections')
-        self._collections = self.load()
+        self._collections = {}
+        self.load()
 
     @property
     def collections(self):
@@ -24,8 +26,13 @@ class StorageCollections:
             logger.debug(c.query.decode())
 
     def __setitem__(self, collection_name: str, collection: pg.PgCollection):
+        assert collection.name == collection_name
+        self.load()
         if not collection_name in self._collections:
-            self.insert(collection_name, collection.version)
+            try:
+                self.insert(collection_name, collection.version)
+            except psycopg2.IntegrityError:
+                self.load()
         if collection_name in self._collections and self._collections[collection_name]['collection_object'] is not None:
             raise NotImplementedError('re-adding a collection not implemented: ' + collection_name)
         self._collections[collection_name] = {'version': collection.version,
@@ -54,6 +61,7 @@ class StorageCollections:
                     Literal(version)
             )
             )
+        self._storage.conn.commit()
 
     def __delitem__(self, collection_name: str):
         with self._storage.conn.cursor() as c:
@@ -72,8 +80,12 @@ class StorageCollections:
             with self._storage.conn.cursor() as c:
                 c.execute(SQL("SELECT collection, version FROM {};").
                           format(self._table_identifier))
-                collections = {row[0]: {'version': row[1],
-                                        'collection_object': None} for row in c.fetchall()}
+                for collection, version in c.fetchall():
+                    if collection in self._collections:
+                        assert self._collections[collection]['version'] == version
+                    else:
+                        self._collections[collection] = {'version': version,
+                                                         'collection_object': None}
         else:
             tables = pg.get_all_tables(self._storage)
             collections = {table: {'version': '0.0',
@@ -82,7 +94,7 @@ class StorageCollections:
             for collection, data in collections.items():
                 self.insert(collection, data['version'])
 
-        return collections
+            self._collections = collections
 
     def drop_table(self):
         pg.drop_table(self._storage, '__collections')
