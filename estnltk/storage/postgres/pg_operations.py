@@ -23,6 +23,7 @@ pytype2dbtype = {
 def create_schema(storage):
     with storage.conn.cursor() as c:
         c.execute(SQL("CREATE SCHEMA {};").format(Identifier(storage.schema)))
+    storage.conn.commit()
 
 
 def delete_schema(storage):
@@ -42,6 +43,7 @@ def table_exists(storage, table_name):
     if storage.temporary:
         raise NotImplementedError("don't know how to check existence of temporary table: {!r}".format(table_name))
 
+    storage.conn.commit()
     with storage.conn.cursor() as c:
         c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = {} AND tablename = {});"
                       ).format(Literal(storage.schema), Literal(table_name))
