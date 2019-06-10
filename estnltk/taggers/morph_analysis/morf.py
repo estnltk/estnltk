@@ -198,12 +198,12 @@ class VabamorfTagger(Tagger):
             # Post-analysis tagger is responsible for:
             # 1) Retagging "morph_analysis" layer with post-corrections;
             # 2) Adding and filling in extra_attributes in "morph_analysis" layer;
-            self.postanalysis_tagger._change_layer( text, layers_with_morph, status )
+            self.postanalysis_tagger.change_layer( text, layers_with_morph, status )
         # --------------------------------------------
         #   Morphological disambiguation
         # --------------------------------------------
         if self.disambiguate:
-            self._vabamorf_disambiguator._change_layer( text, layers_with_morph, status )
+            self._vabamorf_disambiguator.change_layer( text, layers_with_morph, status )
         # TODO: Apply text-based post-disambiguation of proper names (if required)
         return morph_layer
 

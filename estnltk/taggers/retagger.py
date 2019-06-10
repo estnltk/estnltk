@@ -18,15 +18,44 @@ class Retagger(Tagger):
     __init__(...)
     _change_layer(...)
     """
+    # check_output_consistency:
+    #    If set, then applies layer's method check_span_consistency()
+    #    after modification of the layer.
+    check_output_consistency=True,
+    # set_up_text_structure:
+    #    If set, then calls text.setup_structure()
+    #    after modification of the layer.
+    set_up_text_structure   =True
 
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
-    def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> None:
+    def _change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> None:
         raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
 
-    def retag(self, text: Text, status: dict = None, 
-              check_output_consistency: bool=True ) -> Text:
+    def change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> None:
+        # In order to change the layer, the layer must already exist
+        assert self.output_layer in layers, \
+          "output_layer {!r} missing from layers {}".format(
+                                                 self.output_layer,
+                                                 list(layers.keys()))
+        target_layers = {name: layers[name] for name in self.input_layers}
+        # TODO: check that layer is not frozen
+
+        # Used _change_layer to get the retagged variant of the layer
+        self._change_layer(text, target_layers, status)
+        # Check that the layer exists
+        assert self.output_layer in target_layers, \
+               "output_layer {!r} missing from layers {}".format(
+                                                 self.output_layer,
+                                                 list(layers.keys()))
+        if self.check_output_consistency:
+            # Validate changed layer: check span consistency
+            target_layers[self.output_layer].check_span_consistency()
+        if self.set_up_text_structure:
+            text.setup_structure()
+
+    def retag(self, text: Text, status: dict = None ) -> Text:
         """
         Modifies output_layer of given Text object.
         
@@ -36,29 +65,9 @@ class Retagger(Tagger):
             Text object to be retagged
         status: dict, default {}
             This can be used to store metadata on layer modification.
-        check_output_consistency: boolean (default: True)
-            If set, then applies layer's method check_span_consistency()
-            after modification of the layer.
         """
-        # In order to change the layer, the layer must already exist
-        assert self.output_layer in text.layers, \
-          "output_layer '{}' missing from Text's layers {}".format(
-                                                 self.output_layer, 
-                                                 list(text.layers.keys()))
-        layers = {name: text.layers[name] for name in self.input_layers}
-        # TODO: check that layer is not frozen
-
-        # Used _change_layer to get the retagged variant of the layer
-        self._change_layer(text, layers, status)
-        # Check that the layer exists
-        assert self.output_layer in layers, \
-               "output_layer '{}' missing from layers {}".format(
-                                                 self.output_layer, 
-                                                 list(layers.keys()))
-        if check_output_consistency:
-            # Validate changed layer: check span consistency
-            layers[self.output_layer].check_span_consistency()
-        text.setup_structure()
+        # Used change_layer to get the retagged variant of the layer
+        self.change_layer(text, text.layers, status)
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
