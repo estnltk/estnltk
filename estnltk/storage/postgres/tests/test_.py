@@ -466,12 +466,12 @@ class TestLayerFragment(unittest.TestCase):
             collection_insert(text2)
 
         layer_fragment_name = "layer_fragment_1"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer_fragment_name)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
 
         def fragment_tagger(row):
             text_id, text = row[0], row[1]
-            fragments = [RowMapperRecord(layer=tagger1.tag(text, return_layer=True), meta=None),
-                         RowMapperRecord(layer=tagger1.tag(text, return_layer=True), meta=None)]
+            fragments = [RowMapperRecord(layer=tagger1.make_layer(text), meta=None),
+                         RowMapperRecord(layer=tagger1.make_layer(text), meta=None)]
             return fragments
 
         collection.old_slow_create_layer(layer_fragment_name,
@@ -527,11 +527,11 @@ class TestFragment(unittest.TestCase):
             collection_insert(text2)
 
         layer_fragment_name = "layer_fragment_1"
-        tagger = VabamorfTagger(disambiguate=False, layer_name=layer_fragment_name)
+        tagger = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
         collection.old_slow_create_layer(layer_fragment_name,
                                          data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
                                          row_mapper=lambda row: [RowMapperRecord(
-                                                 layer=tagger.tag(row[1], return_layer=True), meta=None)])
+                                                 layer=tagger.make_layer(row[1]), meta=None)])
 
         self.assertTrue(collection.has_layer(layer_fragment_name))
 
@@ -590,11 +590,11 @@ class TestLayer(unittest.TestCase):
             collection_insert(text2)
 
         layer1 = "layer1"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
 
         def row_mapper1(row):
             text_id, text = row[0], row[1]
-            layer = tagger1.tag(text, return_layer=True)
+            layer = tagger1.make_layer(text)
             return [RowMapperRecord(layer=layer, meta=None)]
 
         collection.old_slow_create_layer(layer1,
@@ -604,11 +604,11 @@ class TestLayer(unittest.TestCase):
         tagger1.tag(text2)
 
         layer2 = "layer2"
-        tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
+        tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
 
         def row_mapper2(row):
             text_id, text = row[0], row[1]
-            layer = tagger2.tag(text, return_layer=True)
+            layer = tagger2.make_layer(text)
             return [RowMapperRecord(layer=layer, meta=None)]
 
         collection.old_slow_create_layer(layer2,
@@ -645,11 +645,11 @@ class TestLayer(unittest.TestCase):
             collection_insert(text2)
 
         layer1 = "layer1"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
 
         def row_mapper1(row):
             text_id, text = row[0], row[1]
-            layer = tagger1.tag(text, return_layer=True)
+            layer = tagger1.make_layer(text)
             return [RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})]
 
         collection.create_layer(layer1,
@@ -687,11 +687,11 @@ class TestLayer(unittest.TestCase):
 
         # test ambiguous layer
         layer1_name = "layer1"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1_name)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1_name)
 
         def row_mapper1(row):
             text_id, text = row[0], row[1]
-            layer = tagger1.tag(text, return_layer=True)
+            layer = tagger1.make_layer(text)
             return [RowMapperRecord(layer=layer, meta=None)]
 
         collection.old_slow_create_layer(layer1_name,
@@ -719,11 +719,11 @@ class TestLayer(unittest.TestCase):
         # test with 2 layers
         layer2 = "layer2"
         layer2_table = layer2
-        tagger2 = VabamorfTagger(disambiguate=True, layer_name=layer2)
+        tagger2 = VabamorfTagger(disambiguate=True, output_layer=layer2)
 
         def row_mapper2(row):
             text_id, text = row[0], row[1]
-            layer = tagger2.tag(text, return_layer=True)
+            layer = tagger2.make_layer(text)
             return [RowMapperRecord(layer=layer, meta=None)]
 
         collection.old_slow_create_layer(layer2, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper2)
@@ -749,17 +749,17 @@ class TestLayer(unittest.TestCase):
 
         layer1 = "layer1"
         layer2 = "layer2"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
-        tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
+        tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
 
         def row_mapper1(row):
             text_id, text = row[0], row[1]
-            layer = tagger1.tag(text, return_layer=True)
+            layer = tagger1.make_layer(text)
             return [RowMapperRecord(layer=layer, meta=None)]
 
         def row_mapper2(row):
             text_id, text = row[0], row[1]
-            layer = tagger2.tag(text, return_layer=True)
+            layer = tagger2.make_layer(text)
             return [RowMapperRecord(layer=layer, meta=None)]
 
         collection.old_slow_create_layer(layer1,
@@ -841,17 +841,17 @@ class TestLayer(unittest.TestCase):
 
         layer1 = "layer1"
         layer2 = "layer2"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
-        tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
+        tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
 
         def row_mapper1(row):
             text_id, text = row[0], row[1]
-            layer = tagger1.tag(text, return_layer=True)
+            layer = tagger1.make_layer(text)
             return [RowMapperRecord(layer=layer, meta=None)]
 
         def row_mapper2(row):
             text_id, text = row[0], row[1]
-            layer = tagger2.tag(text, return_layer=True)
+            layer = tagger2.make_layer(text)
             return [RowMapperRecord(layer=layer, meta=None)]
 
         collection.old_slow_create_layer(layer1, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper1,

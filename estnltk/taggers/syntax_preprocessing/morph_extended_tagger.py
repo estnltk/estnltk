@@ -24,7 +24,7 @@ class MorphExtendedTagger(TaggerOld):
     """
     description = "Extends 'morph_analysis' layer with syntax preprocessing attributes."
     layer_name = 'morph_extended'
-    attributes = VabamorfTagger.attributes + ('punctuation_type',
+    attributes = VabamorfTagger.output_attributes + ('punctuation_type',
                                               'pronoun_type',
                                               'letter_case',
                                               'fin',

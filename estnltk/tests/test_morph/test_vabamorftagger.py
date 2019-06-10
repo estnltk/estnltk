@@ -245,7 +245,7 @@ def test_default_morph_analysis_on_empty_input():
 def test_default_morph_analysis_with_different_output_layer_name():
     # Should be able to use a different output layer name 
     # without running into errors
-    morph_analyser = VabamorfTagger(layer_name='my_morph')
+    morph_analyser = VabamorfTagger(output_layer='my_morph')
     text = Text('Tere, maailm!')
     text.tag_layer(['words', 'sentences'])
     morph_analyser.tag(text)
@@ -265,7 +265,7 @@ def test_default_morph_analysis_with_different_input_layer_names():
                               input_words_layer='my_words',
                               output_layer='my_sentences' )
     morph_analyser = VabamorfTagger(
-                              layer_name='my_morph',
+                              output_layer='my_morph',
                               input_words_layer='my_words',
                               input_sentences_layer='my_sentences',
                               input_compound_tokens_layer='my_compounds' )

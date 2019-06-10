@@ -7,7 +7,7 @@ from estnltk.rewriting import SubcatRewriter
 class SubcatTagger(TaggerOld):
     description = 'Tags subcategory information.'
     layer_name = 'subcat'
-    attributes = VabamorfTagger.attributes + ('subcat',)
+    attributes = VabamorfTagger.output_attributes + ('subcat',)
     depends_on = ['morph_analysis']
     configuration = {}
 

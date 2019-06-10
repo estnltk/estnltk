@@ -97,7 +97,7 @@ def test_change_input_output_layer_names_of_clause_segmenter():
                                            output_layer='my_sentences')
     morftagger = VabamorfTagger(input_words_layer     ='my_words',
                                 input_sentences_layer ='my_sentences',
-                                layer_name            ='my_morf')
+                                output_layer          ='my_morf')
     with ClauseSegmenter(input_words_layer          ='my_words',
                          input_sentences_layer      ='my_sentences',
                          input_morph_analysis_layer ='my_morf',

@@ -28,7 +28,7 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
         Inheriting classes should implement method:
             rewrite_words(...)
     """
-    output_attributes = VabamorfTagger.attributes
+    output_attributes = VabamorfTagger.output_attributes
     conf_param = [ # configuration
                    'add_normalized_word_form',\
                    'add_sentence_ids',\

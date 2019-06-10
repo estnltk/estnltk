@@ -7,10 +7,10 @@
 # 
 from typing import MutableMapping, Any
 
-from estnltk.text import Layer, Span, SpanList, Text
+from estnltk.text import Layer, Text
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 
-from estnltk.taggers import TaggerOld, Tagger
+from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
 from estnltk.taggers import PostMorphAnalysisTagger, Retagger
 
@@ -30,15 +30,37 @@ from estnltk.taggers.morph_analysis.morf_common import _convert_vm_dict_to_morph
 
 from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 
-class VabamorfTagger(TaggerOld):
-    description   = "Tags morphological analysis on words. Uses Vabamorf's morphological analyzer and disambiguator."
-    layer_name    = None
-    attributes    = ESTNLTK_MORPH_ATTRIBUTES
-    depends_on    = None
-    configuration = None
+class VabamorfTagger(Tagger):
+    """Tags morphological analysis on words. Uses Vabamorf's analyzer and disambiguator."""
+    output_layer      = 'morph_analysis'
+    output_attributes = ESTNLTK_MORPH_ATTRIBUTES
+    input_layers      = None
+    conf_param = [  # VM configuration flags:
+                    "guess",
+                    "propername",
+                    "compound",
+                    "phonetic",
+                    'disambiguate',
+                    # postanalysis tagger
+                    'postanalysis_tagger',
+                    # Internal stuff: layer names
+                    '_input_compound_tokens_layer',
+                    '_input_words_layer',
+                    '_input_sentences_layer',
+                    # Internal stuff: taggers
+                    '_vabamorf_analyser',
+                    '_corpusbased_disambiguator',
+                    '_vabamorf_disambiguator',
+                    # For backward compatibility:
+                    'depends_on', 'layer_name',
+                    'attributes'
+    ]
+    layer_name    = output_layer       # <- For backward compatibility
+    attributes    = output_attributes  # <- For backward compatibility
+    depends_on    = None               # <- For backward compatibility
 
     def __init__(self,
-                 layer_name='morph_analysis',
+                 output_layer='morph_analysis',
                  input_words_layer='words',
                  input_sentences_layer='sentences',
                  input_compound_tokens_layer='compound_tokens',
@@ -54,7 +76,7 @@ class VabamorfTagger(TaggerOld):
         
         Parameters
         ----------
-        layer_name: str (default: 'morph_analysis')
+        output_layer: str (default: 'morph_analysis')
             Name of the layer where analysis results are stored.
         input_compound_tokens_layer: str (default: 'compound_tokens')
             Name of the input compound_tokens layer. 
@@ -73,19 +95,23 @@ class VabamorfTagger(TaggerOld):
         # Check if the user has provided a custom postanalysis_tagger
         if not postanalysis_tagger:
             # Initialize default postanalysis_tagger
-            postanalysis_tagger = PostMorphAnalysisTagger(output_layer=layer_name,\
+            postanalysis_tagger = PostMorphAnalysisTagger(output_layer=output_layer,\
                                                           input_compound_tokens_layer=input_compound_tokens_layer, \
                                                           input_words_layer=input_words_layer, \
                                                           input_sentences_layer=input_sentences_layer )
-        
-        self.kwargs = kwargs
-        self.layer_name = layer_name
-        self.output_layer = layer_name
-
+        # Set VM analysis parameters:
+        self.guess        = kwargs.get("guess",        DEFAULT_PARAM_GUESS)
+        self.propername   = kwargs.get("propername",   DEFAULT_PARAM_PROPERNAME)
+        self.compound     = kwargs.get("compound",     DEFAULT_PARAM_COMPOUND)
+        self.phonetic     = kwargs.get("phonetic",     DEFAULT_PARAM_PHONETIC)
+        self.disambiguate = kwargs.get("disambiguate", DEFAULT_PARAM_DISAMBIGUATE)
+        # Set configuration parameters
+        self.output_layer = output_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
         self._input_words_layer = input_words_layer
         self._input_sentences_layer = input_sentences_layer
-        self.input_layers = (self._input_compound_tokens_layer, self._input_words_layer, self._input_sentences_layer)
+        self.input_layers = [self._input_words_layer, self._input_sentences_layer]
+        # Initialize postanalysis_tagger;
         if postanalysis_tagger:
             # Check for Retagger
             assert isinstance(postanalysis_tagger, Retagger), \
@@ -93,87 +119,78 @@ class VabamorfTagger(TaggerOld):
             # Check for layer match
             assert hasattr(postanalysis_tagger, 'output_layer'), \
                 '(!) postanalysis_tagger does not define output_layer.'
-            assert postanalysis_tagger.output_layer == self.layer_name, \
-                '(!) postanalysis_tagger should modify layer "'+str(self.layer_name)+'".'+\
+            assert postanalysis_tagger.output_layer == self.output_layer, \
+                '(!) postanalysis_tagger should modify layer "'+str(self.output_layer)+'".'+\
                 ' Currently, it modifies layer "'+str(postanalysis_tagger.output_layer)+'".'
             #assert hasattr(postanalysis_tagger, 'attributes'), \
             #    '(!) postanalysis_tagger does not define any attributes.'
         self.postanalysis_tagger = postanalysis_tagger
-        vm_instance = Vabamorf.instance()
-        # Initialize morf analyzer and disambiguator; 
+        # Initialize morf analyzer and disambiguator;
         # Also propagate layer names to submodules;
-        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance,
-                                                        output_layer=layer_name,
+        vm_instance = Vabamorf.instance()
+        vm_analyzer_kwargs = {}
+        vm_analyzer_kwargs["disambiguate"] = False # perform analysis without disambiguation
+        vm_analyzer_kwargs["guess"]        = self.guess
+        vm_analyzer_kwargs["propername"]   = self.propername
+        vm_analyzer_kwargs["compound"]     = self.compound
+        vm_analyzer_kwargs["phonetic"]     = self.phonetic
+        self._vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance,
+                                                        output_layer=output_layer,
                                                         input_words_layer=self._input_words_layer,
                                                         input_sentences_layer=self._input_sentences_layer,
-                                                        **kwargs)
-        self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
-                                                             output_layer=layer_name,
+                                                        **vm_analyzer_kwargs)
+        self._vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
+                                                             output_layer=output_layer,
                                                              input_words_layer=self._input_words_layer,
                                                              input_sentences_layer=self._input_sentences_layer )
-
-        # Initialize CorpusBasedMorphDisambiguator (if required)
-        #  TODO: Find out iff applying either predisambiguation or 
-        #        postdisambiguation (or both) by default in VabamorfTagger 
-        #        improves accuracy
-        self.corpusbased_disambiguator  = None
-        self.kwargs['predisambiguate']  = False
-        self.kwargs['postdisambiguate'] = False
-        if self.kwargs['predisambiguate'] or self.kwargs['postdisambiguate']:
-            self.corpusbased_disambiguator = \
-                 CorpusBasedMorphDisambiguator( 
-                       morph_analysis_layer  = layer_name,
-                       input_words_layer     = self._input_words_layer,
-                       input_sentences_layer = self._input_sentences_layer )
-        
-        self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
-        #                      'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
-        #                      'vabamorf_disambiguator':self.vabamorf_disambiguator.__class__.__name__ }
-        self.configuration.update(self.kwargs)
-        if self.corpusbased_disambiguator:
-            self.configuration['pre_and_post_disambiguator'] = self.corpusbased_disambiguator.__class__.__name__
-
-        self.depends_on = [self._input_words_layer, self._input_sentences_layer]
         # Update dependencies: add dependencies specific to postanalysis_tagger
         if postanalysis_tagger and postanalysis_tagger.input_layers:
             for postanalysis_dependency in postanalysis_tagger.input_layers:
-                if postanalysis_dependency not in self.depends_on and \
-                   postanalysis_dependency != self.layer_name:
-                    self.depends_on.append(postanalysis_dependency)
+                if postanalysis_dependency not in self.input_layers and \
+                   postanalysis_dependency != self.output_layer:
+                    self.input_layers.append( postanalysis_dependency )
+        # Updated attributes
+        if self.postanalysis_tagger is not None:
+            # If disambiguation is not performed, then the default
+            # postanalysis_tagger introduces _ignore attribute
+            if not self.disambiguate:
+                for extra_attribute in postanalysis_tagger.output_attributes:
+                    if extra_attribute not in self.output_attributes:
+                        self.output_attributes += (extra_attribute, )
+        self.depends_on = self.input_layers       # <- For backward compatibility
+        self.layer_name = self.output_layer       # <- For backward compatibility
+        self.attributes = self.output_attributes  # <- For backward compatibility
 
 
-    def tag(self, text: Text, return_layer=False) -> Text:
-        """Anayses given Text object morphologically. 
-        
-        Note: exact configuration of the analysis (e.g. 
-        whether guessing of unknown words will be performed, 
-        or whether analyses will be disambiguated) depends on 
+    def _make_layer(self, text: Text, layers, status: dict):
+        """Analyses given Text object morphologically.
+
+        Note: exact configuration of the analysis (e.g.
+        whether guessing of unknown words will be performed,
+        or whether analyses will be disambiguated) depends on
         the initialization parameters of the class.
-        
+
         Parameters
         ----------
         text: estnltk.text.Text
             Text object that is to be analysed morphologically.
             The Text object must have layers 'words', 'sentences'.
-        return_layer: boolean (default: False)
-            If True, then the new layer is returned; otherwise 
-            the new layer is attached to the Text object, and the 
-            Text object is returned;
 
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the new layer, 
-            otherwise attaches the new layer to the Text object 
-            and returns the Text object;
+        layers: MutableMapping[str, Layer]
+           Layers of the text. Contains mappings from the
+           name of the layer to the Layer object. Must contain
+           words, and sentences;
+
+        status: dict
+           This can be used to store metadata on layer tagging.
         """
-        # Do we need to use disambiguation? (default: yes)
-        disambiguate = self.kwargs.get('disambiguate', DEFAULT_PARAM_DISAMBIGUATE)
         # --------------------------------------------
         #   Morphological analysis
         # --------------------------------------------
-        self.vabamorf_analyser.tag( text )
-        morph_layer = text[self.layer_name]
+        morph_layer = self._vabamorf_analyser.make_layer( text, layers, status )
+        layers_with_morph = layers.copy()
+        layers_with_morph[self.output_layer] = morph_layer
+        # TODO: Apply text-based pre-disambiguation of proper names (if required)
         # --------------------------------------------
         #   Post-processing
         # --------------------------------------------
@@ -181,31 +198,14 @@ class VabamorfTagger(TaggerOld):
             # Post-analysis tagger is responsible for:
             # 1) Retagging "morph_analysis" layer with post-corrections;
             # 2) Adding and filling in extra_attributes in "morph_analysis" layer;
-            self.postanalysis_tagger.retag(text)
-        if self.kwargs['predisambiguate']:
-            # Apply text-based pre-disambiguation of proper names
-            self.corpusbased_disambiguator.predisambiguate( [text] )
+            self.postanalysis_tagger._change_layer( text, layers_with_morph, status )
         # --------------------------------------------
         #   Morphological disambiguation
         # --------------------------------------------
-        if disambiguate:
-            self.vabamorf_disambiguator.retag(text)
-        if self.kwargs['postdisambiguate']:
-            # Apply text-based post-disambiguation
-            self.corpusbased_disambiguator.postdisambiguate( [text] )
-        # --------------------------------------------
-        #   Return layer or Text
-        # --------------------------------------------
-        # Return layer
-        if return_layer:
-            delattr(text, self.layer_name) # Remove layer from the text
-            morph_layer._bound = False
-            return morph_layer
-        # Layer is already attached to the text, return it
-        return text
-
-    def make_layer(self, text, status):
-        return self.tag(text, return_layer=True)
+        if self.disambiguate:
+            self._vabamorf_disambiguator._change_layer( text, layers_with_morph, status )
+        # TODO: Apply text-based post-disambiguation of proper names (if required)
+        return morph_layer
 
 
 # ========================================================
@@ -284,7 +284,7 @@ class VabamorfAnalyzer( Tagger ):
     """Performs morphological analysis with Vabamorf's analyzer.
        Note: resulting analyses will be ambiguous."""
     output_layer      = 'morph_analysis'
-    output_attributes = VabamorfTagger.attributes
+    output_attributes = VabamorfTagger.output_attributes
     input_layers      = ['words', 'sentences']
     conf_param = [ # Configuration flags:
                    "guess",
@@ -368,7 +368,7 @@ class VabamorfAnalyzer( Tagger ):
 
 
     def _make_layer(self, text: Text, layers, status: dict):
-        """Anayses given Text object morphologically. 
+        """Analyses given Text object morphologically. 
         
         Note: disambiguation is not performed, so the results of
         analysis will (most likely) be ambiguous.
@@ -480,7 +480,7 @@ class VabamorfDisambiguator(Retagger):
     """Disambiguates morphologically analysed texts. 
        Uses Vabamorf for disambiguating.
     """
-    attributes    = VabamorfTagger.attributes
+    attributes    = VabamorfTagger.output_attributes
     conf_param = ['depends_on', '_vm_instance',
                   '_input_words_layer',
                   '_input_sentences_layer' ]

@@ -220,7 +220,7 @@ class GTMorphConverter( Tagger ):
     """Converts morphological analyses from Vabamorf's format to Giellatekno's (GT) format. 
        Stores results of the conversion on a new layer."""
     output_layer      = 'gt_morph_analysis'
-    output_attributes = VabamorfTagger.attributes
+    output_attributes = VabamorfTagger.output_attributes
     input_layers      = ['words', 'sentences', 'morph_analysis']
     conf_param = [ # Configuration flags
                    'disambiguate_neg', 'disambiguate_sid_ksid', \
