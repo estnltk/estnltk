@@ -38,9 +38,9 @@ class VabamorfTagger(Tagger):
     conf_param = [  # VM configuration flags:
                     "guess",
                     "propername",
+                    'disambiguate',
                     "compound",
                     "phonetic",
-                    'disambiguate',
                     # postanalysis tagger
                     'postanalysis_tagger',
                     # Internal stuff: layer names
@@ -102,9 +102,9 @@ class VabamorfTagger(Tagger):
         # Set VM analysis parameters:
         self.guess        = kwargs.get("guess",        DEFAULT_PARAM_GUESS)
         self.propername   = kwargs.get("propername",   DEFAULT_PARAM_PROPERNAME)
+        self.disambiguate = kwargs.get("disambiguate", DEFAULT_PARAM_DISAMBIGUATE)
         self.compound     = kwargs.get("compound",     DEFAULT_PARAM_COMPOUND)
         self.phonetic     = kwargs.get("phonetic",     DEFAULT_PARAM_PHONETIC)
-        self.disambiguate = kwargs.get("disambiguate", DEFAULT_PARAM_DISAMBIGUATE)
         # Set configuration parameters
         self.output_layer = output_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
