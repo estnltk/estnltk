@@ -445,7 +445,8 @@ class VabamorfAnalyzer( Tagger ):
                             text_object=text,
                             ambiguous=True,
                             attributes=current_attributes )
-        # B) Populate layer        
+        morph_layer._base = self._input_words_layer
+        # B) Populate layer
         for word, analyses_dict in zip(layers[ self._input_words_layer ], analysis_results):
             # Convert from Vabamorf dict to a list of Spans 
             spans = \
