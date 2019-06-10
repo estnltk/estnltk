@@ -76,6 +76,7 @@ class StorageCollections:
         del self._collections[collection_name]
 
     def load(self):
+        collections = {}
         if pg.table_exists(self._storage, '__collections'):
             with self._storage.conn.cursor() as c:
                 c.execute(SQL("SELECT collection, version FROM {};").
@@ -83,18 +84,21 @@ class StorageCollections:
                 for collection, version in c.fetchall():
                     if collection in self._collections:
                         assert self._collections[collection]['version'] == version
+                        collections[collection] = self._collections[collection]
                     else:
-                        self._collections[collection] = {'version': version,
-                                                         'collection_object': None}
+                        collections[collection] = {'version': version,
+                                                   'collection_object': None}
         else:
-            tables = pg.get_all_tables(self._storage)
-            collections = {table: {'version': '0.0',
-                                   'collection_object': None} for table in tables if table + '__structure' in tables}
             self.create_table()
-            for collection, data in collections.items():
-                self.insert(collection, data['version'])
 
-            self._collections = collections
+        tables = pg.get_all_tables(self._storage)
+        for table in tables:
+            if table not in collections and table + '__structure' in tables:
+                collections[table] = {'version': 'unknown',
+                                      'collection_object': None}
+                self.insert(table, 'unknown')
+
+        self._collections = collections
 
     def drop_table(self):
         pg.drop_table(self._storage, '__collections')
