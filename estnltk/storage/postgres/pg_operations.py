@@ -69,19 +69,26 @@ def get_all_tables(storage):
         sql = SQL(
             "SELECT table_name, "
                    "pg_size_pretty(pg_total_relation_size({schema}||'.'||table_name)), "
-                   "obj_description(({schema}||'.'||table_name)::regclass) "
+                   "obj_description(({schema}||'.'||table_name)::regclass), "
+                   "S.n_live_tup "
             "FROM information_schema.tables "
+            "LEFT JOIN pg_stat_user_tables S ON S.relname = table_name AND S.schemaname = table_schema "
             "WHERE table_schema={schema} AND table_type='BASE TABLE';").format(schema=Literal(storage.schema))
         logger.debug(sql.as_string(context=storage.conn))
         c.execute(sql)
-        tables = {row[0]: {'total_size': row[1], 'comment': row[2]} for row in c}
+        tables = {row[0]: {'total_size': row[1], 'comment': row[2], 'rows': row[3]} for row in c}
         return tables
 
 
-def drop_table(storage, table_name):
+def drop_table(storage, table_name: str, cascade: bool = False):
+    if cascade:
+        sql = SQL('DROP TABLE {} CASCADE;')
+    else:
+        sql = SQL('DROP TABLE {};')
+
     with storage.conn.cursor() as c:
         try:
-            c.execute(SQL('DROP TABLE {};').format(table_identifier(storage, table_name)))
+            c.execute(sql.format(table_identifier(storage, table_name)))
         except Exception:
             raise
         finally:
@@ -185,9 +192,9 @@ def structure_table_exists(storage, collection_name):
     return table_exists(storage, table_name)
 
 
-def drop_collection_table(storage, collection_name):
+def drop_collection_table(storage, collection_name, cascade: bool = False):
     table_name = collection_table_name(collection_name)
-    drop_table(storage, table_name)
+    drop_table(storage, table_name, cascade=cascade)
 
 
 def drop_structure_table(storage, collection_name):
@@ -195,9 +202,9 @@ def drop_structure_table(storage, collection_name):
     drop_table(storage, table_name)
 
 
-def drop_layer_table(storage, collection_name, layer_name):
+def drop_layer_table(storage, collection_name, layer_name, cascade=False):
     table_name = layer_table_name(collection_name, layer_name)
-    drop_table(storage, table_name)
+    drop_table(storage, table_name, cascade=cascade)
 
 
 def drop_fragment_table(storage, collection_name, fragment_name):
