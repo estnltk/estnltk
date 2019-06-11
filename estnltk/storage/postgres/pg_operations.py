@@ -27,6 +27,7 @@ def create_schema(storage):
 
 
 def delete_schema(storage):
+    storage.conn.commit()
     with storage.conn.cursor() as c:
         c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(storage.schema)))
     storage.conn.commit()
