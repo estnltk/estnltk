@@ -42,6 +42,7 @@ class CorpusBasedMorphDisambiguator( object ):
                  input_words_layer:str='words',
                  input_sentences_layer:str='sentences',
                  count_position_duplicates_once:bool=False,
+                 count_inside_compounds:bool=False,
                  validate_inputs:bool=True ):
         """Initialize CorpusBasedMorphDisambiguator class.
 
@@ -67,6 +68,18 @@ class CorpusBasedMorphDisambiguator( object ):
             counts will be: {'põhi':1, 'põhja':1}.
             Note: this is an experimental feature, needs further
             testing;
+        count_inside_compounds: bool (default: False)
+            If set, then additional lemma counts will be obtained
+            from the last words of compound words during the 
+            post-disambiguation. 
+            For example: the word 'edasipääsu' is a compound 
+            word ('edasi_pääs') and it can also add to the 
+            count of it's last word ('pääs'). This extra 
+            information can help to disambiguate the non-compound 
+            word 'pääsu', which lemma is ambiguous between 
+            'pääs' and 'pääsu'.
+            Note: this is an experimental feature, needs further
+            testing;
         validate_inputs : bool (default: True)
             If set (default), then input document collection will 
             be validated for having the appropriate structure, and 
@@ -81,7 +94,9 @@ class CorpusBasedMorphDisambiguator( object ):
         self._input_sentences_layer = input_sentences_layer
         self._morph_analysis_layer  = morph_analysis_layer
         self._count_position_duplicates_once = \
-             count_position_duplicates_once
+              count_position_duplicates_once
+        self._count_inside_compounds = \
+              count_inside_compounds
         self._validate_inputs  = validate_inputs
         self.output_attributes = ESTNLTK_MORPH_ATTRIBUTES
 
@@ -446,6 +461,23 @@ class CorpusBasedMorphDisambiguator( object ):
                     #    (do not mark the frequency yet)
                     if isAmbiguous:
                         amb_lexicon[lemma] = 1
+                    # 3) Try to include information from compounds (if required)
+                    # For instance: if we have a compound word, such as 
+                    # 'edasi_pääs', it can help to disambiguate non-compound 
+                    # word like 'pääsu', which is ambiguous between lemmas 
+                    # 'pääs' and 'pääsu';
+                    # [ an experimental feature ]
+                    if self._count_inside_compounds and '_' in lemma:
+                        lemma_parts = lemma.split('_')
+                        last_word   = lemma_parts[-1]
+                        if len(last_word) > 0:
+                            encounteredLemmas.add( last_word )
+                            if last_word not in lexicon:
+                                lexicon[last_word] = 1
+                            else:
+                                lexicon[last_word] += 1
+                            if isAmbiguous:
+                                amb_lexicon[last_word] = 1
             # Sanity check: all hidden words should be exhausted by now 
             assert hidden_words_id == len(hidden_words)
         # Use the general frequency lexicon to populate the lexicon of ambiguous 

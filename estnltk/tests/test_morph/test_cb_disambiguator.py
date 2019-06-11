@@ -462,6 +462,45 @@ def test_postdisambiguation_two_phase_count_position_duplicates_once():
 
 
 
+def test_postdisambiguation_count_inside_compounds():
+    #
+    #  Tests the post-disambiguation can 'count_inside_compounds':
+    #        use the lemmas acquired from inside compounds to 
+    #        reduce  ambiguities  inside  non-compound  words;
+    #
+    cb_disambiguator = CorpusBasedMorphDisambiguator(count_inside_compounds=True)
+    #
+    #   Test Case 1
+    #
+    morf_analyzer2 = VabamorfAnalyzer(propername=False)
+    docs = [Text('Kolmas koht Kofu katserajal, edasipääs on sellega tagatud.'),\
+            Text('Poolfinaali pääsu korral oleks ta esimene naissoost poolfinalist.'), \
+            Text('Aga mida konkurendid rajal tagantvaates näha saavad? Mingi liikuriga ma ringrajale juba ei tule.'), \
+            Text('See on nii omane õrnemale soole.'),]
+    for doc in docs:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+        morf_analyzer2.tag( doc )  # Analyse without proper name guessing
+    analyses_a = collect_analyses( docs )
+    # Use corpus-based disambiguation:
+    cb_disambiguator.postdisambiguate( docs )
+    # Find difference in ambiguities
+    analyses_b = collect_analyses( docs )
+    removed, added = find_ambiguities_diff( analyses_a, analyses_b )
+    #for a in sorted(list(removed.items())):
+    #    print( a )
+    #print()
+    assert sorted(list(removed.items())) == [ 
+                    ((1, 1), [('pääsu', 'S', 'sg g'), ('pääsu', 'S', 'sg n')]),
+                    ((1, 2), [('kord', 'S', 'sg ad')]),
+                    ((2, 3), [('raja', 'S', 'sg ad')]),
+                    ((2, 6), [('saa', 'V', 'vad')]),
+                    ((2, 8), [('mink', 'S', 'sg g'), ('minki', 'V', 'o')]),
+                    ((3, 5), [('soo', 'S', 'sg all')])
+    ]
+    assert list(added.items()) == []
+
+
+
 def test_pre_and_postdisambiguation_different_input_structures():
     #
     #  Tests the pre- and post-disambiguation works on different input structures
