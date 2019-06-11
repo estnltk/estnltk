@@ -2,6 +2,7 @@ from IPython.display import display_html
 from estnltk.visualisation.attribute_visualiser.direct_attribute_visualiser import DirectAttributeVisualiser
 from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
 from estnltk.core import rel_path
+from estnltk.layer_operations import merge_layers
 
 
 class DisplayAttributes:
@@ -26,15 +27,19 @@ class DisplayAttributes:
     def html_output(self, layer):
         segments, span_list = decompose_to_elementary_spans(layer, layer.text_object.text)
 
-        outputs = self.css()
-        outputs += self.event_handler_code()
+        outputs = [self.css()]
+        outputs.append(self.event_handler_code())
 
         for segment in segments:
-            outputs += self.span_decorator(segment, span_list).replace("\n", "<br>")
+            outputs.append(self.span_decorator(segment, span_list).replace("\n", "<br>"))
 
-        outputs += '<button onclick="export_data()">Export data</button>'
+        outputs.append('<button onclick="export_data(')
+        outputs.append("'")
+        outputs.append(self.name)
+        outputs.append("'")
+        outputs.append(')">Export data</button>')
         self.html_displayed = True
-        return outputs
+        return "".join(outputs)
 
     def css(self):
         with open(self.css_file) as css_file:
@@ -49,7 +54,31 @@ class DisplayAttributes:
         return output
 
     def delete_chosen_spans(self):
+        new_layer = self.mark_chosen_spans()
+        for i, span in enumerate(new_layer):
+            for j, annotation in enumerate(span):
+                if not annotation.approved:
+                    del new_layer[i][j]
+        return new_layer
+
+    def mark_chosen_spans(self):
         assert self.html_displayed, "HTML of this attribute visualiser hasn't been displayed yet!" \
                                     " Call this visualiser with a layer as an argument to do it."
 
         assert self.accepted_array is not None, "The annotation choices weren't saved! Click \"Export data\" to do it!"
+
+        attribute_list = list(self.original_layer.attributes)
+        attribute_list.append("approved")
+        new_layer = merge_layers(layers=[self.original_layer],
+                                 output_layer='new_layer',
+                                 output_attributes=attribute_list)
+        for i, accept_value in enumerate(self.accepted_array.split(" ")):
+            chosen_annotations = accept_value.split(",")
+            for j, val in enumerate(chosen_annotations):
+                if val != '':
+                    if int(val) == 2:
+                        new_layer.spans[i][j].approved = False
+                    else:
+                        new_layer.spans[i][j].approved = True
+
+        return new_layer

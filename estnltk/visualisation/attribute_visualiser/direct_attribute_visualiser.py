@@ -10,20 +10,8 @@ class DirectAttributeVisualiser(SpanVisualiser):
     attributes in tables. Takes css_file as argument (path to the file) and the same css elements as in
     direct_span_visualiser"""
 
-    def __init__(self, colour_mapping=None, bg_mapping=None, font_mapping=None,
-                 weight_mapping=None, italics_mapping=None, underline_mapping=None,
-                 size_mapping=None, tracking_mapping=None, fill_empty_spans=False,
-                 event_attacher=None, js_added=False, css_added=False,
-                 css_file=rel_path("visualisation/attribute_visualiser/prettyprinter.css"),
-                 mapping_dict=None):
-        self.bg_mapping = bg_mapping or self.default_bg_mapping
-        self.colour_mapping = colour_mapping
-        self.font_mapping = font_mapping
-        self.weight_mapping = weight_mapping
-        self.italics_mapping = italics_mapping
-        self.underline_mapping = underline_mapping
-        self.size_mapping = size_mapping
-        self.tracking_mapping = tracking_mapping
+    def __init__(self, fill_empty_spans=False, event_attacher=None, js_added=False, css_added=False,
+                 css_file=rel_path("visualisation/attribute_visualiser/prettyprinter.css")):
         self.fill_empty_spans = fill_empty_spans
         self.event_attacher = event_attacher
         self.js_added = js_added
@@ -40,7 +28,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
             return segment[0]
         else:
             # There is a span to decorate
-            output = ['<span style=']
+            output = ['<span style="']
             mapping_segment = copy.deepcopy(segment)
             if len(segment[1]) == 1:
                 mapping_segment[1] = spans[mapping_segment[1][0]]
@@ -49,6 +37,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
                     pass
                 else:
                     output.append(key + ":" + value(mapping_segment) + ";")
+            output.append(' "')
             for key, value in self.mapping_dict.items():
                 if key == "class" or key == "id":
                     output.append(' ' + key + "=" + value(mapping_segment))
