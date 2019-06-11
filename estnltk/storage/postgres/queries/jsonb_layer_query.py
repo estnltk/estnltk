@@ -2,7 +2,7 @@ import json
 from psycopg2.sql import SQL
 
 from estnltk.storage.postgres import layer_table_identifier
-from .query import Query
+from estnltk.storage.postgres.queries.query import Query
 
 
 class JsonbLayerQuery(Query):

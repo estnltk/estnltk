@@ -2,7 +2,7 @@ import json
 from psycopg2.sql import SQL, Identifier
 
 from estnltk.storage.postgres import collection_table_identifier
-from .query import Query
+from estnltk.storage.postgres.queries.query import Query
 
 
 class JsonbTextQuery(Query):
