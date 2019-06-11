@@ -69,6 +69,7 @@ from .pg_operations import count_rows
 
 from estnltk.storage.postgres.queries.jsonb_layer_query import JsonbLayerQuery
 from estnltk.storage.postgres.queries.jsonb_text_query import JsonbTextQuery
+from estnltk.storage.postgres.queries.block_query import BlockQuery
 
 from .structure.base.collection_structure_base import CollectionStructureBase
 from .structure import v00
