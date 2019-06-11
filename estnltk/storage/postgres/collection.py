@@ -445,7 +445,7 @@ class PgCollection:
                 fragment_layer = dict_to_layer(fragment_dict, text)
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
-    def select(self, query=None, layer_query=None, layer_ngram_query=None, block=None, layers: Sequence[str] = None,
+    def select(self, query=None, layer_query=None, layer_ngram_query=None, layers: Sequence[str] = None,
                keys: Sequence[int] = None, collection_meta: Sequence[str] = None, progressbar: str = None,
                missing_layer: str = None, return_index: bool = True):
         """
@@ -453,9 +453,6 @@ class PgCollection:
         :param query:
         :param layer_query:
         :param layer_ngram_query:
-        :param block: Tuple[int, int]
-            pair of integers `(module, remainder)`. If not `None` then only texts with `id % module = remainder`
-            are selected
         :param layers:
         :param keys:
         :param collection_meta:
@@ -472,7 +469,6 @@ class PgCollection:
                                       query=query,
                                       layer_query=layer_query,
                                       layer_ngram_query=layer_ngram_query,
-                                      block=block,
                                       keys=keys,
                                       missing_layer=missing_layer)
 
@@ -1068,7 +1064,7 @@ class PgCollection:
                                         columns=columns,
                                         query_length_limit=query_length_limit) as buffered_insert:
             layer_structure = None
-            for collection_id, text in self.select(block=block, layers=tagger.input_layers):
+            for collection_id, text in self.select(query=pg.BlockQuery(*block), layers=tagger.input_layers):
                 layer = tagger.make_layer(text=text, status=None)
 
                 if layer_structure is None:
