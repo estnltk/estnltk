@@ -46,6 +46,7 @@ class CollectionStructure(pg.CollectionStructureBase):
                 Literal('')
             )
             )
+            logger.debug(c.query.decode())
         self.collection.storage.conn.commit()
 
     def load(self):
