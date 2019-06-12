@@ -21,6 +21,7 @@ pytype2dbtype = {
 
 
 def create_schema(storage):
+    storage.conn.commit()
     with storage.conn.cursor() as c:
         c.execute(SQL("CREATE SCHEMA {};").format(Identifier(storage.schema)))
     storage.conn.commit()
