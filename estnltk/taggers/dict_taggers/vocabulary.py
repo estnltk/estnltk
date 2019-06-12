@@ -100,7 +100,8 @@ class Vocabulary:
         else:
             attribute_set = set(attributes)
             default_rec = {k: v for k, v in default_rec.items() if k in attribute_set-set(vocabulary.attributes)}
-            assert attribute_set <= set(vocabulary.attributes) | set(default_rec)
+            assert attribute_set <= set(vocabulary.attributes) | set(default_rec), '{} <= {} not satisfied'.format(
+                     attribute_set, set(vocabulary.attributes) | set(default_rec))
             new_mapping = defaultdict(list)
             for k, records in mapping.items():
                 for record in records:
