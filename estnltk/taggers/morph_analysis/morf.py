@@ -65,7 +65,11 @@ class VabamorfTagger(Tagger):
                  input_sentences_layer='sentences',
                  input_compound_tokens_layer='compound_tokens',
                  postanalysis_tagger=None,
-                 **kwargs):
+                 guess = DEFAULT_PARAM_GUESS,
+                 propername = DEFAULT_PARAM_PROPERNAME,
+                 disambiguate = DEFAULT_PARAM_DISAMBIGUATE,
+                 compound = DEFAULT_PARAM_COMPOUND,
+                 phonetic = DEFAULT_PARAM_PHONETIC ):
         """Initialize VabamorfTagger class.
 
         Note: Keyword arguments 'disambiguate', 'guess', 'propername',
@@ -91,7 +95,31 @@ class VabamorfTagger(Tagger):
             This tagger corrects morphological analyses, prepares morpho-
             logical analyses for disambiguation (if required) and fills in 
             values of extra attributes in morph_analysis Spans.
+        guess: boolean (default: True)
+            Use guessing in case of unknown words.
+        propername: boolean (default: True)
+            Propose additional analysis variants for proper names 
+            (a.k.a. proper name guessing).
+        disambiguate: boolean (default: True)
+            Disambiguate morphological analyses with Vabamorf's 
+            disambiguator.
+        compound: boolean (default: True)
+            Add compound word markers to root forms.
+        phonetic: boolean (default: False)
+            Add phonetic information to root forms.
         """
+        # Set VM analysis parameters:
+        self.guess        = guess
+        self.propername   = propername
+        self.disambiguate = disambiguate
+        self.compound     = compound
+        self.phonetic     = phonetic
+        # Set configuration parameters
+        self.output_layer = output_layer
+        self._input_compound_tokens_layer = input_compound_tokens_layer
+        self._input_words_layer = input_words_layer
+        self._input_sentences_layer = input_sentences_layer
+        self.input_layers = [self._input_words_layer, self._input_sentences_layer]
         # Check if the user has provided a custom postanalysis_tagger
         if not postanalysis_tagger:
             # Initialize default postanalysis_tagger
@@ -99,18 +127,6 @@ class VabamorfTagger(Tagger):
                                                           input_compound_tokens_layer=input_compound_tokens_layer, \
                                                           input_words_layer=input_words_layer, \
                                                           input_sentences_layer=input_sentences_layer )
-        # Set VM analysis parameters:
-        self.guess        = kwargs.get("guess",        DEFAULT_PARAM_GUESS)
-        self.propername   = kwargs.get("propername",   DEFAULT_PARAM_PROPERNAME)
-        self.disambiguate = kwargs.get("disambiguate", DEFAULT_PARAM_DISAMBIGUATE)
-        self.compound     = kwargs.get("compound",     DEFAULT_PARAM_COMPOUND)
-        self.phonetic     = kwargs.get("phonetic",     DEFAULT_PARAM_PHONETIC)
-        # Set configuration parameters
-        self.output_layer = output_layer
-        self._input_compound_tokens_layer = input_compound_tokens_layer
-        self._input_words_layer = input_words_layer
-        self._input_sentences_layer = input_sentences_layer
-        self.input_layers = [self._input_words_layer, self._input_sentences_layer]
         # Initialize postanalysis_tagger;
         if postanalysis_tagger:
             # Check for Retagger
