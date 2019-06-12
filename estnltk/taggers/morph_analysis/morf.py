@@ -5,7 +5,7 @@
 #  Alternatively, the process can be broken down into substeps, using 
 #  VabamorfAnalyzer, PostMorphAnalysisTagger and VabamorfDisambiguator.
 # 
-from typing import MutableMapping, Any
+from typing import MutableMapping
 
 from estnltk.text import Layer, Text
 from estnltk.layer.ambiguous_span import AmbiguousSpan
@@ -28,10 +28,11 @@ from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
 from estnltk.taggers.morph_analysis.morf_common import _convert_vm_dict_to_morph_analysis_spans
 
-from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 
 class VabamorfTagger(Tagger):
-    """Tags morphological analysis on words. Uses Vabamorf's analyzer and disambiguator."""
+    """Tags morphological analysis on words. Uses Vabamorf's analyzer and disambiguator.
+
+    """
     output_layer      = 'morph_analysis'
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES
     input_layers      = None
