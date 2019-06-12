@@ -41,6 +41,7 @@ from estnltk.taggers.standard_taggers.address_tagger import AddressGrammarTagger
 from estnltk.taggers.standard_taggers.adjective_phrase_tagger import AdjectivePhraseTagger
 from estnltk.taggers.standard_taggers.diff_tagger import DiffTagger
 from estnltk.taggers.standard_taggers.flesch_tagger import SentenceFleschScoreRetagger
+from estnltk.taggers.standard_taggers.text_segments_tagger import TextSegmentsTagger
 
 from estnltk.taggers.standard_taggers.timex_tagger import TimexTagger
 
