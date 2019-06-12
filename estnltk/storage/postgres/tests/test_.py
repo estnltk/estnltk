@@ -1,8 +1,8 @@
-""""
-Test postgres storage functionality.
+"""Test postgres storage functionality.
 
 Requires ~/.pgpass file with database connection settings to `test_db` database.
 Schema/table creation and read/write rights are required.
+
 """
 import unittest
 import random
@@ -194,12 +194,12 @@ class TestPgCollection(unittest.TestCase):
     def test_select_by_key(self):
         collection = self.storage[get_random_collection_name()]
         collection.create()
-        self.assertRaises(PgCollectionException, lambda: collection.select_by_key(1))
+        self.assertRaises(PgCollectionException, lambda: collection._select_by_key(1))
 
         text = Text("Mingi tekst")
         with collection.insert() as collection_insert:
             collection_insert(text, 1)
-        res = collection.select_by_key(1)
+        res = collection._select_by_key(1)
         self.assertEqual(text, res)
         collection.delete()
 
@@ -222,8 +222,8 @@ class TestPgCollection(unittest.TestCase):
         id1 = 1
         id2 = 2
         # test select_by_id
-        self.assertEqual(collection.select_by_key(id1), text1)
-        self.assertEqual(collection.select_by_key(id2), text2)
+        self.assertEqual(collection._select_by_key(id1), text1)
+        self.assertEqual(collection._select_by_key(id2), text2)
 
         subcollection = collection.select()
         assert isinstance(subcollection, pg.PgSubCollection)
@@ -481,14 +481,14 @@ class TestLayerFragment(unittest.TestCase):
         self.assertEqual(text_ids[2], text_ids[3])
         self.assertNotEqual(text_ids[1], text_ids[2])
 
-        layer_ids = [row[2] for row in rows]
-        #self.assertEqual(len(set(layer_ids)), 4)
+        layer_ids = [row[3][layer_fragment_name]['layer_id'] for row in rows]
+        self.assertEqual(len(set(layer_ids)), 4, layer_ids)
 
         texts = [row[1] for row in rows]
         self.assertTrue(isinstance(texts[0], Text))
 
-        layers = [row[3] for row in rows]
-        #self.assertTrue(isinstance(layers[0], Layer))
+        layers = [row[3][layer_fragment_name]['layer'] for row in rows]
+        self.assertTrue(isinstance(layers[0], Layer), layers)
 
         self.assertTrue(layer_table_exists(self.storage, collection.name, layer_fragment_name))
 

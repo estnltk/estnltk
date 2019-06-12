@@ -230,10 +230,6 @@ class PgCollection:
             self.storage.conn.commit()
             logger.debug(c.query.decode())
 
-    def old_slow_insert(self, text, key=None, meta_data=None):
-        with self.insert() as collection_insert:
-            collection_insert(text=text, key=key, meta_data=meta_data)
-
     def _insert_first(self, text, key, meta_data, cursor, table_identifier, column_identifiers):
         if key is None:
             key = 0
@@ -499,7 +495,7 @@ class PgCollection:
     def __iter__(self):
         yield from self.select(layers=self.selected_layers, return_index=False)
 
-    def select_by_key(self, key, return_as_dict=False):
+    def _select_by_key(self, key, return_as_dict=False):
         """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
         self.storage.conn.commit()
         self.storage.conn.autocommit = True
