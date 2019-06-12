@@ -142,12 +142,18 @@ class VabamorfCorpusTagger( object ):
         vm_instance = None
         self._vabamorf_analyser = None
         if not vabamorf_analyser:
+            # Pick out vabamorf_analyser's configuration parameters
+            vm_analyser_conf = {}
+            for (key, value) in self._kwargs.items():
+                if key in ['propername', 'guess', 'compound', 'phonetic']:
+                    vm_analyser_conf[key] = value
+            # Initialize vabamorf_analyser
             vm_instance = Vabamorf.instance()
             self._vabamorf_analyser = VabamorfAnalyzer( vm_instance=vm_instance,
                                                         output_layer=morph_analysis_layer,
                                                         input_words_layer=input_words_layer,
                                                         input_sentences_layer=input_sentences_layer,
-                                                        **kwargs)
+                                                        **vm_analyser_conf)
         else:
             # Use given VabamorfAnalyzer
             assert isinstance(vabamorf_analyser, VabamorfAnalyzer)
