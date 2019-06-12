@@ -650,7 +650,7 @@ class TestLayer(unittest.TestCase):
         def row_mapper1(row):
             text_id, text = row[0], row[1]
             layer = tagger1.make_layer(text)
-            return [RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})]
+            return RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})
 
         collection.create_layer(layer1,
                                 data_iterator=collection.select(layers=['sentences', 'compound_tokens']),

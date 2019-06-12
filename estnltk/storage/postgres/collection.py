@@ -928,7 +928,7 @@ class PgCollection:
             text_id, text = row[0], row[1]
             status = {}
             layer = tagger.make_layer(text=text, status=status)
-            return [RowMapperRecord(layer=layer, meta=status)]
+            return RowMapperRecord(layer=layer, meta=status)
 
         layer_name = layer_name or tagger.output_layer
         row_mapper = row_mapper or default_row_mapper
@@ -998,27 +998,28 @@ class PgCollection:
                                                 query_length_limit=query_length_limit) as buffered_insert:
                     for row in data_iterator:
                         collection_id, text = row[0], row[1]
-                        for record in row_mapper(row):
-                            layer = record.layer
-                            layer_dict = layer_to_dict(layer, text)
-                            layer_json = json.dumps(layer_dict, ensure_ascii=False)
 
-                            values = [None, collection_id, layer_json]
+                        record = row_mapper(row)
+                        layer = record.layer
+                        layer_dict = layer_to_dict(layer, text)
+                        layer_json = json.dumps(layer_dict, ensure_ascii=False)
 
-                            if meta_columns:
-                                values.extend(record.meta[k] for k in meta_columns)
+                        values = [None, collection_id, layer_json]
 
-                            if ngram_index is not None:
-                                values.extend(create_ngram_fingerprint_index(layer=layer,
-                                                                             attribute=attr,
-                                                                             n=ngram_index[attr])
-                                              for attr in ngram_index_keys)
-                            values = list(map(Literal, values))
-                            values[0] = DEFAULT
-                            buffered_insert(values=values)
-                            if not structure_written:
-                                self._structure.insert(layer=layer, layer_type='detached', meta=meta)
-                                structure_written = True
+                        if meta_columns:
+                            values.extend(record.meta[k] for k in meta_columns)
+
+                        if ngram_index is not None:
+                            values.extend(create_ngram_fingerprint_index(layer=layer,
+                                                                         attribute=attr,
+                                                                         n=ngram_index[attr])
+                                          for attr in ngram_index_keys)
+                        values = list(map(Literal, values))
+                        values[0] = DEFAULT
+                        buffered_insert(values=values)
+                        if not structure_written:
+                            self._structure.insert(layer=layer, layer_type='detached', meta=meta)
+                            structure_written = True
             except Exception:
                 conn.rollback()
                 raise
