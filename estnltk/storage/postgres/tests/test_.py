@@ -661,7 +661,7 @@ class TestLayer(unittest.TestCase):
 
         # get_layer_meta
         layer_meta = collection.get_layer_meta(layer_name=layer1)
-        assert layer_meta.to_dict() == {'id': {0: 1, 1: 2},
+        assert layer_meta.to_dict() == {'id': {0: 0, 1: 1},
                                         'meta_text_id': {0: 0, 1: 1},
                                         'sum': {0: 45.5, 1: 45.5},
                                         'text_id': {0: 0, 1: 1}}, layer_meta.to_dict()

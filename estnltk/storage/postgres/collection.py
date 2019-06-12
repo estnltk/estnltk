@@ -1004,7 +1004,7 @@ class PgCollection:
                         layer_dict = layer_to_dict(layer, text)
                         layer_json = json.dumps(layer_dict, ensure_ascii=False)
 
-                        values = [None, collection_id, layer_json]
+                        values = [collection_id, collection_id, layer_json]
 
                         if meta_columns:
                             values.extend(record.meta[k] for k in meta_columns)
@@ -1015,7 +1015,6 @@ class PgCollection:
                                                                          n=ngram_index[attr])
                                           for attr in ngram_index_keys)
                         values = list(map(Literal, values))
-                        values[0] = DEFAULT
                         buffered_insert(values=values)
                         if not structure_written:
                             self._structure.insert(layer=layer, layer_type='detached', meta=meta)
