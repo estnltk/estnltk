@@ -647,7 +647,7 @@ class CorpusBasedMorphDisambiguator( object ):
         description = self.__class__.__doc__.strip().split('\n')[0]
         table = ['<h4>'+self.__class__.__name__+'</h4>', description, table]
         # Add configuration parameters
-        public_param = ['_count_position_duplicates_once', '_validate_inputs']
+        public_param = ['_count_position_duplicates_once', '_count_inside_compounds', '_validate_inputs']
         conf_values  = []
         for attr in public_param:
             conf_values.append( str(getattr(self, attr)) )
@@ -873,7 +873,7 @@ class ProperNamesDisambiguationStep3Retagger(CorpusBasedMorphDisambiguationSubst
                    word_morph_analyses.end <= cur_sentence.end:
                     # Take the current sentence
                     break
-                elif word_morph_analyses.start > cur_sentence.end:
+                elif word_morph_analyses.start >= cur_sentence.end:
                     # Take the next sentence
                     cur_sent_id += 1
                 else:
