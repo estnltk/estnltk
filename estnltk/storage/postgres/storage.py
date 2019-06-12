@@ -114,7 +114,7 @@ class PostgresStorage:
             raise KeyError('collection not found: {!r}'.format(collection_name))
 
         for layer, v in self[collection_name].structure.structure.items():
-            if v['layer_type'] == 'detached':
+            if v['layer_type'] in {'detached', 'fragmented'}:
                 drop_layer_table(self, collection_name, layer)
                 # TODO: delete layer from structure immediately
         pg.drop_collection_table(self, collection_name)
