@@ -144,17 +144,14 @@ class VabamorfTagger(Tagger):
         # Initialize morf analyzer and disambiguator;
         # Also propagate layer names to submodules;
         vm_instance = Vabamorf.instance()
-        vm_analyzer_kwargs = {}
-        vm_analyzer_kwargs["disambiguate"] = False # perform analysis without disambiguation
-        vm_analyzer_kwargs["guess"]        = self.guess
-        vm_analyzer_kwargs["propername"]   = self.propername
-        vm_analyzer_kwargs["compound"]     = self.compound
-        vm_analyzer_kwargs["phonetic"]     = self.phonetic
         self._vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance,
                                                         output_layer=output_layer,
                                                         input_words_layer=self._input_words_layer,
                                                         input_sentences_layer=self._input_sentences_layer,
-                                                        **vm_analyzer_kwargs)
+                                                        guess=self.guess,
+                                                        propername=self.propername,
+                                                        compound=self.compound,
+                                                        phonetic=self.phonetic)
         self._vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
                                                              output_layer=output_layer,
                                                              input_words_layer=self._input_words_layer,
@@ -327,7 +324,10 @@ class VabamorfAnalyzer( Tagger ):
                  input_sentences_layer='sentences',
                  extra_attributes=None,
                  vm_instance=None,
-                 **kwargs):
+                 guess = DEFAULT_PARAM_GUESS,
+                 propername = DEFAULT_PARAM_PROPERNAME,
+                 compound = DEFAULT_PARAM_COMPOUND,
+                 phonetic = DEFAULT_PARAM_PHONETIC ):
         """Initialize VabamorfAnalyzer class.
 
         Parameters
@@ -346,18 +346,15 @@ class VabamorfAnalyzer( Tagger ):
         vm_instance: estnltk.vabamorf.morf.Vabamorf
             An instance of Vabamorf that is to be used for analysing
             text morphologically.
-        
-        **kwargs: keyword arguments for Vabamorf's analyser.
-            Expected keyword arguments are:
-            propername: boolean (default: True)
-                Propose additional analysis variants for proper names 
-                (a.k.a. proper name guessing).
-            guess: boolean (default: True)
-                Use guessing in case of unknown words.
-            compound: boolean (default: True)
-                Add compound word markers to root forms.
-            phonetic: boolean (default: False)
-                Add phonetic information to root forms.
+        propername: boolean (default: True)
+            Propose additional analysis variants for proper names 
+            (a.k.a. proper name guessing).
+        guess: boolean (default: True)
+            Use guessing in case of unknown words.
+        compound: boolean (default: True)
+            Add compound word markers to root forms.
+        phonetic: boolean (default: False)
+            Add phonetic information to root forms.
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -374,10 +371,10 @@ class VabamorfAnalyzer( Tagger ):
         else:
             self._vm_instance = Vabamorf.instance()
         # Set analysis parameters:
-        self.guess      = kwargs.get("guess",      DEFAULT_PARAM_GUESS)
-        self.propername = kwargs.get("propername", DEFAULT_PARAM_PROPERNAME)
-        self.compound   = kwargs.get("compound",   DEFAULT_PARAM_COMPOUND)
-        self.phonetic   = kwargs.get("phonetic",   DEFAULT_PARAM_PHONETIC)
+        self.guess = guess
+        self.propername = propername
+        self.compound = compound
+        self.phonetic = phonetic
         # Other stuff
         self.layer_name = self.output_layer  # <- For backward compatibility ...
         self.depends_on = self.input_layers  # <- For backward compatibility ...
