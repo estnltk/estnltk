@@ -468,15 +468,7 @@ class TestLayerFragment(unittest.TestCase):
         layer_fragment_name = "layer_fragment_1"
         tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
 
-        def fragment_tagger(row):
-            text_id, text = row[0], row[1]
-            fragments = [RowMapperRecord(layer=tagger1.make_layer(text), meta=None),
-                         RowMapperRecord(layer=tagger1.make_layer(text), meta=None)]
-            return fragments
-
-        collection.old_slow_create_layer(layer_fragment_name,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=fragment_tagger)
+        collection.create_fragmented_layer(tagger=tagger1, fragmenter=lambda layer: [layer, layer])
 
         self.assertTrue(collection.has_layer(layer_fragment_name))
 
@@ -528,10 +520,8 @@ class TestFragment(unittest.TestCase):
 
         layer_fragment_name = "layer_fragment_1"
         tagger = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
-        collection.old_slow_create_layer(layer_fragment_name,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=lambda row: [RowMapperRecord(
-                                                 layer=tagger.make_layer(row[1]), meta=None)])
+
+        collection.create_layer(tagger=tagger)
 
         self.assertTrue(collection.has_layer(layer_fragment_name))
 
@@ -592,28 +582,16 @@ class TestLayer(unittest.TestCase):
         layer1 = "layer1"
         tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
 
-        def row_mapper1(row):
-            text_id, text = row[0], row[1]
-            layer = tagger1.make_layer(text)
-            return [RowMapperRecord(layer=layer, meta=None)]
+        collection.create_layer(tagger=tagger1)
 
-        collection.old_slow_create_layer(layer1,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=row_mapper1)
         tagger1.tag(text1)
         tagger1.tag(text2)
 
         layer2 = "layer2"
         tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
 
-        def row_mapper2(row):
-            text_id, text = row[0], row[1]
-            layer = tagger2.make_layer(text)
-            return [RowMapperRecord(layer=layer, meta=None)]
+        collection.create_layer(tagger=tagger2)
 
-        collection.old_slow_create_layer(layer2,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=row_mapper2)
         tagger2.tag(text1)
         tagger2.tag(text2)
 
@@ -689,14 +667,7 @@ class TestLayer(unittest.TestCase):
         layer1_name = "layer1"
         tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1_name)
 
-        def row_mapper1(row):
-            text_id, text = row[0], row[1]
-            layer = tagger1.make_layer(text)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        collection.old_slow_create_layer(layer1_name,
-                                  data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                  row_mapper=row_mapper1)
+        collection.create_layer(tagger=tagger1)
 
         q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik', form='sg n')
         self.assertEqual(len(list(collection.select(layer_query={layer1_name: q}))), 1)
@@ -721,12 +692,7 @@ class TestLayer(unittest.TestCase):
         layer2_table = layer2
         tagger2 = VabamorfTagger(disambiguate=True, output_layer=layer2)
 
-        def row_mapper2(row):
-            text_id, text = row[0], row[1]
-            layer = tagger2.make_layer(text)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        collection.old_slow_create_layer(layer2, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper2)
+        collection.create_layer(tagger=tagger2)
 
         q = JsonbLayerQuery(layer_name=layer2_table, lemma='ööbik', form='sg n')
         self.assertEqual(len(list(collection.select(layer_query={layer2: q}))), 1)
@@ -752,22 +718,8 @@ class TestLayer(unittest.TestCase):
         tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
         tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
 
-        def row_mapper1(row):
-            text_id, text = row[0], row[1]
-            layer = tagger1.make_layer(text)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        def row_mapper2(row):
-            text_id, text = row[0], row[1]
-            layer = tagger2.make_layer(text)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        collection.old_slow_create_layer(layer1,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=row_mapper1, create_index=True)
-        collection.old_slow_create_layer(layer2,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=row_mapper2)
+        collection.create_layer(tagger=tagger1)
+        collection.create_layer(tagger=tagger2)
 
         # test one layer
         res = collection.find_fingerprint(layer_query={
@@ -844,20 +796,8 @@ class TestLayer(unittest.TestCase):
         tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
         tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
 
-        def row_mapper1(row):
-            text_id, text = row[0], row[1]
-            layer = tagger1.make_layer(text)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        def row_mapper2(row):
-            text_id, text = row[0], row[1]
-            layer = tagger2.make_layer(text)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        collection.old_slow_create_layer(layer1, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper1,
-                                  ngram_index={"lemma": 2})
-        collection.old_slow_create_layer(layer2, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper2,
-                                  ngram_index={"partofspeech": 3})
+        collection.create_layer(tagger=tagger1, ngram_index={"lemma": 2})
+        collection.create_layer(tagger=tagger2, ngram_index={"partofspeech": 3})
 
         self.assertEqual(count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer1)), 2)
         self.assertEqual(count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer2)), 2)
