@@ -387,16 +387,18 @@ class Layer:
             raise AttributeError(key)
         super().__setattr__(key, value)
 
+    def __iter__(self):
+        return iter(self.span_list.spans)
+
     def __getitem__(self, item) -> Union[Span, 'Layer', AmbiguousAttributeTupleList]:
+        if isinstance(item, int):
+            return self.span_list.spans[item]
+
         if item == [] or item == ():
             raise IndexError('no attributes: ' + str(item))
 
         if isinstance(item, str) or isinstance(item, (list, tuple)) and all(isinstance(s, str) for s in item):
             return self.span_list.attribute_list(item)
-
-        if isinstance(item, int):
-            wrapped = self.span_list.spans.__getitem__(item)
-            return wrapped
 
         if isinstance(item, tuple) and len(item) == 2 \
            and (callable(item[0])
