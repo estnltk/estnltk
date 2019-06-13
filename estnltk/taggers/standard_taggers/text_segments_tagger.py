@@ -21,15 +21,16 @@ class TextSegmentsTagger(Tagger):
     conf_param = ['decorator', 'validator', 'include_header']
 
     def __init__(self, input_layer: str, output_layer: str, output_attributes: List[str] = None,
-                 decorator: callable = None, validator: callable = None, include_header: bool = False):
+                 decorator: callable = default_decorator, validator: callable = default_validator,
+                 include_header: bool = False):
         self.input_layers = [input_layer]
 
         self.output_attributes = output_attributes
         if output_attributes is None:
             self.output_attributes = ()
         self.output_layer = output_layer
-        self.decorator = decorator or default_decorator
-        self.validator = validator or default_validator
+        self.decorator = decorator
+        self.validator = validator
         self.include_header = include_header
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
@@ -38,45 +39,51 @@ class TextSegmentsTagger(Tagger):
         layer = Layer(self.output_layer, attributes=self.output_attributes, text_object=text)
         conflict_counter = 0
 
-        if self.include_header:
-            last_span = None
-            for span in headers_layer:
-                if not self.validator(span):
-                    continue
+        last_span = None
+        last_span_start = None
+        last_span_end = None
 
-                if last_span is None:
-                    if span.start > 0:
-                        layer.add_annotation(ElementaryBaseSpan(0, span.start))
-                else:
-                    layer.add_annotation(ElementaryBaseSpan(last_span.start, span.start), **self.decorator(last_span))
-                last_span = span
+        for span in headers_layer:
+            if not self.validator(span):
+                continue
+
+            span_start = span.start
+            span_end = span.end
 
             if last_span is None:
-                layer.add_annotation(ElementaryBaseSpan(0, len(text.text)))
+                if span_start > 0:
+                    layer.add_annotation(ElementaryBaseSpan(0, span_start))
             else:
-                layer.add_annotation(ElementaryBaseSpan(last_span.start, len(text.text)), **self.decorator(last_span))
+                if last_span_end >= span_end:
+                    conflict_counter += 1
+                    continue
+
+                if self.include_header:
+                    start = last_span_start
+                else:
+                    start = last_span_end
+
+                if last_span_end > span_start:
+                    end = last_span_end
+                    conflict_counter += 1
+                else:
+                    end = span_start
+
+                layer.add_annotation(ElementaryBaseSpan(start, end), **self.decorator(last_span))
+
+            last_span_start = span_start
+            last_span_end = span_end
+            last_span = span
+
+        if last_span is None:
+            layer.add_annotation(ElementaryBaseSpan(0, len(text.text)))
         else:
-            last_span = None
-            for span in headers_layer:
-                if not self.validator(span):
-                    continue
-
-                if last_span is None:
-                    if span.start > 0:
-                        layer.add_annotation(ElementaryBaseSpan(0, span.start))
-                else:
-                    start = last_span.end
-                    end = span.start
-                    if start > end:
-                        end = start
-                        conflict_counter += 1
-                    layer.add_annotation(ElementaryBaseSpan(start, end), **self.decorator(last_span))
-                last_span = span
-
-            if last_span is None:
-                layer.add_annotation(ElementaryBaseSpan(0, len(text.text)))
+            if self.include_header:
+                start = last_span.start
             else:
-                layer.add_annotation(ElementaryBaseSpan(last_span.end, len(text.text)), **self.decorator(last_span))
+                start = last_span.end
+
+            layer.add_annotation(ElementaryBaseSpan(start, len(text.text)), **self.decorator(last_span))
 
         layer.meta['conflicts_in_input_layer'] = conflict_counter
         return layer
