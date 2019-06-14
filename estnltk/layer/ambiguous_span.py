@@ -8,7 +8,7 @@ from .to_html import html_table
 
 
 class AmbiguousSpan:
-    def __init__(self, layer: 'Layer', span: Span) -> None:
+    def __init__(self, span: Span, layer: 'Layer') -> None:
 
         assert not isinstance(span, Annotation), span
         self._span = span

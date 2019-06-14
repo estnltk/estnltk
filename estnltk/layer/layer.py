@@ -246,7 +246,7 @@ class Layer:
         if self.parent is not None and self.ambiguous:
             span = self.span_list.get(base_span)
             if span is None:
-                span = AmbiguousSpan(self, base_span)
+                span = AmbiguousSpan(base_span, self)
                 self.span_list.add_span(span)
             assert isinstance(span, AmbiguousSpan), span
             return span.add_annotation(**attributes)
@@ -277,7 +277,7 @@ class Layer:
         if self.parent is None and self.enveloping is None and self.ambiguous:
             span = self.span_list.get(base_span)
             if span is None:
-                span = AmbiguousSpan(self, Span(base_span=ElementaryBaseSpan(base_span.start, base_span.end), layer=self))
+                span = AmbiguousSpan(Span(base_span=ElementaryBaseSpan(base_span.start, base_span.end), layer=self), self)
                 self.span_list.add_span(span)
             assert isinstance(span, AmbiguousSpan), span
             return span.add_annotation(**attributes)
