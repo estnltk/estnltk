@@ -38,6 +38,26 @@ def to_base_span(x):
 
 
 class Layer:
+    """Basic container for text annotations.
+
+    Layer is used to give annotations to text fragments. Each annotation consists of:
+        selected text fragment
+        corresponding annotations
+    Annotation consists of attributes which can have arbitrary names except reserved words:
+        meta - meta information
+        start
+        end
+
+    It is possible to add meta-information about layer as a whole by specifying layer.meta,
+    which is a dictionary of type MutableMapping[str, Any]. However we strongly advise to use
+    the following list of attribute types:
+        str
+        int
+        float
+        DateTime
+    as database serialisation does not work for other types. See [estnltk.storage.postgres] for further documentation.
+
+    """
     def __init__(self,
                  name: str,
                  attributes: Sequence[str] = (),
@@ -49,16 +69,15 @@ class Layer:
                  ) -> None:
         assert parent is None or enveloping is None, "can't be derived AND enveloping"
 
+        self.default_values = default_values or {}
+        assert isinstance(self.default_values, dict)
+
         # list of legal attribute names for the layer
-        assert not isinstance(attributes, str), attributes
-        attributes = tuple(attributes)
-        assert all(attr.isidentifier() for attr in attributes), attributes
         self.attributes = attributes
-        assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
 
         # name of the layer
         assert name.isidentifier() and not \
-               keyword.iskeyword(name), 'layer name must be a valid python identifier, {!r}'.format(name)
+            keyword.iskeyword(name), 'layer name must be a valid python identifier, {!r}'.format(name)
         assert name != 'text'
         self.name = name
 
@@ -91,12 +110,6 @@ class Layer:
         # boolean for if this is an ambiguous layer
         # if True, add_span will behave differently and add a SpanList instead.
         self.ambiguous = ambiguous  # type: bool
-
-        self.default_values = default_values or {}
-
-        for attr in self.attributes:
-            if attr not in self.default_values:
-                self.default_values[attr] = None
 
         # placeholder. is set when `_add_layer` is called on text object
         self.text_object = text_object  # type: Text
@@ -372,18 +385,35 @@ class Layer:
         return layer_operations.Rolling(self, window=window,  min_periods=min_periods, inside=inside)
 
     def __getattr__(self, item):
-        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__'}:
+        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__', '__setstate__'}:
             raise AttributeError
-        if item in self.__getattribute__('__dict__').keys():
+        if item in self.__getattribute__('__dict__'):
             return self.__getattribute__('__dict__')[item]
         if item in self.__getattribute__('attributes'):
             return self.__getitem__(item)
 
         return self.text_object._resolve(self.name, item, sofar=self.span_list)
 
+    def _set_attributes(self, attributes: Sequence[str]):
+        assert not isinstance(attributes, str), attributes
+        attributes = tuple(attributes)
+        assert all(attr.isidentifier() for attr in attributes), attributes
+        assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
+        super().__setattr__('attributes', attributes)
+
+        for attr in set(self.default_values) - set(attributes):
+            del self.default_values[attr]
+
+        for attr in set(attributes) - set(self.default_values):
+            self.default_values[attr] = None
+
     def __setattr__(self, key, value):
+        if key == 'attributes':
+            return self._set_attributes(value)
+        if key == 'default_values':
+            return super().__setattr__(key, value)
         # TODO: can 'name' be an attribute name?
-        if key != 'attributes' and key != 'name' and key in self.attributes:
+        if key != 'name' and key in self.attributes:
             raise AttributeError(key)
         super().__setattr__(key, value)
 

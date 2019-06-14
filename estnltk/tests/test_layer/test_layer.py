@@ -13,6 +13,35 @@ from estnltk.layer import AttributeList
 from estnltk.tests import new_text
 
 
+def test_attributes_and_default_values():
+    layer = Layer('test')
+    assert () == layer.attributes
+    assert {} == layer.default_values
+
+    layer = Layer('test', attributes=['attr_1', 'attr_2'], default_values={'attr_2': 2})
+    assert ('attr_1', 'attr_2') == layer.attributes
+    assert {'attr_1': None, 'attr_2': 2} == layer.default_values
+    layer.attributes = ['attr_1']
+    assert {'attr_1': None} == layer.default_values
+    layer.attributes = ['attr_1', 'attr_2']
+    assert {'attr_1': None, 'attr_2': None} == layer.default_values
+    assert ('attr_1', 'attr_2') == layer.attributes
+
+    with pytest.raises(TypeError):
+        layer.attributes = 3
+
+    with pytest.raises(AssertionError):
+        layer.attributes = ['1attr', '2attr']
+
+    with pytest.raises(AssertionError):
+        layer.attributes = ['attr_1', 'attr_2', 'attr_1']
+
+    with pytest.raises(AssertionError):
+        layer.attributes = ['3attr']
+
+    assert ('attr_1', 'attr_2') == layer.attributes
+
+
 def test_add_span():
     text = Text('0123456789')
     layer = Layer(name='ambiguous', attributes=['a', 'b', 'c'], ambiguous=True)
