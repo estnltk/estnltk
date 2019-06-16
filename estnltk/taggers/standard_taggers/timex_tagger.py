@@ -211,98 +211,85 @@ class TimexTagger( Tagger ):
              creation_date.strftime('%Y-%m-%dT%H:%M')
         return text.meta['document_creation_time']
 
+    def _convert_timex_attributes(self, timex: dict, empty_timexes_dict: dict):
+        """Rewrites TIMEX attribute names and values from the XML format
+        (camelCase names such as 'temporalFunction', 'anchorTimeID') to
+        Python's format, normalizes/corrects attribute values where necessary,
+        and attaches as attributes of the timex_span (EnvelopingSpan);
 
+        Parameters
+        ----------
+        timex : dict
+            dictionary containing TIMEX attributes in the XML format;
 
-    def _convert_timex_attributes(self, timex:dict, timex_span:EnvelopingSpan, \
-                                        empty_timexes_dict:dict ):
-        ''' Rewrites TIMEX attribute names and values from the XML format 
-            (camelCase names such as 'temporalFunction', 'anchorTimeID') to
-            Python's format, normalizes/corrects attribute values where necessary,
-            and attaches as attributes of the timex_span (EnvelopingSpan);
-
-            Parameters
-            ----------
-            timex : dict
-                dictionary containing TIMEX attributes in the XML format;
-
-            timex_span : EnvelopingSpan
-                EnvelopingSpan of EstNLTK which is to be filled in with the 
-                attributes from timex;
+        timex_span : EnvelopingSpan
+            EnvelopingSpan of EstNLTK which is to be filled in with the
+            attributes from timex;
             
-            empty_timexes_dict : dict
-                dictionary containing TIMEX-es that have no textual content;
-                (mappings from tid to TIMEX dict); This is used to fill in 
-                beginPoint and endPoint attributes;
-        '''
-        for attrib in timex.keys():
-            if attrib in ['_word_spans', '_word_span_ids']:
-               continue
-            if attrib == 'tid':
-               timex_span.tid = timex[attrib]
-            if attrib == 'type':
-               timex_span.type = timex[attrib]
-            if attrib == 'value':
-               timex_span.value = timex[attrib]
-            if attrib == 'temporalFunction':
-               if timex[attrib] == 'true':
-                  timex_span.temporal_function = True
-               else:
-                  timex_span.temporal_function = False
-            if attrib == 'mod':
-               timex_span.mod = timex[attrib]
-            if attrib == 'anchorTimeID':
-               timex_span.anchor_time_id = timex[attrib]
-            if attrib == 'quant':
-               timex_span.quant = timex[attrib]
-            if attrib == 'freq':
-               timex_span.freq = timex[attrib]
-            if attrib == 'beginPoint':
-               timex_span.begin_point = timex[attrib]
-               if timex[attrib] in empty_timexes_dict:
-                  timex_span.begin_point = empty_timexes_dict[timex[attrib]]
-                  if isinstance(timex_span.begin_point, dict) and \
-                     self.output_ordered_dicts:
-                      timex_span.begin_point = \
-                           self._convert_timex_dict_to_ordered_dict( timex_span.begin_point )
-            if attrib == 'endPoint':
-               timex_span.end_point = timex[attrib]
-               if timex[attrib] in empty_timexes_dict:
-                  timex_span.end_point = empty_timexes_dict[timex[attrib]]
-                  if isinstance(timex_span.end_point, dict) and \
-                     self.output_ordered_dicts:
-                      timex_span.end_point = \
-                           self._convert_timex_dict_to_ordered_dict( timex_span.end_point )
+        empty_timexes_dict : dict
+            dictionary containing TIMEX-es that have no textual content;
+            (mappings from tid to TIMEX dict); This is used to fill in
+            beginPoint and endPoint attributes;
+
+        Returns: dict
+            attributes from timex for span annotation
+
+        """
+        attributes = {k: timex.get(k) for k in ['tid', 'type', 'value', 'mod', 'quant', 'freq']}
+        attributes['temporal_function'] = (timex.get('temporalFunction') == 'true')
+        attributes['anchor_time_id'] = timex.get('anchorTimeID')
+
+        if 'beginPoint' in timex:
+           attributes['begin_point'] = timex['beginPoint']
+           if timex['beginPoint'] in empty_timexes_dict:
+              attributes['begin_point'] = empty_timexes_dict[timex['beginPoint']]
+              if isinstance(attributes['begin_point'], dict) and \
+                 self.output_ordered_dicts:
+                  attributes['begin_point'] = \
+                       self._convert_timex_dict_to_ordered_dict(attributes['begin_point'])
+
+        if 'endPoint' in timex:
+            attributes['end_point'] = timex['endPoint']
+            if timex['endPoint'] in empty_timexes_dict:
+                attributes['end_point'] = empty_timexes_dict[timex['endPoint']]
+                if isinstance(attributes['end_point'], dict) and \
+                   self.output_ordered_dicts:
+                    attributes['end_point'] = \
+                       self._convert_timex_dict_to_ordered_dict(attributes['end_point'])
+
         if self.mark_part_of_interval:
-           # Determine whether this TIMEX is part of an interval, and
-           # if so, then mark also TIMEX of the interval as an attribute
-           timex_tid  = timex['tid'] if 'tid' in timex else None
-           timex_type = timex['type'] if 'type' in timex else None
-           if empty_timexes_dict and timex_type in ['DATE', 'TIME']:
-              for empty_timex_id in empty_timexes_dict.keys():
-                  empty_timex = empty_timexes_dict[empty_timex_id]
-                  if 'beginPoint' in empty_timex.keys() and \
-                     timex_tid == empty_timex['beginPoint']:
-                     timex_span.part_of_interval = \
-                                empty_timexes_dict[empty_timex_id]
-                     if isinstance(timex_span.part_of_interval, dict) and \
-                        self.output_ordered_dicts:
-                        timex_span.part_of_interval = \
-                           self._convert_timex_dict_to_ordered_dict( timex_span.part_of_interval )
-                     break
-                  elif 'endPoint' in empty_timex.keys() and \
-                        timex_tid == empty_timex['endPoint']:
-                     timex_span.part_of_interval = \
-                                empty_timexes_dict[empty_timex_id]
-                     if isinstance(timex_span.part_of_interval, dict) and \
-                        self.output_ordered_dicts:
-                        timex_span.part_of_interval = \
-                           self._convert_timex_dict_to_ordered_dict( timex_span.part_of_interval )
-                     break
+            # Determine whether this TIMEX is part of an interval, and
+            # if so, then mark also TIMEX of the interval as an attribute
+            timex_tid = timex['tid'] if 'tid' in timex else None
+            timex_type = timex['type'] if 'type' in timex else None
+            if empty_timexes_dict and timex_type in ['DATE', 'TIME']:
+                for empty_timex_id in empty_timexes_dict.keys():
+                    empty_timex = empty_timexes_dict[empty_timex_id]
+                    if 'beginPoint' in empty_timex.keys() and \
+                        timex_tid == empty_timex['beginPoint']:
+                        attributes['part_of_interval'] = \
+                                   empty_timexes_dict[empty_timex_id]
+                        if isinstance(attributes['part_of_interval'], dict) and \
+                           self.output_ordered_dicts:
+                           attributes['part_of_interval'] = \
+                              self._convert_timex_dict_to_ordered_dict(attributes['part_of_interval'])
+
+                        break
+                    elif 'endPoint' in empty_timex.keys() and \
+                           timex_tid == empty_timex['endPoint']:
+                        attributes['part_of_interval'] = empty_timexes_dict[empty_timex_id]
+                        if isinstance(attributes['part_of_interval'], dict) and \
+                           self.output_ordered_dicts:
+                           attributes['part_of_interval'] = \
+                              self._convert_timex_dict_to_ordered_dict(attributes['part_of_interval'])
+                        break
         # If there is DATE and temporal_function==True and anchor_time_id
         # is not set, set it to 't0' (document creation time)
-        if timex_span.type in ['DATE'] and timex_span.temporal_function:
-           if 'anchorTimeID' not in timex.keys():
-               timex_span.anchor_time_id = 't0'
+        if attributes['type']=='DATE' and attributes['temporal_function']:
+            if 'anchorTimeID' not in timex:
+                attributes['anchor_time_id'] = 't0'
+
+        return attributes
 
 
 
@@ -369,8 +356,6 @@ class TimexTagger( Tagger ):
             elif attrib == 'end_point' and 'endPoint' in timex.keys():
                ordered_timex_dict[attrib] = timex['endPoint']
         return ordered_timex_dict
-
-
 
     def _make_layer(self, text, layers, status: dict):
         """Creates timexes layer.
@@ -533,13 +518,10 @@ class TimexTagger( Tagger ):
                       # partially overlaps with a previously
                       # annotated timex
                       continue
-            timex_span = \
-                 EnvelopingSpan(spans=timex['_word_spans'])
-            # Convert timex attributes from camelCase to Python + 
+            # Convert timex attributes from camelCase to Python +
             # perform some fixes
-            self._convert_timex_attributes(timex, timex_span, \
-                                           empty_timexes_dict )
-            layer.add_span( timex_span )
+            attributes = self._convert_timex_attributes(timex, empty_timexes_dict)
+            layer.add_annotation(timex['_word_spans'], **attributes)
             # Record location of the annotation (word_ids)
             for word_id in timex['_word_span_ids']:
                  marked_timex_word_ids.add( word_id )

@@ -66,8 +66,10 @@ def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
             for rec in layer_dict['spans']:
                 spans = [enveloped_layer[i] for i in rec['_index_']]
                 span = EnvelopingSpan(spans=spans, layer=layer)
-                for attr in layer.attributes:
-                    setattr(span, attr, list_to_tuple(rec[attr]))
+
+                attributes = {attr: list_to_tuple(rec[attr]) for attr in layer.attributes}
+                span.add_annotation(**attributes)
+
                 layer.add_span(span)
     else:
         layer = layer.from_records(layer_dict['spans'], rewriting=True)

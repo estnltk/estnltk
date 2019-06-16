@@ -200,21 +200,19 @@ class Layer:
 
     def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
-        assert isinstance(span, (EnvelopingSpan, Span, Layer, Annotation)), str(type(span))
-        if isinstance(span, Layer):
-            span = EnvelopingSpan(spans=span.spans, layer=self)
-        for attr in self.attributes:
-            try:
-                if isinstance(span, EnvelopingSpan):
-                    if attr not in span._attributes:
-                        raise AttributeError
-                else:
-                    getattr(span, attr)
-            except AttributeError:
-                setattr(span, attr, self.default_values[attr])
+        assert isinstance(span, (Span, EnvelopingSpan)), str(type(span))
+        assert len(span.annotations) > 0, span
+        assert self.ambiguous or len(span.annotations) == 1, span
+
+        attribute_set = set(self.attributes)
+        for annotaion in span.annotations:
+            assert attribute_set <= set(annotaion.attributes), attribute_set - set(annotaion.attributes)
 
         span.add_layer(self)
         target = self.get(span)
+
+        assert target is None, target
+
         if self.ambiguous:
             if target is None:
                 new = AmbiguousSpan(layer=self, span=span)
@@ -229,6 +227,7 @@ class Layer:
                 self.span_list.add_span(span)
             else:
                 raise ValueError('this layer is not ambiguous and the span is already in the spanlist', span)
+
         return span
 
     def remove_span(self, span):

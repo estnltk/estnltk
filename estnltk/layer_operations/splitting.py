@@ -90,10 +90,8 @@ def extract_sections(text: Text,
                             parent = map_spans.get((s.base_span, s.layer.name))
                             if parent:
                                 spans.append(parent)
-                        sp = EnvelopingSpan(spans=spans)
-                        for attr in attribute_names:
-                            setattr(sp, attr, getattr(span, attr))
-                        new_layer.add_span(sp)
+                        attributes = {attr: getattr(span, attr) for attr in attribute_names}
+                        sp = new_layer.add_annotation(spans, **attributes)
                         map_spans[(span.base_span, span.layer.name)] = sp
             else:
                 for span in layer:

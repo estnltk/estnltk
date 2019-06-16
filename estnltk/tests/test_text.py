@@ -203,23 +203,24 @@ def test_new_span_hierarchy():
     l = Layer(
         name='layer1',
         parent='words',
-        attributes=['test1']
+        attributes=['test1'],
+        text_object=text
     )
-
     text._add_layer(l)
 
     for i in text.words:
-        i.mark('layer1').test1 = '1234'
+        l.add_annotation(i, test1='1234')
 
     l = Layer(
         name='layer2',
         parent='layer1',
-        attributes=['test2']
+        attributes=['test2'],
+        text_object=text
     )
     text._add_layer(l)
 
     for i in text.layer1:
-        i.mark('layer2').test2 = '1234'
+        l.add_annotation(i, test2='12345')
 
     assert text.layer2[0].parent.layer.name == 'layer1'
 
@@ -434,9 +435,7 @@ def test_dependant_span():
     t._add_layer(dep)
 
     for word in t.words:
-        word.mark('reverse_lemmas').revlemma = word.lemma[::-1]
-
-    print(t.layers['words']._base)
+        dep.add_annotation(word, revlemma=word.lemma[::-1])
 
     for i in t.reverse_lemmas:
         assert (i.revlemma == i.lemma[::-1])
@@ -463,15 +462,15 @@ def test_enveloping_layer():
     wordpairs = Layer(name='wordpairs', enveloping='words')
     t._add_layer(wordpairs)
 
-    wordpairs.add_span(t.words[0:2])
-    wordpairs.add_span(t.words[2:4])
-    wordpairs.add_span(t.words[4:6])
+    wordpairs.add_annotation(t.words[0:2])
+    wordpairs.add_annotation(t.words[2:4])
+    wordpairs.add_annotation(t.words[4:6])
 
     print(t.wordpairs.text)
     assert (wordpairs.text == ['Kui', 'mitu', 'kuud', 'on', 'aastas', '?'])
 
-    wordpairs.add_span(t.words[1:3])
-    wordpairs.add_span(t.words[3:5])
+    wordpairs.add_annotation(t.words[1:3])
+    wordpairs.add_annotation(t.words[3:5])
     print(t.wordpairs.text)
     assert (wordpairs.text == ['Kui', 'mitu', 'mitu', 'kuud', 'kuud', 'on', 'on', 'aastas', 'aastas', '?'])
 
@@ -506,7 +505,7 @@ def test_various():
     text._add_layer(upper)
 
     for word in text.words:
-        word.mark('uppercase').upper = word.text.upper()
+        upper.add_annotation(word, upper=word.text.upper())
 
     with pytest.raises(AttributeError):
         for word in text.words:
@@ -543,14 +542,14 @@ def test_words_sentences():
 
     with pytest.raises(Exception):
         t.words.nonsense
-#
+
     dep = Layer(name='uppercase',
                          parent='words',
                          attributes=['upper']
                          )
     t._add_layer(dep)
     for word in t.words:
-        word.mark('uppercase').upper = word.text.upper()
+        dep.add_annotation(word, upper=word.text.upper())
 
     assert t.uppercase.upper == AttributeList(['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?'],
                                               'upper')
@@ -565,21 +564,18 @@ def test_ambiguous_layer():
     t = Text('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?').tag_layer()
 
     dep = Layer(name='test',
-                         parent='words',
-                         ambiguous=True,
-                         attributes=['asd']
-                         )
+                parent='words',
+                ambiguous=True,
+                attributes=['asd']
+                )
     t._add_layer(dep)
 
-    t.words[0].mark('test').asd = 'asd'
-    print('mark', t.words[0], t.words[0].asd)
+    dep.add_annotation(t.words[0], asd='asd')
 
-    t.words[1].mark('test').asd = '123'
-    t.words[0].mark('test').asd = '123'
+    dep.add_annotation(t.words[1], asd='asd')
+    dep.add_annotation(t.words[0], asd='123')
 
-    print(t.test)
-
-    print(t.words[0].asd)
+    # TODO: assert something
 
 
 def test_morph():
@@ -831,10 +827,11 @@ def test_rewriting_api():
 
     text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
 
-    text['test'] = Layer(name='test', attributes=['reverse'], parent='words')
+    test_layer = Layer(name='test', attributes=['reverse'], parent='words')
+    text['test'] = test_layer
 
     for word in text.words:
-        word.mark('test').reverse = word.text[::-1]
+        test_layer.add_annotation(word, reverse=word.text[::-1])
 
     rewriter = ReverseRewriter()
     layer = text['test'].rewrite(
@@ -844,11 +841,8 @@ def test_rewriting_api():
         name = 'plain'
     )
 
-    #assign to layer
+    # assign to layer
     text._add_layer(layer)
-
-
-    print(text.plain)
 
     #double reverse is plaintext
     assert list(text.plain.esrever) == text.words.text
@@ -957,9 +951,10 @@ def test_phrase_layer():
             l = Layer(enveloping='words', name='uppercasephrase', attributes=['phrasetext', 'tag'])
 
             for idx, s in enumerate(spans):
-                sps = l.add_span(EnvelopingSpan(spans=s, layer=l))
+                sps = EnvelopingSpan(spans=s, layer=l)
                 sps.phrasetext = ' '.join([i.text for i in s]).lower()
                 sps.tag = idx
+                l.add_span(sps)
             text._add_layer(l)
 
             return text

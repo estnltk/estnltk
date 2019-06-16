@@ -38,7 +38,9 @@ def import_TCF(string:str=None, file:str=None):
             spans = []
             for token_id in sentence.get('tokenIDs').split():
                 spans.append(id_to_token[token_id])
-            layer.add_span(EnvelopingSpan(spans=spans))
+            span = EnvelopingSpan(spans=spans)
+            span.add_annotation()
+            layer.add_span(span)
         text['sentences'] = layer
 
     # clauses layer
@@ -50,7 +52,9 @@ def import_TCF(string:str=None, file:str=None):
             spans = []
             for token_id in clause.get('tokenIDs').split():
                 spans.append(id_to_token[token_id])
-            layer.add_span(EnvelopingSpan(spans=spans))
+            span = EnvelopingSpan(spans=spans)
+            span.add_annotation()
+            layer.add_span(span)
         text['clauses'] = layer
 
     # chunk layers: verb_chains, time_phrases
@@ -66,12 +70,12 @@ def import_TCF(string:str=None, file:str=None):
                 spans = []
                 for token_id in line.get('tokenIDs').split():
                     spans.append(id_to_token[token_id])
-                layer_vp.add_span(EnvelopingSpan(spans=spans))
+                layer_vp.add_annotation(EnvelopingSpan(spans=spans))
             elif chunk_type == 'TMP':
                 spans = []
                 for token_id in line.get('tokenIDs').split():
                     spans.append(id_to_token[token_id])
-                layer_tmp.add_span(EnvelopingSpan(spans=spans))
+                layer_tmp.add_annotation(EnvelopingSpan(spans=spans))
         text['verb_chains'] = layer_vp
         text['time_phrases'] = layer_tmp
 

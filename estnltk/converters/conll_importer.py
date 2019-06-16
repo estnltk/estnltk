@@ -105,7 +105,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
                 syntax.add_annotation(base_span, **w)
                 cur += len_w + 1
 
-            sentences.add_span(words[sentence_start:])
+            sentences.add_annotation(words[sentence_start:])
             sentence_start += len(sentence)
 
     text.set_text(' '.join(t))

@@ -620,8 +620,7 @@ def _reconstruct_enveloping_tokenization_layers( text_object, \
            if word.end == sentence['end']:
               s_end = wid
            if s_start != -1 and s_end != -1:
-              span = EnvelopingSpan(spans=orig_words[s_start:s_end+1].spans)
-              orig_sentences.add_span(span)
+              orig_sentences.add_annotation(orig_words[s_start:s_end+1])
               sid += 1; s_start = -1; s_end = -1
     else:
        # If the words layer was not provided, create a detached 
@@ -644,8 +643,7 @@ def _reconstruct_enveloping_tokenization_layers( text_object, \
        if sentence.end == paragraph['end']:
           p_end = sid
        if p_start != -1 and p_end != -1:
-          span = EnvelopingSpan(spans=orig_sentences[p_start:p_end+1].spans)
-          orig_paragraphs.add_span(span)
+          orig_paragraphs.add_annotation(orig_sentences[p_start:p_end+1])
           pid += 1; p_start = -1; p_end = -1
     # Assemble created layers and return as a list
     if orig_words is not None:

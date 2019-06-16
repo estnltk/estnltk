@@ -155,6 +155,8 @@ class EnvelopingSpan:
             super().__setattr__(key, value)
         else:
             self._attributes[key] = value
+            if not self.annotations:
+                self.annotations.append(Annotation(self))
             for annotation in self._annotations:
                 setattr(annotation, key, value)
 

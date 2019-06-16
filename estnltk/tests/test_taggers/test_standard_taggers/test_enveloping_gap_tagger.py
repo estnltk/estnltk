@@ -1,7 +1,6 @@
 from estnltk.taggers import EnvelopingGapTagger
 from estnltk import Text
 from estnltk.layer.layer import Layer
-from estnltk import EnvelopingSpan
 
 
 def test_enveloping_gaps_tagger():
@@ -9,19 +8,15 @@ def test_enveloping_gaps_tagger():
     text.tag_layer(['words'])
 
     layer = Layer('test_3', enveloping='words')
-    spl = EnvelopingSpan(spans=text.words[0:2])
-    layer.add_span(spl)
+    layer.add_annotation(text.words[0:2])
 
-    spl = EnvelopingSpan(spans=text.words[3:4])
-    layer.add_span(spl)
+    layer.add_annotation(text.words[3:4])
     text['test_3'] = layer
 
     layer = Layer('test_4', enveloping='words', ambiguous=True)
-    spl = EnvelopingSpan(spans=text.words[3:5])
-    layer.add_span(spl)
+    layer.add_annotation(text.words[3:5])
 
-    spl = EnvelopingSpan(spans=text.words[3:5])
-    layer.add_span(spl)
+    layer.add_annotation(text.words[3:5])
     text['test_4'] = layer
 
     text['test_5'] = Layer('test_5', enveloping='words')

@@ -610,6 +610,8 @@ class SentenceTokenizer( Tagger ):
                 # Add information about which types of fixes 
                 # were applied to sentences
                 sentence_span_list.fix_types = sentence_fixes_list[sid]
+            else:
+                sentence_span_list.add_annotation()
             layer.add_span(sentence_span_list)
         return layer
 

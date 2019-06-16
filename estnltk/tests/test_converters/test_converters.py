@@ -116,23 +116,23 @@ def test_TCF_export_import():
     text.analyse('morphology')
     # clauses layer
     layer = Layer(name='clauses', enveloping='words')
-    layer.add_span(text.words[2:6])
+    layer.add_annotation(text.words[2:6])
     spl = text.words[0:1]
     spl.spans.extend(text.words.spans[7:11])
-    layer.add_span(spl)
-    layer.add_span(text.words[12:17])
+    layer.add_annotation(spl)
+    layer.add_annotation(text.words[12:17])
     text['clauses'] = layer
 
     # verb_chains layer
     layer = Layer(name='verb_chains', enveloping='words')
-    layer.add_span(text.words[3:4])
-    layer.add_span(text.words[7:10:2])
-    layer.add_span(text.words[13:17:3])
+    layer.add_annotation(text.words[3:4])
+    layer.add_annotation(text.words[7:10:2])
+    layer.add_annotation(text.words[13:17:3])
     text['verb_chains'] = layer
 
     # time_phrases layer
     layer = Layer(name='time_phrases', enveloping='words')
-    layer.add_span(text.words[14:16])
+    layer.add_annotation(text.words[14:16])
     text['time_phrases'] = layer
 
     # version 0.4
