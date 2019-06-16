@@ -200,7 +200,7 @@ class Text:
 
         self._setup_structure()
 
-    def _resolve(self, frm: str, to: str, sofar: SpanList = None) -> Union['SpanList', List[None]]:
+    def _resolve(self, frm: str, to: str, sofar: SpanList = None) -> Union['SpanList', List[None], Layer]:
         # must return the correct object
         # this method is supposed to centralize attribute access
 
@@ -210,63 +210,31 @@ class Text:
         if not self._path_exists(frm, to):
             raise AttributeError('{} -> {} not implemented - path does not exist'.format(frm, to))
 
-        if to in self.layers:
-            if frm in self.layers:
-                # from enveloping layer to its direct descendant
-                if to == self.layers[frm].enveloping:
-                    return sofar
+        if to in self.layers and frm in self.layers:
+            # from enveloping layer to its direct descendant
+            if to == self.layers[frm].enveloping:
+                if isinstance(sofar, EnvelopingSpan):
+                    return self.layers[to][[span.base_span for span in sofar]]
+                return self.layers[to][[span.base_span for enveloping_span in sofar for span in enveloping_span]]
 
-                # from an enveloping layer to dependant layer (one step only, skipping base layer)
-                elif self.layers[frm].enveloping == self.layers[to].parent and self.layers[to].parent is not None:
-                    spans = []
+            # from an enveloping layer to dependant layer (one step only, skipping base layer)
+            elif self.layers[frm].enveloping == self.layers[to].parent and self.layers[to].parent is not None:
 
-                    # path taken by text.sentences.morph_analysis
-                    if isinstance(sofar[0], EnvelopingSpan):
-                        for envelop in sofar:
-                            enveloped_spans = []
-                            for span in self.layers[to]:
-                                if span.parent in envelop.spans:
-                                    enveloped_spans.append(span)
-                            if enveloped_spans:
-                                spans.append(EnvelopingSpan(layer=self.layers[frm], spans=enveloped_spans))
+                # path taken by text.sentences.morph_analysis
+                if isinstance(sofar[0], EnvelopingSpan):
+                    return self.layers[to][[base_span for envelop in sofar for base_span in envelop.base_span]]
 
-                        return SpanList(layer=self.layers[to], spans=spans)
+                # path taken by text.sentences[0].lemma
+                if isinstance(sofar[0], Span):
+                    return self.layers[to][[span.base_span for span in sofar]]
 
-                    # path taken by text.sentences[0].lemma
-                    elif isinstance(sofar[0], Span):
-                        enveloped_spans = []
-                        for span in self.layers[to]:
-                            if span.parent in sofar:
-                                enveloped_spans.append(span)
-                        if enveloped_spans:
-                            sl = SpanList(layer=self.layers[frm])
-                            sl.spans = enveloped_spans
-                            spans.append(sl)
+            elif self.layers[frm]._base == self.layers[to]._base:
+                return self.layers[to][[span.base_span for span in self.layers[frm]]]
 
-                        res = SpanList(layer=self.layers[to])
-                        res.spans = spans
-                        return res[0]
-
-                # from layer to strictly dependant layer
-                elif self.layers[frm]._base == self.layers[to]._base:
-
-                    if sofar is None:
-                        return self.layers[to].span_list
-
-                    to_spans = self.layers[to].span_list
-
-                    res = SpanList(layer=self.layers[to])
-                    for i in to_spans:
-                        if i.base_span in sofar:
-                            res.add_span(i)
-                    return res
-
-                # through an enveloped layer (enveloping-enveloping-target)
-                elif to == self.layers[self.layers[frm].enveloping].enveloping:
-                    return self._resolve(frm=self.layers[frm].enveloping,
-                                         to=to,
-                                         sofar=sofar
-                                         )
+            # through an enveloped layer (enveloping-enveloping-target)
+            elif to == self.layers[self.layers[frm].enveloping].enveloping:
+                base_spans = [span_2 for span in self.layers[frm] for span_1 in span.base_span for span_2 in span_1]
+                return self.layers[to][base_spans]
         # attribute access
         else:
             to_layer_name = self.attributes[to][0]
@@ -290,7 +258,6 @@ class Text:
                         return AmbiguousAttributeList(res, to)
                     else:
                         return AttributeList(res, to)
-                    #return res
 
             # attributes of an (directly) enveloped object
             to_layer_name = path[-2]

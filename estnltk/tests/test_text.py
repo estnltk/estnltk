@@ -17,8 +17,8 @@ def test_general():
 
     assert len(t.sentences) == 3
     assert len(t.words) == 15
-    assert len(t.sentences.words) == 3
-    assert t.sentences.words == t.sentences.span_list
+    assert len(t.sentences.words) == 15
+    assert t.sentences.words == t.words
 
     assert {'tokens', 'compound_tokens', 'sentences', 'words', 'morph_analysis'} <= set(t.__dict__)
 
@@ -130,32 +130,31 @@ def test_paragraph_tokenizer():
 Mis sinu nimi on?
     ''').tag_layer(['paragraphs', 'morph_analysis'])
 
-    #Should not raise NotImplementedError
+    # Should not raise NotImplementedError
     t.paragraphs
     assert t.paragraphs.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?', 'Mis', 'sinu', 'nimi', 'on', '?']
 
-    #Should not raise NotImplementedError
+    # Should not raise NotImplementedError
     t.paragraphs.sentences
-    assert t.paragraphs.sentences.text == [['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?'],
-                                           ['Mis', 'sinu', 'nimi', 'on', '?']]
+    assert t.paragraphs.sentences.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?',
+                                           'Mis', 'sinu', 'nimi', 'on', '?']
 
-    #Should not raise NotImplementedError
+    # Should not raise NotImplementedError
     t.paragraphs.sentences.words
-    assert t.paragraphs.sentences.words.text == [['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?'], ['Mis', 'sinu', 'nimi', 'on', '?']]
+    assert t.paragraphs.sentences.words.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?', 'Mis', 'sinu', 'nimi', 'on', '?']
 
-    #Should not raise NotImplementedError
+    # Should not raise NotImplementedError
     t.paragraphs.words
-    assert (t.paragraphs.words.text == [['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?'], ['Mis', 'sinu', 'nimi', 'on', '?']])
+    assert t.paragraphs.words.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?', 'Mis', 'sinu', 'nimi', 'on', '?']
 
-
-
-    #assert t.paragraphs.text == t.paragraphs.sentences.text
+    assert t.paragraphs.text == t.paragraphs.sentences.text
     assert t.paragraphs.sentences.text == t.paragraphs.sentences.words.text
     assert t.paragraphs.sentences.words.text == t.paragraphs.words.text
-    #assert t.paragraphs.words.text == t.paragraphs.text
+    assert t.paragraphs.words.text == t.paragraphs.text
 
-    #these are not implemented yet
-    # t.paragraphs.sentences.words.morph_analysis.lemma
+    assert t.paragraphs.sentences.words.morph_analysis.lemma == \
+           AmbiguousAttributeList([['mina'], ['nimi'], ['olema', 'olema'], ['Uku'], ['.'], ['miks'], ['?'],
+                                   ['mis', 'mis'], ['sina'], ['nimi'], ['olema', 'olema'], ['?']], 'lemma')
 
 
 def test_delete_layer():
@@ -911,19 +910,25 @@ def test_sentences_morph_analysis_lemma():
 
     x = text.sentences[0]
 
-    # x.words
+    x.words
 
-    #assert text.sentences[:1].morph_analysis.lemma == AttributeList([[['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']]],
-    #                                                                'lemma')
-    #assert text.sentences[:1].morph_analysis.lemma == text.sentences[:1].words.lemma
-    #assert text.sentences[:].morph_analysis.lemma == text.sentences[:].words.lemma
-    #assert (text.sentences.morph_analysis.lemma == [[['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']], [['kus'], ['mina'], ['olema'], ['?']]])
-    #assert (text.sentences.morph_analysis.lemma == text.sentences.words.lemma)
-    assert text.sentences[0].words.lemma == \
-            [AttributeList(['olema'], 'lemma'),
-             AttributeList(['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], 'lemma'),
-             AttributeList(['koha', 'koht'], 'lemma'),
-             AttributeList(['.'], 'lemma')]
+    assert text.sentences[:1].morph_analysis.lemma == AmbiguousAttributeList([['olema'],
+                                                                    ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'],
+                                                                    ['koha','koht'],
+                                                                    ['.']],
+                                                                   'lemma')
+    assert text.sentences[:1].morph_analysis.lemma == text.sentences[:1].words.lemma
+    assert text.sentences[:].morph_analysis.lemma == text.sentences[:].words.lemma
+    assert text.sentences.morph_analysis.lemma == AmbiguousAttributeList(
+            [['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha','koht'], ['.'],
+            ['kus'], ['mina'], ['olema'], ['?']],
+            'lemma')
+    assert text.sentences.morph_analysis.lemma == text.sentences.words.lemma
+    assert text.sentences[0].words.lemma == AmbiguousAttributeList([['olema'],
+                                                                    ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'],
+                                                                    ['koha','koht'],
+                                                                    ['.']],
+                                                                   'lemma')
     assert text.sentences[0].morph_analysis.lemma == text.sentences[0].words.lemma
 
 
@@ -935,7 +940,7 @@ def test_phrase_layer():
 
             uppercases = []
             prevstart = 0
-            for sentence in (text.sentences.words):
+            for sentence in text.sentences:
                 for idx, word in enumerate(sentence.words):
                     if word.text.upper() == word.text and word.text.lower() != word.text:
                         uppercases.append((idx + prevstart, word))
