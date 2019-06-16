@@ -3,6 +3,7 @@ import itertools
 
 from estnltk.layer.span import Span, Annotation
 from estnltk.layer.ambiguous_span import AmbiguousSpan
+from estnltk import EnvelopingBaseSpan
 
 
 class EnvelopingSpan:
@@ -22,6 +23,9 @@ class EnvelopingSpan:
 
         # TODO: remove self._attributes
         self._attributes = {}
+
+        # TODO: self._base_span = base_span
+        self._base_span = None
 
     def add_annotation(self, **attributes) -> Annotation:
         self._attributes.update(attributes)
@@ -97,7 +101,8 @@ class EnvelopingSpan:
 
     @property
     def base_span(self):
-        return tuple(s.base_span for s in self.spans)
+        # TODO: return self._base_span
+        return EnvelopingBaseSpan([s.base_span for s in self.spans])
 
     @property
     def base_spans(self):
@@ -146,7 +151,7 @@ class EnvelopingSpan:
         return item in self.spans
 
     def __setattr__(self, key, value):
-        if key in {'spans', '_attributes', 'parent', '_base', '_layer', '_annotations'}:
+        if key in {'spans', '_attributes', 'parent', '_base', '_base_span', '_layer', '_annotations'}:
             super().__setattr__(key, value)
         else:
             self._attributes[key] = value
@@ -169,7 +174,7 @@ class EnvelopingSpan:
 
     def __getitem__(self, idx: int) -> Union[Span, 'EnvelopingSpan']:
         if isinstance(idx, int):
-            return self.spans[0]
+            return self.spans[idx]
 
         if isinstance(idx, str):
             return getattr(self, idx)
