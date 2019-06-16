@@ -9,8 +9,9 @@ from .to_html import html_table
 
 class AmbiguousSpan:
     def __init__(self, span: Span, layer: 'Layer') -> None:
+        # TODO: assert isinstance(span, BaseSpan), type(span)
+        assert isinstance(span, (Span, EnvelopingSpan, AmbiguousSpan)), type(span)
 
-        assert not isinstance(span, Annotation), span
         self._span = span
 
         self.layer = layer
@@ -157,3 +158,6 @@ class AmbiguousSpan:
 
     def _repr_html_(self):
         return self._to_html()
+
+
+from estnltk.layer.enveloping_span import EnvelopingSpan
