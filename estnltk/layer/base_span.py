@@ -82,6 +82,9 @@ class EnvelopingBaseSpan(BaseSpan):
     def __getitem__(self, item):
         return self._spans[item]
 
+    def __iter__(self):
+        return iter(self._spans)
+
     def __hash__(self):
         return self._hash
 
