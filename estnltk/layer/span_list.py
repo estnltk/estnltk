@@ -3,8 +3,8 @@ from typing import Union, Any, Hashable
 import collections
 import itertools
 
-from estnltk import Span, AmbiguousSpan, EnvelopingSpan
-from estnltk.layer import AmbiguousAttributeTupleList, AttributeTupleList, AttributeList, AmbiguousAttributeList
+from estnltk import BaseSpan, Span, AmbiguousSpan, EnvelopingSpan
+from estnltk.layer import AmbiguousAttributeTupleList, AmbiguousAttributeList, AttributeTupleList, AttributeList
 
 
 class SpanList(collections.Sequence):
@@ -46,8 +46,9 @@ class SpanList(collections.Sequence):
         bisect.insort(self.spans, span)
         self._base_span_to_span[span.base_span] = span
 
-    def get(self, span):
-        return self._base_span_to_span.get(span.base_span)
+    def get(self, span: BaseSpan):
+        assert isinstance(span, BaseSpan)
+        return self._base_span_to_span.get(span)
 
     def remove_span(self, span):
         del self._base_span_to_span[span.base_span]
@@ -101,7 +102,7 @@ class SpanList(collections.Sequence):
         return self.layer.text_object.text[self.start:self.end]
 
     def __iter__(self):
-        yield from self.spans
+        return iter(self.spans)
 
     def __len__(self) -> int:
         return len(self.__getattribute__(
@@ -132,6 +133,10 @@ class SpanList(collections.Sequence):
 
     def index(self, x, *args) -> int:
         return self.spans.index(x, *args)
+
+    def __setitem__(self, key: int, value: Span):
+        self.spans[key] = value
+        self._base_span_to_span[value.base_span] = value
 
     def __getitem__(self, idx) -> Union[Span, 'SpanList', list, AmbiguousAttributeTupleList]:
         if isinstance(idx, str) or isinstance(idx, (list, tuple)) and all(isinstance(s, str) for s in idx):
