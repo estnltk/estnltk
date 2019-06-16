@@ -214,7 +214,7 @@ class Layer:
                 setattr(span, attr, self.default_values[attr])
 
         span.add_layer(self)
-        target = self.span_list.get(span)
+        target = self.get(span)
         if self.ambiguous:
             if target is None:
                 new = AmbiguousSpan(layer=self, span=span)
@@ -244,7 +244,7 @@ class Layer:
         attributes = {**self.default_values, **{k: v for k, v in attributes.items() if k in self.attributes}}
 
         if self.parent is not None and self.ambiguous:
-            span = self.span_list.get(base_span)
+            span = self.get(base_span)
             if span is None:
                 span = AmbiguousSpan(base_span, self)
                 self.span_list.add_span(span)
@@ -252,9 +252,8 @@ class Layer:
             return span.add_annotation(**attributes)
 
         if self.parent is not None and not self.ambiguous:
-            if self.span_list.get(base_span) is not None:
+            if self.get(base_span) is not None:
                 raise ValueError('the layer is not ambiguous and already contains this span')
-            assert self.span_list.get(base_span) is None
             span = Span(base_span=base_span.base_span, parent=base_span, layer=self)
             self.span_list.add_span(span)
             return span.add_annotation(**attributes)
@@ -263,7 +262,7 @@ class Layer:
             if self.ambiguous:
                 span = EnvelopingSpan(spans=base_span, layer=self)
 
-                target = self.span_list.get(span)
+                target = self.get(span)
                 if target is None:
                     target = AmbiguousSpan(layer=self, span=span)
                     self.span_list.add_span(target)
@@ -275,7 +274,7 @@ class Layer:
             return annotation
 
         if self.parent is None and self.enveloping is None and self.ambiguous:
-            span = self.span_list.get(base_span)
+            span = self.get(base_span)
             if span is None:
                 span = AmbiguousSpan(Span(base_span=ElementaryBaseSpan(base_span.start, base_span.end), layer=self), self)
                 self.span_list.add_span(span)
@@ -285,7 +284,7 @@ class Layer:
         assert self.parent is None and self.enveloping is None and not self.ambiguous
 
         if self.parent is None and self.enveloping is None and not self.ambiguous:
-            if self.span_list.get(base_span) is not None:
+            if self.get(base_span) is not None:
                 raise ValueError('the layer is not ambiguous and already contains this span')
 
             span = Span(base_span=ElementaryBaseSpan(base_span.start, base_span.end), layer=self)
@@ -418,11 +417,14 @@ class Layer:
         super().__setattr__(key, value)
 
     def __iter__(self):
-        return iter(self.span_list.spans)
+        return iter(self.span_list)
+
+    def __setitem__(self, key: int, value: Span):
+        self.span_list[key] = value
 
     def __getitem__(self, item) -> Union[Span, 'Layer', AmbiguousAttributeTupleList]:
         if isinstance(item, int):
-            return self.span_list.spans[item]
+            return self.span_list[item]
 
         if item == [] or item == ():
             raise IndexError('no attributes: ' + str(item))
@@ -464,6 +466,10 @@ class Layer:
                 wrapped = [self.span_list.spans.__getitem__(i) for i in item]
                 layer.span_list.spans = wrapped
                 return layer
+            if all(isinstance(i, BaseSpan) for i in item):
+                wrapped = [self.span_list.get(i) for i in item]
+                layer.span_list.spans = wrapped
+                return layer
         if callable(item):
             wrapped = [span for span in self.span_list.spans if item(span)]
             layer.span_list.spans = wrapped
@@ -472,13 +478,11 @@ class Layer:
         raise TypeError('index not supported: ' + str(item))
 
     def get(self, item):
-        if isinstance(item, Span):
-            return self.span_list.get(span=item)
-        if isinstance(item, EnvelopingSpan):
-            result = self.span_list.get(span=item)
-            if result is not None:
-                return result
-            item = item.spans
+        if isinstance(item, BaseSpan):
+            return self.span_list.get(item)
+        if isinstance(item, (Span, AmbiguousSpan, EnvelopingSpan)):
+            return self.span_list.get(item.base_span)
+
         if isinstance(item, (list, tuple)):
             layer = Layer(name=self.name,
                           attributes=self.attributes,
