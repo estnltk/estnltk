@@ -535,8 +535,6 @@ class VabamorfDisambiguator(Retagger):
         else:
             self._vm_instance = Vabamorf.instance()
 
-
-
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
         """Performs morphological disambiguation, and replaces ambiguous 
            morphological analyses with their disambiguated variants.
@@ -576,9 +574,9 @@ class VabamorfDisambiguator(Retagger):
                cur_attr != IGNORE_ATTR:
                 extra_attributes.append( cur_attr )
         # Check that len(word_spans) >= len(morph_spans)
-        morph_spans = layers[self.output_layer].spans
+        morph_layer = layers[self.output_layer]
         word_spans  = layers[self._input_words_layer].span_list
-        assert len(word_spans) >= len(morph_spans), \
+        assert len(word_spans) >= len(morph_layer), \
             '(!) Unexpectedly, the number of elements at the layer '+\
                  '"'+str(self.output_layer)+'" is greater than the '+\
                  'number of elements at the layer "words". There '+\
@@ -592,7 +590,7 @@ class VabamorfDisambiguator(Retagger):
         word_span_id  = 0
         for sentence in layers[self._input_sentences_layer].span_list:
             # A) Collect all words/morph_analyses inside the sentence
-            #    Assume: len(word_spans) >= len(morph_spans)
+            #    Assume: len(word_spans) >= len(morph_layer)
             sentence_word_spans  = []
             sentence_morph_spans = []
             sentence_morph_dicts = []
@@ -607,8 +605,8 @@ class VabamorfDisambiguator(Retagger):
                     word_span.end <= sentence.end:
                     morphFound = False
                     # Get corresponding morph span
-                    if morph_span_id < len(morph_spans):
-                        morph_span = morph_spans[morph_span_id]
+                    if morph_span_id < len(morph_layer):
+                        morph_span = morph_layer[morph_span_id]
                         if word_span.start == morph_span.start and \
                            word_span.end == morph_span.end and \
                            not _is_empty_annotation(morph_span.annotations[0]):
@@ -675,9 +673,8 @@ class VabamorfDisambiguator(Retagger):
                 disambiguated_records = disambiguated_dicts[morph_dict_id]['analysis']
 
                 # D.1) Convert records back to AmbiguousSpans
-                ambiguous_span = \
-                    AmbiguousSpan(layer=morph_spans[global_morph_span_id].layer, \
-                                  span=morph_spans[global_morph_span_id].span)
+                ambiguous_span = AmbiguousSpan(layer=morph_layer,
+                                               span=morph_layer[global_morph_span_id].span)
                 
                 # D.1) Rewrite records into a proper format, and 
                 #      add to the span
@@ -714,7 +711,7 @@ class VabamorfDisambiguator(Retagger):
                     ambiguous_span.add_annotation( **new_record )
 
                 # D.2) Rewrite the old span with the new one
-                morph_spans[global_morph_span_id] = ambiguous_span
+                morph_layer[global_morph_span_id] = ambiguous_span
                 
                 # Advance indices
                 global_morph_span_id += 1
@@ -724,15 +721,9 @@ class VabamorfDisambiguator(Retagger):
         #  Post-processing:
         #  Remove IGNORE_ATTR from the output layer
         # --------------------------------------------
-        if IGNORE_ATTR in layers[self.output_layer].attributes:
-            new_attributes = ()
-            for old_attrib in layers[self.output_layer].attributes:
-                if old_attrib != IGNORE_ATTR:
-                    new_attributes += (old_attrib,)
-            layers[self.output_layer].attributes = new_attributes
-            morph_spans = layers[self.output_layer].spans
-            for ms_id, morph_span in enumerate(morph_spans):
-                for annotation in morph_span.annotations:
+        if IGNORE_ATTR in morph_layer.attributes:
+            morph_layer.attributes = [attr for attr in morph_layer.attributes if attr != IGNORE_ATTR]
+
+            for span in morph_layer:
+                for annotation in span.annotations:
                     delattr(annotation, IGNORE_ATTR)
-
-
