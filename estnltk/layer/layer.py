@@ -211,8 +211,6 @@ class Layer:
         span.add_layer(self)
         target = self.get(span)
 
-        assert target is None, target
-
         if self.ambiguous:
             if target is None:
                 new = AmbiguousSpan(layer=self, span=span)
