@@ -157,9 +157,9 @@ class VabamorfCorpusTagger( object ):
         else:
             # Use given VabamorfAnalyzer
             assert isinstance(vabamorf_analyser, VabamorfAnalyzer)
-            assert vabamorf_analyser.layer_name == self.output_layer, \
+            assert vabamorf_analyser.output_layer == self.output_layer, \
                 '(!) vabamorf_analyser should modify layer "'+str(self.output_layer)+'".'+\
-                ' Currently, it modifies layer "'+str(vabamorf_analyser.layer_name)+'".'
+                ' Currently, it modifies layer "'+str(vabamorf_analyser.output_layer)+'".'
             self._vabamorf_analyser = vabamorf_analyser
             # Get vm instance from VabamorfAnalyzer
             vm_instance = self._vabamorf_analyser.vm_instance
