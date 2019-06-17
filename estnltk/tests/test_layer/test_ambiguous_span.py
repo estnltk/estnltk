@@ -69,4 +69,4 @@ def test_getitem():
 def test_base_spans():
     span_1 = AmbiguousSpan(layer=Layer('test', attributes=['attr_1'], ambiguous=True), span=Span(base_span=ElementaryBaseSpan(0, 1)))
 
-    assert [(0, 1)] == span_1.base_spans
+    assert ElementaryBaseSpan(0, 1) == span_1.base_span

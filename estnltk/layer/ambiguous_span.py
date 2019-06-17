@@ -2,7 +2,7 @@ from typing import Union, Any
 from IPython.core.display import display_html
 
 from estnltk import Span
-from estnltk import Annotation
+from estnltk import Annotation, ElementaryBaseSpan
 from estnltk.layer import AttributeList
 from .to_html import html_table
 
@@ -12,16 +12,14 @@ class AmbiguousSpan:
         # TODO: assert isinstance(span, BaseSpan), type(span)
         assert isinstance(span, (Span, EnvelopingSpan, AmbiguousSpan)), type(span)
 
+        self._base_span = span.base_span
+        self.layer = layer
+        self._parent = None  # type: Union[Span, None]
+        self._annotations = []
+
+        # TODO: remove self._span
         self._span = span
 
-        self.layer = layer
-
-        self.parent = span.parent  # type:Union[Span, None]
-
-        # placeholder for dependant layer
-        self._base = None  # type:Union[Span, None]
-
-        self._annotations = []
 
     @property
     def annotations(self):
@@ -33,19 +31,6 @@ class AmbiguousSpan:
 
     def to_records(self, with_text=False):
         return [i.to_record(with_text) for i in self._annotations]
-
-    def add_span(self, span: Span) -> Span:
-        assert hash(span) == hash(self._span)
-        assert not isinstance(span, Annotation)
-        annotation = Annotation(self)
-        for attr in span.legal_attribute_names:
-            setattr(annotation, attr, getattr(span, attr))
-        if not isinstance(span, Span):
-            # EnvelopingSpan
-            annotation.spans = span.spans
-        if annotation not in self._annotations:
-            self._annotations.append(annotation)
-            return span
 
     def add_annotation(self, **attributes) -> Annotation:
         annotation = Annotation(self)
@@ -65,24 +50,38 @@ class AmbiguousSpan:
         return self._span
 
     @property
+    def parent(self):
+        if self._parent is None:
+            if self.layer.parent:
+                self._parent = self.layer.text_object[self.layer.parent].get(self.base_span)
+
+        return self._parent
+
+    @parent.setter
+    def parent(self, value):
+        self._parent = value
+
+    @property
     def start(self):
-        return self._span.start
+        return self._base_span.start
 
     @property
     def end(self):
-        return self._span.end
-
-    @property
-    def base_spans(self):
-        return self._span.base_spans
+        return self._base_span.end
 
     @property
     def base_span(self):
-        return self._span.base_span
+        return self._base_span
 
     @property
     def text(self):
-        return self._span.text
+        text = self.text_object.text
+        base_span = self.base_span
+
+        if isinstance(base_span, ElementaryBaseSpan):
+            return text[base_span.start:base_span.end]
+
+        return [text[start:end] for start, end in base_span.flatten()]
 
     @property
     def enclosing_text(self):
@@ -109,7 +108,7 @@ class AmbiguousSpan:
             if layer.ambiguous:
                 return AttributeList((getattr(span, item) for span in self._annotations), item)
             return getattr(self._annotations[0], item)
-        if item == getattr(self.layer, 'parent', None):
+        if item == layer.parent:
             return self.parent
         if item in self.__dict__:
             return self.__dict__[item]
@@ -130,15 +129,15 @@ class AmbiguousSpan:
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, AmbiguousSpan) \
-               and hash(self.span) == hash(other.span) \
-               and len(self._annotations) == len(other._annotations) \
-               and all(s in other._annotations for s in self._annotations)
+               and self.base_span == other.base_span \
+               and len(self.annotations) == len(other.annotations) \
+               and all(s in other.annotations for s in self.annotations)
 
     def __contains__(self, item: Any):
         return item in self._annotations
 
     def __hash__(self):
-        return hash(self.span)
+        return hash(self.base_span)
 
     def __str__(self):
         if self.text_object is not None:
