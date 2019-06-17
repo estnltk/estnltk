@@ -232,7 +232,7 @@ class VabamorfCorpusTagger( object ):
             # Initialize default CorpusBasedMorphDisambiguator
             self._cb_disambiguator = \
                  CorpusBasedMorphDisambiguator( 
-                       morph_analysis_layer  = morph_analysis_layer,
+                       output_layer = morph_analysis_layer,
                        input_words_layer     = self._input_words_layer,
                        input_sentences_layer = self._input_sentences_layer,
                        validate_inputs = validate_inputs )
@@ -240,9 +240,9 @@ class VabamorfCorpusTagger( object ):
             # Use custom CorpusBasedMorphDisambiguator
             assert isinstance(cb_disambiguator, CorpusBasedMorphDisambiguator), \
                 '(!) cb_disambiguator should be an instance of CorpusBasedMorphDisambiguator.'
-            assert cb_disambiguator._morph_analysis_layer == morph_analysis_layer, \
+            assert cb_disambiguator.output_layer == morph_analysis_layer, \
                 '(!) cb_disambiguator should modify layer "'+str(morph_analysis_layer)+'".'+\
-                ' Currently, it modifies layer "'+str(cb_disambiguator._morph_analysis_layer)+'".'
+                ' Currently, it modifies layer "'+str(cb_disambiguator.output_layer)+'".'
             self._cb_disambiguator = cb_disambiguator
         # Add new dependencies from CorpusBasedMorphDisambiguator (if there are any)
         if self._cb_disambiguator is not None:
