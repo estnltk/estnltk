@@ -42,7 +42,7 @@ class VabamorfCorpusTagger( object ):
     """
     
     def __init__(self,
-                 morph_analysis_layer:str='morph_analysis',
+                 output_layer:str='morph_analysis',
                  input_words_layer:str='words',
                  input_sentences_layer:str='sentences',
                  input_compound_tokens_layer='compound_tokens',
@@ -62,8 +62,8 @@ class VabamorfCorpusTagger( object ):
 
         Parameters
         ----------
-        morph_analysis_layer: str (default: 'morph_analysis')
-            Name of the morphological analysis layer. 
+        output_layer: str (default: 'morph_analysis')
+            Name of the output morphological analysis layer.
         input_words_layer: str (default: 'words')
             Name of the input words layer;
         input_sentences_layer: str (default: 'sentences')
@@ -126,9 +126,9 @@ class VabamorfCorpusTagger( object ):
         """
         # Set attributes & configuration
         self.input_layers            = [] # dependencies will be taken from taggers
+        self.output_layer            = output_layer
         self._input_words_layer      = input_words_layer
         self._input_sentences_layer  = input_sentences_layer
-        self._morph_analysis_layer   = morph_analysis_layer
         self._use_predisambiguation  = use_predisambiguation
         self._use_postdisambiguation = use_postdisambiguation
         self._validate_inputs        = validate_inputs
@@ -150,15 +150,15 @@ class VabamorfCorpusTagger( object ):
             # Initialize vabamorf_analyser
             vm_instance = Vabamorf.instance()
             self._vabamorf_analyser = VabamorfAnalyzer( vm_instance=vm_instance,
-                                                        output_layer=morph_analysis_layer,
+                                                        output_layer=self.output_layer,
                                                         input_words_layer=input_words_layer,
                                                         input_sentences_layer=input_sentences_layer,
                                                         **vm_analyser_conf)
         else:
             # Use given VabamorfAnalyzer
             assert isinstance(vabamorf_analyser, VabamorfAnalyzer)
-            assert vabamorf_analyser.layer_name == morph_analysis_layer, \
-                '(!) vabamorf_analyser should modify layer "'+str(morph_analysis_layer)+'".'+\
+            assert vabamorf_analyser.layer_name == self.output_layer, \
+                '(!) vabamorf_analyser should modify layer "'+str(self.output_layer)+'".'+\
                 ' Currently, it modifies layer "'+str(vabamorf_analyser.layer_name)+'".'
             self._vabamorf_analyser = vabamorf_analyser
             # Get vm instance from VabamorfAnalyzer
@@ -167,14 +167,14 @@ class VabamorfCorpusTagger( object ):
         if self._vabamorf_analyser is not None:
             for vm_dependency in self._vabamorf_analyser.depends_on:
                 if vm_dependency not in self.input_layers and \
-                   vm_dependency != morph_analysis_layer:
+                   vm_dependency != self.output_layer:
                     self.input_layers.append( vm_dependency )
         #
         # B) PostMorphAnalysisTagger (can be turned off)
         #
         if use_postanalysis and not postanalysis_tagger:
             # Initialize default postanalysis_tagger
-            self._postanalysis_tagger = PostMorphAnalysisTagger(output_layer=morph_analysis_layer,\
+            self._postanalysis_tagger = PostMorphAnalysisTagger(output_layer=self.output_layer,\
                                                  input_compound_tokens_layer=input_compound_tokens_layer, \
                                                  input_words_layer=input_words_layer, \
                                                  input_sentences_layer=input_sentences_layer )
@@ -186,8 +186,8 @@ class VabamorfCorpusTagger( object ):
             # Check for layer match
             assert hasattr(postanalysis_tagger, 'output_layer'), \
                 '(!) postanalysis_tagger does not define output_layer.'
-            assert postanalysis_tagger.output_layer == morph_analysis_layer, \
-                '(!) postanalysis_tagger should modify layer "'+str(morph_analysis_layer)+'".'+\
+            assert postanalysis_tagger.output_layer == self.output_layer, \
+                '(!) postanalysis_tagger should modify layer "'+str(self.output_layer)+'".'+\
                 ' Currently, it modifies layer "'+str(postanalysis_tagger.output_layer)+'".'
             self._postanalysis_tagger = postanalysis_tagger
         else:
@@ -197,7 +197,7 @@ class VabamorfCorpusTagger( object ):
         if self._postanalysis_tagger is not None:
             for postanalysis_dependency in self._postanalysis_tagger.input_layers:
                 if postanalysis_dependency not in self.input_layers and \
-                   postanalysis_dependency != morph_analysis_layer:
+                   postanalysis_dependency != self.output_layer:
                     self.input_layers.append( postanalysis_dependency )
         #
         # C) VabamorfDisambiguator (can be turned off for testing purposes)
@@ -205,15 +205,15 @@ class VabamorfCorpusTagger( object ):
         if use_vabamorf_disambiguator and not vabamorf_disambiguator:
             # Initialize default vabamorf disambiguator
             self._vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
-                                                                  output_layer=morph_analysis_layer,
+                                                                  output_layer=self.output_layer,
                                                                   input_words_layer=input_words_layer,
                                                                   input_sentences_layer=input_sentences_layer )
         elif use_vabamorf_disambiguator and vabamorf_disambiguator:
             # Use custom vabamorf disambiguator
             assert isinstance(vabamorf_disambiguator, VabamorfDisambiguator), \
                 '(!) vabamorf_disambiguator should be an instance of VabamorfDisambiguator.'
-            assert vabamorf_disambiguator.output_layer == morph_analysis_layer, \
-                '(!) vabamorf_disambiguator should modify layer "'+str(morph_analysis_layer)+'".'+\
+            assert vabamorf_disambiguator.output_layer == self.output_layer, \
+                '(!) vabamorf_disambiguator should modify layer "'+str(self.output_layer)+'".'+\
                 ' Currently, it modifies layer "'+str(vabamorf_disambiguator.output_layer)+'".'
             self._vabamorf_disambiguator = vabamorf_disambiguator
         else:
@@ -223,7 +223,7 @@ class VabamorfCorpusTagger( object ):
         if self._vabamorf_disambiguator is not None:
             for vm_dependency in self._vabamorf_disambiguator.input_layers:
                 if vm_dependency not in self.input_layers and \
-                   vm_dependency != morph_analysis_layer:
+                   vm_dependency != self.output_layer:
                     self.input_layers.append( vm_dependency )
         #
         # D) CorpusBasedMorphDisambiguator
@@ -232,7 +232,7 @@ class VabamorfCorpusTagger( object ):
             # Initialize default CorpusBasedMorphDisambiguator
             self._cb_disambiguator = \
                  CorpusBasedMorphDisambiguator( 
-                       output_layer = morph_analysis_layer,
+                       output_layer = self.output_layer,
                        input_words_layer     = self._input_words_layer,
                        input_sentences_layer = self._input_sentences_layer,
                        validate_inputs = validate_inputs )
@@ -240,15 +240,15 @@ class VabamorfCorpusTagger( object ):
             # Use custom CorpusBasedMorphDisambiguator
             assert isinstance(cb_disambiguator, CorpusBasedMorphDisambiguator), \
                 '(!) cb_disambiguator should be an instance of CorpusBasedMorphDisambiguator.'
-            assert cb_disambiguator.output_layer == morph_analysis_layer, \
-                '(!) cb_disambiguator should modify layer "'+str(morph_analysis_layer)+'".'+\
+            assert cb_disambiguator.output_layer == self.output_layer, \
+                '(!) cb_disambiguator should modify layer "'+str(self.output_layer)+'".'+\
                 ' Currently, it modifies layer "'+str(cb_disambiguator.output_layer)+'".'
             self._cb_disambiguator = cb_disambiguator
         # Add new dependencies from CorpusBasedMorphDisambiguator (if there are any)
         if self._cb_disambiguator is not None:
             for cbd_dependency in self._cb_disambiguator.input_layers:
                 if cbd_dependency not in self.input_layers and \
-                   cbd_dependency != morph_analysis_layer:
+                   cbd_dependency != self.output_layer:
                     self.input_layers.append( cbd_dependency )
 
 
@@ -360,7 +360,7 @@ class VabamorfCorpusTagger( object ):
     def __repr__(self):
         conf_str = ''
         conf_str = 'input_layers=['+(', '.join([l for l in self.input_layers]))+']'
-        conf_str += ', output_layer='+self._morph_analysis_layer
+        conf_str += ', output_layer='+self.output_layer
         return self.__class__.__name__ + '(' + conf_str + ')'
 
 
@@ -368,7 +368,7 @@ class VabamorfCorpusTagger( object ):
         # Add description
         import pandas
         pandas.set_option('display.max_colwidth', -1)
-        parameters = {'output layer': self._morph_analysis_layer,
+        parameters = {'output layer': self.output_layer,
                       'output attributes': str(self.output_attributes),
                       'input layers': str(self.input_layers)}
         table = pandas.DataFrame(data=parameters,
@@ -407,5 +407,5 @@ class VabamorfCorpusTagger( object ):
 
 
     def __str__(self):
-        return self.__class__.__name__ + '(' + str(self.input_layers) + '*->' + self._morph_analysis_layer + '*)'
+        return self.__class__.__name__ + '(' + str(self.input_layers) + '*->' + self.output_layer + '*)'
 
