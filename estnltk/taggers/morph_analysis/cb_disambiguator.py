@@ -38,7 +38,7 @@ class CorpusBasedMorphDisambiguator( object ):
     """
 
     def __init__(self,
-                 morph_analysis_layer:str='morph_analysis',
+                 output_layer:str='morph_analysis',
                  input_words_layer:str='words',
                  input_sentences_layer:str='sentences',
                  count_position_duplicates_once:bool=False,
@@ -48,8 +48,9 @@ class CorpusBasedMorphDisambiguator( object ):
 
         Parameters
         ----------
-        morph_analysis_layer: str (default: 'morph_analysis')
-            Name of the morphological analysis layer. 
+        output_layer: str (default: 'morph_analysis')
+            Name of the morphological analysis layer that will 
+            be disambiguated. 
         input_words_layer: str (default: 'words')
             Name of the input words layer;
         input_sentences_layer: str (default: 'sentences')
@@ -89,10 +90,10 @@ class CorpusBasedMorphDisambiguator( object ):
         # Set attributes & configuration
         self.input_layers = [ input_words_layer, \
                               input_sentences_layer, \
-                              morph_analysis_layer ]
+                              output_layer ]
+        self.output_layer = output_layer
         self._input_words_layer     = input_words_layer
         self._input_sentences_layer = input_sentences_layer
-        self._morph_analysis_layer  = morph_analysis_layer
         self._count_position_duplicates_once = \
               count_position_duplicates_once
         self._count_inside_compounds = \
@@ -117,7 +118,7 @@ class CorpusBasedMorphDisambiguator( object ):
         """
         lemmaFreq = defaultdict(int)
         for doc in docs:
-            for word_morph in doc[ self._morph_analysis_layer ]:
+            for word_morph in doc[ self.output_layer ]:
                 # 1) Find all unique proper name lemmas of
                 #    this word 
                 uniqLemmas = set()
@@ -137,7 +138,7 @@ class CorpusBasedMorphDisambiguator( object ):
             frequency.
         """
         disamb_retagger = ProperNamesDisambiguationStep1Retagger(lexicon,\
-                          morph_analysis_layer=self._morph_analysis_layer)
+                          morph_analysis_layer=self.output_layer)
         for doc in docs:
             disamb_retagger.retag( doc )
 
@@ -149,7 +150,7 @@ class CorpusBasedMorphDisambiguator( object ):
         """
         certainNames = set()
         for doc in docs:
-            for word_morph in doc[ self._morph_analysis_layer ]:
+            for word_morph in doc[ self.output_layer ]:
                 # Check if word only has proper name analyses
                 if all([ a.partofspeech == 'H' for a in word_morph ]):
                     # If so, record its lemmas as "certain proper name lemmas"
@@ -170,7 +171,7 @@ class CorpusBasedMorphDisambiguator( object ):
             sentences = doc[ self._input_sentences_layer ]
             sentence_id = 0
             nextSentenceInitialPosition = -1
-            morph_analysis = doc[ self._morph_analysis_layer ]
+            morph_analysis = doc[ self.output_layer ]
             for wid, word_morph in enumerate( morph_analysis ):
                 current_sentence = sentences[sentence_id]
                 # Check if the word is in sentence-initial position:
@@ -217,7 +218,7 @@ class CorpusBasedMorphDisambiguator( object ):
             sentences = doc[ self._input_sentences_layer ]
             sentence_id = 0
             nextSentenceInitialPosition = -1
-            morph_analysis = doc[ self._morph_analysis_layer ]
+            morph_analysis = doc[ self.output_layer ]
             for wid, word_morph in enumerate( morph_analysis ):
                 current_sentence = sentences[sentence_id]
                 # Check if the word is in sentence-initial position:
@@ -258,7 +259,7 @@ class CorpusBasedMorphDisambiguator( object ):
             appearing in the lexicon.
          """
         disamb_retagger = ProperNamesDisambiguationStep2Retagger(notProperNames,\
-                          morph_analysis_layer=self._morph_analysis_layer)
+                          morph_analysis_layer=self.output_layer)
         for doc in docs:
             disamb_retagger.retag( doc )
 
@@ -273,7 +274,7 @@ class CorpusBasedMorphDisambiguator( object ):
                Otherwise, leave analyses intact;
          """
         disamb_retagger = ProperNamesDisambiguationStep3Retagger(lexicon,\
-                          morph_analysis_layer=self._morph_analysis_layer,\
+                          morph_analysis_layer=self.output_layer,\
                           input_words_layer=self._input_words_layer,\
                           input_sentences_layer=self._input_sentences_layer )
         for doc in docs:
@@ -362,7 +363,7 @@ class CorpusBasedMorphDisambiguator( object ):
             details.
          """
         duplicate_remover = RemoveDuplicateAndProblematicAnalysesRetagger(
-                                morph_analysis_layer=self._morph_analysis_layer )
+                                morph_analysis_layer=self.output_layer )
         for doc in docs:
             duplicate_remover.retag( doc )
 
@@ -377,7 +378,7 @@ class CorpusBasedMorphDisambiguator( object ):
             See IgnoredByPostDisambiguationTagger for details.
         """
         hidden_words_tagger = IgnoredByPostDisambiguationTagger(
-                                     input_morph_analysis_layer = self._morph_analysis_layer,\
+                                     input_morph_analysis_layer = self.output_layer,\
                                      output_layer = hidden_words_layer )
         if remove_old_hidden_words_layer:
             # Clean-up old layers (if required)
@@ -415,7 +416,7 @@ class CorpusBasedMorphDisambiguator( object ):
                increased by the new one;
         """
         for d in range( len(docs) ):
-            morph_analysis = docs[d][ self._morph_analysis_layer ]
+            morph_analysis = docs[d][ self.output_layer ]
             assert hidden_words_layer in docs[d].layers.keys(), \
                    '(!) Text is missing layer {!r}'.format( hidden_words_layer )
             hidden_words = docs[d][ hidden_words_layer ]
@@ -495,7 +496,7 @@ class CorpusBasedMorphDisambiguator( object ):
         """
         lemma_based_disambiguator = \
               LemmaBasedPostDisambiguationRetagger(lexicon=lexicon,
-                            morph_analysis_layer=self._morph_analysis_layer,\
+                            morph_analysis_layer=self.output_layer,\
                             input_hidden_morph_analysis_layer=hidden_words_layer )
         for doc in docs:
             lemma_based_disambiguator.retag( doc )
@@ -629,7 +630,7 @@ class CorpusBasedMorphDisambiguator( object ):
     def __repr__(self):
         conf_str = ''
         conf_str = 'input_layers=['+(', '.join([l for l in self.input_layers]))+']'
-        conf_str += ', output_layer='+self._morph_analysis_layer
+        conf_str += ', output_layer='+self.output_layer
         return self.__class__.__name__ + '(' + conf_str + ')'
 
 
@@ -637,7 +638,7 @@ class CorpusBasedMorphDisambiguator( object ):
         # Add description
         import pandas
         pandas.set_option('display.max_colwidth', -1)
-        parameters = {'output layer': self._morph_analysis_layer,
+        parameters = {'output layer': self.output_layer,
                       'output attributes': str(self.output_attributes),
                       'input layers': str(self.input_layers)}
         table = pandas.DataFrame(data=parameters,
@@ -659,7 +660,7 @@ class CorpusBasedMorphDisambiguator( object ):
 
 
     def __str__(self):
-        return self.__class__.__name__ + '(' + str(self.input_layers) + '*->' + self._morph_analysis_layer + '*)'
+        return self.__class__.__name__ + '(' + str(self.input_layers) + '*->' + self.output_layer + '*)'
 
 
 # =========================================================

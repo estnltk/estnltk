@@ -140,7 +140,7 @@ def test_vm_corpus_tagger_with_changed_layer_names():
                               input_compound_tokens_layer='my_compounds',
                               input_words_layer='my_words',
                               output_layer='my_sentences' )
-    vm_corpus_tagger = VabamorfCorpusTagger(morph_analysis_layer='my_morph',
+    vm_corpus_tagger = VabamorfCorpusTagger(output_layer='my_morph',
                                             input_words_layer='my_words',
                                             input_sentences_layer='my_sentences',
                                             input_compound_tokens_layer='my_compounds')
