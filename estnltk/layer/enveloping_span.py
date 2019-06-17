@@ -9,7 +9,7 @@ from estnltk import EnvelopingBaseSpan
 class EnvelopingSpan:
     def __init__(self, spans, layer=None):
         spans = tuple(spans)
-        assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)) for span in spans), [type(span) for span in spans]
+        assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan, Annotation)) for span in spans), [type(span) for span in spans]
         self.spans = spans
 
         self._layer = layer
@@ -169,9 +169,10 @@ class EnvelopingSpan:
         if item in self._attributes:
             return self._attributes[item]
 
-        if item == getattr(self.layer, 'parent', None):
-            return self.parent
         layer = self.__getattribute__('layer')  # type: Layer
+        if item == layer.parent:
+            return self.parent
+
         return layer.text_object._resolve(layer.name, item, sofar=self)
 
     def __getitem__(self, idx: int) -> Union[Span, 'EnvelopingSpan']:
