@@ -214,12 +214,22 @@ class Layer:
         if self.ambiguous:
             if target is None:
                 new = AmbiguousSpan(layer=self, span=span)
-                new.add_span(span)
+
+                annotation = Annotation(new)
+                for attr in span.legal_attribute_names:
+                    setattr(annotation, attr, getattr(span, attr))
+                if not isinstance(span, Span):
+                    # EnvelopingSpan
+                    annotation.spans = span.spans
+                if annotation not in new._annotations:
+                    new._annotations.append(annotation)
+
                 self.span_list.add_span(new)
                 new.parent = span.parent
             else:
                 assert isinstance(target, AmbiguousSpan)
-                target.add_span(span)
+                assert len(span.annotations) == 1
+                target.add_annotation(**span.annotations[0].attributes)
         else:
             if target is None:
                 self.span_list.add_span(span)
