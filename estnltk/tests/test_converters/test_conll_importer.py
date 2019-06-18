@@ -304,7 +304,7 @@ text_dict = {
 
 
 def test_conll_to_text():
-    file = rel_path('tests/test_converters/test_conll_importer.conll')
+    file = rel_path('tests/test_converters/test_conll.conll')
     text = conll_to_text(file)
 
     # for span in result['layers'][0]['spans']:
@@ -314,7 +314,7 @@ def test_conll_to_text():
 
 
 def _test_add_layer_from_conll():
-    file = rel_path('tests/test_converters/test_conll_importer.conll')
+    file = rel_path('tests/test_converters/test_conll.conll')
 
     text_dict_0 = {
         'text': 'Iga üheksas kroon tuli salapärastelt isikutelt . See oli rohkem kui 10 protsenti kogu Hansapanka paigutatud rahast .',
