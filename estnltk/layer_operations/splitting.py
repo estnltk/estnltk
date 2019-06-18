@@ -3,7 +3,6 @@ from estnltk import ElementaryBaseSpan
 from estnltk.layer.span import Span
 from estnltk.layer.layer import Layer
 from estnltk.text import Text
-from estnltk import EnvelopingSpan
 
 import networkx as nx
 
@@ -91,8 +90,8 @@ def extract_sections(text: Text,
                             if parent:
                                 spans.append(parent)
                         attributes = {attr: getattr(span, attr) for attr in attribute_names}
-                        sp = new_layer.add_annotation(spans, **attributes)
-                        map_spans[(span.base_span, span.layer.name)] = sp
+                        new_annotation = new_layer.add_annotation(spans, **attributes)
+                        map_spans[(span.base_span, span.layer.name)] = new_annotation.span
             else:
                 for span in layer:
                     span_start = span.start
