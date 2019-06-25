@@ -1,0 +1,230 @@
+# ----------------------------------------------------------------
+#  Olema-verbi relatsioonid (olema paistab kõige produktiivsem)
+# ----------------------------------------------------------------
+ole POS	vaja;D;	da
+ole NEG	vaja;D;	da
+ole POS	tarvis;D;	da
+ole NEG	tarvis;D;	da
+ole POS	nõus;D;	ma
+ole NEG	nõus;D;	ma
+ole POS	valmis;D;	ma
+ole NEG	valmis;D;	ma
+ole POS	võimalik;A;sg n	da
+ole NEG	võimalik;A;sg n	da
+ole POS	võimalus;S;sg n	da
+ole NEG	võimalus;S;sg p	da
+ole POS	võimatu;A;sg n	da
+ole NEG	võimatu;A;sg n	da
+
+ole POS	kava;S;sg in	da
+ole POS	plaan;S;sg in	da
+ole NEG	(kava|plaan);S;sg in	da
+
+ole POS	kerge;A;sg n	da
+ole NEG	kerge;A;sg n	da
+ole POS	lihtne;A;sg n	da
+ole NEG	lihtne;A;sg n	da
+ole POS	raske;A;sg n	da
+ole NEG	raske;A;sg n	da
+ole POS	keeruline;A;sg n	da
+ole NEG	keeruline;A;sg n	da
+
+ole POS	mõte;S;sg p	da
+ole NEG	mõte;S;sg p	da
+ole POS	ots_tarbekas;A;sg n	da
+ole NEG	ots_tarbekas;A;sg n	da
+ole POS	mõttetu;A;sg n	da
+ole POS	asjatu;A;sg n	da
+
+ole POS	soov;S;sg (n)	da
+ole NEG	soov;S;sg (p)	da
+ole POS	(tahe|tahtmine);S;sg (n|p)	da
+ole NEG	(tahe|tahtmine);S;sg (p)	da
+
+ole POS	ees_märk;S;sg (n|tr)	da
+ole NEG	ees_märk;S;sg (n|tr)	da
+
+ole POS	põhjus;S;sg p	da
+ole NEG	põhjus;S;sg p	da
+ole POS	alus;S;sg p	da
+ole NEG	alus;S;sg p	da
+
+ole POS	õigus;S;sg n	da
+ole NEG	õigus;S;sg p	da
+
+ole POS	oluline;A;sg n	da
+ole POS	tähtis;A;sg n	da
+
+ole POS	komme;S;sg (tr)	da
+ole NEG	komme;S;sg (tr)	da
+ole POS	tava;S;sg (tr)	da
+ole NEG	tava;S;sg (tr)	da
+
+ole POS	parem;C;sg n	da
+
+ole POS	kohustus;S;sg (n)	da
+ole NEG	kohustus;S;sg (p)	da
+
+ole POS	aeg;S;sg (p|n)	da
+ole NEG	aeg;S;sg p	da
+
+# ----------------------------------------------------------------
+#  Produktiivsemad mitte-olema verbid
+# ----------------------------------------------------------------
+
+#  ANDMA
+and POS	võimalus;S;(sg|pl) (n|p|g)	da
+and NEG	võimalus;S;(sg|pl) (p)	da
+and POS	õigus;S;(sg|pl) (n|p|g)	da
+and NEG	õigus;S;(sg|pl) (p)	da
+and POS	aeg;S;((sg|pl) (p)|adt)	da
+and NEG	aeg;S;((sg|pl) (p)|adt)	da
+and POS	alus;S;(sg|pl) (p|g)	da
+and NEG	alus;S;(sg|pl) (p)	da
+and POS	põhjus;S;(sg|pl) (p|g)	da
+and NEG	põhjus;S;(sg|pl) (p)	da
+and POS	mõte;S;(sg|pl) (n|g)	da
+and NEG	mõte;S;(sg|pl) (p)	da
+and POS	luba;S;(sg|pl) (n|p|g)	da
+and NEG	luba;S;(sg|pl) (n|p)	da
+and POS	käsk;S;sg (n|g)	da
+and NEG	käsk;S;sg p	da
+and POS	vabadus;S;(sg|pl) (n|g)	da
+and NEG	vabadus;S;(sg|pl) (p)	da
+and POS	korraldus;S;(sg|pl) (n|g)	da
+and NEG	korraldus;S;((sg|pl) (p)|adt)	da
+
+# JÄTMA
+jät POS	võimalus;S;(sg|pl) (n|p|g)	da
+jät NEG	võimalus;S;(sg|pl) (p)	da
+jät POS	õigus;S;(sg|pl) (n|p|g)	da
+jät NEG	õigus;S;(sg|pl) (p)	da
+jät POS	aeg;S;((sg|pl) (p)|adt)	da
+jät NEG	aeg;S;((sg|pl) (p)|adt)	da
+jät POS	vabadus;S;(sg|pl) (n|g)	da
+jät NEG	vabadus;S;(sg|pl) (p)	da
+jät POS	üles_anne;S;(sg) (n|tr)	da
+
+# JÄÄMA
+jää POS	aeg;S;((sg|pl) (p)|adt)	da
+jää NEG	aeg;S;((sg|pl) (p)|adt)	da
+jää POS	võimalus;S;(sg|pl) (n|p|g)	da
+jää NEG	võimalus;S;(sg|pl) (p)	da
+jää POS	üles_anne;S;(sg) (tr)	da
+jää POS	kohustus;S;(sg) (tr)	da
+jää POS	kohus;S;(sg) (tr)	da
+
+# LEIDMA
+leid POS	aeg;S;((sg|pl) (p)|adt)	da
+leid NEG	aeg;S;((sg|pl) (p)|adt)	da
+leid POS	võimalus;S;(sg|pl) (n|p|g)	da
+leid NEG	võimalus;S;(sg|pl) (p)	da
+leid POS	põhjus;S;(sg|pl) (p|g)	da
+leid NEG	põhjus;S;(sg|pl) (p)	da
+
+# PIDAMA
+pida POS	plaan;S;sg (p|g)	da
+pida POS	parem;C;sg tr	da
+pida POS	targem;C;sg tr	da
+pida POS	kohus;S;sg tr	da
+pida NEG	kohus;S;sg tr	da
+pida POS	oluline;A;sg tr	da
+pida NEG	oluline;A;sg tr	da
+pida POS	vajalik;A;sg tr	da
+pida NEG	vajalik;A;sg tr	da
+pida POS	õige;A;sg tr	da
+pida NEG	õige;A;sg tr	da
+
+# PUUDUMA
+puudu POS	võimalus;S;(sg|pl) (n)	da
+puudu NEG	võimalus;S;(sg|pl) (n)	da
+puudu POS	oskus;S;(sg|pl) n	da
+puudu NEG	oskus;S;(sg|pl) (n)	da
+puudu POS	õigus;S;(sg|pl) n	da
+puudu NEG	õigus;S;(sg|pl) n	da
+puudu POS	luba;S;sg (n|p)	da
+puudu NEG	luba;S;sg (n|p)	da
+puudu POS	soov;S;sg (n)	da
+puudu NEG	soov;S;sg (n)	da
+puudu POS	vajadus;S;sg (n)	da
+puudu NEG	vajadus;S;sg (n)	da
+puudu POS	(tahe|tahtmine);S;sg (n)	da
+puudu NEG	(tahe|tahtmine);S;sg (n)	da
+puudu POS	huvi;S;sg (n|p)	da
+puudu NEG	huvi;S;sg (n|p)	da
+
+# TEGEMA
+tege POS	ette_panek;S;sg (n|g)	da
+tege NEG	ette_panek;S;sg (p)	da
+tege POS	katse;S;sg (n|g)	da
+tege NEG	katse;S;sg (p)	da
+tege POS	otsus;S;sg (n|g)	da
+tege NEG	otsus;S;sg (p)	da
+tege POS	pakkumine;S;sg (n|g)	da
+tege NEG	pakkumine;S;sg (p)	da
+tege POS	üles_anne;S;(sg) (tr)	da
+
+# TEKKIMA
+tekki POS	võimalus;S;(sg|pl) (n|g)	da
+tekki NEG	võimalus;S;(sg|pl) (n|p)	da
+tekki POS	himu;S;sg (n|p)	da
+tekki NEG	himu;S;sg (n|p)	da
+tekki POS	huvi;S;sg (n|p)	da
+tekki NEG	huvi;S;sg (n|p)	da
+tekki POS	kiusatus;S;sg n	da
+tekki NEG	kiusatus;S;sg p	da
+tekki POS	mõte;S;sg n	da
+tekki NEG	mõte;S;sg p	da
+tekki POS	soov;S;sg n	da
+tekki NEG	soov;S;sg (p|g)	da
+tekki POS	(tahe|tahtmine);S;sg n	da
+tekki NEG	(tahe|tahtmine);S;sg p	da
+tekki POS	vajadus;S;sg n	da
+tekki NEG	vajadus;S;sg p	da
+
+# SAAMA
+saa POS	võimalus;S;sg g	da
+saa NEG	võimalus;S;sg p	da
+saa POS	luba;S;sg (n|p|g)	da
+saa NEG	luba;S;sg (n|p)	da
+saa POS	õigus;S;sg (n|g)	da
+saa NEG	õigus;S;sg p	da
+saa POS	käsk;S;sg (n|g)	da
+saa NEG	käsk;S;sg p	da
+saa POS	üles_anne;S;sg (g|tr)	da
+saa NEG	üles_anne;S;sg (tr)	da
+
+# ----------------------------------------------------------------
+#  Vähemproduktiivsemad mitte-olema verbid
+#  (st tundub, et rohkem kinnistunud ühendid)
+# ----------------------------------------------------------------
+
+arva POS	heaks;D;	da
+avalda POS	soov;S;sg p	da
+avalda NEG	soov;S;sg p	da
+avane POS	võimalus;S;sg n	da
+avane NEG	võimalus;S;sg p	da
+küsi POS	luba;S;sg (n|p)	da
+küsi NEG	luba;S;sg (n|p)	da
+kasuta POS	võimalus;S;sg (n|p|g)	da
+kasuta NEG	võimalus;S;sg (p)	da
+loo POS	võimalus;S;(sg|pl) (n|p|g)	da
+loo NEG	võimalus;S;(sg|pl) (p)	da
+mine POS	kord;S;sg p	da
+näge POS	võimalus;S;(sg|pl) p	da
+näge NEG	võimalus;S;(sg|pl) p	da
+näge POS	põhjus;S;(sg|pl) p	da
+näge NEG	põhjus;S;(sg|pl) p	da
+näge POS	vajadus;S;(sg|pl) p	da
+näge NEG	vajadus;S;(sg|pl) p	da
+otsi POS	võimalus;S;(sg|pl) (n|p|g)	da
+otsi NEG	võimalus;S;(sg|pl) (p)	da
+osutu POS	võimalik;A;sg tr	da
+pakku POS	võimalus;S;(sg|pl) (n|p|g)	da
+pakku NEG	võimalus;S;(sg|pl) (p)	da
+sead POS	ees_märk;S;sg tr	da
+sead NEG	ees_märk;S;sg tr	da
+tund POS	soov;S;sg (g|p)	da
+tund NEG	soov;S;sg (g|p)	da
+tund POS	vajadus;S;sg p	da
+tund NEG	vajadus;S;sg p	da
