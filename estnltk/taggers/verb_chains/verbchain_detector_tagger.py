@@ -66,7 +66,8 @@ class VerbChainDetector( Tagger ):
                   input_morph_analysis_layer:str='morph_analysis',
                   resources_dir:str=VERB_CHAIN_RES_PATH,
                   add_morph_attr:bool=False,
-                  add_analysis_ids_attr:bool=False):
+                  add_analysis_ids_attr:bool=False,
+                  vc_detector:V1_4VerbChainDetector=None):
         """Initializes VerbChainDetector.
         
         Parameters
@@ -95,6 +96,9 @@ class VerbChainDetector( Tagger ):
             features of the verb chain. 
             ( this attribute helps to distinguish verb chain's 
               morphological analyses in case of ambiguities )
+        vc_detector: estnltk.taggers.verb_chains.v1_4_1.verbchain_detector.VerbChainDetector (default: None)
+            Overrides the default verb chain detector with the given 
+            VerbChainDetector instance. 
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -121,9 +125,15 @@ class VerbChainDetector( Tagger ):
         self.output_attributes = cur_output_attributes
         self.attributes = self.output_attributes  # <- For backward compatibility ...
         # Initialize v1.4.1 vc detector
-        self._resources_dir = resources_dir
-        self._verb_chain_detector = \
-             V1_4VerbChainDetector(resourcesPath=self._resources_dir)
+        if vc_detector is None:
+            self._resources_dir = resources_dir
+            self._verb_chain_detector = \
+                V1_4VerbChainDetector(resourcesPath=self._resources_dir)
+        else:
+            # Use a custom VerbChainDetector
+            assert isinstance(vc_detector, V1_4VerbChainDetector), \
+                '(!) vc_detector should be an instance of v1.4.1 VerbChainDetector!'
+            self._verb_chain_detector = vc_detector
 
 
 

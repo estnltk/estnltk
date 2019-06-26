@@ -230,3 +230,35 @@ def test_verb_chain_detection_3():
         remaining_verbs = [vc.remaining_verbs for vc in verb_chains]
         assert remaining_verbs == test_text['remaining_verbs']
 
+
+
+def test_verb_chain_detection_customize_detector():
+    # Tests that VerbChainDetector's detector component can be customized:
+    from estnltk.taggers.verb_chains.verbchain_detector_tagger import VERB_CHAIN_RES_PATH
+    from estnltk.taggers.verb_chains.v1_4_1.verbchain_detector import VerbChainDetector as V1_4VerbChainDetector
+    vc_detector_customized = VerbChainDetector(vc_detector=V1_4VerbChainDetector(resourcesPath=VERB_CHAIN_RES_PATH))
+    test_data = [
+       { 'text': 'Londoni lend pidi täna hommikul kell 4:30 Tallinna saabuma.',
+         'vc_texts' : [['pidi', 'saabuma']],
+         'patterns' : [['verb', 'verb']],
+         'roots'    : [['pida', 'saabu']],
+         'polarities': ['POS'],
+       },
+    ]
+    for test_text in test_data:
+        # Prepare text. Add required layers
+        text = Text(test_text['text'])
+        text.tag_layer(['words', 'sentences', 'morph_analysis', 'clauses'])
+        # Tag chains
+        vc_detector_customized.tag( text )
+        # Check results
+        verb_chains = text['verb_chains']
+        verb_chain_texts = [vc.text for vc in verb_chains]
+        assert verb_chain_texts == test_text['vc_texts']
+        verb_chain_patterns = [vc.pattern for vc in verb_chains]
+        assert verb_chain_patterns == test_text['patterns']
+        verb_chain_roots = [vc.roots for vc in verb_chains]
+        assert verb_chain_roots == test_text['roots']
+        verb_chain_polarities = [vc.polarity for vc in verb_chains]
+        assert verb_chain_polarities == test_text['polarities']
+
