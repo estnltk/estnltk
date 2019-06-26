@@ -40,14 +40,19 @@ class VerbChainDetector( Tagger ):
                          'mood', 'polarity', 'tense', 'voice', \
                          'remaining_verbs' )
     input_layers      = ['words', 'sentences', 'morph_analysis', 'clauses']
-    conf_param = [ 'add_morph_attr',
+    conf_param = [ # Additional output attributes:
+                   'add_morph_attr',
                    'add_analysis_ids_attr',
-                   # Names of specific input layers
+                   # Detector arguments from the version 1.4.1:
+                   'expand2ndTime',      
+                   'breakOnPunctuation', 
+                   'removeSingleAraEi',  
+                   # Names of specific input layers:
                    '_input_words_layer',
                    '_input_clauses_layer',
                    '_input_sentences_layer',
                    '_input_morph_analysis_layer',
-                   # Inner parameters
+                   # Inner parameters:
                    '_resources_dir',
                    '_verb_chain_detector',
                    # For backward compatibility:
@@ -67,6 +72,9 @@ class VerbChainDetector( Tagger ):
                   resources_dir:str=VERB_CHAIN_RES_PATH,
                   add_morph_attr:bool=False,
                   add_analysis_ids_attr:bool=False,
+                  expand2ndTime:bool=False,
+                  breakOnPunctuation:bool=False,
+                  removeSingleAraEi:bool=True,
                   vc_detector:V1_4VerbChainDetector=None):
         """Initializes VerbChainDetector.
         
@@ -96,6 +104,12 @@ class VerbChainDetector( Tagger ):
             features of the verb chain. 
             ( this attribute helps to distinguish verb chain's 
               morphological analyses in case of ambiguities )
+        expand2ndTime: boolean (default: False)
+            If True, regular verb chains (chains not ending with 'olema') are expanded twice.
+        breakOnPunctuation: boolean (default: False)
+            If True, expansion of regular verb chains will be broken in case of intervening punctuation.
+        removeSingleAraEi: boolean (default: True)
+            if True, verb chains consisting of a single word, 'ära' or 'ei', will be removed.
         vc_detector: estnltk.taggers.verb_chains.v1_4_1.verbchain_detector.VerbChainDetector (default: None)
             Overrides the default verb chain detector with the given 
             VerbChainDetector instance. 
@@ -122,6 +136,9 @@ class VerbChainDetector( Tagger ):
             if self.add_analysis_ids_attr and attr == 'word_ids':
                 # add analysis_ids attr (if required)
                 cur_output_attributes += ( 'analysis_ids', )
+        self.expand2ndTime      = expand2ndTime
+        self.breakOnPunctuation = breakOnPunctuation
+        self.removeSingleAraEi  = removeSingleAraEi
         self.output_attributes = cur_output_attributes
         self.attributes = self.output_attributes  # <- For backward compatibility ...
         # Initialize v1.4.1 vc detector
@@ -240,7 +257,10 @@ class VerbChainDetector( Tagger ):
             
             # D) Detect verb chains (the output will be dicts)
             verb_chain_dicts = \
-                self._verb_chain_detector.detectVerbChainsFromSent( sentence_morph_dicts )
+                self._verb_chain_detector.detectVerbChainsFromSent( sentence_morph_dicts,
+                                                expand2ndTime = self.expand2ndTime,
+                                                breakOnPunctuation = self.breakOnPunctuation,
+                                                removeSingleAraEi = self.removeSingleAraEi)
             
             # E) Convert dictionaries to EnvelopingSpan-s
             for vc in verb_chain_dicts:
