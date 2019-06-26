@@ -3,9 +3,9 @@
 #  (verb chains) from clauses.
 #
 #   Note: This is simply a wrapper around the verb chain detector
-#   source from the EstNLTK v1.4.1. Because of that, it includes 
+#   source from EstNLTK v1.4.1. Because of that, it includes
 #   some processing overhead as it needs to convert v1.6 data to 
-#   the version v1.4.1 data structures (and back).
+#   the version 1.4.1 data structures (and back).
 #
 
 import os.path
@@ -32,7 +32,7 @@ class VerbChainDetector( Tagger ):
     """Tags verb chains inside clauses. ( v1.4.1 )
        Note: this is simply a wrapper around v1.4.1 verb chain 
        detector. Because of that, it includes some processing 
-       overhead due to converting v1.6 data to the version v1.4.1 
+       overhead due to converting v1.6 data to the version 1.4.1 
        data structures (and back).
     """
     output_layer      = 'verb_chains'
