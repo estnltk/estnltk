@@ -44,6 +44,7 @@ from estnltk.taggers.standard_taggers.flesch_tagger import SentenceFleschScoreRe
 from estnltk.taggers.standard_taggers.text_segments_tagger import TextSegmentsTagger
 
 from estnltk.taggers.standard_taggers.timex_tagger import TimexTagger
+from estnltk.taggers.verb_chains import VerbChainDetector
 
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger

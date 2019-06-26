@@ -11,9 +11,8 @@
 import os.path
 
 # Interface of the version 1.6
-from estnltk import Text
+from estnltk.text import Text, Layer, EnvelopingSpan
 from estnltk.taggers import Tagger
-from estnltk.text import Layer, EnvelopingSpan
 
 # Converting morphological analysis structures from v1.6 to v1.4.1
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
@@ -29,7 +28,7 @@ VERB_CHAIN_RES_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'verb_chains', 'v1_4
 
 
 class VerbChainDetector( Tagger ):
-    """Tags verb chains inside clauses. ( v1.4.1 )
+    """Tags main verbs and their extensions (verb chains) in clauses. ( v1.4.1 )
        Note: this is simply a wrapper around v1.4.1 verb chain 
        detector. Because of that, it includes some processing 
        overhead due to converting v1.6 data to the version 1.4.1 
@@ -159,7 +158,7 @@ class VerbChainDetector( Tagger ):
         
         Parameters
         ----------
-        text: str
+        text: Text
            Text in which verb chains will be tagged;
           
         layers: MutableMapping[str, Layer]
