@@ -19,7 +19,7 @@ from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_s
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 # Verb chain detector functionality from the version 1.4.1
-from estnltk.taggers.verb_chains.v1_4_1.verbchain_detector import VerbChainDetector as V1_4VerbChainDetector
+from estnltk.taggers.verb_chains.v1_4_1.verbchain_detector import VerbChainDetectorV1_4
 from estnltk.taggers.verb_chains.v1_4_1.vcd_common_names import CLAUSE_IDX
 
 # Path to the verb chain detector's resources
@@ -74,7 +74,7 @@ class VerbChainDetector( Tagger ):
                   expand2ndTime:bool=False,
                   breakOnPunctuation:bool=False,
                   removeSingleAraEi:bool=True,
-                  vc_detector:V1_4VerbChainDetector=None):
+                  vc_detector:VerbChainDetectorV1_4=None):
         """Initializes VerbChainDetector.
         
         Parameters
@@ -144,11 +144,11 @@ class VerbChainDetector( Tagger ):
         if vc_detector is None:
             self._resources_dir = resources_dir
             self._verb_chain_detector = \
-                V1_4VerbChainDetector(resourcesPath=self._resources_dir)
+                VerbChainDetectorV1_4(resourcesPath=self._resources_dir)
         else:
             # Use a custom VerbChainDetector
-            assert isinstance(vc_detector, V1_4VerbChainDetector), \
-                '(!) vc_detector should be an instance of v1.4.1 VerbChainDetector!'
+            assert isinstance(vc_detector, VerbChainDetectorV1_4), \
+                '(!) vc_detector should be an instance of VerbChainDetectorV1_4!'
             self._verb_chain_detector = vc_detector
 
 

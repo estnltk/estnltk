@@ -417,7 +417,7 @@ def addGrammaticalFeatsAndRoots( sentence, foundChains ):
 #    VerbChainDetector -- The Main Class
 # ================================================================
 
-class VerbChainDetector:
+class VerbChainDetectorV1_4:
     ''' Class for performing verb chain detection.
     '''
     
