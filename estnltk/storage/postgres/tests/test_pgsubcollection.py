@@ -103,7 +103,8 @@ class TestPgSubCollection(unittest.TestCase):
 
         expected = ('SELECT "test_schema"."{collection_name}"."id", '
                            '"test_schema"."{collection_name}"."data" '
-                    'FROM "test_schema"."{collection_name}"').format(collection_name=self.collection_name)
+                    'FROM "test_schema"."{collection_name}" '
+                    'ORDER BY "test_schema"."{collection_name}"."id"').format(collection_name=self.collection_name)
         assert subcollection.sql_query_text == expected
 
     def test_sql_count_query_text(self):
@@ -111,7 +112,8 @@ class TestPgSubCollection(unittest.TestCase):
 
         expected = ('SELECT count(*) FROM (SELECT "test_schema"."{collection_name}"."id", '
                                                  '"test_schema"."{collection_name}"."data" '
-                                          'FROM "test_schema"."{collection_name}") AS a'
+                                          'FROM "test_schema"."{collection_name}" '
+                                          'ORDER BY "test_schema"."{collection_name}"."id") AS a'
                     ).format(collection_name=self.collection_name)
         print(subcollection.sql_count_query_text)
         assert subcollection.sql_count_query_text == expected

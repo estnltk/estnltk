@@ -120,30 +120,35 @@ class PgSubCollection:
         # Required layers are part of the main collection
         if not required_layers:
             if self._selection_criterion:
-                return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
                                                                 collection_identifier,
                                                                 self._selection_criterion)
 
-            return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
+            else:
+                query = SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
 
-        # Build a join clauses to merge required detached layers by text_id
-        required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
-                                 for layer in required_layers]
-        join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
-                                                                                layer_table_identifier)
-                                           for layer_table_identifier in required_layer_tables)
+        else:
+            # Build a join clauses to merge required detached layers by text_id
+            required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
+                                     for layer in required_layers]
+            join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
+                                                                                    layer_table_identifier)
+                                               for layer_table_identifier in required_layer_tables)
 
 
-        required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
-        if self._selection_criterion:
-            return SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
-                                                                   required_tables,
-                                                                   join_condition,
-                                                                   self._selection_criterion)
+            required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
+            if self._selection_criterion:
+                query = SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
+                                                                       required_tables,
+                                                                       join_condition,
+                                                                       self._selection_criterion)
 
-        return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                        required_tables,
-                                                        join_condition)
+            else:
+                query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                                required_tables,
+                                                                join_condition)
+
+        return SQL('{} ORDER BY {}."id"').format(query, collection_identifier)
 
     @property
     def sql_query_text(self):
