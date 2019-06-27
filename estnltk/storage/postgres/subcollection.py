@@ -96,7 +96,7 @@ class PgSubCollection:
 
     @property
     def fragmented_layers(self):
-        #TODO: Complete this
+        # TODO: Complete this
         raise NotImplementedError()
 
     @property
@@ -107,8 +107,8 @@ class PgSubCollection:
         We need nested sql queries to combine fragments into single object per text_id
         This must be solved by defining a view during creation of fragmented layers
         or some dark magic query composition.
-        """
 
+        """
         selected_columns = pg.SelectedColumns(collection=self.collection,
                                               layers=self._detached_layers,
                                               collection_meta=self.meta_attributes,
@@ -118,16 +118,7 @@ class PgSubCollection:
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
         # Required layers are part of the main collection
-        if not required_layers:
-            if self._selection_criterion:
-                query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                                collection_identifier,
-                                                                self._selection_criterion)
-
-            else:
-                query = SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
-
-        else:
+        if required_layers:
             # Build a join clauses to merge required detached layers by text_id
             required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
                                      for layer in required_layers]
@@ -135,18 +126,25 @@ class PgSubCollection:
                                                                                     layer_table_identifier)
                                                for layer_table_identifier in required_layer_tables)
 
-
             required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
             if self._selection_criterion:
                 query = SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
-                                                                       required_tables,
-                                                                       join_condition,
-                                                                       self._selection_criterion)
+                                                                        required_tables,
+                                                                        join_condition,
+                                                                        self._selection_criterion)
 
             else:
                 query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                                required_tables,
-                                                                join_condition)
+                                                                 required_tables,
+                                                                 join_condition)
+        else:
+            if self._selection_criterion:
+                query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                                 collection_identifier,
+                                                                 self._selection_criterion)
+
+            else:
+                query = SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
 
         return SQL('{} ORDER BY {}."id"').format(query, collection_identifier)
 
@@ -156,7 +154,7 @@ class PgSubCollection:
 
     @property
     def sql_count_query(self):
-        #TODO: Do not stress SQL analyzer write a flat query for it
+        # TODO: Do not stress SQL analyzer write a flat query for it
         return SQL('SELECT count(*) FROM ({}) AS a').format(self.sql_query)
 
     @property
