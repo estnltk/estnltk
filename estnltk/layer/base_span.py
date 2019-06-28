@@ -2,7 +2,6 @@ from typing import Sequence
 
 
 class BaseSpan:
-
     __slots__ = ['_raw', '_hash', 'start', 'end', 'level']
 
     def __init__(self, raw, level: int, start: int, end: int):
@@ -35,7 +34,7 @@ class BaseSpan:
 
 
 class ElementaryBaseSpan(BaseSpan):
-    __slots__ = ()
+    __slots__ = []
 
     def __init__(self, start: int, end: int):
         if not isinstance(start, int):
@@ -72,7 +71,6 @@ class EnvelopingBaseSpan(BaseSpan):
         for i in range(len(spans) - 1):
             if spans[i].end > spans[i + 1].start:
                 raise ValueError('enveloped components must not overlap: {}, {}'.format(spans[i], spans[i+1]))
-
 
         base_level = spans[0].level
         if any(span.level != base_level for span in spans):
