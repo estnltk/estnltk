@@ -120,8 +120,7 @@ class SpanTagger(Tagger):
                 if value in vocabulary:
                     for rec in vocabulary[value]:
                         span = Span(base_span=parent_span.base_span, parent=parent_span, layer=layer)
-                        for attr in self.output_attributes:
-                            setattr(span, attr, rec[attr])
+                        span.add_annotation(**rec)
                         if self.global_validator(raw_text, span):
                             if validator_key is None or rec[validator_key](raw_text, span):
                                 layer.add_span(span)

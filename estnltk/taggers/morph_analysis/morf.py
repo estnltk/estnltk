@@ -26,7 +26,7 @@ from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.morph_analysis.morf_common import _convert_vm_dict_to_morph_analysis_spans
+from estnltk.taggers.morph_analysis.morf_common import _convert_vm_records_to_morph_analysis_records
 
 
 class VabamorfTagger(Tagger):
@@ -462,25 +462,17 @@ class VabamorfAnalyzer( Tagger ):
         morph_layer._base = self._input_words_layer
         # B) Populate layer
         for word, analyses_dict in zip(layers[ self._input_words_layer ], analysis_results):
-            # Convert from Vabamorf dict to a list of Spans 
-            spans = \
-                _convert_vm_dict_to_morph_analysis_spans( \
-                        analyses_dict, \
-                        word, \
-                        layer_attributes=current_attributes, \
-                        sort_analyses = True )
+            # Convert from Vabamorf dict to a list of Spans
+            records = _convert_vm_records_to_morph_analysis_records(analyses_dict, layer_attributes=current_attributes,
+                                                                    sort_analyses=True)
             # Attach spans (if word has morphological analyses)
-            for span in spans:
-                morph_layer.add_span( span )
-            if not spans:
+            for record in records:
+                morph_layer.add_annotation(word.base_span, **record)
+            if not records:
                 # if word has no morphological analyses (e.g.
                 # it is an unknown word), then attach an 
                 # empty Span as a placeholder
-                empty_span = \
-                    _create_empty_morph_span( \
-                        word, \
-                        layer_attributes=current_attributes )
-                morph_layer.add_span( empty_span )
+                morph_layer.add_annotation(word.base_span)
 
         # C) Return the layer
         return morph_layer

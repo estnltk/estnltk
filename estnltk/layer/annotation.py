@@ -52,7 +52,7 @@ class Annotation:
 
     @property
     def text_object(self):
-        if self._span:
+        if self._span is not None:
             return self._span.text_object
 
     @property

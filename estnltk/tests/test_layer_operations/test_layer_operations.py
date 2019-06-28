@@ -313,10 +313,10 @@ class TestLayerOperation():
         assert result == expected
 
         layer_1 = Layer('layer_1')
-        layer_1.add_span(Span(base_span=ElementaryBaseSpan(0, 3)))
+        layer_1.add_annotation(ElementaryBaseSpan(0, 3))
         layer_2 = Layer('layer_2')
         result = list(diff_layer(layer_1, layer_2))
-        expected = [(Span(base_span=ElementaryBaseSpan(0, 3)), None)]
+        expected = [(layer_1[0], None)]
         assert result == expected
 
         layer_1 = Layer('layer_1')

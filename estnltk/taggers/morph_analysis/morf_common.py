@@ -8,7 +8,6 @@ from functools import reduce
 
 from typing import MutableMapping, Any
 
-from estnltk import ElementaryBaseSpan
 from estnltk.text import Span
 
 from estnltk.vabamorf.morf import get_group_tokens
@@ -160,46 +159,39 @@ def _convert_morph_analysis_span_to_vm_dict(span: Span):
     return word_dict
 
 
-def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
-                                              layer_attributes = None, \
-                                              sort_analyses = True ):
-    ''' Converts morphological analyses from the Vabamorf's 
-        dictionary format to the EstNLTK's Span format, and 
-        attaches the newly created span as a child of the 
-        word.
-        
-        If sort_analyses=True, then analyses will be sorted 
-        by root,ending,clitic,postag,form;
-        
-        Note: if word has no morphological analyses (e.g. it 
-        is an unknown word), then returns an empty list.
-        
-        Returns a list of EstNLTK's Spans.
-    '''
-    spans = []
-    current_attributes = \
-        layer_attributes if layer_attributes else ESTNLTK_MORPH_ATTRIBUTES
+def _convert_vm_records_to_morph_analysis_records(vm_dict, layer_attributes=None, sort_analyses=True):
+    """Converts morphological analyses from the Vabamorf's
+    dictionary format to the morph layer attributes.
+
+    If sort_analyses=True, then analyses will be sorted
+    by root,ending,clitic,postag,form.
+
+    Note: if word has no morphological analyses (e.g. it
+    is an unknown word), then returns an empty list.
+
+    Returns a list of attribute records.
+
+    """
     word_analyses = vm_dict['analysis']
+
     if sort_analyses:
-        # Sort analyses ( to assure a fixed order, e.g. for testing purpose )
-        word_analyses = sorted( vm_dict['analysis'], key = \
-            lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'], 
-            reverse=False )
+        # Sort analyses (to assure a fixed order, e.g. for testing purposes)
+        word_analyses = sorted(vm_dict['analysis'],
+                               key=lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'],
+                               reverse=False)
+
+    current_attributes = layer_attributes
+    if layer_attributes is None:
+        current_attributes = ESTNLTK_MORPH_ATTRIBUTES
+
+    records = []
     for analysis in word_analyses:
-        span = Span(base_span=word.base_span, parent=word)
-        for attr in current_attributes:
-            if attr in analysis:
-                # We have a Vabamorf's attribute
-                if attr == 'root_tokens':
-                    # make it hashable for Span.__hash__
-                    setattr(span, attr, tuple(analysis[attr]))
-                else:
-                    setattr(span, attr, analysis[attr])
-            else:
-                # We have an extra attribute -- initialize with None
-                setattr(span, attr, None)
-        spans.append(span)
-    return spans
+        record = {attr: analysis.get(attr) for attr in current_attributes}
+        if 'root_tokens' in record:
+            record['root_tokens'] = tuple(record['root_tokens'])
+        records.append(record)
+
+    return records
 
 
 def _postprocess_root( root:str, partofspeech:str, \

@@ -559,49 +559,35 @@ class ENC2017TextReconstructor:
         else:
             return created_layers
 
+    def _create_original_morph_analysis_layer(self, text_obj: Text,
+                                              word_locations: list,
+                                              orig_words_layer: Layer,
+                                              raw_morph_analyses: list):
+        """Creates a morph_analysis layer based on raw_morph_analyses
+        extracted from the vert / prevert content.
 
+        """
+        assert len(raw_morph_analyses) == len(orig_words_layer)
+        assert len(raw_morph_analyses) == len(word_locations)
 
-    def _create_original_morph_analysis_layer( self, text_obj:Text,
-                                               word_locations:list,
-                                               orig_words_layer:Layer,
-                                               raw_morph_analyses:list):
-        '''Creates a morph_analysis layer based on raw_morph_analyses
-           extracted from the vert / prevert content.
-        '''
         layer_attributes = ESTNLTK_MORPH_ATTRIBUTES
         morph_layer = Layer(name=self.layer_name_prefix+'morph_analysis',
                             parent=orig_words_layer.name,
                             ambiguous=True,
-                            text_object=text_obj, \
+                            text_object=text_obj,
                             attributes=layer_attributes)
-        word_spans = orig_words_layer.spans
-        assert len(raw_morph_analyses) == len(word_spans)
-        assert len(raw_morph_analyses) == len(word_locations)
-        word_id = 0
-        while word_id < len(raw_morph_analyses):
-            raw_analysis = raw_morph_analyses[word_id]
-            word = word_spans[word_id]
-            span = Span(base_span=word.base_span, parent=word)
+
+        for word, raw_analysis in zip(orig_words_layer, raw_morph_analyses):
             # A) Parse morph analysis from the raw analysis
             analysis_dict = self._create_morph_analysis_dict(raw_analysis)
             # B) Normalize and set attributes
-            for attr in layer_attributes:
-                if attr in analysis_dict:
-                    # We have a Vabamorf's/Estnltk's morf attribute
-                    if attr == 'root_tokens':
-                        # make it hashable for Span.__hash__
-                        setattr(span, attr, tuple(analysis_dict[attr]))
-                    else:
-                        setattr(span, attr, analysis_dict[attr])
-                else:
-                    # We have an extra attribute -- initialize with None
-                    setattr(span, attr, None)
+            attributes = {attr: analysis_dict.get(attr) for attr in layer_attributes}
+            if 'root_tokens' in attributes:
+                attributes['root_tokens'] = tuple(attributes['root_tokens'])
+
             # C) Record span to the layer
-            morph_layer.add_span( span )
-            word_id += 1
+            morph_layer.add_annotation(word.base_span, **attributes)
         return morph_layer
-
-
 
     def _create_morph_analysis_dict(self, raw_morph_analysis:str):
         '''Creates a morph analysis dict from the raw_morph_analysis line 

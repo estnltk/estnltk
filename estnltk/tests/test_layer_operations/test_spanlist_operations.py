@@ -255,27 +255,27 @@ def test_iterate_touching_spans_in_spanlist_3():
 
 
 def test_iterate_terminal_spans():
-    s1 = Span(base_span=ElementaryBaseSpan(0,  3))
-    s2 = Span(base_span=ElementaryBaseSpan(1, 10))
-    s3 = Span(base_span=ElementaryBaseSpan(5,  7))
-    s5 = Span(base_span=ElementaryBaseSpan(8,  9))
+    s1 = ElementaryBaseSpan(0,  3)
+    s2 = ElementaryBaseSpan(1, 10)
+    s3 = ElementaryBaseSpan(5,  7)
+    s5 = ElementaryBaseSpan(8,  9)
 
-    span_list = Layer('layer_1')
-    assert tuple(iterate_starting_spans(span_list)) == ()
-    assert tuple(iterate_ending_spans(span_list)) == ()
+    layer = Layer('layer_1')
+    assert tuple(iterate_starting_spans(layer)) == ()
+    assert tuple(iterate_ending_spans(layer)) == ()
 
-    span_list.add_span(s3)
-    assert tuple(iterate_starting_spans(span_list)) == (s3,)
-    assert tuple(iterate_ending_spans(span_list)) == (s3,)
+    layer.add_annotation(s3)
+    assert list(iterate_starting_spans(layer)) == [layer[0]]
+    assert list(iterate_ending_spans(layer)) == [layer[0]]
 
-    span_list.add_span(s1)
-    span_list.add_span(s5)
-    assert tuple(iterate_starting_spans(span_list)) == (s1,)
-    assert tuple(iterate_ending_spans(span_list)) == (s5,)
+    layer.add_annotation(s1)
+    layer.add_annotation(s5)
+    assert list(iterate_starting_spans(layer)) == [layer[0]]
+    assert list(iterate_ending_spans(layer)) == [layer[-1]]
 
-    span_list.add_span(s2)
-    assert tuple(iterate_starting_spans(span_list)) == (s1, s2)
-    assert tuple(iterate_ending_spans(span_list)) == (s2, s5)
+    layer.add_annotation(s2)
+    assert list(iterate_starting_spans(layer)) == [layer[0], layer[1]]
+    assert list(iterate_ending_spans(layer)) == [layer[1], layer[3]]
 
 
 # --------------------- Iterate over intersecting Spans in SpanList 

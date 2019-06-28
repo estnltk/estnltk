@@ -22,10 +22,7 @@ class Span:
 
         self.is_dependant = False
 
-        self._annotations = [Annotation(span=self)]
-
-    def __len__(self):
-        return len(self._annotations)
+        self._annotations = []
 
     def __getitem__(self, item):
         return self.annotations[item]
@@ -44,8 +41,14 @@ class Span:
                     continue
                 setattr(annotation, attr, value)
 
-        self._annotations[0] = annotation
-
+        if len(self._annotations) == 0:
+            self.annotations.append(annotation)
+        elif len(self._annotations) == 1:
+            if annotation != self._annotations[0]:
+                raise Exception('the layer is not ambiguous and this span already has a different annotation')
+        else:
+            raise Exception('this should be impossible: the layer is not ambiguous but this span already has more than '
+                            'one annotations')
         return annotation
 
     @property

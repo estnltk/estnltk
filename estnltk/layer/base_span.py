@@ -3,6 +3,7 @@ from typing import Sequence
 
 class BaseSpan:
     # TODO BaseSpan.__contains__
+    # TODO BaseSpan.__len__
 
     __slots__ = ('_raw', '_hash', 'start', 'end', 'level')
 

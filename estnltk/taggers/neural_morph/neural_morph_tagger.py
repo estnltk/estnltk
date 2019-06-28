@@ -90,8 +90,9 @@ class NeuralMorphTagger(Tagger):
             snt_tags = self.base_tagger.predict(snt_words, snt_analyses)
 
             for word, tag in zip(sentence.words, snt_tags):
+                # layer.add_annotation(word.base_span, morphtag=tag)
                 span = Span(base_span=word.base_span, parent=word)
-                span.morphtag = tag
+                span.add_annotation(morphtag=tag)
                 layer.add_span(span)
 
         return layer
