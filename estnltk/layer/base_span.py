@@ -2,10 +2,8 @@ from typing import Sequence
 
 
 class BaseSpan:
-    # TODO BaseSpan.__contains__
-    # TODO BaseSpan.__len__
 
-    __slots__ = ('_raw', '_hash', 'start', 'end', 'level')
+    __slots__ = ['_raw', '_hash', 'start', 'end', 'level']
 
     def __init__(self, raw, level: int, start: int, end: int):
         self._raw = raw
@@ -42,8 +40,10 @@ class ElementaryBaseSpan(BaseSpan):
     def __init__(self, start: int, end: int):
         if not isinstance(start, int):
             raise TypeError('expected int, got', type(start))
-        assert isinstance(end, int)
-        assert 0 <= start <= end
+        if not isinstance(end, int):
+            raise TypeError('expected int, got', type(end))
+        if not 0 <= start <= end:
+            raise ValueError('0 <= {} <= {} not satisfied'.format(start, end))
 
         raw = (start, end)
 
@@ -60,17 +60,23 @@ class ElementaryBaseSpan(BaseSpan):
 
 
 class EnvelopingBaseSpan(BaseSpan):
-    __slots__ = ('_spans',)
+    __slots__ = ['_spans']
 
     def __init__(self, spans: Sequence[BaseSpan]):
         spans = tuple(spans)
 
-        assert len(spans)
+        if len(spans) == 0:
+            raise ValueError('spans is empty')
+        if not all(isinstance(span, BaseSpan) for span in spans):
+            raise TypeError('spans must be of type BaseSpan')
         for i in range(len(spans) - 1):
-            assert spans[i].end <= spans[i + 1].start
+            if spans[i].end > spans[i + 1].start:
+                raise ValueError('enveloped components must not overlap: {}, {}'.format(spans[i], spans[i+1]))
+
 
         base_level = spans[0].level
-        assert all(span.level == base_level for span in spans)
+        if any(span.level != base_level for span in spans):
+            raise ValueError('enveloped components must have same levels: {}'.format([span.level for span in spans]))
 
         raw = tuple(span.raw() for span in spans)
 
@@ -79,6 +85,9 @@ class EnvelopingBaseSpan(BaseSpan):
 
     def flatten(self):
         return tuple(sp for span in self._spans for sp in span.flatten())
+
+    def __len__(self):
+        return len(self._spans)
 
     def __getitem__(self, item):
         return self._spans[item]

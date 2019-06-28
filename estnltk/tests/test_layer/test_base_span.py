@@ -15,6 +15,18 @@ def test_base_span():
 
 
 def test_elementary_base_span():
+    with pytest.raises(TypeError):
+        ElementaryBaseSpan('2', 3)
+
+    with pytest.raises(TypeError):
+        ElementaryBaseSpan(2, '3')
+
+    with pytest.raises(ValueError):
+        ElementaryBaseSpan(-2, 3)
+
+    with pytest.raises(ValueError):
+        ElementaryBaseSpan(3, 2)
+
     span = ElementaryBaseSpan(23, 30)
     assert span.start == 23
     assert span.end == 30
@@ -52,6 +64,22 @@ def test_elementary_base_span():
 
 
 def test_enveloping_base_span():
+
+    with pytest.raises(TypeError):
+        EnvelopingBaseSpan(23)
+
+    with pytest.raises(ValueError):
+        EnvelopingBaseSpan([])
+
+    with pytest.raises(TypeError):
+        EnvelopingBaseSpan([(1,2)])
+
+    with pytest.raises(ValueError):
+        EnvelopingBaseSpan([ElementaryBaseSpan(0, 5), ElementaryBaseSpan(4, 8)])
+
+    with pytest.raises(ValueError):
+        EnvelopingBaseSpan([EnvelopingBaseSpan([ElementaryBaseSpan(0, 3)]), ElementaryBaseSpan(4, 8)])
+
     el_span = ElementaryBaseSpan(4, 10)
     env_span = EnvelopingBaseSpan([el_span])
     assert el_span is not env_span
@@ -83,6 +111,7 @@ def test_enveloping_base_span():
     assert span[0][0].level == 2
     assert span[0][0][0].level == 1
     assert span[0][0][0][0].level == 0
+    assert len(span) == 1
 
     with pytest.raises(TypeError):
         span <= (23, 30)
@@ -129,6 +158,7 @@ def test_enveloping_base_span():
     assert hash(span) == hash(span_2)
     assert not span < span_2
     assert not span > span_2
+    assert len(span_2) == 2
 
     assert repr(span) == 'EnvelopingBaseSpan((ElementaryBaseSpan(4, 10), ElementaryBaseSpan(11, 20)))'
 
