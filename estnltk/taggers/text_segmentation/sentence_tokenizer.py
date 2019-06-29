@@ -606,16 +606,17 @@ class SentenceTokenizer( Tagger ):
                       text_object=text,
                       ambiguous=False)
         for sid, sentence_span_list in enumerate(sentences_list):
+            sentence_span = EnvelopingSpan(sentence_span_list, layer=layer)
             if self.record_fix_types:
                 # Add information about which types of fixes 
                 # were applied to sentences
-                sentence_span_list.fix_types = sentence_fixes_list[sid]
+                sentence_span.fix_types = sentence_fixes_list[sid]
             else:
-                sentence_span_list.add_annotation()
-            layer.add_span(sentence_span_list)
+                sentence_span.add_annotation()
+            layer.add_span(sentence_span)
         return layer
 
-    def _merge_mistakenly_split_sentences(self, raw_text: str, sentences_list:list, sentence_fixes_list:list):
+    def _merge_mistakenly_split_sentences(self, raw_text: str, sentences_list: list, sentence_fixes_list: list):
         """ Uses regular expression patterns (defined in self._merge_rules) to
             discover adjacent sentences (in sentences_list) that should actually 
             form a single sentence. Merges those adjacent sentences.
@@ -639,27 +640,28 @@ class SentenceTokenizer( Tagger ):
             this_sentence_fixes = sentence_fixes_list[sid]
             # get text of the current sentence
             this_sent = \
-                raw_text[sentence_spl.start:sentence_spl.end].lstrip()
+                raw_text[sentence_spl[0].start:sentence_spl[-1].end].lstrip()
             current_fix_types = []
-            shiftEnding = None
-            mergeSpanLists = False
-            if sid-1 > -1:
+            shift_ending = None
+            merge_span_lists = False
+            if sid > 0:
                 # get text of the previous sentence
-                if not new_sentences_list:
-                    last_sentence_spl   = sentences_list[sid-1]
-                    last_sentence_fixes = sentence_fixes_list[sid-1]
-                else:
-                    last_sentence_spl   = new_sentences_list[-1]
+                if new_sentences_list:
+                    last_sentence_spl = new_sentences_list[-1]
                     last_sentence_fixes = new_sentence_fixes_list[-1]
-                prev_sent = \
-                    raw_text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
+                else:
+                    last_sentence_spl = sentences_list[sid - 1]
+                    last_sentence_fixes = sentence_fixes_list[sid - 1]
+
+                prev_sent = raw_text[last_sentence_spl[0].start:last_sentence_spl[-1].end].rstrip()
+
                 discard_merge = False
                 if self.fix_paragraph_endings:
                     # If fixing paragraph endings has been switched on, then 
                     # do not merge over paragraph endings!
                     # ( otherwise, it may ruin paragraph ending fixes )
-                    this_start = sentence_spl.start
-                    last_end   = last_sentence_spl.end
+                    this_start = sentence_spl[0].start
+                    last_end   = last_sentence_spl[-1].end
                     if '\n\n' in raw_text[last_end:this_start]:
                         discard_merge = True
                 if not discard_merge:
@@ -668,28 +670,27 @@ class SentenceTokenizer( Tagger ):
                     for pattern in self._merge_rules:
                         [beginPat, endPat] = pattern['regexes']
                         if endPat.match(this_sent) and beginPat.match(prev_sent):
-                            mergeSpanLists = True
+                            merge_span_lists = True
                             current_fix_types.append(pattern['fix_type'])
                             # Check if ending also needs to be shifted
                             if 'shift_end' in pattern:
                                 # Find new sentence ending position and validate it
-                                shiftEnding = self._find_new_sentence_ending(raw_text, \
-                                              pattern, sentence_spl, last_sentence_spl )
+                                shift_ending = self._find_new_sentence_ending(raw_text, pattern, sentence_spl,
+                                                                              last_sentence_spl)
                             break
-            if mergeSpanLists:
+            if merge_span_lists:
                 # -------------------------------------------
                 #   1) Split-and-merge: First merge two sentences, then split at some 
                 #      location (inside one of the old sentences)
                 # -------------------------------------------
-                if shiftEnding:
-                    prev_sent_spl = \
-                        new_sentences_list[-1] if new_sentences_list else last_sentence_spl
-                    merge_split_result = self._perform_merge_split(shiftEnding, sentence_spl, prev_sent_spl)
-                    if merge_split_result != None:
+                if shift_ending:
+                    prev_sent_spl = new_sentences_list[-1] if new_sentences_list else last_sentence_spl
+                    merge_split_result = self._perform_merge_split(shift_ending, sentence_spl, prev_sent_spl)
+                    if merge_split_result is not None:
                         if new_sentences_list:
                             # Update sentence spans
                             new_sentences_list[-1] = merge_split_result[0]
-                            new_sentences_list.append ( merge_split_result[1] )
+                            new_sentences_list.append ( merge_split_result[1])
                             # Update fix types list
                             new_sentence_fixes_list[-1] = \
                                 last_sentence_fixes + current_fix_types
@@ -697,21 +698,21 @@ class SentenceTokenizer( Tagger ):
                                 this_sentence_fixes + current_fix_types)
                         else:
                             # Update sentence spans
-                            new_sentences_list.append ( merge_split_result[0] )
-                            new_sentences_list.append ( merge_split_result[1] )
+                            new_sentences_list.extend(merge_split_result)
                             # Update fix types list
                             new_sentence_fixes_list.append(
                                 last_sentence_fixes + current_fix_types)
                             new_sentence_fixes_list.append(
                                 this_sentence_fixes + current_fix_types)
                     else:
+                        # TODO: test or remove
                         # if merge-and-split failed, then discard the rule
                         # (sentences will remain split as they were)
-                        new_spanlist = EnvelopingSpan()
-                        if self.record_fix_types:
-                            new_spanlist.fix_types = []
-                        new_spanlist.spans = sentence_spl.spans
-                        new_sentences_list.append( new_spanlist )
+                        # new_spanlist = EnvelopingSpan()
+                        # if self.record_fix_types:
+                        #     new_spanlist.fix_types = []
+                        # new_spanlist.spans = sentence_spl.spans
+                        new_sentences_list.append(sentence_spl)
                         # Update fix types list
                         new_sentence_fixes_list.append(this_sentence_fixes)
                 else:
@@ -721,9 +722,8 @@ class SentenceTokenizer( Tagger ):
                     # Perform the merging
                     if not new_sentences_list:
                         # No sentence has been added so far: add a new one
-                        spans = last_sentence_spl.spans+sentence_spl.spans
-                        merged_spanlist = EnvelopingSpan(spans=spans)
-                        new_sentences_list.append( merged_spanlist )
+                        spans = last_sentence_spl + sentence_spl
+                        new_sentences_list.append(spans)
                         # Update fix types list
                         all_fixes = \
                             last_sentence_fixes + \
@@ -733,9 +733,8 @@ class SentenceTokenizer( Tagger ):
                     else:
                         # At least one sentence has already been added:
                         # extend the last sentence
-                        spans = new_sentences_list[-1].spans + tuple(sentence_spl.spans)
-                        merged_spanlist = EnvelopingSpan(spans=spans)
-                        new_sentences_list[-1] = merged_spanlist
+                        spans = tuple(new_sentences_list[-1]) + tuple(sentence_spl)
+                        new_sentences_list[-1] = spans
                         # Update fix types list
                         all_fixes = \
                             last_sentence_fixes + \
@@ -746,9 +745,7 @@ class SentenceTokenizer( Tagger ):
                     #print('>>2',this_sent)
             else:
                 # Add sentence without merging
-                new_spanlist = EnvelopingSpan(spans=sentence_spl.spans)
-                # new_spanlist.spans = sentence_spl.spans
-                new_sentences_list.append( new_spanlist )
+                new_sentences_list.append(sentence_spl)
                 # Update fix types list
                 new_sentence_fixes_list.append(this_sentence_fixes)
                 #print('>>0',this_sent)
@@ -783,16 +780,16 @@ class SentenceTokenizer( Tagger ):
             if '?P<end>' in endPat.pattern:
                 # extract ending from the current sentence
                 this_sent_str = \
-                    raw_text[this_sent.start:this_sent.end].lstrip()
+                    raw_text[this_sent[0].start:this_sent[-1].end].lstrip()
                 m = endPat.match(this_sent_str)
                 if m and m.span('end') != (-1, -1):
                     end_span = m.span('end')
                     # span's position in the text
-                    start_in_text = this_sent.start + end_span[0]
-                    end_in_text   = this_sent.start + end_span[1]
+                    start_in_text = this_sent[0].start + end_span[0]
+                    end_in_text   = this_sent[0].start + end_span[1]
                     # validate that end_in_text overlaps with a word ending
                     matches_word_ending = False
-                    for span in this_sent.spans:
+                    for span in this_sent:
                         if span.end == end_in_text:
                             matches_word_ending = True
                         if span.end > end_in_text:
@@ -803,16 +800,16 @@ class SentenceTokenizer( Tagger ):
             if '?P<end>' in beginPat.pattern:
                 # extract ending from the previous sentence
                 prev_sent_str = \
-                    raw_text[prev_sent.start:prev_sent.end].lstrip()
+                    raw_text[prev_sent[0].start:prev_sent[-1].end].lstrip()
                 m = beginPat.match(prev_sent_str)
                 if m and m.span('end') != (-1, -1):
                     end_span = m.span('end')
                     # span's position in the text
-                    start_in_text = prev_sent.start + end_span[0]
-                    end_in_text   = prev_sent.start + end_span[1]
+                    start_in_text = prev_sent[0].start + end_span[0]
+                    end_in_text   = prev_sent[0].start + end_span[1]
                     # validate that end_in_text overlaps with a word ending
                     matches_word_ending = False
-                    for span in prev_sent.spans:
+                    for span in prev_sent:
                         if span.end == end_in_text:
                             matches_word_ending = True
                         if span.end > end_in_text:
@@ -842,12 +839,12 @@ class SentenceTokenizer( Tagger ):
         if end_span and end_span != (-1, -1):
             new_sentence1 = []
             new_sentence2 = []
-            for sid, span in enumerate( prev_sent.spans ):
+            for sid, span in enumerate(prev_sent):
                 if span.end <= end_span[1]:
                     new_sentence1.append( span )
                 elif span.start >= end_span[1]:
                     new_sentence2.append( span )
-            for sid, span in enumerate( this_sent.spans ):
+            for sid, span in enumerate(this_sent):
                 if span.end <= end_span[1]:
                     new_sentence1.append( span )
                 elif span.start >= end_span[1]:
@@ -855,8 +852,8 @@ class SentenceTokenizer( Tagger ):
             # Validity & sanity check
             # 1) The number of covered words/tokens should remain the same
             #    after the split/merge operation:
-            if len(prev_sent.spans) + len(this_sent.spans) !=\
-               len(new_sentence1)   + len(new_sentence2):
+            if len(prev_sent) + len(this_sent) !=\
+               len(new_sentence1) + len(new_sentence2):
                 # The numbers of covered tokens do no match: something 
                 # is wrong ...
                 return None
@@ -864,9 +861,7 @@ class SentenceTokenizer( Tagger ):
             if len(new_sentence1) < 1  or  len(new_sentence2) < 1:
                 # One of the sentence has 0 length: something is wrong
                 return None
-            merged_spanlist1 = EnvelopingSpan(spans=new_sentence1)
-            merged_spanlist2 = EnvelopingSpan(spans=new_sentence2)
-            return merged_spanlist1, merged_spanlist2
+            return new_sentence1, new_sentence2
         return None
 
     @staticmethod
@@ -901,16 +896,14 @@ class SentenceTokenizer( Tagger ):
                             raw_text[span.end:next_span.start]
                         if double_newline in space_between:
                             # Create a new split 
-                            split_spanlist = EnvelopingSpan(spans=current_words)
-                            new_sentences_list.append( split_spanlist )
+                            new_sentences_list.append(current_words)
                             sentence_fixes_list.append(['double_newline_ending'])
                             current_words = []
                 if current_words:
-                    new_spanlist = EnvelopingSpan(spans=current_words)
-                    new_sentences_list.append(new_spanlist)
+                    new_sentences_list.append(current_words)
                     sentence_fixes_list.append([])
             else:
-                new_sentences_list.append( sentence_spl )
+                new_sentences_list.append(sentence_spl.spans)
                 sentence_fixes_list.append( [] )
         assert len(new_sentences_list) == len(sentence_fixes_list)
         return new_sentences_list, sentence_fixes_list
