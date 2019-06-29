@@ -21,26 +21,15 @@ class EnvelopingSpan:
 
         self._annotations = []
 
-        # TODO: remove self._attributes
-        self._attributes = {}
-
         # TODO: self._base_span = base_span
         self._base_span = None
 
     def add_annotation(self, **attributes) -> Annotation:
-        self._attributes.update(attributes)
+        assert 'text' not in attributes, attributes
 
-        # TODO: try and remove if-s
         annotation = Annotation(self)
-        if self.layer:
-            for attr in self.layer.attributes:
-                if attr in attributes:
-                    setattr(annotation, attr, attributes[attr])
-        else:
-            for attr, value in attributes.items():
-                if attr == 'text':
-                    continue
-                setattr(annotation, attr, value)
+        for k, v in attributes.items():
+            setattr(annotation, k, v)
 
         if annotation not in self._annotations:
             self._annotations.append(annotation)
@@ -154,7 +143,6 @@ class EnvelopingSpan:
         if key in {'spans', '_attributes', 'parent', '_base', '_base_span', '_layer', '_annotations'}:
             super().__setattr__(key, value)
         else:
-            self._attributes[key] = value
             if not self.annotations:
                 self.annotations.append(Annotation(self))
             for annotation in self._annotations:
@@ -166,8 +154,8 @@ class EnvelopingSpan:
         if item == '_ipython_canary_method_should_not_exist_' and self.layer is not None and self is self.layer.spans:
             raise AttributeError
 
-        if item in self._attributes:
-            return self._attributes[item]
+        if self._annotations and item in self._annotations[0].attributes:
+            return self.annotations[0][item]
 
         layer = self.__getattribute__('layer')  # type: Layer
         if item == layer.parent:
@@ -194,7 +182,7 @@ class EnvelopingSpan:
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, EnvelopingSpan) \
-               and self._attributes == other._attributes \
+               and self.annotations == other.annotations \
                and self.spans == other.spans
 
     def __hash__(self):
