@@ -505,7 +505,7 @@ class ENC2017TextReconstructor:
                           for attrib in sent_extra_attribs:
                               current_sent_attribs[attrib] = \
                                   sentence[attrib] if attrib in sentence else None
-                    span = EnvelopingSpan(spans=orig_words[s_start:s_end+1].spans)
+                    span = EnvelopingSpan(spans=orig_words[s_start:s_end+1].spans, layer=orig_sentences)
                     orig_sentences.add_annotation(span, **current_sent_attribs)
                     sid += 1; s_start = -1; s_end = -1
             orig_sentences.check_span_consistency()
@@ -537,7 +537,7 @@ class ENC2017TextReconstructor:
                       for attrib in para_extra_attribs: 
                           current_paragraph_attribs[attrib] = \
                               paragraph[attrib] if attrib in paragraph else None
-                  span = EnvelopingSpan(spans=orig_sentences[p_start:p_end+1].spans)
+                  span = EnvelopingSpan(spans=orig_sentences[p_start:p_end+1].spans, layer=orig_paragraphs)
                   orig_paragraphs.add_annotation(span, **current_paragraph_attribs)
                   pid += 1; p_start = -1; p_end = -1
             orig_paragraphs.check_span_consistency()

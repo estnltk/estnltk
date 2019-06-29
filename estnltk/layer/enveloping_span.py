@@ -7,7 +7,7 @@ from estnltk import EnvelopingBaseSpan
 
 
 class EnvelopingSpan:
-    def __init__(self, spans, layer=None):
+    def __init__(self, spans, layer):
         spans = tuple(spans)
         assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan, Annotation)) for span in spans), [type(span) for span in spans]
         self.spans = spans
@@ -64,9 +64,7 @@ class EnvelopingSpan:
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
-        if self.__getattribute__('layer') is not None:
-            return self.__getattribute__('layer').__getattribute__('attributes')
-        return sorted(self.__getattribute__('_attributes'))
+        return self.layer.attributes
 
     def to_records(self, with_text=False):
         return [i.to_records(with_text) for i in self.spans]
@@ -151,8 +149,6 @@ class EnvelopingSpan:
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
-        if item == '_ipython_canary_method_should_not_exist_' and self.layer is not None and self is self.layer.spans:
-            raise AttributeError
 
         if self._annotations and item in self._annotations[0].attributes:
             return self.annotations[0][item]
@@ -195,6 +191,6 @@ class EnvelopingSpan:
         return str(self)
 
     def _repr_html_(self):
-        if self.layer and self is self.layer.spans:
+        if self is self.layer.spans:
             return self.layer.to_html(header='SpanList', start_end=True)
         return str(self)

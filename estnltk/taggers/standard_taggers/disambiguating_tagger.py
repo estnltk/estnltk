@@ -44,7 +44,7 @@ class DisambiguatingTagger(Tagger):
                     setattr(span[0], k, v)
                 layer.add_span(span)
             elif enveloping:
-                span = EnvelopingSpan(spans=input_span[0].spans)
+                span = EnvelopingSpan(spans=input_span[0].spans, layer=layer)
                 for k, v in self.decorator(input_span, text.text).items():
                     setattr(span, k, v)
                 layer.add_span(span)

@@ -128,7 +128,7 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
                     if i == len(mw_components[mw_comp_id]):
                        # Create a new multiword unit
                        spans = layers[self._input_tokens_layer][token_span_id:token_span_id+i]
-                       spl = EnvelopingSpan(spans=spans)
+                       spl = EnvelopingSpan(spans=spans, layer=layer)
                        spl.type = ('multiword',)
                        spl.normalized = None
                        layer.add_span(spl)

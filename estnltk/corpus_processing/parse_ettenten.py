@@ -204,7 +204,7 @@ def reconstruct_ettenten_text( document, \
                for attrib in paragraph_attrib_names:
                    current_paragraph_attribs[attrib] = \
                        paragraph[attrib] if attrib in paragraph else None
-               span = EnvelopingSpan(spans=text['sentences'][p_start:p_end+1].spans)
+               span = EnvelopingSpan(spans=text['sentences'][p_start:p_end+1].spans, layer=orig_paragraphs)
                orig_paragraphs.add_annotation(span, **current_paragraph_attribs)
                pid += 1; p_start = -1; p_end = -1
         if pid < len(para_locations):

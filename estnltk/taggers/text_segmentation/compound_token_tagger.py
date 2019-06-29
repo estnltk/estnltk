@@ -229,7 +229,13 @@ class CompoundTokenTagger(Tagger):
           
         status: dict
            This can be used to store metadata on layer tagging.
+
         """
+        layer = Layer(name=self.output_layer,
+                      enveloping=self._input_tokens_layer,
+                      attributes=self.output_attributes,
+                      ambiguous=True)
+
         raw_text = text.text
         compound_tokens_lists = []
         # 1) Apply RegexTagger in order to get hints for the 1st level tokenization
@@ -273,7 +279,7 @@ class CompoundTokenTagger(Tagger):
             #      (and override the previous compound token in case
             #       of an overlap)
             if self.custom_abbreviations:
-                self._try_to_add_custom_abbreviation(raw_text, layers, i, compound_tokens_lists)
+                self._try_to_add_custom_abbreviation(raw_text, layers, i, compound_tokens_lists, layer)
             
             # 2.2) Check for tokenization hints
             if token_span.start in tokenization_hints:
@@ -286,7 +292,7 @@ class CompoundTokenTagger(Tagger):
                         break
                 if end_token_index:
                     spans = layers[ self._input_tokens_layer ][i:end_token_index+1]
-                    spl = EnvelopingSpan(spans=spans)
+                    spl = EnvelopingSpan(spans=spans, layer=layer)
                     spl.type = ('tokenization_hint',)
                     spl.normalized = None
                     if 'pattern_type' in tokenization_hints[token_span.start]:
@@ -332,7 +338,7 @@ class CompoundTokenTagger(Tagger):
                         # This serves to leave out numeric ranges like 
                         #    "15-17.04." or "920-980"
                         spans = layers[ self._input_tokens_layer ][hyphenation_start:i].spans
-                        spl = EnvelopingSpan(spans=spans)
+                        spl = EnvelopingSpan(spans=spans, layer=layer)
                         spl.type = ('hyphenation',)
                         spl.normalized = \
                             self._normalize_word_with_hyphens( text_snippet )
@@ -345,13 +351,9 @@ class CompoundTokenTagger(Tagger):
         #    (join 1st level compound tokens + regular tokens, if needed)
         if self._tokenization_hints_tagger_2:
             compound_tokens_lists = \
-                self._apply_2nd_level_compounding(text, layers, compound_tokens_lists)
+                self._apply_2nd_level_compounding(text, layers, compound_tokens_lists, layer)
 
-        # *) Finally: create a new layer and add spans to the layer
-        layer = Layer(name=self.output_layer,
-                      enveloping=self._input_tokens_layer,
-                      attributes=self.output_attributes,
-                      ambiguous=True)
+        # *) Finally: add spans to the layer
         for spl in compound_tokens_lists:
             layer.add_span(spl)
 
@@ -384,7 +386,8 @@ class CompoundTokenTagger(Tagger):
         except EmptyDataError:
             return set()
 
-    def _try_to_add_custom_abbreviation( self, raw_text: str, layers, token_id: int, compound_tokens_lists: list):
+    def _try_to_add_custom_abbreviation(self, raw_text: str, layers, token_id: int, compound_tokens_lists: list,
+                                        output_layer):
         """ Checks if a custom non-ending abbreviation starts
             from the position token_id, and if this is True, then 
             checks if conditions for adding the abbreviation are 
@@ -410,7 +413,7 @@ class CompoundTokenTagger(Tagger):
             else:
                 spans = layers[ self._input_tokens_layer ][token_id:token_id+1]
                 normalized = None
-            spl = EnvelopingSpan(spans=spans)
+            spl = EnvelopingSpan(spans=spans, layer=output_layer)
             spl.type = ('non_ending_abbreviation',)
             spl.normalized = normalized
             # before adding: check that none of the disallowed separator 
@@ -477,7 +480,7 @@ class CompoundTokenTagger(Tagger):
         # Return normalized form of the token
         return token.normal.text
 
-    def _apply_2nd_level_compounding(self, text, layers, compound_tokens_lists:list):
+    def _apply_2nd_level_compounding(self, text, layers, compound_tokens_lists: list, output_layer):
         """ Executes _tokenization_hints_tagger_2 to get hints for 2nd level compounding.
 
             Performs the 2nd level compounding: joins together regular "tokens" and 
@@ -531,7 +534,7 @@ class CompoundTokenTagger(Tagger):
             # If constraints were satisfied, try to add a new compound token
             if (covered_compound_tokens or covered_tokens) and constraints_satisfied:
                 # Create new SpanList
-                spl = self._create_new_spanlist(text.text, layers, covered_compound_tokens, covered_tokens, sp)
+                spl = self._create_new_spanlist(text.text, covered_compound_tokens, covered_tokens, sp, output_layer)
                 # Check that the new compound token will not contain any of the disallowed strings
                 if self.do_not_join_on_strings:
                     discard = False
@@ -621,8 +624,8 @@ class CompoundTokenTagger(Tagger):
             if not discard_duplicate or (discard_duplicate and not is_duplicate):
                 spans.append(span)
 
-
-    def _create_new_spanlist(self, raw_text, layers, compound_token_spans:list, regular_spans:list, joining_span:SpanList):
+    def _create_new_spanlist(self, raw_text, compound_token_spans: list, regular_spans: list, joining_span: SpanList,
+                             output_layer):
         """
         Creates new SpanList that covers both compound_token_spans and regular_spans from given 
         text. Returns created SpanList.
@@ -701,7 +704,7 @@ class CompoundTokenTagger(Tagger):
         
         # 4) Create new SpanList and assign attributes
         spans = all_covered_tokens
-        spl = EnvelopingSpan(spans=spans)
+        spl = EnvelopingSpan(spans=spans, layer=output_layer)
         spl.type = ('tokenization_hint',)
         spl.normalized = normalized_str
         if all_types:

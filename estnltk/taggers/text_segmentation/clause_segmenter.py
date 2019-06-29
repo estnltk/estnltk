@@ -113,7 +113,6 @@ class ClauseSegmenter(Tagger):
             if self._java_process._process.poll() is None:
                 self.__exit__()
 
-
     def _make_layer(self, text, layers, status: dict):
         """Tags clauses layer.
         
@@ -130,7 +129,14 @@ class ClauseSegmenter(Tagger):
           
         status: dict
            This can be used to store metadata on layer tagging.
+
         """
+        layer = Layer(name=self.output_layer,
+                      enveloping=self._input_words_layer,
+                      text_object=text,
+                      attributes=self.output_attributes,
+                      ambiguous=False)
+
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
         morph_spans  = layers[ self._input_morph_analysis_layer ].span_list
@@ -206,30 +212,25 @@ class ClauseSegmenter(Tagger):
                         word['clause_type']
                 # Rewrite clause index to list of clause SpanList-s
                 for clause_id in clause_index.keys():
-                    clause_spans = EnvelopingSpan(spans=clause_index[clause_id])
+                    clause_spans = EnvelopingSpan(spans=clause_index[clause_id], layer=layer)
                     clause_spans.clause_type = \
                         clause_type_index[clause_id]
                     #clause_spans.spans = clause_index[clause_id]
                     clause_spanlists.append( clause_spans )
-        # Create and populate layer
-        layer = Layer(name=self.output_layer, 
-                      enveloping=self._input_words_layer,
-                      text_object=text,
-                      attributes=self.output_attributes, 
-                      ambiguous=False)
+        # Populate layer
         for clause_spl in clause_spanlists:
             layer.add_span( clause_spl )
         return layer
 
-
-
-    def annotate_clause_indices( self, sentence ):
+    @staticmethod
+    def annotate_clause_indices(sentence):
         """ Rewrites clause boundary markings in given sentence
             to clause indexes and clause types marked to words.
             
             Method is ported from:
              https://github.com/estnltk/estnltk/blob/1.4.1.1/estnltk/clausesegmenter.py
              ( with slight modifications )
+
         """
         max_index = 0
         max_depth = 1

@@ -151,8 +151,6 @@ class VerbChainDetector( Tagger ):
                 '(!) vc_detector should be an instance of VerbChainDetectorV1_4!'
             self._verb_chain_detector = vc_detector
 
-
-
     def _make_layer(self, text, layers, status: dict):
         """Tags verb chains layer.
         
@@ -169,7 +167,14 @@ class VerbChainDetector( Tagger ):
           
         status: dict
            This can be used to store metadata on layer tagging.
+
         """
+        layer = Layer(name=self.output_layer,
+                      enveloping=self._input_words_layer,
+                      attributes=self.output_attributes,
+                      text_object=text,
+                      ambiguous=False)
+
         resulting_enveloping_spans = []
         word_spans    = layers[ self._input_words_layer ]
         morph_spans   = layers[ self._input_morph_analysis_layer ]
@@ -264,7 +269,7 @@ class VerbChainDetector( Tagger ):
             # E) Convert dictionaries to EnvelopingSpan-s
             for vc in verb_chain_dicts:
                 vc_words = [ sentence_words[wid] for wid in sorted(vc['phrase']) ]
-                vc_env_span = EnvelopingSpan( spans = vc_words )
+                vc_env_span = EnvelopingSpan(spans=vc_words, layer=layer)
                 vc_env_span.pattern  = vc['pattern']
                 vc_env_span.roots    = vc['roots']
                 vc_env_span.mood     = vc['mood']
@@ -285,12 +290,6 @@ class VerbChainDetector( Tagger ):
         assert clause_id == len(clauses_spans)
         assert word_span_id == len(word_spans)
         
-        # Finally, create the layer. And populate it.
-        layer = Layer(name=self.output_layer, 
-                      enveloping=self._input_words_layer,
-                      attributes=self.output_attributes, 
-                      text_object=text,
-                      ambiguous=False)
         for verb_chain_ev_span in resulting_enveloping_spans:
             layer.add_span( verb_chain_ev_span )
         

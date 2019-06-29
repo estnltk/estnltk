@@ -130,7 +130,7 @@ class PhraseTagger(Tagger):
                                 if match:
                                     phrase = (value, *tail)
                                     for record in self.vocabulary[phrase]:
-                                        span = EnvelopingSpan(spans=input_layer[i:i + len(tail) + 1].spans)
+                                        span = EnvelopingSpan(spans=input_layer[i:i + len(tail) + 1].spans, layer=layer)
                                         if not self.global_validator(span, raw_text):
                                             continue
                                         if validator_attribute is None or record[validator_attribute](span, raw_text):
@@ -158,7 +158,7 @@ class PhraseTagger(Tagger):
                                 phrase = (value,) + tail
                                 for record in self.vocabulary[phrase]:
                                     spans = input_layer.span_list[i:i + len(tail) + 1]
-                                    span = EnvelopingSpan(spans=spans)
+                                    span = EnvelopingSpan(spans=spans, layer=layer)
                                     if not self.global_validator(span, raw_text):
                                         continue
                                     if validator_attribute is None or record[validator_attribute](self, raw_text):

@@ -137,7 +137,14 @@ class NounPhraseChunker( Tagger ):
           
         status: dict
            This can be used to store metadata on layer tagging.
+
         """
+        layer = Layer(name=self.output_layer,
+                      enveloping=self._input_words_layer,
+                      text_object=text,
+                      attributes=self.output_attributes,
+                      ambiguous=False)
+
         word_spans   = layers[ self._input_words_layer ]
         morph_spans  = layers[ self._input_morph_analysis_layer ]
         syntax_spans = layers[ self.syntax_layer ]
@@ -227,8 +234,8 @@ class NounPhraseChunker( Tagger ):
                 label = np_chunkings[wid]
                 if label == 'B' and len(last_phrase) > 0:
                     # Finish last phrase, start a new one
-                    env_span = EnvelopingSpan( spans=last_phrase )
-                    env_span.add_annotation( **{} ) # <-- to avoid assertionError
+                    env_span = EnvelopingSpan(spans=last_phrase, layer=layer)
+                    env_span.add_annotation() # <-- to avoid assertionError
                     np_enveloping_spans.append( env_span )
                     last_phrase = [ word_span ]
                 elif label == 'B' and len(last_phrase) == 0:
@@ -236,8 +243,8 @@ class NounPhraseChunker( Tagger ):
                     last_phrase.append( word_span )
                 if label == 'O' and len(last_phrase) > 0:
                     # Finish last phrase
-                    env_span = EnvelopingSpan( spans=last_phrase )
-                    env_span.add_annotation( **{} ) # <-- to avoid assertionError
+                    env_span = EnvelopingSpan(spans=last_phrase, layer=layer)
+                    env_span.add_annotation() # <-- to avoid assertionError
                     np_enveloping_spans.append( env_span )
                     last_phrase = []
                 if label == 'I':
@@ -245,25 +252,17 @@ class NounPhraseChunker( Tagger ):
                     last_phrase.append( word_span )
             if len(last_phrase) > 0:
                 # Finish the very last phrase
-                env_span = EnvelopingSpan( spans=last_phrase )
-                env_span.add_annotation( **{} ) # <-- to avoid assertionError
+                env_span = EnvelopingSpan(spans=last_phrase, layer=layer)
+                env_span.add_annotation() # <-- to avoid assertionError
                 np_enveloping_spans.append( env_span )
                 last_phrase = []
 
         # Small sanity check: all words should be exhausted by now 
         assert word_span_id == len(word_spans)
 
-        layer = Layer(name=self.output_layer, 
-                      enveloping=self._input_words_layer,
-                      text_object=text,
-                      attributes=self.output_attributes, 
-                      ambiguous=False)
         for np_chunk in np_enveloping_spans:
             layer.add_span( np_chunk )
-        
         return layer
-
-
 
     def _convert_to_v1_4_syntactic_repr(self, syntax_span):
         '''Converts head and deprel from v1.6 syntax annotation span to (possibly ambiguous) 

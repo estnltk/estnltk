@@ -553,7 +553,6 @@ class SyntaxIgnoreTagger( Tagger ):
                                                  output_layer='syntax_ignore_hints',
                                                  )
 
-
     def _make_layer(self, text: 'Text', layers, status: dict):
         """Creates syntax_ignore layer.
         
@@ -570,7 +569,14 @@ class SyntaxIgnoreTagger( Tagger ):
           
         status: dict
            This can be used to store metadata on layer tagging.
+
         """
+        layer = Layer(name=self.output_layer,
+                      enveloping=self._input_words_layer,
+                      attributes=self.output_attributes,
+                      text_object=text,
+                      ambiguous=False)
+
         # A) Apply RegexTagger to find text snippets that should be ignored
         conflict_status = {}
         hints_layer = self._syntax_ignore_hints_tagger.make_layer(text=text,
@@ -606,7 +612,7 @@ class SyntaxIgnoreTagger( Tagger ):
             if words_start != -1 and words_end != -1:
                 # Record ignored words
                 spans = words[words_start:words_end+1]
-                new_spanlist = EnvelopingSpan(spans=spans)
+                new_spanlist = EnvelopingSpan(spans=spans, layer=layer)
                 new_spanlist.type = sp.type
                 ignored_words_spans.append( new_spanlist )
                 #print('*',text.text[sp.start:sp.end], sp.start, sp.end)
@@ -618,44 +624,38 @@ class SyntaxIgnoreTagger( Tagger ):
         #        in parentheses and/or less than 3 lc words
         if self.ignore_consecutive_parenthesized_sentences:
             ignored_words_spans = \
-                self._add_ignore_consecutive_parenthesized_sentences(text,layers,ignored_words_spans)
+                self._add_ignore_consecutive_parenthesized_sentences(text,layers,ignored_words_spans, layer)
         
         # C) Add sentences that start with time (e.g. a time schedule of a TV program)
         if self.ignore_sentences_starting_with_time:
             ignored_words_spans = \
-                self._add_ignore_sentences_starting_with_time(text,layers,ignored_words_spans)
+                self._add_ignore_sentences_starting_with_time(text,layers,ignored_words_spans, layer)
 
         # D) Add sentences starting with an uppercase letter (or an ordinal number followed by 
         #        an uppercase letter), containing otherwise less than 3 lowercase words, and 
         #        forming lists of at least 4 consecutive sentences;
         if self.ignore_consecutive_enum_ucase_num_sentences:
             ignored_words_spans = \
-                self._add_ignore_consecutive_enum_ucase_sentences(text,layers,ignored_words_spans)
+                self._add_ignore_consecutive_enum_ucase_sentences(text,layers,ignored_words_spans, layer)
 
         # E) Add ignore sentences that consist of numbers only
         if self.ignore_sentences_consisting_of_numbers:
             ignored_words_spans = \
-                self._add_ignore_sentences_consisting_of_numbers(text,layers,ignored_words_spans)
+                self._add_ignore_sentences_consisting_of_numbers(text,layers,ignored_words_spans, layer)
         
         # F) Add ignore sentences that contain comma separated list of titlecase words /
         #        numbers (like sport results, player/country listings, game scores etc.)
         if self.ignore_sentences_with_comma_separated_num_name_lists:
             ignored_words_spans = \
-                self._add_ignore_comma_separated_num_name_list_sentences(text,layers,ignored_words_spans)
+                self._add_ignore_comma_separated_num_name_list_sentences(text,layers,ignored_words_spans, layer)
         
-        # Finally: create a new layer and add spans to the layer
-        layer = Layer(name=self.output_layer,
-                      enveloping=self._input_words_layer,
-                      attributes=self.output_attributes,
-                      text_object=text,
-                      ambiguous=False)
+        # Finally: add spans to the layer
         for span in ignored_words_spans:
             layer.add_span(span)
         return layer
 
-
     def _add_ignore_consecutive_parenthesized_sentences( 
-                self, text: 'Text', layers, ignored_words_spans:list ) -> list:
+                self, text: 'Text', layers, ignored_words_spans:list, output_layer) -> list:
         """ First, detects consecutive sentences that:
             *) contain parenthesized ignore content (content from 
                ignored_words_spans) and,
@@ -741,7 +741,7 @@ class SyntaxIgnoreTagger( Tagger ):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan(spans=sent_words)
+                new_spanlist = EnvelopingSpan(spans=sent_words, layer=output_layer)
                 new_spanlist.type = 'consecutive_parenthesized_sentences'
                 # Remove overlapped spans
                 if ignored_candidate['ignored_words']:
@@ -755,10 +755,8 @@ class SyntaxIgnoreTagger( Tagger ):
                 ignored_words_spans.append(new_spanlist)
         return ignored_words_spans
 
-
-
     def _add_ignore_sentences_consisting_of_numbers( 
-                self, text: 'Text', layers, ignored_words_spans:list ) -> list:
+                self, text: 'Text', layers, ignored_words_spans:list, output_layer) -> list:
         """  Detects sentences that contain number or numbers, no letters
              and do not end with '?' nor '!', and marks such sentences as 
              ignore sentences (if they have note been marked already).
@@ -778,7 +776,7 @@ class SyntaxIgnoreTagger( Tagger ):
                 for word_span in sentence_span.spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan(spans=sent_words)
+                new_spanlist = EnvelopingSpan(spans=sent_words, layer=output_layer)
                 new_spanlist.type = 'sentence_with_number_no_letters'
                 # Add the sentence only iff it is not already added
                 add_sentence = True
@@ -793,10 +791,8 @@ class SyntaxIgnoreTagger( Tagger ):
                     ignored_words_spans.append( new_spanlist )
         return ignored_words_spans
 
-
-
     def _add_ignore_sentences_starting_with_time( 
-                self, text: 'Text', layers, ignored_words_spans:list ) -> list:
+                self, text: 'Text', layers, ignored_words_spans:list, output_layer) -> list:
         """  Detects sentences that start with a clock time, followed
              by a symbol that is not a lowercase letter. 
              Such sentences likely represent a part of a time schedule,
@@ -814,7 +810,7 @@ class SyntaxIgnoreTagger( Tagger ):
                 for word_span in sentence_span.spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan(spans=sent_words)
+                new_spanlist = EnvelopingSpan(spans=sent_words, layer=output_layer)
                 new_spanlist.type = 'sentence_starts_with_time'
                 # Add the sentence only iff it is not already added
                 add_sentence = True
@@ -840,10 +836,8 @@ class SyntaxIgnoreTagger( Tagger ):
                     ignored_words_spans.append( new_spanlist )
         return ignored_words_spans
 
-
-
-    def _add_ignore_consecutive_enum_ucase_sentences( 
-                self, text: 'Text', layers, ignored_words_spans:list ) -> list:
+    def _add_ignore_consecutive_enum_ucase_sentences(
+            self, text: 'Text', layers, ignored_words_spans:list, output_layer) -> list:
         """ Detects sentences that:
              1) start with an uppercase letter, or an ordinal number 
                followed by an uppercase letter, or an ordinal number;
@@ -921,7 +915,7 @@ class SyntaxIgnoreTagger( Tagger ):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan(spans=sent_words)
+                new_spanlist = EnvelopingSpan(spans=sent_words, layer=output_layer)
                 new_spanlist.type = 'consecutive_enum_ucase_sentences'
                 # Add the sentence only iff it is not already added
                 add_sentence = True
@@ -949,7 +943,7 @@ class SyntaxIgnoreTagger( Tagger ):
 
 
     def _add_ignore_comma_separated_num_name_list_sentences( 
-                self, text: 'Text', layers, ignored_words_spans:list ) -> list:
+                self, text: 'Text', layers, ignored_words_spans:list, output_layer) -> list:
         """ Detects sentences that:
             Contain less than 3 consecutive lowercase words, and 
                1.1) Start with up to three words and colon, or 
@@ -1000,7 +994,7 @@ class SyntaxIgnoreTagger( Tagger ):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan(spans=sent_words)
+                new_spanlist = EnvelopingSpan(spans=sent_words, layer=output_layer)
                 new_spanlist.type = 'sentence_with_comma_separated_list'
                 # Add the sentence only iff it is not already added
                 add_sentence = True
