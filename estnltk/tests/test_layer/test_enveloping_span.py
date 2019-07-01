@@ -54,11 +54,11 @@ def test_annotations():
     span.add_annotation(attr=0, attr_4=1)
     assert len(span.annotations) == 1
 
-    span.add_annotation(attr=0, attr_4=2)
-    assert len(span.annotations) == 2
+    with pytest.raises(ValueError):
+        span.add_annotation(attr=0, attr_4=2)
 
+    assert len(span.annotations) == 1
     assert span.annotations[0] == Annotation(span, attr=0, attr_4=1)
-    assert span.annotations[1] == Annotation(span, attr=0, attr_4=2)
 
 
 def test_getitem():

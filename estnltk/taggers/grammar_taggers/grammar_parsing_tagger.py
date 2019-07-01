@@ -64,15 +64,21 @@ class GrammarParsingTagger(Tagger):
             for node in graph:
                 if isinstance(node, GrammarNode) and node.name in self.output_nodes:
                     span = EnvelopingSpan(spans=get_spans(node), layer=layer)
+                    annotation = {}
                     for attr in attributes:
                         if attr == '_group_':
-                            span._group_ = node.group
+                            # span._group_ = node.group
+                            annotation['_group_'] = node.group
                         elif attr == 'name':
-                            span.name = node.name
+                            # span.name = node.name
+                            annotation['name'] = node.name
                         elif attr == '_priority_':
-                            span._priority_ = node.priority
+                            # span._priority_ = node.priority
+                            annotation['_priority_'] = node.priority
                         else:
-                            setattr(span, attr, node[attr])
+                            # setattr(span, attr, node[attr])
+                            annotation[attr] = node[attr]
+                    span.add_annotation(**annotation)
                     layer.add_span(span)
         except ValueError as e:
             if e.args[0] == 'this layer is not ambiguous and the span is already in the spanlist':

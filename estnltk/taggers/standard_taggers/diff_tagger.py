@@ -72,12 +72,12 @@ class DiffTagger(Tagger):
                     base_span = None
                     if a_spans is None:
                         span_status = 'extra'
-                        base_span = b_spans.span
+                        base_span = b_spans
                     if b_spans is None:
                         span_status = 'missing'
-                        base_span = a_spans.span
+                        base_span = a_spans
                     if a_spans is not None and b_spans is not None:
-                        base_span = a_spans.span
+                        base_span = a_spans
                         span_status = 'modified'
                         a_spans, b_spans = symm_diff_ambiguous_spans(a_spans, b_spans)
                     if a_spans is not None:
@@ -172,10 +172,10 @@ def diff_summary(difference_layer: Layer, span_status_attribute, input_layer_att
               'shortened': 0,
               }
     for span in difference_layer:
-        span_status = getattr(span[0], span_status_attribute)
+        span_status = getattr(span.annotations[0], span_status_attribute)
         if span_status == 'modified':
             result['modified_spans'] += 1
-            for s in span:
+            for s in span.annotations:
                 layer_name = getattr(s, input_layer_attribute)
                 if layer_name == layer_a:
                     result['extra_annotations'] += 1
@@ -185,10 +185,10 @@ def diff_summary(difference_layer: Layer, span_status_attribute, input_layer_att
                     raise ValueError('unknown input_layer: ' + layer_name)
         elif span_status == 'missing':
             result['missing_spans'] += 1
-            result['missing_annotations'] += len(span)
+            result['missing_annotations'] += len(span.annotations)
         elif span_status == 'extra':
             result['extra_spans'] += 1
-            result['extra_annotations'] += len(span)
+            result['extra_annotations'] += len(span.annotations)
         else:
             raise ValueError('unknown span_status: ' + span_status)
     for a, b in iterate_diff_conflicts(difference_layer, span_status_attribute):
@@ -210,8 +210,8 @@ def diff_summary(difference_layer: Layer, span_status_attribute, input_layer_att
 
 def iterate_diff_conflicts(diff_layer, span_status_attribute):
     for a, b in iterate_conflicting_spans(diff_layer):
-        a_status = getattr(a[0], span_status_attribute)
-        b_status = getattr(b[0], span_status_attribute)
+        a_status = getattr(a.annotations[0], span_status_attribute)
+        b_status = getattr(b.annotations[0], span_status_attribute)
         if a_status == 'missing' and b_status == 'extra':
             yield a, b
         elif b_status == 'missing' and a_status == 'extra':
@@ -237,15 +237,15 @@ def iterate_overlapped(difference_layer, span_status_attribute):
 
 
 def iterate_modified(difference_layer: Layer, span_status_attribute='span_status'):
-    yield from (s for s in difference_layer if getattr(s[0], span_status_attribute) == 'modified')
+    yield from (s for s in difference_layer if getattr(s.annotations[0], span_status_attribute) == 'modified')
 
 
 def iterate_missing(difference_layer: Layer, span_status_attribute='span_status'):
-    yield from (s for s in difference_layer if getattr(s[0], span_status_attribute) == 'missing')
+    yield from (s for s in difference_layer if getattr(s.annotations[0], span_status_attribute) == 'missing')
 
 
 def iterate_extra(difference_layer: Layer, span_status_attribute='span_status'):
-    yield from (s for s in difference_layer if getattr(s[0], span_status_attribute) == 'extra')
+    yield from (s for s in difference_layer if getattr(s.annotations[0], span_status_attribute) == 'extra')
 
 
 def print_diff_summary(summary):

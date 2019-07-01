@@ -129,19 +129,26 @@ class PhraseTagger(Tagger):
                                         break
                                 if match:
                                     phrase = (value, *tail)
+                                    span = EnvelopingSpan(spans=input_layer[i:i + len(tail) + 1].spans, layer=layer)
                                     for record in self.vocabulary[phrase]:
-                                        span = EnvelopingSpan(spans=input_layer[i:i + len(tail) + 1].spans, layer=layer)
                                         if not self.global_validator(span, raw_text):
                                             continue
                                         if validator_attribute is None or record[validator_attribute](span, raw_text):
+                                            attributes = {}
                                             rec = {**record, **self.decorator(span, raw_text)}
                                             for attr in self.output_attributes:
                                                 attr_value = rec[attr]
                                                 if callable(attr_value):
-                                                    setattr(span, attr, attr_value(span, raw_text))
+                                                    attributes[attr] = attr_value(span, raw_text)
+                                                    # setattr(span, attr, attr_value(span, raw_text))
                                                 else:
-                                                    setattr(span, attr, attr_value)
-                                            layer.add_span(span)
+                                                    attributes[attr] = attr_value
+                                                    # setattr(span, attr, attr_value)
+
+                                            span.add_annotation(**attributes)
+
+                                    if span.annotations:
+                                        layer.add_span(span)
         else:
             if self.ignore_case:
                 value_list = [v.lower() for v in value_list]
@@ -156,20 +163,25 @@ class PhraseTagger(Tagger):
                                     break
                             if match:
                                 phrase = (value,) + tail
+                                spans = input_layer.span_list[i:i + len(tail) + 1]
+                                span = EnvelopingSpan(spans=spans, layer=layer)
                                 for record in self.vocabulary[phrase]:
-                                    spans = input_layer.span_list[i:i + len(tail) + 1]
-                                    span = EnvelopingSpan(spans=spans, layer=layer)
                                     if not self.global_validator(span, raw_text):
                                         continue
                                     if validator_attribute is None or record[validator_attribute](self, raw_text):
+                                        attributes = {}
                                         rec = {**record, **self.decorator(span, raw_text)}
                                         for attr in self.output_attributes:
                                             attr_value = rec[attr]
                                             if callable(attr_value):
-                                                setattr(span, attr, attr_value(span, raw_text))
+                                                attributes[attr] = attr_value(span, raw_text)
                                             else:
-                                                setattr(span, attr, attr_value)
-                                        layer.add_span(span)
+                                                attributes[attr] = attr_value
+
+                                        span.add_annotation(**attributes)
+
+                                if span.annotations:
+                                    layer.add_span(span)
 
         resolve_conflicts(layer,
                           conflict_resolving_strategy=self.conflict_resolving_strategy,

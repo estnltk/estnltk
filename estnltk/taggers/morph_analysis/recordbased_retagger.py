@@ -216,9 +216,7 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
             assert isinstance(morph_records, list), \
                    '(!) Expected a list of records, but found {!r}'.format(morph_records)
             # 4.1) Convert records back to AmbiguousSpans
-            ambiguous_span = \
-                 AmbiguousSpan(layer=morph_spans[wid].layer, \
-                               span =morph_spans[wid].span)
+            ambiguous_span = AmbiguousSpan(span=morph_spans[wid].base_span, layer=morph_spans[wid].layer)
             annotation_added = False
             for new_record in morph_records:
                 assert isinstance(new_record, dict), \

@@ -61,11 +61,11 @@ class SpanList(collections.Sequence):
 
         if self._layer.ambiguous:
             if isinstance(attributes, (list, tuple)):
-                return AmbiguousAttributeTupleList((((getattr(sp, name) for name in attributes) for sp in asp)
-                                                    for asp in self.spans), attributes)
+                return AmbiguousAttributeTupleList((((getattr(a, attr) for attr in attributes) for a in sp.annotations)
+                                                    for sp in self.spans), attributes)
             else:
-                return AmbiguousAttributeList(((getattr(sp, attributes) for sp in asp)
-                                               for asp in self.spans), attributes)
+                return AmbiguousAttributeList(((getattr(a, attributes) for a in sp.annotations)
+                                               for sp in self.spans), attributes)
         else:
             if isinstance(attributes, (list, tuple)):
                 return AttributeTupleList([[getattr(sp, attr) for attr in attributes] for sp in self.spans], attributes)

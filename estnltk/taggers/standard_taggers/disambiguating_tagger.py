@@ -1,5 +1,4 @@
 from estnltk.layer.span import Span
-from estnltk.layer.ambiguous_span import AmbiguousSpan
 from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
@@ -10,8 +9,9 @@ def default_decorator(span, raw_text):
 
 
 class DisambiguatingTagger(Tagger):
-    """Disambiguates ambiguous layer."""
+    """Disambiguates ambiguous layer.
 
+    """
     conf_param = ('decorator',)
 
     def __init__(self,
@@ -26,6 +26,8 @@ class DisambiguatingTagger(Tagger):
 
     def _make_layer(self, text, layers, status):
         input_layer = layers[self.input_layers[0]]
+        assert input_layer.ambiguous, 'the input layer is not ambguous'
+
         parent = input_layer.parent
         enveloping = input_layer.enveloping
         layer = Layer(name=self.output_layer,
@@ -35,7 +37,6 @@ class DisambiguatingTagger(Tagger):
                       enveloping=enveloping,
                       ambiguous=False)
         for input_span in input_layer:
-            assert isinstance(input_span, AmbiguousSpan)
             if parent:
                 # TODO: test and rewrite using add_annotation
                 span = Span(parent=parent,
@@ -44,7 +45,7 @@ class DisambiguatingTagger(Tagger):
                     setattr(span[0], k, v)
                 layer.add_span(span)
             elif enveloping:
-                span = EnvelopingSpan(spans=input_span[0].spans, layer=layer)
+                span = EnvelopingSpan(spans=input_span.spans, layer=layer)
                 for k, v in self.decorator(input_span, text.text).items():
                     setattr(span, k, v)
                 layer.add_span(span)

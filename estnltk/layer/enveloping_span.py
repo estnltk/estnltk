@@ -1,9 +1,11 @@
 from typing import Any, Union, Sequence
 import itertools
+from IPython.core.display import display_html
 
 from estnltk.layer.span import Span, Annotation
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 from estnltk import EnvelopingBaseSpan
+from .to_html import html_table
 
 
 class EnvelopingSpan:
@@ -32,9 +34,12 @@ class EnvelopingSpan:
             setattr(annotation, k, v)
 
         if annotation not in self._annotations:
-            self._annotations.append(annotation)
+            if self.layer.ambiguous or len(self._annotations) == 0:
+                self._annotations.append(annotation)
+            else:
+                raise ValueError('The layer is not ambiguous an this span already has a different annotation.')
 
-        return annotation
+            return annotation
 
     @property
     def annotations(self):
@@ -190,7 +195,17 @@ class EnvelopingSpan:
     def __repr__(self):
         return str(self)
 
+    @property
+    def raw_text(self):
+        return self.layer.text_object.text
+
+    def _to_html(self, margin=0) -> str:
+        return '<b>{}</b>\n{}'.format(
+                self.__class__.__name__,
+                html_table(spans=[self], attributes=self.layer.attributes, margin=margin, index=False))
+
+    def display(self, margin: int = 0):
+        display_html(self._to_html(margin), raw=True)
+
     def _repr_html_(self):
-        if self is self.layer.spans:
-            return self.layer.to_html(header='SpanList', start_end=True)
-        return str(self)
+        return self._to_html()

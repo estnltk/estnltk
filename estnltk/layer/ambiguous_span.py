@@ -1,25 +1,22 @@
 from typing import Union, Any
 from IPython.core.display import display_html
 
-from estnltk import Span
+from estnltk import Span, BaseSpan
 from estnltk import Annotation, ElementaryBaseSpan
 from estnltk.layer import AttributeList
 from .to_html import html_table
 
 
 class AmbiguousSpan:
-    def __init__(self, span: Span, layer: 'Layer') -> None:
-        # TODO: assert isinstance(span, BaseSpan), type(span)
-        assert isinstance(span, (Span, EnvelopingSpan, AmbiguousSpan)), type(span)
+    def __init__(self, span: BaseSpan, layer) -> None:
+        assert isinstance(span, BaseSpan), span
 
-        self._base_span = span.base_span
-        self.layer = layer
-        self._parent = None  # type: Union[Span, None]
+        self._base_span = span
+        self.layer = layer  # type: Layer
+
         self._annotations = []
 
-        # TODO: remove self._span
-        self._span = span
-
+        self._parent = None  # type: Union[Span, None]
 
     @property
     def annotations(self):
@@ -45,9 +42,10 @@ class AmbiguousSpan:
         if not self._annotations:
             self.layer.remove_span(self)
 
+    # TODO: remove span
     @property
     def span(self):
-        return self._span
+        return Span(self._base_span, self.layer)
 
     @property
     def parent(self):
@@ -152,11 +150,8 @@ class AmbiguousSpan:
                 self.__class__.__name__,
                 html_table(spans=[self], attributes=self.layer.attributes, margin=margin, index=False))
 
-    def display(self, margin: int=0):
+    def display(self, margin: int = 0):
         display_html(self._to_html(margin), raw=True)
 
     def _repr_html_(self):
         return self._to_html()
-
-
-from estnltk.layer.enveloping_span import EnvelopingSpan

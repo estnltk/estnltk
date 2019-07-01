@@ -212,8 +212,12 @@ class Layer:
         target = self.get(span)
 
         if self.ambiguous:
-            if target is None:
-                new = AmbiguousSpan(layer=self, span=span)
+            if self.enveloping:
+                assert target is None, target
+                self.span_list.add_span(span)
+
+            elif target is None:
+                new = AmbiguousSpan(span=span.base_span, layer=self)
 
                 annotation = Annotation(new)
                 for attr in span.legal_attribute_names:
@@ -253,6 +257,7 @@ class Layer:
         if self.parent is not None and self.ambiguous:
             span = self.get(base_span)
             if span is None:
+                base_span = to_base_span(base_span)
                 span = AmbiguousSpan(base_span, self)
                 self.span_list.add_span(span)
             assert isinstance(span, AmbiguousSpan), span
@@ -271,9 +276,12 @@ class Layer:
 
                 target = self.get(span)
                 if target is None:
-                    target = AmbiguousSpan(layer=self, span=span)
+                    target = span
+                    annotation = target.add_annotation(**attributes)
+                    # target = AmbiguousSpan(span=span, layer=self)
                     self.span_list.add_span(target)
-                annotation = target.add_annotation(**attributes)
+                else:
+                    annotation = target.add_annotation(**attributes)
             else:
                 span = EnvelopingSpan(spans=base_span, layer=self)
                 annotation = span.add_annotation(**attributes)
@@ -283,7 +291,7 @@ class Layer:
         if self.parent is None and self.enveloping is None and self.ambiguous:
             span = self.get(base_span)
             if span is None:
-                span = AmbiguousSpan(Span(base_span=ElementaryBaseSpan(base_span.start, base_span.end), layer=self), self)
+                span = AmbiguousSpan(ElementaryBaseSpan(base_span.start, base_span.end), layer=self)
                 self.span_list.add_span(span)
             assert isinstance(span, AmbiguousSpan), span
             return span.add_annotation(**attributes)

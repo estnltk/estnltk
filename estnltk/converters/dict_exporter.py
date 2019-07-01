@@ -39,8 +39,8 @@ def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
         for enveloping_span in layer:
             if layer.ambiguous:
                 ambiguous_record = []
-                index = [enveloped_spanlist.index(span, last_index) for span in enveloping_span.span]
-                for annotation in enveloping_span:
+                index = [enveloped_spanlist.index(span, last_index) for span in enveloping_span.spans]
+                for annotation in enveloping_span.annotations:
                     last_index = index[0]
                     record = {attr: getattr(annotation, attr) for attr in layer.attributes}
                     record['_index_'] = index

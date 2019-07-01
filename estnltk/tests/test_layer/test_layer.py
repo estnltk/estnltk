@@ -297,7 +297,7 @@ def test_check_layer_consistency():
 
     # 1) Change first span, assign it to different layer
     old_first_span = morph_layer.spans[0]
-    morph_layer.spans[0] = AmbiguousSpan(layer=other_morph_layer, span=old_first_span.span)
+    morph_layer.spans[0] = AmbiguousSpan(span=old_first_span.base_span, layer=other_morph_layer)
     with pytest.raises(AssertionError) as e1:
         # Assertion error because the AmbiguousSpan is connected 
         # to different layer
@@ -345,8 +345,8 @@ def test_check_layer_consistency():
     layer2 = Layer(name='test_layer2',
                    attributes=['a', 'b'],
                    ambiguous=True)
-    amb_span1 = AmbiguousSpan(layer=layer1, span=Span(base_span=ElementaryBaseSpan(0, 1)))
-    amb_span2 = AmbiguousSpan(layer=layer2, span=Span(base_span=ElementaryBaseSpan(0, 1)))
+    amb_span1 = AmbiguousSpan(ElementaryBaseSpan(0, 1), layer=layer1)
+    amb_span2 = AmbiguousSpan(ElementaryBaseSpan(0, 1), layer=layer2)
     broken_annotation = Annotation(amb_span2)
     for attr in ['a', 'b', 'c']:
         setattr(broken_annotation, attr, '')

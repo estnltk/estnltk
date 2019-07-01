@@ -49,7 +49,7 @@ def _delete_conflicting_spans(span_list, priority_key, map_conflicts, keep_equal
 
 def _resolve_ambiguous_span(ambiguous_span: AmbiguousSpan, priority_attribute: str, keep_equal: bool) -> None:
     result = []
-    for s in ambiguous_span:
+    for s in ambiguous_span.annotations:
         if not result or getattr(result[-1], priority_attribute) > getattr(s, priority_attribute):
             result = [s]
         elif getattr(result[-1], priority_attribute) == getattr(s, priority_attribute):
@@ -98,7 +98,7 @@ def resolve_conflicts(layer,
     for obj in enumerated_spans:
         if priority_attribute is not None:
             if layer.ambiguous:
-                priorities.add(getattr(obj[1][0], priority_attribute))
+                priorities.add(getattr(obj[1].annotations[0], priority_attribute))
             else:
                 priorities.add(getattr(obj[1], priority_attribute))
         for j in range(obj[0]+1, len(enumerated_spans)):
@@ -116,7 +116,7 @@ def resolve_conflicts(layer,
     if len(priorities) > 1:
         if layer.ambiguous:
             def priority_key(num_span):
-                return getattr(num_span[1][0], priority_attribute)
+                return getattr(num_span[1].annotations[0], priority_attribute)
         else:
             def priority_key(num_span):
                 return getattr(num_span[1], priority_attribute)

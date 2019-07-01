@@ -364,9 +364,7 @@ class UserDictTagger(Retagger):
                     records = self._dict[word_text]['analysis']
 
                 # 2.3) Create new AmbiguousSpan
-                ambiguous_span = \
-                    AmbiguousSpan(layer=morph_spans[morph_span_id].layer, \
-                                  span=morph_spans[morph_span_id].span)
+                ambiguous_span = AmbiguousSpan(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
 
                 # 2.4) Populate it with new records
                 for rec in records:

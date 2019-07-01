@@ -436,11 +436,9 @@ class PostMorphAnalysisTagger(Retagger):
                     for extra_attr in extra_attributes:
                         empty_morph_record[extra_attr] = first_span_rec[extra_attr]
                 # Record the new span
-                ambiguous_span = \
-                    AmbiguousSpan(layer=morph_spans[morph_span_id].layer,
-                                  span=morph_spans[morph_span_id].span)
+                ambiguous_span = AmbiguousSpan(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
                 # Add the new annotation
-                ambiguous_span.add_annotation( **empty_morph_record )
+                ambiguous_span.add_annotation(**empty_morph_record)
                 morph_spans[morph_span_id] = ambiguous_span
                 # Advance in the old morph_analysis layer
                 morph_span_id += 1
@@ -476,9 +474,8 @@ class PostMorphAnalysisTagger(Retagger):
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
-            ambiguous_span = \
-                 AmbiguousSpan(layer=morph_spans[morph_span_id].layer, \
-                               span=morph_spans[morph_span_id].span)
+            ambiguous_span = AmbiguousSpan(span=morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
+
             record_added = False
             for rec in rewritten_recs:
                 if not rec:
