@@ -12,7 +12,7 @@ class AmbiguousSpan:
         assert isinstance(span, BaseSpan), span
 
         self._base_span = span
-        self.layer = layer  # type: Layer
+        self._layer = layer  # type: Layer
 
         self._annotations = []
 
@@ -31,7 +31,7 @@ class AmbiguousSpan:
 
     def add_annotation(self, **attributes) -> Annotation:
         annotation = Annotation(self)
-        for attr in self.layer.attributes:
+        for attr in self._layer.attributes:
             setattr(annotation, attr, attributes[attr])
         if annotation not in self._annotations:
             self._annotations.append(annotation)
@@ -40,24 +40,28 @@ class AmbiguousSpan:
     def __delitem__(self, key):
         del self._annotations[key]
         if not self._annotations:
-            self.layer.remove_span(self)
+            self._layer.remove_span(self)
 
     # TODO: remove span
     @property
     def span(self):
-        return Span(self._base_span, self.layer)
+        return Span(self._base_span, self._layer)
 
     @property
     def parent(self):
         if self._parent is None:
-            if self.layer.parent:
-                self._parent = self.layer.text_object[self.layer.parent].get(self.base_span)
+            if self._layer.parent:
+                self._parent = self._layer.text_object[self._layer.parent].get(self.base_span)
 
         return self._parent
 
     @parent.setter
     def parent(self, value):
         self._parent = value
+
+    @property
+    def layer(self):
+        return self._layer
 
     @property
     def start(self):
@@ -83,12 +87,12 @@ class AmbiguousSpan:
 
     @property
     def enclosing_text(self):
-        return self.layer.text_object.text[self.start:self.end]
+        return self._layer.text_object.text[self.start:self.end]
 
     @property
     def text_object(self):
-        if self.layer is not None:
-            return self.layer.text_object
+        if self._layer is not None:
+            return self._layer.text_object
 
     @property
     def raw_text(self):
@@ -148,7 +152,7 @@ class AmbiguousSpan:
     def _to_html(self, margin=0) -> str:
         return '<b>{}</b>\n{}'.format(
                 self.__class__.__name__,
-                html_table(spans=[self], attributes=self.layer.attributes, margin=margin, index=False))
+                html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
 
     def display(self, margin: int = 0):
         display_html(self._to_html(margin), raw=True)
