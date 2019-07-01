@@ -303,10 +303,9 @@ def test_annotated_layer():
     for i in t.test:
         i.test = 'mock'
 
-    #TODO: make span attributes fixed
-    # with pytest.raises(AttributeError):
-    #     for i in t.test:
-    #         i.test2 = 'mock'
+    with pytest.raises(AttributeError):
+        for i in t.test:
+            i.test2 = 'mock'
 
 
 def test_count_by():

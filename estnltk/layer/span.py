@@ -9,20 +9,19 @@ class Span:
     """Basic element of an EstNLTK layer.
 
     """
-    # __slots__ = ['_annotations', 'is_dependant', 'layer', 'parent', '_start', '_end', '_base', '_base_span']
+    __slots__ = ['_annotations', 'is_dependant', 'layer', 'parent', '_base', '_base_span']
 
     def __init__(self, base_span: BaseSpan, layer=None, parent=None):
         assert isinstance(base_span, BaseSpan)
 
         self._base_span = base_span
         self.layer = layer  # type: Layer
-        self.parent = parent  # type: Span
-
-        self._base = self  # type:Span
-
-        self.is_dependant = False
 
         self._annotations = []
+
+        self.parent = parent  # type: Span
+        self._base = self  # type:Span
+        self.is_dependant = False
 
     def __getitem__(self, item):
         return self.annotations[item]
@@ -57,9 +56,7 @@ class Span:
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
-        if self.layer is not None:
-            return self.layer.attributes
-        return ()
+        return self.layer.attributes
 
     def to_records(self, with_text=False) -> MutableMapping[str, Any]:
         attributes = self.annotations[0].attributes
@@ -135,13 +132,13 @@ class Span:
                         right, '</span>'))
 
     def __setattr__(self, key, value):
-        if key not in {'is_dependant', 'layer', 'parent', '_base', '_base_span', '_annotations'}:
-            # assert 0, key
+        if key in self.__slots__:
+            super().__setattr__(key, value)
+        elif key in self.legal_attribute_names:
             for annotation in self._annotations:
                 setattr(annotation, key, value)
         else:
-            pass
-        super().__setattr__(key, value)
+            raise AttributeError(key)
 
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
