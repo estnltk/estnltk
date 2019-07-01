@@ -847,6 +847,26 @@ def test_rewriting_api():
     assert list(text.plain.esrever) == text.words.text
 
 
+def test_rewriting():
+    class TestRewriter:
+        def rewrite(self, record):
+            if record['start'] == 0:
+                return None
+            record['upper'] = record['text'].upper()
+            return record
+
+    t = Text('Tere maailm!')
+    t.tag_layer(['words'])
+    test_layer = t['words'].rewrite(source_attributes=('text',),
+                                    target_attributes=('upper',),
+                                    rules=TestRewriter(),
+                                    name='test_layer')
+    t['test_layer'] = test_layer
+
+    assert t['test_layer'].to_records() == [{'upper': 'MAAILM', 'start': 5, 'end': 11},
+                                            {'upper': '!', 'start': 11, 'end': 12}]
+
+
 def test_delete_annotation_in_ambiguous_span():
     text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
     l = Layer(name='test',

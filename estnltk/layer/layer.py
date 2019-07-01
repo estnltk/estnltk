@@ -176,6 +176,8 @@ class Layer:
                     self.add_annotation(ElementaryBaseSpan(record['start'], record['end']), **attributes)
         else:
             for record in records:
+                if record is None:
+                    continue
                 attributes = {attr: record.get(attr, self.default_values[attr]) for attr in self.attributes}
                 self.add_annotation(ElementaryBaseSpan(record['start'], end=record['end']), **attributes)
         return self
