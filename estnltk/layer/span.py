@@ -67,19 +67,6 @@ class Span:
         record['end'] = self.end
         return record
 
-    # TODO: remove
-    def mark(self, mark_layer: str) -> 'Span':
-        base_layer = self.text_object.layers[mark_layer]  # type: Layer
-        base = base_layer._base
-
-        assert base == self.layer._base, "Expected '{self.layer._base}' got '{base}'".format(self=self, base=base)
-        res = base_layer.add_span(
-            Span(base_span=self._base.base_span,
-                 parent=self._base  # this is the base span
-            )
-        )
-        return res
-
     @property
     def start(self) -> int:
         return self.base_span.start
