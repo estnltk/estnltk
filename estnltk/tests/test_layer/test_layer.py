@@ -110,27 +110,27 @@ def test_add_annotation():
     # layer_0
     layer_0 = Layer('layer_0', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=False)
     assert len(layer_0) == 0
-    layer_0.add_annotation(Span(base_span=ElementaryBaseSpan(10, 11)), attr_1=11)
+    layer_0.add_annotation(ElementaryBaseSpan(10, 11), attr_1=11)
     assert len(layer_0) == 1
     assert layer_0[0].annotations == [Annotation(attr_1=11, attr_2=None)]
     with pytest.raises(ValueError):
-        layer_0.add_annotation(Span(base_span=ElementaryBaseSpan(10, 11)), attr_1=111)
+        layer_0.add_annotation(ElementaryBaseSpan(10, 11), attr_1=111)
 
-    layer_0.add_annotation(Span(base_span=ElementaryBaseSpan(0, 1)))
+    layer_0.add_annotation(ElementaryBaseSpan(0, 1))
     assert len(layer_0) == 2
     assert layer_0[0].annotations == [Annotation(attr_1=None, attr_2=None)]
 
     # layer_1
     layer_1 = Layer('layer_1', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=True)
     assert len(layer_1) == 0
-    layer_1.add_annotation(Span(base_span=ElementaryBaseSpan(10, 11)), attr_1=11)
+    layer_1.add_annotation(ElementaryBaseSpan(10, 11), attr_1=11)
     assert len(layer_1) == 1
     assert layer_1[0].annotations == [Annotation(attr_1=11, attr_2=None)]
 
-    layer_1.add_annotation(Span(base_span=ElementaryBaseSpan(10, 11)), attr_1=111)
+    layer_1.add_annotation(ElementaryBaseSpan(10, 11), attr_1=111)
     assert layer_1[0].annotations == [Annotation(attr_1=11, attr_2=None), Annotation(attr_1=111, attr_2=None)]
 
-    layer_1.add_annotation(Span(base_span=ElementaryBaseSpan(0, 1)))
+    layer_1.add_annotation(ElementaryBaseSpan(0, 1))
     assert len(layer_1) == 2
     assert layer_1[0].annotations == [Annotation(attr_1=None, attr_2=None)]
 
@@ -143,7 +143,7 @@ def test_add_annotation():
     with pytest.raises(ValueError):
         layer_2.add_annotation(layer_0[1], attr_1=111)
 
-    layer_2.add_annotation(Span(base_span=ElementaryBaseSpan(0, 1)))
+    layer_2.add_annotation(ElementaryBaseSpan(0, 1))
     assert len(layer_2) == 2
     assert layer_2[0].annotations == [Annotation(attr_1=None, attr_2=None)]
 
@@ -376,12 +376,12 @@ def test_check_layer_consistency():
     # print(ex1)
 
     # B2) Check for redundant Span attributes
-    span3 = Span(base_span=ElementaryBaseSpan(0, 1))
+    span3 = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
     span3.add_annotation(a=1, b=11, c=0, d=12)
 
     layer.spans.append(span3)
     with pytest.raises(AssertionError) as ex2:
-        # Assertion error because Span has a redundant attribute
+        # assertion error because annotation of the span3 has a redundant attribute
         layer.check_span_consistency()
 
 

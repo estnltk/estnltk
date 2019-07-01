@@ -11,7 +11,7 @@ class Span:
     """
     __slots__ = ['_base_span', '_layer', '_annotations', 'parent', '_base']
 
-    def __init__(self, base_span: BaseSpan, layer=None, parent=None):
+    def __init__(self, base_span: BaseSpan, layer, parent=None):
         assert isinstance(base_span, BaseSpan)
 
         self._base_span = base_span
@@ -90,11 +90,6 @@ class Span:
     def text_object(self):
         if self._layer is not None:
             return self._layer.text_object
-
-    def add_layer(self, layer):
-        if self._layer is None:
-            self._layer = layer
-        assert self._layer is layer
 
     @property
     def raw_text(self):

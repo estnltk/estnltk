@@ -24,7 +24,7 @@ def test_annotation_without_span():
     assert str(annotation) == "Annotation(None, {'attr_1': 'üks', 'attr_2': 2, 'attr_3': 3})"
     assert repr(annotation) == "Annotation(None, {'attr_1': 'üks', 'attr_2': 2, 'attr_3': 3})"
 
-    span = Span(base_span=ElementaryBaseSpan(2, 6))
+    span = Span(base_span=ElementaryBaseSpan(2, 6), layer=None)
     annotation.span = span
     assert annotation.span is span
     with pytest.raises(AttributeError):

@@ -45,9 +45,6 @@ class EnvelopingSpan:
     def annotations(self):
         return self._annotations
 
-    def add_layer(self, layer):
-        self._layer = layer
-
     def get_attributes(self, items):
         r = []
         for x in zip(*[[i
