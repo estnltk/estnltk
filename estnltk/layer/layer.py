@@ -166,27 +166,18 @@ class Layer:
         if self.parent is not None:
             self._is_lazy = True
 
-        if self.ambiguous:
-            if rewriting:
-                self.span_list = SpanList(layer=self)
+        if rewriting:
+            self.span_list = SpanList(layer=self)
 
+        if self.ambiguous:
             for record_line in records:
                 for record in record_line:
-                    self.add_annotation(ElementaryBaseSpan(record['start'], record['end']), **record)
+                    attributes = {attr: record.get(attr, self.default_values[attr]) for attr in self.attributes}
+                    self.add_annotation(ElementaryBaseSpan(record['start'], record['end']), **attributes)
         else:
-            if rewriting:
-                spns = SpanList(layer=self)
-
-                for record in records:
-                    if record is None:
-                        continue
-                    sp = Span(base_span=ElementaryBaseSpan(record['start'], end=record['end']), layer=self)
-                    sp.add_annotation(**record)
-                    spns.add_span(sp)
-                self.span_list = spns
-            else:
-                for record in records:
-                    self.add_annotation(ElementaryBaseSpan(record['start'], record['end']), **record)
+            for record in records:
+                attributes = {attr: record.get(attr, self.default_values[attr]) for attr in self.attributes}
+                self.add_annotation(ElementaryBaseSpan(record['start'], end=record['end']), **attributes)
         return self
 
     def attribute_list(self, attributes):
@@ -208,7 +199,6 @@ class Layer:
         for annotaion in span.annotations:
             assert attribute_set <= set(annotaion.attributes), attribute_set - set(annotaion.attributes)
 
-        span.add_layer(self)
         target = self.get(span)
 
         if self.ambiguous:
@@ -308,8 +298,12 @@ class Layer:
             return span.annotations[0]
 
     def check_span_consistency(self) -> None:
-        # Checks for layer's span consistency
+        """Checks for layer's span consistency
+
+        """
         starts_ends = set()
+        attribute_names = set(self.attributes)
+
         for span in self.span_list.spans:
             # Check for duplicate locations
             assert (span.start, span.end) not in starts_ends, '{} is a span with duplicate location'.format(span)
@@ -350,6 +344,19 @@ class Layer:
                 for span_attr in span.legal_attribute_names:
                     assert span_attr in self.attributes, \
                        '(!) redundant attribute {} in {}'.format(span_attr, span)
+
+            annotations = span.annotations
+
+            assert len(annotations) > 0, 'the span {} has no annotations'.format(span)
+            assert self.ambiguous or len(annotations) == 1, \
+                'the layer is not ambiguous but the span {} has {} annotations'.format(span, len(annotations))
+
+            for annotation in span.annotations:
+                assert set(annotation._attributes) == attribute_names, \
+                    'extra annotation attributes: {}, missing annotation attributes: {} in layer {!r}'.format(
+                            set(annotation.attributes) - attribute_names,
+                            attribute_names - set(annotation.attributes),
+                            self.name)
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
