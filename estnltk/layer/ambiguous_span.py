@@ -8,10 +8,10 @@ from .to_html import html_table
 
 
 class AmbiguousSpan:
-    def __init__(self, span: BaseSpan, layer) -> None:
-        assert isinstance(span, BaseSpan), span
+    def __init__(self, base_span: BaseSpan, layer) -> None:
+        assert isinstance(base_span, BaseSpan), base_span
 
-        self._base_span = span
+        self._base_span = base_span
         self._layer = layer  # type: Layer
 
         self._annotations = []

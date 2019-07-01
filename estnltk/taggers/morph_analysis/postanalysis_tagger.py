@@ -474,7 +474,7 @@ class PostMorphAnalysisTagger(Retagger):
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
-            ambiguous_span = AmbiguousSpan(span=morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
+            ambiguous_span = AmbiguousSpan(base_span=morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
 
             record_added = False
             for rec in rewritten_recs:

@@ -297,7 +297,7 @@ def test_check_layer_consistency():
 
     # 1) Change first span, assign it to different layer
     old_first_span = morph_layer.spans[0]
-    morph_layer.spans[0] = AmbiguousSpan(span=old_first_span.base_span, layer=other_morph_layer)
+    morph_layer.spans[0] = AmbiguousSpan(base_span=old_first_span.base_span, layer=other_morph_layer)
     with pytest.raises(AssertionError) as e1:
         # Assertion error because the AmbiguousSpan is connected 
         # to different layer

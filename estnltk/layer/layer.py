@@ -209,7 +209,7 @@ class Layer:
                 self.span_list.add_span(span)
 
             elif target is None:
-                new = AmbiguousSpan(span=span.base_span, layer=self)
+                new = AmbiguousSpan(base_span=span.base_span, layer=self)
 
                 annotation = Annotation(new)
                 for attr in span.legal_attribute_names:

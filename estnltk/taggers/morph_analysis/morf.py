@@ -665,7 +665,7 @@ class VabamorfDisambiguator(Retagger):
                 disambiguated_records = disambiguated_dicts[morph_dict_id]['analysis']
 
                 # D.1) Convert records back to AmbiguousSpans
-                ambiguous_span = AmbiguousSpan(span=morph_layer[global_morph_span_id].base_span, layer=morph_layer)
+                ambiguous_span = AmbiguousSpan(base_span=morph_layer[global_morph_span_id].base_span, layer=morph_layer)
                 
                 # D.1) Rewrite records into a proper format, and 
                 #      add to the span
