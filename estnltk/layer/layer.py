@@ -191,46 +191,17 @@ class Layer:
     def to_records(self, with_text=False):
         return self.span_list.to_records(with_text)
 
-    def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
+    def add_span(self, span: Union[Span, AmbiguousSpan, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
-        assert isinstance(span, (Span, EnvelopingSpan)), str(type(span))
+        assert isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)), str(type(span))
         assert len(span.annotations) > 0, span
         assert self.ambiguous or len(span.annotations) == 1, span
+        assert span.layer is self, span.layer
 
-        attribute_set = set(self.attributes)
-        for annotaion in span.annotations:
-            assert attribute_set <= set(annotaion.attributes), attribute_set - set(annotaion.attributes)
+        if self.get(span) is not None:
+            raise ValueError('this layer already has a span with the same base span')
 
-        target = self.get(span)
-
-        if self.ambiguous:
-            if self.enveloping:
-                assert target is None, target
-                self.span_list.add_span(span)
-
-            elif target is None:
-                new = AmbiguousSpan(base_span=span.base_span, layer=self)
-
-                annotation = Annotation(new)
-                for attr in span.legal_attribute_names:
-                    setattr(annotation, attr, getattr(span, attr))
-                if not isinstance(span, Span):
-                    # EnvelopingSpan
-                    annotation.spans = span.spans
-                if annotation not in new._annotations:
-                    new._annotations.append(annotation)
-
-                self.span_list.add_span(new)
-                new.parent = span.parent
-            else:
-                assert isinstance(target, AmbiguousSpan)
-                assert len(span.annotations) == 1
-                target.add_annotation(Annotation(target, **span.annotations[0].attributes))
-        else:
-            if target is None:
-                self.span_list.add_span(span)
-            else:
-                raise ValueError('this layer is not ambiguous and the span is already in the spanlist', span)
+        self.span_list.add_span(span)
 
         return span
 

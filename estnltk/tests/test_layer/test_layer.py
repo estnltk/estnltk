@@ -46,27 +46,21 @@ def test_add_span():
     text = Text('0123456789')
     layer = Layer(name='ambiguous', attributes=['a', 'b', 'c'], ambiguous=True)
 
-    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+    span = AmbiguousSpan(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+    span.add_annotation(Annotation(span, a='s1', b=True, c=None))
     span.add_annotation(Annotation(span, a='s1', b=True, c=None))
     layer.add_span(span)
 
-    span = Span(base_span=ElementaryBaseSpan(1, 2), layer=layer)
+    span = AmbiguousSpan(base_span=ElementaryBaseSpan(1, 2), layer=layer)
     span.add_annotation(Annotation(span, a='s2', b=False, c=5))
+    span.add_annotation(Annotation(span, a='s4', b=False, c=5))
     layer.add_span(span)
 
-    span = Span(base_span=ElementaryBaseSpan(0, 2), layer=layer)
+    span = AmbiguousSpan(base_span=ElementaryBaseSpan(0, 2), layer=layer)
     span.add_annotation(Annotation(span, a='s3', b=True, c=None))
     layer.add_span(span)
 
     text['ambiguous'] = layer
-
-    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
-    span.add_annotation(Annotation(span, a='s1', b=True, c=None))
-    layer.add_span(span)
-
-    span = Span(base_span=ElementaryBaseSpan(1, 2), layer=layer)
-    span.add_annotation(Annotation(span, a='s4', b=False, c=5))
-    layer.add_span(span)
 
     assert len(layer.span_list) == 3
     assert isinstance(layer[0], AmbiguousSpan)
