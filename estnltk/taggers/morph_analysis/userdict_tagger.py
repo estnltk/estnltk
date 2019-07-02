@@ -8,9 +8,7 @@ import csv
 
 from typing import MutableMapping
 
-from estnltk.text import Layer
-from estnltk.layer.ambiguous_span import AmbiguousSpan
-
+from estnltk.layer.layer import Annotation, AmbiguousSpan, Layer
 from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
@@ -297,8 +295,6 @@ class UserDictTagger(Retagger):
         for word in collected_analyses.keys():
             self.add_word( word, collected_analyses[word] )
 
-
-
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
         """Retags the morphological analyses layer, providing dictionary-
            based corrections to it.
@@ -379,7 +375,8 @@ class UserDictTagger(Retagger):
                         else:
                             rec[attr] = attr_value
                     # Add record as an annotation
-                    ambiguous_span.add_annotation( **rec )
+                    attributes = {attr: rec[attr] for attr in ambiguous_span.layer.attributes}
+                    ambiguous_span.add_annotation(Annotation(ambiguous_span, **attributes))
 
                 # 2.5) Overwrite the old span
                 morph_spans[morph_span_id] = ambiguous_span

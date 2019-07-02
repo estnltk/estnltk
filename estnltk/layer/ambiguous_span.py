@@ -18,6 +18,21 @@ class AmbiguousSpan:
 
         self._parent = None  # type: Union[Span, None]
 
+    def add_annotation(self, annotation: Annotation) -> Annotation:
+        if not isinstance(annotation, Annotation):
+            raise TypeError('expected Annotation, got {}'.format(type(annotation)))
+        if annotation.span is not self:
+            raise ValueError('the annotation has a different span {}'.format(annotation.span))
+        if set(annotation.attributes) != set(self.layer.attributes):
+            raise ValueError('the annotation has unexpected or missing attributes {}'.format(annotation.attributes))
+
+        if annotation not in self._annotations:
+            if self.layer.ambiguous or len(self._annotations) == 0:
+                self._annotations.append(annotation)
+                return annotation
+
+            raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
+
     @property
     def annotations(self):
         return self._annotations
@@ -28,14 +43,6 @@ class AmbiguousSpan:
 
     def to_records(self, with_text=False):
         return [i.to_record(with_text) for i in self._annotations]
-
-    def add_annotation(self, **attributes) -> Annotation:
-        annotation = Annotation(self)
-        for attr in self._layer.attributes:
-            setattr(annotation, attr, attributes[attr])
-        if annotation not in self._annotations:
-            self._annotations.append(annotation)
-            return annotation
 
     def __delitem__(self, key):
         del self._annotations[key]
@@ -77,6 +84,8 @@ class AmbiguousSpan:
 
     @property
     def text(self):
+        if self.text_object is None:
+            return
         text = self.text_object.text
         base_span = self.base_span
 
@@ -139,7 +148,7 @@ class AmbiguousSpan:
         return item in self._annotations
 
     def __hash__(self):
-        return hash(self.base_span)
+        return hash(self._base_span)
 
     def __str__(self):
         if self.text_object is not None:

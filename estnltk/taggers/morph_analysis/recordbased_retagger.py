@@ -4,7 +4,7 @@
 #  dictionary representations of analyses.
 #  
 
-from estnltk import Text
+from estnltk import Annotation, Text
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 
 from estnltk.taggers import Retagger
@@ -233,14 +233,15 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
                         # We have an extra attribute that is missing:
                         # initialize it with None
                         new_record[attr] = None
-                ambiguous_span.add_annotation( **new_record )
+                attributes = {attr: new_record[attr] for attr in ambiguous_span.layer.attributes}
+                ambiguous_span.add_annotation(Annotation(ambiguous_span, **attributes))
                 annotation_added = True
             if not annotation_added:
                 # Create an empty record
                 new_record = _create_empty_morph_record(
                                      word=morph_word.parent,
                                      layer_attributes=current_attributes)
-                ambiguous_span.add_annotation( **new_record )
+                ambiguous_span.add_annotation(Annotation(ambiguous_span, **new_record))
             # 4.2) Rewrite the old span with the new one
             morph_spans[wid] = ambiguous_span
         # 5) Return rewritten layer

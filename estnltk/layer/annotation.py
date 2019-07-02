@@ -84,7 +84,7 @@ class Annotation:
                 return value(self)
             return value
 
-        raise AttributeError(item)
+        return self.__getattribute__(item)
 
     def __getitem__(self, item):
         value = self._attributes[item]

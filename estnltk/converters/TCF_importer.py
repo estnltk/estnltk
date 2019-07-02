@@ -35,12 +35,8 @@ def import_TCF(string:str=None, file:str=None):
         layer = Layer(enveloping='words',
                       name='sentences')
         for sentence in element:
-            spans = []
-            for token_id in sentence.get('tokenIDs').split():
-                spans.append(id_to_token[token_id])
-            span = EnvelopingSpan(spans=spans, layer=layer)
-            span.add_annotation()
-            layer.add_span(span)
+            spans = [id_to_token[token_id] for token_id in sentence.get('tokenIDs').split()]
+            layer.add_annotation(spans)
         text['sentences'] = layer
 
     # clauses layer
@@ -49,12 +45,8 @@ def import_TCF(string:str=None, file:str=None):
         layer = Layer(enveloping='words',
                       name='clauses')
         for clause in element:
-            spans = []
-            for token_id in clause.get('tokenIDs').split():
-                spans.append(id_to_token[token_id])
-            span = EnvelopingSpan(spans=spans, layer=layer)
-            span.add_annotation()
-            layer.add_span(span)
+            spans = [id_to_token[token_id] for token_id in clause.get('tokenIDs').split()]
+            layer.add_annotation(spans)
         text['clauses'] = layer
 
     # chunk layers: verb_chains, time_phrases
@@ -133,9 +125,7 @@ def import_TCF(string:str=None, file:str=None):
                       )
         for word, analyses in zip(text.words, morph_analysis_records):
             for analysis in analyses:
-                span = Span(base_span=word.base_span, parent=word, layer=morph)
-                span.add_annotation(**analysis)
-                morph.add_span(span)
+                morph.add_annotation(word, **analysis)
 
         text['morph_analysis'] = morph
 

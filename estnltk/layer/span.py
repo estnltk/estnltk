@@ -22,36 +22,27 @@ class Span:
         self.parent = parent  # type: Span
         self._base = self  # type:Span
 
-    def __getitem__(self, item):
-        return self.annotations[item]
+    def add_annotation(self, annotation: Annotation) -> Annotation:
+        if not isinstance(annotation, Annotation):
+            raise TypeError('expected Annotation, got {}'.format(type(annotation)))
+        if annotation.span is not self:
+            raise ValueError('the annotation has a different span {}'.format(annotation.span))
+        if set(annotation.attributes) != set(self.layer.attributes):
+            raise ValueError('the annotation has unexpected or missing attributes {}'.format(annotation.attributes))
 
-    def add_annotation(self, **attributes) -> Annotation:
-        # TODO: try and remove if-s
+        if annotation not in self._annotations:
+            if self.layer.ambiguous or len(self._annotations) == 0:
+                self._annotations.append(annotation)
+                return annotation
 
-        annotation = Annotation(self)
-        if self._layer:
-            for attr in self._layer.attributes:
-                if attr in attributes:
-                    setattr(annotation, attr, attributes[attr])
-        else:
-            for attr, value in attributes.items():
-                if attr == 'text':
-                    continue
-                setattr(annotation, attr, value)
-
-        if len(self._annotations) == 0:
-            self.annotations.append(annotation)
-        elif len(self._annotations) == 1:
-            if annotation != self._annotations[0]:
-                raise Exception('the layer is not ambiguous and this span already has a different annotation')
-        else:
-            raise Exception('this should be impossible: the layer is not ambiguous but this span already has more than '
-                            'one annotations')
-        return annotation
+            raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
 
     @property
     def annotations(self):
         return self._annotations
+
+    def __getitem__(self, item):
+        return self.annotations[item]
 
     @property
     def layer(self):
@@ -63,11 +54,11 @@ class Span:
 
     @property
     def start(self) -> int:
-        return self.base_span.start
+        return self._base_span.start
 
     @property
     def end(self) -> int:
-        return self.base_span.end
+        return self._base_span.end
 
     @property
     def base_span(self):
@@ -164,7 +155,7 @@ class Span:
         return self.annotations == other.annotations
 
     def __hash__(self):
-        return hash((self.start, self.end))
+        return hash(self._base_span)
 
     def __str__(self):
         if self.text_object is not None:

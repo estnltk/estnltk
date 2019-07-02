@@ -1,6 +1,7 @@
 from collections import defaultdict
 from typing import Sequence, Union
 
+from estnltk import Annotation
 from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger, Vocabulary
@@ -140,12 +141,11 @@ class PhraseTagger(Tagger):
                                                 attr_value = rec[attr]
                                                 if callable(attr_value):
                                                     attributes[attr] = attr_value(span, raw_text)
-                                                    # setattr(span, attr, attr_value(span, raw_text))
                                                 else:
                                                     attributes[attr] = attr_value
-                                                    # setattr(span, attr, attr_value)
 
-                                            span.add_annotation(**attributes)
+                                            annotation = Annotation(span, **attributes)
+                                            span.add_annotation(annotation)
 
                                     if span.annotations:
                                         layer.add_span(span)
@@ -178,7 +178,8 @@ class PhraseTagger(Tagger):
                                             else:
                                                 attributes[attr] = attr_value
 
-                                        span.add_annotation(**attributes)
+                                        annotation = Annotation(span, **attributes)
+                                        span.add_annotation(annotation)
 
                                 if span.annotations:
                                     layer.add_span(span)

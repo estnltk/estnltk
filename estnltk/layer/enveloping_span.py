@@ -26,20 +26,20 @@ class EnvelopingSpan:
         # TODO: self._base_span = base_span
         self._base_span = None
 
-    def add_annotation(self, **attributes) -> Annotation:
-        assert 'text' not in attributes, attributes
-
-        annotation = Annotation(self)
-        for k, v in attributes.items():
-            setattr(annotation, k, v)
+    def add_annotation(self, annotation: Annotation) -> Annotation:
+        if not isinstance(annotation, Annotation):
+            raise TypeError('expected Annotation, got {}'.format(type(annotation)))
+        if annotation.span is not self:
+            raise ValueError('the annotation has a different span {}'.format(annotation.span))
+        if set(annotation.attributes) != set(self.layer.attributes):
+            raise ValueError('the annotation has unexpected or missing attributes {}'.format(annotation.attributes))
 
         if annotation not in self._annotations:
             if self.layer.ambiguous or len(self._annotations) == 0:
                 self._annotations.append(annotation)
-            else:
-                raise ValueError('The layer is not ambiguous an this span already has a different annotation.')
+                return annotation
 
-            return annotation
+            raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
 
     @property
     def annotations(self):
@@ -184,7 +184,7 @@ class EnvelopingSpan:
                and self.spans == other.spans
 
     def __hash__(self):
-        return hash((tuple(self.spans), None))
+        return hash(self.base_span)
 
     def __str__(self):
         return 'ES[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))

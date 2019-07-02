@@ -2,14 +2,14 @@ from typing import Sequence, Union
 
 from estnltk.taggers import Tagger, Vocabulary
 from estnltk.text import Span, Layer
+from estnltk.layer.annotation import Annotation
 from estnltk.layer_operations import resolve_conflicts
 
 
 class SpanTagger(Tagger):
-    """
-    Tags spans on a given layer. Creates a layer for which the input layer is the parent layer.
-    """
+    """Tags spans on a given layer. Creates a layer for which the input layer is the parent layer.
 
+    """
     def __init__(self,
                  output_layer: str,
                  input_layer: str,
@@ -107,7 +107,8 @@ class SpanTagger(Tagger):
                     if value in vocabulary:
                         for rec in vocabulary[value]:
                             span = Span(base_span=parent_span.base_span, parent=parent_span, layer=layer)
-                            span.add_annotation(**rec)
+                            attributes = {attr: rec[attr] for attr in layer.attributes}
+                            span.add_annotation(Annotation(span, **attributes))
                             if self.global_validator(raw_text, span):
                                 if validator_key is None or rec[validator_key](raw_text, span):
                                     layer.add_span(span)
@@ -119,7 +120,8 @@ class SpanTagger(Tagger):
                 if value in vocabulary:
                     for rec in vocabulary[value]:
                         span = Span(base_span=parent_span.base_span, parent=parent_span, layer=layer)
-                        span.add_annotation(**rec)
+                        attributes = {attr: rec[attr] for attr in layer.attributes}
+                        span.add_annotation(Annotation(span, **attributes))
                         if self.global_validator(raw_text, span):
                             if validator_key is None or rec[validator_key](raw_text, span):
                                 layer.add_span(span)

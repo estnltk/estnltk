@@ -50,12 +50,14 @@ def test_annotations():
     span = EnvelopingSpan([layer_0[0], layer_0[2], layer_0[4]], layer=layer_4)
     assert span.annotations == []
 
-    span.add_annotation(attr=0, attr_4=1)
-    span.add_annotation(attr=0, attr_4=1)
+    annotation = Annotation(span, attr=0, attr_4=1)
+    span.add_annotation(annotation)
+    span.add_annotation(annotation)
     assert len(span.annotations) == 1
 
     with pytest.raises(ValueError):
-        span.add_annotation(attr=0, attr_4=2)
+        annotation = Annotation(span, attr=0, attr_4=2)
+        span.add_annotation(annotation)
 
     assert len(span.annotations) == 1
     assert span.annotations[0] == Annotation(span, attr=0, attr_4=1)
