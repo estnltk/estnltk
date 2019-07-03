@@ -31,10 +31,9 @@ class TestDummyTagger(TestCase):
         text.tag_layer(["morph_analysis"])
         tagger.tag(text)
 
-        for word in text.words:
-            morf_pred = word.morphtag
-            morf_true = "{} {}".format(word.partofspeech[0], word.form[0]).rstrip()
-            self.assertEqual(morf_pred, morf_true)
+        for morph, morf_pred in zip(text.morph_analysis, text['neural_morph_analysis']):
+            morf_true = "{} {}".format(morph.partofspeech[0], morph.form[0]).rstrip()
+            self.assertEqual(morf_pred.morphtag, morf_true)
 
 
 def str2input(text):

@@ -63,7 +63,7 @@ def extract_sections(text: Text,
                     for span in layer:
                         span_parent = map_spans.get((span.parent.base_span, span.parent.layer.name))
                         if span_parent:
-                            new_span = Span(base_span=span_parent.base_span, parent=span_parent, layer=new_layer)
+                            new_span = Span(base_span=span_parent.base_span, layer=new_layer)
                             map_spans[(span.base_span, span.layer.name)] = new_span
                             for sp in span:
                                 attributes = {attr: getattr(sp, attr) for attr in attribute_names}

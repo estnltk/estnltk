@@ -1,8 +1,8 @@
-from typing import Any, Mapping, Sequence, MutableMapping
+from typing import Any, Mapping, Sequence
 
 
 class Annotation(Mapping):
-    """Span attribute values are stored here.
+    """Mapping for Span attribute values.
 
     """
     __slots__ = ['_attributes', '_span']

@@ -511,7 +511,7 @@ class SentenceTokenizer( Tagger ):
                 if 'non_ending_abbreviation' in ct.type:
                     sentence_ends -= {span.end for span in ct}
                 else:
-                    sentence_ends -= {span.end for span in ct[0:-1]}
+                    sentence_ends -= {span.end for span in ct.base_span[0:-1]}
         # B) Use repeated/prolonged sentence punctuation as sentence endings
         if self.fix_repeated_ending_punct:
             repeated_ending_punct = []

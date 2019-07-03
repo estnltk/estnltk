@@ -108,7 +108,6 @@ class SpanTagger(Tagger):
                     if value in vocabulary:
                         if self.ambiguous:
                             span = AmbiguousSpan(base_span=parent_span.base_span, layer=layer)
-                            span.parent = parent_span
                         else:
                             span = Span(base_span=parent_span.base_span, layer=layer, parent=parent_span)
                         for rec in vocabulary[value]:
@@ -129,7 +128,6 @@ class SpanTagger(Tagger):
                 if value in vocabulary:
                     if self.ambiguous:
                         span = AmbiguousSpan(base_span=parent_span.base_span, layer=layer)
-                        span.parent = parent_span
                     else:
                         span = Span(base_span=parent_span.base_span, layer=layer, parent=parent_span)
                     for rec in vocabulary[value]:

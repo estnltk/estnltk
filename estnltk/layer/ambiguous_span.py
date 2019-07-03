@@ -56,15 +56,10 @@ class AmbiguousSpan:
 
     @property
     def parent(self):
-        if self._parent is None:
-            if self._layer.parent:
-                self._parent = self._layer.text_object[self._layer.parent].get(self.base_span)
+        if self._parent is None and self._layer.parent:
+            self._parent = self._layer.text_object[self._layer.parent].get(self.base_span)
 
         return self._parent
-
-    @parent.setter
-    def parent(self, value):
-        self._parent = value
 
     @property
     def layer(self):

@@ -11,6 +11,7 @@ from .to_html import html_table
 class EnvelopingSpan:
     def __init__(self, spans, layer):
         spans = tuple(spans)
+        assert spans, spans
         assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan, Annotation)) for span in spans), [type(span) for span in spans]
         self.spans = spans
 
@@ -18,13 +19,9 @@ class EnvelopingSpan:
 
         self.parent = None  # type:Union[Span, None]
 
-        # placeholder for dependant layer
-        self._base = None  # type:Union[Span, None]
-
         self._annotations = []
 
-        # TODO: self._base_span = base_span
-        self._base_span = None
+        self._base_span = EnvelopingBaseSpan([s.base_span for s in self.spans])
 
     def add_annotation(self, annotation: Annotation) -> Annotation:
         if not isinstance(annotation, Annotation):
@@ -82,16 +79,15 @@ class EnvelopingSpan:
 
     @property
     def start(self):
-        return self.spans[0].start
+        return self._base_span.start
 
     @property
     def end(self):
-        return self.spans[-1].end
+        return self._base_span.end
 
     @property
     def base_span(self):
-        # TODO: return self._base_span
-        return EnvelopingBaseSpan([s.base_span for s in self.spans])
+        return self._base_span
 
     @property
     def base_spans(self):
@@ -132,9 +128,7 @@ class EnvelopingSpan:
         yield from self.spans
 
     def __len__(self) -> int:
-        return len(self.__getattribute__(
-            'spans'
-        ))
+        return len(self._base_span)
 
     def __contains__(self, item: Any) -> bool:
         return item in self.spans
@@ -175,16 +169,15 @@ class EnvelopingSpan:
         raise KeyError(idx)
 
     def __lt__(self, other: Any) -> bool:
-        return isinstance(other, EnvelopingSpan) and \
-            (self.start, self.end, self.spans) < (other.start, other.end, other.spans)
+        return isinstance(other, EnvelopingSpan) and self._base_span < other._base_span
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, EnvelopingSpan) \
-               and self.annotations == other.annotations \
-               and self.spans == other.spans
+               and self._base_span == other._base_span \
+               and self.annotations == other.annotations
 
     def __hash__(self):
-        return hash(self.base_span)
+        return hash(self._base_span)
 
     def __str__(self):
         return 'ES[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))

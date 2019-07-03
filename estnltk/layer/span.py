@@ -9,9 +9,9 @@ class Span:
     """Basic element of an EstNLTK layer.
 
     """
-    __slots__ = ['_base_span', '_layer', '_annotations', 'parent', '_base']
+    __slots__ = ['_base_span', '_layer', '_annotations', '_parent']
 
-    def __init__(self, base_span: BaseSpan, layer, parent=None):
+    def __init__(self, base_span: BaseSpan, layer):
         assert isinstance(base_span, BaseSpan)
 
         self._base_span = base_span
@@ -19,8 +19,7 @@ class Span:
 
         self._annotations = []
 
-        self.parent = parent  # type: Span
-        self._base = self  # type:Span
+        self._parent = None  # type: Span
 
     def add_annotation(self, annotation: Annotation) -> Annotation:
         if not isinstance(annotation, Annotation):
@@ -43,6 +42,13 @@ class Span:
 
     def __getitem__(self, item):
         return self.annotations[item]
+
+    @property
+    def parent(self):
+        if self._parent is None and self._layer.parent:
+            self._parent = self._layer.text_object[self._layer.parent].get(self.base_span)
+
+        return self._parent
 
     @property
     def layer(self):
@@ -108,7 +114,7 @@ class Span:
                         right, '</span>'))
 
     def __setattr__(self, key, value):
-        if key in self.__slots__:
+        if key in self.__slots__ or key == 'parent':
             super().__setattr__(key, value)
         elif key in self.legal_attribute_names:
             for annotation in self._annotations:

@@ -185,15 +185,6 @@ class Text:
             self.enveloping_to_enveloped[name].append(layer.enveloping)
             self.layers[layer.enveloping].freeze()
 
-        if layer._is_lazy:
-            # this means the layer might already have spans, and the spans might need to have their parents reset
-            if layer.parent is not None:
-                for span in layer:
-                    base_layer = self.layers[layer._base]
-                    i = bisect_left(base_layer, span)
-                    span.parent = base_layer[i]
-                    span._base = span.parent
-
         self.layers[name] = layer
 
         setattr(self, layer.name, layer)
@@ -353,7 +344,7 @@ class Text:
         return self.layers[item]
 
     def __delattr__(self, item):
-        assert item in self.layers.keys(), '{item} is not a valid layer in this Text object'.format(item=item)
+        assert item in self.layers, '{item} is not a valid layer in this Text object'.format(item=item)
 
         # find all dependencies between layers
         relations = set()
