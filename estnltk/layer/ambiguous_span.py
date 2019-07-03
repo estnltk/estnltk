@@ -1,25 +1,37 @@
 from typing import Union, Any
 from IPython.core.display import display_html
 
-from estnltk import Span
+from estnltk import Span, BaseSpan
 from estnltk import Annotation, ElementaryBaseSpan
 from estnltk.layer import AttributeList
 from .to_html import html_table
 
 
 class AmbiguousSpan:
-    def __init__(self, span: Span, layer: 'Layer') -> None:
-        # TODO: assert isinstance(span, BaseSpan), type(span)
-        assert isinstance(span, (Span, EnvelopingSpan, AmbiguousSpan)), type(span)
+    def __init__(self, base_span: BaseSpan, layer) -> None:
+        assert isinstance(base_span, BaseSpan), base_span
 
-        self._base_span = span.base_span
-        self.layer = layer
-        self._parent = None  # type: Union[Span, None]
+        self._base_span = base_span
+        self._layer = layer  # type: Layer
+
         self._annotations = []
 
-        # TODO: remove self._span
-        self._span = span
+        self._parent = None  # type: Union[Span, None]
 
+    def add_annotation(self, annotation: Annotation) -> Annotation:
+        if not isinstance(annotation, Annotation):
+            raise TypeError('expected Annotation, got {}'.format(type(annotation)))
+        if annotation.span is not self:
+            raise ValueError('the annotation has a different span {}'.format(annotation.span))
+        if set(annotation) != set(self.layer.attributes):
+            raise ValueError('the annotation has unexpected or missing attributes {}'.format(annotation.attributes))
+
+        if annotation not in self._annotations:
+            if self.layer.ambiguous or len(self._annotations) == 0:
+                self._annotations.append(annotation)
+                return annotation
+
+            raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
 
     @property
     def annotations(self):
@@ -32,34 +44,31 @@ class AmbiguousSpan:
     def to_records(self, with_text=False):
         return [i.to_record(with_text) for i in self._annotations]
 
-    def add_annotation(self, **attributes) -> Annotation:
-        annotation = Annotation(self)
-        for attr in self.layer.attributes:
-            setattr(annotation, attr, attributes[attr])
-        if annotation not in self._annotations:
-            self._annotations.append(annotation)
-            return annotation
-
     def __delitem__(self, key):
         del self._annotations[key]
         if not self._annotations:
-            self.layer.remove_span(self)
+            self._layer.remove_span(self)
 
+    # TODO: remove span
     @property
     def span(self):
-        return self._span
+        return Span(self._base_span, self._layer)
 
     @property
     def parent(self):
         if self._parent is None:
-            if self.layer.parent:
-                self._parent = self.layer.text_object[self.layer.parent].get(self.base_span)
+            if self._layer.parent:
+                self._parent = self._layer.text_object[self._layer.parent].get(self.base_span)
 
         return self._parent
 
     @parent.setter
     def parent(self, value):
         self._parent = value
+
+    @property
+    def layer(self):
+        return self._layer
 
     @property
     def start(self):
@@ -75,6 +84,8 @@ class AmbiguousSpan:
 
     @property
     def text(self):
+        if self.text_object is None:
+            return
         text = self.text_object.text
         base_span = self.base_span
 
@@ -85,12 +96,12 @@ class AmbiguousSpan:
 
     @property
     def enclosing_text(self):
-        return self.layer.text_object.text[self.start:self.end]
+        return self._layer.text_object.text[self.start:self.end]
 
     @property
     def text_object(self):
-        if self.layer is not None:
-            return self.layer.text_object
+        if self._layer is not None:
+            return self._layer.text_object
 
     @property
     def raw_text(self):
@@ -137,7 +148,7 @@ class AmbiguousSpan:
         return item in self._annotations
 
     def __hash__(self):
-        return hash(self.base_span)
+        return hash(self._base_span)
 
     def __str__(self):
         if self.text_object is not None:
@@ -150,13 +161,10 @@ class AmbiguousSpan:
     def _to_html(self, margin=0) -> str:
         return '<b>{}</b>\n{}'.format(
                 self.__class__.__name__,
-                html_table(spans=[self], attributes=self.layer.attributes, margin=margin, index=False))
+                html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
 
-    def display(self, margin: int=0):
+    def display(self, margin: int = 0):
         display_html(self._to_html(margin), raw=True)
 
     def _repr_html_(self):
         return self._to_html()
-
-
-from estnltk.layer.enveloping_span import EnvelopingSpan

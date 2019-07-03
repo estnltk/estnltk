@@ -1,11 +1,13 @@
-from typing import List, Union, Sequence
+from typing import List, Mapping, Union, Sequence
 from estnltk.text import Text
 
 
 def annotation_to_dict(annotation: Union['Annotation', Sequence['Annotation']]) -> Union[dict, List[dict]]:
+    if isinstance(annotation, Mapping):
+        return dict(annotation)
     if isinstance(annotation, Sequence):
-        return [a.attributes for a in annotation]
-    return annotation.attributes
+        return [dict(a) for a in annotation]
+    raise TypeError('expected Annotation or Sequence of Annotations, got {}'.format(type(annotation)))
 
 
 def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
@@ -39,8 +41,8 @@ def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
         for enveloping_span in layer:
             if layer.ambiguous:
                 ambiguous_record = []
-                index = [enveloped_spanlist.index(span, last_index) for span in enveloping_span.span]
-                for annotation in enveloping_span:
+                index = [enveloped_spanlist.index(span, last_index) for span in enveloping_span.spans]
+                for annotation in enveloping_span.annotations:
                     last_index = index[0]
                     record = {attr: getattr(annotation, attr) for attr in layer.attributes}
                     record['_index_'] = index

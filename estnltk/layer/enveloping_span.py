@@ -1,9 +1,11 @@
 from typing import Any, Union, Sequence
 import itertools
+from IPython.core.display import display_html
 
 from estnltk.layer.span import Span, Annotation
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 from estnltk import EnvelopingBaseSpan
+from .to_html import html_table
 
 
 class EnvelopingSpan:
@@ -24,24 +26,24 @@ class EnvelopingSpan:
         # TODO: self._base_span = base_span
         self._base_span = None
 
-    def add_annotation(self, **attributes) -> Annotation:
-        assert 'text' not in attributes, attributes
-
-        annotation = Annotation(self)
-        for k, v in attributes.items():
-            setattr(annotation, k, v)
+    def add_annotation(self, annotation: Annotation) -> Annotation:
+        if not isinstance(annotation, Annotation):
+            raise TypeError('expected Annotation, got {}'.format(type(annotation)))
+        if annotation.span is not self:
+            raise ValueError('the annotation has a different span {}'.format(annotation.span))
+        if set(annotation) != set(self.layer.attributes):
+            raise ValueError('the annotation has unexpected or missing attributes {}'.format(annotation.attributes))
 
         if annotation not in self._annotations:
-            self._annotations.append(annotation)
+            if self.layer.ambiguous or len(self._annotations) == 0:
+                self._annotations.append(annotation)
+                return annotation
 
-        return annotation
+            raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
 
     @property
     def annotations(self):
         return self._annotations
-
-    def add_layer(self, layer):
-        self._layer = layer
 
     def get_attributes(self, items):
         r = []
@@ -150,7 +152,7 @@ class EnvelopingSpan:
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
 
-        if self._annotations and item in self._annotations[0].attributes:
+        if self._annotations and item in self._annotations[0]:
             return self.annotations[0][item]
 
         layer = self.__getattribute__('layer')  # type: Layer
@@ -182,7 +184,7 @@ class EnvelopingSpan:
                and self.spans == other.spans
 
     def __hash__(self):
-        return hash((tuple(self.spans), None))
+        return hash(self.base_span)
 
     def __str__(self):
         return 'ES[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
@@ -190,7 +192,17 @@ class EnvelopingSpan:
     def __repr__(self):
         return str(self)
 
+    @property
+    def raw_text(self):
+        return self.layer.text_object.text
+
+    def _to_html(self, margin=0) -> str:
+        return '<b>{}</b>\n{}'.format(
+                self.__class__.__name__,
+                html_table(spans=[self], attributes=self.layer.attributes, margin=margin, index=False))
+
+    def display(self, margin: int = 0):
+        display_html(self._to_html(margin), raw=True)
+
     def _repr_html_(self):
-        if self is self.layer.spans:
-            return self.layer.to_html(header='SpanList', start_end=True)
-        return str(self)
+        return self._to_html()

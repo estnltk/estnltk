@@ -166,27 +166,20 @@ class Layer:
         if self.parent is not None:
             self._is_lazy = True
 
-        if self.ambiguous:
-            if rewriting:
-                self.span_list = SpanList(layer=self)
+        if rewriting:
+            self.span_list = SpanList(layer=self)
 
+        if self.ambiguous:
             for record_line in records:
                 for record in record_line:
-                    self.add_annotation(ElementaryBaseSpan(record['start'], record['end']), **record)
+                    attributes = {attr: record.get(attr, self.default_values[attr]) for attr in self.attributes}
+                    self.add_annotation(ElementaryBaseSpan(record['start'], record['end']), **attributes)
         else:
-            if rewriting:
-                spns = SpanList(layer=self)
-
-                for record in records:
-                    if record is None:
-                        continue
-                    sp = Span(base_span=ElementaryBaseSpan(record['start'], end=record['end']), layer=self)
-                    sp.add_annotation(**record)
-                    spns.add_span(sp)
-                self.span_list = spns
-            else:
-                for record in records:
-                    self.add_annotation(ElementaryBaseSpan(record['start'], record['end']), **record)
+            for record in records:
+                if record is None:
+                    continue
+                attributes = {attr: record.get(attr, self.default_values[attr]) for attr in self.attributes}
+                self.add_annotation(ElementaryBaseSpan(record['start'], end=record['end']), **attributes)
         return self
 
     def attribute_list(self, attributes):
@@ -198,43 +191,17 @@ class Layer:
     def to_records(self, with_text=False):
         return self.span_list.to_records(with_text)
 
-    def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
+    def add_span(self, span: Union[Span, AmbiguousSpan, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
-        assert isinstance(span, (Span, EnvelopingSpan)), str(type(span))
+        assert isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)), str(type(span))
         assert len(span.annotations) > 0, span
         assert self.ambiguous or len(span.annotations) == 1, span
+        assert span.layer is self, span.layer
 
-        attribute_set = set(self.attributes)
-        for annotaion in span.annotations:
-            assert attribute_set <= set(annotaion.attributes), attribute_set - set(annotaion.attributes)
+        if self.get(span) is not None:
+            raise ValueError('this layer already has a span with the same base span')
 
-        span.add_layer(self)
-        target = self.get(span)
-
-        if self.ambiguous:
-            if target is None:
-                new = AmbiguousSpan(layer=self, span=span)
-
-                annotation = Annotation(new)
-                for attr in span.legal_attribute_names:
-                    setattr(annotation, attr, getattr(span, attr))
-                if not isinstance(span, Span):
-                    # EnvelopingSpan
-                    annotation.spans = span.spans
-                if annotation not in new._annotations:
-                    new._annotations.append(annotation)
-
-                self.span_list.add_span(new)
-                new.parent = span.parent
-            else:
-                assert isinstance(target, AmbiguousSpan)
-                assert len(span.annotations) == 1
-                target.add_annotation(**span.annotations[0].attributes)
-        else:
-            if target is None:
-                self.span_list.add_span(span)
-            else:
-                raise ValueError('this layer is not ambiguous and the span is already in the spanlist', span)
+        self.span_list.add_span(span)
 
         return span
 
@@ -253,40 +220,39 @@ class Layer:
         if self.parent is not None and self.ambiguous:
             span = self.get(base_span)
             if span is None:
+                base_span = to_base_span(base_span)
                 span = AmbiguousSpan(base_span, self)
                 self.span_list.add_span(span)
             assert isinstance(span, AmbiguousSpan), span
-            return span.add_annotation(**attributes)
+            return span.add_annotation(Annotation(span, **attributes))
 
         if self.parent is not None and not self.ambiguous:
             if self.get(base_span) is not None:
                 raise ValueError('the layer is not ambiguous and already contains this span')
             span = Span(base_span=base_span.base_span, parent=base_span, layer=self)
             self.span_list.add_span(span)
-            return span.add_annotation(**attributes)
+            return span.add_annotation(Annotation(span, **attributes))
 
         if self.enveloping is not None:
-            if self.ambiguous:
-                span = EnvelopingSpan(spans=base_span, layer=self)
+            span = EnvelopingSpan(spans=base_span, layer=self)
+            target = self.get(span)
 
-                target = self.get(span)
-                if target is None:
-                    target = AmbiguousSpan(layer=self, span=span)
-                    self.span_list.add_span(target)
-                annotation = target.add_annotation(**attributes)
-            else:
-                span = EnvelopingSpan(spans=base_span, layer=self)
-                annotation = span.add_annotation(**attributes)
+            if target is None:
+                annotation = span.add_annotation(Annotation(span, **attributes))
                 self.span_list.add_span(span)
+            else:
+                annotation = target.add_annotation(Annotation(span=target, **attributes))
+
             return annotation
 
         if self.parent is None and self.enveloping is None and self.ambiguous:
             span = self.get(base_span)
             if span is None:
-                span = AmbiguousSpan(Span(base_span=ElementaryBaseSpan(base_span.start, base_span.end), layer=self), self)
+                span = AmbiguousSpan(ElementaryBaseSpan(base_span.start, base_span.end), layer=self)
                 self.span_list.add_span(span)
             assert isinstance(span, AmbiguousSpan), span
-            return span.add_annotation(**attributes)
+            annotation = Annotation(span, **attributes)
+            return span.add_annotation(annotation)
 
         assert self.parent is None and self.enveloping is None and not self.ambiguous
 
@@ -295,13 +261,17 @@ class Layer:
                 raise ValueError('the layer is not ambiguous and already contains this span')
 
             span = Span(base_span=ElementaryBaseSpan(base_span.start, base_span.end), layer=self)
-            span.add_annotation(**attributes)
+            span.add_annotation(Annotation(span, **attributes))
             self.span_list.add_span(span)
             return span.annotations[0]
 
     def check_span_consistency(self) -> None:
-        # Checks for layer's span consistency
+        """Checks for layer's span consistency
+
+        """
         starts_ends = set()
+        attribute_names = set(self.attributes)
+
         for span in self.span_list.spans:
             # Check for duplicate locations
             assert (span.start, span.end) not in starts_ends, '{} is a span with duplicate location'.format(span)
@@ -342,6 +312,19 @@ class Layer:
                 for span_attr in span.legal_attribute_names:
                     assert span_attr in self.attributes, \
                        '(!) redundant attribute {} in {}'.format(span_attr, span)
+
+            annotations = span.annotations
+
+            assert len(annotations) > 0, 'the span {} has no annotations'.format(span)
+            assert self.ambiguous or len(annotations) == 1, \
+                'the layer is not ambiguous but the span {} has {} annotations'.format(span, len(annotations))
+
+            for annotation in span.annotations:
+                assert set(annotation._attributes) == attribute_names, \
+                    'extra annotation attributes: {}, missing annotation attributes: {} in layer {!r}'.format(
+                            set(annotation) - attribute_names,
+                            attribute_names - set(annotation),
+                            self.name)
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'

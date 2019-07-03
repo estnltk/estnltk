@@ -95,7 +95,7 @@ def test_equal():
     t_1 = new_text(5)
     t_2 = new_text(5)
     assert t_1 == t_2
-    t_1.layer_5[1][1].attr_5 = 'bla'
+    t_1.layer_5[1].annotations[1].attr_5 = 'bla'
     assert t_1 != t_2
 
 
@@ -303,10 +303,9 @@ def test_annotated_layer():
     for i in t.test:
         i.test = 'mock'
 
-    #TODO: make span attributes fixed
-    # with pytest.raises(AttributeError):
-    #     for i in t.test:
-    #         i.test2 = 'mock'
+    with pytest.raises(AttributeError):
+        for i in t.test:
+            i.test2 = 'mock'
 
 
 def test_count_by():
@@ -846,6 +845,26 @@ def test_rewriting_api():
 
     #double reverse is plaintext
     assert list(text.plain.esrever) == text.words.text
+
+
+def test_rewriting():
+    class TestRewriter:
+        def rewrite(self, record):
+            if record['start'] == 0:
+                return None
+            record['upper'] = record['text'].upper()
+            return record
+
+    t = Text('Tere maailm!')
+    t.tag_layer(['words'])
+    test_layer = t['words'].rewrite(source_attributes=('text',),
+                                    target_attributes=('upper',),
+                                    rules=TestRewriter(),
+                                    name='test_layer')
+    t['test_layer'] = test_layer
+
+    assert t['test_layer'].to_records() == [{'upper': 'MAAILM', 'start': 5, 'end': 11},
+                                            {'upper': '!', 'start': 11, 'end': 12}]
 
 
 def test_delete_annotation_in_ambiguous_span():

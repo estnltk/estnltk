@@ -53,7 +53,7 @@ def enveloping_gaps(layers, enveloped):
     for layer in layers:
         if layer.ambiguous:
             for amb_span in layer:
-                cover.update(amb_span.span)
+                cover.update(amb_span.spans)
         else:
             for sp in layer:
                 cover.update(sp)

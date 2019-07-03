@@ -1,21 +1,15 @@
-from typing import Any, Sequence, Mapping, MutableMapping
-from estnltk.layer.lambda_attribute import LambdaAttribute
+from typing import Any, Mapping, Sequence, MutableMapping
 
 
-class Annotation:
+class Annotation(Mapping):
     """Span attribute values are stored here.
 
     """
     __slots__ = ['_attributes', '_span']
 
-    def __init__(self, span=None, **attributes):
+    def __init__(self, span, **attributes):
         self._attributes = attributes
         self._span = span
-
-    @property
-    def attributes(self) -> MutableMapping[str, Any]:
-        # assert set(self.legal_attribute_names) == set(self._attributes), self._attributes
-        return self._attributes.copy()
 
     @property
     def span(self):
@@ -33,7 +27,7 @@ class Annotation:
 
     # TODO: get rid of this
     def to_record(self, with_text=False) -> Mapping[str, Any]:
-        record = self.attributes
+        record = self._attributes.copy()
         if with_text:
             record['text'] = getattr(self, 'text')
         record['start'] = self.start
@@ -77,22 +71,21 @@ class Annotation:
 
         attributes = self._attributes
         if item in attributes:
-            value = attributes[item]
-            if isinstance(value, str) and value.startswith('lambda a: '):
-                return eval(value)(self)
-            elif isinstance(value, LambdaAttribute):
-                return value(self)
-            return value
+            return attributes[item]
 
-        raise AttributeError(item)
+        return self.__getattribute__(item)
+
+    def __contains__(self, item):
+        return item in self._attributes
+
+    def __len__(self):
+        return len(self._attributes)
 
     def __getitem__(self, item):
-        value = self._attributes[item]
-        if isinstance(value, str) and value.startswith('lambda a: '):
-            return eval(value)(self)
-        elif isinstance(value, LambdaAttribute):
-            return value(self)
-        return value
+        return self._attributes[item]
+
+    def __iter__(self):
+        yield from self._attributes
 
     def __delattr__(self, item):
         attributes = self._attributes
@@ -113,9 +106,6 @@ class Annotation:
             return all(getattr(self, i) == getattr(other, i) for i in self.legal_attribute_names)
 
         return False
-
-    def __hash__(self):
-        return hash((self.start, self.end))
 
     def __str__(self):
         # Output key-value pairs in a sorted way

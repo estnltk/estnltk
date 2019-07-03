@@ -1,5 +1,4 @@
 from nltk import RegexpTokenizer
-from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 
@@ -31,10 +30,10 @@ class ParagraphTokenizer(Tagger):
         self.regex = regex
 
     def _make_layer(self, text, layers, status: dict):
-        """
-        Tag paragraphs layer.
+        """Tag paragraphs layer.
         
         Paragraph can only end at the end of a sentence.
+
         """
         layer = Layer(name=self.output_layer,
                       text_object=text,
@@ -46,8 +45,6 @@ class ParagraphTokenizer(Tagger):
             paragraph_ends.add(layers[ self._input_sentences_layer ][-1].end)
         for i, sentence in enumerate(layers[ self._input_sentences_layer ]):
             if sentence.end in paragraph_ends:
-                span = EnvelopingSpan(spans=layers[ self._input_sentences_layer ][start:i+1].spans, layer=layer)
-                span.add_annotation()
-                layer.add_span(span)
+                layer.add_annotation(layers[self._input_sentences_layer][start:i+1].spans)
                 start = i + 1
         return layer

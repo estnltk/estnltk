@@ -6,7 +6,6 @@ from typing import MutableMapping
 
 import re
 
-from estnltk import EnvelopingSpan
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 
@@ -606,14 +605,12 @@ class SentenceTokenizer( Tagger ):
                       text_object=text,
                       ambiguous=False)
         for sid, sentence_span_list in enumerate(sentences_list):
-            sentence_span = EnvelopingSpan(sentence_span_list, layer=layer)
             if self.record_fix_types:
                 # Add information about which types of fixes 
                 # were applied to sentences
-                sentence_span.fix_types = sentence_fixes_list[sid]
+                layer.add_annotation(sentence_span_list, fix_types=sentence_fixes_list[sid])
             else:
-                sentence_span.add_annotation()
-            layer.add_span(sentence_span)
+                layer.add_annotation(sentence_span_list)
         return layer
 
     def _merge_mistakenly_split_sentences(self, raw_text: str, sentences_list: list, sentence_fixes_list: list):

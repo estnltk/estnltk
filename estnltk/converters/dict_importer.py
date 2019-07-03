@@ -2,8 +2,8 @@ from typing import Union, Sequence, List, Container
 
 from estnltk.text import Text
 from estnltk.layer.layer import Layer
-from estnltk.layer.base_span import ElementaryBaseSpan
 from estnltk.layer.span import Span
+from estnltk.layer.ambiguous_span import AmbiguousSpan
 from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.annotation import Annotation
 
@@ -45,11 +45,13 @@ def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
         parent_layer = layers[layer._base]
         if layer.ambiguous:
             for rec in layer_dict['spans']:
+                parent = parent_layer[rec[0]['_index_']]
+                span = AmbiguousSpan(parent.base_span, layer)
+                span.parent = parent
                 for r in rec:
-                    parent = parent_layer[r['_index_']]
-                    span = Span(base_span=parent.base_span, parent=parent, layer=layer)
-                    span.add_annotation(**{k: list_to_tuple(v) for k, v in r.items()})
-                    layer.add_span(span)
+                    attributes = {attr: list_to_tuple(r[attr]) for attr in layer.attributes}
+                    span.add_annotation(Annotation(span, **attributes))
+                layer.add_span(span)
         else:
             for rec in layer_dict['spans']:
                 layer.add_annotation(Span(base_span=parent_layer[rec['_index_']].base_span, parent=parent_layer[rec['_index_']], layer=layer), **rec)
@@ -65,12 +67,9 @@ def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
         else:
             for rec in layer_dict['spans']:
                 spans = [enveloped_layer[i] for i in rec['_index_']]
-                span = EnvelopingSpan(spans=spans, layer=layer)
-
                 attributes = {attr: list_to_tuple(rec[attr]) for attr in layer.attributes}
-                span.add_annotation(**attributes)
 
-                layer.add_span(span)
+                layer.add_annotation(spans, **attributes)
     else:
         layer = layer.from_records(layer_dict['spans'], rewriting=True)
     return layer

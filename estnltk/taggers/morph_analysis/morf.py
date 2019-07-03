@@ -7,6 +7,7 @@
 # 
 from typing import MutableMapping
 
+from estnltk import Annotation
 from estnltk.text import Layer, Text
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 
@@ -380,7 +381,6 @@ class VabamorfAnalyzer( Tagger ):
         self.layer_name = self.output_layer  # <- For backward compatibility ...
         self.depends_on = self.input_layers  # <- For backward compatibility ...
 
-
     def _make_layer(self, text: Text, layers, status: dict):
         """Analyses given Text object morphologically. 
         
@@ -467,6 +467,7 @@ class VabamorfAnalyzer( Tagger ):
                                                                     sort_analyses=True)
             # Attach spans (if word has morphological analyses)
             for record in records:
+                # the analyses here are not always unique
                 morph_layer.add_annotation(word.base_span, **record)
             if not records:
                 # if word has no morphological analyses (e.g.
@@ -665,8 +666,7 @@ class VabamorfDisambiguator(Retagger):
                 disambiguated_records = disambiguated_dicts[morph_dict_id]['analysis']
 
                 # D.1) Convert records back to AmbiguousSpans
-                ambiguous_span = AmbiguousSpan(layer=morph_layer,
-                                               span=morph_layer[global_morph_span_id].span)
+                ambiguous_span = AmbiguousSpan(base_span=morph_layer[global_morph_span_id].base_span, layer=morph_layer)
                 
                 # D.1) Rewrite records into a proper format, and 
                 #      add to the span
@@ -700,7 +700,7 @@ class VabamorfDisambiguator(Retagger):
                             raise Exception('(!) Unable to find a matching record for '+\
                                     str(new_record)+' from '+str(old_morph_records))
                     # Add new record to the ambiguous span
-                    ambiguous_span.add_annotation( **new_record )
+                    ambiguous_span.add_annotation(Annotation(ambiguous_span, **new_record))
 
                 # D.2) Rewrite the old span with the new one
                 morph_layer[global_morph_span_id] = ambiguous_span

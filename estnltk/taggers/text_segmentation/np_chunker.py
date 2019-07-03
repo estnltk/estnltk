@@ -10,7 +10,7 @@
 #
 
 # Interface of the version 1.6
-from estnltk.text import Text, Layer, EnvelopingSpan
+from estnltk.text import Text, Layer
 
 from estnltk.taggers import Tagger
 
@@ -119,8 +119,6 @@ class NounPhraseChunker( Tagger ):
                 '(!) np_chunker should be an instance of NounPhraseChunkerV1_4!'
             self._np_chunker = np_chunker
 
-
-
     def _make_layer(self, text, layers, status: dict):
         """Tags noun phrase chunks layer.
         
@@ -161,7 +159,6 @@ class NounPhraseChunker( Tagger ):
         # *) NP chunks with NounPhraseChunker from v1.4.1;
         # *) convert output back to v1.6 data format;
         word_span_id = 0
-        np_enveloping_spans = []
         for sid, sentence in enumerate(layers[ self._input_sentences_layer ]):
             sent_start = sentence['start']
             sent_end   = sentence['end']
@@ -234,34 +231,25 @@ class NounPhraseChunker( Tagger ):
                 label = np_chunkings[wid]
                 if label == 'B' and len(last_phrase) > 0:
                     # Finish last phrase, start a new one
-                    env_span = EnvelopingSpan(spans=last_phrase, layer=layer)
-                    env_span.add_annotation() # <-- to avoid assertionError
-                    np_enveloping_spans.append( env_span )
-                    last_phrase = [ word_span ]
+                    layer.add_annotation(last_phrase)
+                    last_phrase = [word_span]
                 elif label == 'B' and len(last_phrase) == 0:
                     # Start a new phrase
-                    last_phrase.append( word_span )
+                    last_phrase.append(word_span)
                 if label == 'O' and len(last_phrase) > 0:
                     # Finish last phrase
-                    env_span = EnvelopingSpan(spans=last_phrase, layer=layer)
-                    env_span.add_annotation() # <-- to avoid assertionError
-                    np_enveloping_spans.append( env_span )
+                    layer.add_annotation(last_phrase)
                     last_phrase = []
                 if label == 'I':
                     # Continue last phrase
-                    last_phrase.append( word_span )
+                    last_phrase.append(word_span)
             if len(last_phrase) > 0:
                 # Finish the very last phrase
-                env_span = EnvelopingSpan(spans=last_phrase, layer=layer)
-                env_span.add_annotation() # <-- to avoid assertionError
-                np_enveloping_spans.append( env_span )
-                last_phrase = []
+                layer.add_annotation(last_phrase)
 
         # Small sanity check: all words should be exhausted by now 
         assert word_span_id == len(word_spans)
 
-        for np_chunk in np_enveloping_spans:
-            layer.add_span( np_chunk )
         return layer
 
     def _convert_to_v1_4_syntactic_repr(self, syntax_span):

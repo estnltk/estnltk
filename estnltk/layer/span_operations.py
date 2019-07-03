@@ -115,11 +115,11 @@ def equal_support(x: span, y: span) -> bool:
 
 
 def symm_diff_ambiguous_spans(x: AmbiguousSpan, y: AmbiguousSpan, attributes: Sequence[str] = None):
-    assert isinstance(x, AmbiguousSpan)
-    assert isinstance(y, AmbiguousSpan)
+    # assert isinstance(x, AmbiguousSpan)
+    # assert isinstance(y, AmbiguousSpan)
     if attributes is None:
-        annot_x = [a for a in x if a not in y]
-        annot_y = [a for a in y if a not in x]
+        annot_x = [a for a in x.annotations if a not in y.annotations]
+        annot_y = [a for a in y.annotations if a not in x.annotations]
     else:
         values_x = [[getattr(annot, attr) for attr in attributes] for annot in x.annotations]
         values_y = [[getattr(annot, attr) for attr in attributes] for annot in y.annotations]

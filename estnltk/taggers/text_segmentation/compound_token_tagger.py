@@ -363,7 +363,9 @@ class CompoundTokenTagger(Tagger):
                           keep_equal=False)
 
         def decorator(span, raw_text):
-            return {name: getattr(span[0], name) for name in self.output_attributes}
+            return {name: getattr(span.annotations[0], name) for name in self.output_attributes}
+
+        # TODO: initialize disamb_tagger in __init__ (for performance purposes)
         disamb_tagger = DisambiguatingTagger(output_layer=self.output_layer,
                                              input_layer=self.output_layer,
                                              output_attributes=self.output_attributes,
@@ -373,7 +375,6 @@ class CompoundTokenTagger(Tagger):
         layer = disamb_tagger.make_layer(text=text, layers=temp_layers, status=status)
 
         return layer
-
 
     @staticmethod
     def _load_ignore_words_from_csv(file:str):
