@@ -27,7 +27,7 @@ class Span:
             raise TypeError('expected Annotation, got {}'.format(type(annotation)))
         if annotation.span is not self:
             raise ValueError('the annotation has a different span {}'.format(annotation.span))
-        if set(annotation.attributes) != set(self.layer.attributes):
+        if set(annotation) != set(self.layer.attributes):
             raise ValueError('the annotation has unexpected or missing attributes {}'.format(annotation.attributes))
 
         if annotation not in self._annotations:
@@ -87,8 +87,8 @@ class Span:
         return self.text_object.text
 
     def to_records(self, with_text=False) -> MutableMapping[str, Any]:
-        attributes = self.annotations[0].attributes
-        record = {k: attributes[k] for k in self._layer.attributes}
+        annotation = self.annotations[0]
+        record = {k: annotation[k] for k in self._layer.attributes}
         if with_text:
             record['text'] = self.text
         record['start'] = self.start

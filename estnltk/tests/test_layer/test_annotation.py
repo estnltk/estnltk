@@ -3,10 +3,10 @@ from estnltk import Text, ElementaryBaseSpan, Layer, Span, Annotation
 
 
 def test_annotation_without_span():
-    annotation = Annotation(attr_1='üks', attr_2=2, attr_3='lambda a: 12 - 9')
-    annotation_1 = Annotation(attr_1='üks', attr_2=2, attr_3='lambda a: 10 - 7', attr_4='4')
-    annotation_2 = Annotation(attr_1='üks', attr_2=2, attr_3='lambda a: 10 - 7')
-    annotation_3 = Annotation(attr_1='üks', attr_2=2, attr_3=4)
+    annotation =   Annotation(None, attr_1='üks', attr_2=2, attr_3=3)
+    annotation_1 = Annotation(None, attr_1='üks', attr_2=2, attr_3=3, attr_4='4')
+    annotation_2 = Annotation(None, attr_1='üks', attr_2=2, attr_3=3)
+    annotation_3 = Annotation(None, attr_1='üks', attr_2=2, attr_3=4)
 
     assert annotation.span is None
     assert annotation.start is None
@@ -30,20 +30,20 @@ def test_annotation_without_span():
     with pytest.raises(AttributeError):
         annotation.span = span
 
-    assert Annotation(attr_1=1, attr_2=2) == Annotation(attr_1=1, attr_2=2)
-    assert Annotation(attr_1=1, attr_2=2) != Annotation(attr_1=1, attr_2=22)
-    assert Annotation(attr_1=1, attr_2=None) != Annotation(attr_1=1)
+    assert Annotation(None, attr_1=1, attr_2=2) == Annotation(None, attr_1=1, attr_2=2)
+    assert Annotation(None, attr_1=1, attr_2=2) != Annotation(None, attr_1=1, attr_2=22)
+    assert Annotation(None, attr_1=1, attr_2=None) != Annotation(None, attr_1=1)
 
 
 def test_annotation_with_text_object():
     text = Text('Tere!')
     layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
-    annotation = Annotation(span=span, attr_1='üks', attr_2=2, attr_3='lambda a: 12 - 9')
+    annotation = Annotation(span=span, attr_1='üks', attr_2=2, attr_3=3)
 
     layer_1 = Layer('test_layer_1', attributes=['attr_3', 'attr_1', 'attr_2'], text_object=text)
     span_1 = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer_1)
-    annotation_1 = Annotation(span=span_1, attr_1='üks', attr_2=2, attr_3='lambda a: 12 - 9')
+    annotation_1 = Annotation(span=span_1, attr_1='üks', attr_2=2, attr_3=3)
 
     layer_2 = Layer('test_layer_1', attributes=['attr_1', 'attr_2'], text_object=text)
     span_2 = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer_2)

@@ -36,7 +36,7 @@ class Atomizer(Tagger):
         if layer.ambiguous:
             for span in layer:
                 for annotation in span.annotations:
-                    result.add_annotation((span.start, span.end), **annotation.attributes)
+                    result.add_annotation((span.start, span.end), **annotation)
         else:
             for sp in layer:
                 span = _rebase_span(span=sp, legal_attributes=output_attributes)

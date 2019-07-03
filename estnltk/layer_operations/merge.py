@@ -43,7 +43,7 @@ def merge_layers(layers: Sequence[Layer],
             for layer in layers:
                 for span in layer:
                     for annotation in span.annotations:
-                        new_layer.add_annotation(span, **annotation.attributes)
+                        new_layer.add_annotation(span, **annotation)
         # TODO: remove else part, delete if ambiguous
         else:
             for layer in layers:
@@ -63,7 +63,7 @@ def merge_layers(layers: Sequence[Layer],
         for layer in layers:
             for span in layer:
                 for annotation in span.annotations:
-                    new_layer.add_annotation(span.base_span, **annotation.attributes)
+                    new_layer.add_annotation(span.base_span, **annotation)
 
     return new_layer
 

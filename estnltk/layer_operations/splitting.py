@@ -107,7 +107,7 @@ def extract_sections(text: Text,
                     base_span = ElementaryBaseSpan(span_start-start, span_end-start)
                     new_annotation = None
                     for annotation in span.annotations:
-                        new_annotation = new_layer.add_annotation(base_span, **annotation.attributes)
+                        new_annotation = new_layer.add_annotation(base_span, **annotation)
 
                     assert new_annotation is not None
                     map_spans[(span.base_span, span.layer.name)] = new_annotation.span

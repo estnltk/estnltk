@@ -322,8 +322,8 @@ class Layer:
             for annotation in span.annotations:
                 assert set(annotation._attributes) == attribute_names, \
                     'extra annotation attributes: {}, missing annotation attributes: {} in layer {!r}'.format(
-                            set(annotation.attributes) - attribute_names,
-                            attribute_names - set(annotation.attributes),
+                            set(annotation) - attribute_names,
+                            attribute_names - set(annotation),
                             self.name)
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):

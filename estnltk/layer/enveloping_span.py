@@ -31,7 +31,7 @@ class EnvelopingSpan:
             raise TypeError('expected Annotation, got {}'.format(type(annotation)))
         if annotation.span is not self:
             raise ValueError('the annotation has a different span {}'.format(annotation.span))
-        if set(annotation.attributes) != set(self.layer.attributes):
+        if set(annotation) != set(self.layer.attributes):
             raise ValueError('the annotation has unexpected or missing attributes {}'.format(annotation.attributes))
 
         if annotation not in self._annotations:
@@ -152,7 +152,7 @@ class EnvelopingSpan:
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
 
-        if self._annotations and item in self._annotations[0].attributes:
+        if self._annotations and item in self._annotations[0]:
             return self.annotations[0][item]
 
         layer = self.__getattribute__('layer')  # type: Layer

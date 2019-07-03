@@ -1,11 +1,13 @@
-from typing import List, Union, Sequence
+from typing import List, Mapping, Union, Sequence
 from estnltk.text import Text
 
 
 def annotation_to_dict(annotation: Union['Annotation', Sequence['Annotation']]) -> Union[dict, List[dict]]:
+    if isinstance(annotation, Mapping):
+        return dict(annotation)
     if isinstance(annotation, Sequence):
-        return [a.attributes for a in annotation]
-    return annotation.attributes
+        return [dict(a) for a in annotation]
+    raise TypeError('expected Annotation or Sequence of Annotations, got {}'.format(type(annotation)))
 
 
 def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
