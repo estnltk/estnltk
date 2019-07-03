@@ -42,19 +42,18 @@ def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
         layers.update(detached_layers)
 
     if layer.parent:
-        parent_layer = layers[layer._base]
+        parent_layer = layers[layer.parent]
         if layer.ambiguous:
             for rec in layer_dict['spans']:
                 parent = parent_layer[rec[0]['_index_']]
                 span = AmbiguousSpan(parent.base_span, layer)
-                span.parent = parent
                 for r in rec:
                     attributes = {attr: list_to_tuple(r[attr]) for attr in layer.attributes}
                     span.add_annotation(Annotation(span, **attributes))
                 layer.add_span(span)
         else:
             for rec in layer_dict['spans']:
-                layer.add_annotation(Span(base_span=parent_layer[rec['_index_']].base_span, parent=parent_layer[rec['_index_']], layer=layer), **rec)
+                layer.add_annotation(Span(base_span=parent_layer[rec['_index_']].base_span, layer=layer), **rec)
     elif layer.enveloping:
         enveloped_layer = layers[layer.enveloping]
         if layer.ambiguous:
