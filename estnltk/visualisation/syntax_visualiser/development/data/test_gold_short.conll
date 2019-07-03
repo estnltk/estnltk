@@ -1,0 +1,83 @@
+1	Selles	see	P	P	dem|sg|in	3	@ADVL	_	_
+2	võib	või	V	Vmod	indic|pres|ps3|sg	3	@FCV	_	_
+3	olla	ole	V	Vinf	inf	0	ROOT	_	_
+4	koguni	koguni	D	D	_	5	@ADVL	_	_
+5	95	95	N	N	card|sg|nom	3	@SUBJ	_	_
+6	protsenti	protsent	S	S	sg|part	5	@<Q	_	_
+7	õhku	õhk	S	S	sg|part	6	@<Q	_	_
+8	ja	ja	J	Jc	_	10	@J	_	_
+9	ainult	ainult	D	D	_	10	@ADVL	_	_
+10	5	5	N	N	card|sg|nom	5	@SUBJ	_	_
+11	protsenti	protsent	S	S	sg|part	10	@<Q	_	_
+12	vett	vesi	S	S	sg|part	11	@<Q	_	_
+13	.	.	Z	Z	Fst	12	@Punc	_	_
+
+1	Poole	pool	N	N	card|sg|gen|l	3	@P>	_	_
+2	tunni	tund	S	S	sg|gen	1	@<Q	_	_
+3	pärast	pärast	K	Kt	_	4	@ADVL	_	_
+4	on	ole	V	V	indic|pres|ps3|pl	0	ROOT	_	_
+5	varbad	varvas	S	S	pl|nom	4	@SUBJ	_	_
+6	külmast	külm	S	S	sg|el	4	@ADVL	_	_
+7	kanged	kange	A	A	pl|nom	4	@PRD	_	_
+8	.	.	Z	Z	Fst	7	@Punc	_	_
+
+1	Jaamas	jaam	S	S	sg|in	8	@ADVL	_	_
+2	saab	saa	V	Vmod	indic|pres|ps3|sg	8	@FCV	_	_
+3	need	see	P	P	dem|pl|nom	8	@OBJ	_	_
+4	sooja	soe	A	A	sg|gen	5	@AN>	_	_
+5	plekkahju	plekk_ahi	S	S	sg|gen	6	@P>	_	_
+6	vastas	vastas	K	Kt	_	8	@ADVL	_	_
+7	üles	üles	D	D	_	8	@Vpart	_	_
+8	soojendada	soojenda	V	Vinf	inf	0	ROOT	_	_
+9	.	.	Z	Z	Fst	8	@Punc	_	_
+
+1	Kati	Kati	S	H	sg|nom	2	@SUBJ	_	_
+2	klõbistab	klõbista	V	V	indic|pres|ps3|sg	0	ROOT	_	_
+3	natuke	natuke	D	D	_	2	@ADVL	_	_
+4	taskuarvutiga	tasku_arvuti	S	S	sg|kom	2	@ADVL	_	_
+5	ja	ja	J	Jc	_	6	@J	_	_
+6	kannab	kand	V	V	indic|pres|ps3|sg	2	@FMV	_	_
+7	lõpuks	lõpuks	D	D	_	6	@ADVL	_	_
+8	lumetabelisse	lume_tabel	S	S	sg|ill	6	@ADVL	_	_
+9	järgmised	järgmine	A	A	pl|nom	10	@AN>	_	_
+10	andmed	andmed	S	S	pl|nom	6	@OBJ	_	_
+11	:	:	Z	Z	Col	10	@Punc	_	_
+
+1	Suurim	suurim	A	A	super|sg|nom	2	@AN>	_	_
+2	paksus	paksus	S	S	sg|nom	0	ROOT	_	_
+3	28	28	N	N	card	2	@PRD	_	_
+4	cm	cm	Y	Y	nominal	3	@<Q	_	_
+
+1	Väikseim	väikseim	A	A	super|sg|nom	2	@AN>	_	_
+2	paksus	paksus	S	S	sg|nom	0	ROOT	_	_
+3	16	16	N	N	card	2	@PRD	_	_
+4	cm	cm	Y	Y	nominal	3	@<Q	_	_
+
+1	Keskmine	keskmine	A	A	sg|nom	2	@AN>	_	_
+2	paksus	paksus	S	S	sg|nom	0	ROOT	_	_
+3	23	23	N	N	card	2	@PRD	_	_
+4	cm	cm	Y	Y	nominal	3	@<Q	_	_
+
+1	Paksus	paksus	S	S	sg|nom	0	ROOT	_	_
+2	koos	koos	K	Ke	_	1	@<KN	_	_
+3	lumealuse	lume_alune	A	A	sg|gen	4	@AN>	_	_
+4	jääkoorikuga	jää_koorik	S	S	sg|kom	2	@<P	_	_
+5	23,3	23,3	N	N	card	1	@PRD	_	_
+6	cm	cm	Y	Y	nominal	5	@<Q	_	_
+
+1	Lume	lumi	S	S	sg|gen	3	@NN>	_	_
+2	keskmine	keskmine	A	A	sg|nom	3	@AN>	_	_
+3	tihedus	tihedus	S	S	sg|nom	0	ROOT	_	_
+4	(	(	Z	Z	Opr	5	@Punc	_	_
+5	lumekihi	lume_kiht	S	S	sg|gen	6	@NN>	_	_
+6	massi	mass	S	S	sg|gen	9	@ADVL	_	_
+7	ja	ja	J	Jc	_	8	@J	_	_
+8	ruumala	ruum_ala	S	S	sg|gen	6	@ADVL	_	_
+9	vaheline	vaheline	A	A	sg|nom	10	@AN>	_	_
+10	suhe	suhe	S	S	sg|nom	3	@<NN	_	_
+11	)	)	Z	Z	Cpr	10	@Punc	_	_
+12	0,16	0,16	N	N	card	3	@PRD	_	_
+13	g	g	Y	Y	nominal	12	@<Q	_	_
+14	ühe	üks	N	N	card|sg|gen|l	16	@P>	_	_
+15	cm	cm	Y	Y	nominal	14	@<Q	_	_
+16	kohta	kohta	K	Kt	_	12	@<KN	_	_
