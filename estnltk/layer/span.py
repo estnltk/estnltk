@@ -151,14 +151,13 @@ class Span:
             return self.__getattribute__('__class__').__getattribute__(self, item)
 
     def __lt__(self, other: Any) -> bool:
-        return (self.start, self.end) < (other.start, other.end)
+        return self.base_span < other.base_span
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Span):
-            return False
-        if self.base_span != other.base_span:
-            return False
-        return self.annotations == other.annotations
+        return isinstance(other, Span) \
+               and self.base_span == other.base_span \
+               and len(self.annotations) == len(other.annotations) \
+               and all(s in other.annotations for s in self.annotations)
 
     def __hash__(self):
         return hash(self._base_span)

@@ -122,7 +122,7 @@ class CorpusBasedMorphDisambiguator( object ):
                 # 1) Find all unique proper name lemmas of
                 #    this word 
                 uniqLemmas = set()
-                for analysis in word_morph:
+                for analysis in word_morph.annotations:
                     if analysis.partofspeech == 'H':
                         uniqLemmas.add( analysis.root )
                 # 2) Record lemma frequencies
@@ -142,22 +142,20 @@ class CorpusBasedMorphDisambiguator( object ):
         for doc in docs:
             disamb_retagger.retag( doc )
 
-
     def _find_certain_proper_names(self, docs):
         """ Creates the list of certain proper names: finds words that 
             only have proper name analyses and, gathers all unique proper 
             name lemmas from there;
         """
-        certainNames = set()
+        certain_names = set()
         for doc in docs:
-            for word_morph in doc[ self.output_layer ]:
+            for word_morph in doc[self.output_layer]:
                 # Check if word only has proper name analyses
-                if all([ a.partofspeech == 'H' for a in word_morph ]):
+                if all([a.partofspeech == 'H' for a in word_morph.annotations]):
                     # If so, record its lemmas as "certain proper name lemmas"
-                    for analysis in word_morph:
-                        certainNames.add( analysis.root )
-        return certainNames
-
+                    for analysis in word_morph.annotations:
+                        certain_names.add(analysis.root)
+        return certain_names
 
     def _find_sentence_initial_proper_names(self, docs):
         """ Creates the list of sentence-initial proper names.
@@ -180,8 +178,8 @@ class CorpusBasedMorphDisambiguator( object ):
                     nextSentenceInitialPosition = wid
                 # 2) punctuation that is not comma neither semicolon, 
                 #    is before a sentence-initial position
-                elif all([ a.partofspeech == 'Z' for a in word_morph ]) and \
-                   not re.match('^[,;]+$', word_morph.text):
+                elif all([a.partofspeech == 'Z' for a in word_morph.annotations]) \
+                     and not re.match('^[,;]+$', word_morph.text):
                     nextSentenceInitialPosition = wid + 1
                 # 3) beginning of an enumeration (a number that does not look 
                 #    like a date, and is followed by a period or a parenthesis),
@@ -193,9 +191,9 @@ class CorpusBasedMorphDisambiguator( object ):
                 if wid == nextSentenceInitialPosition:
                     # Consider sentence-initial words that have both proper name 
                     # analyses, and also regular (not proper name) analyses
-                    h_postags = [ a.partofspeech == 'H' for a in word_morph ]
-                    if any( h_postags ) and not all( h_postags ):
-                        for analysis in word_morph:
+                    h_postags = [a.partofspeech == 'H' for a in word_morph.annotations]
+                    if any(h_postags) and not all(h_postags):
+                        for analysis in word_morph.annotations:
                             # Memorize all unique proper name lemmas
                             if analysis.partofspeech == 'H':
                                 sentInitialNames.add( analysis.root )
@@ -227,7 +225,7 @@ class CorpusBasedMorphDisambiguator( object ):
                     nextSentenceInitialPosition = wid
                 # 2) punctuation that is not comma neither semicolon, 
                 #    is before a sentence-initial position
-                elif all([ a.partofspeech == 'Z' for a in word_morph ]) and \
+                elif all([a.partofspeech == 'Z' for a in word_morph.annotations]) and \
                    not re.match('^[,;]+$', word_morph.text):
                     nextSentenceInitialPosition = wid + 1
                 # 3) beginning of an enumeration (a number that does not look 
@@ -241,7 +239,7 @@ class CorpusBasedMorphDisambiguator( object ):
                 if wid != nextSentenceInitialPosition:
                     # Consider sentence-central words that have proper name 
                     # analyses
-                    for analysis in word_morph:
+                    for analysis in word_morph.annotations:
                         # Memorize all unique proper name lemmas
                         if analysis.partofspeech == 'H':
                             sentCentralNames.add( analysis.root )
@@ -433,14 +431,14 @@ class CorpusBasedMorphDisambiguator( object ):
                     # Skip the word
                     continue
                # Skip an unknown word
-                if is_unknown_word( word_morph ):
+                if is_unknown_word(word_morph):
                     continue
                 # find out whether the word is ambiguous
-                isAmbiguous = len(word_morph) > 1
+                isAmbiguous = len(word_morph.annotations) > 1
                 # keep track of lemmas already seen at this position:
                 encounteredLemmas = set() 
                 # Record lemma frequencies
-                for a in word_morph:
+                for a in word_morph.annotations:
                     # Use -ma ending to distinguish verb lemmas from other lemmas
                     lemma = a.root+'ma' if a.partofspeech=='V' else a.root
                     if self._count_position_duplicates_once and lemma in encounteredLemmas:
@@ -485,8 +483,6 @@ class CorpusBasedMorphDisambiguator( object ):
         # lemmas with frequencies
         for lemma in amb_lexicon.keys():
             amb_lexicon[lemma] = lexicon[lemma]
-
-
 
     def _disambiguate_with_lexicon(self, docs, lexicon, \
                       hidden_words_layer:str='_hidden_morph_analysis' ):
@@ -690,18 +686,17 @@ def is_list_of_lists_of_texts( docs:list ):
     """ 
     is_list = isinstance(docs, list)
     is_empty = is_list and len(docs) == 0
-    return is_list and (is_empty or (all(isinstance(ds, list) for ds in docs) and \
+    return is_list and (is_empty or (all(isinstance(ds, list) for ds in docs) and
                                          all([all([isinstance(d, Text) for d in ds]) for ds in docs])) )
 
 
-def is_unknown_word( word_morph_analyses ):
+def is_unknown_word(word_morph_analyses):
     """ Detects whether word's morphological analyses indicate 
-        that this is an unknown word. 
-    """
-    if word_morph_analyses is not None:
-        return any( [_is_empty_annotation(a) for a in word_morph_analyses] )
-    return True
+        that this is an unknown word.
 
+    """
+    return word_morph_analyses is None \
+           or any([_is_empty_annotation(a) for a in word_morph_analyses.annotations])
 
 
 # ----------------------------------------
@@ -782,21 +777,22 @@ class ProperNamesDisambiguationStep1Retagger(CorpusBasedMorphDisambiguationSubst
         self._lexicon = lexicon
 
     def _change_layer(self, text, layers, status: dict):
-        morph_analysis_layer = layers[ self._input_morph_analysis_layer ]
-        for morph_analyses in morph_analysis_layer:
-            if len(morph_analyses) > 1: # Only consider words that have more than 1 analysis
+        morph_analysis_layer = layers[self._input_morph_analysis_layer]
+        for span in morph_analysis_layer:
+            annotations = span.annotations
+            if len(annotations) > 1: # Only consider words that have more than 1 analysis
                 # 1) Collect all proper name analyses of the word, and 
                 #    get their highest frequency based on the the freq lexicon
                 highestFreq = 0
                 properNameAnalyses = []
-                for analysis in morph_analyses:
+                for analysis in annotations:
                     if analysis.partofspeech == 'H':
                         if analysis.root in self._lexicon:
                             properNameAnalyses.append( analysis )
                             if self._lexicon[analysis.root] > highestFreq:
                                 highestFreq = self._lexicon[analysis.root]
                         else:
-                            raise Exception( \
+                            raise Exception(
                                 '(!) Unable to find proper name lemma {!r} from the lexicon.'.format(analysis.root) )
                 # 2) Keep only those proper name analyses that have the highest
                 #    frequency (in the corpus), delete all others
@@ -806,7 +802,7 @@ class ProperNamesDisambiguationStep1Retagger(CorpusBasedMorphDisambiguationSubst
                         if self._lexicon[ analysis.root ] < highestFreq:
                             toDelete.append(analysis)
                     for analysis in toDelete:
-                        morph_analyses.annotations.remove(analysis)
+                        annotations.remove(analysis)
 
 
 
@@ -825,16 +821,15 @@ class ProperNamesDisambiguationStep2Retagger(CorpusBasedMorphDisambiguationSubst
     def _change_layer(self, text, layers, status: dict):
         morph_analysis_layer = layers[ self._input_morph_analysis_layer ]
         for morph_analyses in morph_analysis_layer:
-            if len(morph_analyses) > 1: # Only consider words that have more than 1 analysis
+            if len(morph_analyses.annotations) > 1: # Only consider words that have more than 1 analysis
                 # 1) Gather deletable proper name analyses 
-                toDelete = []
-                for analysis in morph_analyses:
+                to_delete = []
+                for analysis in morph_analyses.annotations:
                     if analysis.partofspeech == 'H' and analysis.root in self._lexicon:
-                        toDelete.append(analysis)
+                        to_delete.append(analysis)
                 # 2) Perform deletion
-                for analysis in toDelete:
+                for analysis in to_delete:
                     morph_analyses.annotations.remove(analysis)
-
 
 
 class ProperNamesDisambiguationStep3Retagger(CorpusBasedMorphDisambiguationSubstepRetagger):
@@ -890,40 +885,40 @@ class ProperNamesDisambiguationStep3Retagger(CorpusBasedMorphDisambiguationSubst
             # B.2) Heuristic: punctuation that is not comma 
             #      nor semicolon, is before a sentence-initial 
             #      position
-            if all([ a.partofspeech == 'Z' for a in word_morph_analyses ]) and \
+            if all([a.partofspeech == 'Z' for a in word_morph_analyses.annotations]) and \
                    not re.match('^[,;]+$', _get_word_text( word )):
                 nextSentenceInitialPosition = wid + 1
             # 
             #  Only consider ambiguous words with proper names analyses
             # 
-            if len(word_morph_analyses) > 1 and \
-               any([ a.partofspeech == 'H' for a in word_morph_analyses ]):
+            if len(word_morph_analyses.annotations) > 1 and \
+               any([a.partofspeech == 'H' for a in word_morph_analyses.annotations]):
                 if not sentence_start:
                     # In the middle of a sentence, choose only proper name
                     # analyses (assuming that by now, all the remaining proper 
                     # name analyses are correct)
-                    toDelete = []
-                    for analysis in word_morph_analyses:
+                    to_delete = []
+                    for analysis in word_morph_analyses.annotations:
                         if analysis.partofspeech not in ['H','G']:
-                            toDelete.append( analysis )
-                    for analysis in toDelete:
+                            to_delete.append( analysis )
+                    for analysis in to_delete:
                         word_morph_analyses.annotations.remove( analysis )
                         changed = True
                 else:
                     # In the beginning of a sentence: choose only proper name
                     # analysis only if the proper name analysis has corpus 
                     # frequency higher than 1
-                    toDelete = []
+                    to_delete = []
                     hasRecurringProperName = False
-                    for analysis in word_morph_analyses:
+                    for analysis in word_morph_analyses.annotations:
                         if analysis.partofspeech == 'H' and \
                            analysis.root in self._lexicon and \
                            self._lexicon[analysis.root] > 1:
                             hasRecurringProperName = True
                         if analysis.partofspeech not in ['H','G']:
-                            toDelete.append(analysis)
-                    if hasRecurringProperName and toDelete:
-                        for analysis in toDelete:
+                            to_delete.append(analysis)
+                    if hasRecurringProperName and to_delete:
+                        for analysis in to_delete:
                             word_morph_analyses.annotations.remove(analysis)
                             changed = True
 
@@ -955,10 +950,10 @@ class RemoveDuplicateAndProblematicAnalysesRetagger( CorpusBasedMorphDisambiguat
             # 1) Find and remove duplicate analyses
             #
             toDeleteAnalysisIDs = []
-            for i1, analysis1 in enumerate(morph_analyses):
+            for i1, analysis1 in enumerate(morph_analyses.annotations):
                 duplicateFound = False
-                for i2 in range(i1+1, len(morph_analyses)):
-                    analysis2 = morph_analyses[i2]
+                for i2 in range(i1+1, len(morph_analyses.annotations)):
+                    analysis2 = morph_analyses.annotations[i2]
                     # Check for complete attribute match
                     attr_matches = []
                     for attr in self.output_attributes:
@@ -971,14 +966,14 @@ class RemoveDuplicateAndProblematicAnalysesRetagger( CorpusBasedMorphDisambiguat
                         break
             if toDeleteAnalysisIDs:
                 for aid in sorted(toDeleteAnalysisIDs, reverse=True):
-                    morph_analyses.annotations.pop( aid )
+                    morph_analyses.annotations.pop(aid)
             #
             # 2) If verb analyses contain forms '-tama' and '-ma', 
             #    then keep only '-ma' analyses;
             #
             tamaIDs = []
             maIDs   = []
-            for i, analysis in enumerate(morph_analyses):
+            for i, analysis in enumerate(morph_analyses.annotations):
                 if analysis.partofspeech == 'V':
                     if analysis.form == 'ma':
                         maIDs.append(i)
@@ -1017,7 +1012,6 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
         self.layer_name = self.output_layer       # <- For backward compatibility ...
         self.depends_on = self.input_layers       # <- For backward compatibility ...
 
-
     def _make_layer(self, text: Text, layers, status):
         hidden_words = Layer(name=self.output_layer,
                       text_object=text,
@@ -1027,21 +1021,21 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
         nudTudEndings = re.compile('^.*[ntd]ud$')
         morph_analysis = text[ self._input_morph_analysis_layer ]
         for w, word_morph in enumerate( morph_analysis ):
-            if not is_unknown_word( word_morph ) and len( word_morph ) > 1:
+            if not is_unknown_word(word_morph) and len(word_morph.annotations) > 1:
                 #
                 # 1) If most of the analyses indicate nud/tud/dud forms, then hide the ambiguity:
                 #    E.g.    kõla+nud //_V_ nud, //    kõla=nud+0 //_A_ //    kõla=nud+0 //_A_ sg n, //    kõla=nud+d //_A_ pl n, //
-                nudTud = [ nudTudEndings.match(a.root) != None or \
-                           nudTudEndings.match(a.ending) != None \
-                           for a in word_morph ]
+                nudTud = [nudTudEndings.match(a.root) is not None or
+                          nudTudEndings.match(a.ending) is not None
+                          for a in word_morph.annotations]
                 if nudTud.count( True ) > 1:
                     hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1], layer=hidden_words) )
                 #
                 # 2) If analyses have same lemma and no form, then hide the ambiguity:
                 #    E.g.    kui+0 //_D_ //    kui+0 //_J_ //
                 #            nagu+0 //_D_ //    nagu+0 //_J_ //
-                lemmas = set([ a.root for a in word_morph ])
-                forms  = set([ a.form for a in word_morph ])
+                lemmas = set(a.root for a in word_morph.annotations)
+                forms  = set(a.form for a in word_morph.annotations)
                 if len(lemmas) == 1 and len(forms) == 1 and (list(forms))[0] == '':
                     hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1], layer=hidden_words) )
                 #
@@ -1049,7 +1043,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 #    the ambiguity:
                 #    E.g.    'nad on' vs 'ta on' -- both get the same 'olema'-analysis, 
                 #                                   which will remain ambiguous;
-                endings = set([ a.ending for a in word_morph ])
+                endings = set(a.ending for a in word_morph.annotations)
                 if len(lemmas) == 1 and (list(lemmas))[0] == 'ole' and len(endings) == 1 \
                    and (list(endings))[0] == '0':
                     hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1], layer=hidden_words) )
@@ -1058,7 +1052,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 #    singular/plural ambiguity:
                 #    E.g.     kõik+0 //_P_ sg n //    kõik+0 //_P_ pl n //
                 #             kes+0 //_P_ sg n //    kes+0 //_P_ pl n //
-                postags  = set([ a.partofspeech for a in word_morph ])
+                postags = set(a.partofspeech for a in word_morph.annotations)
                 if len(lemmas) == 1 and len(postags) == 1 and 'P' in postags and \
                    len(endings) == 1:
                     hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1], layer=hidden_words) )
@@ -1067,11 +1061,10 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 #    between numerals and pronouns:
                 #    E.g.     teine+0 //_O_ pl n, //    teine+0 //_P_ pl n, //
                 #             üks+l //_N_ sg ad, //    üks+l //_P_ sg ad, //
-                if len(lemmas) == 1 and 'P' in postags and ('O' in postags or \
+                if len(lemmas) == 1 and 'P' in postags and ('O' in postags or
                    'N' in postags) and len(endings) == 1:
                     hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1], layer=hidden_words) )
         return hidden_words
-
 
 
 class LemmaBasedPostDisambiguationRetagger(CorpusBasedMorphDisambiguationSubstepRetagger):
@@ -1111,10 +1104,10 @@ class LemmaBasedPostDisambiguationRetagger(CorpusBasedMorphDisambiguationSubstep
                 # Skip the word
                 continue
             # Consider only ambiguous words
-            if len( word_morph ) > 1:
+            if len(word_morph.annotations) > 1:
                 # 1) Find highest among the lemma frequencies
                 highestFreq = 0
-                for analysis in word_morph:
+                for analysis in word_morph.annotations:
                     # Use -ma ending to distinguish verb lemmas from other lemmas
                     lemma = analysis.root+'ma' if analysis.partofspeech=='V' else analysis.root
                     if lemma in self._lexicon and self._lexicon[lemma] > highestFreq:
@@ -1123,7 +1116,7 @@ class LemmaBasedPostDisambiguationRetagger(CorpusBasedMorphDisambiguationSubstep
                 #    the highest frequency
                 if highestFreq > 0:
                     toDelete = []
-                    for analysis in word_morph:
+                    for analysis in word_morph.annotations:
                         lemma = analysis.root+'ma' if analysis.partofspeech=='V' else analysis.root
                         freq = self._lexicon[lemma] if lemma in self._lexicon else 0
                         if freq < highestFreq:

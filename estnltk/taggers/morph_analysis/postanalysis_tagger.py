@@ -240,8 +240,8 @@ class PostMorphAnalysisTagger(Retagger):
                         ignore_spans = True
                     if ignore_spans:
                         # Mark all spans as to be ignored
-                        for span in morph_spanlist:
-                            setattr(span, IGNORE_ATTR, True)
+                        for annotation in morph_spanlist.annotations:
+                            setattr(annotation, IGNORE_ATTR, True)
                     comp_token_id += 1
             else:
                 # all compound tokens have been exhausted
@@ -281,7 +281,7 @@ class PostMorphAnalysisTagger(Retagger):
                     morph_spanlist.end == comp_token.end):
                     #  In order to avoid errors in downstream processing, let's 
                     # fix only non-empty spans, and skip the empty spans
-                    is_empty = not morph_spanlist or _is_empty_annotation(morph_spanlist[0])
+                    is_empty = not morph_spanlist.annotations or _is_empty_annotation(morph_spanlist.annotations[0])
                     if is_empty:
                         # Next compound token
                         comp_token_id += 1
@@ -291,15 +291,15 @@ class PostMorphAnalysisTagger(Retagger):
                     # 1) Fix names with initials, such as "T. S. Eliot"
                     if self.fix_names_with_initials and \
                        'name_with_initial' in comp_token.type:
-                        for span in morph_spanlist:
+                        for annotation in morph_spanlist.annotations:
                             # If it is a verb, then skip the fixes 
                             # ( verbs are more complicated, may need 
                             #   changing form, ending etc. )
-                            if getattr(span, 'partofspeech') == 'V':
+                            if getattr(annotation, 'partofspeech') == 'V':
                                 continue
                             # Set partofspeech to H
-                            setattr(span, 'partofspeech', 'H')
-                            root = getattr(span, 'root')
+                            setattr(annotation, 'partofspeech', 'H')
+                            root = getattr(annotation, 'root')
                             # Fix root: if there is no underscore/space, add it 
                             root = \
                                 self._pat_name_needs_underscore1.sub('\\1 _\\2', root)
@@ -313,31 +313,31 @@ class PostMorphAnalysisTagger(Retagger):
                             # 'root_tokens' and 'lemma' will be re-generated 
                             # based on it 
                             #
-                            setattr(span, 'root', root)
+                            setattr(annotation, 'root', root)
                     # 2) Fix emoticons, such as ":D"
                     if self.fix_emoticons and \
                        'emoticon' in comp_token.type:
-                        for span in morph_spanlist:
+                        for span in morph_spanlist.annotations:
                             # Set partofspeech to Z
                             setattr(span, 'partofspeech', 'Z')
                     # 3) Fix www-addresses, such as 'Postimees.ee'
                     if self.fix_www_addresses and \
                        ('www_address' in comp_token.type or \
                         'www_address_short' in comp_token.type):
-                        for span in morph_spanlist:
+                        for span in morph_spanlist.annotations:
                             # Set partofspeech to H
                             setattr(span, 'partofspeech', 'H')
                     # 4) Fix email addresses, such as 'big@boss.com'
                     if self.fix_email_addresses and \
                        'email' in comp_token.type:
-                        for span in morph_spanlist:
+                        for span in morph_spanlist.annotations:
                             # Set partofspeech to H
                             setattr(span, 'partofspeech', 'H')
                     # 5) Fix abbreviations, such as 'toim.', 'Tlk.'
                     if self.fix_abbreviations and \
                        ('abbreviation' in comp_token.type or \
                         'non_ending_abbreviation' in comp_token.type):
-                        for span in morph_spanlist:
+                        for span in morph_spanlist.annotations:
                             # Set partofspeech to Y, if it is S or H
                             if getattr(span, 'partofspeech') in ['S', 'H']:
                                 setattr(span, 'partofspeech', 'Y')
@@ -345,20 +345,20 @@ class PostMorphAnalysisTagger(Retagger):
                     if self.fix_numeric:
                         if 'numeric' in comp_token.type or \
                            'percentage' in comp_token.type:
-                            for span in morph_spanlist:
+                            for span in morph_spanlist.annotations:
                                 # Change partofspeech from Y to N
                                 if getattr(span, 'partofspeech') in ['Y']:
                                     setattr(span, 'partofspeech', 'N')
                         elif 'case_ending' in comp_token.type:
                             # a number with a case ending may also have 
                             # wrong partofspeech
-                            for span in morph_spanlist:
-                                if getattr(span, 'partofspeech') in ['Y']:
+                            for annotation in morph_spanlist.annotations:
+                                if getattr(annotation, 'partofspeech') in ['Y']:
                                     # if root looks like a numeric, 
                                     # then change pos Y -> N
-                                    root = getattr(span, 'root')
+                                    root = getattr(annotation, 'root')
                                     if self._pat_numeric.match(root):
-                                        setattr(span, 'partofspeech', 'N')
+                                        setattr(annotation, 'partofspeech', 'N')
                     # Next compound token
                     comp_token_id += 1
             else:

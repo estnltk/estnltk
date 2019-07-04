@@ -661,7 +661,7 @@ class VabamorfDisambiguator(Retagger):
                 # D.0) Get comparable morphological analyses for the word
                 # Old morphological analyses (ambiguous):
                 old_morph_records = \
-                    [ _span_to_records_excl(span, [IGNORE_ATTR]) for span in sentence_morph_spans[wid] ]
+                    [ _span_to_records_excl(span, [IGNORE_ATTR]) for span in sentence_morph_spans[wid].annotations ]
                 # New morphological analyses (disambiguated):
                 disambiguated_records = disambiguated_dicts[morph_dict_id]['analysis']
 

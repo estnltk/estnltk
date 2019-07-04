@@ -264,9 +264,23 @@ class Layer:
         """Checks for layer's span consistency
 
         """
-        starts_ends = set()
         attribute_names = set(self.attributes)
 
+        for span in self:
+            annotations = span.annotations
+
+            assert len(annotations) > 0, 'the span {} has no annotations'.format(span)
+            assert self.ambiguous or len(annotations) == 1, \
+                'the layer is not ambiguous but the span {} has {} annotations'.format(span, len(annotations))
+
+            for annotation in annotations:
+                assert set(annotation) == attribute_names, \
+                    'extra annotation attributes: {}, missing annotation attributes: {} in layer {!r}'.format(
+                            set(annotation) - attribute_names,
+                            attribute_names - set(annotation),
+                            self.name)
+
+        starts_ends = set()
         for span in self.span_list.spans:
             # Check for duplicate locations
             assert (span.start, span.end) not in starts_ends, '{} is a span with duplicate location'.format(span)
@@ -301,25 +315,13 @@ class Layer:
                 # for annotation in span.annotations:
                 #     assert set(annotation.attributes) == set(self.attributes), annotation.attributes
                 for attr in self.attributes:
-                    assert hasattr(span, attr), \
-                       '(!) missing attribute {} in {}'.format(attr, span)
+                    for annotation in span.annotations:
+                        assert hasattr(annotation, attr), \
+                           '(!) missing attribute {} in {}'.format(attr, span)
                 # Check for redundant attributes
                 for span_attr in span.legal_attribute_names:
                     assert span_attr in self.attributes, \
                        '(!) redundant attribute {} in {}'.format(span_attr, span)
-
-            annotations = span.annotations
-
-            assert len(annotations) > 0, 'the span {} has no annotations'.format(span)
-            assert self.ambiguous or len(annotations) == 1, \
-                'the layer is not ambiguous but the span {} has {} annotations'.format(span, len(annotations))
-
-            for annotation in span.annotations:
-                assert set(annotation._attributes) == attribute_names, \
-                    'extra annotation attributes: {}, missing annotation attributes: {} in layer {!r}'.format(
-                            set(annotation) - attribute_names,
-                            attribute_names - set(annotation),
-                            self.name)
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'

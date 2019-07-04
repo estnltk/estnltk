@@ -90,7 +90,7 @@ def test_annotation_json_export_import():
     layer = Layer('my_layer', attributes=['attr', 'attr_0'])
     span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
 
-    annotation = new_text(5).layer_0[0][0]
+    annotation = new_text(5).layer_0[0].annotations[0]
 
     a = json_to_annotation(span, annotation_to_json(annotation))
     assert a == annotation

@@ -22,7 +22,7 @@ def test_resolve_conflicts_MAX():
                                  {'start': 1, 'end':  4, '_priority_': 0},
                                ]])
     layer = resolve_conflicts(layer, conflict_resolving_strategy='MAX', priority_attribute='_priority_')
-    assert len(layer[0]) == 1
+    assert len(layer[0].annotations) == 1
     assert [(1, 4)] == [(span.start, span.end) for span in layer]
 
     # common start
@@ -80,7 +80,7 @@ def test_resolve_conflicts_MIN():
                                  {'start': 1, 'end':  4, '_priority_': 0},
                                ]])
     layer = resolve_conflicts(layer, conflict_resolving_strategy='MIN', priority_attribute='_priority_')
-    assert len(layer[0]) == 1
+    assert len(layer[0].annotations) == 1
     assert [(1, 4)] == [(span.start, span.end) for span in layer]
 
     # common start
@@ -170,7 +170,7 @@ def test_resolve_conflicts_ambiguous_layer():
                               priority_attribute='_priority_',
                               keep_equal=True)
 
-    result = [(span.start, span.end) for aspan in layer for span in aspan]
+    result = [(annotation.start, annotation.end) for span in layer for annotation in span.annotations]
     assert [(1, 2), (2, 3), (4, 5), (4, 5), (6, 7)] == result, result
 
     # keep_equal=False
@@ -191,4 +191,4 @@ def test_resolve_conflicts_ambiguous_layer():
                               conflict_resolving_strategy='ALL',
                               priority_attribute='_priority_',
                               keep_equal=False)
-    assert [(1, 4), (5, 7)] == [(span.start, span.end) for aspan in layer for span in aspan]
+    assert [(1, 4), (5, 7)] == [(annotation.start, annotation.end) for span in layer for annotation in span.annotations]

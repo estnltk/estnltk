@@ -46,24 +46,24 @@ def drop_annotations(layer: Layer, attribute: str, values: Container, preserve_s
     to_remove = []
 
     for i, span in enumerate(layer):
-        for j, annotation in enumerate(span):
+        for j, annotation in enumerate(span.annotations):
             if getattr(annotation, attribute) in values:
                 to_remove.append((i, j))
     for i, j in reversed(to_remove):
-        if not preserve_spans or len(layer[i]) > 1:
-            del layer[i][j]
+        if not preserve_spans or len(layer[i].annotations) > 1:
+            del layer[i].annotations[j]
 
 
 def keep_annotations(layer: Layer, attribute: str, values: Container, preserve_spans=False):
     to_remove = []
 
     for i, span in enumerate(layer):
-        for j, annotation in enumerate(span):
+        for j, annotation in enumerate(span.annotations):
             if getattr(annotation, attribute) not in values:
                 to_remove.append((i, j))
     for i, j in reversed(to_remove):
-        if not preserve_spans or len(layer[i]) > 1:
-            del layer[i][j]
+        if not preserve_spans or len(layer[i].annotations) > 1:
+            del layer[i].annotations[j]
 
 
 def apply_to_annotations(layer: Layer, function: callable):

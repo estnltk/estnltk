@@ -398,13 +398,12 @@ class TimexTagger( Tagger ):
                     # Get corresponding morph span
                     if word_span_id < len(morph_spans):
                         morph_span = morph_spans[word_span_id]
-                        if word_span.start == morph_span.start and \
-                           word_span.end == morph_span.end and \
-                           len(morph_span) > 0 and \
-                           (not _is_empty_annotation(morph_span[0])):
+                        if word_span.base_span == morph_span.base_span \
+                           and len(morph_span.annotations) > 0 \
+                           and not _is_empty_annotation(morph_span.annotations[0]):
                             # Convert span to Vabamorf dict
                             word_morph_dict = \
-                                    _convert_morph_analysis_span_to_vm_dict( \
+                                    _convert_morph_analysis_span_to_vm_dict(
                                         morph_span )
                             # Use normalized_form of the word (if available)
                             word_morph_dict['text'] = \
@@ -413,7 +412,7 @@ class TimexTagger( Tagger ):
                             morphFound = True
                     if not morphFound:
                         # No morph found: add an empty Vabamorf dict
-                        empty_analysis_dict = { 'text' : word_span.text, \
+                        empty_analysis_dict = { 'text' : word_span.text,
                                                 'analysis' : [] }
                         # Use normalized_form of the word (if available)
                         empty_analysis_dict['text'] = \

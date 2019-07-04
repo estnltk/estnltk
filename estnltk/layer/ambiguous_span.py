@@ -103,6 +103,7 @@ class AmbiguousSpan:
         if self.text_object is not None:
             return self.text_object.text
 
+    # TODO: remove __len__
     def __len__(self) -> int:
         return len(self.annotations)
 
@@ -123,6 +124,7 @@ class AmbiguousSpan:
 
     def __getitem__(self, idx: int) -> Union[Annotation, AttributeList]:
         if isinstance(idx, int):
+            # TODO: raise TypeError()
             return self._annotations[idx]
 
         if isinstance(idx, str):
@@ -131,7 +133,7 @@ class AmbiguousSpan:
         raise KeyError(idx)
 
     def __lt__(self, other: Any) -> bool:
-        return (self.start, self.end) < (other.start, other.end)
+        return self.base_span < other.base_span
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, AmbiguousSpan) \

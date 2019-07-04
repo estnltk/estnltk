@@ -68,7 +68,8 @@ class RegexTagger(Tagger):
         from estnltk.taggers import DisambiguatingTagger
 
         def decorator(span, raw_text):
-            return {name: getattr(span[0], name) for name in self.output_attributes}
+            return {name: getattr(span.annotations[0], name) for name in self.output_attributes}
+
         self._disamb_tagger = DisambiguatingTagger(output_layer=self.output_layer,
                                                    input_layer=self.output_layer,
                                                    output_attributes=self.output_attributes,

@@ -89,7 +89,7 @@ def test_equal():
     assert t_1 != t_2
     t_2.tag_layer(['morph_extended', 'paragraphs'])
     assert t_1 == t_2
-    t_1['morph_analysis'][0][0].form = 'x'
+    t_1['morph_analysis'][0].annotations[0].form = 'x'
     assert t_1 != t_2
 
     t_1 = new_text(5)
@@ -595,11 +595,11 @@ def test_morph():
 
 def test_change_lemma():
     text = Text('Olnud aeg.').tag_layer()
-    setattr(text.morph_analysis[0][0], 'lemma', 'blabla')
-    assert text.morph_analysis[0][0].lemma == 'blabla'
+    setattr(text.morph_analysis[0].annotations[0], 'lemma', 'blabla')
+    assert text.morph_analysis[0].annotations[0].lemma == 'blabla'
 
-    setattr(text.morph_analysis[0][1], 'lemma', 'blabla2')
-    assert text.morph_analysis[0][1].lemma == 'blabla2'
+    setattr(text.morph_analysis[0].annotations[1], 'lemma', 'blabla2')
+    assert text.morph_analysis[0].annotations[1].lemma == 'blabla2'
 
 
 def test_to_records():
@@ -631,8 +631,7 @@ def test_morph2():
     ust seetõttu, et eelmisel nädalal avaldas kirjastus Gangemi "Hõbevalge"
     itaalia keeles, vahendas "Aktuaalne kaamera".''').tag_layer()
 
-
-    assert len(text.morph_analysis[5]) == 2
+    assert len(text.morph_analysis[5].annotations) == 2
     print(text.morph_analysis[5])
     print(text.morph_analysis[5].lemma)
     assert len(text.morph_analysis[5].lemma) == 2
@@ -885,24 +884,24 @@ def test_delete_annotation_in_ambiguous_span():
         l.add_annotation(word, test1=c)
         c += 1
 
-    assert len(text['test'][0]) == 2
+    assert len(text['test'][0].annotations) == 2
 
     (text['test'][0].annotations
             .remove(
-        text['test'][0][0] #this is the annotation we want to remove
+        text['test'][0].annotations[0] #this is the annotation we want to remove
     )
           )
-    assert len(text['test'].span_list.spans[0]) == 1
+    assert len(text['test'].span_list.spans[0].annotations) == 1
 
     # removing the second
-    assert len(text['test'][1]) == 2
+    assert len(text['test'][1].annotations) == 2
 
     (text['test'][1].annotations
             .remove(
-        text['test'][1][0] #this is the annotation we want to remove
+        text['test'][1].annotations[0] #this is the annotation we want to remove
     )
           )
-    assert len(text['test'][1]) == 1
+    assert len(text['test'][1].annotations) == 1
 
 
 def test_span_morph_access():

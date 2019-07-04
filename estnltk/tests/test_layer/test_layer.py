@@ -66,9 +66,9 @@ def test_add_span():
     assert isinstance(layer[0], AmbiguousSpan)
     assert isinstance(layer[1], AmbiguousSpan)
     assert isinstance(layer[2], AmbiguousSpan)
-    assert len(layer[0]) == 1
-    assert len(layer[1]) == 1
-    assert len(layer[2]) == 2
+    assert len(layer[0].annotations) == 1
+    assert len(layer[1].annotations) == 1
+    assert len(layer[2].annotations) == 2
 
     layer = Layer(name='ambiguous', attributes=['a', 'b', 'c'], ambiguous=False)
 
@@ -227,16 +227,16 @@ def test_ambiguous_layer_indexing():
 
     span_3 = layer[3]
     assert isinstance(span_3, AmbiguousSpan)
-    assert len(span_3) == 2
-    assert isinstance(span_3[0], Annotation)
-    assert span_3[0].text == '3'
-    assert span_3[0].a == 'default a'
-    assert span_3[0].b == 'default b'
-    assert span_3[0].c is None
-    assert span_3[1].text == '3'
-    assert span_3[1].a == 4
-    assert span_3[1].b is None
-    assert span_3[1].c is None
+    assert len(span_3.annotations) == 2
+    assert isinstance(span_3.annotations[0], Annotation)
+    assert span_3.annotations[0].text == '3'
+    assert span_3.annotations[0].a == 'default a'
+    assert span_3.annotations[0].b == 'default b'
+    assert span_3.annotations[0].c is None
+    assert span_3.annotations[1].text == '3'
+    assert span_3.annotations[1].a == 4
+    assert span_3.annotations[1].b is None
+    assert span_3.annotations[1].c is None
 
     assert isinstance(layer['a'], AmbiguousAttributeList)
     assert isinstance(layer.a, AmbiguousAttributeList)
@@ -268,14 +268,15 @@ def test_advanced_indexing():
     assert layer[:] == layer
     assert layer[2:10:2].text == ['Sinu', '?']
     assert layer[[True, False, True, False, True]].text == ['Mis', 'Sinu', '?']
-    assert layer[lambda span: len(span) > 1].text == ['Mis', 'on']
+    assert layer[lambda span: len(span.annotations) > 1].text == ['Mis', 'on']
     assert layer[[1, 3, 4]].text == ['on', 'nimi', '?']
 
     assert layer[:]['text', 'lemma'] == layer[['text', 'lemma']]
     assert layer[2:10:2, ['text', 'lemma']] == layer[2:10:2]['text', 'lemma']
     assert layer[[True, False, True, False, True], ['text', 'lemma']] == layer[True, False, True, False, True][
         'text', 'lemma']
-    assert layer[lambda span: len(span) > 1, ['text', 'lemma']] == layer[lambda span: len(span) > 1]['text', 'lemma']
+    assert layer[lambda span: len(span.annotations) > 1,
+                 ['text', 'lemma']] == layer[lambda span: len(span.annotations) > 1]['text', 'lemma']
     assert layer[[1, 3, 4], ['text', 'lemma']] == layer[[1, 3, 4]]['text', 'lemma']
     assert list(layer[0, 'lemma']) == ['mis', 'mis']
     assert list(layer[0, ['lemma', 'form']][0]) == ['mis', 'pl n']
@@ -323,11 +324,11 @@ def test_check_layer_consistency():
                    attributes=['a', 'b', 'c'],
                    ambiguous=True)
     layer1.add_annotation((0, 1))
-    assert layer1[0][0].a is None
-    assert layer1[0][0].b is None
-    assert layer1[0][0].c is None
+    assert layer1[0].annotations[0].a is None
+    assert layer1[0].annotations[0].b is None
+    assert layer1[0].annotations[0].c is None
     layer1.check_span_consistency()
-    del layer1[0][0].b
+    del layer1[0].annotations[0].b
     with pytest.raises(AssertionError) as e4:
         # Assertion error because layer's Annotation had missing attributes
         layer1.check_span_consistency()

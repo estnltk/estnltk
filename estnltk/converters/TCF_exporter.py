@@ -55,7 +55,7 @@ def export_TCF(t: Text, file:str=None, version='0.4'):
         lemmas = E('lemmas')
         for analysis in t.morph_analysis:
             token_id = token_ids[analysis.words]
-            for a in analysis:
+            for a in analysis.annotations:
                 # kas nii on õige toimida mitmese märgendiga? (' '.join...)
                 lemmas.append(E('lemma', a.lemma, {'ID':token_id.replace('t', 'l'),'tokenIDs':token_id}))
         text_tree[1].append(lemmas)
@@ -63,7 +63,7 @@ def export_TCF(t: Text, file:str=None, version='0.4'):
         postags = E('POStags', {'tagset':''})
         for analysis in t.morph_analysis:
             token_id = token_ids[analysis.words]
-            for a in analysis:
+            for a in analysis.annotations:
                 # kas nii on õige toimida mitmese märgendiga? (' '.join...)
                 postags.append(E('tag', a.partofspeech, {'tokenIDs':token_id}))
         text_tree[1].append(postags)
@@ -71,7 +71,7 @@ def export_TCF(t: Text, file:str=None, version='0.4'):
         morphology = E('morphology')
         for analysis in t.morph_analysis:
             token_id = token_ids[analysis.words]
-            for a in analysis:
+            for a in analysis.annotations:
                 # kas nii on õige toimida mitmese märgendiga?
                 features = E('fs')
                 features.append(E('f', a.form, {'name':'form'}))

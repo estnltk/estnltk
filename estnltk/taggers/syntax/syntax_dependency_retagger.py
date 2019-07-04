@@ -39,8 +39,8 @@ class SyntaxDependencyRetagger(Retagger):
         id_to_children = defaultdict(list)
 
         for span in layer:
-            id_ = span[0].id
-            head = span[0].head
+            id_ = span.annotations[0].id
+            head = span.annotations[0].head
             assert all(annotation.id == id_ for annotation in span.annotations)
             assert all(annotation.head == head for annotation in span.annotations)
 
@@ -57,7 +57,7 @@ class SyntaxDependencyRetagger(Retagger):
 
 def annotate_spans(id_to_span, id_to_children):
     for id_, span in id_to_span.items():
-        for annotation in span:
+        for annotation in span.annotations:
             annotation.parent_span = id_to_span.get(annotation.head)
             annotation.children = tuple(id_to_children[id_])
 

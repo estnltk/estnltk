@@ -11,7 +11,7 @@ def test_add_annotation():
     span_1.add_annotation(Annotation(span_1, attr_1=3))
     span_1.add_annotation(Annotation(span_1, attr_1=3))
 
-    assert len(span_1) == 2
+    assert len(span_1.annotations) == 2
 
     span_2 = AmbiguousSpan(ElementaryBaseSpan(0, 1), Layer('test', attributes=['attr_1'], ambiguous=True))
 
@@ -50,9 +50,9 @@ def test_getitem():
     span_1.add_annotation(Annotation(span_1, attr_1=0))
     span_1.add_annotation(Annotation(span_1, attr_1=3))
 
-    assert isinstance(span_1[0], Annotation)
-    assert span_1[0].attr_1 == 0
-    assert span_1[1].attr_1 == 3
+    assert isinstance(span_1.annotations[0], Annotation)
+    assert span_1.annotations[0].attr_1 == 0
+    assert span_1.annotations[1].attr_1 == 3
 
     assert span_1['attr_1'] == AttributeList([0, 3], 'attr_1')
 

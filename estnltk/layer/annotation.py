@@ -95,6 +95,7 @@ class Annotation(Mapping):
             raise AttributeError(item)
 
     def __eq__(self, other: Any) -> bool:
+        # TODO return isinstance(other, Annotation) and self._span is other._span and self._attributes == other._attributes
         if not isinstance(other, Annotation):
             return False
         if self.legal_attribute_names is None or other.legal_attribute_names is None:

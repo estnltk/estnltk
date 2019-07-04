@@ -65,9 +65,8 @@ def extract_sections(text: Text,
                         if span_parent:
                             new_span = Span(base_span=span_parent.base_span, layer=new_layer)
                             map_spans[(span.base_span, span.layer.name)] = new_span
-                            for sp in span:
-                                attributes = {attr: getattr(sp, attr) for attr in attribute_names}
-                                new_layer.add_annotation(new_span, **attributes)
+                            for annotation in span.annotations:
+                                new_layer.add_annotation(new_span, **annotation)
                 else:
                     raise NotImplementedError('not ambiguous layer with parent: ' + layer_name)
             elif enveloping:

@@ -172,27 +172,25 @@ class NounPhraseChunker( Tagger ):
             while word_span_id < len(word_spans):
                 # Get corresponding word span
                 word_span  = word_spans[word_span_id]
-                morph_span = None
                 if sent_start <= word_span.start and \
                     word_span.end <= sent_end:
                     # Get corresponding morph span
                     morphFound = False
                     if word_span_id < len(morph_spans):
                         morph_span = morph_spans[word_span_id]
-                        if word_span.start == morph_span.start and \
-                           word_span.end == morph_span.end and \
-                           len(morph_span) > 0 and \
-                           (not _is_empty_annotation(morph_span[0])):
+                        if word_span.base_span == morph_span.base_span and \
+                           len(morph_span.annotations) > 0 and \
+                           not _is_empty_annotation(morph_span.annotations[0]):
                             # Convert span to Vabamorf dict
                             word_morph_dict = \
-                                    _convert_morph_analysis_span_to_vm_dict( \
+                                    _convert_morph_analysis_span_to_vm_dict(
                                         morph_span )
                             sentence_morph_dicts.append( word_morph_dict )
                             morphFound = True
                     if not morphFound:
                         # No morph found: add an empty Vabamorf dict
-                        empty_analysis_dict = { 'text' : word_span.text, \
-                                                'analysis' : [] }
+                        empty_analysis_dict = {'text': word_span.text,
+                                               'analysis': []}
                         sentence_morph_dicts.append( empty_analysis_dict )
                     # Get corresponding syntax span
                     syntaxFound = False

@@ -33,7 +33,7 @@ def export_CG3(text):
         for word in sentence.words:
             word_index += 1
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
-            for morph_extended in text.morph_extended[word_index]:
+            for morph_extended in text.morph_extended[word_index].annotations:
                 form_list = [morph_extended.partofspeech]
                 if morph_extended.pronoun_type:
                     form_list.extend(_insert_pers(morph_extended.pronoun_type))

@@ -19,8 +19,8 @@ def test_1():
 
     def decorator(ambiguous_span, raw_text):
         attr_1 = 0
-        for span in ambiguous_span:
-            attr_1 += span.attr_1
+        for annotation in ambiguous_span.annotations:
+            attr_1 += annotation.attr_1
         return {'attr_1': attr_1}
 
     tagger_1 = DisambiguatingTagger(output_layer='simple',

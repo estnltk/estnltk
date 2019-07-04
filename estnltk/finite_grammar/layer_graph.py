@@ -307,12 +307,12 @@ def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=
     if layer.ambiguous:
         for sp in layer:
             assert sp.start >= 0, sp
-            names_1 = {getattr(b, name_attribute) for b in sp}
+            names_1 = {getattr(b, name_attribute) for b in sp.annotations}
             for name_1 in names_1:
                 graph.add_node(TerminalNode(name_1, sp, attributes))
         for sp_1, sp_2 in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
-            names_1 = {getattr(b, name_attribute) for b in sp_1}
-            names_2 = {getattr(b, name_attribute) for b in sp_2}
+            names_1 = {getattr(b, name_attribute) for b in sp_1.annotations}
+            names_2 = {getattr(b, name_attribute) for b in sp_2.annotations}
             for name_1 in names_1:
                 for name_2 in names_2:
                     graph.add_edge(TerminalNode(name_1, sp_1, attributes), TerminalNode(name_2, sp_2, attributes))
