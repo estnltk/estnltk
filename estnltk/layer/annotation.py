@@ -95,18 +95,7 @@ class Annotation(Mapping):
             raise AttributeError(item)
 
     def __eq__(self, other: Any) -> bool:
-        # TODO return isinstance(other, Annotation) and self._span is other._span and self._attributes == other._attributes
-        if not isinstance(other, Annotation):
-            return False
-        if self.legal_attribute_names is None or other.legal_attribute_names is None:
-            if set(self._attributes) == set(other._attributes):
-                return all(getattr(self, i) == getattr(other, i) for i in self._attributes)
-            return False
-
-        if set(self.legal_attribute_names) == set(other.legal_attribute_names):
-            return all(getattr(self, i) == getattr(other, i) for i in self.legal_attribute_names)
-
-        return False
+        return isinstance(other, Annotation) and self._attributes == other._attributes
 
     def __str__(self):
         # Output key-value pairs in a sorted way
