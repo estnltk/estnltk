@@ -1,6 +1,7 @@
-from typing import Any, Union, Sequence
 import itertools
 from IPython.core.display import display_html
+from reprlib import recursive_repr
+from typing import Any, Union, Sequence
 
 from estnltk.layer.span import Span, Annotation
 from estnltk.layer.ambiguous_span import AmbiguousSpan
@@ -95,13 +96,12 @@ class EnvelopingSpan:
 
     @property
     def text(self):
-        result = []
-        for span in self.spans:
-            if isinstance(span, EnvelopingSpan):
-                result.extend(span.text)
-            else:
-                result.append(span.text)
-        return result
+        raw_text = self.text_object.text
+        return [raw_text[start:end] for start, end in self._base_span.flatten()]
+
+    @property
+    def text_object(self):
+        return self._layer.text_object
 
     @property
     def enclosing_text(self):
@@ -179,20 +179,36 @@ class EnvelopingSpan:
     def __hash__(self):
         return hash(self._base_span)
 
+    @recursive_repr()
     def __str__(self):
-        return 'ES[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
+        try:
+            text = self.text
+        except:
+            text = None
+
+        try:
+            attribute_names = self._layer.attributes
+            annotation_strings = []
+            for annotation in self._annotations:
+                key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
+                annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
+            annotations = '[{}]'.format(', '.join(annotation_strings))
+        except:
+            annotations = None
+
+        return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
+                                                              annotations=annotations)
 
     def __repr__(self):
         return str(self)
 
-    @property
-    def raw_text(self):
-        return self.layer.text_object.text
-
     def _to_html(self, margin=0) -> str:
-        return '<b>{}</b>\n{}'.format(
-                self.__class__.__name__,
-                html_table(spans=[self], attributes=self.layer.attributes, margin=margin, index=False))
+        try:
+            return '<b>{}</b>\n{}'.format(
+                    self.__class__.__name__,
+                    html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
+        except:
+            return str(self)
 
     def display(self, margin: int = 0):
         display_html(self._to_html(margin), raw=True)

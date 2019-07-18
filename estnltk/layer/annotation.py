@@ -1,3 +1,4 @@
+from reprlib import recursive_repr
 from typing import Any, Mapping, Sequence
 
 
@@ -8,8 +9,8 @@ class Annotation(Mapping):
     __slots__ = ['_attributes', '_span']
 
     def __init__(self, span, **attributes):
-        self._attributes = attributes
         self._span = span
+        self._attributes = attributes
 
     @property
     def span(self):
@@ -82,7 +83,11 @@ class Annotation(Mapping):
         return len(self._attributes)
 
     def __getitem__(self, item):
-        return self._attributes[item]
+        if isinstance(item, str):
+            return self._attributes[item]
+        if isinstance(item, tuple):
+            return tuple(self._attributes[i] for i in item)
+        raise TypeError(item)
 
     def __iter__(self):
         yield from self._attributes
@@ -97,25 +102,20 @@ class Annotation(Mapping):
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Annotation) and self._attributes == other._attributes
 
+    @recursive_repr()
     def __str__(self):
-        # Output key-value pairs in a sorted way
+        # Output key-value pairs in an ordered way
         # (to assure a consistent output, e.g. for automated testing)
+
         if self.legal_attribute_names is None:
             attribute_names = sorted(self._attributes)
         else:
             attribute_names = self.legal_attribute_names
 
-        mapping_sorted = []
+        key_value_strings = ['{!r}: {!r}'.format(k, self._attributes[k]) for k in attribute_names]
 
-        for k in sorted(attribute_names):
-            key_value_str = "{key_val}".format(key_val={k: getattr(self, k)})
-            # Hack: Remove surrounding '{' and '}'
-            key_value_str = key_value_str[1:-1]
-            mapping_sorted.append(key_value_str)
-
-        # Hack: Put back surrounding '{' and '}' (mimic dict's representation)
-        mapping_sorted_str = '{' + (', '.join(mapping_sorted)) + '}'
-        return 'Annotation({text}, {attributes})'.format(text=self.text, attributes=mapping_sorted_str)
+        return '{class_name}({text!r}, {{{attributes}}})'.format(class_name=self.__class__.__name__, text=self.text,
+                                                                 attributes=', '.join(key_value_strings))
 
     def __repr__(self):
         return str(self)

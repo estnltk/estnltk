@@ -59,7 +59,7 @@ def test_getitem():
     with pytest.raises(KeyError):
         span_1[:]
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(KeyError):
         span_1['bla']
 
     with pytest.raises(IndexError):

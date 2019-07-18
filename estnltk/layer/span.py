@@ -1,8 +1,12 @@
+from IPython.core.display import display_html
+from reprlib import recursive_repr
 from typing import MutableMapping, Any, Sequence
-from html import escape
 
 from estnltk.layer.base_span import BaseSpan
 from estnltk.layer.annotation import Annotation
+from estnltk.layer import AttributeList, AttributeTupleList
+
+from .to_html import html_table
 
 
 class Span:
@@ -12,7 +16,7 @@ class Span:
     __slots__ = ['_base_span', '_layer', '_annotations', '_parent']
 
     def __init__(self, base_span: BaseSpan, layer):
-        assert isinstance(base_span, BaseSpan)
+        assert isinstance(base_span, BaseSpan), base_span
 
         self._base_span = base_span
         self._layer = layer  # type: Layer
@@ -41,7 +45,18 @@ class Span:
         return self._annotations
 
     def __getitem__(self, item):
-        return self.annotations[item]
+        if isinstance(item, int):
+            return self.annotations[item]
+        if isinstance(item, str):
+            if self._layer.ambiguous:
+                return AttributeList((annotation[item] for annotation in self._annotations), item)
+            return self._annotations[0][item]
+        if isinstance(item, tuple):
+            if self._layer.ambiguous:
+                return AttributeTupleList((annotation[item] for annotation in self._annotations), item)
+            return self._annotations[0][item]
+
+        raise KeyError(item)
 
     @property
     def parent(self):
@@ -76,8 +91,7 @@ class Span:
 
     @property
     def text(self):
-        if self.text_object:
-            return self.text_object.text[self.start:self.end]
+        return self._layer.text_object.text[self._base_span.start:self._base_span.end]
 
     @property
     def enclosing_text(self):
@@ -101,18 +115,6 @@ class Span:
         record['end'] = self.end
         return record
 
-    def html_text(self, margin: int = 0):
-        t = self.raw_text
-        s = self.start
-        e = self.end
-        left = escape(t[max(0, s - margin):s])
-        middle = escape(t[s:e])
-        right = escape(t[e:e + margin])
-        return ''.join(('<span style="font-family: monospace; white-space: pre-wrap;">',
-                        left,
-                        '<span style="text-decoration: underline;">', middle, '</span>',
-                        right, '</span>'))
-
     def __setattr__(self, key, value):
         if key in self.__slots__ or key == 'parent':
             super().__setattr__(key, value)
@@ -127,7 +129,7 @@ class Span:
             raise AttributeError
 
         if item in self._layer.attributes:
-            return getattr(self.annotations[0], item)
+            return self[item]
 
         elif self._layer is not None and self._layer.text_object is not None and self._layer.text_object._path_exists(
                 self._layer.name, item):
@@ -146,9 +148,8 @@ class Span:
                         return i
                     else:
                         return getattr(i, item)
-
         else:
-            return self.__getattribute__('__class__').__getattribute__(self, item)
+            return getattr(self.__class__, item)
 
     def __lt__(self, other: Any) -> bool:
         return self.base_span < other.base_span
@@ -162,27 +163,39 @@ class Span:
     def __hash__(self):
         return hash(self._base_span)
 
+    @recursive_repr()
     def __str__(self):
-        if self.text_object is not None:
-            return 'Span(start={self.start}, end={self.end}, text={self.text!r})'.format(self=self)
-        if self._layer is None:
-            return 'Span(start={self.start}, end={self.end}, layer={self._layer})'.format(self=self)
-        if self._layer.text_object is None:
-            return 'Span(start={self.start}, end={self.end}, layer: {self._layer.name!r})'.format(self=self)
+        try:
+            text = self.text
+        except:
+            text = None
 
-        # Output key-value pairs in a sorted way
-        # (to assure a consistent output, e.g. for automated testing)
-        mapping_sorted = []
+        try:
+            attribute_names = self._layer.attributes
+            annotation_strings = []
+            for annotation in self._annotations:
+                key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
+                annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
+            annotations = '[{}]'.format(', '.join(annotation_strings))
+        except:
+            annotations = None
 
-        for k in sorted(self._layer.attributes):
-            key_value_str = "{key_val}".format(key_val = {k:self.__getattribute__(k)})
-            # Hack: Remove surrounding '{' and '}'
-            key_value_str = key_value_str[1:-1]
-            mapping_sorted.append(key_value_str)
-
-        # Hack: Put back surrounding '{' and '}' (mimic dict's representation)
-        mapping_sorted_str = '{'+ (', '.join(mapping_sorted)) + '}'
-        return 'Span({text}, {attributes})'.format(text=self.text, attributes=mapping_sorted_str)
+        return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
+                                                              annotations=annotations)
 
     def __repr__(self):
         return str(self)
+
+    def _to_html(self, margin=0) -> str:
+        try:
+            return '<b>{}</b>\n{}'.format(
+                    self.__class__.__name__,
+                    html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
+        except:
+            return str(self)
+
+    def display(self, margin: int = 0):
+        display_html(self._to_html(margin), raw=True)
+
+    def _repr_html_(self):
+        return self._to_html()

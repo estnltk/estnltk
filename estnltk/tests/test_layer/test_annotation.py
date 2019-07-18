@@ -15,6 +15,17 @@ def test_annotation_without_span():
     assert annotation.legal_attribute_names is None
     assert annotation.text_object is None
     assert annotation.text is None
+    assert len(annotation) == 3
+    assert annotation.attr_1 == 'üks'
+    assert annotation['attr_1'] == 'üks'
+    assert annotation['attr_1', 'attr_3'] == ('üks', 3)
+    assert 'bla' not in annotation
+
+    with pytest.raises(KeyError):
+        annotation['bla']
+
+    with pytest.raises(TypeError):
+        annotation[3]
 
     assert annotation == annotation
     assert annotation != annotation_1
@@ -54,6 +65,7 @@ def test_annotation_with_text_object():
     assert annotation.attr_1 == 'üks'
     assert annotation.attr_2 == 2
     assert annotation.attr_3 == 3
+    assert annotation['attr_1', 'attr_1'] == ('üks', 'üks')
 
     assert annotation.text_object is text
 
@@ -68,5 +80,8 @@ def test_annotation_with_text_object():
     assert annotation == annotation_1
     assert annotation != annotation_2
 
-    assert str(annotation) == "Annotation(Tere, {'attr_1': 'üks', 'attr_2': 2, 'attr_3': 3})"
-    assert repr(annotation) == "Annotation(Tere, {'attr_1': 'üks', 'attr_2': 2, 'attr_3': 3})"
+    assert str(annotation) == "Annotation('Tere', {'attr_1': 'üks', 'attr_2': 2, 'attr_3': 3})"
+    assert repr(annotation) == "Annotation('Tere', {'attr_1': 'üks', 'attr_2': 2, 'attr_3': 3})"
+
+    assert str(annotation_1) == "Annotation('Tere', {'attr_3': 3, 'attr_1': 'üks', 'attr_2': 2})"
+    assert repr(annotation_1) == "Annotation('Tere', {'attr_3': 3, 'attr_1': 'üks', 'attr_2': 2})"

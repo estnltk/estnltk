@@ -1,9 +1,10 @@
-from typing import Union, Any
 from IPython.core.display import display_html
+from reprlib import recursive_repr
+from typing import Union, Any
 
 from estnltk import Span, BaseSpan
 from estnltk import Annotation, ElementaryBaseSpan
-from estnltk.layer import AttributeList
+from estnltk.layer import AttributeList, AttributeTupleList
 from .to_html import html_table
 
 
@@ -110,11 +111,9 @@ class AmbiguousSpan:
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
-        layer = self.__getattribute__('layer')  # type: Layer
+        layer = self._layer  # type: Layer
         if item in layer.attributes:
-            if layer.ambiguous:
-                return AttributeList((getattr(span, item) for span in self._annotations), item)
-            return getattr(self._annotations[0], item)
+            return self[item]
         if item == layer.parent:
             return self.parent
         if item in self.__dict__:
@@ -122,15 +121,19 @@ class AmbiguousSpan:
 
         return self.__getattribute__(item)
 
-    def __getitem__(self, idx: int) -> Union[Annotation, AttributeList]:
-        if isinstance(idx, int):
-            # TODO: raise TypeError()
-            return self._annotations[idx]
+    def __getitem__(self, item) -> Union[Annotation, AttributeList, AttributeTupleList]:
+        if isinstance(item, int):
+            return self.annotations[item]
+        if isinstance(item, str):
+            if self._layer.ambiguous:
+                return AttributeList((annotation[item] for annotation in self._annotations), item)
+            return self._annotations[0][item]
+        if isinstance(item, tuple):
+            if self._layer.ambiguous:
+                return AttributeTupleList((annotation[item] for annotation in self._annotations), item)
+            return self._annotations[0][item]
 
-        if isinstance(idx, str):
-            return getattr(self, idx)
-
-        raise KeyError(idx)
+        raise KeyError(item)
 
     def __lt__(self, other: Any) -> bool:
         return self.base_span < other.base_span
@@ -147,18 +150,36 @@ class AmbiguousSpan:
     def __hash__(self):
         return hash(self._base_span)
 
+    @recursive_repr()
     def __str__(self):
-        if self.text_object is not None:
-            return 'AS(start={self.start}, end={self.end}, text:{self.text!r})'.format(self=self)
-        return 'AS[{spans}]'.format(spans=', '.join(str(i) for i in self.annotations))
+        try:
+            text = self.text
+        except:
+            text = None
+
+        try:
+            attribute_names = self._layer.attributes
+            annotation_strings = []
+            for annotation in self._annotations:
+                key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
+                annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
+            annotations = '[{}]'.format(', '.join(annotation_strings))
+        except:
+            annotations = None
+
+        return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
+                                                              annotations=annotations)
 
     def __repr__(self):
         return str(self)
 
     def _to_html(self, margin=0) -> str:
-        return '<b>{}</b>\n{}'.format(
-                self.__class__.__name__,
-                html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
+        try:
+            return '<b>{}</b>\n{}'.format(
+                    self.__class__.__name__,
+                    html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
+        except:
+            return str(self)
 
     def display(self, margin: int = 0):
         display_html(self._to_html(margin), raw=True)

@@ -25,14 +25,29 @@ def to_str(value, escape_html=False):
     return value_str
 
 
-def html_text(raw_text, start, end, margin: int = 0):
-    left = escape(raw_text[max(0, start - margin):start])
-    middle = escape(raw_text[start:end])
-    right = escape(raw_text[end:end + margin])
-    return ''.join(('<span style="font-family: monospace; white-space: pre-wrap;">',
-                    left,
-                    '<span style="text-decoration: underline;">', middle, '</span>',
-                    right, '</span>'))
+def span_html_text(span, margin):
+    base = span.base_span.flatten()
+    raw_text = span.text_object.text
+
+    start, last_end = base[0]
+    html_parts = ['<span style="font-family: monospace; white-space: pre-wrap;">',
+                  escape(raw_text[max(0, start-margin):start]),
+                  '<span style="text-decoration: underline;">',
+                  escape(raw_text[start:last_end]),
+                  '</span>']
+
+    for start, end in base[1:]:
+        html_parts.append(escape(raw_text[last_end:start]))
+        html_parts.append('<span style="text-decoration: underline;">')
+        html_parts.append(escape(raw_text[start:end]))
+        html_parts.append('</span>')
+        last_end = end
+
+    html_parts.append(escape(raw_text[last_end:last_end+margin]))
+
+    html_parts.append('</span>')
+
+    return ''.join(html_parts)
 
 
 def html_table(spans, attributes, margin=0, index=False):
@@ -47,7 +62,7 @@ def html_table(spans, attributes, margin=0, index=False):
             record = {k: escape(to_str(annotation[k])) for k in attributes}
             if first:
                 record[''] = i
-                record['text'] = html_text(span.raw_text, span.start, span.end, margin)
+                record['text'] = span_html_text(span, margin)
             else:
                 record[''] = ''
                 record['text'] = ''
