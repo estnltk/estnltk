@@ -49,20 +49,7 @@ def test_simple_ambiguous():
                              output_layer='diff_1_2',
                              output_attributes=('attr', 'attr_1'))
 
-    status = {}
-    diff_layer = diff_tagger.make_layer(text=text_5, layers={'layer_1': layer_1, 'layer_2': layer_2}, status=status)
-
-    assert status == {'modified_spans': 1,
-                      'missing_spans': 2,
-                      'extra_spans': 2,
-                      'extra_annotations': 3,
-                      'missing_annotations': 2,
-                      'overlapped': 0,
-                      'prolonged': 1,
-                      'shortened': 0,
-                      'conflicts': 1,
-                      'unchanged_spans': 1,
-                      'unchanged_annotations': 3}
+    diff_layer = diff_tagger.make_layer(text=text_5, layers={'layer_1': layer_1, 'layer_2': layer_2})
 
     assert diff_layer.to_dict() == {
         'name': 'diff_1_2',
@@ -70,7 +57,17 @@ def test_simple_ambiguous():
         'parent': None,
         'enveloping': None,
         'ambiguous': True,
-        'meta': {},
+        'meta': {'modified_spans': 1,
+                 'missing_spans': 2,
+                 'extra_spans': 2,
+                 'extra_annotations': 3,
+                 'missing_annotations': 2,
+                 'overlapped': 0,
+                 'prolonged': 1,
+                 'shortened': 0,
+                 'conflicts': 1,
+                 'unchanged_spans': 1,
+                 'unchanged_annotations': 3},
         'spans': {
             (0, 4): [{'attr_1': 'SADA',
                       'span_status': 'missing',
@@ -138,8 +135,7 @@ def test_enveloping_not_ambiguous():
                              output_attributes=('span_status', 'attr', 'attr_4'),
                              span_status_attribute='span_status')
 
-    status = {}
-    diff_layer = diff_tagger.make_layer(text, layers={'layer_a': layer_a, 'layer_b': layer_b}, status=status)
+    diff_layer = diff_tagger.make_layer(text, layers={'layer_a': layer_a, 'layer_b': layer_b})
 
     assert diff_layer.to_dict() == {
         'name': 'diff_layer',
@@ -147,7 +143,17 @@ def test_enveloping_not_ambiguous():
         'parent': None,
         'enveloping': 'layer_0',
         'ambiguous': True,
-        'meta': {},
+        'meta': {'modified_spans': 1,
+                 'missing_spans': 1,
+                 'extra_spans': 2,
+                 'extra_annotations': 3,
+                 'missing_annotations': 2,
+                 'overlapped': 0,
+                 'prolonged': 0,
+                 'shortened': 0,
+                 'conflicts': 0,
+                 'unchanged_spans': 1,
+                 'unchanged_annotations': 1},
         'spans': {((23, 27), (28, 33), (34, 42), (43, 54), (55, 61)): [{'attr': 'L4-1',
                                                                         'input_layer_name': 'layer_b',
                                                                         'span_status': 'extra',
@@ -168,18 +174,6 @@ def test_enveloping_not_ambiguous():
                                           'input_layer_name': 'layer_b',
                                           'span_status': 'extra',
                                           'attr_4': '90 000'}]}}
-
-    assert status == {'modified_spans': 1,
-                      'missing_spans': 1,
-                      'extra_spans': 2,
-                      'extra_annotations': 3,
-                      'missing_annotations': 2,
-                      'overlapped': 0,
-                      'prolonged': 0,
-                      'shortened': 0,
-                      'conflicts': 0,
-                      'unchanged_spans': 1,
-                      'unchanged_annotations': 1}
 
 
 def test_iterators_on_enveloping_ambiguous_diff_layer():
@@ -242,8 +236,7 @@ def test_iterators_on_enveloping_ambiguous_diff_layer():
     layer_b.add_annotation([layer_1[12], layer_1[14], layer_1[15]], attr='L5-7-11', attr_5='KÜMME KOMA KAHEKSA')
     layer_b.add_annotation([layer_1[13], layer_1[14], layer_1[15]], attr='L5-8-12', attr_5='SEITSE KOMA KAHEKSA')
 
-    status = {}
-    diff_layer = diff_tagger.make_layer(text, layers={'layer_a': layer_a, 'layer_b': layer_b}, status=status)
+    diff_layer = diff_tagger.make_layer(text, layers={'layer_a': layer_a, 'layer_b': layer_b})
 
     assert diff_layer.to_dict() == {
         'name': 'diff_layer',
@@ -251,7 +244,17 @@ def test_iterators_on_enveloping_ambiguous_diff_layer():
         'parent': None,
         'enveloping': 'layer_1',
         'ambiguous': True,
-        'meta': {},
+        'meta': {'modified_spans': 2,
+                 'missing_spans': 4,
+                 'extra_spans': 2,
+                 'extra_annotations': 5,
+                 'missing_annotations': 7,
+                 'overlapped': 1,
+                 'prolonged': 2,
+                 'shortened': 1,
+                 'conflicts': 4,
+                 'unchanged_spans': 1,
+                 'unchanged_annotations': 2},
         'spans': {((0, 4), (5, 9)): [{'input_layer_name': 'layer_a',
                                       'attr': 'L5-0-0',
                                       'attr_5': 'SADA KAKS',
@@ -300,18 +303,6 @@ def test_iterators_on_enveloping_ambiguous_diff_layer():
                                                     'attr': 'L5-8-12',
                                                     'attr_5': 'SEITSE KOMA KAHEKSA',
                                                     'span_status': 'modified'}]}}
-
-    assert status == {'modified_spans': 2,
-                      'missing_spans': 4,
-                      'extra_spans': 2,
-                      'extra_annotations': 5,
-                      'missing_annotations': 7,
-                      'overlapped': 1,
-                      'prolonged': 2,
-                      'shortened': 1,
-                      'conflicts': 4,
-                      'unchanged_spans': 1,
-                      'unchanged_annotations': 2}
 
     assert list(iterate_modified(diff_layer, span_status_attribute='span_status')) == [diff_layer[6], diff_layer[7]]
 
