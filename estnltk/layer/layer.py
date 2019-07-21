@@ -184,6 +184,21 @@ class Layer:
     def to_records(self, with_text=False):
         return self.span_list.to_records(with_text)
 
+    def to_dict(self):
+        """Returns a dict representation of this layer.
+
+        """
+        return {
+            'name': self.name,
+            'attributes': self.attributes,
+            'parent': self.parent,
+            'enveloping': self.enveloping,
+            'ambiguous': self.ambiguous,
+            'meta': self.meta,
+            'spans': {span.base_span.raw(): [dict(annotation) for annotation in span.annotations]
+                      for span in self.span_list}
+        }
+
     def add_span(self, span: Union[Span, AmbiguousSpan, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
         assert isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)), str(type(span))
