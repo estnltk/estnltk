@@ -10,7 +10,6 @@ from pandas import DataFrame
 from collections import Counter, defaultdict
 
 from estnltk.layer.layer import Layer
-from estnltk.layer.span_operations import equal_support
 
 
 def apply_filter(layer: Layer, function: callable, preserve_spans: bool = False, drop_immediately: bool = False):
@@ -180,7 +179,7 @@ def diff_layer(a: Layer, b: Layer, comp=eq):
             except StopIteration:
                 a_end = True
             continue
-        if equal_support(x, y):
+        if x.base_span == y.base_span:
             if not comp(x, y):
                 yield (x, y)
             try:

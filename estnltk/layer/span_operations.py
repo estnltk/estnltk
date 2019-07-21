@@ -100,20 +100,6 @@ def equal(x: Span, y: Span) -> bool:
 span = Union[Span, EnvelopingSpan, AmbiguousSpan]
 
 
-def equal_support(x: span, y: span) -> bool:
-    if isinstance(x, AmbiguousSpan):
-        x = x.span
-        return equal_support(x, y)
-    if isinstance(y, AmbiguousSpan):
-        y = y.span
-        return equal_support(x, y)
-    if isinstance(x, EnvelopingSpan):
-        return isinstance(y, EnvelopingSpan) and x.spans == y.spans
-    if isinstance(x, Span):
-        return isinstance(y, Span) and x.start == y.start and x.end == y.end
-    raise TypeError('unexpected type of x: ' + str(type(x)))
-
-
 def symm_diff_ambiguous_spans(x: AmbiguousSpan, y: AmbiguousSpan, attributes: Sequence[str] = None):
     # assert isinstance(x, AmbiguousSpan)
     # assert isinstance(y, AmbiguousSpan)
