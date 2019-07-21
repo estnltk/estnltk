@@ -5,12 +5,13 @@ from estnltk import AmbiguousSpan
 
 # TODO: use this generator in the resolve_conflicts function below
 def iterate_conflicting_spans(layer):
-    """
+    """Yields all pairs `(a, b)` of spans in the layer such that
+    `a.start <= b.start` and `a.end > b.start`.
+
     :param layer: Layer
         input layer
-    :return: tuple
-        Returns all pairs of spans in the layer such that
-        a.start <= b.start and a.end > b.start
+    :returns generator
+
     """
     for i, a in enumerate(layer):
         a_end = a.end
