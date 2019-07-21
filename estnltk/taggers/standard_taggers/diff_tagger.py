@@ -7,7 +7,6 @@ import random
 from operator import eq
 import pandas as pd
 
-from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.layer import Layer
 from estnltk.layer_operations import diff_layer
 from estnltk.taggers import Tagger
@@ -73,9 +72,11 @@ class DiffTagger(Tagger):
                     if a_spans is None:
                         span_status = 'extra'
                         base_span = b_spans
+                        b_spans = b_spans.annotations
                     if b_spans is None:
                         span_status = 'missing'
                         base_span = a_spans
+                        a_spans = a_spans.annotations
                     if a_spans is not None and b_spans is not None:
                         base_span = a_spans
                         span_status = 'modified'
@@ -123,17 +124,32 @@ class DiffTagger(Tagger):
                         layer.add_annotation(b_spans.span, **attributes)
         else:
             if layer_a.enveloping:
-                for a, b in diff_layer(layer_a, layer_b):
-                    if a is not None:
-                        attributes = {attr: getattr(a, attr, None) for attr in copy_attributes}
-                        attributes[self.span_status_attribute] = name_a
-                        es = EnvelopingSpan(spans=a.spans, layer=layer, attributes=attributes)
-                        layer.add_span(es)
-                    if b is not None:
-                        attributes = {attr: getattr(b, attr, None) for attr in copy_attributes}
-                        attributes[self.span_status_attribute] = name_b
-                        es = EnvelopingSpan(spans=b.spans, layer=layer, attributes=attributes)
-                        layer.add_span(es)
+                for a_spans, b_spans in diff_layer(layer_a, layer_b, comp=self.compare_function):
+                    base_span = None
+                    if a_spans is None:
+                        span_status = 'extra'
+                        base_span = b_spans
+                        b_spans = b_spans.annotations
+                    if b_spans is None:
+                        span_status = 'missing'
+                        base_span = a_spans
+                        a_spans = a_spans.annotations
+                    if a_spans is not None and b_spans is not None:
+                        base_span = a_spans
+                        span_status = 'modified'
+                        a_spans, b_spans = symm_diff_ambiguous_spans(a_spans, b_spans)
+                    if a_spans is not None:
+                        for a in a_spans:
+                            attributes = {attr: getattr(a, attr, None) for attr in copy_attributes}
+                            attributes[self.span_status_attribute] = span_status
+                            attributes[self.input_layer_attribute] = name_a
+                            layer.add_annotation(base_span, **attributes)
+                    if b_spans is not None:
+                        for b in b_spans:
+                            attributes = {attr: getattr(b, attr, None) for attr in copy_attributes}
+                            attributes[self.span_status_attribute] = span_status
+                            attributes[self.input_layer_attribute] = name_b
+                            layer.add_annotation(base_span, **attributes)
             elif layer.parent:
                 # TODO:
                 raise NotImplementedError()
@@ -149,10 +165,10 @@ class DiffTagger(Tagger):
         # TODO: remove these expensive assertions
         assert status['unchanged_spans'] == len(layer_b) - status['modified_spans'] - status['extra_spans']
 
-        annotations_a = sum(len(s) for s in layer_a)
+        annotations_a = sum(len(s.annotations) for s in layer_a)
         status['unchanged_annotations'] = annotations_a - status['missing_annotations']
-        annotations_b = sum(len(s) for s in layer_b)
-        assert status['unchanged_annotations'] == annotations_b - status['extra_annotations']
+        annotations_b = sum(len(s.annotations) for s in layer_b)
+        assert status['unchanged_annotations'] == annotations_b - status['extra_annotations'], (annotations_a, annotations_b, status)
 
         assert status['overlapped'] == len(tuple(iterate_overlapped(layer, self.span_status_attribute)))
         assert status['prolonged'] == len(tuple(iterate_prolonged(layer, self.span_status_attribute)))
@@ -177,9 +193,9 @@ def diff_summary(difference_layer: Layer, span_status_attribute, input_layer_att
             result['modified_spans'] += 1
             for s in span.annotations:
                 layer_name = getattr(s, input_layer_attribute)
-                if layer_name == layer_a:
+                if layer_name == layer_b:
                     result['extra_annotations'] += 1
-                elif layer_name == layer_b:
+                elif layer_name == layer_a:
                     result['missing_annotations'] += 1
                 else:
                     raise ValueError('unknown input_layer: ' + layer_name)
