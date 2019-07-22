@@ -70,11 +70,13 @@ class EnvelopingBaseSpan(BaseSpan):
             raise TypeError('spans must be of type BaseSpan')
         for i in range(len(spans) - 1):
             if spans[i].end > spans[i + 1].start:
-                raise ValueError('enveloped components must not overlap: {}, {}'.format(spans[i], spans[i+1]))
+                raise ValueError('enveloped components must be sorted and must not overlap: {}, {}'.format(
+                        spans[i], spans[i+1]))
 
         base_level = spans[0].level
         if any(span.level != base_level for span in spans):
-            raise ValueError('enveloped components must have same levels: {}'.format([span.level for span in spans]))
+            raise ValueError('enveloped components must have the same levels: {}'.format(
+                    [span.level for span in spans]))
 
         raw = tuple(span.raw() for span in spans)
 
