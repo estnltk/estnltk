@@ -124,8 +124,7 @@ def test_merge_mistakenly_split_sentences_1():
         # Perform analysis
         text.tag_layer(['words', 'sentences'])
         # Collect results 
-        sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+        sentence_texts = [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -223,7 +222,7 @@ def test_merge_mistakenly_split_sentences_2():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -309,7 +308,7 @@ def test_merge_mistakenly_split_sentences_3():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -410,7 +409,7 @@ def test_merge_mistakenly_split_sentences_4():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -463,7 +462,7 @@ def test_merge_mistakenly_split_sentences_5():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -488,7 +487,7 @@ def test_split_mistakenly_merged_sentences_1():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -545,7 +544,7 @@ def test_use_emoticons_as_sentence_endings():
         sentence_tokenizer.tag(text)
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -648,7 +647,7 @@ def test_use_double_newline_as_sentence_endings():
         sentence_tokenizer.tag(text)
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -701,7 +700,7 @@ def test_fix_repeated_sentence_ending_punctuation_1():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -740,7 +739,7 @@ def test_fix_repeated_sentence_ending_punctuation_2():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -783,9 +782,9 @@ def test_record_fixes_of_sentence_tokenizer():
         sentence_tokenizer.tag(text)
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         sentence_fixes = \
-            [sentence.fix_types for sentence in text['sentences'].span_list]
+            [sentence.fix_types for sentence in text['sentences']]
         #print(sentence_texts)
         #print(sentence_fixes)
         # Check results
@@ -812,7 +811,7 @@ def test_sentence_tokenizer_with_custom_base_tokenizer():
         sentence_tokenizer.tag(text)
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
@@ -839,7 +838,7 @@ def test_merge_rules_do_not_conflict_paragraph_fixes():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
@@ -880,7 +879,7 @@ def test_layer_names_can_be_changed():
         assert 'sentences' not in text.layers.keys()
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['my_sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['my_sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']

@@ -32,10 +32,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].span_list
+            words_layer = text['words']
             # Fetch results
             word_segmentation = [] 
-            for wid, word in enumerate( words_spans ):
+            for wid, word in enumerate(words_layer):
                 word_text = text.text[word.start:word.end]
                 word_segmentation.append(word_text)
             #print(word_segmentation)
@@ -60,10 +60,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].span_list
+            words_layer = text['words']
             # Fetch results
             word_segmentation = [] 
-            for wid, word in enumerate( words_spans ):
+            for wid, word in enumerate(words_layer):
                 word_text = text.text[word.start:word.end]
                 word_segmentation.append(word_text)
             #print(word_segmentation)
@@ -93,7 +93,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].span_list
+            words_spans = text['words']
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -122,7 +122,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].span_list
+            words_spans = text['words']
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -199,10 +199,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].span_list
+            words_layer = text['words']
             # Fetch results
             word_segmentation = [] 
-            for wid, word in enumerate( words_spans ):
+            for wid, word in enumerate(words_layer):
                 word_text = text.text[word.start:word.end]
                 word_segmentation.append(word_text)
             #print(word_segmentation)
@@ -301,7 +301,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].span_list
+            words_spans = text['words']
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -330,7 +330,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].span_list
+            words_spans = text['words']
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -373,7 +373,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].span_list
+            words_spans = text['words']
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -456,16 +456,15 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].span_list
+            words_layer = text['words']
             # Fetch result
             word_segmentation = [] 
-            for wid, word in enumerate( words_spans ):
+            for wid, word in enumerate(words_layer):
                 word_text = text.text[word.start:word.end]
                 word_segmentation.append(word_text)
             #print(word_segmentation)
             # Assert that the tokenization is correct
             self.assertListEqual(test_text['expected_words'], word_segmentation)
-
 
     def test_no_duplicate_tokens(self):
         # Tests that the token compounding does not produce any duplicate token spans
@@ -625,10 +624,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             self.assertFalse( 'tokens' in text.layers.keys() )
             self.assertFalse( 'compound_tokens' in text.layers.keys() )
             word_tagger.tag(text)
-            words_spans = text['words'].span_list
+            words_layer = text['words']
             # Fetch result
             word_segmentation = [] 
-            for wid, word in enumerate( words_spans ):
+            for wid, word in enumerate(words_layer):
                 word_text = text.text[word.start:word.end]
                 word_segmentation.append(word_text)
             #print(word_segmentation)

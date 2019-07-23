@@ -367,7 +367,7 @@ class GTMorphConverter( Tagger ):
             # Find all Vabamorf's analyses corresponding to 
             # the current word
             while(morph_span_id < len(morph_analysis)):
-                vabamorf_span = morph_analysis.span_list[morph_span_id]
+                vabamorf_span = morph_analysis[morph_span_id]
                 vmstart = vabamorf_span.start
                 vmend   = vabamorf_span.end
                 if vmstart == wstart and vmend == wend:
@@ -665,17 +665,17 @@ class GTMorphConverter( Tagger ):
         assert word_group in layers
         # Collect (unique) word group indices over the whole text
         word_group_indices = []
-        word_spans  = layers[ self._input_words_layer ].span_list
-        group_spans = layers[ word_group ].span_list
+        word_layer = layers[self._input_words_layer]
+        word_group_layer = layers[word_group]
         word_span_id  = 0
         #  Collect all words inside the group
-        while word_span_id < len(word_spans):
+        while word_span_id < len(word_layer):
             # Get word span
-            word_span = word_spans[word_span_id]
+            word_span = word_layer[word_span_id]
             # Find group the word belongs to
             group_span_id = 0
-            while group_span_id < len(group_spans):
-                group_span = group_spans[group_span_id]
+            while group_span_id < len(word_group_layer):
+                group_span = word_group_layer[group_span_id]
                 if group_span.start <= word_span.start and \
                    word_span.end <= group_span.end:
                    # Record id of the group word belongs to
@@ -683,7 +683,7 @@ class GTMorphConverter( Tagger ):
                     break
                 group_span_id += 1
             word_span_id += 1
-        assert len(word_group_indices) == len(word_spans), \
+        assert len(word_group_indices) == len(word_layer), \
             '(!) Number of word group indices should match the number of words!'
         return word_group_indices
 

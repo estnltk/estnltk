@@ -6,30 +6,31 @@ from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import ClauseSegmenter
 from estnltk.taggers import VabamorfTagger
 
+
 def test_clause_segmenter_1():
     # Initialize segmenter's context
     with ClauseSegmenter() as segmenter:
         test_texts = [ 
             { 'text': 'Igaüks, kes traktori eest miljon krooni lauale laob, on huvitatud sellest, '+\
-                      'et traktor meenutaks lisavõimaluste poolest võimalikult palju kosmoselaeva.',\
-              'expected_clause_word_texts': [['Igaüks', 'on', 'huvitatud', 'sellest', ','], \
-                                             [',', 'kes', 'traktori', 'eest', 'miljon', 'krooni', 'lauale', 'laob', ','], \
-                                             ['et', 'traktor', 'meenutaks', 'lisavõimaluste', 'poolest', 'võimalikult', 'palju', 'kosmoselaeva', '.']] }, \
-            { 'text': 'Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.', \
-              'expected_clause_word_texts': [['Kõrred', 'jäävad', 'õhukeseks', '.'], \
-                                             [',', 'millel', 'on', 'toitunud', 'viljasääse', 'vastsed', ',']] }, \
-            { 'text': 'Sest mis sa ikka ütled, kui seisad tükk aega kinniste tõkkepuude taga, ootad ja ootad, aga rongi ei tulegi.', \
-              'expected_clause_word_texts': [['Sest', 'mis', 'sa', 'ikka', 'ütled', ','], \
-                                             ['kui', 'seisad', 'tükk', 'aega', 'kinniste', 'tõkkepuude', 'taga', ','], \
-                                             ['ootad', 'ja'], \
-                                             ['ootad', ','], \
-                                             ['aga', 'rongi', 'ei', 'tulegi', '.']] }, \
-            { 'text': 'Pankurid Arti (LHV) ja Juri (Citadele) tulevad ja räägivad sellest, mida pank mõtleb laenu andmise juures.', \
-              'expected_clause_word_texts': [['Pankurid', 'Arti', 'ja', 'Juri', 'tulevad', 'ja'], \
-                                             ['(', 'LHV', ')'], \
-                                             ['(', 'Citadele', ')'], \
-                                             ['räägivad', 'sellest', ','], \
-                                             ['mida', 'pank', 'mõtleb', 'laenu', 'andmise', 'juures', '.']] }, \
+                      'et traktor meenutaks lisavõimaluste poolest võimalikult palju kosmoselaeva.',
+              'expected_clause_word_texts': [['Igaüks', 'on', 'huvitatud', 'sellest', ','],
+                                             [',', 'kes', 'traktori', 'eest', 'miljon', 'krooni', 'lauale', 'laob', ','],
+                                             ['et', 'traktor', 'meenutaks', 'lisavõimaluste', 'poolest', 'võimalikult', 'palju', 'kosmoselaeva', '.']] },
+            { 'text': 'Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.',
+              'expected_clause_word_texts': [['Kõrred', 'jäävad', 'õhukeseks', '.'],
+                                             [',', 'millel', 'on', 'toitunud', 'viljasääse', 'vastsed', ',']] },
+            { 'text': 'Sest mis sa ikka ütled, kui seisad tükk aega kinniste tõkkepuude taga, ootad ja ootad, aga rongi ei tulegi.',
+              'expected_clause_word_texts': [['Sest', 'mis', 'sa', 'ikka', 'ütled', ','],
+                                             ['kui', 'seisad', 'tükk', 'aega', 'kinniste', 'tõkkepuude', 'taga', ','],
+                                             ['ootad', 'ja'],
+                                             ['ootad', ','],
+                                             ['aga', 'rongi', 'ei', 'tulegi', '.']] },
+            { 'text': 'Pankurid Arti (LHV) ja Juri (Citadele) tulevad ja räägivad sellest, mida pank mõtleb laenu andmise juures.',
+              'expected_clause_word_texts': [['Pankurid', 'Arti', 'ja', 'Juri', 'tulevad', 'ja'],
+                                             ['(', 'LHV', ')'],
+                                             ['(', 'Citadele', ')'],
+                                             ['räägivad', 'sellest', ','],
+                                             ['mida', 'pank', 'mõtleb', 'laenu', 'andmise', 'juures', '.']] },
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -38,11 +39,10 @@ def test_clause_segmenter_1():
             segmenter.tag(text)
             # Collect results 
             clause_word_texts = \
-                [[word.text for word in clause.words] for clause in text['clauses'].span_list]
+                [[word.text for word in clause.words] for clause in text['clauses']]
             #print( clause_word_texts )
             # Check results
             assert clause_word_texts == test_text['expected_clause_word_texts']
-
 
 
 def test_clause_segmenter_2_missing_commas():
@@ -69,11 +69,10 @@ def test_clause_segmenter_2_missing_commas():
             segmenter.tag(text)
             # Collect results 
             clause_word_texts = \
-                [[word.text for word in clause.words] for clause in text['clauses'].span_list]
+                [[word.text for word in clause.words] for clause in text['clauses']]
             #print( clause_word_texts )
             # Check results
             assert clause_word_texts == test_text['expected_clause_word_texts']
-
 
 
 def test_apply_clause_segmenter_on_empty_text():
@@ -87,7 +86,6 @@ def test_apply_clause_segmenter_on_empty_text():
     assert len(text.words) == 0
     assert len(text.sentences) == 0
     assert len(text.clauses) == 0
-
 
 
 def test_change_input_output_layer_names_of_clause_segmenter():
@@ -122,11 +120,10 @@ def test_change_input_output_layer_names_of_clause_segmenter():
             assert 'clauses' not in text.layers.keys()
             # Collect results 
             clause_word_texts = \
-                [[word.text for word in clause.spans] for clause in text['my_clauses'].span_list]
+                [[word.text for word in clause.spans] for clause in text['my_clauses']]
             #print( clause_word_texts )
             # Check results
             assert clause_word_texts == test_text['expected_clause_word_texts']
-
 
 
 def test_clause_segmenter_context_set_up_and_tear_down():
@@ -195,7 +192,6 @@ def test_clause_segmenter_context_set_up_and_tear_down():
     # TODO: this option is currently not available, because__del__ 
     #       method causes some irregular and wierd subprocess errors 
     #       during pytest; needs further investigation;
-
 
 
 def test_clause_segmenter_no_java_initialization_in_make_resolver():

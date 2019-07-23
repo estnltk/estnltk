@@ -242,7 +242,7 @@ class Text:
                 # assert False, 1
                 res = []
                 if sofar:
-                    for i in to_layer.span_list:
+                    for i in to_layer:
                         if i.parent in sofar.spans:
                             res.append(getattr(i, to))
                     if to_layer.ambiguous:

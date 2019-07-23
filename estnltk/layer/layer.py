@@ -113,14 +113,6 @@ class Layer:
         self.meta = {}
 
     @property
-    def span_list(self):
-        return self._span_list
-
-    @span_list.setter
-    def span_list(self, value):
-        self._span_list = value
-
-    @property
     def layer(self):
         return self
 
@@ -187,7 +179,7 @@ class Layer:
         return self._span_list.attribute_list(attributes)
 
     def get_attributes(self, items):
-        return self.__getattribute__('span_list').get_attributes(items)
+        return self._span_list.get_attributes(items)
 
     def to_records(self, with_text=False):
         return self._span_list.to_records(with_text)
@@ -432,6 +424,9 @@ class Layer:
     def __setitem__(self, key: int, value: Span):
         self._span_list[key] = value
 
+    def index(self, x, *args) -> int:
+        return self._span_list.index(x, *args)
+
     def __getitem__(self, item) -> Union[Span, 'Layer', AmbiguousAttributeTupleList]:
         if isinstance(item, int):
             return self._span_list[item]
@@ -466,26 +461,26 @@ class Layer:
 
         if isinstance(item, slice):
             wrapped = self._span_list.spans.__getitem__(item)
-            layer.span_list.spans = wrapped
+            layer._span_list.spans = wrapped
             return layer
         if isinstance(item, (list, tuple)):
             if all(isinstance(i, bool) for i in item):
                 if len(item) != len(self):
                     warnings.warn('Index boolean list not equal to length of layer: {}!={}'.format(len(item), len(self)))
                 wrapped = [s for s, i in zip(self._span_list.spans, item) if i]
-                layer.span_list.spans = wrapped
+                layer._span_list.spans = wrapped
                 return layer
             if all(isinstance(i, int) for i in item):
                 wrapped = [self._span_list.spans.__getitem__(i) for i in item]
-                layer.span_list.spans = wrapped
+                layer._span_list.spans = wrapped
                 return layer
             if all(isinstance(i, BaseSpan) for i in item):
                 wrapped = [self._span_list.get(i) for i in item]
-                layer.span_list.spans = wrapped
+                layer._span_list.spans = wrapped
                 return layer
         if callable(item):
             wrapped = [span for span in self._span_list.spans if item(span)]
-            layer.span_list.spans = wrapped
+            layer._span_list.spans = wrapped
             return layer
 
         raise TypeError('index not supported: ' + str(item))
@@ -631,7 +626,7 @@ class Layer:
         if self.enveloping != other.enveloping:
             return "{self.name} layer enveloping differs: {self.enveloping}!={other.enveloping}".format(self=self,
                                                                                                         other=other)
-        if self._span_list != other.span_list:
+        if self._span_list != other._span_list:
             return "{self.name} layer spans differ".format(self=self, other=other)
         return None
 

@@ -139,25 +139,25 @@ class ClauseSegmenter(Tagger):
 
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
-        morph_spans  = layers[ self._input_morph_analysis_layer ].span_list
-        word_spans   = layers[ self._input_words_layer ].span_list
-        assert len(morph_spans) == len(word_spans)
+        morph_layer = layers[self._input_morph_analysis_layer]
+        word_layer = layers[self._input_words_layer]
+        assert len(morph_layer) == len(word_layer)
         word_span_id = 0
-        for sentence in layers[ self._input_sentences_layer ].span_list:
+        for sentence in layers[self._input_sentences_layer]:
             #  Collect all words/morph_analyses inside the sentence
             #  Assume: len(word_spans) == len(morph_spans)
             sentence_morph_dicts = []
             sentence_words       = []
-            while word_span_id < len(word_spans):
+            while word_span_id < len(word_layer):
                 # Get corresponding word span
-                word_span  = word_spans[word_span_id]
+                word_span  = word_layer[word_span_id]
                 morph_span = None
                 if sentence.start <= word_span.start and \
                     word_span.end <= sentence.end:
                     morphFound = False
                     # Get corresponding morph span
-                    if word_span_id < len(morph_spans):
-                        morph_span = morph_spans[word_span_id]
+                    if word_span_id < len(morph_layer):
+                        morph_span = morph_layer[word_span_id]
                         if word_span.base_span == morph_span.base_span and \
                            len(morph_span.annotations) > 0 and \
                            not _is_empty_annotation(morph_span.annotations[0]):

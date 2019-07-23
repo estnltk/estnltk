@@ -242,7 +242,7 @@ class CompoundTokenTagger(Tagger):
         conflict_status = {}
         tokenization_hints = {}
         new_layer = self._tokenization_hints_tagger_1.make_layer(text=text, layers=layers, status=conflict_status)
-        for sp in new_layer.span_list:
+        for sp in new_layer:
             #print('*',text.text[sp.start:sp.end], sp.pattern_type, sp.normalized)
             if hasattr(sp, 'pattern_type') and sp.pattern_type.startswith('negative:'):
                 # This is a negative pattern (used for preventing other patterns from matching),
@@ -258,7 +258,7 @@ class CompoundTokenTagger(Tagger):
             # from one starting position ...
             if sp.start in tokenization_hints:
                 raise Exception('(!) Unexpected overlapping tokenization hints: ',
-                                [raw_text[sp2.start:sp2.end] for sp2 in new_layer.span_list])
+                                [raw_text[sp2.start:sp2.end] for sp2 in new_layer])
             # Discard the hint if the compound token would contain any of the disallowed strings
             if self.do_not_join_on_strings:
                 discard = False
@@ -499,14 +499,14 @@ class CompoundTokenTagger(Tagger):
                                                                  status=conflict_status)
         # Find tokens that should be joined according to 2nd level hints and 
         # create new compound tokens based on them
-        for sp in new_layer.span_list:
+        for sp in new_layer:
             # get tokens covered by the span
             covered_compound_tokens =\
                 self._get_covered_tokens(
-                    sp.start,sp.end,sp.left_strict,sp.right_strict,compound_tokens_lists )
+                    sp.start,sp.end,sp.left_strict,sp.right_strict, compound_tokens_lists)
             covered_tokens = \
                 self._get_covered_tokens(
-                    sp.start, sp.end, sp.left_strict, sp.right_strict, layers[ self._input_tokens_layer ].span_list)
+                    sp.start, sp.end, sp.left_strict, sp.right_strict, layers[self._input_tokens_layer])
             # remove regular tokens that are within compound tokens
             covered_tokens = \
                 self._remove_overlapped_spans(covered_compound_tokens, covered_tokens)

@@ -142,7 +142,7 @@ class Span:
             else:
                 target_layer_name = self.text_object._get_path(self._layer.name, item)[-2]
 
-            for i in self.text_object.layers[target_layer_name].span_list:
+            for i in self.text_object.layers[target_layer_name]:
                 if i.__getattribute__('parent') == self or self.__getattribute__('parent') == i:
                     if looking_for_layer:
                         return i

@@ -270,7 +270,7 @@ def test_morph_disambiguation_with_ignore_all():
     analyzer1.tag(text)  # analyze and add empty IGNORE_ATTR-s
     #print(text['morph_analysis'].to_records())
     # Ignore all spans/words
-    for spanlist in text.morph_analysis.span_list:
+    for spanlist in text.morph_analysis:
         for annotation in spanlist.annotations:
             setattr(annotation, IGNORE_ATTR, True)
     disambiguator.retag(text)

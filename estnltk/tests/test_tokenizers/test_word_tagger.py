@@ -122,10 +122,10 @@ class WordTaggerTest(unittest.TestCase):
             self.assertFalse( 'tokens' in text.layers.keys() )
             self.assertFalse( 'compound_tokens' in text.layers.keys() )
             self.assertFalse( 'words' in text.layers.keys() )
-            words_spans = text['my_words'].span_list
+            words_layer = text['my_words']
             # Fetch result
             word_segmentation = [] 
-            for wid, word in enumerate( words_spans ):
+            for wid, word in enumerate(words_layer):
                 word_text = text.text[word.start:word.end]
                 word_segmentation.append(word_text)
             #print(word_segmentation)

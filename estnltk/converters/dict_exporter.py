@@ -20,28 +20,28 @@ def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
                   'ambiguous': layer.ambiguous,
                   'spans': []}
     if layer.parent:
-        parent_spanlist = text[layer.parent].span_list
+        parent_layer = text[layer.parent]
         records = layer.to_records()
         last_index = 0
         for span, record in zip(layer, records):
             if layer.ambiguous:
-                index = parent_spanlist.index(span.parent, last_index)
+                index = parent_layer.index(span.parent, last_index)
                 for rec in record:
                     rec['_index_'] = index
             else:
-                index = parent_spanlist.index(span.parent, last_index)
+                index = parent_layer.index(span.parent, last_index)
                 record['_index_'] = index
             last_index = index
             layer_dict['spans'].append(record)
     elif layer.enveloping:
-        enveloped_spanlist = text[layer.enveloping].span_list
+        enveloped_layer = text[layer.enveloping]
 
         records = []
         last_index = 0
         for enveloping_span in layer:
             if layer.ambiguous:
                 ambiguous_record = []
-                index = [enveloped_spanlist.index(span, last_index) for span in enveloping_span.spans]
+                index = [enveloped_layer.index(span, last_index) for span in enveloping_span.spans]
                 for annotation in enveloping_span.annotations:
                     last_index = index[0]
                     record = {attr: getattr(annotation, attr) for attr in layer.attributes}
@@ -49,7 +49,7 @@ def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
                     ambiguous_record.append(record)
                 records.append(ambiguous_record)
             else:
-                index = [enveloped_spanlist.index(span, last_index) for span in enveloping_span]
+                index = [enveloped_layer.index(span, last_index) for span in enveloping_span]
                 last_index = index[0]
                 record = {attr: getattr(enveloping_span, attr) for attr in layer.attributes}
                 record['_index_'] = index

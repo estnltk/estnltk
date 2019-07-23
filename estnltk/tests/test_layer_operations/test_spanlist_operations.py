@@ -342,7 +342,7 @@ def test_iterate_intersecting_spans_3():
     layer.add_annotation((22, 33))  # 'kuus seitse'
     text['test_layer'] = layer
     
-    intersections   = list(iterate_intersecting_spans( text['test_layer'].span_list ) )
+    intersections   = list(iterate_intersecting_spans(text['test_layer']))
     intersect_texts = [ (a.text,b.text) for a, b in intersections ]
     #print( intersect_texts )
     assert intersect_texts == \

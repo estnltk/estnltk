@@ -200,12 +200,10 @@ class PostMorphAnalysisTagger(Retagger):
         # --------------------------------------------
         self._ignore_specific_compound_tokens( raw_text, layers, status )
 
-
-
-    def _ignore_specific_compound_tokens( self, raw_text: str, \
-                                          layers: MutableMapping[str, Layer], \
-                                          status: dict = None ):
-        '''Mark morph analyses overlapping with specific compound tokens 
+    def _ignore_specific_compound_tokens(self, raw_text: str,
+                                         layers: MutableMapping[str, Layer],
+                                         status: dict = None ):
+        """Mark morph analyses overlapping with specific compound tokens
            (such as XML tags, emoticons) as analyses to be ignored during 
            morphological disambiguation.
            Which types of compound tokens will be marked depends on the 
@@ -223,12 +221,13 @@ class PostMorphAnalysisTagger(Retagger):
               layers. The morph_analysis layer will be retagged.
            status: dict
               This can be used to store metadata on layer retagging.
-        '''
+
+        """
         comp_token_id = 0
         for morph_spanlist in layers[self.output_layer].spans:
-            if comp_token_id < len(layers[ self._input_cp_tokens_layer ].span_list):
-                comp_token = layers[ self._input_cp_tokens_layer ].span_list[comp_token_id]
-                if (comp_token.start == morph_spanlist.start and \
+            if comp_token_id < len(layers[self._input_cp_tokens_layer]):
+                comp_token = layers[self._input_cp_tokens_layer][comp_token_id]
+                if (comp_token.start == morph_spanlist.start and
                     morph_spanlist.end == comp_token.end):
                     ignore_spans = False
                     # Found matching compound token
@@ -247,10 +246,8 @@ class PostMorphAnalysisTagger(Retagger):
                 # all compound tokens have been exhausted
                 break
 
-
-
-    def _fix_based_on_compound_tokens( self, raw_text: str, \
-                                       layers: MutableMapping[str, Layer], \
+    def _fix_based_on_compound_tokens( self, raw_text: str,
+                                       layers: MutableMapping[str, Layer],
                                        status: dict = None ):
         '''Fixes morph analyses based on information about compound tokens.
            For instance, if a word overlaps with a compound token of type 
@@ -275,8 +272,8 @@ class PostMorphAnalysisTagger(Retagger):
         comp_token_id  = 0
         has_normalized = 'normalized' in layers[ self._input_cp_tokens_layer ].attributes
         for morph_spanlist in layers[self.output_layer].spans:
-            if comp_token_id < len(layers[ self._input_cp_tokens_layer ].span_list):
-                comp_token = layers[ self._input_cp_tokens_layer ].span_list[comp_token_id]
+            if comp_token_id < len(layers[self._input_cp_tokens_layer]):
+                comp_token = layers[self._input_cp_tokens_layer][comp_token_id]
                 if (comp_token.start == morph_spanlist.start and
                     morph_spanlist.end == comp_token.end):
                     #  In order to avoid errors in downstream processing, let's 

@@ -62,7 +62,7 @@ def test_add_span():
 
     text['ambiguous'] = layer
 
-    assert len(layer.span_list) == 3
+    assert len(layer) == 3
     assert isinstance(layer[0], AmbiguousSpan)
     assert isinstance(layer[1], AmbiguousSpan)
     assert isinstance(layer[2], AmbiguousSpan)
@@ -94,7 +94,7 @@ def test_add_span():
         span.add_annotation(Annotation(span, a='s4', b=False, c=5))
         layer.add_span(span)
 
-    assert len(layer.span_list) == 3
+    assert len(layer) == 3
     assert isinstance(layer[0], Span)
     assert isinstance(layer[1], Span)
     assert isinstance(layer[2], Span)

@@ -279,7 +279,6 @@ def test_layer():
         t._add_layer(Layer(name='is'))
 
     assert t.layers['test'] is l
-    assert t.test.span_list is l.span_list
 
     with pytest.raises(AttributeError):
         t.notexisting
@@ -891,7 +890,7 @@ def test_delete_annotation_in_ambiguous_span():
         text['test'][0].annotations[0] #this is the annotation we want to remove
     )
           )
-    assert len(text['test'].span_list.spans[0].annotations) == 1
+    assert len(text['test'][0].annotations) == 1
 
     # removing the second
     assert len(text['test'][1].annotations) == 2
@@ -990,10 +989,10 @@ def test_phrase_layer():
                                        [AttributeList(['sina'], 'lemma'),
                                         AttributeList(['karu'], 'lemma')]]
 
-    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.span_list))]) ==  ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) ==  ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
 
-    mapping = {i: [j for j in t.uppercasephrase.span_list if i in j][0] for i in
-               list(itertools.chain(*t.uppercasephrase.span_list))}
-    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.span_list))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+    mapping = {i: [j for j in t.uppercasephrase if i in j][0] for i in
+               list(itertools.chain(*t.uppercasephrase))}
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
 
     assert ([i.text if i not in mapping.keys() else mapping[i].tag for i in t.words]) == ['Minu', 0, 0, 0, '.', 'MIS', 'värvi', 1, 1, 'on', '?', 'Kuidas', 'PALUN', '?']

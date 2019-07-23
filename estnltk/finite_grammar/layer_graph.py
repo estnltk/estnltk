@@ -302,7 +302,6 @@ def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=
     assert not attributes or set(attributes) <= set(layer.attributes)
 
     graph = LayerGraph()
-    spans = layer.span_list
 
     if layer.ambiguous:
         for sp in layer:
@@ -310,7 +309,7 @@ def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=
             names_1 = {getattr(b, name_attribute) for b in sp.annotations}
             for name_1 in names_1:
                 graph.add_node(TerminalNode(name_1, sp, attributes))
-        for sp_1, sp_2 in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
+        for sp_1, sp_2 in iterate_consecutive_spans(layer, raw_text, gap_validator=gap_validator):
             names_1 = {getattr(b, name_attribute) for b in sp_1.annotations}
             names_2 = {getattr(b, name_attribute) for b in sp_2.annotations}
             for name_1 in names_1:
@@ -319,7 +318,7 @@ def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=
     else:
         for sp in layer:
             graph.add_node(TerminalNode(getattr(sp, name_attribute), sp, attributes))
-        for a, b in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
+        for a, b in iterate_consecutive_spans(layer, raw_text, gap_validator=gap_validator):
             name_a = getattr(a, name_attribute)
             name_b = getattr(b, name_attribute)
             graph.add_edge(TerminalNode(name_a, a, attributes), TerminalNode(name_b, b, attributes))
