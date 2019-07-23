@@ -1,5 +1,43 @@
+import pytest
 from estnltk.text import Layer
 from estnltk.layer_operations import resolve_conflicts
+
+
+def test_conflict_resolving_strategy_type():
+    with pytest.raises(ValueError):
+        resolve_conflicts(layer=Layer(name='test_layer', attributes=['_priority_']),
+                          conflict_resolving_strategy='unexpected value')
+
+
+def test_no_conflict_resolving():
+    layer = Layer(name='test_layer', attributes=['_priority_'])
+    layer = layer.from_records([{'start': 1, 'end':  8, '_priority_': 0},
+                                {'start': 2, 'end':  4, '_priority_': 1},
+                                {'start': 3, 'end':  6, '_priority_': 2}
+                                ])
+    result = resolve_conflicts(layer=layer,
+                               conflict_resolving_strategy='ALL',
+                               priority_attribute=None)
+    assert result is layer
+    assert len(result) == 3
+
+
+def test_status():
+    layer = Layer(name='test_layer', attributes=['_priority_'])
+    layer = layer.from_records([{'start': 1, 'end':  8, '_priority_': 0},
+                                {'start': 2, 'end':  4, '_priority_': 1},
+                                {'start': 3, 'end':  6, '_priority_': 2}
+                                ])
+
+    status = {}
+    result = resolve_conflicts(layer=layer,
+                               conflict_resolving_strategy='ALL',
+                               status=status,
+                               priority_attribute='_priority_')
+
+    assert status == {'number_of_conflicts': 3}
+    assert result is layer
+    assert len(result) == 1
 
 
 def test_resolve_conflicts_MAX():
@@ -58,6 +96,15 @@ def test_resolve_conflicts_MAX():
                                ])
     layer = resolve_conflicts(layer, conflict_resolving_strategy='MAX', priority_attribute='_priority_')
     assert [(2, 4)] == [(span.start, span.end) for span in layer]
+
+    # complex, no priority attribute
+    layer = Layer(name='test_layer', attributes=['_priority_'])
+    layer = layer.from_records([{'start': 1, 'end':  8, '_priority_': 1},
+                                {'start': 2, 'end':  4, '_priority_': 0},
+                                {'start': 3, 'end':  6, '_priority_': 1}
+                               ])
+    layer = resolve_conflicts(layer, conflict_resolving_strategy='MAX', priority_attribute=None)
+    assert [(1, 8)] == [(span.start, span.end) for span in layer]
 
 
 def test_resolve_conflicts_MIN():    
