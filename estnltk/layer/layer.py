@@ -428,6 +428,9 @@ class Layer:
         if isinstance(item, int):
             return self.span_list[item]
 
+        if isinstance(item, BaseSpan):
+            return self.span_list.get(item)
+
         if item == [] or item == ():
             raise IndexError('no attributes: ' + str(item))
 
@@ -478,6 +481,9 @@ class Layer:
             return layer
 
         raise TypeError('index not supported: ' + str(item))
+
+    def __delitem__(self, key):
+        self.span_list.remove_span(self[key])
 
     def get(self, item):
         if isinstance(item, BaseSpan):
