@@ -32,7 +32,7 @@ def to_base_span(x):
         return x.base_span
     if isinstance(x, Annotation):
         return x.span.base_span
-    if isinstance(x, List) and len(x) == 2 and isinstance(x[0], int) and isinstance(x[1], int):
+    if isinstance(x, (List, tuple)) and len(x) == 2 and isinstance(x[0], int) and isinstance(x[1], int):
         return ElementaryBaseSpan(*x)
     return EnvelopingBaseSpan([to_base_span(y) for y in x])
 
@@ -199,6 +199,26 @@ class Layer:
                       for span in self._span_list}
         }
 
+    @classmethod
+    def from_dict(cls, d: dict, text_object=None):
+        """Parses dict to layer.
+
+        """
+        layer = cls(name=d['name'],
+                    attributes=d['attributes'],
+                    text_object=text_object,
+                    parent=d['parent'],
+                    enveloping=d['enveloping'],
+                    ambiguous=d['ambiguous']
+                    )
+        layer.meta.update(d['meta'])
+
+        for base, annotations in d['spans'].items():
+            for annotation in annotations:
+                layer.add_annotation(base, **annotation)
+
+        return layer
+
     def add_span(self, span: Union[Span, AmbiguousSpan, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
         assert isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)), str(type(span))
@@ -217,63 +237,38 @@ class Layer:
         self._span_list.remove_span(span)
 
     def add_annotation(self, base_span, **attributes):
-        if isinstance(base_span, BaseSpan):
-            pass
-        elif isinstance(base_span, tuple) and len(base_span) == 2 \
-                and isinstance(base_span[0], int) and isinstance(base_span[1], int):
-            base_span = ElementaryBaseSpan(*base_span)
-        # else:
-        #     base_span = to_base_span(base_span)
-
         attributes = {**self.default_values, **{k: v for k, v in attributes.items() if k in self.attributes}}
 
-        if self.enveloping is None and self.ambiguous:
-            base_span = to_base_span(base_span)
-            assert base_span.level == 0
+        if self.enveloping is not None:
+            span = self.get(to_base_span(base_span))
+            if span is None:
+                span = EnvelopingSpan(spans=base_span, layer=self)
+                annotation = span.add_annotation(Annotation(span, **attributes))
+                self._span_list.add_span(span)
+            else:
+                annotation = span.add_annotation(Annotation(span=span, **attributes))
 
-            span = self.get(base_span)
+            return annotation
+
+        base_span = to_base_span(base_span)
+        span = self.get(base_span)
+
+        assert base_span.level == 0
+
+        if self.ambiguous:
             if span is None:
                 span = AmbiguousSpan(base_span, self)
                 self._span_list.add_span(span)
             assert isinstance(span, AmbiguousSpan), span
             return span.add_annotation(Annotation(span, **attributes))
 
-        if self.enveloping is not None:
-            span = EnvelopingSpan(spans=base_span, layer=self)
+        if span is not None:
+            raise ValueError('the layer is not ambiguous and already contains this span')
 
-            target = self.get(span)
-
-            if target is None:
-                annotation = span.add_annotation(Annotation(span, **attributes))
-                self._span_list.add_span(span)
-            else:
-                annotation = target.add_annotation(Annotation(span=target, **attributes))
-
-            return annotation
-
-        if self.parent is not None and self.enveloping is None and not self.ambiguous:
-            if isinstance(base_span, ElementaryBaseSpan):
-                base_span = Span(base_span=base_span, layer=self)
-
-            if self.get(base_span) is not None:
-                raise ValueError('the layer is not ambiguous and already contains this span')
-            span = Span(base_span=base_span.base_span, layer=self)
-            self._span_list.add_span(span)
-            return span.add_annotation(Annotation(span, **attributes))
-
-        assert self.parent is None and self.enveloping is None and not self.ambiguous
-
-        if self.parent is None and self.enveloping is None and not self.ambiguous:
-            base_span = to_base_span(base_span)
-            assert base_span.level == 0
-
-            if self.get(base_span) is not None:
-                raise ValueError('the layer is not ambiguous and already contains this span')
-
-            span = Span(base_span=base_span, layer=self)
-            span.add_annotation(Annotation(span, **attributes))
-            self._span_list.add_span(span)
-            return span.annotations[0]
+        span = Span(base_span=base_span, layer=self)
+        annotation = span.add_annotation(Annotation(span, **attributes))
+        self._span_list.add_span(span)
+        return annotation
 
     def check_span_consistency(self) -> None:
         """Checks for layer's span consistency
