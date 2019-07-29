@@ -33,7 +33,7 @@ class Retagger(Tagger):
     def _change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> None:
         raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
 
-    def change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> None:
+    def change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict = None) -> None:
         # In order to change the layer, the layer must already exist
         assert self.output_layer in layers, \
           "output_layer {!r} missing from layers {}".format(
