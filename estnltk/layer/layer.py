@@ -25,16 +25,18 @@ def whitelist_record(record, source_attributes):
         return [whitelist_record(i, source_attributes) for i in record]
 
 
-def to_base_span(x):
+def to_base_span(x) -> BaseSpan:
     if isinstance(x, BaseSpan):
         return x
     if isinstance(x, (Span, EnvelopingSpan, AmbiguousSpan)):
         return x.base_span
     if isinstance(x, Annotation):
         return x.span.base_span
-    if isinstance(x, (List, tuple)) and len(x) == 2 and isinstance(x[0], int) and isinstance(x[1], int):
-        return ElementaryBaseSpan(*x)
-    return EnvelopingBaseSpan([to_base_span(y) for y in x])
+    if isinstance(x, (List, tuple, Layer)):
+        if len(x) == 2 and isinstance(x[0], int) and isinstance(x[1], int):
+            return ElementaryBaseSpan(*x)
+        return EnvelopingBaseSpan([to_base_span(y) for y in x])
+    raise TypeError(x)
 
 
 class Layer:
@@ -195,8 +197,9 @@ class Layer:
             'enveloping': self.enveloping,
             'ambiguous': self.ambiguous,
             'meta': self.meta,
-            'spans': {span.base_span.raw(): [dict(annotation) for annotation in span.annotations]
-                      for span in self._span_list}
+            'spans': [{'base_span': span.base_span.raw(),
+                       'annotations': [dict(annotation) for annotation in span.annotations]}
+                      for span in self._span_list]
         }
 
     @classmethod
@@ -213,9 +216,10 @@ class Layer:
                     )
         layer.meta.update(d['meta'])
 
-        for base, annotations in d['spans'].items():
-            for annotation in annotations:
-                layer.add_annotation(base, **annotation)
+        for span_dict in d['spans']:
+            base_span = to_base_span(span_dict['base_span'])
+            for annotation in span_dict['annotations']:
+                layer.add_annotation(base_span, **annotation)
 
         return layer
 
@@ -242,7 +246,10 @@ class Layer:
         if self.enveloping is not None:
             span = self.get(to_base_span(base_span))
             if span is None:
-                span = EnvelopingSpan(spans=base_span, layer=self)
+                if isinstance(base_span, BaseSpan):
+                    span = EnvelopingSpan(spans=None, layer=self, base_span=base_span)
+                else:
+                    span = EnvelopingSpan(spans=base_span, layer=self, base_span=None)
                 annotation = span.add_annotation(Annotation(span, **attributes))
                 self._span_list.add_span(span)
             else:
