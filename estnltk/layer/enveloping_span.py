@@ -5,16 +5,17 @@ from typing import Any, Union, Sequence
 
 from estnltk.layer.span import Span, Annotation
 from estnltk.layer.ambiguous_span import AmbiguousSpan
-from estnltk import EnvelopingBaseSpan
+from estnltk import EnvelopingBaseSpan, BaseSpan
 from .to_html import html_table
 
 
 class EnvelopingSpan:
-    def __init__(self, spans, layer):
-        spans = tuple(spans)
-        assert spans, spans
-        assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan, Annotation)) for span in spans), [type(span) for span in spans]
-        self.spans = spans
+    def __init__(self, spans, layer, base_span: BaseSpan = None):
+        if spans is not None:
+            spans = tuple(spans)
+            assert spans, spans
+            assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan, Annotation)) for span in spans), [type(span) for span in spans]
+        self._spans = spans
 
         self._layer = layer
 
@@ -22,7 +23,17 @@ class EnvelopingSpan:
 
         self._annotations = []
 
-        self._base_span = EnvelopingBaseSpan([s.base_span for s in self.spans])
+        self._base_span = base_span
+        if base_span is None and spans is not None:
+            self._base_span = EnvelopingBaseSpan([s.base_span for s in self.spans])
+
+    @property
+    def spans(self):
+        if self._spans is None:
+            get_from_enveloped = self._layer.text_object[self._layer.enveloping].get
+            self._spans = tuple(get_from_enveloped(base) for base in self._base_span)
+
+        return self._spans
 
     def add_annotation(self, annotation: Annotation) -> Annotation:
         if not isinstance(annotation, Annotation):
@@ -134,7 +145,7 @@ class EnvelopingSpan:
         return item in self.spans
 
     def __setattr__(self, key, value):
-        if key in {'spans', '_attributes', 'parent', '_base', '_base_span', '_layer', '_annotations'}:
+        if key in {'_spans', '_attributes', 'parent', '_base', '_base_span', '_layer', '_annotations'}:
             super().__setattr__(key, value)
         else:
             if not self.annotations:
