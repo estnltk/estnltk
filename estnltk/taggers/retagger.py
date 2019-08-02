@@ -52,7 +52,7 @@ class Retagger(Tagger):
         if self.check_output_consistency:
             # Validate changed layer: check span consistency
             target_layers[self.output_layer].check_span_consistency()
-        if self.set_up_text_structure:
+        if text and self.set_up_text_structure:
             text.setup_structure()
 
     def retag(self, text: Text, status: dict = None ) -> Text:
