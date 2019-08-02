@@ -57,6 +57,7 @@ def extract_sections(text: Text,
                               ambiguous=ambiguous)
             new_layer._base = layer._base
             new_text[layer_name] = new_layer
+            new_layer.meta.update(layer.meta)
     
             if parent:
                 if ambiguous:
