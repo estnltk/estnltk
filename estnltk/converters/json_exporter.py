@@ -55,7 +55,7 @@ def layer_to_json(layer: Union['Layer', Sequence['Layer']],
     If file is None, returns json string,
     otherwise dumps json string to file and returns None.
     """
-    layer_dict = layer_to_dict(layer, text)
+    layer_dict = layer_to_dict(layer)
     if file is None:
         return json.dumps(layer_dict, ensure_ascii=False)
 

@@ -6,6 +6,7 @@ from estnltk.layer.span import Span
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.annotation import Annotation
+from estnltk.converters.layer_dict_converters import layer_dict_converter
 
 
 def list_to_tuple(value):
@@ -25,6 +26,8 @@ def dict_to_annotation(d: Union[dict, Sequence[dict]], span) -> Union[Annotation
 
 
 def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
+    return layer_dict_converter.dict_to_layer(layer_dict, text)
+
     layer = Layer(name=layer_dict['name'],
                   attributes=layer_dict['attributes'],
                   text_object=text,
