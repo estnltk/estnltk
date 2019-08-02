@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Iterable
 
 
 class BaseSpan:
@@ -61,7 +61,7 @@ class ElementaryBaseSpan(BaseSpan):
 class EnvelopingBaseSpan(BaseSpan):
     __slots__ = ['_spans']
 
-    def __init__(self, spans: Sequence[BaseSpan]):
+    def __init__(self, spans: Iterable[BaseSpan]):
         spans = tuple(spans)
 
         if len(spans) == 0:
