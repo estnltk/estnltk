@@ -587,6 +587,14 @@ class Layer:
     print_start_end = False
 
     def _repr_html_(self):
+        if self.meta:
+            data = {'key': sorted(self.meta), 'value': [self.meta[k] for k in sorted(self.meta)]}
+            meta_table = pandas.DataFrame(data, columns=['key', 'value'])
+            meta_table = meta_table.to_html(header=False, index=False)
+            meta = '\n'.join(('<h4>Metadata</h4>', meta_table))
+        else:
+            meta = ''
+
         attributes = []
         if self.text_object is None:
             text_object = 'No Text object.'
@@ -602,7 +610,7 @@ class Layer:
         table_2 = ''
         if attributes:
             table_2 = self._span_list.attribute_list(attributes).to_html(index='text')
-        return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), text_object, table_1, table_2))
+        return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object, table_1, table_2))
 
     def __repr__(self):
         return str(self)
@@ -629,7 +637,7 @@ class Layer:
             return "{self.name} layer enveloping differs: {self.enveloping}!={other.enveloping}".format(self=self,
                                                                                                         other=other)
         if self._span_list != other._span_list:
-            return "{self.name} layer spans differ".format(self=self, other=other)
+            return "{self.name} layer spans differ".format(self=self)
         return None
 
     def __eq__(self, other):
