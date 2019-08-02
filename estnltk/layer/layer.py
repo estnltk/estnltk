@@ -240,25 +240,20 @@ class Layer:
     def remove_span(self, span):
         self._span_list.remove_span(span)
 
-    def add_annotation(self, base_span, **attributes):
+    def add_annotation(self, base_span, **attributes) -> Annotation:
+        base_span = to_base_span(base_span)
         attributes = {**self.default_values, **{k: v for k, v in attributes.items() if k in self.attributes}}
+        span = self.get(base_span)
 
         if self.enveloping is not None:
-            span = self.get(to_base_span(base_span))
             if span is None:
-                if isinstance(base_span, BaseSpan):
-                    span = EnvelopingSpan(spans=None, layer=self, base_span=base_span)
-                else:
-                    span = EnvelopingSpan(spans=base_span, layer=self, base_span=None)
+                span = EnvelopingSpan(base_span=base_span, layer=self, spans=None)
                 annotation = span.add_annotation(Annotation(span, **attributes))
                 self._span_list.add_span(span)
             else:
-                annotation = span.add_annotation(Annotation(span=span, **attributes))
+                annotation = span.add_annotation(Annotation(span, **attributes))
 
             return annotation
-
-        base_span = to_base_span(base_span)
-        span = self.get(base_span)
 
         assert base_span.level == 0
 
