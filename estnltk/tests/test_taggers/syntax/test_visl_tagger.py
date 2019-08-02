@@ -409,5 +409,5 @@ def test_visl_tagger():
 
     tagger = VislTagger()
     tagger.tag(text)
-    result = layer_to_dict(layer=text.visl, text=text)
+    result = layer_to_dict(layer=text.visl)
     assert visl_dict == result
