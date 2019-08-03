@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Sequence, Union
 
-from estnltk import Annotation
+from estnltk import Annotation, EnvelopingBaseSpan
 from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger, Vocabulary
@@ -164,7 +164,8 @@ class PhraseTagger(Tagger):
                             if match:
                                 phrase = (value,) + tail
                                 spans = input_layer[i:i + len(tail) + 1]
-                                span = EnvelopingSpan(spans=spans, layer=layer)
+                                span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans),
+                                                      layer=layer, spans=spans)
                                 for record in self.vocabulary[phrase]:
                                     if not self.global_validator(span, raw_text):
                                         continue

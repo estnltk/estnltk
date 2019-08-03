@@ -2,7 +2,6 @@ from estnltk.text import Text
 from estnltk.layer.layer import Layer
 from estnltk.layer.span import Span
 from estnltk.layer.ambiguous_span import AmbiguousSpan
-from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.annotation import Annotation
 
 
@@ -93,8 +92,7 @@ def dict_to_layer(layer_dict: dict, text: Text) -> Layer:
                 for rec in records:
                     spans = [enveloped_layer[i] for i in rec['_index_']]
                     attributes = {attr: list_to_tuple(rec[attr]) for attr in layer.attributes}
-                    span = EnvelopingSpan(spans=spans, layer=layer)
-                    layer.add_annotation(span, **attributes)
+                    layer.add_annotation(spans, **attributes)
         else:
             for rec in layer_dict['spans']:
                 spans = [enveloped_layer[i] for i in rec['_index_']]

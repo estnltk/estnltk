@@ -7,7 +7,7 @@
 
 import json
 
-from estnltk.text import Layer, EnvelopingSpan
+from estnltk.text import Layer
 
 from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
@@ -209,16 +209,8 @@ class ClauseSegmenter(Tagger):
                     clause_index[word['clause_id']].append( word_span )
                     clause_type_index[word['clause_id']] = \
                         word['clause_type']
-                # Rewrite clause index to list of clause SpanList-s
-                for clause_id in clause_index.keys():
-                    clause_spans = EnvelopingSpan(spans=clause_index[clause_id], layer=layer)
-                    clause_spans.clause_type = \
-                        clause_type_index[clause_id]
-                    #clause_spans.spans = clause_index[clause_id]
-                    clause_spanlists.append( clause_spans )
-        # Populate layer
-        for clause_spl in clause_spanlists:
-            layer.add_span( clause_spl )
+                for clause_id, clause in clause_index.items():
+                    layer.add_annotation(clause, clause_type=clause_type_index[clause_id])
         return layer
 
     @staticmethod

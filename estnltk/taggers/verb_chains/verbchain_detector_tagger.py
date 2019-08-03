@@ -11,7 +11,7 @@
 import os.path
 
 # Interface of the version 1.6
-from estnltk.text import Text, Layer, EnvelopingSpan
+from estnltk.text import Text, Layer
 from estnltk.taggers import Tagger
 
 # Converting morphological analysis structures from v1.6 to v1.4.1
@@ -175,7 +175,6 @@ class VerbChainDetector( Tagger ):
                       text_object=text,
                       ambiguous=False)
 
-        resulting_enveloping_spans = []
         word_spans    = layers[ self._input_words_layer ]
         morph_spans   = layers[ self._input_morph_analysis_layer ]
         clauses_spans = layers[ self._input_clauses_layer ]
@@ -267,30 +266,21 @@ class VerbChainDetector( Tagger ):
             
             # E) Convert dictionaries to EnvelopingSpan-s
             for vc in verb_chain_dicts:
-                vc_words = [ sentence_words[wid] for wid in sorted(vc['phrase']) ]
-                vc_env_span = EnvelopingSpan(spans=vc_words, layer=layer)
-                vc_env_span.pattern  = vc['pattern']
-                vc_env_span.roots    = vc['roots']
-                vc_env_span.mood     = vc['mood']
-                vc_env_span.polarity = vc['pol']
-                vc_env_span.tense    = vc['tense']
-                vc_env_span.voice    = vc['voice']
-                vc_word_ids = [ sentence_word_ids[wid] for wid in vc['phrase'] ]
-                vc_env_span.word_ids        = vc_word_ids
-                vc_env_span.remaining_verbs = vc['other_verbs']
-                # customizable stuff
-                if self.add_morph_attr:
-                    vc_env_span.morph = vc['morph']
-                if self.add_analysis_ids_attr:
-                    vc_env_span.analysis_ids = vc['analysis_ids']
-                resulting_enveloping_spans.append( vc_env_span )
+                layer.add_annotation([sentence_words[wid].base_span for wid in sorted(vc['phrase'])],
+                                     polarity=vc['pol'],
+                                     pattern=vc['pattern'],
+                                     roots=vc['roots'],
+                                     mood=vc['mood'],
+                                     tense=vc['tense'],
+                                     voice=vc['voice'],
+                                     word_ids=[sentence_word_ids[wid] for wid in vc['phrase']],
+                                     remaining_verbs=vc['other_verbs'],
+                                     morph=vc['morph'],
+                                     analysis_ids=vc['analysis_ids'])
 
         # Small sanity check: all clauses and words should be exhausted by now 
         assert clause_id == len(clauses_spans)
         assert word_span_id == len(word_spans)
-        
-        for verb_chain_ev_span in resulting_enveloping_spans:
-            layer.add_span( verb_chain_ev_span )
         
         return layer
 

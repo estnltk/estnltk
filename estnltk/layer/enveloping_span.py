@@ -5,12 +5,14 @@ from typing import Any, Union, Sequence
 
 from estnltk.layer.span import Span, Annotation
 from estnltk.layer.ambiguous_span import AmbiguousSpan
-from estnltk import EnvelopingBaseSpan, BaseSpan
+from estnltk import BaseSpan
 from .to_html import html_table
 
 
 class EnvelopingSpan:
-    def __init__(self, spans, layer, base_span: BaseSpan = None):
+    def __init__(self, base_span: BaseSpan, layer, spans=None):
+        assert isinstance(base_span, BaseSpan)
+
         if spans is not None:
             spans = tuple(spans)
             assert spans, spans
@@ -24,8 +26,6 @@ class EnvelopingSpan:
         self._annotations = []
 
         self._base_span = base_span
-        if base_span is None and spans is not None:
-            self._base_span = EnvelopingBaseSpan([s.base_span for s in self.spans])
 
     @property
     def spans(self):

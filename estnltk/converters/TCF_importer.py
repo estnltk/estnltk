@@ -1,7 +1,6 @@
 from lxml import etree
 from estnltk import ElementaryBaseSpan
-from estnltk.text import Span, Layer, Text
-from estnltk import EnvelopingSpan
+from estnltk.text import Layer, Text
 
 
 def import_TCF(string:str=None, file:str=None):
@@ -59,15 +58,11 @@ def import_TCF(string:str=None, file:str=None):
         for line in element:
             chunk_type = line.get('type')
             if chunk_type == 'VP':
-                spans = []
-                for token_id in line.get('tokenIDs').split():
-                    spans.append(id_to_token[token_id])
-                layer_vp.add_annotation(EnvelopingSpan(spans=spans, layer=layer_vp))
+                spans = [id_to_token[token_id] for token_id in line.get('tokenIDs').split()]
+                layer_vp.add_annotation(spans)
             elif chunk_type == 'TMP':
-                spans = []
-                for token_id in line.get('tokenIDs').split():
-                    spans.append(id_to_token[token_id])
-                layer_tmp.add_annotation(EnvelopingSpan(spans=spans, layer=layer_tmp))
+                spans = [id_to_token[token_id] for token_id in line.get('tokenIDs').split()]
+                layer_tmp.add_annotation(spans)
         text['verb_chains'] = layer_vp
         text['time_phrases'] = layer_tmp
 

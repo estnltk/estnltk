@@ -18,7 +18,6 @@
 # 
 
 
-from estnltk import EnvelopingSpan
 from estnltk.text import Layer
 from estnltk.taggers import Tagger
 
@@ -126,13 +125,10 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
                             break
                          i += 1
                     if i == len(mw_components[mw_comp_id]):
-                       # Create a new multiword unit
-                       spans = layers[self._input_tokens_layer][token_span_id:token_span_id+i]
-                       spl = EnvelopingSpan(spans=spans, layer=layer)
-                       spl.type = ('multiword',)
-                       spl.normalized = None
-                       layer.add_span(spl)
-                       mw_comp_id += 1
-                       mw_id = 0
+                        # Create a new multiword unit
+                        spans = layers[self._input_tokens_layer][token_span_id:token_span_id+i]
+                        layer.add_annotation(spans, type=('multiword',), normalized=None)
+                        mw_comp_id += 1
+                        mw_id = 0
                  token_span_id += 1
         return layer

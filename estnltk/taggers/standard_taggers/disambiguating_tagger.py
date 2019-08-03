@@ -1,3 +1,4 @@
+from estnltk.layer.base_span import EnvelopingBaseSpan
 from estnltk.layer.span import Span
 from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.layer import Layer
@@ -45,7 +46,7 @@ class DisambiguatingTagger(Tagger):
                     setattr(span[0], k, v)
                 layer.add_span(span)
             elif enveloping:
-                span = EnvelopingSpan(spans=input_span.spans, layer=layer)
+                span = EnvelopingSpan(base_span=input_span.base_span, layer=layer, spans=input_span.spans)
                 for k, v in self.decorator(input_span, text.text).items():
                     setattr(span, k, v)
                 layer.add_span(span)

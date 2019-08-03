@@ -1,7 +1,7 @@
 import pytest
 
 import itertools
-from estnltk import Span, EnvelopingSpan
+from estnltk import EnvelopingSpan
 from estnltk import Layer
 from estnltk import Text
 from estnltk.layer import AmbiguousAttributeList
@@ -968,10 +968,8 @@ def test_phrase_layer():
             l = Layer(enveloping='words', name='uppercasephrase', attributes=['phrasetext', 'tag'])
 
             for idx, s in enumerate(spans):
-                sps = EnvelopingSpan(spans=s, layer=l)
-                sps.phrasetext = ' '.join([i.text for i in s]).lower()
-                sps.tag = idx
-                l.add_span(sps)
+                l.add_annotation(s, phrasetext=' '.join([i.text for i in s]).lower(), tag=idx)
+
             text._add_layer(l)
 
             return text

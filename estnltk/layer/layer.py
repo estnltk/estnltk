@@ -247,7 +247,7 @@ class Layer:
 
         if self.enveloping is not None:
             if span is None:
-                span = EnvelopingSpan(base_span=base_span, layer=self, spans=None)
+                span = EnvelopingSpan(base_span=base_span, layer=self)
                 annotation = span.add_annotation(Annotation(span, **attributes))
                 self._span_list.add_span(span)
             else:

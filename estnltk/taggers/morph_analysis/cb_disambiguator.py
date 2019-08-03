@@ -11,11 +11,9 @@
 import re
 from collections import defaultdict
 
-from estnltk.text import Text, EnvelopingSpan, Layer
+from estnltk.text import Text, Layer
 from estnltk.taggers import Tagger, Retagger
 
-from estnltk.vabamorf.morf import Vabamorf
-from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
@@ -1029,7 +1027,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                           nudTudEndings.match(a.ending) is not None
                           for a in word_morph.annotations]
                 if nudTud.count( True ) > 1:
-                    hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1], layer=hidden_words) )
+                    hidden_words.add_annotation(morph_analysis[w:w+1])
                 #
                 # 2) If analyses have same lemma and no form, then hide the ambiguity:
                 #    E.g.    kui+0 //_D_ //    kui+0 //_J_ //
@@ -1037,7 +1035,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 lemmas = set(a.root for a in word_morph.annotations)
                 forms  = set(a.form for a in word_morph.annotations)
                 if len(lemmas) == 1 and len(forms) == 1 and (list(forms))[0] == '':
-                    hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1], layer=hidden_words) )
+                    hidden_words.add_annotation(morph_analysis[w:w+1])
                 #
                 # 3) If 'olema' analyses have the same lemma and the same ending, then hide 
                 #    the ambiguity:
@@ -1046,7 +1044,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 endings = set(a.ending for a in word_morph.annotations)
                 if len(lemmas) == 1 and (list(lemmas))[0] == 'ole' and len(endings) == 1 \
                    and (list(endings))[0] == '0':
-                    hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1], layer=hidden_words) )
+                    hidden_words.add_annotation(morph_analysis[w:w+1])
                 #
                 # 4) If pronouns have the the same lemma and the same ending, then hide the 
                 #    singular/plural ambiguity:
@@ -1055,7 +1053,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 postags = set(a.partofspeech for a in word_morph.annotations)
                 if len(lemmas) == 1 and len(postags) == 1 and 'P' in postags and \
                    len(endings) == 1:
-                    hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1], layer=hidden_words) )
+                    hidden_words.add_annotation(morph_analysis[w:w+1])
                 #
                 # 5) If lemmas and endings are exactly the same, then hide the ambiguity 
                 #    between numerals and pronouns:
@@ -1063,7 +1061,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                 #             üks+l //_N_ sg ad, //    üks+l //_P_ sg ad, //
                 if len(lemmas) == 1 and 'P' in postags and ('O' in postags or
                    'N' in postags) and len(endings) == 1:
-                    hidden_words.add_annotation( EnvelopingSpan(spans=morph_analysis[w:w+1], layer=hidden_words) )
+                    hidden_words.add_annotation(morph_analysis[w:w+1])
         return hidden_words
 
 
