@@ -1,4 +1,5 @@
 from estnltk.taggers import TaggerOld
+from estnltk.layer.base_span import EnvelopingBaseSpan
 from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
@@ -99,7 +100,8 @@ class PhraseListTagger(TaggerOld):
                                         match = False
                                         break
                                 if match:
-                                    span = EnvelopingSpan(spans=input_layer[i:i+len(tail)+1].spans,
+                                    base_span = EnvelopingBaseSpan(s.base_span for s in input_layer[i:i+len(tail)+1])
+                                    span = EnvelopingSpan(base_span=base_span,
                                                           layer=layer)
                                     phrase = (value,)+tail
                                     if self._consistency_checker(text, span, phrase):

@@ -35,12 +35,12 @@ layer_4.add_annotation([layer_0[14]], attr='L4-3', attr_4=',')
 layer_4.add_annotation([layer_0[17], layer_0[19]], attr='L4-4', attr_4='90 000')
 text['layer_4'] = layer_4
 
+
 def test_enveloping_span():
     span = EnvelopingSpan(base_span=EnvelopingBaseSpan([layer_0[0].base_span,
                                                         layer_0[2].base_span,
                                                         layer_0[4].base_span]),
-                          layer=layer_4,
-                          spans=None)
+                          layer=layer_4)
     assert span.layer is layer_4
     assert span.parent is None
 
@@ -49,8 +49,7 @@ def test_annotations():
     span = EnvelopingSpan(base_span=EnvelopingBaseSpan([layer_0[0].base_span,
                                                         layer_0[2].base_span,
                                                         layer_0[4].base_span]),
-                          layer=layer_4,
-                          spans=None)
+                          layer=layer_4)
     assert span.annotations == []
 
     annotation = Annotation(span, attr=0, attr_4=1)

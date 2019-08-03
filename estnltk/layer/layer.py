@@ -255,8 +255,6 @@ class Layer:
 
             return annotation
 
-        assert base_span.level == 0
-
         if self.ambiguous:
             if span is None:
                 span = AmbiguousSpan(base_span, self)

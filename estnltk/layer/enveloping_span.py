@@ -4,28 +4,20 @@ from reprlib import recursive_repr
 from typing import Any, Union, Sequence
 
 from estnltk.layer.span import Span, Annotation
-from estnltk.layer.ambiguous_span import AmbiguousSpan
 from estnltk import BaseSpan
 from .to_html import html_table
 
 
 class EnvelopingSpan:
-    def __init__(self, base_span: BaseSpan, layer, spans=None):
+    def __init__(self, base_span: BaseSpan, layer):
         assert isinstance(base_span, BaseSpan)
 
-        if spans is not None:
-            spans = tuple(spans)
-            assert spans, spans
-            assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan, Annotation)) for span in spans), [type(span) for span in spans]
-        self._spans = spans
-
+        self._base_span = base_span
         self._layer = layer
 
-        self.parent = None  # type:Union[Span, None]
-
         self._annotations = []
-
-        self._base_span = base_span
+        self.parent = None  # type:Union[Span, None]
+        self._spans = None
 
     @property
     def spans(self):

@@ -232,8 +232,9 @@ class CompoundTokenTagger(Tagger):
 
         """
         layer = Layer(name=self.output_layer,
-                      enveloping=self._input_tokens_layer,
                       attributes=self.output_attributes,
+                      text_object=text,
+                      enveloping=self._input_tokens_layer,
                       ambiguous=True)
 
         raw_text = text.text
@@ -292,14 +293,13 @@ class CompoundTokenTagger(Tagger):
                         break
                 if end_token_index:
                     spans = layers[self._input_tokens_layer][i:end_token_index+1]
-                    spl = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer,
-                                         spans=spans)
-                    spl.type = ('tokenization_hint',)
-                    spl.normalized = None
+                    span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
+                    span.type = ('tokenization_hint',)
+                    span.normalized = None
                     if 'pattern_type' in tokenization_hints[token_span.start]:
-                        spl.type = (tokenization_hints[token_span.start]['pattern_type'],)
+                        span.type = (tokenization_hints[token_span.start]['pattern_type'],)
                     if 'normalized' in tokenization_hints[token_span.start]:
-                        spl.normalized = tokenization_hints[token_span.start]['normalized']
+                        span.normalized = tokenization_hints[token_span.start]['normalized']
                     add_compound_token = True
                     if self.custom_abbreviations:
                         # if custom abbreviations are also used, we have to eliminate 
@@ -307,10 +307,10 @@ class CompoundTokenTagger(Tagger):
                         # not overlap with the previous compound token
                         if compound_tokens_lists:
                             last_compound = compound_tokens_lists[-1]
-                            if last_compound.start <= spl.start < last_compound.end:
+                            if last_compound.start <= span.start < last_compound.end:
                                 add_compound_token = False
                     if add_compound_token:
-                        compound_tokens_lists.append(spl)
+                        compound_tokens_lists.append(span)
 
             # 2.3) Perform hyphenation correction
             if tag_hyphenations:
@@ -339,12 +339,10 @@ class CompoundTokenTagger(Tagger):
                         # This serves to leave out numeric ranges like 
                         #    "15-17.04." or "920-980"
                         spans = layers[ self._input_tokens_layer ][hyphenation_start:i].spans
-                        spl = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer,
-                                             spans=spans)
-                        spl.type = ('hyphenation',)
-                        spl.normalized = \
-                            self._normalize_word_with_hyphens( text_snippet )
-                        compound_tokens_lists.append(spl)
+                        span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
+                        span.type = ('hyphenation',)
+                        span.normalized = self._normalize_word_with_hyphens(text_snippet)
+                        compound_tokens_lists.append(span)
                     hyphenation_status = None
                     hyphenation_start = i
             last_end = token_span.end
@@ -356,8 +354,8 @@ class CompoundTokenTagger(Tagger):
                 self._apply_2nd_level_compounding(text, layers, compound_tokens_lists, layer)
 
         # *) Finally: add spans to the layer
-        for spl in compound_tokens_lists:
-            layer.add_span(spl)
+        for span in compound_tokens_lists:
+            layer.add_span(span)
 
         resolve_conflicts(layer,
                           conflict_resolving_strategy=self._conflict_resolving_strategy,
@@ -416,16 +414,15 @@ class CompoundTokenTagger(Tagger):
             else:
                 spans = layers[ self._input_tokens_layer ][token_id:token_id+1]
                 normalized = None
-            spl = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=output_layer,
-                                 spans=spans)
-            spl.type = ('non_ending_abbreviation',)
-            spl.normalized = normalized
+            span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=output_layer)
+            span.type = ('non_ending_abbreviation',)
+            span.normalized = normalized
             # before adding: check that none of the disallowed separator 
             # strings are in the middle of the string 
             if self.do_not_join_on_strings:
                 discard = False
                 for separator in self.do_not_join_on_strings:
-                    if separator in raw_text[spl.start:spl.end]:
+                    if separator in raw_text[span.start:span.end]:
                        discard = True
                 if discard:
                     # Return empty-handed
@@ -435,8 +432,8 @@ class CompoundTokenTagger(Tagger):
             if compound_tokens_lists:
                 last_compound = compound_tokens_lists[-1]
                 last_type = last_compound.type
-                if last_compound.start < spl.start and \
-                    spl.end < last_compound.end:
+                if last_compound.start < span.start and \
+                    span.end < last_compound.end:
                     # custom compound token is inside 
                     # already existing compound token:
                     # discard it
@@ -444,7 +441,7 @@ class CompoundTokenTagger(Tagger):
                     #  fixes potential sentence tokenization
                     #  problems)
                     add_custom_abbrev = False
-                elif last_compound.end == spl.end and \
+                elif last_compound.end == span.end and \
                      'non_ending_abbreviation' not in last_type:
                     # if the last compound token ends
                     # exactly where custom token ends, and
@@ -453,7 +450,7 @@ class CompoundTokenTagger(Tagger):
                     # remove the last token to give priority
                     # to the custom 'non_ending_abbreviation'
                     del compound_tokens_lists[-1]
-                elif last_compound.end == spl.end and \
+                elif last_compound.end == span.end and \
                      'non_ending_abbreviation' in last_type:
                     # if the last is already a 'non_ending_abbreviation',
                     # then discard the custom compound
@@ -462,7 +459,7 @@ class CompoundTokenTagger(Tagger):
                     #  problems)
                     add_custom_abbrev = False
             if add_custom_abbrev:
-                compound_tokens_lists.append(spl)
+                compound_tokens_lists.append(span)
 
     def _normalize_word_with_hyphens( self, word_text:str ):
         """ Attempts to normalize given word with hyphens.
@@ -709,8 +706,7 @@ class CompoundTokenTagger(Tagger):
             normalized_str = ''.join(normalized)
         
         # 4) Create new SpanList and assign attributes
-        span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in all_covered_tokens), layer=output_layer,
-                              spans=all_covered_tokens)
+        span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in all_covered_tokens), layer=output_layer)
         span.type = ('tokenization_hint',)
         span.normalized = normalized_str
         if all_types:
