@@ -9,6 +9,8 @@ from .to_html import html_table
 
 
 class EnvelopingSpan:
+    __slots__ = ['_base_span', '_layer', '_annotations', 'parent', '_spans']
+
     def __init__(self, base_span: BaseSpan, layer):
         assert isinstance(base_span, BaseSpan)
 

@@ -9,6 +9,8 @@ from .to_html import html_table
 
 
 class AmbiguousSpan:
+    __slots__ = ['_base_span', '_layer', '_annotations', '_parent']
+
     def __init__(self, base_span: BaseSpan, layer) -> None:
         assert isinstance(base_span, BaseSpan), base_span
 
@@ -116,8 +118,6 @@ class AmbiguousSpan:
             return self[item]
         if item == layer.parent:
             return self.parent
-        if item in self.__dict__:
-            return self.__dict__[item]
 
         return self.__getattribute__(item)
 
