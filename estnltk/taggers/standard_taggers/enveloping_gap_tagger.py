@@ -1,8 +1,11 @@
 from typing import Sequence
 
-from estnltk import EnvelopingSpan, EnvelopingBaseSpan
 from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
+
+
+def default_decorator(gap):
+    return {}
 
 
 class EnvelopingGapTagger(Tagger):
@@ -24,7 +27,7 @@ class EnvelopingGapTagger(Tagger):
         assert bool(output_attributes) == bool(decorator),\
             'decorator without attributes or attributes without decorator'
         self.output_attributes = tuple(output_attributes)
-        self.decorator = decorator
+        self.decorator = decorator or default_decorator
 
     def _make_layer(self, text, layers, status):
         layers_with_gaps = [layers[name] for name in self.layers_with_gaps]
@@ -38,13 +41,9 @@ class EnvelopingGapTagger(Tagger):
             enveloping=self.enveloped_layer,
             ambiguous=False
             )
+        decorator = self.decorator
         for gap in enveloping_gaps(layers_with_gaps, enveloped):
-            spl = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in gap), layer=layer)
-            if self.decorator:
-                decorations = self.decorator(gap)
-                for attr in self.output_attributes:
-                    setattr(spl, attr, decorations[attr])
-            layer.add_span(spl)
+            layer.add_annotation(gap, **decorator(gap))
         return layer
 
 

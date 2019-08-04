@@ -14,7 +14,7 @@ from pandas.io.common import EmptyDataError
 
 from estnltk.core import PACKAGE_PATH
 
-from estnltk import EnvelopingSpan, EnvelopingBaseSpan
+from estnltk import EnvelopingSpan, EnvelopingBaseSpan, Annotation
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
@@ -294,8 +294,9 @@ class CompoundTokenTagger(Tagger):
                 if end_token_index:
                     spans = layers[self._input_tokens_layer][i:end_token_index+1]
                     span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
-                    span.type = ('tokenization_hint',)
-                    span.normalized = None
+                    span.add_annotation(Annotation(span,
+                                                   type=('tokenization_hint',),
+                                                   normalized=None))
                     if 'pattern_type' in tokenization_hints[token_span.start]:
                         span.type = (tokenization_hints[token_span.start]['pattern_type'],)
                     if 'normalized' in tokenization_hints[token_span.start]:
@@ -340,8 +341,9 @@ class CompoundTokenTagger(Tagger):
                         #    "15-17.04." or "920-980"
                         spans = layers[ self._input_tokens_layer ][hyphenation_start:i].spans
                         span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
-                        span.type = ('hyphenation',)
-                        span.normalized = self._normalize_word_with_hyphens(text_snippet)
+                        span.add_annotation(Annotation(span,
+                                                       type=('hyphenation',),
+                                                       normalized=self._normalize_word_with_hyphens(text_snippet)))
                         compound_tokens_lists.append(span)
                     hyphenation_status = None
                     hyphenation_start = i
@@ -415,9 +417,8 @@ class CompoundTokenTagger(Tagger):
                 spans = layers[ self._input_tokens_layer ][token_id:token_id+1]
                 normalized = None
             span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=output_layer)
-            span.type = ('non_ending_abbreviation',)
-            span.normalized = normalized
-            # before adding: check that none of the disallowed separator 
+            span.add_annotation(Annotation(span, type=('non_ending_abbreviation',), normalized=normalized))
+            # before adding: check that none of the disallowed separator
             # strings are in the middle of the string 
             if self.do_not_join_on_strings:
                 discard = False
@@ -488,7 +489,7 @@ class CompoundTokenTagger(Tagger):
             "compound_tokens" (created by _tokenization_hints_tagger_1) according to the 
             hints.
 
-            And finally, unifies results of the 1st level compounding and the 2nd level 
+            And finally, unifies results of the 1st level compounding and the 2nd level
             compounding into a new compound_tokens_lists.
             Returns updated compound_tokens_lists.
         """
@@ -707,8 +708,7 @@ class CompoundTokenTagger(Tagger):
         
         # 4) Create new SpanList and assign attributes
         span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in all_covered_tokens), layer=output_layer)
-        span.type = ('tokenization_hint',)
-        span.normalized = normalized_str
+        span.add_annotation(Annotation(span, type=('tokenization_hint',), normalized=normalized_str))
         if all_types:
             # Few "repairs" on the types:
             # 1) "non_ending_abbreviation" ('st') + "case_ending" ('st')

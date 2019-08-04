@@ -142,8 +142,6 @@ class EnvelopingSpan:
         if key in {'_spans', '_attributes', 'parent', '_base', '_base_span', '_layer', '_annotations'}:
             super().__setattr__(key, value)
         else:
-            if not self.annotations:
-                self.annotations.append(Annotation(self))
             for annotation in self._annotations:
                 setattr(annotation, key, value)
 
