@@ -11,6 +11,7 @@ from estnltk.rewriting import SubcatRewriter
 from estnltk.rewriting import MorphExtendedRewriter
 from estnltk.taggers import VabamorfTagger
 from estnltk import PACKAGE_PATH
+from estnltk.layer.layer import Layer
 import os
 
 
@@ -66,16 +67,15 @@ class MorphExtendedTagger(Tagger):
 
         """
         if fs_to_synt_rules_file is None:
-            fs_to_synt_rules_file = os.path.relpath(os.path.join(PACKAGE_PATH,
-                'rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt'))
+            fs_to_synt_rules_file = os.path.relpath(os.path.join(
+                    PACKAGE_PATH, 'rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt'))
         if subcat_rules_file is None:
-            subcat_rules_file = os.path.relpath(os.path.join(PACKAGE_PATH,
-                'rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx'))
+            subcat_rules_file = os.path.relpath(os.path.join(
+                    PACKAGE_PATH, 'rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx'))
 
         self.fs_to_synt_rules_file = fs_to_synt_rules_file
         self.allow_to_remove_all = allow_to_remove_all
         self.subcat_rules_file = subcat_rules_file
-
 
         punctuation_type_rewriter = PunctuationTypeRewriter()
         morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
@@ -88,26 +88,29 @@ class MorphExtendedTagger(Tagger):
         subcat_rewriter = SubcatRewriter(subcat_rules_file)
 
         self.quick_morph_extended_rewriter = MorphExtendedRewriter(
-                    punctuation_type_rewriter=punctuation_type_rewriter,
-                    morph_to_syntax_morph_rewriter=morph_to_syntax_morph_rewriter,
-                    pronoun_type_rewriter=pronoun_type_rewriter,
-                    remove_duplicate_analyses_rewriter=remove_duplicate_analyses_rewriter,
-                    remove_adposition_analyses_rewriter=remove_adposition_analyses_rewriter,
-                    letter_case_rewriter=letter_case_rewriter,
-                    finite_form_rewriter=finite_form_rewriter,
-                    verb_extension_suffix_rewriter=verb_extension_suffix_rewriter,
-                    subcat_rewriter=subcat_rewriter)
+                punctuation_type_rewriter=punctuation_type_rewriter,
+                morph_to_syntax_morph_rewriter=morph_to_syntax_morph_rewriter,
+                pronoun_type_rewriter=pronoun_type_rewriter,
+                remove_duplicate_analyses_rewriter=remove_duplicate_analyses_rewriter,
+                remove_adposition_analyses_rewriter=remove_adposition_analyses_rewriter,
+                letter_case_rewriter=letter_case_rewriter,
+                finite_form_rewriter=finite_form_rewriter,
+                verb_extension_suffix_rewriter=verb_extension_suffix_rewriter,
+                subcat_rewriter=subcat_rewriter)
 
     def _make_layer(self, text, layers, status=None):
-        source_attributes = text['morph_analysis'].attributes + ('text',)
+        morph_layer = layers[self.input_layers[0]]
 
-        layer = layers['morph_analysis'].rewrite(
-                source_attributes=source_attributes,
-                target_attributes=self.attributes,
-                rules=self.quick_morph_extended_rewriter,
-                name=self.layer_name,
-                ambiguous=True
-        )
-        layer.text_object = text
+        layer = Layer(name=self.output_layer,
+                      attributes=self.output_attributes,
+                      text_object=text,
+                      parent=morph_layer.name,
+                      ambiguous=True,
+                      )
+
+        for span in morph_layer:
+            input_record = span.to_records(with_text=True)
+            for record in self.quick_morph_extended_rewriter.rewrite(input_record):
+                layer.add_annotation(span.base_span, **record)
 
         return layer
