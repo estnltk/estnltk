@@ -35,7 +35,7 @@ class EnvelopingSpan:
         if annotation.span is not self:
             raise ValueError('the annotation has a different span {}'.format(annotation.span))
         if set(annotation) != set(self.layer.attributes):
-            raise ValueError('the annotation has unexpected or missing attributes {}'.format(annotation.attributes))
+            raise ValueError('the annotation has unexpected or missing attributes: {}'.format(dict(annotation)))
 
         if annotation not in self._annotations:
             if self.layer.ambiguous or len(self._annotations) == 0:
