@@ -311,10 +311,9 @@ def test_check_layer_consistency():
     morph_layer.check_span_consistency()
 
     # 3) Add Span instead of AmbiguousSpan
-    morph_layer.spans[0] = old_first_span.span
+    morph_layer.spans[0] = Span(old_first_span.base_span, old_first_span.layer)
     with pytest.raises(AssertionError) as e3:
-        # Assertion error because Span was used instead 
-        # of AmbiguousSpan
+        # Assertion error because the first span has no annotations
         morph_layer.check_span_consistency()
     morph_layer.spans[0] = old_first_span
     morph_layer.check_span_consistency()

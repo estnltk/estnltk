@@ -726,9 +726,8 @@ class GTMorphConverter( Tagger ):
                 if empty_attributes.count(True) > len(empty_attributes)/2:
                      # If most of the attributes have been set to '', 
                      # then we have an empty record (unknown word)
-                     record = \
-                         _create_empty_morph_record( morph_word, \
-                                                     layer_attributes = current_attributes )
+                     record = _create_empty_morph_record(morph_word,
+                                                         layer_attributes=current_attributes)
                 else:
                      # The record corresponds to word with full analyses
                      # Rewrite it: 
@@ -746,7 +745,7 @@ class GTMorphConverter( Tagger ):
                              rewritten_record[attr] = attr_value
                      record = rewritten_record
                 # Finally, add annotation to the layer
-                new_layer.add_annotation( morph_word.span, **record )
+                new_layer.add_annotation(morph_word, **record)
             record_groupings += 1
         # Sanity check: all morph_analysis words should have been converted
         assert record_groupings == len( layers[ self._input_morph_analysis_layer ].spans )

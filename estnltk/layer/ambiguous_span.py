@@ -52,11 +52,6 @@ class AmbiguousSpan:
         if not self._annotations:
             self._layer.remove_span(self)
 
-    # TODO: remove span
-    @property
-    def span(self):
-        return Span(self._base_span, self._layer)
-
     @property
     def parent(self):
         if self._parent is None and self._layer.parent:
