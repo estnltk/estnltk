@@ -687,7 +687,6 @@ class GTMorphConverter( Tagger ):
             '(!) Number of word group indices should match the number of words!'
         return word_group_indices
 
-
     # =========================================================================================
     #    Finalize: convert analyses from dicts to Spans
     # =========================================================================================
@@ -729,21 +728,9 @@ class GTMorphConverter( Tagger ):
                      record = _create_empty_morph_record(morph_word,
                                                          layer_attributes=current_attributes)
                 else:
-                     # The record corresponds to word with full analyses
-                     # Rewrite it: 
-                     #     leave out unnecessary attributes, and 
-                     #     fix format of root_tokens
-                     rewritten_record = {}
-                     for attr in current_attributes:
-                         if attr in ['start', 'end', 'text', 'word_normal']:
-                             continue
-                         attr_value = record[attr] if attr in record else None
-                         if attr == 'root_tokens':
-                             # make it hashable for Span.__hash__
-                             rewritten_record[attr] = tuple(attr_value)
-                         else:
-                             rewritten_record[attr] = attr_value
-                     record = rewritten_record
+                    # The record corresponds to word with full analyses
+                    #     fix format of root_tokens
+                    record['root_tokens'] = tuple(record['root_tokens'])
                 # Finally, add annotation to the layer
                 new_layer.add_annotation(morph_word, **record)
             record_groupings += 1
@@ -751,4 +738,3 @@ class GTMorphConverter( Tagger ):
         assert record_groupings == len( layers[ self._input_morph_analysis_layer ].spans )
         # Return the layer augmented with spans
         return new_layer
-
