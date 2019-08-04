@@ -53,7 +53,6 @@ class EnvelopingSpan:
         for x in zip(*[[i
                         if isinstance(i, (list, tuple))
                         else itertools.cycle([i]) for i in getattr(self, item)] for item in items]
-
                      ):
 
             quickbreak = all(isinstance(i, itertools.cycle) for i in x)
@@ -77,11 +76,6 @@ class EnvelopingSpan:
     @property
     def layer(self):
         return self._layer
-
-    @layer.setter
-    def layer(self, value):
-        # assert isinstance(value, Layer) or value is None
-        self._layer = value
 
     @property
     def start(self):
