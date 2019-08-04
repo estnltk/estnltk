@@ -49,22 +49,15 @@ class EnvelopingGapTagger(Tagger):
 
 
 def enveloping_gaps(layers, enveloped):
-    cover = set()
-    for layer in layers:
-        if layer.ambiguous:
-            for amb_span in layer:
-                cover.update(amb_span.spans)
-        else:
-            for sp in layer:
-                cover.update(sp)
+    cover = {bs for layer in layers for span in layer for bs in span.base_span}
 
     spans = iter(enveloped)
     s = next(spans)
     while s:
-        while s in cover:
+        while s.base_span in cover:
             s = next(spans)
         gap = []
-        while s not in cover:
+        while s.base_span not in cover:
             gap.append(s)
             try:
                 s = next(spans)

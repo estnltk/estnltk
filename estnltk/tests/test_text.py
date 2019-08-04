@@ -987,10 +987,10 @@ def test_phrase_layer():
                                        [AttributeList(['sina'], 'lemma'),
                                         AttributeList(['karu'], 'lemma')]]
 
-    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) ==  ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
-
-    mapping = {i: [j for j in t.uppercasephrase if i in j][0] for i in
-               list(itertools.chain(*t.uppercasephrase))}
     assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
 
-    assert ([i.text if i not in mapping.keys() else mapping[i].tag for i in t.words]) == ['Minu', 0, 0, 0, '.', 'MIS', 'värvi', 1, 1, 'on', '?', 'Kuidas', 'PALUN', '?']
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+
+    mapping = {i: j for j in t.uppercasephrase for i in j.base_span}
+    assert [mapping[i.base_span].tag if i.base_span in mapping else i.text for i in t.words] == \
+           ['Minu', 0, 0, 0, '.', 'MIS', 'värvi', 1, 1, 'on', '?', 'Kuidas', 'PALUN', '?']

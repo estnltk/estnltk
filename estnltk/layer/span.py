@@ -160,9 +160,6 @@ class Span:
                and len(self.annotations) == len(other.annotations) \
                and all(s in other.annotations for s in self.annotations)
 
-    def __hash__(self):
-        return hash(self._base_span)
-
     @recursive_repr()
     def __str__(self):
         try:

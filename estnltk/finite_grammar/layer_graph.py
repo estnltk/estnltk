@@ -105,7 +105,7 @@ class SpanNode(Node):
         super().__init__(str(span.text), span.start, span.end)
 
     def __hash__(self):
-        return hash((self.name, self.start, self.end, self.span))
+        return hash((self.name, self.span.base_span))
 
 
 class GrammarNode(Node):
@@ -162,7 +162,7 @@ class TerminalNode(GrammarNode):
             self.attributes[attr] = getattr(span, attr)
 
     def __hash__(self):
-        return hash((self.name, self.span))
+        return hash((self.name, self.span.base_span))
 
     def __eq__(self, other):
         if isinstance(other, TerminalNode):

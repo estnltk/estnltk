@@ -181,9 +181,6 @@ class EnvelopingSpan:
                and self._base_span == other._base_span \
                and self.annotations == other.annotations
 
-    def __hash__(self):
-        return hash(self._base_span)
-
     @recursive_repr()
     def __str__(self):
         try:

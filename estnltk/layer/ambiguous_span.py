@@ -147,9 +147,6 @@ class AmbiguousSpan:
     def __contains__(self, item: Any):
         return item in self._annotations
 
-    def __hash__(self):
-        return hash(self._base_span)
-
     @recursive_repr()
     def __str__(self):
         try:
