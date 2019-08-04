@@ -35,7 +35,7 @@ def to_base_span(x) -> BaseSpan:
     if isinstance(x, (List, tuple, Layer)):
         if len(x) == 2 and isinstance(x[0], int) and isinstance(x[1], int):
             return ElementaryBaseSpan(*x)
-        return EnvelopingBaseSpan([to_base_span(y) for y in x])
+        return EnvelopingBaseSpan(to_base_span(y) for y in x)
     raise TypeError(x)
 
 
@@ -276,7 +276,11 @@ class Layer:
         """
         attribute_names = set(self.attributes)
 
+        last_span = None
         for span in self:
+            assert last_span is None or last_span < span
+            last_span = span
+
             annotations = span.annotations
 
             assert len(annotations) > 0, 'the span {} has no annotations'.format(span)
@@ -289,49 +293,6 @@ class Layer:
                             set(annotation) - attribute_names,
                             attribute_names - set(annotation),
                             self.name)
-
-        starts_ends = set()
-        for span in self._span_list.spans:
-            # Check for duplicate locations
-            assert (span.start, span.end) not in starts_ends, '{} is a span with duplicate location'.format(span)
-            starts_ends.add((span.start, span.end))
-            # Check for ambiguous spans
-            if self.ambiguous:
-                assert isinstance(span, AmbiguousSpan), \
-                       '(!) {} should be AmbiguousSpan'.format(span)
-            # Check that the span is connected with the layer
-            if isinstance(span, (EnvelopingSpan, AmbiguousSpan)):
-                assert self == span.layer, \
-                       '(!) missing or wrong layer: {}'.format(span.layer)
-            # Check attributes of AmbiguousSpan
-            if isinstance(span, AmbiguousSpan):
-                for annotation in span.annotations:
-                    # Check for missing attributes in Annotations
-                    for attr in self.attributes:
-                        attrib_exists = True
-                        try:
-                            getattr(annotation, attr)
-                        except AttributeError:
-                            attrib_exists = False
-                        assert attrib_exists, \
-                               '(!) Annotation missing attribute {}'.format(attr)
-                    # Check for redundant attributes in Annotations
-                    for anno_attr in annotation._attributes:
-                        assert anno_attr in self.attributes, \
-                       '(!) Annotation has redundant attribute {}'.format(anno_attr)
-            # Check attributes of EnvelopingSpan and Span
-            elif isinstance(span, (EnvelopingSpan, Span)):
-                # Check for existence of layer's attributes
-                # for annotation in span.annotations:
-                #     assert set(annotation.attributes) == set(self.attributes), annotation.attributes
-                for attr in self.attributes:
-                    for annotation in span.annotations:
-                        assert hasattr(annotation, attr), \
-                           '(!) missing attribute {} in {}'.format(attr, span)
-                # Check for redundant attributes
-                for span_attr in span.legal_attribute_names:
-                    assert span_attr in self.attributes, \
-                       '(!) redundant attribute {} in {}'.format(span_attr, span)
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
