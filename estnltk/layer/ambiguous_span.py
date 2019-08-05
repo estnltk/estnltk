@@ -101,10 +101,6 @@ class AmbiguousSpan:
         if self.text_object is not None:
             return self.text_object.text
 
-    # TODO: remove __len__
-    def __len__(self) -> int:
-        return len(self.annotations)
-
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
