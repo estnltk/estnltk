@@ -37,9 +37,6 @@ class SpanList(collections.Sequence):
             r.append(tmp)
         return r
 
-    def add_layer(self, layer):
-        self._layer = layer
-
     def add_span(self, span):
         # assert span.layer is self.layer  # TODO
         assert span.base_span not in self._base_span_to_span
@@ -78,11 +75,6 @@ class SpanList(collections.Sequence):
     @property
     def layer(self):
         return self._layer
-
-    @layer.setter
-    def layer(self, value):
-        # assert isinstance(value, Layer) or value is None
-        self._layer = value
 
     @property
     def start(self):
