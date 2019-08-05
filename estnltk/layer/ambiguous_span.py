@@ -112,9 +112,7 @@ class AmbiguousSpan:
 
         return self.__getattribute__(item)
 
-    def __getitem__(self, item) -> Union[Annotation, AttributeList, AttributeTupleList]:
-        if isinstance(item, int):
-            return self.annotations[item]
+    def __getitem__(self, item) -> Union[AttributeList, AttributeTupleList]:
         if isinstance(item, str):
             if self._layer.ambiguous:
                 return AttributeList((annotation[item] for annotation in self._annotations), item)

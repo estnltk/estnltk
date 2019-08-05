@@ -45,8 +45,6 @@ class Span:
         return self._annotations
 
     def __getitem__(self, item):
-        if isinstance(item, int):
-            return self.annotations[item]
         if isinstance(item, str):
             if self._layer.ambiguous:
                 return AttributeList((annotation[item] for annotation in self._annotations), item)
