@@ -62,8 +62,8 @@ def test_getitem():
     with pytest.raises(KeyError):
         span_1['bla']
 
-    with pytest.raises(IndexError):
-        span_1[2]
+    with pytest.raises(KeyError):
+        span_1[0]
 
 
 def test_base_spans():
