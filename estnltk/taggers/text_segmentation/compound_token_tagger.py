@@ -14,7 +14,7 @@ from pandas.io.common import EmptyDataError
 
 from estnltk.core import PACKAGE_PATH
 
-from estnltk import EnvelopingSpan, EnvelopingBaseSpan, Annotation
+from estnltk import EnvelopingSpan
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
@@ -292,11 +292,9 @@ class CompoundTokenTagger(Tagger):
                     elif tokenization_hints[token_span.start]['end'] < layers[ self._input_tokens_layer ][j].start:
                         break
                 if end_token_index:
-                    spans = layers[self._input_tokens_layer][i:end_token_index+1]
-                    span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
-                    span.add_annotation(Annotation(span,
-                                                   type=('tokenization_hint',),
-                                                   normalized=None))
+                    spans = layers[self._input_tokens_layer].spans[i:end_token_index+1]
+                    record = {'type': ('tokenization_hint',), 'normalized': None}
+                    span = EnvelopingSpan.from_spans(spans, layer, [record])
                     if 'pattern_type' in tokenization_hints[token_span.start]:
                         span.type = (tokenization_hints[token_span.start]['pattern_type'],)
                     if 'normalized' in tokenization_hints[token_span.start]:
@@ -339,11 +337,10 @@ class CompoundTokenTagger(Tagger):
                         # considered as a potentially hyphenated word; 
                         # This serves to leave out numeric ranges like 
                         #    "15-17.04." or "920-980"
-                        spans = layers[ self._input_tokens_layer ][hyphenation_start:i].spans
-                        span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
-                        span.add_annotation(Annotation(span,
-                                                       type=('hyphenation',),
-                                                       normalized=self._normalize_word_with_hyphens(text_snippet)))
+                        spans = layers[self._input_tokens_layer][hyphenation_start:i].spans
+                        record = {'type': ('hyphenation',),
+                                  'normalized': self._normalize_word_with_hyphens(text_snippet)}
+                        span = EnvelopingSpan.from_spans(spans, layer, [record])
                         compound_tokens_lists.append(span)
                     hyphenation_status = None
                     hyphenation_start = i
@@ -416,8 +413,9 @@ class CompoundTokenTagger(Tagger):
             else:
                 spans = layers[ self._input_tokens_layer ][token_id:token_id+1]
                 normalized = None
-            span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=output_layer)
-            span.add_annotation(Annotation(span, type=('non_ending_abbreviation',), normalized=normalized))
+            record = {'type': ('non_ending_abbreviation',),
+                      'normalized': normalized}
+            span = EnvelopingSpan.from_spans(spans, output_layer, [record])
             # before adding: check that none of the disallowed separator
             # strings are in the middle of the string 
             if self.do_not_join_on_strings:
@@ -707,8 +705,8 @@ class CompoundTokenTagger(Tagger):
             normalized_str = ''.join(normalized)
         
         # 4) Create new SpanList and assign attributes
-        span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in all_covered_tokens), layer=output_layer)
-        span.add_annotation(Annotation(span, type=('tokenization_hint',), normalized=normalized_str))
+        record = {'type':('tokenization_hint',), 'normalized':normalized_str}
+        span = EnvelopingSpan.from_spans(all_covered_tokens, output_layer, [record])
         if all_types:
             # Few "repairs" on the types:
             # 1) "non_ending_abbreviation" ('st') + "case_ending" ('st')

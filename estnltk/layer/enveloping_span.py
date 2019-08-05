@@ -4,7 +4,7 @@ from reprlib import recursive_repr
 from typing import Any, Union, Sequence
 
 from estnltk.layer.span import Span, Annotation
-from estnltk import BaseSpan
+from estnltk import BaseSpan, EnvelopingBaseSpan
 from .to_html import html_table
 
 
@@ -20,6 +20,13 @@ class EnvelopingSpan:
         self._annotations = []
         self.parent = None  # type:Union[Span, None]
         self._spans = None
+
+    @classmethod
+    def from_spans(cls, spans, layer, records):
+        span = cls(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
+        for record in records:
+            span.add_annotation(Annotation(span, **record))
+        return span
 
     @property
     def spans(self):
