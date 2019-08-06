@@ -414,6 +414,8 @@ class SentenceTokenizer( Tagger ):
         import nltk as nltk
         from nltk.tokenize.punkt import PunktSentenceTokenizer
         from nltk.tokenize.api import TokenizerI
+
+        self.base_sentence_tokenizer = None
         if not base_sentence_tokenizer:
             # If base tokenizer was not given by the user:
             #    Initialize NLTK's tokenizer
