@@ -19,9 +19,9 @@ from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_s
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 # NP chunker functionality from the version 1.4.1
-from estnltk.taggers.standard_taggers.np_chunker_v1_4_1 import NounPhraseChunkerV1_4
+from estnltk.taggers.miscellaneous.np_chunker_v1_4_1 import NounPhraseChunkerV1_4
 # Constants
-from estnltk.taggers.standard_taggers.np_chunker_v1_4_1 import PARSER_OUT, SENT_ID
+from estnltk.taggers.miscellaneous.np_chunker_v1_4_1 import PARSER_OUT, SENT_ID
 from estnltk.taggers.verb_chains.v1_4_1.vcd_common_names import WORDS
 
 

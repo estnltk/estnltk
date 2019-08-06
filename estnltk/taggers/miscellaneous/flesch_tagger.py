@@ -1,6 +1,6 @@
 from estnltk.taggers import Retagger
 from estnltk.vabamorf.morf import syllabify_word
-from . import flesch
+from estnltk.taggers.miscellaneous import flesch
 
 
 class SentenceFleschScoreRetagger(Retagger):

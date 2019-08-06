@@ -2,7 +2,7 @@ import pytest
 
 from estnltk import Text
 from estnltk.taggers import VislTagger
-from estnltk.taggers.standard_taggers.np_chunker import NounPhraseChunker
+from estnltk.taggers.miscellaneous.np_chunker import NounPhraseChunker
 
 from estnltk.taggers.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
 
