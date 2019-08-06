@@ -12,7 +12,11 @@ class SpanVisualiser:
         if len(segment[1]) > 0:
             return False
         return True
-    def default_class_mapper(self, segment):
-        if len(segment[1]) > 1:
+
+    def default_class_mapper(self, segment, index):
+        if type(segment[1]) is list:
+            if len(segment[1]) > 1:
+                return "'span overlapping-span'"
+        elif len(segment[1].annotations) > 1:
             return "'span overlapping-span'"
         return "'span plain-span'"

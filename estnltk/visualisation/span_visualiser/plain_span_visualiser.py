@@ -1,10 +1,12 @@
 from estnltk.visualisation.core.span_visualiser import SpanVisualiser
+import copy
 
 class PlainSpanVisualiser(SpanVisualiser):
 
-    def __init__(self,fill_empty_spans=False,mapping_dict=None):
+    def __init__(self,text_id,fill_empty_spans=False,mapping_dict=None):
         self.fill_empty_spans = fill_empty_spans
         self.mapping_dict = mapping_dict
+        self.text_id = text_id
 
     def __call__(self, segment, spans):
 
@@ -16,14 +18,19 @@ class PlainSpanVisualiser(SpanVisualiser):
 
         # There is a span to decorate
         output = ['<span style=']
-        for key, value in self.mapping_dict.items():
-            if key=="class" or key == "id":
-                pass
-            else:
-                output.append(key + ":" + value(segment) + ";")
+        # copy to make it readable for mappers
+        mapping_segment = copy.deepcopy(segment)
+        if len(segment[1]) == 1:
+            mapping_segment[1] = spans[mapping_segment[1][0]]
         for key, value in self.mapping_dict.items():
             if key == "class" or key == "id":
-                output.append(' ' + key + "=" + value(segment))
+                pass
+            else:
+                output.append(key + ":" + value(mapping_segment) + ";")
+        output.append(' "')
+        for key, value in self.mapping_dict.items():
+            if key == "class" or key == "id":
+                output.append(' ' + key + "=" + value(mapping_segment))
         if len(segment[1]) > 1:
             rows = []
             for i in segment[1]:

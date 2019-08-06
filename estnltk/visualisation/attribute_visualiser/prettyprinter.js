@@ -1,3 +1,5 @@
+// var text_id is given a value previously and it works as an index keeping count which version of the text is displayed
+
 /* Opening section: find all elements from the document with the corresponding class names and
 attach listeners to them so that an appropriate table would be opened whenever one of them is opened
  */

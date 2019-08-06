@@ -14,9 +14,10 @@ class DisplayAttributes:
     html_displayed = False
     original_layer = None
     accepted_array = None
+    chosen_annotations = None
 
     def __init__(self, name=""):
-        self.span_decorator = DirectAttributeVisualiser()
+        self.span_decorator = DirectAttributeVisualiser(text_id=self._text_id)
         self.name = name
 
     def __call__(self, layer):
@@ -50,22 +51,28 @@ class DisplayAttributes:
     def event_handler_code(self):
         with open(self.js_file) as js_file:
             contents = js_file.read()
-            output = ''.join(["<script>\n var text_id=", str(self._text_id),"\n", contents, "</script>"])
+            output = ''.join(["<script>\n var text_id=", str(self._text_id), "\n", contents, "</script>"])
         return output
 
     def delete_chosen_spans(self):
         new_layer = self.mark_chosen_spans()
+        if new_layer is None:
+            return None
         for i, span in enumerate(new_layer):
-            for j, annotation in enumerate(span):
+            for j, annotation in enumerate(span.annotations):
                 if not annotation.approved:
-                    del new_layer[i][j]
+                    del new_layer[i].annotations[j]
         return new_layer
 
     def mark_chosen_spans(self):
-        assert self.html_displayed, "HTML of this attribute visualiser hasn't been displayed yet!" \
-                                    " Call this visualiser with a layer as an argument to do it."
+        if not self.html_displayed:
+            print("HTML of this attribute visualiser hasn't been displayed yet!"
+                  " Call this visualiser with a layer as an argument to do it.")
+            return None
 
-        assert self.accepted_array is not None, "The annotation choices weren't saved! Click \"Export data\" to do it!"
+        if self.accepted_array is None:
+            print("The annotation choices weren't saved! Click \"Export data\" to do it!")
+            return None
 
         attribute_list = list(self.original_layer.attributes)
         attribute_list.append("approved")
@@ -77,8 +84,8 @@ class DisplayAttributes:
             for j, val in enumerate(chosen_annotations):
                 if val != '':
                     if int(val) == 2:
-                        new_layer.spans[i][j].approved = False
+                        new_layer.spans[i].annotations[j].approved = False
                     else:
-                        new_layer.spans[i][j].approved = True
+                        new_layer.spans[i].annotations[j].approved = True
 
         return new_layer

@@ -13,6 +13,7 @@ class DisplaySpans:
 
     js_file = rel_path("visualisation/span_visualiser/span_visualiser.js")
     css_file = rel_path("visualisation/span_visualiser/prettyprinter.css")
+    _text_id = 0
 
     def __init__(self, styling="both", **kwargs):
         self.styling = styling
@@ -21,13 +22,14 @@ class DisplaySpans:
         elif self.styling == "indirect":
             self.span_decorator = IndirectPlainSpanVisualiser(**kwargs)
         elif self.styling == "both":
-            self.span_decorator = PlainSpanVisualiser(**kwargs)
+            self.span_decorator = PlainSpanVisualiser(text_id=self._text_id, **kwargs)
         else:
             raise ValueError(styling)
 
     def __call__(self, layer):
 
         display_html(self.html_output(layer), raw=True)
+        self.__class__._text_id += 1
 
     def html_output(self, layer):
 
