@@ -10,20 +10,18 @@ class DisplayAttributes:
 
     js_file = rel_path("visualisation/attribute_visualiser/prettyprinter.js")
     css_file = rel_path("visualisation/attribute_visualiser/prettyprinter.css")
-    _text_id = 0
     html_displayed = False
     original_layer = None
     accepted_array = None
     chosen_annotations = None
 
     def __init__(self, name=""):
-        self.span_decorator = DirectAttributeVisualiser(text_id=self._text_id)
+        self.span_decorator = DirectAttributeVisualiser(text_id=str(name))
         self.name = name
 
     def __call__(self, layer):
         display_html(self.html_output(layer), raw=True)
         self.original_layer = layer
-        self.__class__._text_id += 1
 
     def html_output(self, layer):
         segments, span_list = decompose_to_elementary_spans(layer, layer.text_object.text)
@@ -51,7 +49,7 @@ class DisplayAttributes:
     def event_handler_code(self):
         with open(self.js_file) as js_file:
             contents = js_file.read()
-            output = ''.join(["<script>\n var text_id=", str(self._text_id), "\n", contents, "</script>"])
+            output = ''.join(["<script>\n var text_id='", str(self.name), "'\n", contents, "</script>"])
         return output
 
     def delete_chosen_spans(self):

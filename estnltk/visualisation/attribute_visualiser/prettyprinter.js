@@ -3,7 +3,7 @@
 /* Opening section: find all elements from the document with the corresponding class names and
 attach listeners to them so that an appropriate table would be opened whenever one of them is opened
  */
-var elements = document.getElementsByClassName("overlapping-span");
+var elements = document.getElementsByClassName("overlapping-span"+text_id);
 for (let i = 0; i < elements.length; i++) {
     //check if a listener is already attached, if not then add it
     if (typeof elements.item(i).onclick != "function") {
@@ -13,7 +13,7 @@ for (let i = 0; i < elements.length; i++) {
     }
 }
 
-var plain_elements = document.getElementsByClassName("plain-span");
+var plain_elements = document.getElementsByClassName("plain-span"+text_id);
 for (let i = 0; i < plain_elements.length; i++) {
     //check if a listener is already attached, if not then add it
     if (typeof plain_elements.item(i).onclick != "function") {
@@ -54,7 +54,7 @@ function show_conflicting_spans(span_element) {
     annotation_table(spantable, span_element);
 
     //this deletes the original "span" table and the annotation table with multiple columns
-    let table_elements = document.getElementsByClassName("tables");
+    let table_elements = document.getElementsByClassName("tables"+text_id);
     for (let i = 0; i < table_elements.length; i++) {
         table_elements.item(i).addEventListener("click", function () {
             this.parentElement.removeChild(this)
@@ -254,7 +254,7 @@ function assignValueToIterTable(spanNumber, value, table) {
 }
 
 var accepted_array = [];
-for (let i = 0; i < document.getElementsByClassName("span").length; i++) {
+for (let i = 0; i < document.getElementsByClassName("span"+text_id).length; i++) {
     accepted_array.push([]); //populate the list with "empty" values
 }
 
@@ -304,6 +304,9 @@ try {
 } catch (e) {
 }
 
+//since this script might be loaded on the page many times but we don't want the script
+//to increase the indexes multiple times per one click, this will make sure that there
+//is exactly one keydown listener per notebook
 if (typeof keydownListener === 'undefined') {
     var keydownListener = false;
 }
@@ -331,7 +334,7 @@ if (!keydownListener) {
 //move with arrow keys
     document.addEventListener("keydown", function (event) {
         if (event.key === "ArrowLeft") {
-            let annotationColumns = document.getElementsByClassName("iterable-annotation-table")
+            let annotationColumns = document.getElementsByClassName("iterable-annotation-table"+text_id)
             try {
                 if (annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation + 1).style.border === '2px solid yellow') {
                     annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation + 1).style.border = 'none'
@@ -356,7 +359,7 @@ if (!keydownListener) {
             }
         }
         if (event.key === "ArrowRight") {
-            let annotationColumns = document.getElementsByClassName("iterable-annotation-table")
+            let annotationColumns = document.getElementsByClassName("iterable-annotation-table"+text_id)
             if (annotation_index<0){
                 annotation_index = 0;
                 toggle_annotation_visibility();
@@ -382,7 +385,7 @@ if (!keydownListener) {
         }
         if (event.key === "1"){
             accepted_array[annotation_index][specific_annotation] = 1;
-            let annotation_columns = document.getElementsByClassName("iterable-annotation-table");
+            let annotation_columns = document.getElementsByClassName("iterable-annotation-table"+text_id);
             annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border = '2px solid green';
             if (annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.length-2===specific_annotation) {
                 // check if it's the last annotation of the span and move to the next span
@@ -398,7 +401,7 @@ if (!keydownListener) {
             }
         } if (event.key === "2"){
             accepted_array[annotation_index][specific_annotation] = 2;
-            let annotation_columns = document.getElementsByClassName("iterable-annotation-table");
+            let annotation_columns = document.getElementsByClassName("iterable-annotation-table"+text_id);
             annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border = '2px solid red';
             if (annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.length-2===specific_annotation) {
                 // check if it's the last annotation of the span and move to the next span
@@ -414,11 +417,13 @@ if (!keydownListener) {
             }
         }
     });
+
+    //prevent the creation of other listeners
     keydownListener = true
 }
 
 function toggle_visibility() {
-    let tableColumns = document.getElementsByClassName("iterable-table")
+    let tableColumns = document.getElementsByClassName("iterable-table"+text_id)
     for (let i = 0; i < tableColumns.length; i++) {
         if (i !== visible_index) {
             tableColumns.item(i).style.display = "none"
@@ -429,7 +434,7 @@ function toggle_visibility() {
 }
 
 function toggle_annotation_visibility() {
-    let annotationColumns = document.getElementsByClassName("iterable-annotation-table")
+    let annotationColumns = document.getElementsByClassName("iterable-annotation-table"+text_id)
     for (let i = 0; i < annotationColumns.length; i++) {
         if (i !== annotation_index) {
             annotationColumns.item(i).style.display = "none"
@@ -442,7 +447,7 @@ function toggle_annotation_visibility() {
 function open_spans() {
     // this creates all the spans that the user can navigate using left and right arrow keys
     // all the possible span tables are created and then their visibility is changed with toggle_visibility()
-    let overlapped = document.getElementsByClassName("overlapping-span");
+    let overlapped = document.getElementsByClassName("overlapping-span"+text_id);
     for (let i = 0; i < overlapped.length; i++) {
         let span_element = overlapped.item(i)
         let spantable = document.createElement('div');
@@ -460,7 +465,7 @@ function open_spans() {
 
         spantable.innerHTML = spancontent;
         span_element.parentElement.appendChild(spantable);
-        spantable.classList.add('iterable-table')
+        spantable.classList.add('iterable-table'+text_id)
 
         // Increase the size of the cell so the tables would fit
         spantable.parentElement.style.height = Math.max(Number(spantable.parentElement.style.height.substring(0, spantable.parentElement.style.height.length - 2)), span_element.offsetTop + 90) + 'px';
@@ -472,9 +477,9 @@ function open_spans() {
 }
 
 function create_all_annotation_tables() {
-    // this creates all the annotations that the user can navigate using a and d keys
+    // this creates all the annotations that the user can navigate using left and right keys
     // all the possible annotation tables are created and then their visibility is changed with toggle_annotation_visibility()
-    let all_spans = document.getElementsByClassName("span");
+    let all_spans = document.getElementsByClassName("span"+text_id);
     let viewed_annotations = new Set();
     for (let i = 0; i < all_spans.length; i++) {
         let span_element = all_spans.item(i)
@@ -505,7 +510,7 @@ function create_all_annotation_tables() {
                     let annotationtable = document.createElement('div');
                     span_element.parentElement.appendChild(annotationtable);
                     annotationtable.classList.add('alt-tables');
-                    annotationtable.classList.add('iterable-annotation-table');
+                    annotationtable.classList.add('iterable-annotation-table'+text_id);
                     //position the table
                     annotationtable.style.left = span_element.getBoundingClientRect().left - annotationtable.parentElement.parentElement.getBoundingClientRect().left + 'px';
                     annotationtable.style.top = span_element.getBoundingClientRect().top - annotationtable.parentElement.parentElement.getBoundingClientRect().top + 20 + 'px';
@@ -550,19 +555,20 @@ function create_all_annotation_tables() {
         }
 
     }
-    let created_tables = document.getElementsByClassName("iterable-annotation-table");
+    let created_tables = document.getElementsByClassName("iterable-annotation-table"+text_id);
     created_tables.item(0).firstChild.firstChild.firstChild.childNodes.item(1).style.border = '2px solid yellow'
 }
+
+document.addEventListener("keydown", function (event) {
+    let all_annotations = document.getElementsByClassName("iterable-annotation-table"+text_id);
+    //if cell is selected, listen to number keys
+    if (all_annotations.item(0).parentElement.parentElement.parentElement.parentElement.parentElement.classList.contains("selected")) {
+        Jupyter.keyboard_manager.disable()
+    }
+});
 
 open_spans();
 toggle_visibility();
 create_all_annotation_tables();
 toggle_annotation_visibility();
 
-document.addEventListener("keydown", function (event) {
-    let all_annotations = document.getElementsByClassName("iterable-annotation-table");
-    //if cell is selected, listen to number keys
-    if (all_annotations.item(0).parentElement.parentElement.parentElement.parentElement.parentElement.classList.contains("selected")) {
-        Jupyter.keyboard_manager.disable()
-    }
-});
