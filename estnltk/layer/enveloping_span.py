@@ -8,18 +8,13 @@ from estnltk import BaseSpan, EnvelopingBaseSpan
 from .to_html import html_table
 
 
-class EnvelopingSpan:
+class EnvelopingSpan(Span):
     __slots__ = ['_base_span', '_layer', '_annotations', 'parent', '_spans']
 
     def __init__(self, base_span: BaseSpan, layer):
-        assert isinstance(base_span, BaseSpan)
-
-        self._base_span = base_span
-        self._layer = layer
-
-        self._annotations = []
         self.parent = None  # type:Union[Span, None]
         self._spans = None
+        super().__init__(base_span, layer)
 
     @classmethod
     def from_spans(cls, spans, layer, records):
@@ -35,25 +30,6 @@ class EnvelopingSpan:
             self._spans = tuple(get_from_enveloped(base) for base in self._base_span)
 
         return self._spans
-
-    def add_annotation(self, annotation: Annotation) -> Annotation:
-        if not isinstance(annotation, Annotation):
-            raise TypeError('expected Annotation, got {}'.format(type(annotation)))
-        if annotation.span is not self:
-            raise ValueError('the annotation has a different span {}'.format(annotation.span))
-        if set(annotation) != set(self.layer.attributes):
-            raise ValueError('the annotation has unexpected or missing attributes: {}'.format(dict(annotation)))
-
-        if annotation not in self._annotations:
-            if self.layer.ambiguous or len(self._annotations) == 0:
-                self._annotations.append(annotation)
-                return annotation
-
-            raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
-
-    @property
-    def annotations(self):
-        return self._annotations
 
     def get_attributes(self, items):
         r = []
@@ -81,22 +57,6 @@ class EnvelopingSpan:
         return [i.to_records(with_text) for i in self.spans]
 
     @property
-    def layer(self):
-        return self._layer
-
-    @property
-    def start(self):
-        return self._base_span.start
-
-    @property
-    def end(self):
-        return self._base_span.end
-
-    @property
-    def base_span(self):
-        return self._base_span
-
-    @property
     def base_spans(self):
         return tuple(s for span in self.spans for s in span.base_spans)
 
@@ -106,16 +66,8 @@ class EnvelopingSpan:
         return [raw_text[start:end] for start, end in self._base_span.flatten()]
 
     @property
-    def text_object(self):
-        return self._layer.text_object
-
-    @property
     def enclosing_text(self):
         return self.layer.text_object.text[self.start:self.end]
-
-    @property
-    def raw_text(self):
-        return self.text_object.text
 
     # TODO
     def html_text(self, margin: int = 0):
@@ -172,14 +124,6 @@ class EnvelopingSpan:
 
         raise KeyError(idx)
 
-    def __lt__(self, other: Any) -> bool:
-        return isinstance(other, EnvelopingSpan) and self._base_span < other._base_span
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, EnvelopingSpan) \
-               and self._base_span == other._base_span \
-               and self.annotations == other.annotations
-
     @recursive_repr()
     def __str__(self):
         try:
@@ -200,9 +144,6 @@ class EnvelopingSpan:
         return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
                                                               annotations=annotations)
 
-    def __repr__(self):
-        return str(self)
-
     def _to_html(self, margin=0) -> str:
         try:
             return '<b>{}</b>\n{}'.format(
@@ -213,6 +154,3 @@ class EnvelopingSpan:
 
     def display(self, margin: int = 0):
         display_html(self._to_html(margin), raw=True)
-
-    def _repr_html_(self):
-        return self._to_html()

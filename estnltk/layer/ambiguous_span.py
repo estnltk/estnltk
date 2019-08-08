@@ -1,6 +1,6 @@
 from IPython.core.display import display_html
 from reprlib import recursive_repr
-from typing import Union, Any
+from typing import Union
 
 from estnltk import Span, BaseSpan
 from estnltk import Annotation, ElementaryBaseSpan
@@ -8,7 +8,7 @@ from estnltk.layer import AttributeList, AttributeTupleList
 from .to_html import html_table
 
 
-class AmbiguousSpan:
+class AmbiguousSpan(Span):
     __slots__ = ['_base_span', '_layer', '_annotations', '_parent']
 
     def __init__(self, base_span: BaseSpan, layer) -> None:
@@ -52,28 +52,6 @@ class AmbiguousSpan:
         if not self._annotations:
             self._layer.remove_span(self)
 
-    @property
-    def parent(self):
-        if self._parent is None and self._layer.parent:
-            self._parent = self._layer.text_object[self._layer.parent].get(self.base_span)
-
-        return self._parent
-
-    @property
-    def layer(self):
-        return self._layer
-
-    @property
-    def start(self):
-        return self._base_span.start
-
-    @property
-    def end(self):
-        return self._base_span.end
-
-    @property
-    def base_span(self):
-        return self._base_span
 
     @property
     def text(self):
@@ -124,18 +102,6 @@ class AmbiguousSpan:
 
         raise KeyError(item)
 
-    def __lt__(self, other: Any) -> bool:
-        return self.base_span < other.base_span
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, AmbiguousSpan) \
-               and self.base_span == other.base_span \
-               and len(self.annotations) == len(other.annotations) \
-               and all(s in other.annotations for s in self.annotations)
-
-    def __contains__(self, item: Any):
-        return item in self._annotations
-
     @recursive_repr()
     def __str__(self):
         try:
@@ -156,9 +122,6 @@ class AmbiguousSpan:
         return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
                                                               annotations=annotations)
 
-    def __repr__(self):
-        return str(self)
-
     def _to_html(self, margin=0) -> str:
         try:
             return '<b>{}</b>\n{}'.format(
@@ -169,6 +132,3 @@ class AmbiguousSpan:
 
     def display(self, margin: int = 0):
         display_html(self._to_html(margin), raw=True)
-
-    def _repr_html_(self):
-        return self._to_html()

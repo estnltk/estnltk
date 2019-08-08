@@ -114,7 +114,7 @@ class Span:
         return record
 
     def __setattr__(self, key, value):
-        if key in self.__slots__ or key == 'parent':
+        if key in self.__slots__ or key == 'parent' or key == 'annotations':
             super().__setattr__(key, value)
         elif key in self.legal_attribute_names:
             for annotation in self._annotations:
