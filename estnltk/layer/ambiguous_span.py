@@ -3,7 +3,6 @@ from reprlib import recursive_repr
 from typing import Union
 
 from estnltk import Span, BaseSpan
-from estnltk import Annotation, ElementaryBaseSpan
 from estnltk.layer import AttributeList, AttributeTupleList
 from .to_html import html_table
 
@@ -21,21 +20,6 @@ class AmbiguousSpan(Span):
 
         self._parent = None  # type: Union[Span, None]
 
-    def add_annotation(self, annotation: Annotation) -> Annotation:
-        if not isinstance(annotation, Annotation):
-            raise TypeError('expected Annotation, got {}'.format(type(annotation)))
-        if annotation.span is not self:
-            raise ValueError('the annotation has a different span {}'.format(annotation.span))
-        if set(annotation) != set(self.layer.attributes):
-            raise ValueError('the annotation has unexpected or missing attributes {}'.format(annotation.attributes))
-
-        if annotation not in self._annotations:
-            if self.layer.ambiguous or len(self._annotations) == 0:
-                self._annotations.append(annotation)
-                return annotation
-
-            raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
-
     @property
     def annotations(self):
         return self._annotations
@@ -46,38 +30,6 @@ class AmbiguousSpan(Span):
 
     def to_records(self, with_text=False):
         return [i.to_record(with_text) for i in self._annotations]
-
-    def __delitem__(self, key):
-        del self._annotations[key]
-        if not self._annotations:
-            self._layer.remove_span(self)
-
-
-    @property
-    def text(self):
-        if self.text_object is None:
-            return
-        text = self.text_object.text
-        base_span = self.base_span
-
-        if isinstance(base_span, ElementaryBaseSpan):
-            return text[base_span.start:base_span.end]
-
-        return [text[start:end] for start, end in base_span.flatten()]
-
-    @property
-    def enclosing_text(self):
-        return self._layer.text_object.text[self.start:self.end]
-
-    @property
-    def text_object(self):
-        if self._layer is not None:
-            return self._layer.text_object
-
-    @property
-    def raw_text(self):
-        if self.text_object is not None:
-            return self.text_object.text
 
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:

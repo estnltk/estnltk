@@ -2,7 +2,7 @@ from IPython.core.display import display_html
 from reprlib import recursive_repr
 from typing import MutableMapping, Any, Sequence
 
-from estnltk.layer.base_span import BaseSpan
+from estnltk.layer.base_span import BaseSpan, ElementaryBaseSpan
 from estnltk.layer.annotation import Annotation
 from estnltk.layer import AttributeList, AttributeTupleList
 
@@ -39,6 +39,11 @@ class Span:
                 return annotation
 
             raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
+
+    def del_annotation(self, idx):
+        del self._annotations[idx]
+        if not self._annotations:
+            self._layer.remove_span(self)
 
     @property
     def annotations(self):
@@ -89,7 +94,15 @@ class Span:
 
     @property
     def text(self):
-        return self._layer.text_object.text[self._base_span.start:self._base_span.end]
+        if self.text_object is None:
+            return
+        text = self.text_object.text
+        base_span = self.base_span
+
+        if isinstance(base_span, ElementaryBaseSpan):
+            return text[base_span.start:base_span.end]
+
+        return [text[start:end] for start, end in base_span.flatten()]
 
     @property
     def enclosing_text(self):

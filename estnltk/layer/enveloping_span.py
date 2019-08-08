@@ -9,7 +9,7 @@ from .to_html import html_table
 
 
 class EnvelopingSpan(Span):
-    __slots__ = ['_base_span', '_layer', '_annotations', 'parent', '_spans']
+    __slots__ = ['_base_span', '_layer', '_annotations', 'parent', '_parent', '_spans']
 
     def __init__(self, base_span: BaseSpan, layer):
         self.parent = None  # type:Union[Span, None]
@@ -61,11 +61,6 @@ class EnvelopingSpan(Span):
         return tuple(s for span in self.spans for s in span.base_spans)
 
     @property
-    def text(self):
-        raw_text = self.text_object.text
-        return [raw_text[start:end] for start, end in self._base_span.flatten()]
-
-    @property
     def enclosing_text(self):
         return self.layer.text_object.text[self.start:self.end]
 
@@ -106,8 +101,6 @@ class EnvelopingSpan(Span):
             return self.annotations[0][item]
 
         layer = self.__getattribute__('layer')  # type: Layer
-        if item == layer.parent:
-            return self.parent
 
         return layer.text_object._resolve(layer.name, item, sofar=self)
 
