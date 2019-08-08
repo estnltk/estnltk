@@ -33,7 +33,7 @@ def apply_filter(layer: Layer, function: callable, preserve_spans: bool = False,
     else:
         to_remove = []
         for i, span in enumerate(layer):
-            for j, annotation in enumerate(span):
+            for j, annotation in enumerate(span.annotations):
                 if not function(layer, i, j):
                     to_remove.append((i, j))
         for i, j in reversed(to_remove):

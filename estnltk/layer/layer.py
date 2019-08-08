@@ -6,8 +6,7 @@ import warnings
 
 from estnltk import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
 from estnltk import Span, EnvelopingSpan, AmbiguousSpan, Annotation, SpanList
-from estnltk.layer import AmbiguousAttributeTupleList
-from estnltk.visualisation import DisplaySpans
+from estnltk.layer import AmbiguousAttributeTupleList, AmbiguousAttributeList, AttributeTupleList, AttributeList
 
 
 def whitelist_record(record, source_attributes):
@@ -103,7 +102,7 @@ class Layer:
         self.enveloping = enveloping
 
         # Container for spans
-        self._span_list = SpanList(layer=self)
+        self._span_list = SpanList()
 
         # boolean for if this is an ambiguous layer
         # if True, add_span will behave differently and add a SpanList instead.
@@ -162,7 +161,7 @@ class Layer:
 
     def from_records(self, records, rewriting=False) -> 'Layer':
         if rewriting:
-            self._span_list = SpanList(layer=self)
+            self._span_list = SpanList()
 
         if self.ambiguous:
             for record_line in records:
@@ -178,10 +177,24 @@ class Layer:
         return self
 
     def attribute_list(self, attributes):
-        return self._span_list.attribute_list(attributes)
-
-    def get_attributes(self, items):
-        return self._span_list.get_attributes(items)
+        assert isinstance(attributes, (str, list, tuple)), str(type(attributes))
+        if not attributes:
+            raise IndexError('no attributes: ' + str(attributes))
+        if self.ambiguous:
+            if isinstance(attributes, (list, tuple)):
+                result = AmbiguousAttributeTupleList(
+                        (((getattr(a, attr) for attr in attributes) for a in sp.annotations)
+                         for sp in self.spans), attributes)
+            else:
+                result = AmbiguousAttributeList(((getattr(a, attributes) for a in sp.annotations)
+                                                 for sp in self.spans), attributes)
+        else:
+            if isinstance(attributes, (list, tuple)):
+                result = AttributeTupleList([[getattr(sp, attr) for attr in attributes] for sp in self.spans],
+                                            attributes)
+            else:
+                result = AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
+        return result
 
     def to_records(self, with_text=False):
         return self._span_list.to_records(with_text)
@@ -375,7 +388,7 @@ class Layer:
         super().__setattr__(key, value)
 
     def __iter__(self):
-        return iter(self._span_list)
+        return iter(self._span_list.spans)
 
     def __setitem__(self, key: int, value: Span):
         self._span_list[key] = value
@@ -394,7 +407,7 @@ class Layer:
             raise IndexError('no attributes: ' + str(item))
 
         if isinstance(item, str) or isinstance(item, (list, tuple)) and all(isinstance(s, str) for s in item):
-            return self._span_list.attribute_list(item)
+            return self.attribute_list(item)
 
         if isinstance(item, tuple) and len(item) == 2 \
            and (callable(item[0])
@@ -488,8 +501,9 @@ class Layer:
                                                       'parent', 'enveloping',
                                                       'ambiguous', 'span count'])
 
-    def display(self):
-        display_spans = DisplaySpans()
+    def display(self, **kwargs):
+        from estnltk.visualisation import DisplaySpans
+        display_spans = DisplaySpans(**kwargs)
         display_spans(self)
 
     def to_html(self, header='Layer', start_end=False):
@@ -563,7 +577,7 @@ class Layer:
         table_1 = self.metadata().to_html(index=False, escape=False)
         table_2 = ''
         if attributes:
-            table_2 = self._span_list.attribute_list(attributes).to_html(index='text')
+            table_2 = self.attribute_list(attributes).to_html(index='text')
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object, table_1, table_2))
 
     def __repr__(self):

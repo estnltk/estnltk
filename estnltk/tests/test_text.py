@@ -1,10 +1,9 @@
 import pytest
 
 import itertools
-from estnltk import EnvelopingSpan
 from estnltk import Layer
 from estnltk import Text
-from estnltk.layer import AmbiguousAttributeList
+from estnltk.layer import AmbiguousAttributeList, AttributeTupleList
 from estnltk.layer import AttributeList
 from estnltk.tests import new_text
 
@@ -64,15 +63,9 @@ def test_equivalences():
 
     assert t.sentences.lemma == [sentence.lemma for sentence in t.sentences] == [[word.lemma for word in sentence] for sentence in t.sentences]
 
-    #assert t.words.text == list(itertools.chain(*t.sentences.text))
     assert t.words.text == t.sentences.text
 
-    #assert [list(set(i))[0] for i in t.morph_analysis.text] == t.words.text
     assert t.morph_analysis.text == t.words.text
-
-    # assert t.morph_analysis.get_attributes(['text', 'lemma']) == t.words.get_attributes(['text', 'lemma'])
-
-    assert [[i[0]] for i in t.morph_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
 
 
 def test_equal():
@@ -551,9 +544,6 @@ def test_words_sentences():
 
     assert t.uppercase.upper == AttributeList(['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?'],
                                               'upper')
-    print(t.sentences)
-    print(t.sentences.uppercase)
-    print(t.sentences.uppercase.upper)
     #assert t.sentences.uppercase.upper == [['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', ],[ 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']]
     #assert t.words.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
 
@@ -977,7 +967,9 @@ def test_phrase_layer():
     w = UppercasePhraseTagger()
     t = w.tag(Text('Minu KARU ON PUNANE. MIS värvi SINU KARU on? Kuidas PALUN?').tag_layer(['words', 'sentences']))
     t.tag_layer(['morph_analysis'])
-    assert (t.uppercasephrase.get_attributes(['phrasetext', 'text'])) == [[('karu on punane', 'KARU'), ('karu on punane', 'ON'), ('karu on punane', 'PUNANE')], [('sinu karu', 'SINU'), ('sinu karu', 'KARU')]]
+    assert t.uppercasephrase['phrasetext', 'text'] == AttributeTupleList([['karu on punane', ['KARU', 'ON', 'PUNANE']],
+                                                                          ['sinu karu', ['SINU', 'KARU']]],
+                                                                         ('phrasetext', 'text'))
 
     assert (t.phrasetext) == AttributeList(['karu on punane', 'sinu karu'], 'phrasetext')
 
