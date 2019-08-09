@@ -31,7 +31,8 @@ def _resolve_ambiguous_span(ambiguous_span: AmbiguousSpan, priority_attribute: s
             result.append(s)
     if not keep_equal:
         result = result[:1]
-    ambiguous_span.annotations = result
+    ambiguous_span.annotations.clear()
+    ambiguous_span.annotations.extend(result)
 
 
 def resolve_conflicts(layer,

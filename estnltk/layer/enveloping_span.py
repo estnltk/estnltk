@@ -83,11 +83,10 @@ class EnvelopingSpan(Span):
         return item in self.spans
 
     def __setattr__(self, key, value):
-        if key in {'_base_span', '_layer', '_annotations', '_parent', '_spans'}:
+        if key == '_spans':
             object.__setattr__(self, key, value)
         else:
-            for annotation in self._annotations:
-                setattr(annotation, key, value)
+            super().__setattr__(key, value)
 
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
