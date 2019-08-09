@@ -1,18 +1,14 @@
 import itertools
-from IPython.core.display import display_html
-from reprlib import recursive_repr
 from typing import Any, Union, Sequence
 
 from estnltk.layer.span import Span, Annotation
 from estnltk import BaseSpan, EnvelopingBaseSpan
-from .to_html import html_table
 
 
 class EnvelopingSpan(Span):
-    __slots__ = ['_base_span', '_layer', '_annotations', 'parent', '_parent', '_spans']
+    __slots__ = ['_spans']
 
     def __init__(self, base_span: BaseSpan, layer):
-        self.parent = None  # type:Union[Span, None]
         self._spans = None
         super().__init__(base_span, layer)
 
@@ -87,8 +83,8 @@ class EnvelopingSpan(Span):
         return item in self.spans
 
     def __setattr__(self, key, value):
-        if key in {'_spans', '_attributes', 'parent', '_base', '_base_span', '_layer', '_annotations'}:
-            super().__setattr__(key, value)
+        if key in {'_base_span', '_layer', '_annotations', '_parent', '_spans'}:
+            object.__setattr__(self, key, value)
         else:
             for annotation in self._annotations:
                 setattr(annotation, key, value)
@@ -116,34 +112,3 @@ class EnvelopingSpan(Span):
             return res
 
         raise KeyError(idx)
-
-    @recursive_repr()
-    def __str__(self):
-        try:
-            text = self.text
-        except:
-            text = None
-
-        try:
-            attribute_names = self._layer.attributes
-            annotation_strings = []
-            for annotation in self._annotations:
-                key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
-                annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
-            annotations = '[{}]'.format(', '.join(annotation_strings))
-        except:
-            annotations = None
-
-        return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
-                                                              annotations=annotations)
-
-    def _to_html(self, margin=0) -> str:
-        try:
-            return '<b>{}</b>\n{}'.format(
-                    self.__class__.__name__,
-                    html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
-        except:
-            return str(self)
-
-    def display(self, margin: int = 0):
-        display_html(self._to_html(margin), raw=True)

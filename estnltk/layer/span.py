@@ -1,6 +1,6 @@
 from IPython.core.display import display_html
 from reprlib import recursive_repr
-from typing import MutableMapping, Any, Sequence
+from typing import Any, Sequence
 
 from estnltk.layer.base_span import BaseSpan, ElementaryBaseSpan
 from estnltk.layer.annotation import Annotation
@@ -117,7 +117,9 @@ class Span:
     def raw_text(self):
         return self.text_object.text
 
-    def to_records(self, with_text=False) -> MutableMapping[str, Any]:
+    def to_records(self, with_text=False):
+        if self._layer.ambiguous:
+            return [i.to_record(with_text) for i in self._annotations]
         annotation = self.annotations[0]
         record = {k: annotation[k] for k in self._layer.attributes}
         if with_text:
@@ -127,7 +129,7 @@ class Span:
         return record
 
     def __setattr__(self, key, value):
-        if key in self.__slots__ or key == 'parent' or key == 'annotations':
+        if key in {'_base_span', '_layer', '_annotations', '_parent'}:
             super().__setattr__(key, value)
         elif key in self.legal_attribute_names:
             for annotation in self._annotations:
