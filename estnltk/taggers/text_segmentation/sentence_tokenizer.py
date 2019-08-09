@@ -533,7 +533,7 @@ class SentenceTokenizer( Tagger ):
                         next_word = words[wid+1].text
                         if len(next_word) > 1 and \
                            next_word[0].isupper() and \
-                           next_word[1].islower():
+                           (next_word[1].islower() or next_word.isupper()):
                             # we have a likely sentence boundary:
                             # add it to the set of sentence ends
                             sentence_ends.add( word.end )
