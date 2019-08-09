@@ -518,3 +518,52 @@ def test_groupby():
                       ('L0-7', '5'): ['viis'],
                       ('L0-8', '500'): ['viissada'],
                       ('L0-9', '100'): ['sada']}
+
+
+def test_copy():
+    layer = Layer('test')
+    layer_copy = layer.copy()
+    assert layer == layer_copy
+    assert layer is not layer_copy
+
+    text = new_text(5)
+
+    layer = text['layer_1']
+    layer_copy = layer.copy()
+
+    assert layer_copy == layer
+    assert layer_copy.attributes == layer.attributes
+    # the tuple of attribute names is not copied
+    assert layer_copy.attributes is layer.attributes
+    layer_copy.attributes = [*layer_copy.attributes, 'new_attribute']
+    assert layer_copy.attributes != layer.attributes
+    layer_copy.attributes = layer_copy.attributes[:-1]
+    assert layer_copy.attributes == layer.attributes
+    assert layer_copy.attributes is not layer.attributes
+
+    assert layer_copy == layer
+    assert layer_copy.default_values == layer.default_values
+    assert layer_copy.default_values is not layer.default_values
+    layer_copy.default_values['new_attribute'] = 13
+    assert layer_copy.default_values != layer.default_values
+    del layer_copy.default_values['new_attribute']
+    assert layer_copy.default_values == layer.default_values
+
+    # list of spans is copied
+    assert layer_copy == layer
+    span = layer_copy[0]
+    del layer_copy[0]
+    assert layer_copy != layer
+    layer_copy.add_span(span)
+
+    # list of annotations is copied
+    assert layer == layer_copy
+    layer_copy.add_annotation(layer_copy[0].base_span, attr='L1-2',  attr_1='kümme')
+    assert layer_copy != layer
+    del layer_copy[0].annotations[-1]
+
+    # annotations are copied
+    assert layer == layer_copy
+    layer_copy[0].annotations[0].attr_0 = '101'
+    assert layer_copy != layer
+    layer_copy[0].annotations[0].attr_0 = '100'
