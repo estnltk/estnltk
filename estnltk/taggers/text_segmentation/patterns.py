@@ -201,13 +201,13 @@ email_and_www_patterns = [
       '_group_': 2,
       '_priority_': (0, 0, 6),
       '_regex_pattern_':  re.compile(r'''
-                         (^|[^{ALPHANUM}])                 # beginning or non-alphanum
+                         (^|[^{ALPHANUM}])                               # beginning or non-alphanum
                          (
-                         [{ALPHANUM}_\-.]+                 # domain name
-                         (\s\.\s|\.)                       # period
-                         (ee|org|edu|com|uk|ru|fi|lv|lt)   # top-level domain
+                         [{ALPHANUM}_\-.]+                               # domain name
+                         (\s\.\s|\.)                                     # period
+                         (ee|org|edu|com|uk|ru|fi|lv|lt|eu|se|nl|de|dk)  # top-level domain
                          )
-                         ([^{ALPHANUM}]|$)                 # non-alphanum or ending
+                         ([^{ALPHANUM}]|$)                               # non-alphanum or ending
                          '''.format(**MACROS), re.X),
       'normalized': lambda m: re.sub(r'\s','', m.group(2) ) },
 
