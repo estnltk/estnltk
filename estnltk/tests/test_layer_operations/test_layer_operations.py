@@ -1,8 +1,10 @@
-from estnltk import Text, Layer, Span, ElementaryBaseSpan
+from estnltk import Text, Layer, ElementaryBaseSpan
 
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.tests import new_text
+from estnltk.converters import layer_to_dict
 
+from estnltk.layer_operations import apply_filter
 from estnltk.layer_operations import drop_annotations
 from estnltk.layer_operations import keep_annotations
 from estnltk.layer_operations import unique_texts
@@ -13,6 +15,41 @@ from estnltk.layer_operations import conflicts
 from estnltk.layer_operations import count_by_document
 from estnltk.layer_operations import dict_to_df
 from estnltk.layer_operations import group_by_spans
+
+
+def test_apply_filter():
+    def filter_function(layer, i, j):
+        return layer[i].annotations[j].attr_1 in {'B', 'C', 'E', 'F'}
+
+    text_3 = Text('Tere, maailm!')
+
+    layer_1 = Layer('layer_1', attributes=['attr', 'attr_1'], text_object=text_3, ambiguous=True)
+    layer_1.add_annotation(ElementaryBaseSpan(0, 4), attr='L1-0', attr_1='A')
+    layer_1.add_annotation(ElementaryBaseSpan(0, 4), attr='L1-0', attr_1='B')
+    layer_1.add_annotation(ElementaryBaseSpan(4, 5), attr='L1-1', attr_1='C')
+    layer_1.add_annotation(ElementaryBaseSpan(6, 12), attr='L1-2', attr_1='D')
+    layer_1.add_annotation(ElementaryBaseSpan(6, 12), attr='L1-2', attr_1='E')
+    layer_1.add_annotation(ElementaryBaseSpan(12, 13), attr='L1-3', attr_1='F')
+    text_3['layer_1'] = layer_1
+
+    layer = text_3.layer_1
+
+    apply_filter(layer=layer,
+                 function=filter_function,
+                 preserve_spans=False,
+                 drop_immediately=False
+                 )
+    assert layer_to_dict(layer) == {
+        'name': 'layer_1',
+        'attributes': ('attr', 'attr_1'),
+        'parent': None,
+        '_base': 'layer_1',
+        'enveloping': None,
+        'ambiguous': True,
+        'spans': [[{'attr_1': 'B', 'attr': 'L1-0', 'start': 0, 'end': 4}],
+                  [{'attr_1': 'C', 'attr': 'L1-1', 'start': 4, 'end': 5}],
+                  [{'attr_1': 'E', 'attr': 'L1-2', 'start': 6, 'end': 12}],
+                  [{'attr_1': 'F', 'attr': 'L1-3', 'start': 12, 'end': 13}]]}
 
 
 def test_drop_annotations():
