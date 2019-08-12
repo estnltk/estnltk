@@ -229,9 +229,9 @@ def test_merge_mistakenly_split_sentences_2():
 
 
 
-def test_merge_mistakenly_split_sentences_3():
+def test_merge_mistakenly_split_sentences_3_1():
     # Tests that mistakenly split sentences have been properly merged
-    # 3: splits related to double quotes
+    # 3.1: double quotes fixed based on local context;
     test_texts = [ 
         #   Merge case:   {sentence_ending_punct} {ending_quotes}? + {comma_or_semicolon} {lowercase_letter}
         { 'text': 'ETV-s esietendub homme " Õnne 13 ! " , mis kuu aja eest jõudis lavale Ugalas .', \
@@ -297,10 +297,6 @@ def test_merge_mistakenly_split_sentences_3():
           'expected_sentence_texts': ['" Kuidas saada miljonäriks ? " .', 'Selge see , et miljonimängus peavad olema kõige raskemad küsimused .'] }, \
         { 'text': '" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " . \nMa ei taha seda ärajäänud kohtumist presidendi kaela ajada .', \
           'expected_sentence_texts': ['" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " .', 'Ma ei taha seda ärajäänud kohtumist presidendi kaela ajada .'] }, \
-          
-        #   TODO: The following case is problematic, needs to be fixed later:
-        { 'text': 'Kertu küsib : “ Miks sa naeratad kogu aeg ? ”\nMaailm on nii ilus .', \
-          'expected_sentence_texts': ['Kertu küsib : “ Miks sa naeratad kogu aeg ?', '”\nMaailm on nii ilus .'] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
@@ -313,6 +309,34 @@ def test_merge_mistakenly_split_sentences_3():
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
+
+def test_merge_mistakenly_split_sentences_3_2():
+    # Tests that mistakenly split sentences have been properly merged
+    # 3.2: double quotes fixed based on global counts of quotation marks;
+    sentence_tokenizer = SentenceTokenizer( fix_double_quotes_based_on_counts=True )
+    test_texts = [ 
+        # if an ending double quotes start a sentence, then move the quotes to the end of the previous sentence
+        { 'text': 'Kertu küsib : “ Miks sa naeratad kogu aeg ? ”\nMaailm on nii ilus .', \
+          'expected_sentence_texts': ['Kertu küsib : “ Miks sa naeratad kogu aeg ? ”', 'Maailm on nii ilus .'] }, \
+        { 'text': 'Mis te nende tähtedega teete ?\n“ Maha müün . ” See ei tähenda , et nii peabki .', \
+          'expected_sentence_texts': ['Mis te nende tähtedega teete ?', '“ Maha müün . ”', 'See ei tähenda , et nii peabki .'] }, \
+        { 'text': '“ Minul pole häda midägit .\nPension käib ja puha . ”\nTraktor aias on poja oma .', \
+          'expected_sentence_texts': ['“ Minul pole häda midägit .', 'Pension käib ja puha . ”', 'Traktor aias on poja oma .'] }, \
+        { 'text': 'Päris eakatest räägib näiteks " Looduse lapsed . " Piletihinnad on madalamad kui muidu kinodes , 25-60 krooni .', \
+          'expected_sentence_texts': ['Päris eakatest räägib näiteks " Looduse lapsed . "', \
+                                      'Piletihinnad on madalamad kui muidu kinodes , 25-60 krooni .'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words'])
+        sentence_tokenizer.tag( text )
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences']]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
 
 
 def test_merge_mistakenly_split_sentences_4():
