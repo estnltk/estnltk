@@ -59,6 +59,9 @@ class Layer:
     as database serialisation does not work for other types. See [estnltk.storage.postgres] for further documentation.
 
     """
+    __slots__ = ['default_values', 'attributes', 'name', 'parent', '_base', 'enveloping', '_span_list', 'ambiguous',
+                 'text_object', 'meta', '_is_frozen', '_bound']
+
     def __init__(self,
                  name: str,
                  attributes: Sequence[str] = (),
@@ -371,8 +374,6 @@ class Layer:
     def __getattr__(self, item):
         if item in {'_ipython_canary_method_should_not_exist_', '__getstate__', '__setstate__'}:
             raise AttributeError
-        if item in self.__getattribute__('__dict__'):
-            return self.__getattribute__('__dict__')[item]
         if item in self.__getattribute__('attributes'):
             return self.__getitem__(item)
 
