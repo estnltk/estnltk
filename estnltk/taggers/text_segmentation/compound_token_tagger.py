@@ -354,7 +354,8 @@ class CompoundTokenTagger(Tagger):
 
         # *) Finally: add spans to the layer
         for span in compound_tokens_lists:
-            layer.add_span(span)
+            for annotation in span.annotations:
+                layer.add_annotation(span.base_span, **annotation) 
 
         resolve_conflicts(layer,
                           conflict_resolving_strategy=self._conflict_resolving_strategy,

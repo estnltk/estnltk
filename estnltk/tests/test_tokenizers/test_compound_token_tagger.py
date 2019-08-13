@@ -296,6 +296,13 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Muidugi', 'pead', 'ei', 'anna', ',', 'et', 'asi', '100%', 'nii', 'on', '.'] },\
             { 'text' : "Vaja oleks 100%list",\
               'expected_words': ['Vaja', 'oleks', '100%list'] },\
+            
+            # Detecting abbreviations that overlap with hyphenations [should not result in error]
+            { 'text' : 'Võrreldes küllastatud rasvhapete ja ω-rasvhapete rikka toidu mõju noormeeste verenäitajatele, selgitati, '+\
+                       'et apolipoproteiinide B-48 ja B-100 kontsentratsioon oli kõrgem küllastatud rasvhapete rikka toiduga katsealuste veres.',\
+              'expected_words': ['Võrreldes', 'küllastatud', 'rasvhapete', 'ja', 'ω-rasvhapete', 'rikka', 'toidu', 'mõju', 'noormeeste', \
+                                 'verenäitajatele', ',', 'selgitati', ',', 'et', 'apolipoproteiinide', 'B-48', 'ja', 'B-100', 'kontsentratsioon', \
+                                 'oli', 'kõrgem', 'küllastatud', 'rasvhapete', 'rikka', 'toiduga', 'katsealuste', 'veres', '.'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
