@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from estnltk import AmbiguousSpan
+from estnltk import Span
 
 
 def iterate_conflicting_spans(layer):
@@ -22,7 +22,7 @@ def iterate_conflicting_spans(layer):
             yield a, b
 
 
-def _resolve_ambiguous_span(ambiguous_span: AmbiguousSpan, priority_attribute: str, keep_equal: bool) -> None:
+def _resolve_ambiguous_span(ambiguous_span: Span, priority_attribute: str, keep_equal: bool) -> None:
     result = []
     for s in ambiguous_span.annotations:
         if not result or getattr(result[-1], priority_attribute) > getattr(s, priority_attribute):

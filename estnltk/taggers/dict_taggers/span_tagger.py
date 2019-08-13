@@ -2,7 +2,6 @@ from typing import Sequence, Union
 
 from estnltk.taggers import Tagger, Vocabulary
 from estnltk.text import Span, Layer
-from estnltk.layer.ambiguous_span import AmbiguousSpan
 from estnltk.layer.annotation import Annotation
 from estnltk.layer_operations import resolve_conflicts
 
@@ -107,7 +106,7 @@ class SpanTagger(Tagger):
                 for value in values:
                     if value in vocabulary:
                         if self.ambiguous:
-                            span = AmbiguousSpan(base_span=parent_span.base_span, layer=layer)
+                            span = Span(base_span=parent_span.base_span, layer=layer)
                         else:
                             span = Span(base_span=parent_span.base_span, layer=layer, parent=parent_span)
                         for rec in vocabulary[value]:
@@ -127,7 +126,7 @@ class SpanTagger(Tagger):
                     value = value.lower()
                 if value in vocabulary:
                     if self.ambiguous:
-                        span = AmbiguousSpan(base_span=parent_span.base_span, layer=layer)
+                        span = Span(base_span=parent_span.base_span, layer=layer)
                     else:
                         span = Span(base_span=parent_span.base_span, layer=layer, parent=parent_span)
                     for rec in vocabulary[value]:

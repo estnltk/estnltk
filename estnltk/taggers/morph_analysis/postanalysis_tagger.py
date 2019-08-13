@@ -9,8 +9,8 @@ import regex as re
 from typing import MutableMapping
 
 from estnltk import Annotation
-from estnltk.text import Layer
-from estnltk.layer.ambiguous_span import AmbiguousSpan
+from estnltk.layer.layer import Layer
+from estnltk.layer.span import Span
 
 from estnltk.taggers import Retagger
 
@@ -434,7 +434,7 @@ class PostMorphAnalysisTagger(Retagger):
                     for extra_attr in extra_attributes:
                         empty_morph_record[extra_attr] = first_span_rec[extra_attr]
                 # Record the new span
-                ambiguous_span = AmbiguousSpan(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
+                ambiguous_span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
                 # Add the new annotation
                 attributes = {attribute: empty_morph_record[attribute] for attribute in ambiguous_span.layer.attributes}
                 ambiguous_span.add_annotation(Annotation(ambiguous_span, **attributes))
@@ -473,7 +473,7 @@ class PostMorphAnalysisTagger(Retagger):
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
-            ambiguous_span = AmbiguousSpan(base_span=morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
+            ambiguous_span = Span(base_span=morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
 
             record_added = False
             for rec in rewritten_recs:

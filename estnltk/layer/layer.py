@@ -5,7 +5,7 @@ import collections
 import warnings
 
 from estnltk import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
-from estnltk import Span, EnvelopingSpan, AmbiguousSpan, Annotation, SpanList
+from estnltk import Span, EnvelopingSpan, Annotation, SpanList
 from estnltk.layer import AmbiguousAttributeTupleList, AmbiguousAttributeList, AttributeTupleList, AttributeList
 
 
@@ -27,7 +27,7 @@ def whitelist_record(record, source_attributes):
 def to_base_span(x) -> BaseSpan:
     if isinstance(x, BaseSpan):
         return x
-    if isinstance(x, (Span, EnvelopingSpan, AmbiguousSpan)):
+    if isinstance(x, Span):
         return x.base_span
     if isinstance(x, Annotation):
         return x.span.base_span
@@ -250,9 +250,9 @@ class Layer:
 
         return layer
 
-    def add_span(self, span: Union[Span, AmbiguousSpan, EnvelopingSpan]) -> Span:
+    def add_span(self, span: Span) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
-        assert isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)), str(type(span))
+        assert isinstance(span, Span), str(type(span))
         assert len(span.annotations) > 0, span
         assert self.ambiguous or len(span.annotations) == 1, span
         assert span.layer is self, span.layer
@@ -284,9 +284,9 @@ class Layer:
 
         if self.ambiguous:
             if span is None:
-                span = AmbiguousSpan(base_span, self)
+                span = Span(base_span, self)
                 self._span_list.add_span(span)
-            assert isinstance(span, AmbiguousSpan), span
+            assert isinstance(span, Span), span
             return span.add_annotation(Annotation(span, **attributes))
 
         if span is not None:
@@ -472,7 +472,7 @@ class Layer:
     def get(self, item):
         if isinstance(item, BaseSpan):
             return self._span_list.get(item)
-        if isinstance(item, (Span, AmbiguousSpan, EnvelopingSpan)):
+        if isinstance(item, Span):
             return self._span_list.get(item.base_span)
 
         if isinstance(item, (list, tuple)):

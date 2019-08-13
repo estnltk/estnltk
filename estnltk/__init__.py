@@ -7,7 +7,6 @@ from estnltk.layer.base_span import BaseSpan
 from estnltk.layer.base_span import ElementaryBaseSpan
 from estnltk.layer.base_span import EnvelopingBaseSpan
 from estnltk.layer.span import Span
-from estnltk.layer.ambiguous_span import AmbiguousSpan
 from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.span_list import SpanList
 from estnltk.layer.layer import Layer

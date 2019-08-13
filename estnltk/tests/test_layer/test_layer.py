@@ -4,7 +4,6 @@ from estnltk import Text
 from estnltk import Layer
 from estnltk import ElementaryBaseSpan
 from estnltk import Span
-from estnltk import AmbiguousSpan
 from estnltk import Annotation
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.layer import AmbiguousAttributeList
@@ -46,26 +45,26 @@ def test_add_span():
     text = Text('0123456789')
     layer = Layer(name='ambiguous', attributes=['a', 'b', 'c'], ambiguous=True)
 
-    span = AmbiguousSpan(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
     span.add_annotation(Annotation(span, a='s1', b=True, c=None))
     span.add_annotation(Annotation(span, a='s1', b=True, c=None))
     layer.add_span(span)
 
-    span = AmbiguousSpan(base_span=ElementaryBaseSpan(1, 2), layer=layer)
+    span = Span(base_span=ElementaryBaseSpan(1, 2), layer=layer)
     span.add_annotation(Annotation(span, a='s2', b=False, c=5))
     span.add_annotation(Annotation(span, a='s4', b=False, c=5))
     layer.add_span(span)
 
-    span = AmbiguousSpan(base_span=ElementaryBaseSpan(0, 2), layer=layer)
+    span = Span(base_span=ElementaryBaseSpan(0, 2), layer=layer)
     span.add_annotation(Annotation(span, a='s3', b=True, c=None))
     layer.add_span(span)
 
     text['ambiguous'] = layer
 
     assert len(layer) == 3
-    assert isinstance(layer[0], AmbiguousSpan)
-    assert isinstance(layer[1], AmbiguousSpan)
-    assert isinstance(layer[2], AmbiguousSpan)
+    assert isinstance(layer[0], Span)
+    assert isinstance(layer[1], Span)
+    assert isinstance(layer[2], Span)
     assert len(layer[0].annotations) == 1
     assert len(layer[1].annotations) == 1
     assert len(layer[2].annotations) == 2
@@ -226,7 +225,7 @@ def test_ambiguous_layer_indexing():
     t['base'] = layer
 
     span_3 = layer[3]
-    assert isinstance(span_3, AmbiguousSpan)
+    assert isinstance(span_3, Span)
     assert len(span_3.annotations) == 2
     assert isinstance(span_3.annotations[0], Annotation)
     assert span_3.annotations[0].text == '3'
@@ -293,9 +292,9 @@ def test_check_layer_consistency():
 
     # 1) Change first span, assign it to different layer
     old_first_span = morph_layer.spans[0]
-    morph_layer.spans[0] = AmbiguousSpan(base_span=old_first_span.base_span, layer=other_morph_layer)
+    morph_layer.spans[0] = Span(base_span=old_first_span.base_span, layer=other_morph_layer)
     with pytest.raises(AssertionError) as e1:
-        # Assertion error because the AmbiguousSpan is connected 
+        # Assertion error because the Span is connected
         # to different layer
         morph_layer.check_span_consistency()
     morph_layer.spans[0] = old_first_span
@@ -310,7 +309,7 @@ def test_check_layer_consistency():
     morph_layer.spans.pop()
     morph_layer.check_span_consistency()
 
-    # 3) Add Span instead of AmbiguousSpan
+    # 3) Set span without annotations
     morph_layer.spans[0] = Span(old_first_span.base_span, old_first_span.layer)
     with pytest.raises(AssertionError) as e3:
         # Assertion error because the first span has no annotations
@@ -340,8 +339,8 @@ def test_check_layer_consistency():
     layer2 = Layer(name='test_layer2',
                    attributes=['a', 'b'],
                    ambiguous=True)
-    amb_span1 = AmbiguousSpan(ElementaryBaseSpan(0, 1), layer=layer1)
-    amb_span2 = AmbiguousSpan(ElementaryBaseSpan(0, 1), layer=layer2)
+    amb_span1 = Span(ElementaryBaseSpan(0, 1), layer=layer1)
+    amb_span2 = Span(ElementaryBaseSpan(0, 1), layer=layer2)
     broken_annotation = Annotation(amb_span2)
     for attr in ['a', 'b', 'c']:
         setattr(broken_annotation, attr, '')

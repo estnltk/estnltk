@@ -3,7 +3,6 @@ from typing import Union, Sequence, List, Container
 from estnltk.text import Text
 from estnltk.layer.layer import Layer
 from estnltk.layer.span import Span
-from estnltk.layer.ambiguous_span import AmbiguousSpan
 from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.annotation import Annotation
 from estnltk.converters.layer_dict_converters import layer_dict_converter
@@ -49,7 +48,7 @@ def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
         if layer.ambiguous:
             for rec in layer_dict['spans']:
                 parent = parent_layer[rec[0]['_index_']]
-                span = AmbiguousSpan(parent.base_span, layer)
+                span = Span(parent.base_span, layer)
                 for r in rec:
                     attributes = {attr: list_to_tuple(r[attr]) for attr in layer.attributes}
                     span.add_annotation(Annotation(span, **attributes))

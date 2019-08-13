@@ -1,5 +1,5 @@
-from typing import Union, Sequence
-from estnltk import Span, EnvelopingSpan, AmbiguousSpan
+from typing import Sequence
+from estnltk import Span
 
 
 #  Layer operations are ported from:
@@ -97,10 +97,7 @@ def equal(x: Span, y: Span) -> bool:
     return nested(x, y) and nested(y, x)
 
 
-span = Union[Span, EnvelopingSpan, AmbiguousSpan]
-
-
-def symm_diff_ambiguous_spans(x: AmbiguousSpan, y: AmbiguousSpan, attributes: Sequence[str] = None):
+def symm_diff_ambiguous_spans(x: Span, y: Span, attributes: Sequence[str] = None):
     # assert isinstance(x, AmbiguousSpan)
     # assert isinstance(y, AmbiguousSpan)
     if attributes is None:

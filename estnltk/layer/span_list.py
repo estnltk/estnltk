@@ -2,10 +2,14 @@ import bisect
 import collections
 from typing import Union, Any, Hashable, List
 
-from estnltk import BaseSpan, Span, AmbiguousSpan, EnvelopingSpan
+from estnltk import BaseSpan, Span
 
 
 class SpanList(collections.Sequence):
+    """
+    # TODO replace with SortedDict
+    """
+
     def __init__(self):
         self._base_span_to_span = {}
         self.spans = []
@@ -35,7 +39,7 @@ class SpanList(collections.Sequence):
     def __contains__(self, item: Any) -> bool:
         if isinstance(item, Hashable) and item in self._base_span_to_span:
             return True
-        if isinstance(item, (Span, AmbiguousSpan, EnvelopingSpan)):
+        if isinstance(item, Span):
             span = self._base_span_to_span.get(item.base_span)
             return span is item
 

@@ -9,7 +9,7 @@ from typing import MutableMapping
 
 from estnltk import Annotation
 from estnltk.text import Layer, Text
-from estnltk.layer.ambiguous_span import AmbiguousSpan
+from estnltk.layer.span import Span
 
 from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
@@ -666,7 +666,7 @@ class VabamorfDisambiguator(Retagger):
                 disambiguated_records = disambiguated_dicts[morph_dict_id]['analysis']
 
                 # D.1) Convert records back to AmbiguousSpans
-                ambiguous_span = AmbiguousSpan(base_span=morph_layer[global_morph_span_id].base_span, layer=morph_layer)
+                ambiguous_span = Span(base_span=morph_layer[global_morph_span_id].base_span, layer=morph_layer)
                 
                 # D.1) Rewrite records into a proper format, and 
                 #      add to the span

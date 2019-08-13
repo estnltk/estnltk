@@ -5,7 +5,7 @@
 #  
 
 from estnltk import Annotation, Text
-from estnltk.layer.ambiguous_span import AmbiguousSpan
+from estnltk.layer.span import Span
 
 from estnltk.taggers import Retagger
 
@@ -216,7 +216,7 @@ class MorphAnalysisRecordBasedRetagger(Retagger):
             assert isinstance(morph_records, list), \
                    '(!) Expected a list of records, but found {!r}'.format(morph_records)
             # 4.1) Convert records back to AmbiguousSpans
-            ambiguous_span = AmbiguousSpan(base_span=morph_spans[wid].base_span, layer=morph_spans[wid].layer)
+            ambiguous_span = Span(base_span=morph_spans[wid].base_span, layer=morph_spans[wid].layer)
             annotation_added = False
             for new_record in morph_records:
                 assert isinstance(new_record, dict), \
