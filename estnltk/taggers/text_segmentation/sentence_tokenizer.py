@@ -1001,12 +1001,13 @@ class SentenceTokenizer( Tagger ):
         if balance == 0 and len(starting_quotes_locs.keys()) > 0 and \
            len(starting_quotes_locs.keys()) == len(ending_quotes_locs.keys()):
             
-            #print('balance:', balance)
-            #print( starting_quotes_locs, [ raw_text[loc] for loc in starting_quotes_locs.keys()] )
-            #print( ending_quotes_locs, [ raw_text[loc] for loc in ending_quotes_locs.keys()] )
+            sorted_ends = sorted(list(ending_quotes_locs.keys()))
+            end_i = 0
             
-            # Iterate over all adjacent sentences
+            # Iterate over all (adjacent) sentences
             removable_sentence_ids = []
+            new_splits = {}
+            corrected_sid = 0 # <-- takes account of removed sentences
             for sid, sentence_spl in enumerate(sentences_list):
                 this_sentence_fixes = sentence_fixes_list[sid]
                 this_sentence_start = sentence_spl[0].start
@@ -1015,9 +1016,10 @@ class SentenceTokenizer( Tagger ):
                     # No more balance: break
                     break
                 if sid > 0:
-                    # If the sentence starts with quote ending, then the ending
+                    # If the sentence starts with an quote ending, then the ending
                     # is likely wrongly attributed from the last sentence
                     if sentence_spl[0].start in ending_quotes_locs.keys():
+                        # Move the start token to the previous sentence
                         last = sentence_spl.pop(0)
                         prev_sentence_spl = sentences_list[sid-1]
                         prev_sentence_spl.append(last)
@@ -1027,15 +1029,50 @@ class SentenceTokenizer( Tagger ):
                         # If the modified sentence is empty, add it to removables
                         if len(sentence_spl) == 0:
                             removable_sentence_ids.append( sid )
-                        
-                        #last_sent_str = \
-                        #    raw_text[prev_sentence_spl[0].start:prev_sentence_spl[-1].end].lstrip()
-                        #print('>> ', last_sent_str)
-                        #if not len(sentence_spl) == 0:
-                        #    this_sent_str = \
-                        #        raw_text[sentence_spl[0].start:sentence_spl[-1].end].lstrip()
-                        #    print('>> ', this_sent_str)
-                        #print()
+                            # Reduce corrected sentence index
+                            corrected_sid -= 1
+                # Check quotation ending marks inside the sentence: 
+                #   iff a quotation ends, and another starts instantly 
+                #   inside the sentence, then remember the location for 
+                #   splitting the sentence;
+                while end_i < len(sorted_ends) and len(sentence_spl) > 0:
+                    # Get the latest sentence boundaries:
+                    this_sentence_start = sentence_spl[0].start
+                    this_sentence_end   = sentence_spl[-1].end
+                    # Get the ending quote location:
+                    end_loc = sorted_ends[end_i]
+                    # If the ending quote falls into the sentence:
+                    if this_sentence_start <= end_loc and \
+                       end_loc < this_sentence_end:
+                        # Find out if we have a reason for splitting:
+                        # the next symbol is a quotation start,
+                        foundSplitLocation = False
+                        cur_loc = end_loc + 1
+                        while cur_loc < this_sentence_end:
+                            if not raw_text[cur_loc].isspace():
+                                if cur_loc in starting_quotes_locs:
+                                    foundSplitLocation = True
+                                #elif raw_text[cur_loc].isupper():
+                                #    foundSplitLocation = True
+                                #
+                                # A developer note: we could also split if the next symbol 
+                                # is an uppercase letter,  put  that  would  give incorrect 
+                                # splits in contexts like: 
+                                #     Ian " Thorpedo " Thorpe'i valmistusid kaasmaalased 
+                                #     kuningaks kroonima .
+                                #
+                                break
+                            cur_loc += 1
+                        if foundSplitLocation:
+                            # Remember the splitting location
+                            if corrected_sid not in new_splits:
+                                new_splits[corrected_sid] = []
+                            new_splits[corrected_sid].append( (end_loc, cur_loc) )
+                    if this_sentence_end < end_loc:
+                        break
+                    end_i += 1
+                # Advance corrected sentence index
+                corrected_sid += 1
 
             if len(removable_sentence_ids) > 0:
                 # If a sentence became empty after corrections, remove it 
@@ -1044,6 +1081,49 @@ class SentenceTokenizer( Tagger ):
                     sentences_list.pop(i)
                     sentence_fixes_list.pop(i)
                 assert len(sentence_fixes_list) == len(sentences_list)
-
+            
+            if len( new_splits ) > 0:
+                # We have detected some new locations for splitting 
+                new_sentences_list = []
+                new_sentence_fixes_list = []
+                for sid, sentence_spl in enumerate( sentences_list ):
+                    cur_sent_fixes = sentence_fixes_list[sid]
+                    if sid in new_splits:
+                        this_sent_splits = new_splits[sid]
+                        # Small sanity checks
+                        this_sentence_start = sentence_spl[0].start
+                        this_sentence_end   = sentence_spl[-1].end
+                        assert this_sentence_start < this_sent_splits[0][0]
+                        assert this_sentence_end   > this_sent_splits[-1][-1]
+                        # Iterate over words & splits
+                        cur_split_id = 0
+                        current_words = []
+                        for wid, span in enumerate( sentence_spl ):
+                            current_words.append( span )
+                            cur_split = this_sent_splits[cur_split_id]
+                            if wid+1 < len(sentence_spl):
+                                next_span = sentence_spl[wid+1]
+                                # check if we are at the break location
+                                if span.end == cur_split[0] + 1 and \
+                                   next_span.start == cur_split[1]:
+                                    # Create a new split 
+                                    new_sentences_list.append( current_words )
+                                    new_sentence_fixes_list.append( ['double_quotes_counting'] )
+                                    current_words = []
+                                    # Take the next split (if there is next one)
+                                    if cur_split_id + 1 < len(this_sent_splits):
+                                        cur_split_id += 1
+                        if current_words:
+                            # append remaining words
+                            new_sentences_list.append( current_words )
+                            new_sentence_fixes_list.append( [] )
+                    else:
+                        # Nothing to split here, move along
+                        new_sentences_list.append( sentence_spl )
+                        new_sentence_fixes_list.append( cur_sent_fixes )
+                sentences_list = new_sentences_list
+                sentence_fixes_list = new_sentence_fixes_list
+                assert len(sentences_list) == len(sentence_fixes_list)
         return sentences_list, sentence_fixes_list
+
 

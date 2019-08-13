@@ -325,6 +325,25 @@ def test_merge_mistakenly_split_sentences_3_2():
         { 'text': 'Päris eakatest räägib näiteks " Looduse lapsed . " Piletihinnad on madalamad kui muidu kinodes , 25-60 krooni .', \
           'expected_sentence_texts': ['Päris eakatest räägib näiteks " Looduse lapsed . "', \
                                       'Piletihinnad on madalamad kui muidu kinodes , 25-60 krooni .'] }, \
+        
+        # if there are consecutive pairs of double quotes (without separating comma or lowercase word), assume these 
+        # should mark different sentences: split after ending quotes
+        { 'text': '“ Kuule , mida te Lestradega siin tegite ? ” “ Aga see on ju elementaarne , ” imestas Watson . “ Kas sa siis ise ei näinud ? ”', \
+          'expected_sentence_texts': ['“ Kuule , mida te Lestradega siin tegite ? ”', \
+                                      '“ Aga see on ju elementaarne , ” imestas Watson .', \
+                                      '“ Kas sa siis ise ei näinud ? ”'] }, \
+        { 'text': '" Kuidas sul muidu päev läks ? Kas see võrukael Tiit ka midagi kokku keeras ? "  '+\
+                  '" Tead , ma olen nii väsinud ... " " Hea küll , hea küll ! Ma ei päri rohkem ! "', \
+          'expected_sentence_texts': ['" Kuidas sul muidu päev läks ?', \
+                                      'Kas see võrukael Tiit ka midagi kokku keeras ? "', \
+                                      '" Tead , ma olen nii väsinud ... "', \
+                                      '" Hea küll , hea küll !', \
+                                      'Ma ei päri rohkem ! "'] }, \
+        { 'text': '" Ja veel . Tõde on kusagil olemas . Varem või hiljem ... "  '+\
+                  '" Hea küll , hea küll , " tõrjus Jan ja lonkis tagasi palatisse .', \
+          'expected_sentence_texts': ['" Ja veel .', 'Tõde on kusagil olemas .', \
+                                      'Varem või hiljem ... "', \
+                                      '" Hea küll , hea küll , " tõrjus Jan ja lonkis tagasi palatisse .'] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
