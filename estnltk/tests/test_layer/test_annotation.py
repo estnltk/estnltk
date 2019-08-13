@@ -19,7 +19,24 @@ def test_annotation_without_span():
     assert annotation.attr_1 == 'üks'
     assert annotation['attr_1'] == 'üks'
     assert annotation['attr_1', 'attr_3'] == ('üks', 3)
-    assert 'bla' not in annotation
+
+    assert 'attr_new' not in annotation
+    annotation['attr_new'] = 'ÜKS'
+    assert 'attr_new' in annotation
+    assert annotation['attr_new'] == 'ÜKS'
+    assert annotation.attr_new == 'ÜKS'
+    annotation.attr_new = 'üks'
+    assert annotation['attr_new'] == 'üks'
+    del annotation['attr_new']
+    assert 'attr_new' not in annotation
+
+    with pytest.raises(KeyError):
+        del annotation['attr_new']
+
+    annotation.attr_new = 0
+    del annotation.attr_new
+    with pytest.raises(AttributeError):
+        del annotation.attr_new
 
     with pytest.raises(KeyError):
         annotation['bla']
@@ -45,6 +62,15 @@ def test_annotation_without_span():
     assert Annotation(None, attr_1=1, attr_2=2) != Annotation(None, attr_1=1, attr_2=22)
     assert Annotation(None, attr_1=1, attr_2=None) != Annotation(None, attr_1=1)
 
+    with pytest.raises(AttributeError):
+        annotation.__getstate__
+
+    with pytest.raises(AttributeError):
+        annotation.__setstate__
+
+    with pytest.raises(AttributeError):
+        annotation.__deepcopy__
+
 
 def test_annotation_with_text_object():
     text = Text('Tere!')
@@ -68,6 +94,21 @@ def test_annotation_with_text_object():
     assert annotation['attr_1', 'attr_1'] == ('üks', 'üks')
 
     assert annotation.text_object is text
+
+    annotation['span'] = 'span'
+    annotation['start'] = 'start'
+    annotation['end'] = 'emd'
+
+    assert annotation.start == 0
+    assert annotation.end == 4
+    assert annotation.span is span
+
+    assert annotation['span'] == 'span'
+    assert annotation['start'] == 'start'
+    assert annotation['end'] == 'emd'
+    del annotation['span']
+    del annotation['start']
+    del annotation['end']
 
     with pytest.raises(AttributeError):
         annotation.bla

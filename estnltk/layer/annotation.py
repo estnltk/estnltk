@@ -82,12 +82,22 @@ class Annotation(Mapping):
     def __len__(self):
         return len(self._attributes)
 
+    def __setitem__(self, key, value):
+        self._attributes[key] = value
+
     def __getitem__(self, item):
         if isinstance(item, str):
             return self._attributes[item]
         if isinstance(item, tuple):
             return tuple(self._attributes[i] for i in item)
         raise TypeError(item)
+
+    def __delitem__(self, key):
+        attributes = self._attributes
+        if key in attributes:
+            del attributes[key]
+        else:
+            raise KeyError(key)
 
     def __iter__(self):
         yield from self._attributes
