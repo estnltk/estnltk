@@ -936,6 +936,11 @@ class SentenceTokenizer( Tagger ):
             Then fixes sentence boundaries based on the found information: 
             * if a sentence starts with an ending quotation mark, then removes the ending quote and 
               adds to the end of the previous sentence;
+            * if the movable ending quote is followed by the attribution part of the quote 
+              (describing "who uttered the quote"), then moves the  ending  quotation  mark 
+              along with the attribution part to the end of the previous sentence;
+            * if there is an ending quotation mark inside a sentence, followed instantly by a 
+              starting quotation mark, then split the sentence after the ending quotation mark;
             Notes:
             * if start and end quotes are indistinguishable, assumes a flat representation:
               no quotes nested inside other quotes;
@@ -1019,13 +1024,45 @@ class SentenceTokenizer( Tagger ):
                     # If the sentence starts with an quote ending, then the ending
                     # is likely wrongly attributed from the last sentence
                     if sentence_spl[0].start in ending_quotes_locs.keys():
-                        # Move the start token to the previous sentence
+                        # Move the ending quotation mark to the previous sentence
                         last = sentence_spl.pop(0)
                         prev_sentence_spl = sentences_list[sid-1]
                         prev_sentence_spl.append(last)
                         this_sentence_fixes.append('double_quotes_counting')
                         last_sentence_fixes = sentence_fixes_list[sid-1]
                         last_sentence_fixes.append('double_quotes_counting')
+                        # Check the remaining sentence: if it is likely
+                        # the attribution part of the quote, describing "who 
+                        # uttered the quote", then the whole sentence should
+                        # be appended to the previous sentence ...
+                        if len(sentence_spl) > 0:
+                            # ... if the next token starts with a lowercase letter ...
+                            # ( so, it doesn't look like a start of the next sentence )
+                            nextTokenLower = raw_text[sentence_spl[0].start].islower()
+                            # ... and the previous sentence begins with a titlecase 
+                            #     word ...
+                            # ( so, this is text likely follows the convention that 
+                            #   sentences start with titlecase words ) 
+                            prevSentBeginsUpper = False
+                            if raw_text[prev_sentence_spl[0].start].isupper() or \
+                               (not raw_text[prev_sentence_spl[0].start].isalpha() and \
+                                len(prev_sentence_spl) > 1 and \
+                                raw_text[prev_sentence_spl[1].start].isupper()):
+                                prevSentBeginsUpper = True
+                            # ... there are no more quotation marks inside the sentence ...
+                            noQuotationMarks = True
+                            for cur_sent_span in sentence_spl:
+                                if cur_sent_span.start in starting_quotes_locs.keys() or \
+                                   cur_sent_span.start in ending_quotes_locs.keys():
+                                    noQuotationMarks = False
+                                    break
+                            if nextTokenLower and prevSentBeginsUpper and noQuotationMarks:
+                                # ... then append the whole current sentence to the last 
+                                #     sentence:  this sentence is likely the attribution 
+                                #     part of the quote, describing "who uttered the quote"
+                                while len(sentence_spl) > 0:
+                                    last = sentence_spl.pop(0)
+                                    prev_sentence_spl.append(last)
                         # If the modified sentence is empty, add it to removables
                         if len(sentence_spl) == 0:
                             removable_sentence_ids.append( sid )
@@ -1116,7 +1153,7 @@ class SentenceTokenizer( Tagger ):
                         if current_words:
                             # append remaining words
                             new_sentences_list.append( current_words )
-                            new_sentence_fixes_list.append( [] )
+                            new_sentence_fixes_list.append( ['double_quotes_counting'] )
                     else:
                         # Nothing to split here, move along
                         new_sentences_list.append( sentence_spl )

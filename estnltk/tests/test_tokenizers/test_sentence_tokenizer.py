@@ -326,6 +326,19 @@ def test_merge_mistakenly_split_sentences_3_2():
           'expected_sentence_texts': ['Päris eakatest räägib näiteks " Looduse lapsed . "', \
                                       'Piletihinnad on madalamad kui muidu kinodes , 25-60 krooni .'] }, \
         
+        # if the movable ending quote is followed by the attribution part of the quote (describing "who uttered the quote"), then 
+        # moves the  ending  quotation  mark along with the attribution part to the end of the previous sentence;
+        { 'text': 'Inspektor Lestrade ja lahkus kiiresti , jälitatuna koerast . '+\
+                  '“ Kuidas sul siis sedapuhku Sussexis läks ? ” tundis Watson tule kohal käsi kuivatades huvi . '+\
+                  "“ Ma näen , et Baskerville'ide koer on jälle kutsikad saanud ! ” ", \
+          'expected_sentence_texts': ['Inspektor Lestrade ja lahkus kiiresti , jälitatuna koerast .', \
+                                      '“ Kuidas sul siis sedapuhku Sussexis läks ? ” tundis Watson tule kohal käsi kuivatades huvi .', \
+                                      "“ Ma näen , et Baskerville'ide koer on jälle kutsikad saanud ! ”"] }, \
+        { 'text': '" Oot , ma teen lahti " " Oh , küll ma ise , " ütlen pudelikaelast kõvasti kinni haarates . " Mis-mis ?! "', \
+          'expected_sentence_texts': ['" Oot , ma teen lahti "', \
+                                      '" Oh , küll ma ise , " ütlen pudelikaelast kõvasti kinni haarates .', \
+                                      '" Mis-mis ?! "'] }, \
+        
         # if there are consecutive pairs of double quotes (without separating comma or lowercase word), assume these 
         # should mark different sentences: split after ending quotes
         { 'text': '“ Kuule , mida te Lestradega siin tegite ? ” “ Aga see on ju elementaarne , ” imestas Watson . “ Kas sa siis ise ei näinud ? ”', \
