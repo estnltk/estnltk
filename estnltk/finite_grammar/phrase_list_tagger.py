@@ -81,9 +81,9 @@ class PhraseListTagger(TaggerOld):
 
     def tag(self, text, return_layer=False):
         input_layer = text[self._input_layer]
-        layer = Layer(
-                      name=self.layer_name,
+        layer = Layer(name=self.layer_name,
                       attributes = self.attributes,
+                      text_object=text,
                       enveloping=self._input_layer,
                       ambiguous=self.output_ambiguous)
         heads = self.heads
@@ -131,5 +131,5 @@ class PhraseListTagger(TaggerOld):
 
         if return_layer:
             return layer
-        text[self.layer_name] = layer
+        text.add_layer(layer)
         return text
