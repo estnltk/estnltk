@@ -49,7 +49,7 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
                 syntax.add_annotation((w_span.start, w_span.end), **conll_word)
                 word_index += 1
 
-    text[syntax_layer] = syntax
+    text.add_layer(syntax)
 
     SyntaxDependencyRetagger(conll_syntax_layer=syntax_layer).retag(text)
 
