@@ -932,7 +932,7 @@ class SentenceTokenizer( Tagger ):
     def _counting_corrections_to_double_quotes(raw_text: str, sentences_list: list, sentence_fixes_list: list):
         """ Provides sentence boundary corrections based on counting quotation marks in the whole text.
             First, counts quotation marks in the text, and tries to find out for each quotation mark,
-            whether it starts or ends the quotation. Keeps track that starts and ends are in balance.
+            whether it starts or ends a quotation. Keeps track that starts and ends are in balance.
             Then fixes sentence boundaries based on the found information: 
             * if a sentence starts with an ending quotation mark, then removes the ending quote and 
               adds to the end of the previous sentence;
@@ -954,7 +954,7 @@ class SentenceTokenizer( Tagger ):
         ending_quotes_locs   = {} 
         last_balance_location = 0
         for cid, c in enumerate(raw_text):
-            # Detect whether we have a likely staring or ending quotes
+            # Detect whether we have potential starting or ending quotes
             if _starting_quotes_regexp.match(c):
                 if _indistinguishable_quotes.match(c):
                     # Find out if the next letter is uppercase letter
@@ -1037,11 +1037,11 @@ class SentenceTokenizer( Tagger ):
                         # be appended to the previous sentence ...
                         if len(sentence_spl) > 0:
                             # ... if the next token starts with a lowercase letter ...
-                            # ( so, it doesn't look like a start of the next sentence )
+                            # ( so, it doesn't look like a start of a new sentence )
                             nextTokenLower = raw_text[sentence_spl[0].start].islower()
                             # ... and the previous sentence begins with a titlecase 
                             #     word ...
-                            # ( so, this is text likely follows the convention that 
+                            # ( so, this text likely follows the convention that 
                             #   sentences start with titlecase words ) 
                             prevSentBeginsUpper = False
                             if raw_text[prev_sentence_spl[0].start].isupper() or \
