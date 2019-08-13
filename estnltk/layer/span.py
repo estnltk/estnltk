@@ -12,6 +12,8 @@ from .to_html import html_table
 class Span:
     """Basic element of an EstNLTK layer.
 
+    Span can exist without annotations. It is the responsibility of a programmer to remove such spans.
+
     """
     __slots__ = ['_base_span', '_layer', '_annotations', '_parent']
 
