@@ -318,19 +318,6 @@ class Layer:
 
         return resulting_layer
 
-    def _add_spans(self, spans: List['Span']) -> List['Span']:
-        assert self.ambiguous or self.enveloping
-        res = []
-        for span in spans:
-            res.append(self.add_span(span))
-        return res
-
-    def _resolve(self, target):
-        if target in self.attributes:
-            raise AssertionError('This path should not be taken')
-        else:
-            return self.text_object._resolve(self.name, target)
-
     def count_values(self, attribute: str):
         """count attribute values, return frequency table"""
         if self.ambiguous:
@@ -574,9 +561,6 @@ class Layer:
 
     def __repr__(self):
         return str(self)
-
-    def diff_spans(self, other: 'Layer'):
-        return sorted(set(self._span_list).symmetric_difference(other.span_list))
 
     def diff(self, other):
         if not isinstance(other, Layer):
