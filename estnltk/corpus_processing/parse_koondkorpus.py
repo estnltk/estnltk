@@ -904,11 +904,11 @@ def create_estnltk_texts( docs,
                     [layer for layer in created_layers if layer.name==prefix+'sentences'][0]
                 paragraphs = \
                     [layer for layer in created_layers if layer.name==prefix+'paragraphs'][0]
-                text[tokens.name]          = tokens
-                text[compound_tokens.name] = compound_tokens
-                text[words.name]           = words
-                text[sentences.name]       = sentences
-                text[paragraphs.name]      = paragraphs
+                text.add_layer(tokens)
+                text.add_layer(compound_tokens)
+                text.add_layer(words)
+                text.add_layer(sentences)
+                text.add_layer(paragraphs)
            else:
                 # Add tokenization with EstNLTK
                 # ( overwrites the original tokenization )

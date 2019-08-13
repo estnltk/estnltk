@@ -35,7 +35,7 @@ def test_1():
     layer_1.add_annotation(ElementaryBaseSpan(76, 89),  attr='L1-17', attr_1='KÜMME')
     layer_1.add_annotation(ElementaryBaseSpan(76, 89),  attr='L1-17', attr_1='ÜHEKSAKÜMMEND')
     layer_1.add_annotation(ElementaryBaseSpan(82, 87),  attr='L1-18', attr_1='KÜMME')
-    text_5['layer_1'] = layer_1
+    text_5.add_layer(layer_1)
 
     layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], ambiguous=True, enveloping='layer_1')
     layer_5.add_annotation([layer_1[0], layer_1[1]],                attr='L5-0-0',  attr_5='SADA KAKS')
@@ -51,7 +51,7 @@ def test_1():
     layer_5.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-10', attr_5='VIISSADA KUUSKÜMMEND')
     layer_5.add_annotation([layer_1[12], layer_1[14], layer_1[15]], attr='L5-7-11', attr_5='KÜMME KOMA KAHEKSA')
     layer_5.add_annotation([layer_1[13], layer_1[14], layer_1[15]], attr='L5-8-12', attr_5='SEITSE KOMA KAHEKSA')
-    text_5['layer_5'] = layer_5
+    text_5.add_layer(layer_5)
 
     # use merge to copy layer_5
     layer_5_new = merge_layers(layers=[layer_5],

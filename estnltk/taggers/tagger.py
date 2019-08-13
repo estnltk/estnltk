@@ -106,7 +106,7 @@ class Tagger(metaclass=TaggerChecker):
         status: dict, default {}
             This can be used to store layer creation metadata.
         """
-        text[self.output_layer] = self.make_layer(text=text, layers=text.layers, status=status)
+        text.add_layer(self.make_layer(text=text, layers=text.layers, status=status))
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:

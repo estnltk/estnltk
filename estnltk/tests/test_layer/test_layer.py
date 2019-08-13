@@ -59,7 +59,7 @@ def test_add_span():
     span.add_annotation(Annotation(span, a='s3', b=True, c=None))
     layer.add_span(span)
 
-    text['ambiguous'] = layer
+    text.add_layer(layer)
 
     assert len(layer) == 3
     assert isinstance(layer[0], Span)
@@ -158,7 +158,7 @@ def test_layer_indexing():
     layer.add_annotation((5, 6), a=6, b=16, c=None)
     layer.add_annotation((6, 7), a=7, b=None, c=None)
     layer.add_annotation((7, 8), a=None, b=None, c=None)
-    t['base'] = layer
+    t.add_layer(layer)
 
     span_2 = layer[2]
     assert isinstance(span_2, Span)
@@ -222,7 +222,7 @@ def test_ambiguous_layer_indexing():
     layer.add_annotation((6, 7), a=7, b=None, c=None)
     layer.add_annotation((7, 8), a=None, b=None, c=None)
     layer.add_annotation((7, 8), a=None, b=None, c=None)
-    t['base'] = layer
+    t.add_layer(layer)
 
     span_3 = layer[3]
     assert isinstance(span_3, Span)

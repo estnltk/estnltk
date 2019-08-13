@@ -227,7 +227,7 @@ class PgSubCollection:
 
                     for layer_dict in row[2 + len(self.meta_attributes):]:
                         layer = dict_to_layer(layer_dict, text)
-                        text[layer.name] = layer
+                        text.add_layer(layer)
 
                     meta_values = row[2:2 + len(self.meta_attributes)]
                     meta = {attr: value for attr, value in zip(self.meta_attributes, meta_values)}
@@ -245,7 +245,7 @@ class PgSubCollection:
 
                     for layer_dict in row[2:]:
                         layer = dict_to_layer(layer_dict, text)
-                        text[layer.name] = layer
+                        text.add_layer(layer)
 
                     if return_index:
                         yield text_id, text

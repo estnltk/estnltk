@@ -12,7 +12,7 @@ def test_extract_sections():
 
     text = Text('Üks kaks kolm.')
     layer = Layer('test_1', attributes=['attr_1'], text_object=text)
-    text['test_1'] = layer
+    text.add_layer(layer)
     layer.add_annotation((0, 3), attr_1=k)
     layer.add_annotation((4, 8), attr_1=m)
 

@@ -109,9 +109,9 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
             sentence_start += len(sentence)
 
     text.set_text(' '.join(t))
-    text['words'] = words
-    text['sentences'] = sentences
-    text[syntax_layer] = syntax
+    text.add_layer(words)
+    text.add_layer(sentences)
+    text.add_layer(syntax)
 
     SyntaxDependencyRetagger(conll_syntax_layer=syntax_layer).retag(text)
 

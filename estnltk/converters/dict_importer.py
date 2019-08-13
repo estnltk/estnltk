@@ -27,54 +27,6 @@ def dict_to_annotation(d: Union[dict, Sequence[dict]], span) -> Union[Annotation
 def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
     return layer_dict_converter.dict_to_layer(layer_dict, text)
 
-    layer = Layer(name=layer_dict['name'],
-                  attributes=layer_dict['attributes'],
-                  text_object=text,
-                  parent=layer_dict['parent'],
-                  enveloping=layer_dict['enveloping'],
-                  ambiguous=layer_dict['ambiguous']
-                  )
-    layer._base = layer_dict['_base']
-
-    if text is None:
-        layers = {}
-    else:
-        layers = text.layers.copy()
-    if detached_layers:
-        layers.update(detached_layers)
-
-    if layer.parent:
-        parent_layer = layers[layer.parent]
-        if layer.ambiguous:
-            for rec in layer_dict['spans']:
-                parent = parent_layer[rec[0]['_index_']]
-                span = Span(parent.base_span, layer)
-                for r in rec:
-                    attributes = {attr: list_to_tuple(r[attr]) for attr in layer.attributes}
-                    span.add_annotation(Annotation(span, **attributes))
-                layer.add_span(span)
-        else:
-            for rec in layer_dict['spans']:
-                layer.add_annotation(Span(base_span=parent_layer[rec['_index_']].base_span, layer=layer), **rec)
-    elif layer.enveloping:
-        enveloped_layer = layers[layer.enveloping]
-        if layer.ambiguous:
-            for records in layer_dict['spans']:
-                for rec in records:
-                    spans = [enveloped_layer[i] for i in rec['_index_']]
-                    attributes = {attr: list_to_tuple(rec[attr]) for attr in layer.attributes}
-                    span = EnvelopingSpan(spans=spans, layer=layer)
-                    layer.add_annotation(span, **attributes)
-        else:
-            for rec in layer_dict['spans']:
-                spans = [enveloped_layer[i] for i in rec['_index_']]
-                attributes = {attr: list_to_tuple(rec[attr]) for attr in layer.attributes}
-
-                layer.add_annotation(spans, **attributes)
-    else:
-        layer = layer.from_records(layer_dict['spans'], rewriting=True)
-    return layer
-
 
 def dict_to_layer(layer_dict: dict, text: Text = None, detached_layers=None) -> Union[Layer, List[Layer]]:
     if isinstance(layer_dict, (list, tuple)) and isinstance(text, (list, tuple)):
@@ -91,7 +43,7 @@ def _dict_to_text(text_dict: dict, layers: Container = None) -> Text:
     for layer_dict in text_dict['layers']:
         if layers is None or layer_dict['name'] in layers:
             layer = dict_to_layer(layer_dict, text)
-            text[layer.name] = layer
+            text.add_layer(layer)
     return text
 
 

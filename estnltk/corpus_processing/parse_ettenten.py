@@ -209,7 +209,7 @@ def reconstruct_ettenten_text( document, \
         if pid < len(para_locations):
            raise Exception('(!) Unable to align all paragraphs with sentences.\n'+\
                            'Unaligned paragraphs: '+str(para_locations[pid:]))
-        text[orig_paragraphs.name] = orig_paragraphs
+        text.add_layer(orig_paragraphs)
     else:
         # 5.2) If there are no other annotations, then add stand-alone 
         #      layer 'original_paragraphs'
@@ -218,7 +218,7 @@ def reconstruct_ettenten_text( document, \
                  text_object=text,
                  attributes = tuple(list(paragraph_attrib_names)),
                  ambiguous=True ).from_records(para_locations)
-        text[orig_paragraphs.name] = orig_paragraphs
+        text.add_layer(orig_paragraphs)
     return text
 
 

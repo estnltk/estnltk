@@ -553,7 +553,7 @@ class ENC2017TextReconstructor:
         if attach_layers:
             for layer in created_layers:
                 if layer is not None:
-                    text_obj[layer.name] = layer
+                    text_obj.add_layer(layer)
         else:
             return created_layers
 

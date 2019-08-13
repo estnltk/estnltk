@@ -26,7 +26,7 @@ def import_TCF(string:str=None, file:str=None):
         for token in element:
             annotation = layer.add_annotation(ElementaryBaseSpan(int(token.get('start')), int(token.get('end'))))
             id_to_token[token.get('ID')] = annotation.span
-        text['words'] = layer
+        text.add_layer(layer)
 
     # sentences layer
     element = text_corpus.find('{http://www.dspin.de/data/textcorpus}sentences')
@@ -36,7 +36,7 @@ def import_TCF(string:str=None, file:str=None):
         for sentence in element:
             spans = [id_to_token[token_id] for token_id in sentence.get('tokenIDs').split()]
             layer.add_annotation(spans)
-        text['sentences'] = layer
+        text.add_layer(layer)
 
     # clauses layer
     element = text_corpus.find('{http://www.dspin.de/data/textcorpus}clauses')
@@ -46,7 +46,7 @@ def import_TCF(string:str=None, file:str=None):
         for clause in element:
             spans = [id_to_token[token_id] for token_id in clause.get('tokenIDs').split()]
             layer.add_annotation(spans)
-        text['clauses'] = layer
+        text.add_layer(layer)
 
     # chunk layers: verb_chains, time_phrases
     element = text_corpus.find('{http://www.dspin.de/data/textcorpus}chunks')
@@ -63,8 +63,8 @@ def import_TCF(string:str=None, file:str=None):
             elif chunk_type == 'TMP':
                 spans = [id_to_token[token_id] for token_id in line.get('tokenIDs').split()]
                 layer_tmp.add_annotation(spans)
-        text['verb_chains'] = layer_vp
-        text['time_phrases'] = layer_tmp
+        text.add_layer(layer_vp)
+        text.add_layer(layer_tmp)
 
     # morph_analysis layer
     morph_analysis_list = []
@@ -122,6 +122,6 @@ def import_TCF(string:str=None, file:str=None):
             for analysis in analyses:
                 morph.add_annotation(word, **analysis)
 
-        text['morph_analysis'] = morph
+        text.add_layer(morph)
 
     return text

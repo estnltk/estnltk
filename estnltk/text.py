@@ -330,14 +330,6 @@ class Text:
                         tos.append(k + '.' + i)
         return tos
 
-    def __setitem__(self, name, layer):
-        # always sets layer
-        if not isinstance(layer, Layer):
-            raise TypeError('Layer expected, got {!r}'.format(type(layer)))
-        if layer.name != name:
-            raise ValueError('Mismatch between layer name and index value: {!r}!={!r}'.format(layer.name, name))
-        self.add_layer(layer)
-
     def __getitem__(self, item):
         # always returns layer
         return self.layers[item]

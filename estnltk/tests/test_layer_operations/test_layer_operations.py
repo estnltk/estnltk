@@ -30,7 +30,7 @@ def test_apply_filter():
     layer_1.add_annotation(ElementaryBaseSpan(6, 12), attr='L1-2', attr_1='D')
     layer_1.add_annotation(ElementaryBaseSpan(6, 12), attr='L1-2', attr_1='E')
     layer_1.add_annotation(ElementaryBaseSpan(12, 13), attr='L1-3', attr_1='F')
-    text_3['layer_1'] = layer_1
+    text_3.add_layer(layer_1)
 
     layer = text_3.layer_1
 

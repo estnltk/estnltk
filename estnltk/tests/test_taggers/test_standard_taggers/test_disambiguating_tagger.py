@@ -15,7 +15,7 @@ def test_1():
     layer_1.add_annotation((6, 12), attr_1=13, attr_2=14)
     layer_1.add_annotation((6, 12), attr_1=15, attr_2=16)
     layer_1.add_annotation((12, 13), attr_1=17, attr_2=18)
-    text['simple_ambiguous'] = layer_1
+    text.add_layer(layer_1)
 
     def decorator(ambiguous_span, raw_text):
         attr_1 = 0
@@ -47,7 +47,7 @@ def test_1():
     spans = text.simple_ambiguous[2:4]
     layer_2.add_annotation(spans, attr_3=32)
 
-    text['enveloping_ambiguous'] = layer_2
+    text.add_layer(layer_2)
 
     def decorator(ambiguous_span, raw_text):
         return {'attr_1': len(ambiguous_span)}

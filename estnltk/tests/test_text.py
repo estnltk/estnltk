@@ -352,7 +352,7 @@ def test_from_dict():
 def test_ambiguous_from_dict():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words', attributes=['lemma'], ambiguous = True)
-    t['words'] = words
+    t.add_layer(words)
 
 
     words.from_records([
@@ -384,7 +384,7 @@ def test_ambiguous_from_dict_unbound():
 
     #then we bind it to an object
     t = Text('Kui mitu kuud on aastas?')
-    t['words'] = words
+    t.add_layer(words)
 
     assert t.words[0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
 
@@ -400,7 +400,7 @@ def test_ambiguous_from_dict_unbound():
                        [{'end': 24, 'lemma2': '?', 'start': 23}]
                        ]
                     )
-    t['words2'] = words2
+    t.add_layer(words2)
     assert t.words2[0].lemma2 == AttributeList(['kui', 'KUU'], 'lemma2')
 
     assert t.words2[0].parent is t.words[0]
@@ -642,13 +642,9 @@ def test_morph2():
 def test_text_setitem():
     text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
     l = Layer(name='test', attributes=['test1'])
-    text['test'] = l
+    text.add_layer(l)
 
     assert text['test'] is l
-
-    #assigning something that is not a layer
-    with pytest.raises(TypeError):
-        text['test'] = '123'
 
     #getting something that is not in the dict
     with pytest.raises(KeyError):
@@ -815,7 +811,7 @@ def test_rewriting_api():
     text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
 
     test_layer = Layer(name='test', attributes=['reverse'], parent='words')
-    text['test'] = test_layer
+    text.add_layer(test_layer)
 
     for word in text.words:
         test_layer.add_annotation(word, reverse=word.text[::-1])
@@ -849,7 +845,7 @@ def test_rewriting():
                                     target_attributes=('upper',),
                                     rules=TestRewriter(),
                                     name='test_layer')
-    t['test_layer'] = test_layer
+    t.add_layer(test_layer)
 
     assert t['test_layer'].to_records() == [{'upper': 'MAAILM', 'start': 5, 'end': 11},
                                             {'upper': '!', 'start': 11, 'end': 12}]
@@ -862,7 +858,7 @@ def test_delete_annotation_in_ambiguous_span():
               ambiguous=True,
               attributes=['test1'])
 
-    text['test'] = l
+    text.add_layer(l)
 
     c = 0
     for word in text.words:

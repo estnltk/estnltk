@@ -19,12 +19,12 @@ layer_2 = Layer('layer_2', attributes=['attr', 'attr_2'], ambiguous=False, paren
 layer_3 = Layer('layer_3', attributes=['attr', 'attr_3'], ambiguous=True, parent='layer_1')
 layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], ambiguous=False, enveloping='layer_1')
 layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], ambiguous=True, enveloping='layer_0')
-text_1['layer_0'] = layer_0
-text_1['layer_1'] = layer_1
-text_1['layer_2'] = layer_2
-text_1['layer_3'] = layer_3
-text_1['layer_4'] = layer_4
-text_1['layer_5'] = layer_5
+text_1.add_layer(layer_0)
+text_1.add_layer(layer_1)
+text_1.add_layer(layer_2)
+text_1.add_layer(layer_3)
+text_1.add_layer(layer_4)
+text_1.add_layer(layer_5)
 
 # short text
 text_2 = Text('Tere, maailm!')
@@ -35,7 +35,7 @@ layer_0.add_annotation(ElementaryBaseSpan(0,   4), attr='L0-0',  attr_0='A')
 layer_0.add_annotation(ElementaryBaseSpan(4,   5), attr='L0-1',  attr_0='B')
 layer_0.add_annotation(ElementaryBaseSpan(6,  12), attr='L0-2',  attr_0='C')
 layer_0.add_annotation(ElementaryBaseSpan(12, 13), attr='L0-3',  attr_0='D')
-text_3['layer_0'] = layer_0
+text_3.add_layer(layer_0)
 
 layer_1 = Layer('layer_1', attributes=['attr', 'attr_1'], text_object=text_3, ambiguous=True)
 layer_1.add_annotation(ElementaryBaseSpan(0,   4), attr='L1-0',  attr_1='A')
@@ -44,19 +44,19 @@ layer_1.add_annotation(ElementaryBaseSpan(4,   5), attr='L1-1',  attr_1='C')
 layer_1.add_annotation(ElementaryBaseSpan(6,  12), attr='L1-2',  attr_1='D')
 layer_1.add_annotation(ElementaryBaseSpan(6,  12), attr='L1-2',  attr_1='E')
 layer_1.add_annotation(ElementaryBaseSpan(12, 13), attr='L1-3',  attr_1='F')
-text_3['layer_1'] = layer_1
+text_3.add_layer(layer_1)
 
 layer_2 = Layer('layer_2', attributes=['attr', 'attr_2'], text_object=text_3, ambiguous=False, parent='layer_0')
-text_3['layer_2'] = layer_2
+text_3.add_layer(layer_2)
 
 layer_3 = Layer('layer_3', attributes=['attr', 'attr_3'], text_object=text_3, ambiguous=True, parent='layer_1')
-text_3['layer_3'] = layer_3
+text_3.add_layer(layer_3)
 
 layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], text_object=text_3, ambiguous=False, enveloping='layer_1')
-text_3['layer_4'] = layer_4
+text_3.add_layer(layer_4)
 
 layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], text_object=text_3, ambiguous=True, enveloping='layer_0')
-text_3['layer_5'] = layer_5
+text_3.add_layer(layer_5)
 
 t = 'Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.'
 # text
@@ -87,7 +87,7 @@ layer_0.add_annotation(ElementaryBaseSpan(76, 82), attr='L0-16', attr_0='9')
 layer_0.add_annotation(ElementaryBaseSpan(76, 89), attr='L0-17', attr_0='90')
 layer_0.add_annotation(ElementaryBaseSpan(82, 87), attr='L0-18', attr_0='10')
 layer_0.add_annotation(ElementaryBaseSpan(90, 95), attr='L0-19', attr_0='1000')
-text_5['layer_0'] = layer_0
+text_5.add_layer(layer_0)
 
 layer_1 = Layer('layer_1', attributes=['attr', 'attr_1'], text_object=text_5, ambiguous=True)
 layer_1.add_annotation(ElementaryBaseSpan( 0,  4), attr='L1-0',  attr_1='SADA')
@@ -117,7 +117,7 @@ layer_1.add_annotation(ElementaryBaseSpan(76, 89),  attr='L1-17', attr_1='ÜHEKS
 layer_1.add_annotation(ElementaryBaseSpan(76, 89),  attr='L1-17', attr_1='KÜMME')
 layer_1.add_annotation(ElementaryBaseSpan(76, 89),  attr='L1-17', attr_1='ÜHEKSAKÜMMEND')
 layer_1.add_annotation(ElementaryBaseSpan(82, 87),  attr='L1-18', attr_1='KÜMME')
-text_5['layer_1'] = layer_1
+text_5.add_layer(layer_1)
 
 layer_2 = Layer('layer_2', attributes=['attr', 'attr_2'], ambiguous=False, parent='layer_0')
 layer_2.add_annotation(layer_0[0],  attr='L2-0',  attr_2=100)
@@ -139,10 +139,10 @@ layer_2.add_annotation(layer_0[16], attr='L2-15', attr_2=9)
 layer_2.add_annotation(layer_0[17], attr='L2-16', attr_2=90)
 layer_2.add_annotation(layer_0[18], attr='L2-17', attr_2=10)
 layer_2.add_annotation(layer_0[19], attr='L2-18', attr_2=1000)
-text_5['layer_2'] = layer_2
+text_5.add_layer(layer_2)
 
 layer_3 = Layer('layer_3', attributes=['attr', 'attr_3'], ambiguous=True, parent='layer_1')
-text_5['layer_3'] = layer_3
+text_5.add_layer(layer_3)
 
 layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], ambiguous=False, enveloping='layer_0')
 layer_4.add_annotation([layer_0[0], layer_0[2], layer_0[4]], attr='L4-0', attr_4='123')
@@ -150,7 +150,7 @@ layer_4.add_annotation([layer_0[5], layer_0[6], layer_0[8], layer_0[11], layer_0
 layer_4.add_annotation([layer_0[15]], attr='L4-2', attr_4='8')
 layer_4.add_annotation([layer_0[14]], attr='L4-3', attr_4=',')
 layer_4.add_annotation([layer_0[17], layer_0[19]], attr='L4-4', attr_4='90 000')
-text_5['layer_4'] = layer_4
+text_5.add_layer(layer_4)
 
 layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], ambiguous=True, enveloping='layer_1')
 layer_5.add_annotation([layer_1[0], layer_1[1]],                attr='L5-0-0',  attr_5='SADA KAKS')
@@ -166,7 +166,7 @@ layer_5.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-9',  
 layer_5.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-10', attr_5='VIISSADA KUUSKÜMMEND')
 layer_5.add_annotation([layer_1[12], layer_1[14], layer_1[15]], attr='L5-7-11', attr_5='KÜMME KOMA KAHEKSA')
 layer_5.add_annotation([layer_1[13], layer_1[14], layer_1[15]], attr='L5-8-12', attr_5='SEITSE KOMA KAHEKSA')
-text_5['layer_5'] = layer_5
+text_5.add_layer(layer_5)
 
 texts = {0: text_0,  # empty text, no layers
          1: text_1,  # empty text, empty layers

@@ -121,19 +121,19 @@ def test_TCF_export_import():
     spl.spans.extend(text.words.spans[7:11])
     layer.add_annotation(spl)
     layer.add_annotation(text.words[12:17])
-    text['clauses'] = layer
+    text.add_layer(layer)
 
     # verb_chains layer
     layer = Layer(name='verb_chains', enveloping='words')
     layer.add_annotation(text.words[3:4])
     layer.add_annotation(text.words[7:10:2])
     layer.add_annotation(text.words[13:17:3])
-    text['verb_chains'] = layer
+    text.add_layer(layer)
 
     # time_phrases layer
     layer = Layer(name='time_phrases', enveloping='words')
     layer.add_annotation(text.words[14:16])
-    text['time_phrases'] = layer
+    text.add_layer(layer)
 
     # version 0.4
     assert export_TCF(import_TCF(export_TCF(text))) == export_TCF(text)

@@ -23,7 +23,7 @@ def test_decompose_text_and_span():
     layer_0.add_annotation(( 4,  5), attr='L0-1', attr_0='B')
     layer_0.add_annotation(( 6, 12), attr='L0-2', attr_0='C')
     layer_0.add_annotation((12, 13), attr='L0-3', attr_0='D')
-    text_3['layer_0'] = layer_0
+    text_3.add_layer(layer_0)
 
     expected = [['Tere', [0]],
                 [',', [1]],
@@ -66,7 +66,7 @@ def test_decompose_with_span_inside_another_span():
     layer_1.add_annotation((76, 89), attr='L1-17', attr_1='KÜMME')
     layer_1.add_annotation((76, 89), attr='L1-17', attr_1='ÜHEKSAKÜMMEND')
     layer_1.add_annotation((82, 87), attr='L1-18', attr_1='KÜMME')
-    text_5['layer_1'] = layer_1
+    text_5.add_layer(layer_1)
 
     layer = layer_1
 
@@ -110,7 +110,7 @@ def test_decompose_spans_partially_overlap():
     layer_0.add_annotation(( 4,  8), attr='L0-1', attr_0='B')
     layer_0.add_annotation(( 6, 12), attr='L0-2', attr_0='C')
     layer_0.add_annotation((10, 13), attr='L0-3', attr_0='D')
-    text_3['layer_0'] = layer_0
+    text_3.add_layer(layer_0)
 
     result = decompose_to_elementary_spans(text_3.layer_0,text_3.text)[0]
     expected = [['Tere', [0]],

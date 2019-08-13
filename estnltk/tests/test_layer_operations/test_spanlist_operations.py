@@ -340,7 +340,7 @@ def test_iterate_intersecting_spans_3():
     layer.add_annotation((18, 26))  # viiskuus
     layer.add_annotation((27, 33))  # seitse
     layer.add_annotation((22, 33))  # 'kuus seitse'
-    text['test_layer'] = layer
+    text.add_layer(layer)
     
     intersections   = list(iterate_intersecting_spans(text['test_layer']))
     intersect_texts = [ (a.text,b.text) for a, b in intersections ]
