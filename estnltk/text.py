@@ -1,5 +1,4 @@
 import html
-from bisect import bisect_left
 from collections import defaultdict
 from typing import MutableMapping, Union, List, Sequence
 import pandas
@@ -147,7 +146,7 @@ class Text:
 
         return self.__getattribute__(item)
 
-    def _add_layer(self, layer: Layer):
+    def add_layer(self, layer: Layer):
         assert isinstance(layer, Layer), 'Layer expected, got {!r}'.format(type(layer))
 
         name = layer.name
@@ -337,7 +336,7 @@ class Text:
             raise TypeError('Layer expected, got {!r}'.format(type(layer)))
         if layer.name != name:
             raise ValueError('Mismatch between layer name and index value: {!r}!={!r}'.format(layer.name, name))
-        self._add_layer(layer)
+        self.add_layer(layer)
 
     def __getitem__(self, item):
         # always returns layer

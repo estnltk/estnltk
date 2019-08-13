@@ -199,7 +199,7 @@ def test_new_span_hierarchy():
         attributes=['test1'],
         text_object=text
     )
-    text._add_layer(l)
+    text.add_layer(l)
 
     for i in text.words:
         l.add_annotation(i, test1='1234')
@@ -210,7 +210,7 @@ def test_new_span_hierarchy():
         attributes=['test2'],
         text_object=text
     )
-    text._add_layer(l)
+    text.add_layer(l)
 
     for i in text.layer1:
         l.add_annotation(i, test2='12345')
@@ -251,25 +251,25 @@ def test_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
     l = Layer(name='test')
-    t._add_layer(l)
+    t.add_layer(l)
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name='text'))
+        t.add_layer(Layer(name='text'))
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name='test'))
+        t.add_layer(Layer(name='test'))
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name=' '))
+        t.add_layer(Layer(name=' '))
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name='3'))
+        t.add_layer(Layer(name='3'))
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name='assert'))
+        t.add_layer(Layer(name='assert'))
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name='is'))
+        t.add_layer(Layer(name='is'))
 
     assert t.layers['test'] is l
 
@@ -289,7 +289,7 @@ def test_annotated_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
     l = Layer(name='test', attributes=['test', 'asd'])
-    t._add_layer(l)
+    t.add_layer(l)
     l.add_annotation((1, 5))
 
     for i in t.test:
@@ -321,7 +321,7 @@ def test_count_by():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
     l = Layer(name='test', attributes=['test', 'asd'])
-    t._add_layer(l)
+    t.add_layer(l)
     l.add_annotation((1, 5))
     l.add_annotation((2, 6))
 
@@ -335,7 +335,7 @@ def test_count_by():
 def test_from_dict():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words', attributes=['lemma'])
-    t._add_layer(words)
+    t.add_layer(words)
     words.from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
                         {'end': 8, 'lemma': 'mitu', 'start': 4},
                         {'end': 13, 'lemma': 'kuu', 'start': 9},
@@ -417,13 +417,13 @@ def test_dependant_span():
                                   {'end': 23, 'lemma': 'aasta', 'start': 17},
                                   {'end': 24, 'lemma': '?', 'start': 23}],
                                  )
-    t._add_layer(words)
+    t.add_layer(words)
 
     dep = Layer(name='reverse_lemmas',
                    parent='words',
                    attributes=['revlemma']
                    )
-    t._add_layer(dep)
+    t.add_layer(dep)
 
     for word in t.words:
         dep.add_annotation(word, revlemma=word.lemma[::-1])
@@ -449,9 +449,9 @@ def test_enveloping_layer():
                     {'end': 23, 'lemma': 'aasta', 'start': 17},
                     {'end': 24, 'lemma': '?', 'start': 23}],
                    )
-    t._add_layer(words)
+    t.add_layer(words)
     wordpairs = Layer(name='wordpairs', enveloping='words')
-    t._add_layer(wordpairs)
+    t.add_layer(wordpairs)
 
     wordpairs.add_annotation(t.words[0:2])
     wordpairs.add_annotation(t.words[2:4])
@@ -493,7 +493,7 @@ def test_various():
     upper = Layer(parent='words',
                   name='uppercase',
                   attributes=['upper'])
-    text._add_layer(upper)
+    text.add_layer(upper)
 
     for word in text.words:
         upper.add_annotation(word, upper=word.text.upper())
@@ -538,7 +538,7 @@ def test_words_sentences():
                          parent='words',
                          attributes=['upper']
                          )
-    t._add_layer(dep)
+    t.add_layer(dep)
     for word in t.words:
         dep.add_annotation(word, upper=word.text.upper())
 
@@ -556,7 +556,7 @@ def test_ambiguous_layer():
                 ambiguous=True,
                 attributes=['asd']
                 )
-    t._add_layer(dep)
+    t.add_layer(dep)
 
     dep.add_annotation(t.words[0], asd='asd')
 
@@ -749,7 +749,7 @@ def broken_test_rewrite_access():
         ambiguous=True
     )
 
-    text._add_layer(com_type)
+    text.add_layer(com_type)
 
     def rewrite(source_layer, target_layer, rules):
         assert target_layer.layer.parent == source_layer.layer.name
@@ -829,7 +829,7 @@ def test_rewriting_api():
     )
 
     # assign to layer
-    text._add_layer(layer)
+    text.add_layer(layer)
 
     #double reverse is plaintext
     assert list(text.plain.esrever) == text.words.text
@@ -960,7 +960,7 @@ def test_phrase_layer():
             for idx, s in enumerate(spans):
                 l.add_annotation(s, phrasetext=' '.join([i.text for i in s]).lower(), tag=idx)
 
-            text._add_layer(l)
+            text.add_layer(l)
 
             return text
 
