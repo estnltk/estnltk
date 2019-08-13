@@ -177,7 +177,6 @@ class Text:
 
         if layer.parent:
             layer._base = self._layers[layer.parent]._base
-            self._layers[layer.parent].freeze()
 
         if layer.parent:
             # This is a change to accommodate pruning of the layer tree.
@@ -186,7 +185,6 @@ class Text:
 
         if layer.enveloping:
             self.enveloping_to_enveloped[name].append(layer.enveloping)
-            self._layers[layer.enveloping].freeze()
 
         self._layers[name] = layer
 

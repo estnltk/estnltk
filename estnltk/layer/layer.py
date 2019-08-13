@@ -85,8 +85,6 @@ class Layer:
         # the name of the parent layer.
         self.parent = parent
 
-        self._is_frozen = False
-
         self._base = name if enveloping or not parent else None  # This is a placeholder for the base layer.
         # _base is self.name if self.enveloping or not self.parent
         # _base is parent._base otherwise, but we can't assign the value yet,
@@ -142,22 +140,6 @@ class Layer:
     @property
     def enclosing_text(self):
         return self.text_object.text[self.start:self.end]
-
-    def freeze(self):
-        self._is_frozen = True
-
-    def unfreeze(self):
-        if self.text_object is None:
-            self._is_frozen = False
-            return
-        for layer in self.text_object.layers.values():
-            assert not layer.enveloping == self.name, "can't unfreeze. This layer is enveloped by " + layer.name
-            assert not layer.parent == self.name, "can't unfreeze. This layer is parent of " + layer.name
-        self._is_frozen = False
-
-    @property
-    def is_frozen(self):
-        return self._is_frozen
 
     def from_records(self, records, rewriting=False) -> 'Layer':
         if rewriting:
@@ -251,7 +233,6 @@ class Layer:
         return layer
 
     def add_span(self, span: Span) -> Span:
-        assert not self.is_frozen, "can't add spans to frozen layer"
         assert isinstance(span, Span), str(type(span))
         assert len(span.annotations) > 0, span
         assert self.ambiguous or len(span.annotations) == 1, span
@@ -338,7 +319,6 @@ class Layer:
         return resulting_layer
 
     def _add_spans(self, spans: List['Span']) -> List['Span']:
-        assert not self.is_frozen, "can't add spans to frozen layer"
         assert self.ambiguous or self.enveloping
         res = []
         for span in spans:
