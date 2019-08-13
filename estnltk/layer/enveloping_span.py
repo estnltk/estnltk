@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Iterable
 
 from estnltk.layer.span import Span, Annotation
 from estnltk import BaseSpan, EnvelopingBaseSpan
@@ -12,7 +12,7 @@ class EnvelopingSpan(Span):
         super().__init__(base_span, layer)
 
     @classmethod
-    def from_spans(cls, spans, layer, records):
+    def from_spans(cls, spans: Iterable[Span], layer, records):
         span = cls(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
         for record in records:
             span.add_annotation(Annotation(span, **record))
