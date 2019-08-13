@@ -9,21 +9,6 @@ from estnltk import Span, EnvelopingSpan, Annotation, SpanList
 from estnltk.layer import AmbiguousAttributeTupleList, AmbiguousAttributeList, AttributeTupleList, AttributeList
 
 
-def whitelist_record(record, source_attributes):
-    # the goal is to only keep the keys explicitly listed in source_attributes
-
-    # record might be a dict:
-    if isinstance(record, dict):
-        res = {}
-        for k in source_attributes:
-            res[k] = record.get(k, None)
-        return res
-
-    else:
-        # record might be nested
-        return [whitelist_record(i, source_attributes) for i in record]
-
-
 def to_base_span(x) -> BaseSpan:
     if isinstance(x, BaseSpan):
         return x
@@ -301,22 +286,6 @@ class Layer:
                             set(annotation) - attribute_names,
                             attribute_names - set(annotation),
                             self.name)
-
-    def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
-        assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
-        res = [whitelist_record(record, source_attributes + ('start', 'end')) for record in
-               self.to_records(with_text='text' in source_attributes)]
-        rewritten = [rules.rewrite(j) for j in res]
-        resulting_layer = Layer(
-            **kwargs,
-            attributes=target_attributes,
-            parent=self.name
-
-        ).from_records(
-            rewritten, rewriting=True
-        )
-
-        return resulting_layer
 
     def count_values(self, attribute: str):
         """count attribute values, return frequency table"""
