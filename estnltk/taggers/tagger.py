@@ -78,7 +78,7 @@ class Tagger(metaclass=TaggerChecker):
             if layer in layers:
                 continue
             if layer in text.layers:
-                layers[layer] = text.layers[layer]
+                layers[layer] = text[layer]
             else:
                 raise ValueError('missing input layer: {!r}'.format(layer))
 

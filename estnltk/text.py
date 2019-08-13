@@ -15,12 +15,16 @@ from estnltk.layer.ambiguous_attribute_list import AmbiguousAttributeList
 class Text:
     def __init__(self, text: str = None) -> None:
         self._text = text  # type: str
-        self.layers = {}  # type: MutableMapping[str, Layer]
+        self._layers = {}  # type: MutableMapping[str, Layer]
         self.meta = {}  # type: MutableMapping
         self.layers_to_attributes = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self.base_to_dependant = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self.enveloping_to_enveloped = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self._setup_structure()
+
+    @property
+    def layers(self):
+        return dict(self._layers)
 
     def set_text(self, text: str):
         assert self._text is None, "raw text has already been set"
@@ -47,7 +51,7 @@ class Text:
         else:
             raise ValueError("invalid argument: '" + str(t) +
                              "', use 'segmentation', 'morphology' or 'syntax' instead")
-        if 'tokens' in self.layers and t != 'all':
+        if 'tokens' in self._layers and t != 'all':
             del self.tokens
         return self
 
@@ -60,7 +64,7 @@ class Text:
         Returns a list of all layers of this text object in order of dependences and layer names.
         The order is uniquely determined.
         """
-        layer_list = sorted(self.layers.values(), key=lambda l: l.name)
+        layer_list = sorted(self._layers.values(), key=lambda l: l.name)
         sorted_layers = []
         sorted_layer_names = set()
         while layer_list:
@@ -104,7 +108,7 @@ class Text:
                 pairs.append((to, frm))
 
         self.layers_to_attributes = defaultdict(list)
-        for name, layer in self.layers.items():
+        for name, layer in self._layers.items():
             self.layers_to_attributes[name] = layer.attributes
 
         # we can go from layer to attribute
@@ -116,14 +120,14 @@ class Text:
         g = nx.DiGraph()
         g.add_edges_from(pairs)
         g.add_edges_from(attributes)
-        g.add_nodes_from(self.layers.keys())
+        g.add_nodes_from(self._layers.keys())
 
         self._g = g
 
     @property
     def attributes(self):
         res = defaultdict(list)
-        for k, layer in self.layers.items():
+        for k, layer in self._layers.items():
             for attrib in layer.__getattribute__('attributes'):
                 res[attrib].append(k)
 
@@ -137,12 +141,12 @@ class Text:
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
-        if item in self.layers.keys():
-            return self.layers[item]  # .spans
+        if item in self._layers.keys():
+            return self._layers[item]  # .spans
 
         attributes = self.__getattribute__('attributes')
         if len(attributes[item]) == 1:
-            return getattr(self.layers[attributes[item][0]], item)
+            return getattr(self._layers[attributes[item][0]], item)
 
         return self.__getattribute__(item)
 
@@ -151,7 +155,7 @@ class Text:
 
         name = layer.name
 
-        assert name not in self.layers, 'this Text object already has a layer with name {!r}'.format(name)
+        assert name not in self._layers, 'this Text object already has a layer with name {!r}'.format(name)
 
         if layer.text_object is None:
             layer.text_object = self
@@ -160,11 +164,11 @@ class Text:
                 "can't add layer {!r}, this layer is already bound to another Text object".format(name)
 
         if layer.parent:
-            assert layer.parent in self.layers.keys(), 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
+            assert layer.parent in self._layers.keys(), 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
                 parent=layer.parent, layer=layer.name)
 
         if layer.enveloping:
-            assert layer.enveloping in self.layers.keys(), "can't add an enveloping layer before adding the layer it envelops"
+            assert layer.enveloping in self._layers.keys(), "can't add an enveloping layer before adding the layer it envelops"
 
         #
         # ASSERTS DONE,
@@ -172,8 +176,8 @@ class Text:
         #
 
         if layer.parent:
-            layer._base = self.layers[layer.parent]._base
-            self.layers[layer.parent].freeze()
+            layer._base = self._layers[layer.parent]._base
+            self._layers[layer.parent].freeze()
 
         if layer.parent:
             # This is a change to accommodate pruning of the layer tree.
@@ -182,9 +186,9 @@ class Text:
 
         if layer.enveloping:
             self.enveloping_to_enveloped[name].append(layer.enveloping)
-            self.layers[layer.enveloping].freeze()
+            self._layers[layer.enveloping].freeze()
 
-        self.layers[name] = layer
+        self._layers[name] = layer
 
         setattr(self, layer.name, layer)
 
@@ -200,40 +204,40 @@ class Text:
         if not self._path_exists(frm, to):
             raise AttributeError('{} -> {} not implemented - path does not exist'.format(frm, to))
 
-        if to in self.layers and frm in self.layers:
+        if to in self._layers and frm in self._layers:
             # from enveloping layer to its direct descendant
-            if to == self.layers[frm].enveloping:
+            if to == self._layers[frm].enveloping:
                 if isinstance(sofar, EnvelopingSpan):
-                    return self.layers[to][[span.base_span for span in sofar]]
-                return self.layers[to][[span.base_span for enveloping_span in sofar for span in enveloping_span]]
+                    return self._layers[to][[span.base_span for span in sofar]]
+                return self._layers[to][[span.base_span for enveloping_span in sofar for span in enveloping_span]]
 
             # from an enveloping layer to dependant layer (one step only, skipping base layer)
-            elif self.layers[frm].enveloping == self.layers[to].parent and self.layers[to].parent is not None:
+            elif self._layers[frm].enveloping == self._layers[to].parent and self._layers[to].parent is not None:
 
                 # path taken by text.sentences.morph_analysis
                 if isinstance(sofar[0], EnvelopingSpan):
-                    return self.layers[to][[base_span for envelop in sofar for base_span in envelop.base_span]]
+                    return self._layers[to][[base_span for envelop in sofar for base_span in envelop.base_span]]
 
                 # path taken by text.sentences[0].lemma
                 if isinstance(sofar[0], Span):
-                    return self.layers[to][[span.base_span for span in sofar]]
+                    return self._layers[to][[span.base_span for span in sofar]]
 
-            elif self.layers[frm]._base == self.layers[to]._base:
-                return self.layers[to][[span.base_span for span in self.layers[frm]]]
+            elif self._layers[frm]._base == self._layers[to]._base:
+                return self._layers[to][[span.base_span for span in self._layers[frm]]]
 
             # through an enveloped layer (enveloping-enveloping-target)
-            elif to == self.layers[self.layers[frm].enveloping].enveloping:
-                base_spans = [span_2 for span in self.layers[frm] for span_1 in span.base_span for span_2 in span_1]
-                return self.layers[to][base_spans]
+            elif to == self._layers[self._layers[frm].enveloping].enveloping:
+                base_spans = [span_2 for span in self._layers[frm] for span_1 in span.base_span for span_2 in span_1]
+                return self._layers[to][base_spans]
         # attribute access
         else:
             to_layer_name = self.attributes[to][0]
             path = self._get_path(frm, to_layer_name) + ['{}.{}'.format(to_layer_name, to)]
 
-            to_layer = self.layers[to_layer_name]
-            assert to_layer_name in self.layers.keys()
+            to_layer = self._layers[to_layer_name]
+            assert to_layer_name in self._layers.keys()
 
-            if self.layers[frm] == to_layer:
+            if self._layers[frm] == to_layer:
                 raise NotImplementedError('Seda ei tohiks juhtuda.')
 
             # attributes of a (direct) dependant
@@ -251,9 +255,9 @@ class Text:
 
             # attributes of an (directly) enveloped object
             to_layer_name = path[-2]
-            to_layer = self.layers[to_layer_name]
+            to_layer = self._layers[to_layer_name]
             from_layer_name = path[0]
-            from_layer = self.layers[from_layer_name]
+            from_layer = self._layers[from_layer_name]
 
             if from_layer.enveloping == to_layer.name:
                 if sofar:
@@ -332,14 +336,14 @@ class Text:
 
     def __getitem__(self, item):
         # always returns layer
-        return self.layers[item]
+        return self._layers[item]
 
     def __delattr__(self, item):
-        assert item in self.layers, '{item} is not a valid layer in this Text object'.format(item=item)
+        assert item in self._layers, '{item} is not a valid layer in this Text object'.format(item=item)
 
         # find all dependencies between layers
         relations = set()
-        for layer_name, layer in self.layers.items():
+        for layer_name, layer in self._layers.items():
             relations.update((b, a) for a, b in [
                 (layer_name, layer.parent),
                 (layer_name, layer._base),
@@ -348,13 +352,13 @@ class Text:
 
         g = nx.DiGraph()
         g.add_edges_from(relations)
-        g.add_nodes_from(self.layers.keys())
+        g.add_nodes_from(self._layers.keys())
 
         to_delete = nx.descendants(g, item)
         to_delete.add(item)
 
         for item in to_delete:
-            self.layers.pop(item)
+            self._layers.pop(item)
             super().__delattr__(item)
 
         self._setup_structure()
@@ -364,12 +368,12 @@ class Text:
             return 'Not a Text object.'
         if self.text != other.text:
             return 'The raw text is different.'
-        if set(self.layers) != set(other.layers):
-            return 'Different layer names: {} != {}'.format(set(self.layers), set(other.layers))
+        if set(self._layers) != set(other.layers):
+            return 'Different layer names: {} != {}'.format(set(self._layers), set(other.layers))
         if self.meta != other.meta:
             return 'Different metadata.'
-        for layer_name in self.layers:
-            difference = self.layers[layer_name].diff(other.layers[layer_name])
+        for layer_name in self._layers:
+            difference = self._layers[layer_name].diff(other.layers[layer_name])
             if difference:
                 return difference
         return None
@@ -407,7 +411,7 @@ class Text:
             table_meta = pandas.DataFrame(data, columns=['key', 'value'])
             table_meta = table_meta.to_html(header=False, index=False)
             table = '\n'.join((table, '<h4>Metadata</h4>', table_meta))
-        if self.layers:
+        if self._layers:
             # create a list of layers preserving the order of registered layers
             # can be optimized
             layers = []
@@ -421,12 +425,12 @@ class Text:
                 'morph_analysis',
                 'morph_extended')
             for layer_name in presort:
-                layer = self.layers.get(layer_name)
+                layer = self._layers.get(layer_name)
                 if layer is not None:
                     layers.append(layer)
-            for layer_name in sorted(self.layers):
+            for layer_name in sorted(self._layers):
                 if layer_name not in presort:
-                    layers.append(self.layers[layer_name])
+                    layers.append(self._layers[layer_name])
 
             layer_table = pandas.DataFrame()
             for layer in layers:
