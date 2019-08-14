@@ -751,7 +751,7 @@ class SentenceTokenizer( Tagger ):
                     else:
                         # At least one sentence has already been added:
                         # extend the last sentence
-                        spans = tuple(new_sentences_list[-1]) + tuple(sentence_spl)
+                        spans = list(new_sentences_list[-1]) + list(sentence_spl)
                         new_sentences_list[-1] = spans
                         # Update fix types list
                         all_fixes = \
