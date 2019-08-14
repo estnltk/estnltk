@@ -84,7 +84,8 @@ class Retagger(Tagger):
         table = table.to_html(index=False)
         assert self.__class__.__doc__ is not None, 'No docstring.'
         description = self.__class__.__doc__.strip().split('\n')[0]
-        table = ['<h4>Retagger</h4>', description, table]
+        table = ['<h4>{self.__class__.__name__}({self.__class__.__base__.__name__})</h4>'.format(self=self),
+                 description, table]
 
         def to_str(value):
             value_str = str(value)
