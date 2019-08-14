@@ -33,7 +33,7 @@ class Span:
         if annotation.span is not self:
             raise ValueError('the annotation has a different span {}'.format(annotation.span))
         if set(annotation) != set(self.layer.attributes):
-            raise ValueError('the annotation has unexpected or missing attributes {}'.format(annotation.attributes))
+            raise ValueError('the annotation has unexpected or missing attributes {}'.format(list(annotation)))
 
         if annotation not in self._annotations:
             if self.layer.ambiguous or len(self._annotations) == 0:
@@ -44,8 +44,9 @@ class Span:
 
     def del_annotation(self, idx):
         del self._annotations[idx]
-        if not self._annotations:
-            self._layer.remove_span(self)
+
+    def clear_annotations(self):
+        self._annotations.clear()
 
     @property
     def annotations(self):
