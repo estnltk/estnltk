@@ -6,6 +6,8 @@ from estnltk.taggers.tagger_old import TaggerOld
 from estnltk.taggers.tagger_tester import TaggerTester
 
 from estnltk.taggers.standard_taggers.atomizer import Atomizer
+from estnltk.taggers.standard_taggers.annotation_rewriter import AnnotationRewriter
+from estnltk.taggers.standard_taggers.span_rewriter import SpanRewriter
 
 from estnltk.taggers.combined_tagger import CombinedTagger
 
@@ -54,9 +56,12 @@ from estnltk.taggers.text_segmentation.compound_token_tagger import CompoundToke
 from estnltk.taggers.text_segmentation.clause_segmenter import ClauseSegmenter
 
 from estnltk.taggers.syntax_preprocessing.pronoun_type_tagger import PronounTypeTagger
+from estnltk.taggers.syntax_preprocessing.pronoun_type_tagger import PronounTypeRetagger
 from estnltk.taggers.syntax_preprocessing.finite_form_tagger import FiniteFormTagger
 from estnltk.taggers.syntax_preprocessing.verb_extension_suffix_tagger import VerbExtensionSuffixTagger
+from estnltk.taggers.syntax_preprocessing.verb_extension_suffix_tagger import VerbExtensionSuffixRetagger
 from estnltk.taggers.syntax_preprocessing.subcat_tagger import SubcatTagger
+from estnltk.taggers.syntax_preprocessing.subcat_tagger import SubcatRetagger
 from estnltk.taggers.syntax_preprocessing.morph_extended_tagger import MorphExtendedTagger
 
 from estnltk.taggers.syntax.visl_tagger import VislTagger

@@ -1,4 +1,4 @@
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import TaggerOld, AnnotationRewriter
 from estnltk.taggers import VabamorfTagger
 from estnltk.rewriting import VerbExtensionSuffixRewriter
 
@@ -27,3 +27,16 @@ class VerbExtensionSuffixTagger(TaggerOld):
         if return_layer:
             return new_layer
         text[self.layer_name] = new_layer
+
+
+class VerbExtensionSuffixRetagger(AnnotationRewriter):
+    """Tags verb extension suffixes.
+
+    """
+    def __init__(self, layer_name):
+        rewrite = VerbExtensionSuffixRewriter().rewrite
+
+        def function(annotation):
+            return rewrite([annotation])
+
+        super().__init__(layer_name=layer_name, output_attributes=['verb_extension_suffix'], function=function)

@@ -1,4 +1,4 @@
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import TaggerOld, SpanRewriter
 from estnltk.taggers import VabamorfTagger
 from estnltk.rewriting import MorphToSyntaxMorphRewriter
 from estnltk.rewriting import SubcatRewriter
@@ -42,3 +42,19 @@ class SubcatTagger(TaggerOld):
         if return_layer:
             return new_layer
         text[self.layer_name] = new_layer
+
+
+class SubcatRetagger(SpanRewriter):
+    """Tags subcategory information.
+
+    """
+    def __init__(self, layer_name, fs_to_synt_rules_file, subcat_rules_file):
+        rewrite_morph_to_syntax_morph = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file).rewrite
+        rewrite_subcat = SubcatRewriter(subcat_rules_file).rewrite
+
+        def function(records):
+            records = rewrite_morph_to_syntax_morph(records)
+            records = rewrite_subcat(records)
+            return records
+
+        super().__init__(layer_name=layer_name, output_attributes=['subcat'], function=function)
