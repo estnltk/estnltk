@@ -229,9 +229,9 @@ def test_merge_mistakenly_split_sentences_2():
 
 
 
-def test_merge_mistakenly_split_sentences_3_1():
+def test_merge_mistakenly_split_sentences_3_fix_double_quotes():
     # Tests that mistakenly split sentences have been properly merged
-    # 3.1: double quotes fixed based on local context;
+    # 3.1: fixes double quotes based on local context;
     test_texts = [ 
         #   Merge case:   {sentence_ending_punct} {ending_quotes}? + {comma_or_semicolon} {lowercase_letter}
         { 'text': 'ETV-s esietendub homme " Õnne 13 ! " , mis kuu aja eest jõudis lavale Ugalas .', \
@@ -310,9 +310,9 @@ def test_merge_mistakenly_split_sentences_3_1():
         assert sentence_texts == test_text['expected_sentence_texts']
 
 
-def test_merge_mistakenly_split_sentences_3_2():
-    # Tests that mistakenly split sentences have been properly merged
-    # 3.2: double quotes fixed based on global counts of quotation marks;
+def test_fix_double_quotes_2():
+    # Tests that knowledge about quotations in the whole text is used to repair sentence boundaries
+    # 3.2: fixes double quotes based on global counts of quotation marks;
     sentence_tokenizer = SentenceTokenizer( fix_double_quotes_based_on_counts=True )
     test_texts = [ 
         # if an ending double quotes start a sentence, then move the quotes to the end of the previous sentence
