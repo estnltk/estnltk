@@ -55,7 +55,7 @@ class PronounTypeRewriter():
     def rewrite(self, record):
         for rec in record:
             if rec['partofspeech'] == 'P':
-                lemma = rec['lemma'].split('-')[-1]
+                lemma = rec['lemma']
                 rec['pronoun_type'] = self.pronoun_types.get(lemma, ('invalid',))
             else:
                 rec['pronoun_type'] = None
