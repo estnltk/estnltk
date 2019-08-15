@@ -1130,7 +1130,7 @@ class SentenceTokenizer( Tagger ):
                         # Small sanity checks
                         this_sentence_start = sentence_spl[0].start
                         this_sentence_end   = sentence_spl[-1].end
-                        assert this_sentence_start < this_sent_splits[0][0]
+                        assert this_sentence_start < this_sent_splits[0][0]+1
                         assert this_sentence_end   > this_sent_splits[-1][-1]
                         # Iterate over words & splits
                         cur_split_id = 0
