@@ -1,7 +1,8 @@
 import regex as re
 
+
 class PunctuationTypeRewriter():
-    ''' Adds 'punctuation_type' attribute to the analysis.
+    """ Adds 'punctuation_type' attribute to the analysis.
         If partofspeech is 'Z', then gets the punctuation type from the 
         _punctConversions.
 
@@ -10,8 +11,8 @@ class PunctuationTypeRewriter():
         _punctConversions is a tuple of tuples, where each inner tuple contains
         a pair of elements: first is the regexp pattern to match the root and 
         the second is the punctuation type.
-    ''' 
 
+    """
     def rewrite(self, record):
         for rec in record:
             if rec['partofspeech'] == 'Z':
@@ -20,33 +21,31 @@ class PunctuationTypeRewriter():
                 rec['punctuation_type'] = None
         return record
 
-    _punctConversions = (
-                          ("…$",      "Ell"),
-                          ("\.\.\.$", "Ell"),
-                          ("\.\.$",   "Els"),
-                          ("\.$",     "Fst"),
-                          (",$",      "Com"),
-                          (":$",      "Col"),
-                          (";$",      "Scl"),
-                          ("(\?+)$",  "Int"),
-                          ("(\!+)$",  "Exc"),
-                          ("(---?)$", "Dsd"),
-                          ("(-)$",    "Dsh"),
-                          ("\($",     "Opr"),
-                          ("\)$",     "Cpr"),
-                          ('\\\\"$',  "Quo"),
-                          ("«$",      "Oqu"),
-                          ("»$",      "Cqu"),
-                          ("“$",      "Oqu"),
-                          ("”$",      "Cqu"),
-                          ("<$",      "Grt"),
-                          (">$",      "Sml"),
-                          ("\[$",     "Osq"),
-                          ("\]$",     "Csq"),
-                          ("/$",      "Sla"),
-                          ("\+$",     "crd")
-    )# double quotes are escaped by \
-
+    _punctConversions = (("…$", "Ell"),
+                         ("\.\.\.$", "Ell"),
+                         ("\.\.$", "Els"),
+                         ("\.$", "Fst"),
+                         (",$", "Com"),
+                         (":$", "Col"),
+                         (";$", "Scl"),
+                         ("(\?+)$", "Int"),
+                         ("(\!+)$", "Exc"),
+                         ("(---?)$", "Dsd"),
+                         ("(-)$", "Dsh"),
+                         ("\($", "Opr"),
+                         ("\)$", "Cpr"),
+                         ('"$', "Quo"),
+                         ("«$", "Oqu"),
+                         ("»$", "Cqu"),
+                         ("“$", "Oqu"),
+                         ("”$", "Cqu"),
+                         ("<$", "Grt"),
+                         (">$", "Sml"),
+                         ("\[$", "Osq"),
+                         ("\]$", "Csq"),
+                         ("/$", "Sla"),
+                         ("\+$", "crd")
+                         )
 
     def _get_punctuation_type(self, morph_extended):
         root = morph_extended['root']
