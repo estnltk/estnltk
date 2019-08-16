@@ -1,11 +1,11 @@
 import os
-from estnltk.text import Layer, Text
+from estnltk.text import Layer
 from estnltk.taggers import Tagger
 
 from estnltk.neural_morph.new_neural_morph.general_utils import load_config_from_file
 from estnltk.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 
-# There are 4 different models that this tagger can be used with:
+# There are 4 different neural models that this tagger can be used with:
     
 # Model 1
 #   model_module = estnltk.neural_morph.new_neural_morph.seq2seq
@@ -23,6 +23,9 @@ from estnltk.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model
 #   model_module = estnltk.neural_morph.new_neural_morph.softmax
 #   config_filename = estnltk/neural_morph/new_neural_morph/softmax/emb_tag_sum/config.py
 
+# out_dir directories (which contain trained models) are missing, but they should be located in the
+# same folder as config.py files when the user downloads them.
+
 def load_model(model_module, config_filename):
     config = load_config_from_file(config_filename)
     config_holder = model_module.ConfigHolder(config)
@@ -32,8 +35,12 @@ def load_model(model_module, config_filename):
     return model
 
 
-class NewNeuralMorphTagger(Tagger):
-    """Performs neural morphological tagging."""
+class NeuralMorphTagger(Tagger):
+    """
+    Performs neural morphological tagging. It takes vabamorf analyses
+    as input to predict morphological tags with better accuracy than vabamorf, 
+    but it uses a different tag set.
+    """
     conf_param = ('model',)
     
     def __init__(self, model_module, config_filename, out_dir):
