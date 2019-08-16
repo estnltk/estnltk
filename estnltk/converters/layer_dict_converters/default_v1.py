@@ -2,6 +2,9 @@ from estnltk.text import Text
 from estnltk.layer.layer import Layer, to_base_span
 
 
+__version__ = 'default_v1'
+
+
 def list_to_tuple(value):
     if isinstance(value, list):
         return tuple(value)
@@ -9,6 +12,7 @@ def list_to_tuple(value):
 
 
 def layer_to_dict(layer: Layer) -> dict:
+    layer.meta['dict_converter'] = __version__
     return {
         'name': layer.name,
         'attributes': layer.attributes,

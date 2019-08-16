@@ -2,12 +2,12 @@ from . import default_v0
 from . import default_v1
 from . import syntax_v0
 
-DEFAULT_LAYER_DICT_CONVERTER = 'default_v1'
+DEFAULT_LAYER_DICT_CONVERTER = default_v1
 DEFAULT_SYNTAX_LAYER_DICT_CONVERTER = 'syntax_v0'
 
 layer_converter_collection = {None: default_v0,
                               'default_v0': default_v0,
-                              DEFAULT_LAYER_DICT_CONVERTER: default_v1,
+                              DEFAULT_LAYER_DICT_CONVERTER.__version__: DEFAULT_LAYER_DICT_CONVERTER,
                               DEFAULT_SYNTAX_LAYER_DICT_CONVERTER: syntax_v0}
 
 
