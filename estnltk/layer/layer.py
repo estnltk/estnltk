@@ -544,8 +544,6 @@ class Layer:
                                                                                                        other=other)
         if self.parent != other.parent:
             return "{self.name} layer parent differs: {self.parent} != {other.parent}".format(self=self, other=other)
-        if self._base != other._base:
-            return "{self.name} layer _base differs: {self._base} != {other._base}".format(self=self, other=other)
         if self.enveloping != other.enveloping:
             return "{self.name} layer enveloping differs: {self.enveloping}!={other.enveloping}".format(self=self,
                                                                                                         other=other)
