@@ -1,30 +1,30 @@
 import os
+
 from estnltk.text import Layer
 from estnltk.taggers import Tagger
-
 from estnltk.neural_morph.new_neural_morph.general_utils import load_config_from_file
 from estnltk.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
+import estnltk.neural_morph.new_neural_morph.softmax as softmax
+import estnltk.neural_morph.new_neural_morph.seq2seq as seq2seq
 
-# There are 4 different neural models that this tagger can be used with:
+def softmax_emb_tag_sum():
+    return load_tagger(softmax, "emb_tag_sum")
+
+def softmax_emb_cat_sum():
+    return load_tagger(softmax, "emb_cat_sum")
+
+def seq2seq_emb_tag_sum():
+    return load_tagger(seq2seq, "emb_tag_sum")    
     
-# Model 1
-#   model_module = estnltk.neural_morph.new_neural_morph.seq2seq
-#   config_filename = estnltk/neural_morph/new_neural_morph/seq2seq/emb_cat_sum/config.py
+def seq2seq_emb_cat_sum():
+    return load_tagger(seq2seq, "emb_cat_sum")
 
-# Model 2
-#   model_module = estnltk.neural_morph.new_neural_morph.seq2seq
-#   config_filename = estnltk/neural_morph/new_neural_morph/seq2seq/emb_tag_sum/config.py
-    
-# Model 3
-#   model_module = estnltk.neural_morph.new_neural_morph.softmax
-#   config_filename = estnltk/neural_morph/new_neural_morph/softmax/emb_cat_sum/config.py
-
-# Model 4
-#   model_module = estnltk.neural_morph.new_neural_morph.softmax
-#   config_filename = estnltk/neural_morph/new_neural_morph/softmax/emb_tag_sum/config.py
-
-# out_dir directories (which contain trained models) are missing, but they should be located in the
-# same folder as config.py files when the user downloads them.
+def load_tagger(model_module, dir_name):
+    model_path = os.path.join(os.path.dirname(model_module.__file__), dir_name)
+    config_filename = os.path.join(model_path, "config.py")
+    os.environ['OUT_DIR'] =  os.path.join(model_path, "output")
+    model = load_model(model_module, config_filename)
+    return NeuralMorphTagger(model)
 
 def load_model(model_module, config_filename):
     config = load_config_from_file(config_filename)
@@ -34,19 +34,41 @@ def load_model(model_module, config_filename):
     model.restore_session(config.dir_model)
     return model
 
-
 class NeuralMorphTagger(Tagger):
     """
-    Performs neural morphological tagging. It takes vabamorf analyses
-    as input to predict morphological tags with better accuracy than vabamorf, 
-    but it uses a different tag set.
+    Performs neural morphological tagging. It takes vabamorf analyses as input to predict
+    morphological tags with better accuracy than vabamorf, but uses a different tag set.
+    
+    Do not use this class directly. Use the following methods to get taggers with
+    different types of neural models:
+        
+    softmax_emb_tag_sum()
+    softmax_emb_cat_sum()
+    seq2seq_emb_tag_sum()
+    seq2seq_emb_cat_sum()
+    
+    For example:
+    
+        text = Text("See on lause.")
+        text.tag_layer(['morph_analysis'])
+        
+        tagger = softmax_emb_tag_sum()
+        tagger.tag(text)
+        
+        print(text.neuro_morph['tag'])
+        
+    Output:
+        
+        ['POS=P|NUMBER=sg|CASE=nom', 
+         'POS=V|VERB_TYPE=main|MOOD=indic|TENSE=pres|PERSON=ps3|NUMBER=sg|VERB_PS=ps|VERB_POLARITY=af', 
+         'POS=S|NOUN_TYPE=com|NUMBER=sg|CASE=nom', 
+         'POS=Z|PUNCT_TYPE=Fst']
     """
     conf_param = ('model',)
     
-    def __init__(self, model_module, config_filename, out_dir):
-        os.environ['OUT_DIR'] = out_dir # This is used in estnltk/neural_morph/new_neural_morph/common_config.py
-        self.model = load_model(model_module, config_filename)
-        self.output_layer = 'new_neuro_morph'
+    def __init__(self, model):
+        self.model = model
+        self.output_layer = 'neuro_morph'
         self.output_attributes = ('tag',)
         self.input_layers = ('morph_analysis',)
 
