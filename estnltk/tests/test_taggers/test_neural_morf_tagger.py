@@ -3,10 +3,10 @@ import os
 from unittest import TestCase
 
 from estnltk import Text
-from estnltk.taggers.neural_morph.neural_morph_tagger import NeuralMorphTagger
-from estnltk.neural_morph.data_utils import ConfigHolder
-from estnltk.neural_morph.general_utils import load_config_from_file
-from estnltk.neural_morph.model import Model
+from estnltk.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger
+from estnltk.neural_morph.old_neural_morph.data_utils import ConfigHolder
+from estnltk.neural_morph.old_neural_morph.general_utils import load_config_from_file
+from estnltk.neural_morph.old_neural_morph.model import Model
 
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
 
