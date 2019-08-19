@@ -3,6 +3,7 @@ from estnltk.visualisation.attribute_visualiser.direct_attribute_visualiser impo
 from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
 from estnltk.core import rel_path
 from estnltk.layer_operations import merge_layers
+import warnings
 
 
 class DisplayAttributes:
@@ -64,26 +65,26 @@ class DisplayAttributes:
 
     def mark_chosen_spans(self):
         if not self.html_displayed:
-            print("HTML of this attribute visualiser hasn't been displayed yet!"
+            warnings.warn("HTML of this attribute visualiser hasn't been displayed yet!"
                   " Call this visualiser with a layer as an argument to do it.")
             return None
 
         if self.accepted_array is None:
-            print("The annotation choices weren't saved! Click \"Export data\" to do it!")
+            warnings.warn("The annotation choices weren't saved! Click \"Export data\" to do it!")
             return None
+
+        print(self.accepted_array)
+        print(self.chosen_annotations)
 
         attribute_list = list(self.original_layer.attributes)
         attribute_list.append("approved")
         new_layer = merge_layers(layers=[self.original_layer],
                                  output_layer='new_layer',
                                  output_attributes=attribute_list)
-        for i, accept_value in enumerate(self.accepted_array.split(" ")):
-            chosen_annotations = accept_value.split(",")
-            for j, val in enumerate(chosen_annotations):
-                if val != '':
-                    if int(val) == 2:
-                        new_layer.spans[i].annotations[j].approved = False
-                    else:
-                        new_layer.spans[i].annotations[j].approved = True
+        for span, accept_value in zip(new_layer, self.accepted_array):
+            #chosen_annotations = accept_value.split(",")
+            for annotation, val in zip(span.annotations, accept_value):
+                map = {'1': True, '2': False, '': None}
+                annotation.approved = map[val]
 
         return new_layer
