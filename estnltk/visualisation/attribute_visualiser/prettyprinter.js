@@ -3,25 +3,28 @@
 /* Opening section: find all elements from the document with the corresponding class names and
 attach listeners to them so that an appropriate table would be opened whenever one of them is opened
  */
-var elements = document.getElementsByClassName("overlapping-span"+text_id);
-for (let i = 0; i < elements.length; i++) {
-    //check if a listener is already attached, if not then add it
-    if (typeof elements.item(i).onclick != "function") {
-        elements.item(i).addEventListener("click", function () {
-            show_conflicting_spans(elements.item(i));
-        })
+function add_initial_listeners() {
+    let elements = document.getElementsByClassName("overlapping-span"+text_id);
+    for (let i = 0; i < elements.length; i++) {
+        //check if a listener is already attached, if not then add it
+        if (typeof elements.item(i).onclick != "function") {
+            elements.item(i).addEventListener("click", function () {
+                show_conflicting_spans(elements.item(i));
+            })
+        }
+    }
+
+    let plain_elements = document.getElementsByClassName("plain-span"+text_id);
+    for (let i = 0; i < plain_elements.length; i++) {
+        //check if a listener is already attached, if not then add it
+        if (typeof plain_elements.item(i).onclick != "function") {
+            plain_elements.item(i).addEventListener("click", function () {
+                attribute_table(plain_elements.item(i));
+            })
+        }
     }
 }
 
-var plain_elements = document.getElementsByClassName("plain-span"+text_id);
-for (let i = 0; i < plain_elements.length; i++) {
-    //check if a listener is already attached, if not then add it
-    if (typeof plain_elements.item(i).onclick != "function") {
-        plain_elements.item(i).addEventListener("click", function () {
-            attribute_table(plain_elements.item(i));
-        })
-    }
-}
 
 
 function show_conflicting_spans(span_element) {
@@ -260,13 +263,14 @@ for (let i = 0; i < document.getElementsByClassName("span"+text_id).length; i++)
 
 function export_data(name) {
     // exporting data, this function is triggered by clicking the "Export data" button"
+    // saada JSON-is andmed
     if (name==="") {
         name = "display";
     }
     let var_name = name+".accepted_array";
-    let var_value = accepted_array.join(" ");
+    let var_value = JSON.stringify(accepted_array);
     let command = var_name + " = '" + var_value + "'";
-    let annotationCommand = name+".chosen_annotations" + " = '" + chosenSpans + "'";
+    let annotationCommand = name+".chosen_annotations" + " = '" + JSON.stringify(chosenSpans) + "'";
     console.log("Executing Command: " + command);
     var kernel = IPython.notebook.kernel;
     // the corresponding commands are executed in the kernel
@@ -567,8 +571,8 @@ document.addEventListener("keydown", function (event) {
     }
 });
 
+add_initial_listeners();
 open_spans();
 toggle_visibility();
 create_all_annotation_tables();
 toggle_annotation_visibility();
-
