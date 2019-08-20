@@ -4,7 +4,7 @@ import os
 try:
     data_dir = "" # os.environ['DATA_DIR']
     out_dir = os.environ['OUT_DIR']
-    embeddings_dir = "" #os.environ['EMBEDDINGS_DIR']
+    embeddings_dir = "" # os.environ['EMBEDDINGS_DIR']
 except KeyError:
     print("Environment variable 'DATA_DIR','OUT_DIR' and 'EMBEDDINGS_DIR' are required.")
     raise

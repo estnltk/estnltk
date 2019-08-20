@@ -4,8 +4,8 @@ from estnltk.text import Layer
 from estnltk.taggers import Tagger
 from estnltk.neural_morph.new_neural_morph.general_utils import load_config_from_file
 from estnltk.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
-import estnltk.neural_morph.new_neural_morph.softmax as softmax
-import estnltk.neural_morph.new_neural_morph.seq2seq as seq2seq
+from estnltk.neural_morph.new_neural_morph import softmax
+from estnltk.neural_morph.new_neural_morph import seq2seq
 
 def softmax_emb_tag_sum():
     return load_tagger(softmax, "emb_tag_sum")
@@ -55,7 +55,7 @@ class NeuralMorphTagger(Tagger):
         tagger = softmax_emb_tag_sum()
         tagger.tag(text)
         
-        print(text.neuro_morph['tag'])
+        print(text.neural_morph_analysis['morphtag'])
         
     Output:
         
@@ -68,12 +68,16 @@ class NeuralMorphTagger(Tagger):
     
     def __init__(self, model):
         self.model = model
-        self.output_layer = 'neuro_morph'
-        self.output_attributes = ('tag',)
+        self.output_layer = 'neural_morph_analysis'
+        self.output_attributes = ('morphtag',)
         self.input_layers = ('morph_analysis',)
 
     def _make_layer(self, text, layers, status=None):
-        preds = []
+        layer = Layer(name=self.output_layer, 
+                      text_object=text, 
+                      parent='words', 
+                      ambiguous=False, 
+                      attributes=self.output_attributes)
         
         for sentence in layers['sentences']:
             sentence_words = sentence['text']
@@ -89,12 +93,9 @@ class NeuralMorphTagger(Tagger):
                     word_analyses.extend(neural_model_tags(word_text, pos, form))
                 analyses.append(word_analyses)
                 
-            preds.extend(['|'.join(p) if isinstance(p, (list, tuple)) else p
-                          for p in self.model.predict(sentence_words, analyses)])
+            tags = ['|'.join(p) if isinstance(p, (list, tuple)) else p for p in self.model.predict(sentence_words, analyses)]
         
-        layer = Layer(name=self.output_layer, text_object=text, parent='morph_analysis', attributes=self.output_attributes)
-        
-        for span, pred in zip(layers['morph_analysis'], preds):
-            layer.add_annotation(span, tag=pred)
+            for word, tag in zip(sentence.words, tags):
+                layer.add_annotation(word, morphtag=tag)
             
         return layer
