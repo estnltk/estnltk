@@ -1,0 +1,673 @@
+1@_S_ ?@Substantiiv apellatiiv@_S_ com@Noun common@Nc@NCSX@kesk-
+2@_S_ sg n@Substantiiv apellatiiv singular nominatiiv@_S_ com sg nom@Noun common singular nominative@Nc-sn@NCSN@jalg
+3@_S_ sg g@Substantiiv apellatiiv singular genitiiv@_S_ com sg gen@Noun common singular genitive@Nc-sg@NCSG@jala
+4@_S_ sg p@Substantiiv apellatiiv singular partitiiv@_S_ com sg part@Noun common singular partitive@Nc-s1@NCS1@jalga
+5@_S_ sg ill@Substantiiv apellatiiv singular illatiiv@_S_ com sg ill@Noun common singular illative@Nc-sx@NCSA@jalasse
+6@_S_ sg in@Substantiiv apellatiiv singular inessiiv@_S_ com sg in@Noun common singular inessive@Nc-s2@NCSA@jalas
+7@_S_ sg el@Substantiiv apellatiiv singular elatiiv@_S_ com sg el@Noun common singular elative@Nc-se@NCSA@jalast
+8@_S_ sg all@Substantiiv apellatiiv singular allatiiv@_S_ com sg all@Noun common singular allative@Nc-st@NCSA@jalale
+9@_S_ sg ad@Substantiiv apellatiiv singular adessiiv@_S_ com sg ad@Noun common singular adessive@Nc-s3@NCSA@jalal
+10@_S_ sg abl@Substantiiv apellatiiv singular ablatiiv@_S_ com sg abl@Noun common singular ablative@Nc-sb@NCSA@jalalt
+11@_S_ sg tr@Substantiiv apellatiiv singular translatiiv@_S_ com sg tr@Noun common singular translative@Nc-s4@NCS@jalaks
+12@_S_ sg ter@Substantiiv apellatiiv singular terminatiiv@_S_ com sg term@Noun common singular terminative@Nc-s9@NCS@jalani
+13@_S_ sg es@Substantiiv apellatiiv singular essiiv@_S_ com sg es@Noun common singular essive@Nc-sw@NCS@jalana
+14@_S_ sg ab@Substantiiv apellatiiv singular abessiiv@_S_ com sg abes@Noun common singular abessive@Nc-s5@NCS@jalata
+15@_S_ sg kom@Substantiiv apellatiiv singular komitatiiv@_S_ com sg kom@Noun common singular komitative@Nc-sk@NCS@jalaga
+16@_S_ adt@Substantiiv apellatiiv singular aditiiv@_S_ com sg adit@Noun common singular aditive@Nc-s7@NCSA@jalga
+17@_S_ pl n@Substantiiv apellatiiv pluural nominatiiv@_S_ com pl nom@Noun common plural nominative@Nc-pn@NCSN@jalad, 
+18@_S_ pl g@Substantiiv apellatiiv pluural genitiiv@_S_ com pl gen@Noun common plural genitive@Nc-pg@NCSG@jalgade, 
+19@_S_ pl p@Substantiiv apellatiiv pluural partitiiv@_S_ com pl part@Noun common plural partitive@Nc-p1@NCS1@jalgasid, jalgu
+20@_S_ pl ill@Substantiiv apellatiiv pluural illatiiv@_S_ com pl ill@Noun common plural illative@Nc-px@NCSA@jalgadesse, jalusse
+21@_S_ pl in@Substantiiv apellatiiv pluural inessiiv@_S_ com pl in@Noun common plural inessive@Nc-p2@NCSA@jalgades, jalus
+22@_S_ pl el@Substantiiv apellatiiv pluural elatiiv@_S_ com pl el@Noun common plural elative@Nc-pe@NCSA@jalgadest, jalust
+23@_S_ pl all@Substantiiv apellatiiv pluural allatiiv@_S_ com pl all@Noun common plural allative@Nc-pt@NCSA@jalgadele, jalule
+24@_S_ pl ad@Substantiiv apellatiiv pluural adessiiv@_S_ com pl ad@Noun common plural adessive@Nc-p3@NCSA@jalgadel, 
+25@_S_ pl abl@Substantiiv apellatiiv pluural ablatiiv@_S_ com pl abl@Noun common plural ablative@Nc-pb@NCSA@jalgadelt, jalult
+26@_S_ pl tr@Substantiiv apellatiiv pluural translatiiv@_S_ com pl tr@Noun common plural translative@Nc-p4@NCS@jalgadeks, jaluks
+27@_S_ pl ter@Substantiiv apellatiiv pluural terminatiiv@_S_ com pl term@Noun common plural terminative@Nc-p9@NCS@jalgadeni, jaluni
+28@_S_ pl es@Substantiiv apellatiiv pluural essiiv@_S_ com pl es@Noun common plural essive@Nc-pw@NCS@jalgadena, jaluna
+29@_S_ pl ab@Substantiiv apellatiiv pluural abessiiv@_S_ com pl abes@Noun common plural abessive@Nc-p5@NCS@jalgadeta, jaluta
+30@_S_ pl kom@Substantiiv apellatiiv pluural komitatiiv@_S_ com pl kom@Noun common plural komitative@Nc-pk@NCS@jalgadega, jaluga
+31@_H_ sg n@Substantiiv prooprium singular nominatiiv@_S_ prop sg nom@Noun proper singular nominative@Np-sn@NPSN@London
+32@_H_ ?@Substantiiv prooprium@_S_ prop@Noun proper@Np@NPCSX@Kesk-
+33@_H_ sg g@Substantiiv prooprium singular genitiiv@_S_ prop sg gen@Noun proper singular genitive@Np-sg@NPSG@Londoni
+34@_H_ sg p@Substantiiv prooprium singular partitiiv@_S_ prop sg part@Noun proper singular partitive@Np-s1@NPS1@Londonit
+35@_H_ sg ill@Substantiiv prooprium singular illatiiv@_S_ prop sg ill@Noun proper singular illative@Np-sx@NPSA@Londonisse
+36@_H_ sg in@Substantiiv prooprium singular inessiiv@_S_ prop sg in@Noun proper singular inessive@Np-s2@NPSA@Londonis
+37@_H_ sg el@Substantiiv prooprium singular elatiiv@_S_ prop sg el@Noun proper singular elative@Np-se@NPSA@Londonist
+38@_H_ sg all@Substantiiv prooprium singular allatiiv@_S_ prop sg all@Noun proper singular allative@Np-st@NPSA@Londonile
+39@_H_ sg ad@Substantiiv prooprium singular adessiiv@_S_ prop sg ad@Noun proper singular adessive@Np-s3@NPSA@Londonil
+40@_H_ sg abl@Substantiiv prooprium singular ablatiiv@_S_ prop sg abl@Noun proper singular ablative@Np-sb@NPSA@Londonilt
+41@_H_ sg tr@Substantiiv prooprium singular translatiiv@_S_ prop sg tr@Noun proper singular translative@Np-s4@NPS@Londoniks
+42@_H_ sg ter@Substantiiv prooprium singular terminatiiv@_S_ prop sg term@Noun proper singular terminative@Np-s9@NPS@Londonini
+43@_H_ sg es@Substantiiv prooprium singular essiiv@_S_ prop sg es@Noun proper singular essive@Np-sw@NPS@Londonina
+44@_H_ sg ab@Substantiiv prooprium singular abessiiv@_S_ prop sg abes@Noun proper singular abessive@Np-s5@NPS@Londonita
+45@_H_ sg kom@Substantiiv prooprium singular komitatiiv@_S_ prop sg kom@Noun proper singular komitative@Np-sk@NPS@Londoniga
+46@_H_ adt@Substantiiv prooprium singular aditiiv@_S_ prop sg adit@Noun proper singular aditive@Np-s7@NPSA@Londoni
+47@_H_ pl n@Substantiiv prooprium pluural nominatiiv@_S_ prop pl nom@Noun proper plural nominative@Np-pn@NPSN@Londonid, 
+48@_H_ pl g@Substantiiv prooprium pluural genitiiv@_S_ prop pl gen@Noun proper plural genitive@Np-pg@NPSG@Londonite, 
+49@_H_ pl p@Substantiiv prooprium pluural partitiiv@_S_ prop pl part@Noun proper plural partitive@Np-p1@NPS1@Londoneid, 
+50@_H_ pl ill@Substantiiv prooprium pluural illatiiv@_S_ prop pl ill@Noun proper plural illative@Np-px@NPSA@Londonitesse, Londoneisse
+51@_H_ pl in@Substantiiv prooprium pluural inessiiv@_S_ prop pl in@Noun proper plural inessive@Np-p2@NPSA@Londonites, Londoneis
+52@_H_ pl el@Substantiiv prooprium pluural elatiiv@_S_ prop pl el@Noun proper plural elative@Np-pe@NPSA@Londonitest, Londoneist
+53@_H_ pl all@Substantiiv prooprium pluural allatiiv@_S_ prop pl all@Noun proper plural allative@Np-pt@NPSA@Londonitele, Londoneile
+54@_H_ pl ad@Substantiiv prooprium pluural adessiiv@_S_ prop pl ad@Noun proper plural adessive@Np-p3@NPSA@Londonitel, Londoneil
+55@_H_ pl abl@Substantiiv prooprium pluural ablatiiv@_S_ prop pl abl@Noun proper plural ablative@Np-pb@NPSA@Londonitelt, Londoneilt
+56@_H_ pl tr@Substantiiv prooprium pluural translatiiv@_S_ prop pl tr@Noun proper plural translative@Np-p4@NPS@Londoniteks, Londoneiks
+57@_H_ pl ter@Substantiiv prooprium pluural terminatiiv@_S_ prop pl term@Noun proper plural terminative@Np-p9@NPS@Londoniteni, Londoneini
+58@_H_ pl es@Substantiiv prooprium pluural essiiv@_S_ prop pl es@Noun proper plural essive@Np-pw@NPS@Londonitena, Londoneina
+59@_H_ pl ab@Substantiiv prooprium pluural abessiiv@_S_ prop pl abes@Noun proper plural abessive@Np-p5@NPS@Londoniteta, Londoneita
+60@_H_ pl kom@Substantiiv prooprium pluural komitatiiv@_S_ prop pl kom@Noun proper plural komitative@Np-pk@NPS@Londonitega, Londoneiga
+61@_V_@P&otilde;hiverb afirmatiiv@_V_ main af@Verb main afirmative@Vm------n@VMS@kuulukse
+62@_V_ n@P&otilde;hiverb indikatiiv preesens 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main indic pres ps1 sg ps af@Verb main indic present first singular active afirmative@Vmip1s-an@VM1@loen
+63@_V_ d@P&otilde;hiverb indikatiiv preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main indic pres ps2 sg ps af@Verb main indic present second singular active afirmative@Vmip2s-an@VM2@loed
+64@_V_ b@P&otilde;hiverb indikatiiv preesens 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main indic pres ps3 sg ps af@Verb main indic present third singular active afirmative@Vmip3s-an@VM3@loeb
+65@_V_ me@P&otilde;hiverb indikatiiv preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main indic pres ps1 pl ps af@Verb main indic present first plural active afirmative@Vmip1p-an@VM1@loeme
+66@_V_ te@P&otilde;hiverb indikatiiv preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main indic pres ps2 pl ps af@Verb main indic present second plural active afirmative@Vmip2p-an@VM2@loete
+67@_V_ vad@P&otilde;hiverb indikatiiv preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main indic pres ps3 pl ps af@Verb main indic present third plural active afirmative@Vmip3p-an@VM3@loevad
+68@_V_ neg o@P&otilde;hiverb indikatiiv preesens personaal negatiiv@_V_ main indic pres ps neg@Verb main indic present active negative@Vmip---ay@VMK@pole
+69@_V_ takse@P&otilde;hiverb indikatiiv preesens impersonaal afirmatiiv@_V_ main indic pres imps af@Verb main indic present passive afirmative@Vmip---pn@VMP@loetakse
+70@_V_ ta@P&otilde;hiverb indikatiiv preesens impersonaal negatiiv@_V_ main indic pres imps neg@Verb main indic present passive negative@Vmip---py@VMN@(ei)+loeta
+71@_V_ sin@P&otilde;hiverb indikatiiv imperfekt 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main indic impf ps1 sg ps af@Verb main indic imperfect first singular active afirmative@Vmii1s-an@VM1@lugesin
+72@_V_ sid@P&otilde;hiverb indikatiiv imperfekt 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main indic impf ps2 sg ps af@Verb main indic imperfect second singular active afirmative@Vmii2s-an@VM2@lugesid
+73@_V_ s@P&otilde;hiverb indikatiiv imperfekt 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main indic impf ps3 sg ps af@Verb main indic imperfect third singular active afirmative@Vmii3s-an@VM3@luges
+74@_V_ sime@P&otilde;hiverb indikatiiv imperfekt 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main indic impf ps1 pl ps af@Verb main indic imperfect first plural active afirmative@Vmii1p-an@VM1@lugesime
+75@_V_ site@P&otilde;hiverb indikatiiv imperfekt 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main indic impf ps2 pl ps af@Verb main indic imperfect second plural active afirmative@Vmii2p-an@VM2@lugesite
+76@_V_ sid@P&otilde;hiverb indikatiiv imperfekt 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main indic impf ps3 pl ps af@Verb main indic imperfect third plural active afirmative@Vmii3p-an@VM3@lugesid
+77@_V_ neg nud@P&otilde;hiverb indikatiiv imperfekt personaal negatiiv@_V_ main indic impf ps neg@Verb main indic imperfect active negative@Vmii---ay@VMAS@polnud
+78@_V_ ti@P&otilde;hiverb indikatiiv imperfekt impersonaal afirmatiiv@_V_ main indic impf imps af@Verb main indic imperfect passive afirmative@Vmii---pn@VMP@loeti
+79@_V_ o@P&otilde;hiverb imperatiiv preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main imper pres ps2 sg ps af@Verb main imper present second singular active afirmative@Vmmp2s-an@VMK@loe
+80@_V_ o@P&otilde;hiverb imperatiiv preesens 2. p&ouml;&ouml;re singular personaal negatiiv@_V_ main imper pres ps2 sg ps neg@Verb main imper present second singular active negative@Vmmp2s-ay@VMK@(&auml;ra) loe
+81@_V_ o@P&otilde;hiverb indikatiiv preesens personaal negatiiv@_V_ main indic pres ps neg@Verb main indic present active negative@Vmip---ay@VMK@(ei) loe
+82@_V_ gu@P&otilde;hiverb imperatiiv preesens 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main imper pres sg ps af@Verb main imper present third singular active afirmative@Vmmp3s-an@VM3@lugegu
+83@_V_ gem@P&otilde;hiverb imperatiiv preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main imper pres ps1 pl ps af@Verb main imper present first plural active afirmative@Vmmp1p-an@VMK@lugegem 
+84@_V_ ge@P&otilde;hiverb imperatiiv preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main imper pres ps2 pl ps af@Verb main imper present second plural active afirmative@Vmmp2p-an@VMK@lugege 
+85@_V_ gu@P&otilde;hiverb imperatiiv preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main imper pres ps3 pl ps af@Verb main imper present third plural active afirmative@Vmmp3p-an@VM3@lugegu
+86@_V_ tagu@P&otilde;hiverb imperatiiv preesens impersonaal afirmatiiv@_V_ main imper pres imps af@Verb main imper present passive afirmative@Vmmp---pn@VMP@loetagu
+87@_V_ gu@P&otilde;hiverb imperatiiv preesens 3. p&ouml;&ouml;re singular personaal negatiiv@_V_ main imper pres sg ps neg@Verb main imper present third singular active negative@Vmmp3s-ay@VM3@(&auml;rgu) lugegu
+88@_V_ gem@P&otilde;hiverb imperatiiv preesens 1. p&ouml;&ouml;re pluural personaal negatiiv@_V_ main imper pres ps1 pl ps neg@Verb main imper present first plural active negative@Vmmp1p-ay@VMK@(&auml;rgem) lugegem 
+89@_V_ ge@P&otilde;hiverb imperatiiv preesens 2. p&ouml;&ouml;re pluural personaal negatiiv@_V_ main imper pres ps2 pl ps neg@Verb main imper present second plural active negative@Vmmp2p-ay@VMK@(&auml;rge) lugege 
+90@_V_ gu@P&otilde;hiverb imperatiiv preesens 3. p&ouml;&ouml;re pluural personaal negatiiv@_V_ main imper pres ps3 pl ps neg@Verb main imper present third plural active negative@Vmmp3p-ay@VM3@(&auml;rgu) lugegu
+91@_V_ tagu@P&otilde;hiverb imperatiiv preesens impersonaal negatiiv@_V_ main imper pres imps neg@Verb main imper present passive negative@Vmmp---py@VMP@(&auml;rgu) loetagu
+92@_V_ ksin@P&otilde;hiverb konditsionaal preesens 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main cond pres ps1 sg ps af@Verb main condit present first singular active afirmative@Vmcp1s-an@VMS@loeksin
+93@_V_ ksid@P&otilde;hiverb konditsionaal preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main cond pres ps2 sg ps af@Verb main condit present second singular active afirmative@Vmcp2s-an@VMS@loeksid
+94@_V_ ks@P&otilde;hiverb konditsionaal preesens singular personaal afirmatiiv@_V_ main cond pres ps af@Verb main condit present singular active afirmative@Vmcp1s-an@VMS@loeks
+¤94@_V_ ks@P&otilde;hiverb konditsionaal preesens 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main cond pres ps1 sg ps af@Verb main condit present first singular active afirmative@Vmcp1s-an@VMS@loeks
+¤95@_V_ ks@P&otilde;hiverb konditsionaal preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main cond pres ps2 sg ps af@Verb main condit present second singular active afirmative@Vmcp2s-an@VMS@loeks
+¤96@_V_ ks@P&otilde;hiverb konditsionaal preesens 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main cond pres ps3 sg ps af@Verb main condit present third singular active afirmative@Vmcp3s-an@VMS@loeks
+¤97@_V_ ks@P&otilde;hiverb konditsionaal preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond pres ps1 pl ps af@Verb main condit present first plural active afirmative@Vmcp1p-an@VMS@loeks
+¤98@_V_ ks@P&otilde;hiverb konditsionaal preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond pres ps2 pl ps af@Verb main condit present second plural active afirmative@Vmcp2p-an@VMS@loeks
+¤99@_V_ ks@P&otilde;hiverb konditsionaal preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond pres ps3 pl ps af@Verb main condit present third plural active afirmative@Vmcp3p-an@VMS@loeks
+100@_V_ ksime@P&otilde;hiverb konditsionaal preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond pres ps1 pl ps af@Verb main condit present first plural active afirmative@Vmcp1p-an@VMS@loeksime
+101@_V_ ksite@P&otilde;hiverb konditsionaal preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond pres ps2 pl ps af@Verb main condit present second plural active afirmative@Vmcp2p-an@VMS@loeksite
+102@_V_ ksid@P&otilde;hiverb konditsionaal preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond pres ps3 pl ps af@Verb main condit present third plural active afirmative@Vmcp3p-an@VMS@loeksid
+103@_V_ ks@P&otilde;hiverb konditsionaal preesens personaal negatiiv@_V_ main cond pres ps neg@Verb main condit present active negative@Vmcp---ay@VMS@(ei) loeks
+104@_V_ neg ks@P&otilde;hiverb konditsionaal preesens personaal negatiiv@_V_ main cond pres ps neg@Verb main condit present active negative@Vmcp---ay@VMS@poleks
+105@_V_ taks@P&otilde;hiverb konditsionaal preesens impersonaal afirmatiiv@_V_ main cond pres imps af@Verb main condit present passive afirmative@Vmcp---pn@VMP@loetaks
+106@_V_ nuksin@P&otilde;hiverb konditsionaal preteeritum 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main cond past ps1 sg ps af@Verb main condit past first singular active afirmative@Vmcs1s-an@VMS@lugenuksin 
+107@_V_ nuksid@P&otilde;hiverb konditsionaal preteeritum 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main cond past ps2 sg ps af@Verb main condit past second singular active afirmative@Vmcs2s-an@VMS@lugenuksid 
+108@_V_ nuks@P&otilde;hiverb konditsionaal preteeritum singular personaal afirmatiiv@_V_ main cond past ps af@Verb main condit past singular active afirmative@Vmcs1s-an@VMS@lugenuks
+¤108@_V_ nuks@P&otilde;hiverb konditsionaal preteeritum 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main cond past ps1 sg ps af@Verb main condit past first singular active afirmative@Vmcs1s-an@VMS@lugenuks
+¤109@_V_ nuks@P&otilde;hiverb konditsionaal preteeritum 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main cond past ps2 sg ps af@Verb main condit past second singular active afirmative@Vmcs2s-an@VMS@lugenuks
+¤110@_V_ nuks@P&otilde;hiverb konditsionaal preteeritum 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ main cond past ps3 sg ps af@Verb main condit past third singular active afirmative@Vmcs3s-an@VMS@lugenuks
+¤111@_V_ nuks@P&otilde;hiverb konditsionaal preteeritum 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond past ps1 pl ps af@Verb main condit past first plural active afirmative@Vmcs1p-an@VMS@lugenuks
+¤112@_V_ nuks@P&otilde;hiverb konditsionaal preteeritum 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond past ps2 pl ps af@Verb main condit past second plural active afirmative@Vmcs2p-an@VMS@lugenuks
+¤113@_V_ nuks@P&otilde;hiverb konditsionaal preteeritum 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond past ps3 pl ps af@Verb main condit past third plural active afirmative@Vmcs3p-an@VMS@lugenuks
+114@_V_ nuksime@P&otilde;hiverb konditsionaal preteeritum 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond past ps1 pl ps af@Verb main condit past first plural active afirmative@Vmcs1p-an@VMS@lugenuksime 
+115@_V_ nuksite@P&otilde;hiverb konditsionaal preteeritum 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond past ps2 pl ps af@Verb main condit past second plural active afirmative@Vmcs2p-an@VMS@lugenuksite 
+116@_V_ nuksid@P&otilde;hiverb konditsionaal preteeritum 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ main cond past ps3 pl ps af@Verb main condit past third plural active afirmative@Vmcs3p-an@VMS@lugenuksid 
+117@_V_ nuks@P&otilde;hiverb konditsionaal preteeritum personaal negatiiv@_V_ main cond past ps neg@Verb main condit past active negative@Vmcs---ay@VMS@(ei) lugenuks
+118@_V_ neg nuks@P&otilde;hiverb konditsionaal preteeritum personaal negatiiv@_V_ main cond past ps neg@Verb main condit past active negative@Vmcs---ay@VMS@polnuks
+119@_V_ tuks@P&otilde;hiverb konditsionaal preteeritum impersonaal afirmatiiv@_V_ main cond past imps af@Verb main condit past passive afirmative@Vmcs---pn@VMP@loetuks
+120@_V_ taks@P&otilde;hiverb konditsionaal preesens impersonaal negatiiv@_V_ main cond pres imps neg@Verb main condit present passive negative@Vmcp---py@VMP@(ei) loetaks
+121@_V_ tuks@P&otilde;hiverb konditsionaal preteeritum impersonaal negatiiv@_V_ main cond past imps neg@Verb main condit past passive negative@Vmcs---py@VMP@(ei) loetuks
+122@_V_ da@P&otilde;hiverb infinitiiv@_V_ main inf@Verb main infinit@Vmn@VMD@lugeda
+123@_V_ v@P&otilde;hiverb partitsiip preesens personaal@_V_ main partic pres ps@Verb main partic present active@Vmpp---a@VMAP@lugev 
+124@_V_ tav@P&otilde;hiverb partitsiip preesens impersonaal@_V_ main partic pres imps@Verb main partic present passive@Vmpp---p@VMAP@loetav 
+125@_V_ nud@P&otilde;hiverb partitsiip preteeritum personaal@_V_ main partic past ps@Verb main partic past active@Vmps---a@VMAS@lugenud 
+126@_V_ tud@P&otilde;hiverb partitsiip preteeritum impersonaal@_V_ main partic past imps@Verb main partic past passive@Vmps---p@VMAS@loetud 
+127@_V_ nud@P&otilde;hiverb indikatiiv imperfekt personaal negatiiv@_V_ main indic impf ps neg@Verb main indic imperfect active negative@Vmii---ay@VMAS@(ei) lugenud 
+128@_V_ tud@P&otilde;hiverb indikatiiv imperfekt impersonaal negatiiv@_V_ main indic impf imps neg@Verb main indic imperfect passive negative@Vmii---py@VMAS@(ei) loetud 
+129@_V_ des@P&otilde;hiverb gerundiiv@_V_ main ger@Verb main gerund@Vmg@VMG@lugedes 
+130@_V_ ma@P&otilde;hiverb supiin personaal illatiiv@_V_ main sup ps ill@Verb main supine active illative@Vmu----a---x@VMM@lugema
+131@_V_ mas@P&otilde;hiverb supiin personaal inessiiv@_V_ main sup ps in@Verb main supine active inessive@Vmu----a---2@VMM@lugemas
+132@_V_ mast@P&otilde;hiverb supiin personaal elatiiv@_V_ main sup ps el@Verb main supine active elative@Vmu----a---e@VMM@lugemast
+133@_V_ maks@P&otilde;hiverb supiin personaal translatiiv@_V_ main sup ps tr@Verb main supine active translative@Vmu----a---4@VMG@lugemaks 
+134@_V_ mata@P&otilde;hiverb supiin personaal abessiiv@_V_ main sup ps abes@Verb main supine active abessive@Vmu----a---5@VMASS@lugemata 
+135@_V_ tama@P&otilde;hiverb supiin impersonaal@_V_ main sup imps@Verb main supine passive@Vmu----p@VMM@loetama
+136@_V_ vat@P&otilde;hiverb kvotatiiv preesens personaal afirmatiiv@_V_ main quot pres ps af@Verb main quotat present active afirmative@Vmqp---an@VMQ@lugevat
+137@_V_ neg vat@P&otilde;hiverb kvotatiiv preesens personaal negatiiv@_V_ main quot pres ps neg@Verb main quotat present active negative@Vmqp---ay@VMQ@polevat
+138@_V_ tavat@P&otilde;hiverb kvotatiiv preesens impersonaal afirmatiiv@_V_ main quot pres imps af@Verb main quotat present passive afirmative@Vmqp---pn@VMQ@loetavat
+139@_V_ nuvat@P&otilde;hiverb kvotatiiv preteeritum personaal afirmatiiv@_V_ main quot past ps af@Verb main quotat past active afirmative@Vmqs---an@VMQ@lugenuvat
+140@_V_ tuvat@P&otilde;hiverb kvotatiiv preteeritum impersonaal afirmatiiv@_V_ main quot past imps af@Verb main quotat past passive afirmative@Vmqs---pn@VMQ@loetuvat
+141@_V_ vat@P&otilde;hiverb kvotatiiv preesens personaal negatiiv@_V_ main quot pres ps neg@Verb main quotat present active negative@Vmqp---ay@VMQ@(ei) lugevat
+142@_V_ tavat@P&otilde;hiverb kvotatiiv preesens impersonaal negatiiv@_V_ main quot pres imps neg@Verb main quotat present passive negative@Vmqp---py@VMQ@(ei) loetavat
+143@_V_ nuvat@P&otilde;hiverb kvotatiiv preteeritum personaal negatiiv@_V_ main quot past ps neg@Verb main quotat past active negative@Vmqs---ay@VMQ@(ei) lugenuvat
+144@_V_ tuvat@P&otilde;hiverb kvotatiiv preteeritum impersonaal negatiiv@_V_ main quot past imps neg@Verb main quotat past passive negative@Vmqs---py@VMQ@(ei) loetuvat
+145@_V_ n@Abiverb indikatiiv preesens 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux indic pres ps1 sg ps af@Verb aux indic present first singular active afirmative@Vaip1s-an@VM1@olen
+146@_V_ d@Abiverb indikatiiv preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux indic pres ps2 sg ps af@Verb aux indic present second singular active afirmative@Vaip2s-an@VM2@oled
+147@_V_ b@Abiverb indikatiiv preesens 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux indic pres ps3 sg ps af@Verb aux indic present third singular active afirmative@Vaip3s-an@VM3@on
+148@_V_ me@Abiverb indikatiiv preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux indic pres ps1 pl ps af@Verb aux indic present first plural active afirmative@Vaip1p-an@VM1@oleme
+149@_V_ te@Abiverb indikatiiv preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux indic pres ps2 pl ps af@Verb aux indic present second plural active afirmative@Vaip2p-an@VM2@olete
+150@_V_ vad@Abiverb indikatiiv preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux indic pres ps3 pl ps af@Verb aux indic present third plural active afirmative@Vaip3p-an@VM3@on
+151@_V_ neg o@Abiverb indikatiiv preesens personaal negatiiv@_V_ aux indic pres ps neg@Verb aux indic present active negative@Vaip---ay@VMK@pole
+152@_V_ takse@Abiverb indikatiiv preesens impersonaal afirmatiiv@_V_ aux indic pres imps af@Verb aux indic present passive afirmative@Vaip---pn@VMP@ollakse
+153@_V_ ta@Abiverb indikatiiv preesens impersonaal negatiiv@_V_ aux indic pres imps neg@Verb aux indic present passive negative@Vaip---py@VMN@(ei)+olda
+154@_V_ sin@Abiverb indikatiiv imperfekt 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux indic impf ps1 sg ps af@Verb aux indic imperfect first singular active afirmative@Vaii1s-an@VM1@olin
+155@_V_ sid@Abiverb indikatiiv imperfekt 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux indic impf ps2 sg ps af@Verb aux indic imperfect second singular active afirmative@Vaii2s-an@VM2@olid
+156@_V_ s@Abiverb indikatiiv imperfekt 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux indic impf ps3 sg ps af@Verb aux indic imperfect third singular active afirmative@Vaii3s-an@VM3@oli
+157@_V_ sime@Abiverb indikatiiv imperfekt 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux indic impf ps1 pl ps af@Verb aux indic imperfect first plural active afirmative@Vaii1p-an@VM1@olime
+158@_V_ site@Abiverb indikatiiv imperfekt 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux indic impf ps2 pl ps af@Verb aux indic imperfect second plural active afirmative@Vaii2p-an@VM2@olite
+159@_V_ sid@Abiverb indikatiiv imperfekt 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux indic impf ps3 pl ps af@Verb aux indic imperfect third plural active afirmative@Vaii3p-an@VM3@olid
+160@_V_ neg nud@Abiverb indikatiiv imperfekt personaal negatiiv@_V_ aux indic impf ps neg@Verb aux indic imperfect active negative@Vaii---ay@VMAS@polnud
+161@_V_ ti@Abiverb indikatiiv imperfekt impersonaal afirmatiiv@_V_ aux indic impf imps af@Verb aux indic imperfect passive afirmative@Vaii---pn@VMP@oldi
+162@_V_ o@Abiverb imperatiiv preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux imper pres ps2 sg ps af@Verb aux imper present second singular active afirmative@Vamp2s-an@VMK@ole
+163@_V_ o@Abiverb imperatiiv preesens 2. p&ouml;&ouml;re singular personaal negatiiv@_V_ aux imper pres ps2 sg ps neg@Verb aux imper present second singular active negative@Vamp2s-ay@VMK@(&auml;ra) ole
+164@_V_ o@Abiverb indikatiiv preesens personaal negatiiv@_V_ aux indic pres ps neg@Verb aux indic present active negative@Vaip---ay@VMK@(ei) ole
+165@_V_ gu@Abiverb imperatiiv preesens 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux imper pres sg ps af@Verb aux imper present third singular active afirmative@Vamp3s-an@VM3@olgu
+166@_V_ gem@Abiverb imperatiiv preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux imper pres ps1 pl ps af@Verb aux imper present first plural active afirmative@Vamp1p-an@VMK@olgem
+167@_V_ ge@Abiverb imperatiiv preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux imper pres ps2 pl ps af@Verb aux imper present second plural active afirmative@Vamp2p-an@VMK@olge
+168@_V_ gu@Abiverb imperatiiv preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux imper pres ps3 pl ps af@Verb aux imper present third plural active afirmative@Vamp3p-an@VM3@olgu
+169@_V_ tagu@Abiverb imperatiiv preesens impersonaal afirmatiiv@_V_ aux imper pres imps af@Verb aux imper present passive afirmative@Vamp---pn@VMP@oldagu
+170@_V_ gu@Abiverb imperatiiv preesens 3. p&ouml;&ouml;re singular personaal negatiiv@_V_ aux imper pres sg ps neg@Verb aux imper present third singular active negative@Vamp3s-ay@VMS@(&auml;rgu) olgu
+171@_V_ gem@Abiverb imperatiiv preesens 1. p&ouml;&ouml;re pluural personaal negatiiv@_V_ aux imper pres ps1 pl ps neg@Verb aux imper present first plural active negative@Vamp1p-ay@VMS@(&auml;rgem) olgem 
+172@_V_ ge@Abiverb imperatiiv preesens 2. p&ouml;&ouml;re pluural personaal negatiiv@_V_ aux imper pres ps2 pl ps neg@Verb aux imper present second plural active negative@Vamp2p-ay@VMS@(&auml;rge) olge 
+173@_V_ gu@Abiverb imperatiiv preesens 3. p&ouml;&ouml;re pluural personaal negatiiv@_V_ aux imper pres ps3 pl ps neg@Verb aux imper present third plural active negative@Vamp3p-ay@VMS@(&auml;rgu) olgu
+174@_V_ tagu@Abiverb imperatiiv preesens impersonaal negatiiv@_V_ aux imper pres imps neg@Verb aux imper present passive negative@Vamp---py@VMP@(&auml;rgu) oldagu
+175@_V_ neg gu@Abiverb imperatiiv preesens impersonaal negatiiv@_V_ aux imper pres imps neg@Verb aux imper present passive negative@Vamp---py@VMP@&auml;rgu
+176@_V_ neg o@Abiverb imperatiiv preesens 2. p&ouml;&ouml;re singular personaal negatiiv@_V_ aux imper pres ps2 sg ps neg@Verb aux imper present second singular active negative@Vamp2s-ay@VMK@&auml;ra
+177@_V_ neg gu@Abiverb imperatiiv preesens 3. p&ouml;&ouml;re singular personaal negatiiv@_V_ aux imper pres ps3 sg ps neg@Verb aux imper present third singular active negative@Vamp3s-ay@VMS@&auml;rgu
+178@_V_ neg gem@Abiverb imperatiiv preesens 1. p&ouml;&ouml;re pluural personaal negatiiv@_V_ aux imper pres ps1 pl ps neg@Verb aux imper present first plural active negative@Vamp1p-ay@VMS@&auml;rgem
+179@_V_ neg ge@Abiverb imperatiiv preesens 2. p&ouml;&ouml;re pluural personaal negatiiv@_V_ aux imper pres ps2 pl ps neg@Verb aux imper present second plural active negative@Vamp2p-ay@VMS@&auml;rge
+180@_V_ neg gu@Abiverb imperatiiv preesens 3. p&ouml;&ouml;re pluural personaal negatiiv@_V_ aux imper pres ps3 pl ps neg@Verb aux imper present third plural active negative@Vamp3p-ay@VMS@&auml;rgu
+181@_V_ ksin@Abiverb konditsionaal preesens 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux cond pres ps1 sg ps af@Verb aux condit present first singular active afirmative@Vacp1s-an@VMS@oleksin 
+182@_V_ ksid@Abiverb konditsionaal preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux cond pres ps2 sg ps af@Verb aux condit present second singular active afirmative@Vacp2s-an@VMS@oleksid 
+183@_V_ ks@Abiverb konditsionaal preesens singular personaal afirmatiiv@_V_ aux cond pres ps af@Verb aux condit present singular active afirmative@Vacp1s-an@VMS@oleks
+¤183@_V_ ks@Abiverb konditsionaal preesens 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux cond pres ps1 sg ps af@Verb aux condit present first singular active afirmative@Vacp1s-an@VMS@oleks
+¤184@_V_ ks@Abiverb konditsionaal preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux cond pres ps2 sg ps af@Verb aux condit present second singular active afirmative@Vacp2s-an@VMS@oleks
+¤185@_V_ ks@Abiverb konditsionaal preesens 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux cond pres ps3 sg ps af@Verb aux condit present third singular active afirmative@Vacp3s-an@VMS@oleks
+¤186@_V_ ks@Abiverb konditsionaal preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond pres ps1 pl ps af@Verb aux condit present first plural active afirmative@Vacp1p-an@VMS@oleks
+¤187@_V_ ks@Abiverb konditsionaal preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond pres ps2 pl ps af@Verb aux condit present second plural active afirmative@Vacp2p-an@VMS@oleks
+¤188@_V_ ks@Abiverb konditsionaal preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond pres ps3 pl ps af@Verb aux condit present third plural active afirmative@Vacp3p-an@VMS@oleks
+189@_V_ ksime@Abiverb konditsionaal preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond pres ps1 pl ps af@Verb aux condit present first plural active afirmative@Vacp1p-an@VMS@oleksime 
+190@_V_ ksite@Abiverb konditsionaal preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond pres ps2 pl ps af@Verb aux condit present second plural active afirmative@Vacp2p-an@VMS@oleksite 
+191@_V_ ksid@Abiverb konditsionaal preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond pres ps3 pl ps af@Verb aux condit present third plural active afirmative@Vacp3p-an@VMS@oleksid
+192@_V_ ks@Abiverb konditsionaal preesens personaal negatiiv@_V_ aux cond pres ps neg@Verb aux condit present active negative@Vacp---ay@VMS@(ei) oleks
+193@_V_ neg ks@Abiverb konditsionaal preesens personaal negatiiv@_V_ aux cond pres ps neg@Verb aux condit present active negative@Vacp---ay@VMS@poleks
+194@_V_ taks@Abiverb konditsionaal preesens impersonaal afirmatiiv@_V_ aux cond pres imps af@Verb aux condit present passive afirmative@Vacp---pn@VMP@oldaks
+195@_V_ nuksin@Abiverb konditsionaal preteeritum 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux cond past ps1 sg ps af@Verb aux condit past first singular active afirmative@Vacs1s-an@VMS@olnuksin
+196@_V_ nuksid@Abiverb konditsionaal preteeritum 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux cond past ps2 sg ps af@Verb aux condit past second singular active afirmative@Vacs2s-an@VMS@olnuksid 
+197@_V_ nuks@Abiverb konditsionaal preteeritum singular personaal afirmatiiv@_V_ aux cond past ps af@Verb aux condit past singular active afirmative@Vacs1s-an@VMS@olnuks
+¤197@_V_ nuks@Abiverb konditsionaal preteeritum 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux cond past ps1 sg ps af@Verb aux condit past first singular active afirmative@Vacs1s-an@VMS@olnuks
+¤198@_V_ nuks@Abiverb konditsionaal preteeritum 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux cond past ps2 sg ps af@Verb aux condit past second singular active afirmative@Vacs2s-an@VMS@olnuks
+¤199@_V_ nuks@Abiverb konditsionaal preteeritum 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ aux cond past ps3 sg ps af@Verb aux condit past third singular active afirmative@Vacs3s-an@VMS@olnuks
+¤200@_V_ nuks@Abiverb konditsionaal preteeritum 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond past ps1 pl ps af@Verb aux condit past first plural active afirmative@Vacs1p-an@VMS@olnuks
+¤201@_V_ nuks@Abiverb konditsionaal preteeritum 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond past ps2 pl ps af@Verb aux condit past second plural active afirmative@Vacs2p-an@VMS@olnuks
+¤202@_V_ nuks@Abiverb konditsionaal preteeritum 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond past ps3 pl ps af@Verb aux condit past third plural active afirmative@Vacs3p-an@VMS@olnuks
+203@_V_ nuksime@Abiverb konditsionaal preteeritum 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond past ps1 pl ps af@Verb aux condit past first plural active afirmative@Vacs1p-an@VMS@olnuksime 
+204@_V_ nuksite@Abiverb konditsionaal preteeritum 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond past ps2 pl ps af@Verb aux condit past second plural active afirmative@Vacs2p-an@VMS@olnuksite 
+205@_V_ nuksid@Abiverb konditsionaal preteeritum 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ aux cond past ps3 pl ps af@Verb aux condit past third plural active afirmative@Vacs3p-an@VMS@olnuksid 
+206@_V_ nuks@Abiverb konditsionaal preteeritum personaal negatiiv@_V_ aux cond past ps neg@Verb aux condit past active negative@Vacs---ay@VMS@(ei) olnuks
+207@_V_ neg nuks@Abiverb konditsionaal preteeritum personaal negatiiv@_V_ aux cond past ps neg@Verb aux condit past active negative@Vacs---ay@VMS@polnuks
+208@_V_ tuks@Abiverb konditsionaal preteeritum impersonaal afirmatiiv@_V_ aux cond past imps af@Verb aux condit past passive afirmative@Vacs---pn@VMP@olduks
+209@_V_ taks@Abiverb konditsionaal preesens impersonaal negatiiv@_V_ aux cond pres imps neg@Verb aux condit present passive negative@Vacp---py@VMP@(ei) oldaks
+210@_V_ tuks@Abiverb konditsionaal preteeritum impersonaal negatiiv@_V_ aux cond past imps neg@Verb aux condit past passive negative@Vacs---py@VMP@(ei) olduks
+211@_V_ da@Abiverb infinitiiv@_V_ aux inf@Verb aux infinit@Van@VMD@olla
+212@_V_ v@Abiverb partitsiip preesens personaal@_V_ aux partic pres ps@Verb aux partic present active@Vapp---a@VMAP@olev 
+213@_V_ tav@Abiverb partitsiip preesens impersonaal@_V_ aux partic pres imps@Verb aux partic present passive@Vapp---p@VMAP@oldav 
+214@_V_ nud@Abiverb partitsiip preteeritum personaal@_V_ aux partic past ps@Verb aux partic past active@Vaps---a@VMAS@olnud 
+215@_V_ tud@Abiverb partitsiip preteeritum impersonaal@_V_ aux partic past imps@Verb aux partic past passive@Vaps---p@VMAS@oldud
+216@_V_ nud@Abiverb indikatiiv imperfekt personaal negatiiv@_V_ aux indic impf ps neg@Verb aux indic imperfect active negative@Vaii---ay@VMAS@(ei) olnud 
+217@_V_ tud@Abiverb indikatiiv imperfekt impersonaal negatiiv@_V_ aux indic impf imps neg@Verb aux indic imperfect passive negative@Vaii---py@VMAS@(ei) oldud 
+218@_V_ des@Abiverb gerundiiv@_V_ aux ger@Verb aux gerund@Vag@VMG@olles
+219@_V_ ma@Abiverb supiin personaal illatiiv@_V_ aux sup ps ill@Verb aux supine active illative@Vau----a---x@VMM@olema
+220@_V_ mas@Abiverb supiin personaal inessiiv@_V_ aux sup ps in@Verb aux supine active inessive@Vau----a---2@VMM@olemas
+221@_V_ mast@Abiverb supiin personaal elatiiv@_V_ aux sup ps el@Verb aux supine active elative@Vau----a---e@VMM@olemast
+222@_V_ maks@Abiverb supiin personaal translatiiv@_V_ aux sup ps tr@Verb aux supine active translative@Vau----a---4@VMG@olemaks 
+223@_V_ mata@Abiverb supiin personaal abessiiv@_V_ aux sup ps abes@Verb aux supine active abessive@Vau----a---5@VMASS@olemata 
+224@_V_ tama@Abiverb supiin impersonaal@_V_ aux sup imps@Verb aux supine passive@Vau----p@VMM@oldama
+225@_V_ vat@Abiverb kvotatiiv preesens personaal afirmatiiv@_V_ aux quot pres ps af@Verb aux quotat present active afirmative@Vaqp---an@VMQ@olevat
+226@_V_ neg vat@Abiverb kvotatiiv preesens personaal negatiiv@_V_ aux quot pres ps neg@Verb aux quotat present active negative@Vaqp---ay@VMQ@polevat
+227@_V_ tavat@Abiverb kvotatiiv preesens impersonaal afirmatiiv@_V_ aux quot pres imps af@Verb aux quotat present passive afirmative@Vaqp---pn@VMQ@oldavat
+228@_V_ nuvat@Abiverb kvotatiiv preteeritum personaal afirmatiiv@_V_ aux quot past ps af@Verb aux quotat past active afirmative@Vaqs---an@VMQ@olnuvat
+229@_V_ tuvat@Abiverb kvotatiiv preteeritum impersonaal afirmatiiv@_V_ aux quot past imps af@Verb aux quotat past passive afirmative@Vaqs---pn@VMQ@olduvat
+230@_V_ vat@Abiverb kvotatiiv preesens personaal negatiiv@_V_ aux quot pres ps neg@Verb aux quotat present active negative@Vaqp---ay@VMQ@(ei) olevat
+231@_V_ tavat@Abiverb kvotatiiv preesens impersonaal negatiiv@_V_ aux quot pres imps neg@Verb aux quotat present passive negative@Vaqp---py@VMQ@(ei) oldavat
+232@_V_ nuvat@Abiverb kvotatiiv preteeritum personaal negatiiv@_V_ aux quot past ps neg@Verb aux quotat past active negative@Vaqs---ay@VMQ@(ei) olnuvat
+233@_V_ tuvat@Abiverb kvotatiiv preteeritum impersonaal negatiiv@_V_ aux quot past imps neg@Verb aux quotat past passive negative@Vaqs---py@VMQ@(ei) olduvat
+234@_V_ neg@Abiverb negatiiv@_V_ aux neg@Verb aux negative@Va------y@VME@ei
+235@_V_ n@Modaalverb indikatiiv preesens 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod indic pres ps1 sg ps af@Verb modal indic present first singular active afirmative@Voip1s-an@VM1@saan
+236@_V_ d@Modaalverb indikatiiv preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod indic pres ps2 sg ps af@Verb modal indic present second singular active afirmative@Voip2s-an@VM2@saad
+237@_V_ b@Modaalverb indikatiiv preesens 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod indic pres ps3 sg ps af@Verb modal indic present third singular active afirmative@Voip3s-an@VM3@saab
+238@_V_ me@Modaalverb indikatiiv preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod indic pres ps1 pl ps af@Verb modal indic present first plural active afirmative@Voip1p-an@VM1@saame
+239@_V_ te@Modaalverb indikatiiv preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod indic pres ps2 pl ps af@Verb modal indic present second plural active afirmative@Voip2p-an@VM2@saate
+240@_V_ vad@Modaalverb indikatiiv preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod indic pres ps3 pl ps af@Verb modal indic present third plural active afirmative@Voip3p-an@VM3@saavad
+241@_V_ takse@Modaalverb indikatiiv preesens impersonaal afirmatiiv@_V_ mod indic pres imps af@Verb modal indic present passive afirmative@Voip---pn@VMP@saadakse
+242@_V_ ta@Modaalverb indikatiiv preesens impersonaal negatiiv@_V_ mod indic pres imps neg@Verb modal indic present passive negative@Voip---py@VMN@(ei)+saada
+243@_V_ sin@Modaalverb indikatiiv imperfekt 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod indic impf ps1 sg ps af@Verb modal indic imperfect first singular active afirmative@Voii1s-an@VM1@sain
+244@_V_ sid@Modaalverb indikatiiv imperfekt 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod indic impf ps2 sg ps af@Verb modal indic imperfect second singular active afirmative@Voii2s-an@VM2@said
+245@_V_ s@Modaalverb indikatiiv imperfekt 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod indic impf ps3 sg ps af@Verb modal indic imperfect third singular active afirmative@Voii3s-an@VM3@sai
+246@_V_ sime@Modaalverb indikatiiv imperfekt 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod indic impf ps1 pl ps af@Verb modal indic imperfect first plural active afirmative@Voii1p-an@VM1@saime
+247@_V_ site@Modaalverb indikatiiv imperfekt 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod indic impf ps2 pl ps af@Verb modal indic imperfect second plural active afirmative@Voii2p-an@VM2@saite
+248@_V_ sid@Modaalverb indikatiiv imperfekt 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod indic impf ps3 pl ps af@Verb modal indic imperfect third plural active afirmative@Voii3p-an@VM3@said
+249@_V_ ti@Modaalverb indikatiiv imperfekt impersonaal afirmatiiv@_V_ mod indic impf imps af@Verb modal indic imperfect passive afirmative@Voii---pn@VMP@saadi
+250@_V_ o@Modaalverb imperatiiv preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod imper pres ps2 sg ps af@Verb modal imper present second singular active afirmative@Vomp2s-an@VMK@saa
+251@_V_ o@Modaalverb imperatiiv preesens 2. p&ouml;&ouml;re singular personaal negatiiv@_V_ mod imper pres ps2 sg ps neg@Verb modal imper present second singular active negative@Vomp2s-ay@VMK@(&auml;ra) saa
+252@_V_ o@Modaalverb indikatiiv preesens personaal negatiiv@_V_ mod indic pres ps neg@Verb modal indic present active negative@Voip---ay@VMK@(ei) saa
+253@_V_ gu@Modaalverb imperatiiv preesens 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod imper pres sg ps af@Verb modal imper present third singular active afirmative@Vomp3s-an@VM3@saagu
+254@_V_ gem@Modaalverb imperatiiv preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod imper pres ps1 pl ps af@Verb modal imper present first plural active afirmative@Vomp1p-an@VMK@saagem 
+255@_V_ ge@Modaalverb imperatiiv preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod imper pres ps2 pl ps af@Verb modal imper present second plural active afirmative@Vomp2p-an@VMK@saage 
+256@_V_ gu@Modaalverb imperatiiv preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod imper pres ps3 pl ps af@Verb modal imper present third plural active afirmative@Vomp3p-an@VM3@saagu
+257@_V_ tagu@Modaalverb imperatiiv preesens impersonaal afirmatiiv@_V_ mod imper pres imps af@Verb modal imper present passive afirmative@Vomp---pn@VMP@saadagu
+258@_V_ gu@Modaalverb imperatiiv preesens 3. p&ouml;&ouml;re singular personaal negatiiv@_V_ mod imper pres sg ps neg@Verb modal imper present third singular active negative@Vomp3s-ay@VM3@(&auml;rgu) saagu
+259@_V_ gem@Modaalverb imperatiiv preesens 1. p&ouml;&ouml;re pluural personaal negatiiv@_V_ mod imper pres ps1 pl ps neg@Verb modal imper present first plural active negative@Vomp1p-ay@VMK@(&auml;rgem) saagem 
+260@_V_ ge@Modaalverb imperatiiv preesens 2. p&ouml;&ouml;re pluural personaal negatiiv@_V_ mod imper pres ps2 pl ps neg@Verb modal imper present second plural active negative@Vomp2p-ay@VMK@(&auml;rge) saage 
+261@_V_ gu@Modaalverb imperatiiv preesens 3. p&ouml;&ouml;re pluural personaal negatiiv@_V_ mod imper pres ps3 pl ps neg@Verb modal imper present third plural active negative@Vomp3p-ay@VM3@(&auml;rgu) saagu
+262@_V_ tagu@Modaalverb imperatiiv preesens impersonaal negatiiv@_V_ mod imper pres imps neg@Verb modal imper present passive negative@Vomp---py@VMP@(&auml;rgu) saadagu
+263@_V_ ksin@Modaalverb konditsionaal preesens 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod cond pres ps1 sg ps af@Verb modal condit present first singular active afirmative@Vocp1s-an@VMS@saaksin 
+264@_V_ ksid@Modaalverb konditsionaal preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod cond pres ps2 sg ps af@Verb modal condit present second singular active afirmative@Vocp2s-an@VMS@saaksid 
+265@_V_ ks@Modaalverb konditsionaal preesens singular personaal afirmatiiv@_V_ mod cond pres ps af@Verb modal condit present singular active afirmative@Vocp1s-an@VMS@saaks
+¤265@_V_ ks@Modaalverb konditsionaal preesens 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod cond pres ps1 sg ps af@Verb modal condit present first singular active afirmative@Vocp1s-an@VMS@saaks
+¤266@_V_ ks@Modaalverb konditsionaal preesens 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod cond pres ps2 sg ps af@Verb modal condit present second singular active afirmative@Vocp2s-an@VMS@saaks
+¤267@_V_ ks@Modaalverb konditsionaal preesens 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod cond pres ps3 sg ps af@Verb modal condit present third singular active afirmative@Vocp3s-an@VMS@saaks
+¤268@_V_ ks@Modaalverb konditsionaal preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond pres ps1 pl ps af@Verb modal condit present first plural active afirmative@Vocp1p-an@VMS@saaks
+¤269@_V_ ks@Modaalverb konditsionaal preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond pres ps2 pl ps af@Verb modal condit present second plural active afirmative@Vocp2p-an@VMS@saaks
+¤270@_V_ ks@Modaalverb konditsionaal preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond pres ps3 pl ps af@Verb modal condit present third plural active afirmative@Vocp3p-an@VMS@saaks
+271@_V_ ksime@Modaalverb konditsionaal preesens 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond pres ps1 pl ps af@Verb modal condit present first plural active afirmative@Vocp1p-an@VMS@saaksime 
+272@_V_ ksite@Modaalverb konditsionaal preesens 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond pres ps2 pl ps af@Verb modal condit present second plural active afirmative@Vocp2p-an@VMS@saaksite
+273@_V_ ksid@Modaalverb konditsionaal preesens 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond pres ps3 pl ps af@Verb modal condit present third plural active afirmative@Vocp3p-an@VMS@saaksid 
+274@_V_ ks@Modaalverb konditsionaal preesens personaal negatiiv@_V_ mod cond pres ps neg@Verb modal condit present active negative@Vocp---ay@VMS@(ei) saaks
+275@_V_ taks@Modaalverb konditsionaal preesens impersonaal afirmatiiv@_V_ mod cond pres imps af@Verb modal condit present passive afirmative@Vocp---pn@VMP@saadaks
+276@_V_ nuksin@Modaalverb konditsionaal preteeritum 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod cond past ps1 sg ps af@Verb modal condit past first singular active afirmative@Vocs1s-an@VMS@saanuksin 
+277@_V_ nuksid@Modaalverb konditsionaal preteeritum 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod cond past ps2 sg ps af@Verb modal condit past second singular active afirmative@Vocs2s-an@VMS@saanuksid 
+278@_V_ nuks@Modaalverb konditsionaal preteeritum singular personaal afirmatiiv@_V_ mod cond past ps af@Verb modal condit past singular active afirmative@Vocs1s-an@VMS@saanuks
+¤278@_V_ nuks@Modaalverb konditsionaal preteeritum 1. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod cond past ps1 sg ps af@Verb modal condit past first singular active afirmative@Vocs1s-an@VMS@saanuks
+¤279@_V_ nuks@Modaalverb konditsionaal preteeritum 2. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod cond past ps2 sg ps af@Verb modal condit past second singular active afirmative@Vocs2s-an@VMS@saanuks
+¤280@_V_ nuks@Modaalverb konditsionaal preteeritum 3. p&ouml;&ouml;re singular personaal afirmatiiv@_V_ mod cond past ps3 sg ps af@Verb modal condit past third singular active afirmative@Vocs3s-an@VMS@saanuks
+¤281@_V_ nuks@Modaalverb konditsionaal preteeritum 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond past ps1 pl ps af@Verb modal condit past first plural active afirmative@Vocs1p-an@VMS@saanuks
+¤282@_V_ nuks@Modaalverb konditsionaal preteeritum 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond past ps2 pl ps af@Verb modal condit past second plural active afirmative@Vocs2p-an@VMS@saanuks
+¤283@_V_ nuks@Modaalverb konditsionaal preteeritum 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond past ps3 pl ps af@Verb modal condit past third plural active afirmative@Vocs3p-an@VMS@saanuks
+284@_V_ nuksime@Modaalverb konditsionaal preteeritum 1. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond past ps1 pl ps af@Verb modal condit past first plural active afirmative@Vocs1p-an@VMS@saanuksime 
+285@_V_ nuksite@Modaalverb konditsionaal preteeritum 2. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond past ps2 pl ps af@Verb modal condit past second plural active afirmative@Vocs2p-an@VMS@saanuksite 
+286@_V_ nuksid@Modaalverb konditsionaal preteeritum 3. p&ouml;&ouml;re pluural personaal afirmatiiv@_V_ mod cond past ps3 pl ps af@Verb modal condit past third plural active afirmative@Vocs3p-an@VMS@saanuksid 
+287@_V_ nuks@Modaalverb konditsionaal preteeritum personaal negatiiv@_V_ mod cond past ps neg@Verb modal condit past active negative@Vocs---ay@VMS@(ei) saanuks
+288@_V_ tuks@Modaalverb konditsionaal preteeritum impersonaal afirmatiiv@_V_ mod cond past imps af@Verb modal condit past passive afirmative@Vocs---pn@VMP@saaduks
+289@_V_ taks@Modaalverb konditsionaal preesens impersonaal negatiiv@_V_ mod cond pres imps neg@Verb modal condit present passive negative@Vocp---py@VMP@(ei) saadaks
+290@_V_ tuks@Modaalverb konditsionaal preteeritum impersonaal negatiiv@_V_ mod cond past imps neg@Verb modal condit past passive negative@Vocs---py@VMP@(ei) saaduks
+291@_V_ da@Modaalverb infinitiiv@_V_ mod inf@Verb modal infinit@Von@VMD@saada
+292@_V_ v@Modaalverb partitsiip preesens personaal@_V_ mod partic pres ps@Verb modal partic present active@Vopp---a@VMAP@saav 
+293@_V_ tav@Modaalverb partitsiip preesens impersonaal@_V_ mod partic pres imps@Verb modal partic present passive@Vopp---p@VMAP@saadav 
+294@_V_ nud@Modaalverb partitsiip preteeritum personaal@_V_ mod partic past ps@Verb modal partic past active@Vops---a@VMAS@saanud 
+295@_V_ tud@Modaalverb partitsiip preteeritum impersonaal@_V_ mod partic past imps@Verb modal partic past passive@Vops---p@VMAS@saadud 
+296@_V_ nud@Modaalverb indikatiiv imperfekt personaal negatiiv@_V_ mod indic impf ps neg@Verb modal indic imperfect active negative@Voii---ay@VMAS@(ei) saanud 
+297@_V_ tud@Modaalverb indikatiiv imperfekt impersonaal negatiiv@_V_ mod indic impf imps neg@Verb modal indic imperfect passive negative@Voii---py@VMAS@(ei) saadud 
+298@_V_ des@Modaalverb gerundiiv@_V_ mod ger@Verb modal gerund@Vog@VMG@saades 
+299@_V_ ma@Modaalverb supiin personaal illatiiv@_V_ mod sup ps ill@Verb modal supine active illative@Vou----a---x@VMM@saama
+300@_V_ mas@Modaalverb supiin personaal inessiiv@_V_ mod sup ps in@Verb modal supine active inessive@Vou----a---2@VMM@saamas
+301@_V_ mast@Modaalverb supiin personaal elatiiv@_V_ mod sup ps el@Verb modal supine active elative@Vou----a---e@VMM@saamast
+302@_V_ maks@Modaalverb supiin personaal translatiiv@_V_ mod sup ps tr@Verb modal supine active translative@Vou----a---4@VMG@saamaks
+303@_V_ mata@Modaalverb supiin personaal abessiiv@_V_ mod sup ps abes@Verb modal supine active abessive@Vou----a---5@VMASS@saamata
+304@_V_ tama@Modaalverb supiin impersonaal@_V_ mod sup imps@Verb modal supine passive@Vou----p@VMM@saadama
+305@_V_ vat@Modaalverb kvotatiiv preesens personaal afirmatiiv@_V_ mod quot pres ps af@Verb modal quotat present active afirmative@Voqp---an@VMQ@saavat
+306@_V_ tavat@Modaalverb kvotatiiv preesens impersonaal afirmatiiv@_V_ mod quot pres imps af@Verb modal quotat present passive afirmative@Voqp---pn@VMQ@saadavat
+307@_V_ nuvat@Modaalverb kvotatiiv preteeritum personaal afirmatiiv@_V_ mod quot past ps af@Verb modal quotat past active afirmative@Voqs---an@VMQ@saanuvat
+308@_V_ tuvat@Modaalverb kvotatiiv preteeritum impersonaal afirmatiiv@_V_ mod quot past imps af@Verb modal quotat past passive afirmative@Voqs---pn@VMQ@saaduvat
+309@_V_ vat@Modaalverb kvotatiiv preesens personaal negatiiv@_V_ mod quot pres ps neg@Verb modal quotat present active negative@Voqp---ay@VMQ@(ei) saavat
+310@_V_ tavat@Modaalverb kvotatiiv preesens impersonaal negatiiv@_V_ mod quot pres imps neg@Verb modal quotat present passive negative@Voqp---py@VMQ@(ei) saadavat
+311@_V_ nuvat@Modaalverb kvotatiiv preteeritum personaal negatiiv@_V_ mod quot past ps neg@Verb modal quotat past active negative@Voqs---ay@VMQ@(ei) saanuvat
+312@_V_ tuvat@Modaalverb kvotatiiv preteeritum impersonaal negatiiv@_V_ mod quot past imps neg@Verb modal quotat past passive negative@Voqs---py@VMQ@(ei) saaduvat
+313@_A_@Adjektiiv positiiv@_A_ pos@Adjective positive@A-p@ASX@salkus
+314@_A_ ?@Adjektiiv positiiv@_A_ pos@Adjective positive@A-p@ASX@leiutamis-
+315@_A_ sg n@Adjektiiv positiiv singular nominatiiv@_A_ pos sg nom@Adjective positive singular nominative@A-p-sn@ASN@oluline
+316@_A_ sg g@Adjektiiv positiiv singular genitiiv@_A_ pos sg gen@Adjective positive singular genitive@A-p-sg@ASG@olulise
+317@_A_ sg p@Adjektiiv positiiv singular partitiiv@_A_ pos sg part@Adjective positive singular partitive@A-p-s1@AS1@olulist
+318@_A_ sg ill@Adjektiiv positiiv singular illatiiv@_A_ pos sg ill@Adjective positive singular illative@A-p-sx@ASA@olulisesse
+319@_A_ sg in@Adjektiiv positiiv singular inessiiv@_A_ pos sg in@Adjective positive singular inessive@A-p-s2@ASA@olulises
+320@_A_ sg el@Adjektiiv positiiv singular elatiiv@_A_ pos sg el@Adjective positive singular elative@A-p-se@ASA@olulisest
+321@_A_ sg all@Adjektiiv positiiv singular allatiiv@_A_ pos sg all@Adjective positive singular allative@A-p-st@ASA@olulisele
+322@_A_ sg ad@Adjektiiv positiiv singular adessiiv@_A_ pos sg ad@Adjective positive singular adessive@A-p-s3@ASA@olulisel
+323@_A_ sg abl@Adjektiiv positiiv singular ablatiiv@_A_ pos sg abl@Adjective positive singular ablative@A-p-sb@ASA@oluliselt
+324@_A_ sg tr@Adjektiiv positiiv singular translatiiv@_A_ pos sg tr@Adjective positive singular translative@A-p-s4@AS@oluliseks
+325@_A_ sg ter@Adjektiiv positiiv singular terminatiiv@_A_ pos sg term@Adjective positive singular terminative@A-p-s9@AS@oluliseni
+326@_A_ sg es@Adjektiiv positiiv singular essiiv@_A_ pos sg es@Adjective positive singular essive@A-p-sw@AS@olulisena
+327@_A_ sg ab@Adjektiiv positiiv singular abessiiv@_A_ pos sg abes@Adjective positive singular abessive@A-p-s5@AS@oluliseta
+328@_A_ sg kom@Adjektiiv positiiv singular komitatiiv@_A_ pos sg kom@Adjective positive singular komitative@A-p-sk@AS@olulisega
+329@_A_ adt@Adjektiiv positiiv singular aditiiv@_A_ pos sg adit@Adjective positive singular aditive@A-p-s7@ASA@olulisse
+330@_A_ pl n@Adjektiiv positiiv pluural nominatiiv@_A_ pos pl nom@Adjective positive plural nominative@A-p-pn@ASN@olulised
+331@_A_ pl g@Adjektiiv positiiv pluural genitiiv@_A_ pos pl gen@Adjective positive plural genitive@A-p-pg@ASG@oluliste
+332@_A_ pl p@Adjektiiv positiiv pluural partitiiv@_A_ pos pl part@Adjective positive plural partitive@A-p-p1@AS1@olulisi
+333@_A_ pl ill@Adjektiiv positiiv pluural illatiiv@_A_ pos pl ill@Adjective positive plural illative@A-p-px@ASA@olulistesse, olulisisse
+334@_A_ pl in@Adjektiiv positiiv pluural inessiiv@_A_ pos pl in@Adjective positive plural inessive@A-p-p2@ASA@olulistes, olulisis
+335@_A_ pl el@Adjektiiv positiiv pluural elatiiv@_A_ pos pl el@Adjective positive plural elative@A-p-pe@ASA@olulistest, olulisist
+336@_A_ pl all@Adjektiiv positiiv pluural allatiiv@_A_ pos pl all@Adjective positive plural allative@A-p-pt@ASA@olulistele, olulisile
+337@_A_ pl ad@Adjektiiv positiiv pluural adessiiv@_A_ pos pl ad@Adjective positive plural adessive@A-p-p3@ASA@olulistel, olulisil
+338@_A_ pl abl@Adjektiiv positiiv pluural ablatiiv@_A_ pos pl abl@Adjective positive plural ablative@A-p-pb@ASA@olulistelt, olulisilt
+339@_A_ pl tr@Adjektiiv positiiv pluural translatiiv@_A_ pos pl tr@Adjective positive plural translative@A-p-p4@AS@olulisteks, olulisiks
+340@_A_ pl ter@Adjektiiv positiiv pluural terminatiiv@_A_ pos pl term@Adjective positive plural terminative@A-p-p9@AS@olulisteni, olulisini
+341@_A_ pl es@Adjektiiv positiiv pluural essiiv@_A_ pos pl es@Adjective positive plural essive@A-p-pw@AS@olulistena, olulisina
+342@_A_ pl ab@Adjektiiv positiiv pluural abessiiv@_A_ pos pl abes@Adjective positive plural abessive@A-p-p5@AS@olulisteta, olulisita
+343@_A_ pl kom@Adjektiiv positiiv pluural komitatiiv@_A_ pos pl kom@Adjective positive plural komitative@A-p-pk@AS@olulistega, olulisiga
+344@_C_ sg n@Adjektiiv komparatiiv singular nominatiiv@_A_ comp sg nom@Adjective comparative singular nominative@A-c-sn@ASN@olulisem
+345@_C_ sg g@Adjektiiv komparatiiv singular genitiiv@_A_ comp sg gen@Adjective comparative singular genitive@A-c-sg@ASG@olulisema
+346@_C_ sg p@Adjektiiv komparatiiv singular partitiiv@_A_ comp sg part@Adjective comparative singular partitive@A-c-s1@AS1@olulisemat
+347@_C_ sg ill@Adjektiiv komparatiiv singular illatiiv@_A_ comp sg ill@Adjective comparative singular illative@A-c-sx@ASA@olulisemasse
+348@_C_ sg in@Adjektiiv komparatiiv singular inessiiv@_A_ comp sg in@Adjective comparative singular inessive@A-c-s2@ASA@olulisemas
+349@_C_ sg el@Adjektiiv komparatiiv singular elatiiv@_A_ comp sg el@Adjective comparative singular elative@A-c-se@ASA@olulisemast
+350@_C_ sg all@Adjektiiv komparatiiv singular allatiiv@_A_ comp sg all@Adjective comparative singular allative@A-c-st@ASA@olulisemale
+351@_C_ sg ad@Adjektiiv komparatiiv singular adessiiv@_A_ comp sg ad@Adjective comparative singular adessive@A-c-s3@ASA@olulisemal
+352@_C_ sg abl@Adjektiiv komparatiiv singular ablatiiv@_A_ comp sg abl@Adjective comparative singular ablative@A-c-sb@ASA@olulisemalt
+353@_C_ sg tr@Adjektiiv komparatiiv singular translatiiv@_A_ comp sg tr@Adjective comparative singular translative@A-c-s4@AS@olulisemaks
+354@_C_ sg ter@Adjektiiv komparatiiv singular terminatiiv@_A_ comp sg term@Adjective comparative singular terminative@A-c-s9@AS@olulisemani
+355@_C_ sg es@Adjektiiv komparatiiv singular essiiv@_A_ comp sg es@Adjective comparative singular essive@A-c-sw@AS@olulisemana
+356@_C_ sg ab@Adjektiiv komparatiiv singular abessiiv@_A_ comp sg abes@Adjective comparative singular abessive@A-c-s5@AS@olulisemata
+357@_C_ sg kom@Adjektiiv komparatiiv singular komitatiiv@_A_ comp sg kom@Adjective comparative singular komitative@A-c-sk@AS@olulisemaga
+358@_C_ pl n@Adjektiiv komparatiiv pluural nominatiiv@_A_ comp pl nom@Adjective comparative plural nominative@A-c-pn@ASN@olulisemad
+359@_C_ pl g@Adjektiiv komparatiiv pluural genitiiv@_A_ comp pl gen@Adjective comparative plural genitive@A-c-pg@ASG@olulisemate
+360@_C_ pl p@Adjektiiv komparatiiv pluural partitiiv@_A_ comp pl part@Adjective comparative plural partitive@A-c-p1@AS1@olulisemaid
+361@_C_ pl ill@Adjektiiv komparatiiv pluural illatiiv@_A_ comp pl ill@Adjective comparative plural illative@A-c-px@ASA@olulisematesse olulisemaisse
+362@_C_ pl in@Adjektiiv komparatiiv pluural inessiiv@_A_ comp pl in@Adjective comparative plural inessive@A-c-p2@ASA@olulisemates, olulisemais
+363@_C_ pl el@Adjektiiv komparatiiv pluural elatiiv@_A_ comp pl el@Adjective comparative plural elative@A-c-pe@ASA@olulisematest, olulisemaist
+364@_C_ pl all@Adjektiiv komparatiiv pluural allatiiv@_A_ comp pl all@Adjective comparative plural allative@A-c-pt@ASA@olulisematele, olulisemaile
+365@_C_ pl ad@Adjektiiv komparatiiv pluural adessiiv@_A_ comp pl ad@Adjective comparative plural adessive@A-c-p3@ASA@olulisematel, olulisemail
+366@_C_ pl abl@Adjektiiv komparatiiv pluural ablatiiv@_A_ comp pl abl@Adjective comparative plural ablative@A-c-pb@ASA@olulisematelt, olulisemailt
+367@_C_ pl tr@Adjektiiv komparatiiv pluural translatiiv@_A_ comp pl tr@Adjective comparative plural translative@A-c-p4@AS@olulisemateks, olulisemaiks
+368@_C_ pl ter@Adjektiiv komparatiiv pluural terminatiiv@_A_ comp pl term@Adjective comparative plural terminative@A-c-p9@AS@olulisemateni, olulisemaini
+369@_C_ pl es@Adjektiiv komparatiiv pluural essiiv@_A_ comp pl es@Adjective comparative plural essive@A-c-pw@AS@olulisematena, olulisemaina
+370@_C_ pl ab@Adjektiiv komparatiiv pluural abessiiv@_A_ comp pl abes@Adjective comparative plural abessive@A-c-p5@AS@olulisemateta, olulisemaita
+371@_C_ pl kom@Adjektiiv komparatiiv pluural komitatiiv@_A_ comp pl kom@Adjective comparative plural komitative@A-c-pk@AS@olulisematega, olulisemaiga
+372@_U_ sg n@Adjektiiv superlatiiv singular nominatiiv@_A_ super sg nom@Adjective superlative singular nominative@A-s-sn@ASN@olulisim
+373@_U_ sg g@Adjektiiv superlatiiv singular genitiiv@_A_ super sg gen@Adjective superlative singular genitive@A-s-sg@ASG@olulisima
+374@_U_ sg p@Adjektiiv superlatiiv singular partitiiv@_A_ super sg part@Adjective superlative singular partitive@A-s-s1@AS1@olulisimat
+375@_U_ sg ill@Adjektiiv superlatiiv singular illatiiv@_A_ super sg ill@Adjective superlative singular illative@A-s-sx@ASA@olulisimasse
+376@_U_ sg in@Adjektiiv superlatiiv singular inessiiv@_A_ super sg in@Adjective superlative singular inessive@A-s-s2@ASA@olulisimas
+377@_U_ sg el@Adjektiiv superlatiiv singular elatiiv@_A_ super sg el@Adjective superlative singular elative@A-s-se@ASA@olulisimast
+378@_U_ sg all@Adjektiiv superlatiiv singular allatiiv@_A_ super sg all@Adjective superlative singular allative@A-s-st@ASA@olulisimale
+379@_U_ sg ad@Adjektiiv superlatiiv singular adessiiv@_A_ super sg ad@Adjective superlative singular adessive@A-s-s3@ASA@olulisimal
+380@_U_ sg abl@Adjektiiv superlatiiv singular ablatiiv@_A_ super sg abl@Adjective superlative singular ablative@A-s-sb@ASA@olulisimalt
+381@_U_ sg tr@Adjektiiv superlatiiv singular translatiiv@_A_ super sg tr@Adjective superlative singular translative@A-s-s4@AS@olulisimaks
+382@_U_ sg ter@Adjektiiv superlatiiv singular terminatiiv@_A_ super sg term@Adjective superlative singular terminative@A-s-s9@AS@olulisimani
+383@_U_ sg es@Adjektiiv superlatiiv singular essiiv@_A_ super sg es@Adjective superlative singular essive@A-s-sw@AS@olulisimana
+384@_U_ sg ab@Adjektiiv superlatiiv singular abessiiv@_A_ super sg abes@Adjective superlative singular abessive@A-s-s5@AS@olulisimata
+385@_U_ sg kom@Adjektiiv superlatiiv singular komitatiiv@_A_ super sg kom@Adjective superlative singular komitative@A-s-sk@AS@olulisimaga
+386@_U_ pl n@Adjektiiv superlatiiv pluural nominatiiv@_A_ super pl nom@Adjective superlative plural nominative@A-s-pn@ASN@olulisimad
+387@_U_ pl g@Adjektiiv superlatiiv pluural genitiiv@_A_ super pl gen@Adjective superlative plural genitive@A-s-pg@ASG@olulisimate
+388@_U_ pl p@Adjektiiv superlatiiv pluural partitiiv@_A_ super pl part@Adjective superlative plural partitive@A-s-p1@AS1@olulisimaid
+389@_U_ pl ill@Adjektiiv superlatiiv pluural illatiiv@_A_ super pl ill@Adjective superlative plural illative@A-s-px@ASA@olulisimatesse olulisimaisse
+390@_U_ pl in@Adjektiiv superlatiiv pluural inessiiv@_A_ super pl in@Adjective superlative plural inessive@A-s-p2@ASA@olulisimates, olulisimais
+391@_U_ pl el@Adjektiiv superlatiiv pluural elatiiv@_A_ super pl el@Adjective superlative plural elative@A-s-pe@ASA@olulisimatest, olulisimaist
+392@_U_ pl all@Adjektiiv superlatiiv pluural allatiiv@_A_ super pl all@Adjective superlative plural allative@A-s-pt@ASA@olulisimatele, olulisimaile
+393@_U_ pl ad@Adjektiiv superlatiiv pluural adessiiv@_A_ super pl ad@Adjective superlative plural adessive@A-s-p3@ASA@olulisimatel, olulisimail
+394@_U_ pl abl@Adjektiiv superlatiiv pluural ablatiiv@_A_ super pl abl@Adjective superlative plural ablative@A-s-pb@ASA@olulisimatelt, olulisimailt
+395@_U_ pl tr@Adjektiiv superlatiiv pluural translatiiv@_A_ super pl tr@Adjective superlative plural translative@A-s-p4@AS@olulisimateks, olulisimaiks
+396@_U_ pl ter@Adjektiiv superlatiiv pluural terminatiiv@_A_ super pl term@Adjective superlative plural terminative@A-s-p9@AS@olulisimateni, olulisimaini
+397@_U_ pl es@Adjektiiv superlatiiv pluural essiiv@_A_ super pl es@Adjective superlative plural essive@A-s-pw@AS@olulisimatena, olulisimaina
+398@_U_ pl ab@Adjektiiv superlatiiv pluural abessiiv@_A_ super pl abes@Adjective superlative plural abessive@A-s-p5@AS@olulisimateta, olulisimaita
+399@_U_ pl kom@Adjektiiv superlatiiv pluural komitatiiv@_A_ super pl kom@Adjective superlative plural komitative@A-s-pk@AS@olulisimatega, olulisimaiga
+400@_G_@Genitiivatribuut@_G_@Adjective positive singular genitive@A-p-sg@ASG@saksa
+401@_P_ sg n@Pronoomen singular nominatiiv@_P_ sg nom@Pronoun singular nominative@P---sn@PP1SN@mina
+402@_P_ sg g@Pronoomen singular genitiiv@_P_ sg gen@Pronoun singular genitive@P---sg@PP1SG@minu
+403@_P_ sg p@Pronoomen singular partitiiv@_P_ sg part@Pronoun singular partitive@P---s1@PP1S1@mind
+404@_P_ sg ill@Pronoomen singular illatiiv@_P_ sg ill@Pronoun singular illative@P---sx@PP1SA@minusse
+405@_P_ sg in@Pronoomen singular inessiiv@_P_ sg in@Pronoun singular inessive@P---s2@PP1SA@minus
+406@_P_ sg el@Pronoomen singular elatiiv@_P_ sg el@Pronoun singular elative@P---se@PP1SA@minust
+407@_P_ sg all@Pronoomen singular allatiiv@_P_ sg all@Pronoun singular allative@P---st@PP1SA@minule
+408@_P_ sg ad@Pronoomen singular adessiiv@_P_ sg ad@Pronoun singular adessive@P---s3@PP1SA@minul
+409@_P_ sg abl@Pronoomen singular ablatiiv@_P_ sg abl@Pronoun singular ablative@P---sb@PP1SA@minult
+410@_P_ sg tr@Pronoomen singular translatiiv@_P_ sg tr@Pronoun singular translative@P---s4@PP1S@minuks
+411@_P_ sg ter@Pronoomen singular terminatiiv@_P_ sg term@Pronoun singular terminative@P---s9@PP1S@minuni
+412@_P_ sg es@Pronoomen singular essiiv@_P_ sg es@Pronoun singular essive@P---sw@PP1S@minuna
+413@_P_ sg ab@Pronoomen singular abessiiv@_P_ sg abes@Pronoun singular abessive@P---s5@PP1S@minuta
+414@_P_ sg kom@Pronoomen singular komitatiiv@_P_ sg kom@Pronoun singular komitative@P---sk@PP1S@minuga
+415@_P_ pl n@Pronoomen pluural nominatiiv@_P_ pl nom@Pronoun plural nominative@P---pn@PP1SN@meie
+416@_P_ pl g@Pronoomen pluural genitiiv@_P_ pl gen@Pronoun plural genitive@P---pg@PP1SG@meie
+417@_P_ pl p@Pronoomen pluural partitiiv@_P_ pl part@Pronoun plural partitive@P---p1@PP1S1@meid
+418@_P_ pl ill@Pronoomen pluural illatiiv@_P_ pl ill@Pronoun plural illative@P---px@PP1SA@meisse
+419@_P_ pl in@Pronoomen pluural inessiiv@_P_ pl in@Pronoun plural inessive@P---p2@PP1SA@meis
+420@_P_ pl el@Pronoomen pluural elatiiv@_P_ pl el@Pronoun plural elative@P---pe@PP1SA@meist
+421@_P_ pl all@Pronoomen pluural allatiiv@_P_ pl all@Pronoun plural allative@P---pt@PP1SA@meile
+422@_P_ pl ad@Pronoomen pluural adessiiv@_P_ pl ad@Pronoun plural adessive@P---p3@PP1SA@meil
+423@_P_ pl abl@Pronoomen pluural ablatiiv@_P_ pl abl@Pronoun plural ablative@P---pb@PP1SA@meilt
+424@_P_ pl tr@Pronoomen pluural translatiiv@_P_ pl tr@Pronoun plural translative@P---p4@PP1S@meieks
+425@_P_ pl ter@Pronoomen pluural terminatiiv@_P_ pl term@Pronoun plural terminative@P---p9@PP1S@meieni
+426@_P_ pl es@Pronoomen pluural essiiv@_P_ pl es@Pronoun plural essive@P---pw@PP1S@meiena
+427@_P_ pl ab@Pronoomen pluural abessiiv@_P_ pl abes@Pronoun plural abessive@P---p5@PP1S@meieta
+428@_P_ pl kom@Pronoomen pluural komitatiiv@_P_ pl kom@Pronoun plural komitative@P---pk@PP1S@meiega
+429@_P_ sg n@Pronoomen singular nominatiiv@_P_ sg nom@Pronoun singular nominative@P---sn@PP2SN@sina
+430@_P_ sg g@Pronoomen singular genitiiv@_P_ sg gen@Pronoun singular genitive@P---sg@PP2SG@sinu
+431@_P_ sg p@Pronoomen singular partitiiv@_P_ sg part@Pronoun singular partitive@P---s1@PP2S1@sind
+432@_P_ sg ill@Pronoomen singular illatiiv@_P_ sg ill@Pronoun singular illative@P---sx@PP2SA@sinusse
+433@_P_ sg in@Pronoomen singular inessiiv@_P_ sg in@Pronoun singular inessive@P---s2@PP2SA@sinus
+434@_P_ sg el@Pronoomen singular elatiiv@_P_ sg el@Pronoun singular elative@P---se@PP2SA@sinust
+435@_P_ sg all@Pronoomen singular allatiiv@_P_ sg all@Pronoun singular allative@P---st@PP2SA@sinule
+436@_P_ sg ad@Pronoomen singular adessiiv@_P_ sg ad@Pronoun singular adessive@P---s3@PP2SA@sinul
+437@_P_ sg abl@Pronoomen singular ablatiiv@_P_ sg abl@Pronoun singular ablative@P---sb@PP2SA@sinult
+438@_P_ sg tr@Pronoomen singular translatiiv@_P_ sg tr@Pronoun singular translative@P---s4@PP2S@sinuks
+439@_P_ sg ter@Pronoomen singular terminatiiv@_P_ sg term@Pronoun singular terminative@P---s9@PP2S@sinuni
+440@_P_ sg es@Pronoomen singular essiiv@_P_ sg es@Pronoun singular essive@P---sw@PP2S@sinuna
+441@_P_ sg ab@Pronoomen singular abessiiv@_P_ sg abes@Pronoun singular abessive@P---s5@PP2S@sinuta
+442@_P_ sg kom@Pronoomen singular komitatiiv@_P_ sg kom@Pronoun singular komitative@P---sk@PP2S@sinuga
+443@_P_ pl n@Pronoomen pluural nominatiiv@_P_ pl nom@Pronoun plural nominative@P---pn@PP2SN@teie
+444@_P_ pl g@Pronoomen pluural genitiiv@_P_ pl gen@Pronoun plural genitive@P---pg@PP2SG@teie
+445@_P_ pl p@Pronoomen pluural partitiiv@_P_ pl part@Pronoun plural partitive@P---p1@PP2S1@teid
+446@_P_ pl ill@Pronoomen pluural illatiiv@_P_ pl ill@Pronoun plural illative@P---px@PP2SA@teisse
+447@_P_ pl in@Pronoomen pluural inessiiv@_P_ pl in@Pronoun plural inessive@P---p2@PP2SA@teis
+448@_P_ pl el@Pronoomen pluural elatiiv@_P_ pl el@Pronoun plural elative@P---pe@PP2SA@teist
+449@_P_ pl all@Pronoomen pluural allatiiv@_P_ pl all@Pronoun plural allative@P---pt@PP2SA@teile
+450@_P_ pl ad@Pronoomen pluural adessiiv@_P_ pl ad@Pronoun plural adessive@P---p3@PP2SA@teil
+451@_P_ pl abl@Pronoomen pluural ablatiiv@_P_ pl abl@Pronoun plural ablative@P---pb@PP2SA@teilt
+452@_P_ pl tr@Pronoomen pluural translatiiv@_P_ pl tr@Pronoun plural translative@P---p4@PP2S@teieks
+453@_P_ pl ter@Pronoomen pluural terminatiiv@_P_ pl term@Pronoun plural terminative@P---p9@PP2S@teieni
+454@_P_ pl es@Pronoomen pluural essiiv@_P_ pl es@Pronoun plural essive@P---pw@PP2S@teiena
+455@_P_ pl ab@Pronoomen pluural abessiiv@_P_ pl abes@Pronoun plural abessive@P---p5@PP2S@teieta
+456@_P_ pl kom@Pronoomen pluural komitatiiv@_P_ pl kom@Pronoun plural komitative@P---pk@PP2S@teiega
+457@_P_ sg n@Pronoomen singular nominatiiv@_P_ sg nom@Pronoun singular nominative@P---sn@PP3SN@tema
+458@_P_ sg g@Pronoomen singular genitiiv@_P_ sg gen@Pronoun singular genitive@P---sg@PP3SG@tema
+459@_P_ sg p@Pronoomen singular partitiiv@_P_ sg part@Pronoun singular partitive@P---s1@PP3S1@teda
+460@_P_ sg ill@Pronoomen singular illatiiv@_P_ sg ill@Pronoun singular illative@P---sx@PP3SA@temasse
+461@_P_ sg in@Pronoomen singular inessiiv@_P_ sg in@Pronoun singular inessive@P---s2@PP3SA@temas
+462@_P_ sg el@Pronoomen singular elatiiv@_P_ sg el@Pronoun singular elative@P---se@PP3SA@temast
+463@_P_ sg all@Pronoomen singular allatiiv@_P_ sg all@Pronoun singular allative@P---st@PP3SA@temale
+464@_P_ sg ad@Pronoomen singular adessiiv@_P_ sg ad@Pronoun singular adessive@P---s3@PP3SA@temal
+465@_P_ sg abl@Pronoomen singular ablatiiv@_P_ sg abl@Pronoun singular ablative@P---sb@PP3SA@temalt
+466@_P_ sg tr@Pronoomen singular translatiiv@_P_ sg tr@Pronoun singular translative@P---s4@PP3S@temaks
+467@_P_ sg ter@Pronoomen singular terminatiiv@_P_ sg term@Pronoun singular terminative@P---s9@PP3S@temani
+468@_P_ sg es@Pronoomen singular essiiv@_P_ sg es@Pronoun singular essive@P---sw@PP3S@temana
+469@_P_ sg ab@Pronoomen singular abessiiv@_P_ sg abes@Pronoun singular abessive@P---s5@PP3S@temata
+470@_P_ sg kom@Pronoomen singular komitatiiv@_P_ sg kom@Pronoun singular komitative@P---sk@PP3S@temaga
+471@_P_ pl n@Pronoomen pluural nominatiiv@_P_ pl nom@Pronoun plural nominative@P---pn@PP3SN@nemad
+472@_P_ pl g@Pronoomen pluural genitiiv@_P_ pl gen@Pronoun plural genitive@P---pg@PP3SG@nende
+473@_P_ pl p@Pronoomen pluural partitiiv@_P_ pl part@Pronoun plural partitive@P---p1@PP3S1@neid
+474@_P_ pl ill@Pronoomen pluural illatiiv@_P_ pl ill@Pronoun plural illative@P---px@PP3SA@nendesse, neisse
+475@_P_ pl in@Pronoomen pluural inessiiv@_P_ pl in@Pronoun plural inessive@P---p2@PP3SA@nendes, neis
+476@_P_ pl el@Pronoomen pluural elatiiv@_P_ pl el@Pronoun plural elative@P---pe@PP3SA@nendest, neist
+477@_P_ pl all@Pronoomen pluural allatiiv@_P_ pl all@Pronoun plural allative@P---pt@PP3SA@nendele, neile
+478@_P_ pl ad@Pronoomen pluural adessiiv@_P_ pl ad@Pronoun plural adessive@P---p3@PP3SA@nendel, neil
+479@_P_ pl abl@Pronoomen pluural ablatiiv@_P_ pl abl@Pronoun plural ablative@P---pb@PP3SA@nendelt, neilt
+480@_P_ pl tr@Pronoomen pluural translatiiv@_P_ pl tr@Pronoun plural translative@P---p4@PP3S@nendeks, neiks
+481@_P_ pl ter@Pronoomen pluural terminatiiv@_P_ pl term@Pronoun plural terminative@P---p9@PP3S@nendeni
+482@_P_ pl es@Pronoomen pluural essiiv@_P_ pl es@Pronoun plural essive@P---pw@PP3S@nendena
+483@_P_ pl ab@Pronoomen pluural abessiiv@_P_ pl abes@Pronoun plural abessive@P---p5@PP3S@nendeta
+484@_P_ pl kom@Pronoomen pluural komitatiiv@_P_ pl kom@Pronoun plural komitative@P---pk@PP3S@nendega
+485@_P_@Pronoomen@_P_@Pronoun@P@PSX@muist
+486@_P_ sg n@Pronoomen singular nominatiiv@_P_ sg nom@Pronoun singular nominative@P---sn@PSN@mingi
+487@_P_ sg g@Pronoomen singular genitiiv@_P_ sg gen@Pronoun singular genitive@P---sg@PSG@mingi
+488@_P_ sg p@Pronoomen singular partitiiv@_P_ sg part@Pronoun singular partitive@P---s1@PS1@mingit
+489@_P_ sg ill@Pronoomen singular illatiiv@_P_ sg ill@Pronoun singular illative@P---sx@PSA@mingisse
+490@_P_ sg in@Pronoomen singular inessiiv@_P_ sg in@Pronoun singular inessive@P---s2@PSA@mingis
+491@_P_ sg el@Pronoomen singular elatiiv@_P_ sg el@Pronoun singular elative@P---se@PSA@mingist
+492@_P_ sg all@Pronoomen singular allatiiv@_P_ sg all@Pronoun singular allative@P---st@PSA@mingile
+493@_P_ sg ad@Pronoomen singular adessiiv@_P_ sg ad@Pronoun singular adessive@P---s3@PSA@mingil
+494@_P_ sg abl@Pronoomen singular ablatiiv@_P_ sg abl@Pronoun singular ablative@P---sb@PSA@mingilt
+495@_P_ sg tr@Pronoomen singular translatiiv@_P_ sg tr@Pronoun singular translative@P---s4@PS@mingiks
+496@_P_ sg ter@Pronoomen singular terminatiiv@_P_ sg term@Pronoun singular terminative@P---s9@PS@mingini
+497@_P_ sg es@Pronoomen singular essiiv@_P_ sg es@Pronoun singular essive@P---sw@PS@mingina
+498@_P_ sg ab@Pronoomen singular abessiiv@_P_ sg abes@Pronoun singular abessive@P---s5@PS@mingita
+499@_P_ sg kom@Pronoomen singular komitatiiv@_P_ sg kom@Pronoun singular komitative@P---sk@PS@mingiga
+500@_P_ adt@Pronoomen singular aditiiv@_P_ sg adit@Pronoun singular aditive@P---s7@PSA@m&otilde;nda
+501@_P_ pl n@Pronoomen pluural nominatiiv@_P_ pl nom@Pronoun plural nominative@P---pn@PSN@mingid
+502@_P_ pl g@Pronoomen pluural genitiiv@_P_ pl gen@Pronoun plural genitive@P---pg@PSG@mingite
+503@_P_ pl p@Pronoomen pluural partitiiv@_P_ pl part@Pronoun plural partitive@P---p1@PS1@mingeid
+504@_P_ pl ill@Pronoomen pluural illatiiv@_P_ pl ill@Pronoun plural illative@P---px@PSA@mingitesse, mingeisse
+505@_P_ pl in@Pronoomen pluural inessiiv@_P_ pl in@Pronoun plural inessive@P---p2@PSA@mingites, mingeis
+506@_P_ pl el@Pronoomen pluural elatiiv@_P_ pl el@Pronoun plural elative@P---pe@PSA@mingitest, mingeist
+507@_P_ pl all@Pronoomen pluural allatiiv@_P_ pl all@Pronoun plural allative@P---pt@PSA@mingitele, mingeile
+508@_P_ pl ad@Pronoomen pluural adessiiv@_P_ pl ad@Pronoun plural adessive@P---p3@PSA@mingitel, mingeil
+509@_P_ pl abl@Pronoomen pluural ablatiiv@_P_ pl abl@Pronoun plural ablative@P---pb@PSA@mingitelt, mingeilt
+510@_P_ pl tr@Pronoomen pluural translatiiv@_P_ pl tr@Pronoun plural translative@P---p4@PS@mingiteks, mingeiks
+511@_P_ pl ter@Pronoomen pluural terminatiiv@_P_ pl term@Pronoun plural terminative@P---p9@PS@mingiteni, mingeini
+512@_P_ pl es@Pronoomen pluural essiiv@_P_ pl es@Pronoun plural essive@P---pw@PS@mingitena, mingeina
+513@_P_ pl ab@Pronoomen pluural abessiiv@_P_ pl abes@Pronoun plural abessive@P---p5@PS@mingiteta, mingeita
+514@_P_ pl kom@Pronoomen pluural komitatiiv@_P_ pl kom@Pronoun plural komitative@P---pk@PS@mingitega, mingeiga
+515@_D_@Adverb@_D_@Adverb@R@RR@asjatult
+516@_K_@Adpositsioon prepositsioon@_K_ pre@Adposition preposition@Sp@SP@enne
+517@_K_@Adpositsioon postpositsioon@_K_ post@Adposition postposition@St@ST@kaudu
+518@_J_@Rinnastav/alistav sides&otilde;na@_J_ sub crd@Conjunction subordinating/coordinating@Cc@CC@ja 
+¤518@_J_@Rinnastav sides&otilde;na@_J_ crd@Conjunction coordinating@Cc@CC@ja 
+¤519@_J_@Alistav sides&otilde;na@_J_ sub@Conjunction subordinating@Cs@CS@et 
+520@_N_ ?@P&otilde;hiarvs&otilde;na number@_N_ card ? digit@Numeral cardinal digit@Mc---d@MCSX@8
+521@_N_ sg n@P&otilde;hiarvs&otilde;na singular nominatiiv s&otilde;na@_N_ card sg nom l@Numeral cardinal singular nominative letter@Mc-snl@MCSN@kaheksa
+522@_N_ sg g@P&otilde;hiarvs&otilde;na singular genitiiv s&otilde;na@_N_ card sg gen l@Numeral cardinal singular genitive letter@Mc-sgl@MCSG@kaheksa
+523@_N_ sg p@P&otilde;hiarvs&otilde;na singular partitiiv s&otilde;na@_N_ card sg part l@Numeral cardinal singular partitive letter@Mc-s1l@MCS1@kaheksat
+524@_N_ sg ill@P&otilde;hiarvs&otilde;na singular illatiiv s&otilde;na@_N_ card sg ill l@Numeral cardinal singular illative letter@Mc-sxl@MCSA@kaheksasse
+525@_N_ sg in@P&otilde;hiarvs&otilde;na singular inessiiv s&otilde;na@_N_ card sg in l@Numeral cardinal singular inessive letter@Mc-s2l@MCSA@kaheksas
+526@_N_ sg el@P&otilde;hiarvs&otilde;na singular elatiiv s&otilde;na@_N_ card sg el l@Numeral cardinal singular elative letter@Mc-sel@MCSA@kaheksast
+527@_N_ sg all@P&otilde;hiarvs&otilde;na singular allatiiv s&otilde;na@_N_ card sg all l@Numeral cardinal singular allative letter@Mc-stl@MCSA@kaheksale
+528@_N_ sg ad@P&otilde;hiarvs&otilde;na singular adessiiv s&otilde;na@_N_ card sg ad l@Numeral cardinal singular adessive letter@Mc-s3l@MCSA@kaheksal
+529@_N_ sg abl@P&otilde;hiarvs&otilde;na singular ablatiiv s&otilde;na@_N_ card sg abl l@Numeral cardinal singular ablative letter@Mc-sbl@MCSA@kaheksalt
+530@_N_ sg tr@P&otilde;hiarvs&otilde;na singular translatiiv s&otilde;na@_N_ card sg tr l@Numeral cardinal singular translative letter@Mc-s4l@MCS@kaheksaks
+531@_N_ sg ter@P&otilde;hiarvs&otilde;na singular terminatiiv s&otilde;na@_N_ card sg term l@Numeral cardinal singular terminative letter@Mc-s9l@MCS@kaheksani
+532@_N_ sg es@P&otilde;hiarvs&otilde;na singular essiiv s&otilde;na@_N_ card sg es l@Numeral cardinal singular essive letter@Mc-swl@MCS@kaheksana
+533@_N_ sg ab@P&otilde;hiarvs&otilde;na singular abessiiv s&otilde;na@_N_ card sg abes l@Numeral cardinal singular abessive letter@Mc-s5l@MCS@kaheksata
+534@_N_ sg kom@P&otilde;hiarvs&otilde;na singular komitatiiv s&otilde;na@_N_ card sg kom l@Numeral cardinal singular komitative letter@Mc-skl@MCS@kaheksaga
+535@_N_ adt@P&otilde;hiarvs&otilde;na singular aditiiv s&otilde;na@_N_ card sg adit l@Numeral cardinal singular aditive letter@Mc-s7l@MCSA@viide
+536@_N_ pl n@P&otilde;hiarvs&otilde;na pluural nominatiiv s&otilde;na@_N_ card pl nom l@Numeral cardinal plural nominative letter@Mc-pnl@MCSN@kaheksad
+537@_N_ pl g@P&otilde;hiarvs&otilde;na pluural genitiiv s&otilde;na@_N_ card pl gen l@Numeral cardinal plural genitive letter@Mc-pgl@MCSG@kaheksate
+538@_N_ pl p@P&otilde;hiarvs&otilde;na pluural partitiiv s&otilde;na@_N_ card pl part l@Numeral cardinal plural partitive letter@Mc-p1l@MCS1@kaheksaid
+539@_N_ pl ill@P&otilde;hiarvs&otilde;na pluural illatiiv s&otilde;na@_N_ card pl ill l@Numeral cardinal plural illative letter@Mc-pxl@MCSA@kaheksatesse, kaheksaisse
+540@_N_ pl in@P&otilde;hiarvs&otilde;na pluural inessiiv s&otilde;na@_N_ card pl in l@Numeral cardinal plural inessive letter@Mc-p2l@MCSA@kaheksates, kaheksais
+541@_N_ pl el@P&otilde;hiarvs&otilde;na pluural elatiiv s&otilde;na@_N_ card pl el l@Numeral cardinal plural elative letter@Mc-pel@MCSA@kaheksatest, kaheksaist
+542@_N_ pl all@P&otilde;hiarvs&otilde;na pluural allatiiv s&otilde;na@_N_ card pl all l@Numeral cardinal plural allative letter@Mc-ptl@MCSA@kaheksatele, kaheksaile
+543@_N_ pl ad@P&otilde;hiarvs&otilde;na pluural adessiiv s&otilde;na@_N_ card pl ad l@Numeral cardinal plural adessive letter@Mc-p3l@MCSA@kaheksatel, kaheksail
+544@_N_ pl abl@P&otilde;hiarvs&otilde;na pluural ablatiiv s&otilde;na@_N_ card pl abl l@Numeral cardinal plural ablative letter@Mc-pbl@MCSA@kaheksatelt, kaheksailt
+545@_N_ pl tr@P&otilde;hiarvs&otilde;na pluural translatiiv s&otilde;na@_N_ card pl tr l@Numeral cardinal plural translative letter@Mc-p4l@MCS@kaheksateks, kaheksaiks
+546@_N_ pl ter@P&otilde;hiarvs&otilde;na pluural terminatiiv s&otilde;na@_N_ card pl term l@Numeral cardinal plural terminative letter@Mc-p9l@MCS@kaheksateni, kaheksaini
+547@_N_ pl es@P&otilde;hiarvs&otilde;na pluural essiiv s&otilde;na@_N_ card pl es l@Numeral cardinal plural essive letter@Mc-pwl@MCS@kaheksatena, kaheksaina
+548@_N_ pl ab@P&otilde;hiarvs&otilde;na pluural abessiiv s&otilde;na@_N_ card pl abes l@Numeral cardinal plural abessive letter@Mc-p5l@MCS@kaheksateta, kaheksaita
+549@_N_ pl kom@P&otilde;hiarvs&otilde;na pluural komitatiiv s&otilde;na@_N_ card pl kom l@Numeral cardinal plural komitative letter@Mc-pkl@MCS@kaheksatega, kaheksaiga
+550@_O_ ?@J&auml;rgarvs&otilde;na number@_N_ ord ? digit@Numeral ordinal digit@Mo---d@MOSX@8.
+551@_O_ ?@J&auml;rgarvs&otilde;na rooma number@_N_ ord ? roman@Numeral ordinal roman@Mo---r@MOSX@IX
+552@_O_ sg n@J&auml;rgarvs&otilde;na singular nominatiiv s&otilde;na@_N_ ord sg nom l@Numeral ordinal singular nominative letter@Mo-snl@MOSN@kaheksas
+553@_O_ sg g@J&auml;rgarvs&otilde;na singular genitiiv s&otilde;na@_N_ ord sg gen l@Numeral ordinal singular genitive letter@Mo-sgl@MOSG@kaheksanda
+554@_O_ sg p@J&auml;rgarvs&otilde;na singular partitiiv s&otilde;na@_N_ ord sg part l@Numeral ordinal singular partitive letter@Mo-s1l@MOS1@kaheksandat
+555@_O_ sg ill@J&auml;rgarvs&otilde;na singular illatiiv s&otilde;na@_N_ ord sg ill l@Numeral ordinal singular illative letter@Mo-sxl@MOSA@kaheksandasse
+556@_O_ sg in@J&auml;rgarvs&otilde;na singular inessiiv s&otilde;na@_N_ ord sg in l@Numeral ordinal singular inessive letter@Mo-s2l@MOSA@kaheksandas
+557@_O_ sg el@J&auml;rgarvs&otilde;na singular elatiiv s&otilde;na@_N_ ord sg el l@Numeral ordinal singular elative letter@Mo-sel@MOSA@kaheksandast
+558@_O_ sg all@J&auml;rgarvs&otilde;na singular allatiiv s&otilde;na@_N_ ord sg all l@Numeral ordinal singular allative letter@Mo-stl@MOSA@kaheksandale
+559@_O_ sg ad@J&auml;rgarvs&otilde;na singular adessiiv s&otilde;na@_N_ ord sg ad l@Numeral ordinal singular adessive letter@Mo-s3l@MOSA@kaheksandal
+560@_O_ sg abl@J&auml;rgarvs&otilde;na singular ablatiiv s&otilde;na@_N_ ord sg abl l@Numeral ordinal singular ablative letter@Mo-sbl@MOSA@kaheksandalt
+561@_O_ sg tr@J&auml;rgarvs&otilde;na singular translatiiv s&otilde;na@_N_ ord sg tr l@Numeral ordinal singular translative letter@Mo-s4l@MOS@kaheksandaks
+562@_O_ sg ter@J&auml;rgarvs&otilde;na singular terminatiiv s&otilde;na@_N_ ord sg term l@Numeral ordinal singular terminative letter@Mo-s9l@MOS@kaheksandani
+563@_O_ sg es@J&auml;rgarvs&otilde;na singular essiiv s&otilde;na@_N_ ord sg es l@Numeral ordinal singular essive letter@Mo-swl@MOS@kaheksandana
+564@_O_ sg ab@J&auml;rgarvs&otilde;na singular abessiiv s&otilde;na@_N_ ord sg abes l@Numeral ordinal singular abessive letter@Mo-s5l@MOS@kaheksandata
+565@_O_ sg kom@J&auml;rgarvs&otilde;na singular komitatiiv s&otilde;na@_N_ ord sg kom l@Numeral ordinal singular komitative letter@Mo-skl@MOS@kaheksandaga
+566@_O_ adt@J&auml;rgarvs&otilde;na singular aditiiv s&otilde;na@_N_ ord sg adit l@Numeral ordinal singular aditive letter@Mo-s7l@MOSA@teise
+567@_O_ pl n@J&auml;rgarvs&otilde;na pluural nominatiiv s&otilde;na@_N_ ord pl nom l@Numeral ordinal plural nominative letter@Mo-pnl@MOSN@kaheksandad
+568@_O_ pl g@J&auml;rgarvs&otilde;na pluural genitiiv s&otilde;na@_N_ ord pl gen l@Numeral ordinal plural genitive letter@Mo-pgl@MOSG@kaheksandate
+569@_O_ pl p@J&auml;rgarvs&otilde;na pluural partitiiv s&otilde;na@_N_ ord pl part l@Numeral ordinal plural partitive letter@Mo-p1l@MOS1@kaheksandaid
+570@_O_ pl ill@J&auml;rgarvs&otilde;na pluural illatiiv s&otilde;na@_N_ ord pl ill l@Numeral ordinal plural illative letter@Mo-pxl@MOSA@kaheksandatesse, kaheksandaisse
+571@_O_ pl in@J&auml;rgarvs&otilde;na pluural inessiiv s&otilde;na@_N_ ord pl in l@Numeral ordinal plural inessive letter@Mo-p2l@MOSA@kaheksandates, kaheksandais
+572@_O_ pl el@J&auml;rgarvs&otilde;na pluural elatiiv s&otilde;na@_N_ ord pl el l@Numeral ordinal plural elative letter@Mo-pel@MOSA@kaheksandatest, kaheksandaist
+573@_O_ pl all@J&auml;rgarvs&otilde;na pluural allatiiv s&otilde;na@_N_ ord pl all l@Numeral ordinal plural allative letter@Mo-ptl@MOSA@kaheksandatele, kaheksandaile
+574@_O_ pl ad@J&auml;rgarvs&otilde;na pluural adessiiv s&otilde;na@_N_ ord pl ad l@Numeral ordinal plural adessive letter@Mo-p3l@MOSA@kaheksandatel, kaheksandail
+575@_O_ pl abl@J&auml;rgarvs&otilde;na pluural ablatiiv s&otilde;na@_N_ ord pl abl l@Numeral ordinal plural ablative letter@Mo-pbl@MOSA@kaheksandatelt, kaheksandailt
+576@_O_ pl tr@J&auml;rgarvs&otilde;na pluural translatiiv s&otilde;na@_N_ ord pl tr l@Numeral ordinal plural translative letter@Mo-p4l@MOS@kaheksandateks, kaheksandaiks
+577@_O_ pl ter@J&auml;rgarvs&otilde;na pluural terminatiiv s&otilde;na@_N_ ord pl term l@Numeral ordinal plural terminative letter@Mo-p9l@MOS@kaheksandateni, kaheksandaini
+578@_O_ pl es@J&auml;rgarvs&otilde;na pluural essiiv s&otilde;na@_N_ ord pl es l@Numeral ordinal plural essive letter@Mo-pwl@MOS@kaheksandatena, kaheksandaina
+579@_O_ pl ab@J&auml;rgarvs&otilde;na pluural abessiiv s&otilde;na@_N_ ord pl abes l@Numeral ordinal plural abessive letter@Mo-p5l@MOS@kaheksandateta, kaheksandaita
+580@_O_ pl kom@J&auml;rgarvs&otilde;na pluural komitatiiv s&otilde;na@_N_ ord pl kom l@Numeral ordinal plural komitative letter@Mo-pkl@MOS@kaheksandatega, kaheksandaiga
+581@_O_ sg n@J&auml;rgarvs&otilde;na singular nominatiiv rooma number@_N_ ord sg nom roman@Numeral ordinal singular nominative roman@Mo-snr@MOSX@III
+582@_O_ sg g@J&auml;rgarvs&otilde;na singular genitiiv rooma number@_N_ ord sg gen roman@Numeral ordinal singular genitive roman@Mo-sgr@MOSX@III
+583@_O_ sg p@J&auml;rgarvs&otilde;na singular partitiiv rooma number@_N_ ord sg part roman@Numeral ordinal singular partitive roman@Mo-s1r@MOSX@III-t
+584@_O_ sg ill@J&auml;rgarvs&otilde;na singular illatiiv rooma number@_N_ ord sg ill roman@Numeral ordinal singular illative roman@Mo-sxr@MOSX@III-sse
+585@_O_ sg in@J&auml;rgarvs&otilde;na singular inessiiv rooma number@_N_ ord sg in roman@Numeral ordinal singular inessive roman@Mo-s2r@MOSX@III-s
+586@_O_ sg el@J&auml;rgarvs&otilde;na singular elatiiv rooma number@_N_ ord sg el roman@Numeral ordinal singular elative roman@Mo-ser@MOSX@III-st
+587@_O_ sg all@J&auml;rgarvs&otilde;na singular allatiiv rooma number@_N_ ord sg all roman@Numeral ordinal singular allative roman@Mo-str@MOSA@III-le
+588@_O_ sg ad@J&auml;rgarvs&otilde;na singular adessiiv rooma number@_N_ ord sg ad roman@Numeral ordinal singular adessive roman@Mo-s3r@MOSA@III-l
+589@_O_ sg abl@J&auml;rgarvs&otilde;na singular ablatiiv rooma number@_N_ ord sg abl roman@Numeral ordinal singular ablative roman@Mo-sbr@MOSX@III-lt
+590@_O_ sg tr@J&auml;rgarvs&otilde;na singular translatiiv rooma number@_N_ ord sg tr roman@Numeral ordinal singular translative roman@Mo-s4r@MOSX@III-ks
+591@_O_ sg ter@J&auml;rgarvs&otilde;na singular terminatiiv rooma number@_N_ ord sg term roman@Numeral ordinal singular terminative roman@Mo-s9r@MOSX@III-ni
+592@_O_ sg es@J&auml;rgarvs&otilde;na singular essiiv rooma number@_N_ ord sg es roman@Numeral ordinal singular essive roman@Mo-swr@MOSX@III-na
+593@_O_ sg ab@J&auml;rgarvs&otilde;na singular abessiiv rooma number@_N_ ord sg abes roman@Numeral ordinal singular abessive roman@Mo-s5r@MOSX@III-ta
+594@_O_ sg kom@J&auml;rgarvs&otilde;na singular komitatiiv rooma number@_N_ ord sg kom roman@Numeral ordinal singular komitative roman@Mo-skr@MOSX@III-ga
+595@_O_ adt@J&auml;rgarvs&otilde;na singular aditiiv rooma number@_N_ ord sg adit roman@Numeral ordinal singular aditive roman@Mo-s7r@MOSX@II-e
+596@_O_ pl n@J&auml;rgarvs&otilde;na pluural nominatiiv rooma number@_N_ ord pl nom roman@Numeral ordinal plural nominative roman@Mo-pnr@MOSX@III-d
+597@_O_ pl g@J&auml;rgarvs&otilde;na pluural genitiiv rooma number@_N_ ord pl gen roman@Numeral ordinal plural genitive roman@Mo-pgr@MOSX@III-te
+598@_O_ pl p@J&auml;rgarvs&otilde;na pluural partitiiv rooma number@_N_ ord pl part roman@Numeral ordinal plural partitive roman@Mo-p1r@MOSX@III-id
+599@_O_ pl ill@J&auml;rgarvs&otilde;na pluural illatiiv rooma number@_N_ ord pl ill roman@Numeral ordinal plural illative roman@Mo-pxr@MOSX@III-tesse
+600@_O_ pl in@J&auml;rgarvs&otilde;na pluural inessiiv rooma number@_N_ ord pl in roman@Numeral ordinal plural inessive roman@Mo-p2r@MOSX@III-tes
+601@_O_ pl el@J&auml;rgarvs&otilde;na pluural elatiiv rooma number@_N_ ord pl el roman@Numeral ordinal plural elative roman@Mo-per@MOSX@III-test
+602@_O_ pl all@J&auml;rgarvs&otilde;na pluural allatiiv rooma number@_N_ ord pl all roman@Numeral ordinal plural allative roman@Mo-ptr@MOSX@III-tele
+603@_O_ pl ad@J&auml;rgarvs&otilde;na pluural adessiiv rooma number@_N_ ord pl ad roman@Numeral ordinal plural adessive roman@Mo-p3r@MOSX@III-tel
+604@_O_ pl abl@J&auml;rgarvs&otilde;na pluural ablatiiv rooma number@_N_ ord pl abl roman@Numeral ordinal plural ablative roman@Mo-pbr@MOSX@III-telt
+605@_O_ pl tr@J&auml;rgarvs&otilde;na pluural translatiiv rooma number@_N_ ord pl tr roman@Numeral ordinal plural translative roman@Mo-p4r@MOSX@III-teks
+606@_O_ pl ter@J&auml;rgarvs&otilde;na pluural terminatiiv rooma number@_N_ ord pl term roman@Numeral ordinal plural terminative roman@Mo-p9r@MOSX@III-teni
+607@_O_ pl es@J&auml;rgarvs&otilde;na pluural essiiv rooma number@_N_ ord pl es roman@Numeral ordinal plural essive roman@Mo-pwr@MOSX@III-tena
+608@_O_ pl ab@J&auml;rgarvs&otilde;na pluural abessiiv rooma number@_N_ ord pl abes roman@Numeral ordinal plural abessive roman@Mo-p5r@MOSX@III-teta
+609@_O_ pl kom@J&auml;rgarvs&otilde;na pluural komitatiiv rooma number@_N_ ord pl kom roman@Numeral ordinal plural komitative roman@Mo-pkr@MOSX@III-tega
+610@_I_@H&uuml;&uuml;ds&otilde;na@_I_@Interjection@I@II@oi 
+611@_Y_ sg n@Nimis&otilde;nal&uuml;hend singular nominatiiv@_Y_ nominal sg nom@Abbreviation nominal singular nominative@Yn-sn@YSN@CD
+612@_Y_ sg g@Nimis&otilde;nal&uuml;hend singular genitiiv@_Y_ nominal sg gen@Abbreviation nominal singular genitive@Yn-sg@YSG@CD
+613@_Y_ sg p@Nimis&otilde;nal&uuml;hend singular partitiiv@_Y_ nominal sg part@Abbreviation nominal singular partitive@Yn-s1@YS1@CDd
+614@_Y_ sg ill@Nimis&otilde;nal&uuml;hend singular illatiiv@_Y_ nominal sg ill@Abbreviation nominal singular illative@Yn-sx@YSA@CDsse
+615@_Y_ sg in@Nimis&otilde;nal&uuml;hend singular inessiiv@_Y_ nominal sg in@Abbreviation nominal singular inessive@Yn-s2@YSA@CDs
+616@_Y_ sg el@Nimis&otilde;nal&uuml;hend singular elatiiv@_Y_ nominal sg el@Abbreviation nominal singular elative@Yn-se@YSA@CDst
+617@_Y_ sg all@Nimis&otilde;nal&uuml;hend singular allatiiv@_Y_ nominal sg all@Abbreviation nominal singular allative@Yn-st@YSA@CDle
+618@_Y_ sg ad@Nimis&otilde;nal&uuml;hend singular adessiiv@_Y_ nominal sg ad@Abbreviation nominal singular adessive@Yn-s3@YSA@CDl
+619@_Y_ sg abl@Nimis&otilde;nal&uuml;hend singular ablatiiv@_Y_ nominal sg abl@Abbreviation nominal singular ablative@Yn-sb@YSA@CDlt
+620@_Y_ sg tr@Nimis&otilde;nal&uuml;hend singular translatiiv@_Y_ nominal sg tr@Abbreviation nominal singular translative@Yn-s4@YS@CDks
+621@_Y_ sg ter@Nimis&otilde;nal&uuml;hend singular terminatiiv@_Y_ nominal sg term@Abbreviation nominal singular terminative@Yn-s9@YS@CDni
+622@_Y_ sg es@Nimis&otilde;nal&uuml;hend singular essiiv@_Y_ nominal sg es@Abbreviation nominal singular essive@Yn-sw@YS@CDna
+623@_Y_ sg ab@Nimis&otilde;nal&uuml;hend singular abessiiv@_Y_ nominal sg abes@Abbreviation nominal singular abessive@Yn-s5@YS@CDta
+624@_Y_ sg kom@Nimis&otilde;nal&uuml;hend singular komitatiiv@_Y_ nominal sg kom@Abbreviation nominal singular komitative@Yn-sk@YS@CDga
+625@_Y_ adt@Nimis&otilde;nal&uuml;hend singular aditiiv@_Y_ nominal sg adit@Abbreviation nominal singular aditive@Yn-s7@YSA@RASi
+626@_Y_ pl n@Nimis&otilde;nal&uuml;hend pluural nominatiiv@_Y_ nominal pl nom@Abbreviation nominal plural nominative@Yn-pn@YSN@CDd
+627@_Y_ pl g@Nimis&otilde;nal&uuml;hend pluural genitiiv@_Y_ nominal pl gen@Abbreviation nominal plural genitive@Yn-pg@YSG@CDde
+628@_Y_ pl p@Nimis&otilde;nal&uuml;hend pluural partitiiv@_Y_ nominal pl part@Abbreviation nominal plural partitive@Yn-p1@YS1@CDsid
+629@_Y_ pl ill@Nimis&otilde;nal&uuml;hend pluural illatiiv@_Y_ nominal pl ill@Abbreviation nominal plural illative@Yn-px@YSA@CDdesse
+630@_Y_ pl in@Nimis&otilde;nal&uuml;hend pluural inessiiv@_Y_ nominal pl in@Abbreviation nominal plural inessive@Yn-p2@YSA@CDdes
+631@_Y_ pl el@Nimis&otilde;nal&uuml;hend pluural elatiiv@_Y_ nominal pl el@Abbreviation nominal plural elative@Yn-pe@YSA@CDdest
+632@_Y_ pl all@Nimis&otilde;nal&uuml;hend pluural allatiiv@_Y_ nominal pl all@Abbreviation nominal plural allative@Yn-pt@YSA@CDdele
+633@_Y_ pl ad@Nimis&otilde;nal&uuml;hend pluural adessiiv@_Y_ nominal pl ad@Abbreviation nominal plural adessive@Yn-p3@YSA@CDdel
+634@_Y_ pl abl@Nimis&otilde;nal&uuml;hend pluural ablatiiv@_Y_ nominal pl abl@Abbreviation nominal plural ablative@Yn-pb@YSA@CDdelt
+635@_Y_ pl tr@Nimis&otilde;nal&uuml;hend pluural translatiiv@_Y_ nominal pl tr@Abbreviation nominal plural translative@Yn-p4@YS@CDdeks
+636@_Y_ pl ter@Nimis&otilde;nal&uuml;hend pluural terminatiiv@_Y_ nominal pl term@Abbreviation nominal plural terminative@Yn-p9@YS@CDdeni
+637@_Y_ pl es@Nimis&otilde;nal&uuml;hend pluural essiiv@_Y_ nominal pl es@Abbreviation nominal plural essive@Yn-pw@YS@CDdena
+638@_Y_ pl ab@Nimis&otilde;nal&uuml;hend pluural abessiiv@_Y_ nominal pl abes@Abbreviation nominal plural abessive@Yn-p5@YS@CDdeta
+639@_Y_ pl kom@Nimis&otilde;nal&uuml;hend pluural komitatiiv@_Y_ nominal pl kom@Abbreviation nominal plural komitative@Yn-pk@YS@CDdega
+¤640@_Y_ ?@Omaduss&otilde;nal&uuml;hend@_Y_ adjectival@Abbreviation adjectival@Ya@YSX@hisp
+¤641@_Y_ ?@M&auml;&auml;rs&otilde;nal&uuml;hend@_Y_ adverbial@Abbreviation adverbial@Yr@YSX@jne
+¤642@_Y_ ?@Tegus&otilde;nal&uuml;hend@_Y_ verbal@Abbreviation verbal@Yv@YSX@vt
+¤643@_Y_ ?@Nimis&otilde;nal&uuml;hend@_Y_ nominal ?@Abbreviation nominal@Yn@YSX@A
+643@_Y_ ?@Nimis&otilde;nal&uuml;hend@_Y_ nominal@Abbreviation nominal@Yn@YSX@A
+644@_X_@M&auml;&auml;rs&otilde;na@_X_@Adverb@R@RR@plehku
+645@_Z_@Punkt@_Z_ Fst@Punctuation period@Wcp@WCP@.
+646@_Z_@Koma@_Z_ Com@Punctuation comma@Wic@WIC@,
+647@_Z_@Semikoolon@_Z_ Scl@Punctuation semicolon@Wim@WIM@;
+648@_Z_@Koolon@_Z_ Col@Punctuation colon@Wil@WIL@:
+649@_Z_@K&uuml;sim&auml;rk@_Z_ Int@Punctuation question-mark@Wcu@WCU@?
+650@_Z_@H&uuml;&uuml;um&auml;rk@_Z_ Exc@Punctuation exclamation-mark@Wcx@WCX@!
+651@_Z_@Kolmpunkt@_Z_ Ell@Punctuation ellipsis@Wie@WIE@...
+652@_Z_@Kakspunkt@_Z_ Els@Punctuation short-ellipsis@Wif@WIE@..
+653@_Z_@M&otilde;ttekriips@_Z_ Dsh@Punctuation dash@Wid@WID@-
+654@_Z_@Topeltkriips@_Z_ Dsd@Punctuation double-dash@Wit@WID@--
+655@_Z_@Avav &uuml;marsulg@_Z_ Opr@Punctuation opening-bracket@Wob@WOB@(
+656@_Z_@Sulgev &uuml;marsulg@_Z_ Cpr@Punctuation closing-bracket@Wcb@WCB@)
+657@_Z_@Jutum&auml;rk@_Z_ Quo@Punctuation quote@Wiq@WIQ@"
+658@_Z_@Avav jutum&auml;rk@_Z_ Oqu@Punctuation opening-quote@Woq@WOQ@«
+659@_Z_@Sulgev jutum&auml;rk@_Z_ Cqu@Punctuation closing-quote@Wcq@WCQ@»
+660@_Z_@Avav kandiline sulg@_Z_ Osq@Punctuation opening-square-bracket@Wos@WOB@[
+661@_Z_@Sulgev kandiline sulg@_Z_ Csq@Punctuation closing-square-bracket@Wcs@WCB@]
+662@_Z_@Kaldkriips@_Z_ Sla@Punctuation slash@Wia@WIA@/
+¤663@####@Tundmatu s&otilde;sna@_T_@Foreign@X@X@qwerty
+664@_Z_@Avav jutum&auml;rk@_Z_ Oqu@Punctuation opening-quote@Woq@WOQ@“
+665@_Z_@Sulgev jutum&auml;rk@_Z_ Cqu@Punctuation closing-quote@Wcq@WCQ@”
