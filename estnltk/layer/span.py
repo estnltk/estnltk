@@ -1,4 +1,3 @@
-from IPython.core.display import display_html
 from reprlib import recursive_repr
 from typing import Any, Sequence
 
@@ -33,7 +32,8 @@ class Span:
         if annotation.span is not self:
             raise ValueError('the annotation has a different span {}'.format(annotation.span))
         if set(annotation) != set(self.layer.attributes):
-            raise ValueError('the annotation has unexpected or missing attributes {}'.format(list(annotation)))
+            raise ValueError('the annotation has unexpected or missing attributes {}!={}'.format(
+                    set(annotation), set(self.layer.attributes)))
 
         if annotation not in self._annotations:
             if self.layer.ambiguous or len(self._annotations) == 0:
@@ -206,9 +206,6 @@ class Span:
                     html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
         except:
             return str(self)
-
-    def display(self, margin: int = 0):
-        display_html(self._to_html(margin), raw=True)
 
     def _repr_html_(self):
         return self._to_html()
