@@ -29,7 +29,7 @@ def create_single_token_text(token, analyses):
     sentences.add_annotation([base_span])
     text.add_layer(sentences)
 
-    morph_attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'partofspeech', 'form']
+    morph_attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
     morph = Layer('morph_analysis', attributes=morph_attributes, text_object=text, parent='words', ambiguous=True)
     for analysis in analyses:
         morph.add_annotation(base_span, **analysis)
