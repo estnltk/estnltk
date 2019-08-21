@@ -1,3 +1,5 @@
+import regex as re
+
 from estnltk.taggers import TaggerOld, AnnotationRewriter
 from estnltk.taggers import VabamorfTagger
 from estnltk.rewriting import VerbExtensionSuffixRewriter
@@ -33,10 +35,30 @@ class VerbExtensionSuffixRetagger(AnnotationRewriter):
     """Tags verb extension suffixes.
 
     """
+    _suffix_conversions = (("=[td]ud", "tud"),
+                           ("=nud", "nud"),
+                           ("=mine", "mine"),
+                           ("=nu$", "nu"),
+                           ("=nu[+]", "nu"),
+                           ("=[td]u$", "tu"),
+                           ("=[td]u[+]", "tu"),
+                           ("=v$", "v"),
+                           ("=[td]av", "tav"),
+                           ("=mata", "mata"),
+                           ("=ja", "ja")
+                           )
+
+    def rewrite(self, annotation):
+        # 'verb_extension_suffix' on siin list (ikka eelmise versiooniga ühildumiseks)
+        # 'Kirutud-virisetud'
+        annotation['verb_extension_suffix'] = []
+        if '=' in annotation['root']:
+            for pattern, value in self._suffix_conversions:
+                if re.search(pattern, annotation['root']):
+                    if value not in annotation['verb_extension_suffix']:
+                        annotation['verb_extension_suffix'].append(value)
+        annotation['verb_extension_suffix'] = tuple(annotation['verb_extension_suffix'])
+
     def __init__(self, layer_name):
-        rewrite = VerbExtensionSuffixRewriter().rewrite
-
-        def function(annotation):
-            return rewrite([annotation])
-
-        super().__init__(layer_name=layer_name, output_attributes=['verb_extension_suffix'], function=function)
+        super().__init__(layer_name=layer_name, output_attributes=['verb_extension_suffix'], function=self.rewrite,
+                         check_output_consistency=False)
