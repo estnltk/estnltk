@@ -461,7 +461,7 @@ class Model(BaseModel):
         labels_pred, labels_pred_lengths = self.predict_batch([words], [analyses])
         preds = [[self.idx_to_tag[tag_id] for tag_id in pred[:length][:-1]]
                  for pred, length in zip(labels_pred, labels_pred_lengths)]
-        return preds
+        return ['|'.join(pred) for pred in preds]
 
     def score(self, words, labels):
         if type(words[0]) == tuple:

@@ -7,6 +7,24 @@ from estnltk.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model
 from estnltk.neural_morph.new_neural_morph import softmax
 from estnltk.neural_morph.new_neural_morph import seq2seq
 
+model_files = {"data":["analysis.txt",
+                       "chars.txt",
+                       "embeddings.npz",
+                       "singletons.txt",
+                       "tags.txt",
+                       "words.txt"],
+ 
+              "results":["model.weights.data-00000-of-00001",
+                         "model.weights.index",
+                         "model.weights.meta"]}
+
+def check_model_files(model_dir):
+    if (os.path.exists(model_dir)):
+        for folder in model_files:
+            for file in model_files[folder]:
+                if not os.path.exists(os.path.join(model_dir, folder, file)):
+                    raise FileNotFoundError("TODO: Instructions for downloading model files")
+
 def softmax_emb_tag_sum():
     return load_tagger(softmax, "emb_tag_sum")
 
@@ -22,9 +40,10 @@ def seq2seq_emb_cat_sum():
 def load_tagger(model_module, dir_name):
     model_path = os.path.join(os.path.dirname(model_module.__file__), dir_name)
     config_filename = os.path.join(model_path, "config.py")
-    os.environ['OUT_DIR'] =  os.path.join(model_path, "output")
-    model = load_model(model_module, config_filename)
-    return NeuralMorphTagger(model)
+    model_dir = os.path.join(model_path, "output")
+    check_model_files(model_dir)
+    os.environ['OUT_DIR'] = model_dir
+    return NeuralMorphTagger(load_model(model_module, config_filename))
 
 def load_model(model_module, config_filename):
     config = load_config_from_file(config_filename)
@@ -93,7 +112,7 @@ class NeuralMorphTagger(Tagger):
                     word_analyses.extend(neural_model_tags(word_text, pos, form))
                 analyses.append(word_analyses)
                 
-            tags = ['|'.join(p) if isinstance(p, (list, tuple)) else p for p in self.model.predict(sentence_words, analyses)]
+            tags = self.model.predict(sentence_words, analyses)
         
             for word, tag in zip(sentence.words, tags):
                 layer.add_annotation(word, morphtag=tag)
