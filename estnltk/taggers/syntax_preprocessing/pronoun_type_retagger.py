@@ -42,9 +42,9 @@ class PronounTypeRetagger(Retagger):
 
     conf_param = ['check_output_consistency', 'pronoun_types']
 
-    def __init__(self, pronoun_file=DEFAULT_PRONOUN_FILE):
-        self.input_layers = ['morph_extended']
-        self.output_layer = 'morph_extended'
+    def __init__(self, output_layer='morph_extended', pronoun_file=DEFAULT_PRONOUN_FILE):
+        self.input_layers = [output_layer]
+        self.output_layer = output_layer
         self.output_attributes = ['pronoun_type']
         self.check_output_consistency = False
         self.pronoun_types = self.load_pronoun_types(pronoun_file)

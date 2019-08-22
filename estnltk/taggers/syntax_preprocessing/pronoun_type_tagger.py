@@ -1,4 +1,4 @@
-from estnltk.taggers import TaggerOld, Retagger
+from estnltk.taggers import TaggerOld
 from estnltk.taggers import VabamorfTagger
 from estnltk.rewriting import PronounTypeRewriter
 
@@ -27,24 +27,3 @@ class PronounTypeTagger(TaggerOld):
         if return_layer:
             return new_layer
         text.add_layer(new_layer)
-
-
-class PronounTypeRetagger(Retagger):
-    """Tags pronouns with pronoun type attribute.
-
-    """
-    conf_param = ['pronoun_type_rewriter']
-
-    def __init__(self, layer_name: str):
-        self.input_layers = [layer_name]
-        self.output_layer = layer_name
-        self.output_attributes = ['pronoun_type']
-        self.pronoun_type_rewriter = PronounTypeRewriter()
-
-    def _change_layer(self, text, layers, status: dict):
-        layer = layers[self.input_layers[0]]
-        layer.attributes = layer.attributes + self.output_attributes
-        rewrite = self.pronoun_type_rewriter.rewrite
-        for span in layer:
-            rewrite(span.annotations)
-        return layer

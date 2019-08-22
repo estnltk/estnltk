@@ -28,13 +28,3 @@ class LetterCaseRetagger(Retagger):
             for annotation in span.annotations:
                 annotation['letter_case'] = cap
         return layer
-
-
-    def rewrite(self, record):
-        if record and record[0]['text'][0].isupper():
-            cap = 'cap'
-        else:
-            cap = None
-        for rec in record:
-            rec['letter_case'] = cap
-        return record
