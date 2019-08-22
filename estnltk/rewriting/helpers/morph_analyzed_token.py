@@ -16,7 +16,7 @@ def load_pronoun_lemmas(pronoun_file):
 class MorphAnalyzedToken():
 
     _dir = os.path.dirname(__file__)
-    DEFAULT_PRONOUN_FILE = os.path.join(_dir, '../syntax_preprocessing/rules_files/pronouns.csv')
+    DEFAULT_PRONOUN_FILE = os.path.join(_dir, '../../taggers/syntax_preprocessing/rules_files/pronouns.csv')
     DEFAULT_PRONOUN_LEMMAS = load_pronoun_lemmas(DEFAULT_PRONOUN_FILE)
     
     def __init__(self, token:str, pronoun_file:str=None) -> None:

@@ -67,10 +67,10 @@ class MorphExtendedTagger(Tagger):
         """
         if fs_to_synt_rules_file is None:
             fs_to_synt_rules_file = os.path.relpath(os.path.join(
-                    PACKAGE_PATH, 'rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt'))
+                    PACKAGE_PATH, 'taggers/syntax_preprocessing/rules_files/tmorftrtabel.txt'))
         if subcat_rules_file is None:
             subcat_rules_file = os.path.relpath(os.path.join(
-                    PACKAGE_PATH, 'rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx'))
+                    PACKAGE_PATH, 'taggers/syntax_preprocessing/rules_files/abileksikon06utf.lx'))
 
         self.punctuation_type_retagger = PunctuationTypeRetagger()
         self.morph_to_syntax_morph_retagger = MorphToSyntaxMorphRetagger(input_layer='morph_analysis',
