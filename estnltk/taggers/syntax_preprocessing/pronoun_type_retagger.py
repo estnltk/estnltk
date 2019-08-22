@@ -1,10 +1,11 @@
 import os
 from pandas import read_csv
 from collections import defaultdict
+from estnltk.taggers import Retagger
 
 
-class PronounTypeRewriter():
-    ''' Adds 'pronoun_type' attribute to the analysis.
+class PronounTypeRetagger(Retagger):
+    """ Adds 'pronoun_type' attribute to the analysis.
         Converts pronouns from Filosoft's mrf to syntactic analyzer's mrf format.
 
         Reads the pronoun types from pronoun_files.
@@ -34,12 +35,18 @@ class PronounTypeRewriter():
         If partofspeech is 'P', then gets the pronoun type from the dict
         pronoun_type. If lemma is not in the dict pronoun_type, then the pronoun
         type is ['invalid'].
-    '''
+    """
 
     _dir = os.path.dirname(__file__)
     DEFAULT_PRONOUN_FILE = os.path.join(_dir, 'rules_files/pronouns.csv')
 
-    def __init__(self, pronoun_file=DEFAULT_PRONOUN_FILE):
+    conf_param = ['check_output_consistency', 'pronoun_types']
+
+    def __init__(self, output_layer='morph_extended', pronoun_file=DEFAULT_PRONOUN_FILE):
+        self.input_layers = [output_layer]
+        self.output_layer = output_layer
+        self.output_attributes = ['pronoun_type']
+        self.check_output_consistency = False
         self.pronoun_types = self.load_pronoun_types(pronoun_file)
 
     @staticmethod
@@ -52,11 +59,17 @@ class PronounTypeRewriter():
             pronoun_types[a[1][0]] = pronoun_types[a[1][0]] + (a[1][1],)
         return pronoun_types
 
-    def rewrite(self, record):
-        for rec in record:
-            if rec['partofspeech'] == 'P':
-                lemma = rec['lemma']
-                rec['pronoun_type'] = self.pronoun_types.get(lemma, ('invalid',))
-            else:
-                rec['pronoun_type'] = None
-        return record
+    def _change_layer(self, text, layers, status=None):
+        layer = layers[self.output_layer]
+        if self.output_attributes[0] not in layer.attributes:
+            layer.attributes = layer.attributes + self.output_attributes
+        get_pronoun_type = self.pronoun_types.get
+        for span in layer:
+            for annotation in span.annotations:
+                if annotation['partofspeech'] == 'P':
+                    lemma = annotation['lemma']
+                    annotation['pronoun_type'] = get_pronoun_type(lemma, ('invalid',))
+                else:
+                    annotation['pronoun_type'] = None
+
+        return layer

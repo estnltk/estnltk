@@ -29,7 +29,7 @@ def create_single_token_text(token, analyses):
     sentences.add_annotation([base_span])
     text.add_layer(sentences)
 
-    morph_attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'partofspeech', 'form']
+    morph_attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
     morph = Layer('morph_analysis', attributes=morph_attributes, text_object=text, parent='words', ambiguous=True)
     for analysis in analyses:
         morph.add_annotation(base_span, **analysis)
@@ -56,8 +56,8 @@ def yield_tokens_analysis(file):
 
 
 def test_syntax_preprocessing_on_tokens():
-    fs_to_synt_rules_file = abs_path('rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt')
-    subcat_rules_file = abs_path('rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx')
+    fs_to_synt_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/tmorftrtabel.txt')
+    subcat_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/abileksikon06utf.lx')
     allow_to_remove_all = False
 
     tagger = MorphExtendedTagger(fs_to_synt_rules_file=fs_to_synt_rules_file,

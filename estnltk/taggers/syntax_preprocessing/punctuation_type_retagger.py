@@ -1,7 +1,9 @@
 import regex as re
 
+from estnltk.taggers import Retagger
 
-class PunctuationTypeRewriter():
+
+class PunctuationTypeRetagger(Retagger):
     """ Adds 'punctuation_type' attribute to the analysis.
         If partofspeech is 'Z', then gets the punctuation type from the 
         _punctConversions.
@@ -12,14 +14,29 @@ class PunctuationTypeRewriter():
         a pair of elements: first is the regexp pattern to match the root and 
         the second is the punctuation type.
 
+    TODO optimise patterns based on token set from reference corpus
+
     """
-    def rewrite(self, record):
-        for rec in record:
-            if rec['partofspeech'] == 'Z':
-                rec['punctuation_type'] = self._get_punctuation_type(rec)
-            else:
-                rec['punctuation_type'] = None
-        return record
+    conf_param = ['check_output_consistency']
+
+    def __init__(self):
+        self.input_layers = ['morph_extended']
+        self.output_layer = 'morph_extended'
+        self.output_attributes = ['punctuation_type']
+        self.check_output_consistency = False
+
+    def _change_layer(self, text, layers, status=None):
+        layer = layers[self.output_layer]
+        if self.output_attributes[0] not in layer.attributes:
+            layer.attributes = layer.attributes + self.output_attributes
+
+        for span in layer:
+            for annotation in span.annotations:
+                if annotation['partofspeech'] == 'Z':
+                    annotation['punctuation_type'] = self._get_punctuation_type(annotation)
+                else:
+                    annotation['punctuation_type'] = None
+        return layer
 
     _punctConversions = (("…$", "Ell"),
                          ("\.\.\.$", "Ell"),

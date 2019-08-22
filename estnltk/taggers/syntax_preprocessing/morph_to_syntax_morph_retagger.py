@@ -3,9 +3,12 @@ import codecs
 import regex as re
 from collections import defaultdict
 
+from estnltk.layer.annotation import Annotation
+from estnltk.taggers import Retagger
 
-class MorphToSyntaxMorphRewriter():
-    ''' Converts given analysis from Filosoft's mrf format to syntactic analyzer's
+
+class MorphToSyntaxMorphRetagger(Retagger):
+    """ Converts given analysis from Filosoft's mrf format to syntactic analyzer's
         format, using the morph-category conversion rules from conversion_rules.
 
         Morph-category conversion rules should be loaded via method
@@ -15,9 +18,16 @@ class MorphToSyntaxMorphRewriter():
         Note that the resulting analysis list is likely longer than the
         original, because the conversion often requires that the
         original Filosoft's analysis is expanded into multiple analysis.
-    '''
 
-    def __init__(self, fs_to_synt_rules_file=None):
+    """
+    conf_param = ['fs_to_synt_rules', 'check_output_consistency']
+
+    def __init__(self, input_layer='morph_analysis', output_layer='morph_extended', fs_to_synt_rules_file=None):
+        self.input_layers = [input_layer]
+        self.output_layer = output_layer
+        self.output_attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
+        self.check_output_consistency = False
+
         if fs_to_synt_rules_file:
             assert os.path.exists(fs_to_synt_rules_file),\
                 'Unable to find *fs_to_synt_rules_file* from location ' + fs_to_synt_rules_file
@@ -30,31 +40,43 @@ class MorphToSyntaxMorphRewriter():
         self.fs_to_synt_rules = \
             self.load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file)
 
+    def _make_layer(self, text, layers, status=None):
+        morph_layer = layers[self.input_layers[0]]
+        layer = morph_layer.copy()
+        layer.name = self.output_layer
+        layer.parent = morph_layer.name
 
-    def rewrite(self, record):
-        result = []
-        for rec in record:
-            pos = rec['partofspeech']
-            form = rec['form']
-            # 1) Convert punctuation
-            if pos == 'Z':
-                result.append(rec)
-            else:
-            # 2) Convert morphological analyses that have a form specified
-                if form:
-                    morph_key = (pos, form)
+        self._change_layer(text, {layer.name: layer})
+
+        return layer
+
+    def _change_layer(self, text, layers, status=None):
+        layer = layers[self.output_layer]
+        for span in layer:
+            annotations = list(span.annotations)
+            span.clear_annotations()
+
+            for annotation in annotations:
+                pos = annotation['partofspeech']
+                form = annotation['form']
+                # 1) Convert punctuation
+                if pos == 'Z':
+                    span.add_annotation(annotation)
                 else:
-                    morph_key = (pos, '')
-                if morph_key in self.fs_to_synt_rules:
-                    rules = self.fs_to_synt_rules[morph_key]
-                else:
-                    # parem oleks tmorfttabel.txt täiendada ja võibolla siin hoopis viga visata
-                    rules = [morph_key]
-                for pos, form in rules:
-                    rec['partofspeech'] = pos
-                    rec['form'] = form
-                    result.append(rec.copy())
-        return result
+                # 2) Convert morphological analyses that have a form specified
+                    if form:
+                        morph_key = (pos, form)
+                    else:
+                        morph_key = (pos, '')
+                    if morph_key in self.fs_to_synt_rules:
+                        rules = self.fs_to_synt_rules[morph_key]
+                    else:
+                        # parem oleks tmorfttabel.txt täiendada ja võibolla siin hoopis viga visata
+                        rules = [morph_key]
+                    for pos, form in rules:
+                        annotation['partofspeech'] = pos
+                        annotation['form'] = form
+                        span.add_annotation(Annotation(span, **annotation))
 
     @staticmethod
     def _esc_que_mark(form):
@@ -97,7 +119,7 @@ class MorphToSyntaxMorphRewriter():
                 assert m is not None, ' Unexpected format of the line: ' + line
                 if m.group(1): #line starts with '¤'
                     continue
-                new_form = MorphToSyntaxMorphRewriter._esc_que_mark(m.group(6)).strip()
+                new_form = MorphToSyntaxMorphRetagger._esc_que_mark(m.group(6)).strip()
                 if (m.group(5), new_form) not in rules[(m.group(3), m.group(4))]:
                     rules[(m.group(3), m.group(4))].append((m.group(5), new_form))
         for key, value in rules.items():
