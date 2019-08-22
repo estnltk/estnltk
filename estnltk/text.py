@@ -240,16 +240,12 @@ class Text:
 
             # attributes of a (direct) dependant
             if to_layer.parent == frm:
-                # assert False, 1
                 res = []
                 if sofar:
                     for i in to_layer:
                         if i.parent in sofar.spans:
                             res.append(getattr(i, to))
-                    if to_layer.ambiguous:
-                        return AmbiguousAttributeList(res, to)
-                    else:
-                        return AttributeList(res, to)
+                    return AmbiguousAttributeList(res, to)
 
             # attributes of an (directly) enveloped object
             to_layer_name = path[-2]
@@ -263,26 +259,12 @@ class Text:
                     for i in sofar.spans:
                         res.append(i.__getattr__(to))
                     return res
-                else:
-                    res = []
-                    for i in to_layer.spans:
-                        res.append(
-                            i.__getattr__(to)
-                        )
-                    return res
 
             if to_layer.parent == from_layer.enveloping:
                 if sofar:
                     res = []
                     for i in sofar.spans:
                         res.append(i.__getattr__(to))
-                    return res
-                else:
-                    res = []
-                    for i in to_layer.spans:
-                        res.append(
-                            i.__getattr__(to)
-                        )
                     return res
 
     def _path_exists(self, frm, to):
