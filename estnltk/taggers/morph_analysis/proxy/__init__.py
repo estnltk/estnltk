@@ -1,0 +1,1 @@
+from estnltk.taggers.morph_analysis.proxy.morph_analyzed_token import MorphAnalyzedToken

@@ -19,7 +19,7 @@ from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.taggers import DisambiguatingTagger
-from estnltk.taggers.morph_analysis.helpers import MorphAnalyzedToken
+from estnltk.taggers.morph_analysis.proxy import MorphAnalyzedToken
 from estnltk.layer_operations import resolve_conflicts
 
 from .patterns import MACROS
