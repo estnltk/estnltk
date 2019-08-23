@@ -3,7 +3,7 @@ from collections import defaultdict
 from pandas import read_csv, DataFrame
 import os
 import pickle
-from estnltk.rewriting import MorphAnalyzedToken
+from estnltk.taggers.morph_analysis.helpers import MorphAnalyzedToken
 
 class VabamorfCorrectionRewriter:
 

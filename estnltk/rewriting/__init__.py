@@ -1,5 +1,3 @@
 from .rewriting import ReverseRewriter
 
-from estnltk.rewriting.helpers.morph_analyzed_token import MorphAnalyzedToken
-
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter

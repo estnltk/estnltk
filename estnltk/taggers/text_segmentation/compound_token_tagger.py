@@ -19,8 +19,9 @@ from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.taggers import DisambiguatingTagger
+from estnltk.taggers.morph_analysis.helpers import MorphAnalyzedToken
 from estnltk.layer_operations import resolve_conflicts
-from estnltk.rewriting import MorphAnalyzedToken
+
 from .patterns import MACROS
 from .patterns import email_and_www_patterns, emoticon_patterns, xml_patterns
 from .patterns import unit_patterns, number_patterns, abbreviations_before_initials_patterns

@@ -1,4 +1,5 @@
-from estnltk.rewriting.helpers.morph_analyzed_token import MorphAnalyzedToken
+from estnltk.taggers.morph_analysis.helpers import MorphAnalyzedToken
+
 
 def test_public():
     t0 = MorphAnalyzedToken('lfjdsdq')
