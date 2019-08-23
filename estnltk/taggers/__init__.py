@@ -40,12 +40,13 @@ from estnltk.taggers.standard_taggers.layer_merge_tagger import MergeTagger
 from estnltk.taggers.standard_taggers.diff_tagger import DiffTagger
 from estnltk.taggers.standard_taggers.text_segments_tagger import TextSegmentsTagger
 
+from estnltk.taggers.standard_taggers.timex_tagger import TimexTagger
+
 from estnltk.taggers.miscellaneous.robust_date_number_tagger import RobustDateNumberTagger
 from estnltk.taggers.miscellaneous.address_tagger import AddressPartTagger
 from estnltk.taggers.miscellaneous.address_tagger import AddressGrammarTagger
 from estnltk.taggers.miscellaneous.adjective_phrase_tagger import AdjectivePhraseTagger
 from estnltk.taggers.miscellaneous.flesch_tagger import SentenceFleschScoreRetagger
-from estnltk.taggers.miscellaneous.timex_tagger import TimexTagger
 from estnltk.taggers.verb_chains import VerbChainDetector
 
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
