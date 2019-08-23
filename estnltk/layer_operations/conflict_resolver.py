@@ -1,3 +1,10 @@
+"""The main functon in this module is resolve_conflicts that removes conflicting spans from the input layer
+according to the given conflict resolving strategy..
+
+Possible Enhancements: another possibility to resolve conflicts is to split conflicting spans into smaller disjoint
+spans. That would preserve all annotations but may also create meaningless spans.
+
+"""
 from collections import defaultdict
 
 from estnltk import Span
