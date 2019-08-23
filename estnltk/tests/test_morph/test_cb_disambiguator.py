@@ -20,7 +20,7 @@ def collect_analyses( docs ):
     all_analyses = dict()
     for doc_id, doc in enumerate(docs):
         for wid, word in enumerate(doc['words']):
-            analyses = [(a.root, a.partofspeech, a.form) for a in word.morph_analysis]
+            analyses = [(a.root, a.partofspeech, a.form) for a in word.morph_analysis.annotations]
             all_analyses[(doc_id,wid)] = analyses
     return all_analyses
 
@@ -74,7 +74,7 @@ def count_analyses( collection, skipEmptyAnalyses=True ):
             sub_collection = item
         for doc_id, doc in enumerate(sub_collection):
             for wid, word in enumerate(doc['words']):
-                for analysis in word.morph_analysis:
+                for analysis in word.morph_analysis.annotations:
                     if _is_empty_annotation(analysis):
                         if skipEmptyAnalyses:
                             continue
@@ -580,7 +580,6 @@ def test_pre_and_postdisambiguation_different_input_structures():
         cb_disambiguator.postdisambiguate( [text] )
 
 
-
 def test_cb_disambiguator_on_unknown_words():
     #
     #  Tests CorpusBasedMorphDisambiguator works (==does not fail) on texts
@@ -588,8 +587,8 @@ def test_cb_disambiguator_on_unknown_words():
     #
     cb_disambiguator = CorpusBasedMorphDisambiguator()
     morf_analyzer3 = VabamorfAnalyzer(guess= False, propername=False)
-    docs = [ Text('Mulll on yks hea netikeelelause'), \
-             Text('Davai siis, mul ka yks'), ]
+    docs = [Text('Mulll on yks hea netikeelelause'),
+            Text('Davai siis, mul ka yks'), ]
     for doc in docs:
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])
         # Analyse, but do not guess anything
@@ -601,9 +600,9 @@ def test_cb_disambiguator_on_unknown_words():
     unknowns = []
     for doc in docs:
         for word_analyses in doc.morph_analysis:
-            for analysis in word_analyses:
+            for analysis in word_analyses.annotations:
                 if _is_empty_annotation(analysis):
-                    unknowns.append( word_analyses.text )
+                    unknowns.append(word_analyses.text)
     assert unknowns == ['Mulll', 'yks', 'Davai', ',', 'yks']
     # Assert analysis count
     [countTotal, countH, countNonH] = count_analyses( docs )

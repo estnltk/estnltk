@@ -11,15 +11,15 @@ layer_1 = Layer('test_1')
 layer_1.add_annotation((4, 8))
 layer_1.add_annotation((9, 13))
 layer_1.add_annotation((24, 28))
-text['test_1'] = layer_1
+text.add_layer(layer_1)
 
 layer_2 = Layer('test_2')
 layer_2.add_annotation((4, 8))
 layer_2.add_annotation((9, 18))
 layer_2.add_annotation((35, 36))
-text['test_2'] = layer_2
+text.add_layer(layer_2)
 
-text['test_3'] = Layer('test_3')
+text.add_layer(Layer('test_3'))
 
 
 def test_gaps_trim():

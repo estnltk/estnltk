@@ -9,7 +9,7 @@ from typing import MutableMapping
 
 from estnltk import Annotation
 from estnltk.text import Layer, Text
-from estnltk.layer.ambiguous_span import AmbiguousSpan
+from estnltk.layer.span import Span
 
 from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
@@ -412,18 +412,18 @@ class VabamorfAnalyzer( Tagger ):
         #   Use Vabamorf for morphological analysis
         # --------------------------------------------
         # Perform morphological analysis sentence by sentence
-        word_spans = layers[ self._input_words_layer ].span_list
+        word_layer = layers[self._input_words_layer]
         word_span_id = 0
         analysis_results = []
-        for sentence in layers[ self._input_sentences_layer ].span_list:
+        for sentence in layers[self._input_sentences_layer]:
             # A) Collect all words inside the sentence
             sentence_words = []
-            while word_span_id < len(word_spans):
-                span = word_spans[word_span_id]
+            while word_span_id < len(word_layer):
+                span = word_layer[word_span_id]
                 if sentence.start <= span.start and \
                     span.end <= sentence.end:
                     # Word is inside the sentence
-                    sentence_words.append( \
+                    sentence_words.append(
                         _get_word_text( span ) 
                     )
                     word_span_id += 1
@@ -568,7 +568,7 @@ class VabamorfDisambiguator(Retagger):
                 extra_attributes.append( cur_attr )
         # Check that len(word_spans) >= len(morph_spans)
         morph_layer = layers[self.output_layer]
-        word_spans  = layers[self._input_words_layer].span_list
+        word_spans  = layers[self._input_words_layer]
         assert len(word_spans) >= len(morph_layer), \
             '(!) Unexpectedly, the number of elements at the layer '+\
                  '"'+str(self.output_layer)+'" is greater than the '+\
@@ -581,7 +581,7 @@ class VabamorfDisambiguator(Retagger):
         sentence_start_morph_span_id = 0
         morph_span_id = 0
         word_span_id  = 0
-        for sentence in layers[self._input_sentences_layer].span_list:
+        for sentence in layers[self._input_sentences_layer]:
             # A) Collect all words/morph_analyses inside the sentence
             #    Assume: len(word_spans) >= len(morph_layer)
             sentence_word_spans  = []
@@ -661,12 +661,12 @@ class VabamorfDisambiguator(Retagger):
                 # D.0) Get comparable morphological analyses for the word
                 # Old morphological analyses (ambiguous):
                 old_morph_records = \
-                    [ _span_to_records_excl(span, [IGNORE_ATTR]) for span in sentence_morph_spans[wid] ]
+                    [ _span_to_records_excl(span, [IGNORE_ATTR]) for span in sentence_morph_spans[wid].annotations ]
                 # New morphological analyses (disambiguated):
                 disambiguated_records = disambiguated_dicts[morph_dict_id]['analysis']
 
                 # D.1) Convert records back to AmbiguousSpans
-                ambiguous_span = AmbiguousSpan(base_span=morph_layer[global_morph_span_id].base_span, layer=morph_layer)
+                ambiguous_span = Span(base_span=morph_layer[global_morph_span_id].base_span, layer=morph_layer)
                 
                 # D.1) Rewrite records into a proper format, and 
                 #      add to the span

@@ -11,7 +11,7 @@
 
 import re
 
-from estnltk.text import Text, Layer, EnvelopingSpan
+from estnltk.text import Text, Layer
 from estnltk.taggers import ParagraphTokenizer
 
 # =================================================
@@ -204,22 +204,21 @@ def reconstruct_ettenten_text( document, \
                for attrib in paragraph_attrib_names:
                    current_paragraph_attribs[attrib] = \
                        paragraph[attrib] if attrib in paragraph else None
-               span = EnvelopingSpan(spans=text['sentences'][p_start:p_end+1].spans, layer=orig_paragraphs)
-               orig_paragraphs.add_annotation(span, **current_paragraph_attribs)
+               orig_paragraphs.add_annotation(text['sentences'][p_start:p_end+1], **current_paragraph_attribs)
                pid += 1; p_start = -1; p_end = -1
         if pid < len(para_locations):
            raise Exception('(!) Unable to align all paragraphs with sentences.\n'+\
                            'Unaligned paragraphs: '+str(para_locations[pid:]))
-        text[orig_paragraphs.name] = orig_paragraphs
+        text.add_layer(orig_paragraphs)
     else:
         # 5.2) If there are no other annotations, then add stand-alone 
         #      layer 'original_paragraphs'
         orig_paragraphs = \
-           Layer(name = 'original_paragraphs', \
-                 text_object=text, \
+           Layer(name = 'original_paragraphs',
+                 text_object=text,
                  attributes = tuple(list(paragraph_attrib_names)),
                  ambiguous=True ).from_records(para_locations)
-        text[orig_paragraphs.name] = orig_paragraphs
+        text.add_layer(orig_paragraphs)
     return text
 
 

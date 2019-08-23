@@ -3,7 +3,6 @@ import html
 import regex as re
 
 from estnltk.layer.immutable_list import ImmutableList
-from estnltk.layer.span import Span
 
 
 def to_str(value, escape_html=False):
@@ -13,8 +12,6 @@ def to_str(value, escape_html=False):
         value_str = '<function {}.{}>'.format(value.__module__, value.__name__)
     elif isinstance(value, re.regex.Pattern):
         value_str = '<Regex {}>'.format(value.pattern)
-    elif isinstance(value, Span):
-        value_str = 'Span({})'.format(value.text)
     elif isinstance(value, tuple):
         value_str = str(tuple(to_str(v) for v in value))
     else:

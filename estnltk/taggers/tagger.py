@@ -78,7 +78,7 @@ class Tagger(metaclass=TaggerChecker):
             if layer in layers:
                 continue
             if layer in text.layers:
-                layers[layer] = text.layers[layer]
+                layers[layer] = text[layer]
             else:
                 raise ValueError('missing input layer: {!r}'.format(layer))
 
@@ -106,7 +106,7 @@ class Tagger(metaclass=TaggerChecker):
         status: dict, default {}
             This can be used to store layer creation metadata.
         """
-        text[self.output_layer] = self.make_layer(text=text, layers=text.layers, status=status)
+        text.add_layer(self.make_layer(text=text, layers=text.layers, status=status))
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:

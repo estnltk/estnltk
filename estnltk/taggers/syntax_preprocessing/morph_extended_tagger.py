@@ -1,37 +1,43 @@
-from estnltk.taggers import TaggerOld
-from estnltk.rewriting import PunctuationTypeRewriter
-from estnltk.rewriting import MorphToSyntaxMorphRewriter
-from estnltk.rewriting import PronounTypeRewriter
-from estnltk.rewriting import RemoveDuplicateAnalysesRewriter
-from estnltk.rewriting import RemoveAdpositionAnalysesRewriter
-from estnltk.rewriting import LetterCaseRewriter
-from estnltk.rewriting import FiniteFormRewriter
-from estnltk.rewriting import VerbExtensionSuffixRewriter
-from estnltk.rewriting import SubcatRewriter
-from estnltk.rewriting import MorphExtendedRewriter
-from estnltk.taggers import VabamorfTagger
-from estnltk import PACKAGE_PATH
 import os
 
+from estnltk.taggers import Tagger
+from estnltk.taggers import VabamorfTagger
+from estnltk import PACKAGE_PATH
+from .punctuation_type_retagger import PunctuationTypeRetagger
+from .morph_to_syntax_morph_retagger import MorphToSyntaxMorphRetagger
+from .pronoun_type_retagger import PronounTypeRetagger
+from .letter_case_retagger import LetterCaseRetagger
+from .remove_adposition_analyses_retagger import RemoveAdpositionAnalysesRetagger
+from .finite_form_retagger import FiniteFormRetagger
+from .verb_extension_suffix_tagger import VerbExtensionSuffixRetagger
+from .subcat_retagger import SubcatRetagger
 
-class MorphExtendedTagger(TaggerOld):
-    """
-    Tags text object with morph_extended layer. In order to do so executes
-    consecutively several syntax preprocessing rewriters.
+
+class MorphExtendedTagger(Tagger):
+    """Creates morph_extended layer which contains morph analysis attributes and syntax preprocessing attributes.
+    In order to do so executes consecutively several syntax preprocessing rewriters.
 
     (Text object with morph_extended layer can be converted to VISL CG3 input
     format by export_CG3 method.)
+
     """
-    description = "Extends 'morph_analysis' layer with syntax preprocessing attributes."
-    layer_name = 'morph_extended'
-    attributes = VabamorfTagger.output_attributes + ('punctuation_type',
-                                              'pronoun_type',
-                                              'letter_case',
-                                              'fin',
-                                              'verb_extension_suffix',
-                                              'subcat')
-    depends_on = ['morph_analysis']
-    configuration = None
+    input_layers = ['morph_analysis']
+    output_layer = 'morph_extended'
+    output_attributes = VabamorfTagger.output_attributes + ('punctuation_type',
+                                                            'pronoun_type',
+                                                            'letter_case',
+                                                            'fin',
+                                                            'verb_extension_suffix',
+                                                            'subcat')
+
+    conf_param = ['punctuation_type_retagger', 'morph_to_syntax_morph_retagger', 'pronoun_type_retagger',
+                  'letter_case_retagger', 'remove_adposition_analyses_retagger', 'finite_form_retagger',
+                  'verb_extension_suffix_retagger', 'subcat_retagger']
+
+    # TODO: remove next three lines
+    layer_name = output_layer
+    attributes = output_attributes
+    depends_on = input_layers
 
     def __init__(self,
                  fs_to_synt_rules_file=None,
@@ -57,55 +63,37 @@ class MorphExtendedTagger(TaggerOld):
                 The original implementation allowed this, but we are now restricting it
                 in order to avoid words without any analyses;
                 Default: False
+
         """
-
         if fs_to_synt_rules_file is None:
-            fs_to_synt_rules_file = os.path.relpath(os.path.join(PACKAGE_PATH,
-                'rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt'))
+            fs_to_synt_rules_file = os.path.relpath(os.path.join(
+                    PACKAGE_PATH, 'taggers/syntax_preprocessing/rules_files/tmorftrtabel.txt'))
         if subcat_rules_file is None:
-            subcat_rules_file = os.path.relpath(os.path.join(PACKAGE_PATH,
-                'rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx'))
-        self.configuration = {'fs_to_synt_rules_file': fs_to_synt_rules_file,
-                              'allow_to_remove_all': allow_to_remove_all,
-                              'subcat_rules_file': subcat_rules_file}
+            subcat_rules_file = os.path.relpath(os.path.join(
+                    PACKAGE_PATH, 'taggers/syntax_preprocessing/rules_files/abileksikon06utf.lx'))
 
-        punctuation_type_rewriter = PunctuationTypeRewriter()
-        morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
-        pronoun_type_rewriter = PronounTypeRewriter()
-        remove_duplicate_analyses_rewriter = RemoveDuplicateAnalysesRewriter()
-        remove_adposition_analyses_rewriter = RemoveAdpositionAnalysesRewriter(allow_to_remove_all)
-        letter_case_rewriter = LetterCaseRewriter()
-        finite_form_rewriter = FiniteFormRewriter()
-        verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
-        subcat_rewriter = SubcatRewriter(subcat_rules_file)
+        self.punctuation_type_retagger = PunctuationTypeRetagger()
+        self.morph_to_syntax_morph_retagger = MorphToSyntaxMorphRetagger(input_layer='morph_analysis',
+                                                                         fs_to_synt_rules_file=fs_to_synt_rules_file)
+        self.pronoun_type_retagger = PronounTypeRetagger()
+        self.letter_case_retagger = LetterCaseRetagger()
+        self.remove_adposition_analyses_retagger = RemoveAdpositionAnalysesRetagger(allow_to_remove_all)
+        self.finite_form_retagger = FiniteFormRetagger()
+        self.verb_extension_suffix_retagger = VerbExtensionSuffixRetagger(self.output_layer)
+        self.subcat_retagger = SubcatRetagger(subcat_rules_file=subcat_rules_file)
 
-        self.quick_morph_extended_rewriter = MorphExtendedRewriter(
-                    punctuation_type_rewriter=punctuation_type_rewriter,
-                    morph_to_syntax_morph_rewriter=morph_to_syntax_morph_rewriter,
-                    pronoun_type_rewriter=pronoun_type_rewriter,
-                    remove_duplicate_analyses_rewriter=remove_duplicate_analyses_rewriter,
-                    remove_adposition_analyses_rewriter=remove_adposition_analyses_rewriter,
-                    letter_case_rewriter=letter_case_rewriter,
-                    finite_form_rewriter=finite_form_rewriter,
-                    verb_extension_suffix_rewriter=verb_extension_suffix_rewriter,
-                    subcat_rewriter=subcat_rewriter)
+    def _make_layer(self, text, layers, status=None):
+        morph_layer = layers[self.input_layers[0]]
 
-    @staticmethod
-    def _esc_double_quotes(str1):
-        ''' Escapes double quotes.
-        '''
-        return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
+        layer = self.morph_to_syntax_morph_retagger.make_layer(text, {'morph_extended': morph_layer})
 
-    def tag(self, text, return_layer=False):
-        source_attributes = text['morph_analysis'].attributes + ('text',)
+        self.punctuation_type_retagger.change_layer(text, {'morph_extended': layer})
+        self.pronoun_type_retagger.change_layer(text, {'morph_extended': layer})
+        self.letter_case_retagger.change_layer(text, {'morph_extended': layer})
+        self.remove_adposition_analyses_retagger.change_layer(text, {'morph_extended': layer})
+        self.finite_form_retagger.change_layer(text, {'morph_extended': layer})
+        self.verb_extension_suffix_retagger.change_layer(text, {'morph_extended': layer})
+        self.subcat_retagger.change_layer(text, {'morph_extended': layer})
+        self.remove_adposition_analyses_retagger.change_layer(text, {'morph_extended': layer})
 
-        new_layer = text['morph_analysis'].rewrite(
-                                    source_attributes=source_attributes,
-                                    target_attributes=self.attributes,
-                                    rules=self.quick_morph_extended_rewriter,
-                                    name=self.layer_name,
-                                    ambiguous = True
-                                    )
-        if return_layer:
-            return new_layer
-        text[self.layer_name] = new_layer
+        return layer

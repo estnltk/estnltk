@@ -90,7 +90,7 @@ def test_annotation_json_export_import():
     layer = Layer('my_layer', attributes=['attr', 'attr_0'])
     span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
 
-    annotation = new_text(5).layer_0[0][0]
+    annotation = new_text(5).layer_0[0].annotations[0]
 
     a = json_to_annotation(span, annotation_to_json(annotation))
     assert a == annotation
@@ -121,19 +121,19 @@ def test_TCF_export_import():
     spl.spans.extend(text.words.spans[7:11])
     layer.add_annotation(spl)
     layer.add_annotation(text.words[12:17])
-    text['clauses'] = layer
+    text.add_layer(layer)
 
     # verb_chains layer
     layer = Layer(name='verb_chains', enveloping='words')
     layer.add_annotation(text.words[3:4])
     layer.add_annotation(text.words[7:10:2])
     layer.add_annotation(text.words[13:17:3])
-    text['verb_chains'] = layer
+    text.add_layer(layer)
 
     # time_phrases layer
     layer = Layer(name='time_phrases', enveloping='words')
     layer.add_annotation(text.words[14:16])
-    text['time_phrases'] = layer
+    text.add_layer(layer)
 
     # version 0.4
     assert export_TCF(import_TCF(export_TCF(text))) == export_TCF(text)

@@ -1,44 +1,27 @@
-from estnltk.taggers import TaggerOld
-from estnltk.taggers import VabamorfTagger
-from estnltk.rewriting import MorphToSyntaxMorphRewriter
-from estnltk.rewriting import SubcatRewriter
+from estnltk.taggers import Tagger
+from .subcat_retagger import SubcatRetagger
+from .morph_to_syntax_morph_retagger import MorphToSyntaxMorphRetagger
 
 
-class SubcatTagger(TaggerOld):
-    description = 'Tags subcategory information.'
-    layer_name = 'subcat'
-    attributes = VabamorfTagger.output_attributes + ('subcat',)
-    depends_on = ['morph_analysis']
-    configuration = {}
+class SubcatTagger(Tagger):
+    """Tags subcategory information.
 
-    def __init__(self, fs_to_synt_rules_file, subcat_rules_file):
-        self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
-        self.subcat_rewriter = SubcatRewriter(subcat_rules_file)
+    """
+    conf_param = ['morph_to_syntax_morph_tagger', 'subcat_retagger']
 
-        self.configuration['fs_to_synt_rules_file'] = fs_to_synt_rules_file
-        self.configuration['subcat_rules_file'] = subcat_rules_file
+    def __init__(self, input_layer='morph_analysis', output_layer='morph_extended', fs_to_synt_rules_file=None,
+                 subcat_rules_file=None):
+        self.input_layers = [input_layer]
+        self.output_layer = output_layer
+        self.output_attributes = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech', 'subcat')
 
-    def tag(self, text, return_layer=False):
-        new_layer = text['morph_analysis']
-        source_attributes = new_layer.attributes
-        target_attributes = source_attributes
-        new_layer = new_layer.rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.morph_to_syntax_morph_rewriter,
-            name = 'morph_analysis',
-            ambiguous = True
-            )
+        self.morph_to_syntax_morph_tagger = MorphToSyntaxMorphRetagger(input_layer=input_layer,
+                                                                       output_layer=output_layer,
+                                                                       fs_to_synt_rules_file=fs_to_synt_rules_file)
+        self.subcat_retagger = SubcatRetagger(subcat_rules_file)
 
-        source_attributes = new_layer.attributes
-        target_attributes = self.attributes
-        new_layer = new_layer.rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.subcat_rewriter,
-            name = self.layer_name,
-            ambiguous = True
-            )
-        if return_layer:
-            return new_layer
-        text[self.layer_name] = new_layer
+    def _make_layer(self, text, layers, status=None):
+        layer = self.morph_to_syntax_morph_tagger.make_layer(text, layers)
+        layers[layer.name] = layer
+        self.subcat_retagger.change_layer(text, layers)
+        return layer

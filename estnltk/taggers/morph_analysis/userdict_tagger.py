@@ -8,7 +8,7 @@ import csv
 
 from typing import MutableMapping
 
-from estnltk.layer.layer import Annotation, AmbiguousSpan, Layer
+from estnltk.layer.layer import Annotation, Span, Layer
 from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
@@ -359,8 +359,8 @@ class UserDictTagger(Retagger):
                     #     in the valid format;
                     records = self._dict[word_text]['analysis']
 
-                # 2.3) Create new AmbiguousSpan
-                ambiguous_span = AmbiguousSpan(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
+                # 2.3) Create a new Span
+                ambiguous_span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
 
                 # 2.4) Populate it with new records
                 for rec in records:

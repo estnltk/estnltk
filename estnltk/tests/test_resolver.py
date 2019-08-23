@@ -15,7 +15,7 @@ def test_redefine():
             self.depends_on = depends_on
 
         def tag(self, text):
-            text[self.layer_name] = Layer(self.layer_name)
+            text.add_layer(Layer(self.layer_name))
     
     taggers = Taggers([
                        TestTaggerOld('tokens', depends_on=[]),

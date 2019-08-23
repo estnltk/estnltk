@@ -640,7 +640,7 @@ class PgCollection:
                 for row in data_iterator:
                     text_id, text = row[0], row[1]
                     for record in row_mapper(row):
-                        fragment_dict = layer_to_dict(record['fragment'], text)
+                        fragment_dict = layer_to_dict(record['fragment'])
                         parent_layer_id = record['parent_id']
                         if ngram_index is not None:
                             ngram_values = [create_ngram_fingerprint_index(record.layer, attr, n)
@@ -875,7 +875,7 @@ class PgCollection:
 
                         record = row_mapper(row)
                         layer = record.layer
-                        layer_dict = layer_to_dict(layer, text)
+                        layer_dict = layer_to_dict(layer)
                         layer_json = json.dumps(layer_dict, ensure_ascii=False)
 
                         values = [collection_id, collection_id, layer_json]

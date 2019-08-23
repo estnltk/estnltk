@@ -33,7 +33,7 @@ class Retagger(Tagger):
     def _change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> None:
         raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
 
-    def change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> None:
+    def change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict = None) -> None:
         # In order to change the layer, the layer must already exist
         assert self.output_layer in layers, \
           "output_layer {!r} missing from layers {}".format(
@@ -52,7 +52,7 @@ class Retagger(Tagger):
         if self.check_output_consistency:
             # Validate changed layer: check span consistency
             target_layers[self.output_layer].check_span_consistency()
-        if self.set_up_text_structure:
+        if text and self.set_up_text_structure:
             text.setup_structure()
 
     def retag(self, text: Text, status: dict = None ) -> Text:
@@ -84,7 +84,8 @@ class Retagger(Tagger):
         table = table.to_html(index=False)
         assert self.__class__.__doc__ is not None, 'No docstring.'
         description = self.__class__.__doc__.strip().split('\n')[0]
-        table = ['<h4>Retagger</h4>', description, table]
+        table = ['<h4>{self.__class__.__name__}({self.__class__.__base__.__name__})</h4>'.format(self=self),
+                 description, table]
 
         def to_str(value):
             value_str = str(value)

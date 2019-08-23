@@ -49,7 +49,7 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
                 syntax.add_annotation((w_span.start, w_span.end), **conll_word)
                 word_index += 1
 
-    text[syntax_layer] = syntax
+    text.add_layer(syntax)
 
     SyntaxDependencyRetagger(conll_syntax_layer=syntax_layer).retag(text)
 
@@ -109,9 +109,9 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
             sentence_start += len(sentence)
 
     text.set_text(' '.join(t))
-    text['words'] = words
-    text['sentences'] = sentences
-    text[syntax_layer] = syntax
+    text.add_layer(words)
+    text.add_layer(sentences)
+    text.add_layer(syntax)
 
     SyntaxDependencyRetagger(conll_syntax_layer=syntax_layer).retag(text)
 

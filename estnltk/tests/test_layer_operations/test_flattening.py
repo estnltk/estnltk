@@ -6,7 +6,7 @@ def test_flatten():
     text = Text('Aias sadas saia.')
 
     layer_1 = Layer('test_1', attributes=['attr_1', 'attr_2'], text_object=text)
-    text['test_1'] = layer_1
+    text.add_layer(layer_1)
     result = flatten(layer_1, 'test_out')
     assert isinstance(result, Layer)
     assert result.ambiguous is True

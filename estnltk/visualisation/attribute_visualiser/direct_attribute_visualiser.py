@@ -10,7 +10,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
     attributes in tables. Takes css_file as argument (path to the file) and the same css elements as in
     direct_span_visualiser"""
 
-    def __init__(self, fill_empty_spans=False, event_attacher=None, js_added=False, css_added=False,
+    def __init__(self, text_id, fill_empty_spans=False, event_attacher=None, js_added=False, css_added=False,
                  css_file=rel_path("visualisation/attribute_visualiser/prettyprinter.css")):
         self.fill_empty_spans = fill_empty_spans
         self.event_attacher = event_attacher
@@ -20,6 +20,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
         self.js_file = rel_path("visualisation/attribute_visualiser/prettyprinter.js")
         self.class_mapping = self.default_class_mapper
         self.mapping_dict = {"class": self.default_class_mapper}
+        self.text_id = text_id
 
     def __call__(self, segment, spans):
         segment[0] = html.escape(segment[0])
@@ -29,6 +30,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
         else:
             # There is a span to decorate
             output = ['<span style="']
+            # copy to make it readable for mappers
             mapping_segment = copy.deepcopy(segment)
             if len(segment[1]) == 1:
                 mapping_segment[1] = spans[mapping_segment[1][0]]
@@ -36,11 +38,11 @@ class DirectAttributeVisualiser(SpanVisualiser):
                 if key == "class" or key == "id":
                     pass
                 else:
-                    output.append(key + ":" + value(mapping_segment) + ";")
+                    output.append(key + ":" + value(mapping_segment,self.text_id) + ";")
             output.append(' "')
             for key, value in self.mapping_dict.items():
                 if key == "class" or key == "id":
-                    output.append(' ' + key + "=" + value(mapping_segment))
+                    output.append(' ' + key + "=" + value(mapping_segment,self.text_id))
 
             for segment_index, all_spans_index in enumerate(segment[1]):
                 output.append(" span_info")

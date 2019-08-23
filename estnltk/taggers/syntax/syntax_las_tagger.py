@@ -1,5 +1,7 @@
 from collections import defaultdict
-from estnltk import Tagger, Layer
+
+from estnltk.layer.layer import Layer
+from estnltk.taggers import Tagger
 
 
 class SyntaxLasTagger(Tagger):

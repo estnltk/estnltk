@@ -13,6 +13,7 @@ class CollectionStructure(pg.CollectionStructureBase):
         storage = self.collection.storage
         table = pg.table_identifier(storage, pg.structure_table_name(self.collection.name))
         temporary = SQL('TEMPORARY') if storage.temporary else SQL('')
+        storage.conn.commit()
         with storage.conn.cursor() as c:
             c.execute(SQL('CREATE {temporary} TABLE {table} ('
                           'layer_name text primary key, '

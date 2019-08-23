@@ -1,5 +1,5 @@
 import pytest
-from estnltk import EnvelopingSpan, Layer, Text, Annotation
+from estnltk import EnvelopingSpan, Layer, Text, Annotation, EnvelopingBaseSpan
 
 
 text = Text('Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.')
@@ -25,7 +25,7 @@ layer_0.add_annotation((76, 82), attr='L0-16', attr_0='9')
 layer_0.add_annotation((76, 89), attr='L0-17', attr_0='90')
 layer_0.add_annotation((82, 87), attr='L0-18', attr_0='10')
 layer_0.add_annotation((90, 95), attr='L0-19', attr_0='1000')
-text['layer_0'] = layer_0
+text.add_layer(layer_0)
 
 layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], ambiguous=False, enveloping='layer_0')
 layer_4.add_annotation([layer_0[0], layer_0[2], layer_0[4]], attr='L4-0', attr_4='123')
@@ -33,21 +33,23 @@ layer_4.add_annotation([layer_0[5], layer_0[6], layer_0[8], layer_0[11], layer_0
 layer_4.add_annotation([layer_0[15]], attr='L4-2', attr_4='8')
 layer_4.add_annotation([layer_0[14]], attr='L4-3', attr_4=',')
 layer_4.add_annotation([layer_0[17], layer_0[19]], attr='L4-4', attr_4='90 000')
-text['layer_4'] = layer_4
-
-
-def new_enveloping_span():
-    return EnvelopingSpan([layer_0[0], layer_0[2], layer_0[4]], layer=layer_4)
+text.add_layer(layer_4)
 
 
 def test_enveloping_span():
-    span = EnvelopingSpan([layer_0[0], layer_0[2], layer_0[4]], layer=layer_4)
+    span = EnvelopingSpan(base_span=EnvelopingBaseSpan([layer_0[0].base_span,
+                                                        layer_0[2].base_span,
+                                                        layer_0[4].base_span]),
+                          layer=layer_4)
     assert span.layer is layer_4
     assert span.parent is None
 
 
 def test_annotations():
-    span = EnvelopingSpan([layer_0[0], layer_0[2], layer_0[4]], layer=layer_4)
+    span = EnvelopingSpan(base_span=EnvelopingBaseSpan([layer_0[0].base_span,
+                                                        layer_0[2].base_span,
+                                                        layer_0[4].base_span]),
+                          layer=layer_4)
     assert span.annotations == []
 
     annotation = Annotation(span, attr=0, attr_4=1)

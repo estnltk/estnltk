@@ -1,10 +1,9 @@
 import pytest
 
 import itertools
-from estnltk import Span, EnvelopingSpan
 from estnltk import Layer
 from estnltk import Text
-from estnltk.layer import AmbiguousAttributeList
+from estnltk.layer import AmbiguousAttributeList, AttributeTupleList
 from estnltk.layer import AttributeList
 from estnltk.tests import new_text
 
@@ -64,15 +63,9 @@ def test_equivalences():
 
     assert t.sentences.lemma == [sentence.lemma for sentence in t.sentences] == [[word.lemma for word in sentence] for sentence in t.sentences]
 
-    #assert t.words.text == list(itertools.chain(*t.sentences.text))
     assert t.words.text == t.sentences.text
 
-    #assert [list(set(i))[0] for i in t.morph_analysis.text] == t.words.text
     assert t.morph_analysis.text == t.words.text
-
-    # assert t.morph_analysis.get_attributes(['text', 'lemma']) == t.words.get_attributes(['text', 'lemma'])
-
-    assert [[i[0]] for i in t.morph_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
 
 
 def test_equal():
@@ -89,7 +82,7 @@ def test_equal():
     assert t_1 != t_2
     t_2.tag_layer(['morph_extended', 'paragraphs'])
     assert t_1 == t_2
-    t_1['morph_analysis'][0][0].form = 'x'
+    t_1['morph_analysis'][0].annotations[0].form = 'x'
     assert t_1 != t_2
 
     t_1 = new_text(5)
@@ -206,7 +199,7 @@ def test_new_span_hierarchy():
         attributes=['test1'],
         text_object=text
     )
-    text._add_layer(l)
+    text.add_layer(l)
 
     for i in text.words:
         l.add_annotation(i, test1='1234')
@@ -217,7 +210,7 @@ def test_new_span_hierarchy():
         attributes=['test2'],
         text_object=text
     )
-    text._add_layer(l)
+    text.add_layer(l)
 
     for i in text.layer1:
         l.add_annotation(i, test2='12345')
@@ -258,28 +251,27 @@ def test_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
     l = Layer(name='test')
-    t._add_layer(l)
+    t.add_layer(l)
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name='text'))
+        t.add_layer(Layer(name='text'))
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name='test'))
+        t.add_layer(Layer(name='test'))
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name=' '))
+        t.add_layer(Layer(name=' '))
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name='3'))
+        t.add_layer(Layer(name='3'))
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name='assert'))
+        t.add_layer(Layer(name='assert'))
 
     with pytest.raises(AssertionError):
-        t._add_layer(Layer(name='is'))
+        t.add_layer(Layer(name='is'))
 
     assert t.layers['test'] is l
-    assert t.test.span_list is l.span_list
 
     with pytest.raises(AttributeError):
         t.notexisting
@@ -297,7 +289,7 @@ def test_annotated_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
     l = Layer(name='test', attributes=['test', 'asd'])
-    t._add_layer(l)
+    t.add_layer(l)
     l.add_annotation((1, 5))
 
     for i in t.test:
@@ -329,7 +321,7 @@ def test_count_by():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
     l = Layer(name='test', attributes=['test', 'asd'])
-    t._add_layer(l)
+    t.add_layer(l)
     l.add_annotation((1, 5))
     l.add_annotation((2, 6))
 
@@ -343,7 +335,7 @@ def test_count_by():
 def test_from_dict():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words', attributes=['lemma'])
-    t._add_layer(words)
+    t.add_layer(words)
     words.from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
                         {'end': 8, 'lemma': 'mitu', 'start': 4},
                         {'end': 13, 'lemma': 'kuu', 'start': 9},
@@ -360,7 +352,7 @@ def test_from_dict():
 def test_ambiguous_from_dict():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words', attributes=['lemma'], ambiguous = True)
-    t['words'] = words
+    t.add_layer(words)
 
 
     words.from_records([
@@ -392,7 +384,7 @@ def test_ambiguous_from_dict_unbound():
 
     #then we bind it to an object
     t = Text('Kui mitu kuud on aastas?')
-    t['words'] = words
+    t.add_layer(words)
 
     assert t.words[0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
 
@@ -408,7 +400,7 @@ def test_ambiguous_from_dict_unbound():
                        [{'end': 24, 'lemma2': '?', 'start': 23}]
                        ]
                     )
-    t['words2'] = words2
+    t.add_layer(words2)
     assert t.words2[0].lemma2 == AttributeList(['kui', 'KUU'], 'lemma2')
 
     assert t.words2[0].parent is t.words[0]
@@ -425,13 +417,13 @@ def test_dependant_span():
                                   {'end': 23, 'lemma': 'aasta', 'start': 17},
                                   {'end': 24, 'lemma': '?', 'start': 23}],
                                  )
-    t._add_layer(words)
+    t.add_layer(words)
 
     dep = Layer(name='reverse_lemmas',
                    parent='words',
                    attributes=['revlemma']
                    )
-    t._add_layer(dep)
+    t.add_layer(dep)
 
     for word in t.words:
         dep.add_annotation(word, revlemma=word.lemma[::-1])
@@ -457,9 +449,9 @@ def test_enveloping_layer():
                     {'end': 23, 'lemma': 'aasta', 'start': 17},
                     {'end': 24, 'lemma': '?', 'start': 23}],
                    )
-    t._add_layer(words)
+    t.add_layer(words)
     wordpairs = Layer(name='wordpairs', enveloping='words')
-    t._add_layer(wordpairs)
+    t.add_layer(wordpairs)
 
     wordpairs.add_annotation(t.words[0:2])
     wordpairs.add_annotation(t.words[2:4])
@@ -501,7 +493,7 @@ def test_various():
     upper = Layer(parent='words',
                   name='uppercase',
                   attributes=['upper'])
-    text._add_layer(upper)
+    text.add_layer(upper)
 
     for word in text.words:
         upper.add_annotation(word, upper=word.text.upper())
@@ -546,15 +538,12 @@ def test_words_sentences():
                          parent='words',
                          attributes=['upper']
                          )
-    t._add_layer(dep)
+    t.add_layer(dep)
     for word in t.words:
         dep.add_annotation(word, upper=word.text.upper())
 
     assert t.uppercase.upper == AttributeList(['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?'],
                                               'upper')
-    print(t.sentences)
-    print(t.sentences.uppercase)
-    print(t.sentences.uppercase.upper)
     #assert t.sentences.uppercase.upper == [['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', ],[ 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']]
     #assert t.words.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
 
@@ -567,7 +556,7 @@ def test_ambiguous_layer():
                 ambiguous=True,
                 attributes=['asd']
                 )
-    t._add_layer(dep)
+    t.add_layer(dep)
 
     dep.add_annotation(t.words[0], asd='asd')
 
@@ -595,11 +584,11 @@ def test_morph():
 
 def test_change_lemma():
     text = Text('Olnud aeg.').tag_layer()
-    setattr(text.morph_analysis[0][0], 'lemma', 'blabla')
-    assert text.morph_analysis[0][0].lemma == 'blabla'
+    setattr(text.morph_analysis[0].annotations[0], 'lemma', 'blabla')
+    assert text.morph_analysis[0].annotations[0].lemma == 'blabla'
 
-    setattr(text.morph_analysis[0][1], 'lemma', 'blabla2')
-    assert text.morph_analysis[0][1].lemma == 'blabla2'
+    setattr(text.morph_analysis[0].annotations[1], 'lemma', 'blabla2')
+    assert text.morph_analysis[0].annotations[1].lemma == 'blabla2'
 
 
 def test_to_records():
@@ -631,8 +620,7 @@ def test_morph2():
     ust seetõttu, et eelmisel nädalal avaldas kirjastus Gangemi "Hõbevalge"
     itaalia keeles, vahendas "Aktuaalne kaamera".''').tag_layer()
 
-
-    assert len(text.morph_analysis[5]) == 2
+    assert len(text.morph_analysis[5].annotations) == 2
     print(text.morph_analysis[5])
     print(text.morph_analysis[5].lemma)
     assert len(text.morph_analysis[5].lemma) == 2
@@ -654,217 +642,13 @@ def test_morph2():
 def test_text_setitem():
     text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
     l = Layer(name='test', attributes=['test1'])
-    text['test'] = l
+    text.add_layer(l)
 
     assert text['test'] is l
-
-    #assigning something that is not a layer
-    with pytest.raises(TypeError):
-        text['test'] = '123'
 
     #getting something that is not in the dict
     with pytest.raises(KeyError):
         text['nothing']
-
-
-# TODO: fix broken test
-def broken_test_rewrite_access():
-    import regex as re
-    text = Text('''
-    Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.
-    Seni vaid soome keelde tõlgitud teos ilmus äsja ka itaalia keeles
-    ning seda esitleti Rooma reisikirjanduse festivalil.
-    Tuntud reisikrijanduse festival valis tänavu peakülaliseks Eesti,
-    Ultima Thule ning Iidse-Põhjala ja Vahemere endisaegsed kultuurikontaktid j
-    ust seetõttu, et eelmisel nädalal avaldas kirjastus Gangemi "Hõbevalge"
-    itaalia keeles, vahendas "Aktuaalne kaamera".''').tag_layer()
-    rules = [
-        ["…$", "Ell"],
-        ["\.\.\.$", "Ell"],
-        ["\.\.$", "Els"],
-        ["\.$", "Fst"],
-        [",$", "Com"],
-        [":$", "Col"],
-        [";$", "Scl"],
-        ["(\?+)$", "Int"],
-        ["(\!+)$", "Exc"],
-        ["(---?)$", "Dsd"],
-        ["(-)$", "Dsh"],
-        ["\($", "Opr"],
-        ["\)$", "Cpr"],
-        ['\\\\"$', "Quo"],
-        ["«$", "Oqu"],
-        ["»$", "Cqu"],
-        ["“$", "Oqu"],
-        ["”$", "Cqu"],
-        ["<$", "Grt"],
-        [">$", "Sml"],
-        ["\[$", "Osq"],
-        ["\]$", "Csq"],
-        ["/$", "Sla"],
-        ["\+$", "crd"],
-        ["L", "SUURL"]
-
-    ]
-
-    triggers = []
-    targets = []
-    for a, b in rules:
-        triggers.append(
-            {'lemma': lambda x, a=a: re.search(a, x)}
-        )
-        targets.append({'main': b}
-                       )
-    rules = list(zip(triggers, targets))
-
-    class SENTINEL:
-        pass
-
-    def apply(trigger, dct):
-        res = {}
-        for k, func in trigger.items():
-            match = dct.get(k, SENTINEL)
-            if match is SENTINEL:
-                return None  # dict was missing a component of trigger
-
-            new = func(match)
-            if not new:
-                return None  # no match
-            else:
-                res[k] = new
-        return res
-
-
-    class Ruleset:
-        def __init__(self, rules):
-            self.rules = rules
-
-        def rewrite(self, dct):
-            ress = []
-            for trigger, target in self.rules:
-                context = apply(trigger, dct)
-                if context is not None:
-                    ress.append(self.match(
-                        target, context
-                    ))
-            return ress
-
-        def match(self, target, context):
-            return target
-
-    ruleset = Ruleset(rules)
-
-    com_type = Layer(
-        name='com_type',
-        parent='morph_analysis',
-        attributes=['main'],
-        ambiguous=True
-    )
-
-    text._add_layer(com_type)
-
-    def rewrite(source_layer, target_layer, rules):
-        assert target_layer.layer.parent == source_layer.layer.name
-
-        target_layer_name = target_layer.layer.name
-
-        attributes = source_layer.layer.attributes
-        for span in source_layer:
-            dct = {}
-            for k in attributes:
-                dct[k] = getattr(span, k, None)[0]  # TODO: fix for nonambiguous layer!
-            res = rules.rewrite(dct)
-
-            for result in res:
-
-                # TODO! remove indexing for nonambiguous layer
-                newspan = span[0].__getattribute__('mark')(target_layer_name)
-                for k, v in result.items():
-                    setattr(newspan, k, v)
-
-    rewrite(text.morph_analysis, text.com_type, ruleset)
-
-    for i in text.words[:1]:
-        if i.main:
-            print(i.main)
-            print(i.com_type)
-            print(i.com_type.main)
-            assert i.main == i.com_type.main
-    print()
-    for i in text.com_type[:1]:
-        print(i, i.morph_analysis)
-        print(i, i.morph_analysis.lemma)
-
-    for i in text.com_type:
-        print(i, i.lemma)
-    print(text.com_type.lemma)
-    assert 0
-
-
-def test_rewriting_api():
-    class ReverseRewriter():
-        # this is an example of the api
-        # it reverses every key and value it is given
-
-        def rewrite(self, record):
-            # record is a dict (non-ambiguous layer)
-            #            list - of - dicts (ambiguous layer)
-            #            list - of - list - of dicts (enveloping layer)
-            #   ... (and so on, as enveloping layers can be infinitely nested)
-            # in practice, you should only implement "rewrite" for the case you are interested in
-
-            # in this case, it is a simple dict
-
-
-            result = {}
-            for k, v in record.items():
-                if k in ('start', 'end'):
-                    result[k] = v
-                else:
-                    result[k[::-1]] = v[::-1]
-            return result
-
-    text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
-
-    test_layer = Layer(name='test', attributes=['reverse'], parent='words')
-    text['test'] = test_layer
-
-    for word in text.words:
-        test_layer.add_annotation(word, reverse=word.text[::-1])
-
-    rewriter = ReverseRewriter()
-    layer = text['test'].rewrite(
-        source_attributes = ('reverse',),
-        target_attributes = ('esrever',),
-        rules = rewriter,
-        name = 'plain'
-    )
-
-    # assign to layer
-    text._add_layer(layer)
-
-    #double reverse is plaintext
-    assert list(text.plain.esrever) == text.words.text
-
-
-def test_rewriting():
-    class TestRewriter:
-        def rewrite(self, record):
-            if record['start'] == 0:
-                return None
-            record['upper'] = record['text'].upper()
-            return record
-
-    t = Text('Tere maailm!')
-    t.tag_layer(['words'])
-    test_layer = t['words'].rewrite(source_attributes=('text',),
-                                    target_attributes=('upper',),
-                                    rules=TestRewriter(),
-                                    name='test_layer')
-    t['test_layer'] = test_layer
-
-    assert t['test_layer'].to_records() == [{'upper': 'MAAILM', 'start': 5, 'end': 11},
-                                            {'upper': '!', 'start': 11, 'end': 12}]
 
 
 def test_delete_annotation_in_ambiguous_span():
@@ -874,7 +658,7 @@ def test_delete_annotation_in_ambiguous_span():
               ambiguous=True,
               attributes=['test1'])
 
-    text['test'] = l
+    text.add_layer(l)
 
     c = 0
     for word in text.words:
@@ -885,24 +669,24 @@ def test_delete_annotation_in_ambiguous_span():
         l.add_annotation(word, test1=c)
         c += 1
 
-    assert len(text['test'][0]) == 2
+    assert len(text['test'][0].annotations) == 2
 
     (text['test'][0].annotations
             .remove(
-        text['test'][0][0] #this is the annotation we want to remove
+        text['test'][0].annotations[0] #this is the annotation we want to remove
     )
           )
-    assert len(text['test'].span_list.spans[0]) == 1
+    assert len(text['test'][0].annotations) == 1
 
     # removing the second
-    assert len(text['test'][1]) == 2
+    assert len(text['test'][1].annotations) == 2
 
     (text['test'][1].annotations
             .remove(
-        text['test'][1][0] #this is the annotation we want to remove
+        text['test'][1].annotations[0] #this is the annotation we want to remove
     )
           )
-    assert len(text['test'][1]) == 1
+    assert len(text['test'][1].annotations) == 1
 
 
 def test_span_morph_access():
@@ -970,18 +754,18 @@ def test_phrase_layer():
             l = Layer(enveloping='words', name='uppercasephrase', attributes=['phrasetext', 'tag'])
 
             for idx, s in enumerate(spans):
-                sps = EnvelopingSpan(spans=s, layer=l)
-                sps.phrasetext = ' '.join([i.text for i in s]).lower()
-                sps.tag = idx
-                l.add_span(sps)
-            text._add_layer(l)
+                l.add_annotation(s, phrasetext=' '.join([i.text for i in s]).lower(), tag=idx)
+
+            text.add_layer(l)
 
             return text
 
     w = UppercasePhraseTagger()
     t = w.tag(Text('Minu KARU ON PUNANE. MIS värvi SINU KARU on? Kuidas PALUN?').tag_layer(['words', 'sentences']))
     t.tag_layer(['morph_analysis'])
-    assert (t.uppercasephrase.get_attributes(['phrasetext', 'text'])) == [[('karu on punane', 'KARU'), ('karu on punane', 'ON'), ('karu on punane', 'PUNANE')], [('sinu karu', 'SINU'), ('sinu karu', 'KARU')]]
+    assert t.uppercasephrase['phrasetext', 'text'] == AttributeTupleList([['karu on punane', ['KARU', 'ON', 'PUNANE']],
+                                                                          ['sinu karu', ['SINU', 'KARU']]],
+                                                                         ('phrasetext', 'text'))
 
     assert (t.phrasetext) == AttributeList(['karu on punane', 'sinu karu'], 'phrasetext')
 
@@ -991,10 +775,10 @@ def test_phrase_layer():
                                        [AttributeList(['sina'], 'lemma'),
                                         AttributeList(['karu'], 'lemma')]]
 
-    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.span_list))]) ==  ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
 
-    mapping = {i: [j for j in t.uppercasephrase.span_list if i in j][0] for i in
-               list(itertools.chain(*t.uppercasephrase.span_list))}
-    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.span_list))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
 
-    assert ([i.text if i not in mapping.keys() else mapping[i].tag for i in t.words]) == ['Minu', 0, 0, 0, '.', 'MIS', 'värvi', 1, 1, 'on', '?', 'Kuidas', 'PALUN', '?']
+    mapping = {i: j for j in t.uppercasephrase for i in j.base_span}
+    assert [mapping[i.base_span].tag if i.base_span in mapping else i.text for i in t.words] == \
+           ['Minu', 0, 0, 0, '.', 'MIS', 'värvi', 1, 1, 'on', '?', 'Kuidas', 'PALUN', '?']

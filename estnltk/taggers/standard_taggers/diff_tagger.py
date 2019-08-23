@@ -7,7 +7,6 @@ import random
 from operator import eq
 import pandas as pd
 
-from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.layer import Layer
 from estnltk.layer_operations import diff_layer
 from estnltk.taggers import Tagger
@@ -16,7 +15,8 @@ from estnltk.layer_operations import iterate_conflicting_spans
 
 
 class DiffTagger(Tagger):
-    """ Finds differences of input layers.
+    """Finds differences of input layers.
+
     """
     conf_param = ['input_layer_attribute', 'span_status_attribute', 'compare_function']
 
@@ -44,119 +44,45 @@ class DiffTagger(Tagger):
         self.span_status_attribute = span_status_attribute
 
     def _make_layer(self, text, layers, status):
-        name_a = self.input_layers[0]
-        name_b = self.input_layers[1]
+        name_a, name_b = self.input_layers
         layer_a = layers[name_a]
         layer_b = layers[name_b]
-        # assert layer_a.attributes == layer_b.attributes
-        assert layer_a.text_object is layer_b.text_object
-        assert layer_a.parent == layer_b.parent
-        assert layer_a.enveloping == layer_b.enveloping
-        assert layer_a.ambiguous == layer_b.ambiguous
 
-        layer = Layer(
-            name=self.output_layer,
-            attributes=self.output_attributes,
-            text_object=layer_a.text_object,
-            parent=layer_a.parent,
-            enveloping=layer_a.enveloping,
-            ambiguous=True
-            )
-        copy_attributes = [attr for attr in self.output_attributes if attr != self.span_status_attribute
-                                                                  and attr != self.input_layer_attribute]
+        layer = Layer(name=self.output_layer,
+                      attributes=self.output_attributes,
+                      text_object=layer_a.text_object,
+                      parent=layer_a.parent,
+                      enveloping=layer_a.enveloping,
+                      ambiguous=True
+                      )
 
-        span_status = None
-        if layer_a.ambiguous:
-            if layer_a.enveloping:
-                for a_spans, b_spans in diff_layer(layer_a, layer_b, comp=self.compare_function):
-                    base_span = None
-                    if a_spans is None:
-                        span_status = 'extra'
-                        base_span = b_spans
-                    if b_spans is None:
-                        span_status = 'missing'
-                        base_span = a_spans
-                    if a_spans is not None and b_spans is not None:
-                        base_span = a_spans
-                        span_status = 'modified'
-                        a_spans, b_spans = symm_diff_ambiguous_spans(a_spans, b_spans)
-                    if a_spans is not None:
-                        for a in a_spans:
-                            attributes = {attr: getattr(a, attr, None) for attr in copy_attributes}
-                            attributes[self.span_status_attribute] = span_status
-                            attributes[self.input_layer_attribute] = name_a
-                            layer.add_annotation(base_span, **attributes)
-                    if b_spans is not None:
-                        for b in b_spans:
-                            attributes = {attr: getattr(b, attr, None) for attr in copy_attributes}
-                            attributes[self.span_status_attribute] = span_status
-                            attributes[self.input_layer_attribute] = name_b
-                            layer.add_annotation(base_span, **attributes)
-            elif layer.parent:
-                # TODO:
-                raise NotImplementedError()
+        for span_a, span_b in diff_layer(layer_a, layer_b, comp=self.compare_function):
+            annotations_a = []
+            annotations_b = []
+            if span_a is None:
+                span_status = 'extra'
+                base_span = span_b
+                annotations_b = span_b.annotations
+            elif span_b is None:
+                span_status = 'missing'
+                base_span = span_a
+                annotations_a = span_a.annotations
             else:
-                for a_spans, b_spans in diff_layer(layer_a, layer_b):
-                    if a_spans is None:
-                        a_spans_missing = []
-                        span_status = 'extra'
-                    else:
-                        a_spans_missing = list(a_spans)
-                    if b_spans is None:
-                        b_spans_extra = []
-                        span_status = 'missing'
-                    else:
-                        b_spans_extra = list(b_spans)
-                    if a_spans is not None and b_spans is not None:
-                        span_status = 'modified'
-                        a_spans_missing, b_spans_extra = symm_diff_ambiguous_spans(a_spans, b_spans,
-                                                                                   attributes=copy_attributes)
-                    for a in a_spans_missing:
-                        attributes = {attr: getattr(a, attr, None) for attr in copy_attributes}
-                        attributes[self.span_status_attribute] = span_status
-                        attributes[self.input_layer_attribute] = name_a
-                        layer.add_annotation(a_spans.span, **attributes)
-                    for b in b_spans_extra:
-                        attributes = {attr: getattr(b, attr, None) for attr in copy_attributes}
-                        attributes[self.span_status_attribute] = span_status
-                        attributes[self.input_layer_attribute] = name_b
-                        layer.add_annotation(b_spans.span, **attributes)
-        else:
-            if layer_a.enveloping:
-                for a, b in diff_layer(layer_a, layer_b):
-                    if a is not None:
-                        attributes = {attr: getattr(a, attr, None) for attr in copy_attributes}
-                        attributes[self.span_status_attribute] = name_a
-                        es = EnvelopingSpan(spans=a.spans, layer=layer, attributes=attributes)
-                        layer.add_span(es)
-                    if b is not None:
-                        attributes = {attr: getattr(b, attr, None) for attr in copy_attributes}
-                        attributes[self.span_status_attribute] = name_b
-                        es = EnvelopingSpan(spans=b.spans, layer=layer, attributes=attributes)
-                        layer.add_span(es)
-            elif layer.parent:
-                # TODO:
-                raise NotImplementedError()
-            else:
-                # TODO:
-                raise NotImplementedError()
+                span_status = 'modified'
+                base_span = span_a
+                annotations_a, annotations_b = symm_diff_ambiguous_spans(span_a, span_b)
 
-        status.update(diff_summary(layer,
-                                   self.span_status_attribute,
-                                   self.input_layer_attribute,
-                                   *self.input_layers))
-        status['unchanged_spans'] = len(layer_a) - status['modified_spans'] - status['missing_spans']
-        # TODO: remove these expensive assertions
-        assert status['unchanged_spans'] == len(layer_b) - status['modified_spans'] - status['extra_spans']
+            for a in annotations_a:
+                attributes = {self.span_status_attribute: span_status,
+                              self.input_layer_attribute: name_a}
+                layer.add_annotation(base_span, **attributes, **a)
 
-        annotations_a = sum(len(s) for s in layer_a)
-        status['unchanged_annotations'] = annotations_a - status['missing_annotations']
-        annotations_b = sum(len(s) for s in layer_b)
-        assert status['unchanged_annotations'] == annotations_b - status['extra_annotations']
+            for a in annotations_b:
+                attributes = {self.span_status_attribute: span_status,
+                              self.input_layer_attribute: name_b}
+                layer.add_annotation(base_span, **attributes, **a)
 
-        assert status['overlapped'] == len(tuple(iterate_overlapped(layer, self.span_status_attribute)))
-        assert status['prolonged'] == len(tuple(iterate_prolonged(layer, self.span_status_attribute)))
-        assert status['shortened'] == len(tuple(iterate_shortened(layer, self.span_status_attribute)))
+        layer.meta.update(diff_summary(layer, self.span_status_attribute, self.input_layer_attribute, layer_a, layer_b))
 
         return layer
 
@@ -171,15 +97,17 @@ def diff_summary(difference_layer: Layer, span_status_attribute, input_layer_att
               'prolonged': 0,
               'shortened': 0,
               }
+    layer_a_name = layer_a.name
+    layer_b_name = layer_b.name
     for span in difference_layer:
         span_status = getattr(span.annotations[0], span_status_attribute)
         if span_status == 'modified':
             result['modified_spans'] += 1
             for s in span.annotations:
                 layer_name = getattr(s, input_layer_attribute)
-                if layer_name == layer_a:
+                if layer_name == layer_b_name:
                     result['extra_annotations'] += 1
-                elif layer_name == layer_b:
+                elif layer_name == layer_a_name:
                     result['missing_annotations'] += 1
                 else:
                     raise ValueError('unknown input_layer: ' + layer_name)
@@ -205,6 +133,11 @@ def diff_summary(difference_layer: Layer, span_status_attribute, input_layer_att
         else:
             raise ValueError(a_start, a_end, b_start, b_end)
     result['conflicts'] = result['overlapped'] + result['prolonged'] + result['shortened']
+
+    result['unchanged_spans'] = len(layer_a) - result['modified_spans'] - result['missing_spans']
+    annotations_a = sum(len(s.annotations) for s in layer_a)
+    result['unchanged_annotations'] = annotations_a - result['missing_annotations']
+
     return result
 
 

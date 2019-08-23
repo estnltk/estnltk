@@ -305,15 +305,15 @@ def test_postanalysis_preserves_extra_attributes():
     analyzer = VabamorfAnalyzer(extra_attributes=['analysis_id', 'sentence_id'])
     analyzer.tag(text)
     # Add extra attributes
-    for sp_id, spanlist in enumerate(text.morph_analysis.span_list):
-        for s_id, span in enumerate(spanlist):
-            setattr(span, 'analysis_id', str(sp_id)+'_'+str(s_id))
-    for sent_id, sentence in enumerate(text.sentences.span_list):
-        for sp_id, spanlist in enumerate(text.morph_analysis.span_list):
-            if sentence.start <= spanlist.start and \
-               spanlist.end <= sentence.end:
-                for s_id, span in enumerate(spanlist):
-                    setattr(span, 'sentence_id', str(sent_id))
+    for sp_id, span in enumerate(text.morph_analysis):
+        for a_id, annotation in enumerate(span.annotations):
+            setattr(annotation, 'analysis_id', str(sp_id)+'_'+str(a_id))
+    for sent_id, sentence in enumerate(text.sentences):
+        for sp_id, span in enumerate(text.morph_analysis):
+            if sentence.start <= span.start and \
+               span.end <= sentence.end:
+                for a_id, annotation in enumerate(span.annotations):
+                    setattr(annotation, 'sentence_id', str(sent_id))
     postanalysis_tagger = PostMorphAnalysisTagger()
     # make post analysis corrections
     postanalysis_tagger.retag(text)
@@ -367,18 +367,18 @@ def test_postanalysis_with_correction_rewriter_for_numbers():
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
     #print(text['morph_analysis'].to_records())
-    expected_records = [ \
-        [{'clitic': '', 'root': 'Tiit', 'lemma': 'Tiit', 'end': 4, 'form': 'sg n', 'partofspeech': 'H', 'start': 0, 'ending': '0', 'root_tokens': ('Tiit',)}], \
-        [{'clitic': '', 'root': 'ei', 'lemma': 'ei', 'end': 7, 'form': 'neg', 'partofspeech': 'V', 'start': 5, 'ending': '0', 'root_tokens': ('ei',)}], \
-        [{'clitic': '', 'root': 'maks=nud', 'lemma': 'maksnud', 'end': 15, 'form': '', 'partofspeech': 'A', 'start': 8, 'ending': '0', 'root_tokens': ('maksnud',)}, \
-         {'clitic': '', 'root': 'maks=nud', 'lemma': 'maksnud', 'end': 15, 'form': 'sg n', 'partofspeech': 'A', 'start': 8, 'ending': '0', 'root_tokens': ('maksnud',)}, \
-         {'clitic': '', 'root': 'maks=nud', 'lemma': 'maksnud', 'end': 15, 'form': 'pl n', 'partofspeech': 'A', 'start': 8, 'ending': 'd', 'root_tokens': ('maksnud',)}, \
-         {'clitic': '', 'root': 'maks', 'lemma': 'maksma', 'end': 15, 'form': 'nud', 'partofspeech': 'V', 'start': 8, 'ending': 'nud', 'root_tokens': ('maks',)}], \
-        [{'clitic': '', 'root': '6', 'lemma': '6', 'end': 18, 'form': 'sg p', 'partofspeech': 'N', 'start': 16, 'ending': 't', 'root_tokens': ('6',)}], \
-        [{'clitic': '', 'root': 'kroon', 'lemma': 'kroon', 'end': 25, 'form': 'sg p', 'partofspeech': 'S', 'start': 19, 'ending': '0', 'root_tokens': ('kroon',)}], \
-        [{'clitic': '', 'root': ',', 'lemma': ',', 'end': 26, 'form': '', 'partofspeech': 'Z', 'start': 25, 'ending': '', 'root_tokens': (',',)}], \
-        [{'clitic': '', 'root': 'vaid', 'lemma': 'vaid', 'end': 31, 'form': '', 'partofspeech': 'J', 'start': 27, 'ending': '0', 'root_tokens': ('vaid',)}], \
-        [{'clitic': '', 'root': 'ost', 'lemma': 'ostma', 'end': 37, 'form': 's', 'partofspeech': 'V', 'start': 32, 'ending': 'is', 'root_tokens': ('ost',)}], \
+    expected_records = [
+        [{'clitic': '', 'root': 'Tiit', 'lemma': 'Tiit', 'end': 4, 'form': 'sg n', 'partofspeech': 'H', 'start': 0, 'ending': '0', 'root_tokens': ('Tiit',)}],
+        [{'clitic': '', 'root': 'ei', 'lemma': 'ei', 'end': 7, 'form': 'neg', 'partofspeech': 'V', 'start': 5, 'ending': '0', 'root_tokens': ('ei',)}],
+        [{'clitic': '', 'root': 'maks=nud', 'lemma': 'maksnud', 'end': 15, 'form': '', 'partofspeech': 'A', 'start': 8, 'ending': '0', 'root_tokens': ('maksnud',)},
+         {'clitic': '', 'root': 'maks=nud', 'lemma': 'maksnud', 'end': 15, 'form': 'sg n', 'partofspeech': 'A', 'start': 8, 'ending': '0', 'root_tokens': ('maksnud',)},
+         {'clitic': '', 'root': 'maks=nud', 'lemma': 'maksnud', 'end': 15, 'form': 'pl n', 'partofspeech': 'A', 'start': 8, 'ending': 'd', 'root_tokens': ('maksnud',)},
+         {'clitic': '', 'root': 'maks', 'lemma': 'maksma', 'end': 15, 'form': 'nud', 'partofspeech': 'V', 'start': 8, 'ending': 'nud', 'root_tokens': ('maks',)}],
+        [{'clitic': '', 'root': '6', 'lemma': '6', 'end': 18, 'form': 'sg p', 'partofspeech': 'N', 'start': 16, 'ending': 't', 'root_tokens': ('6',)}],
+        [{'clitic': '', 'root': 'kroon', 'lemma': 'kroon', 'end': 25, 'form': 'sg p', 'partofspeech': 'S', 'start': 19, 'ending': '0', 'root_tokens': ('kroon',)}],
+        [{'clitic': '', 'root': ',', 'lemma': ',', 'end': 26, 'form': '', 'partofspeech': 'Z', 'start': 25, 'ending': '', 'root_tokens': (',',)}],
+        [{'clitic': '', 'root': 'vaid', 'lemma': 'vaid', 'end': 31, 'form': '', 'partofspeech': 'J', 'start': 27, 'ending': '0', 'root_tokens': ('vaid',)}],
+        [{'clitic': '', 'root': 'ost', 'lemma': 'ostma', 'end': 37, 'form': 's', 'partofspeech': 'V', 'start': 32, 'ending': 'is', 'root_tokens': ('ost',)}],
         [{'clitic': '', 'root': '3', 'lemma': '3', 'end': 41, 'form': 'sg kom', 'partofspeech': 'N', 'start': 38, 'ending': 'ga', 'root_tokens': ('3',)}]]
     results_dict = text['morph_analysis'].to_records()
     _sort_morph_analysis_records( results_dict )

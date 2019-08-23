@@ -26,4 +26,4 @@ class PronounTypeTagger(TaggerOld):
             )
         if return_layer:
             return new_layer
-        text[self.layer_name] = new_layer
+        text.add_layer(new_layer)

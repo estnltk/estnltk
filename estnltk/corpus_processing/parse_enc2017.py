@@ -25,7 +25,7 @@ from logging import getLevelName
 
 from tqdm import tqdm, tqdm_notebook
 
-from estnltk.text import Text, Layer, Span, EnvelopingSpan
+from estnltk.text import Text, Layer
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 
@@ -505,8 +505,7 @@ class ENC2017TextReconstructor:
                           for attrib in sent_extra_attribs:
                               current_sent_attribs[attrib] = \
                                   sentence[attrib] if attrib in sentence else None
-                    span = EnvelopingSpan(spans=orig_words[s_start:s_end+1].spans, layer=orig_sentences)
-                    orig_sentences.add_annotation(span, **current_sent_attribs)
+                    orig_sentences.add_annotation(orig_words[s_start:s_end+1], **current_sent_attribs)
                     sid += 1; s_start = -1; s_end = -1
             orig_sentences.check_span_consistency()
             assert sid == len(sent_locations)
@@ -537,8 +536,7 @@ class ENC2017TextReconstructor:
                       for attrib in para_extra_attribs: 
                           current_paragraph_attribs[attrib] = \
                               paragraph[attrib] if attrib in paragraph else None
-                  span = EnvelopingSpan(spans=orig_sentences[p_start:p_end+1].spans, layer=orig_paragraphs)
-                  orig_paragraphs.add_annotation(span, **current_paragraph_attribs)
+                  orig_paragraphs.add_annotation(orig_sentences[p_start:p_end+1], **current_paragraph_attribs)
                   pid += 1; p_start = -1; p_end = -1
             orig_paragraphs.check_span_consistency()
             assert pid == len(para_locations)
@@ -555,7 +553,7 @@ class ENC2017TextReconstructor:
         if attach_layers:
             for layer in created_layers:
                 if layer is not None:
-                    text_obj[layer.name] = layer
+                    text_obj.add_layer(layer)
         else:
             return created_layers
 

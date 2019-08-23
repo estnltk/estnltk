@@ -124,8 +124,7 @@ def test_merge_mistakenly_split_sentences_1():
         # Perform analysis
         text.tag_layer(['words', 'sentences'])
         # Collect results 
-        sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+        sentence_texts = [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -223,16 +222,16 @@ def test_merge_mistakenly_split_sentences_2():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
 
 
-def test_merge_mistakenly_split_sentences_3():
+def test_merge_mistakenly_split_sentences_3_fix_double_quotes():
     # Tests that mistakenly split sentences have been properly merged
-    # 3: splits related to double quotes
+    # 3.1: fixes double quotes based on local context;
     test_texts = [ 
         #   Merge case:   {sentence_ending_punct} {ending_quotes}? + {comma_or_semicolon} {lowercase_letter}
         { 'text': 'ETV-s esietendub homme " Õnne 13 ! " , mis kuu aja eest jõudis lavale Ugalas .', \
@@ -298,10 +297,6 @@ def test_merge_mistakenly_split_sentences_3():
           'expected_sentence_texts': ['" Kuidas saada miljonäriks ? " .', 'Selge see , et miljonimängus peavad olema kõige raskemad küsimused .'] }, \
         { 'text': '" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " . \nMa ei taha seda ärajäänud kohtumist presidendi kaela ajada .', \
           'expected_sentence_texts': ['" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " .', 'Ma ei taha seda ärajäänud kohtumist presidendi kaela ajada .'] }, \
-          
-        #   TODO: The following case is problematic, needs to be fixed later:
-        { 'text': 'Kertu küsib : “ Miks sa naeratad kogu aeg ? ”\nMaailm on nii ilus .', \
-          'expected_sentence_texts': ['Kertu küsib : “ Miks sa naeratad kogu aeg ?', '”\nMaailm on nii ilus .'] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
@@ -309,11 +304,71 @@ def test_merge_mistakenly_split_sentences_3():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
+
+def test_fix_double_quotes_2():
+    # Tests that knowledge about quotations in the whole text is used to repair sentence boundaries
+    # 3.2: fixes double quotes based on global counts of quotation marks;
+    sentence_tokenizer = SentenceTokenizer( fix_double_quotes_based_on_counts=True )
+    test_texts = [ 
+        # if an ending double quotes start a sentence, then move the quotes to the end of the previous sentence
+        { 'text': 'Kertu küsib : “ Miks sa naeratad kogu aeg ? ”\nMaailm on nii ilus .', \
+          'expected_sentence_texts': ['Kertu küsib : “ Miks sa naeratad kogu aeg ? ”', 'Maailm on nii ilus .'] }, \
+        { 'text': 'Mis te nende tähtedega teete ?\n“ Maha müün . ” See ei tähenda , et nii peabki .', \
+          'expected_sentence_texts': ['Mis te nende tähtedega teete ?', '“ Maha müün . ”', 'See ei tähenda , et nii peabki .'] }, \
+        { 'text': '“ Minul pole häda midägit .\nPension käib ja puha . ”\nTraktor aias on poja oma .', \
+          'expected_sentence_texts': ['“ Minul pole häda midägit .', 'Pension käib ja puha . ”', 'Traktor aias on poja oma .'] }, \
+        { 'text': 'Päris eakatest räägib näiteks " Looduse lapsed . " Piletihinnad on madalamad kui muidu kinodes , 25-60 krooni .', \
+          'expected_sentence_texts': ['Päris eakatest räägib näiteks " Looduse lapsed . "', \
+                                      'Piletihinnad on madalamad kui muidu kinodes , 25-60 krooni .'] }, \
+        
+        # if the movable ending quote is followed by the attribution part of the quote (describing "who uttered the quote"), then 
+        # moves the  ending  quotation  mark along with the attribution part to the end of the previous sentence;
+        { 'text': 'Inspektor Lestrade ja lahkus kiiresti , jälitatuna koerast . '+\
+                  '“ Kuidas sul siis sedapuhku Sussexis läks ? ” tundis Watson tule kohal käsi kuivatades huvi . '+\
+                  "“ Ma näen , et Baskerville'ide koer on jälle kutsikad saanud ! ” ", \
+          'expected_sentence_texts': ['Inspektor Lestrade ja lahkus kiiresti , jälitatuna koerast .', \
+                                      '“ Kuidas sul siis sedapuhku Sussexis läks ? ” tundis Watson tule kohal käsi kuivatades huvi .', \
+                                      "“ Ma näen , et Baskerville'ide koer on jälle kutsikad saanud ! ”"] }, \
+        { 'text': '" Oot , ma teen lahti " " Oh , küll ma ise , " ütlen pudelikaelast kõvasti kinni haarates . " Mis-mis ?! "', \
+          'expected_sentence_texts': ['" Oot , ma teen lahti "', \
+                                      '" Oh , küll ma ise , " ütlen pudelikaelast kõvasti kinni haarates .', \
+                                      '" Mis-mis ?! "'] }, \
+        
+        # if there are consecutive pairs of double quotes (without separating comma or lowercase word), assume these 
+        # should mark different sentences: split after ending quotes
+        { 'text': '“ Kuule , mida te Lestradega siin tegite ? ” “ Aga see on ju elementaarne , ” imestas Watson . “ Kas sa siis ise ei näinud ? ”', \
+          'expected_sentence_texts': ['“ Kuule , mida te Lestradega siin tegite ? ”', \
+                                      '“ Aga see on ju elementaarne , ” imestas Watson .', \
+                                      '“ Kas sa siis ise ei näinud ? ”'] }, \
+        { 'text': '" Kuidas sul muidu päev läks ? Kas see võrukael Tiit ka midagi kokku keeras ? "  '+\
+                  '" Tead , ma olen nii väsinud ... " " Hea küll , hea küll ! Ma ei päri rohkem ! "', \
+          'expected_sentence_texts': ['" Kuidas sul muidu päev läks ?', \
+                                      'Kas see võrukael Tiit ka midagi kokku keeras ? "', \
+                                      '" Tead , ma olen nii väsinud ... "', \
+                                      '" Hea küll , hea küll !', \
+                                      'Ma ei päri rohkem ! "'] }, \
+        { 'text': '" Ja veel . Tõde on kusagil olemas . Varem või hiljem ... "  '+\
+                  '" Hea küll , hea küll , " tõrjus Jan ja lonkis tagasi palatisse .', \
+          'expected_sentence_texts': ['" Ja veel .', 'Tõde on kusagil olemas .', \
+                                      'Varem või hiljem ... "', \
+                                      '" Hea küll , hea küll , " tõrjus Jan ja lonkis tagasi palatisse .'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words'])
+        sentence_tokenizer.tag( text )
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences']]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
 
 
 def test_merge_mistakenly_split_sentences_4():
@@ -410,7 +465,7 @@ def test_merge_mistakenly_split_sentences_4():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -463,7 +518,7 @@ def test_merge_mistakenly_split_sentences_5():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -488,7 +543,7 @@ def test_split_mistakenly_merged_sentences_1():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -545,7 +600,7 @@ def test_use_emoticons_as_sentence_endings():
         sentence_tokenizer.tag(text)
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -648,7 +703,7 @@ def test_use_double_newline_as_sentence_endings():
         sentence_tokenizer.tag(text)
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -701,7 +756,7 @@ def test_fix_repeated_sentence_ending_punctuation_1():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -740,7 +795,7 @@ def test_fix_repeated_sentence_ending_punctuation_2():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
@@ -783,9 +838,9 @@ def test_record_fixes_of_sentence_tokenizer():
         sentence_tokenizer.tag(text)
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         sentence_fixes = \
-            [sentence.fix_types for sentence in text['sentences'].span_list]
+            [sentence.fix_types for sentence in text['sentences']]
         #print(sentence_texts)
         #print(sentence_fixes)
         # Check results
@@ -812,7 +867,7 @@ def test_sentence_tokenizer_with_custom_base_tokenizer():
         sentence_tokenizer.tag(text)
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
@@ -839,7 +894,7 @@ def test_merge_rules_do_not_conflict_paragraph_fixes():
         text.tag_layer(['words', 'sentences'])
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['sentences']]
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
@@ -880,7 +935,7 @@ def test_layer_names_can_be_changed():
         assert 'sentences' not in text.layers.keys()
         # Collect results 
         sentence_texts = \
-            [sentence.enclosing_text for sentence in text['my_sentences'].span_list]
+            [sentence.enclosing_text for sentence in text['my_sentences']]
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']

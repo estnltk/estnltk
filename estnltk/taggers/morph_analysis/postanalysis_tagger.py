@@ -9,8 +9,8 @@ import regex as re
 from typing import MutableMapping
 
 from estnltk import Annotation
-from estnltk.text import Layer
-from estnltk.layer.ambiguous_span import AmbiguousSpan
+from estnltk.layer.layer import Layer
+from estnltk.layer.span import Span
 
 from estnltk.taggers import Retagger
 
@@ -200,12 +200,10 @@ class PostMorphAnalysisTagger(Retagger):
         # --------------------------------------------
         self._ignore_specific_compound_tokens( raw_text, layers, status )
 
-
-
-    def _ignore_specific_compound_tokens( self, raw_text: str, \
-                                          layers: MutableMapping[str, Layer], \
-                                          status: dict = None ):
-        '''Mark morph analyses overlapping with specific compound tokens 
+    def _ignore_specific_compound_tokens(self, raw_text: str,
+                                         layers: MutableMapping[str, Layer],
+                                         status: dict = None ):
+        """Mark morph analyses overlapping with specific compound tokens
            (such as XML tags, emoticons) as analyses to be ignored during 
            morphological disambiguation.
            Which types of compound tokens will be marked depends on the 
@@ -223,12 +221,13 @@ class PostMorphAnalysisTagger(Retagger):
               layers. The morph_analysis layer will be retagged.
            status: dict
               This can be used to store metadata on layer retagging.
-        '''
+
+        """
         comp_token_id = 0
         for morph_spanlist in layers[self.output_layer].spans:
-            if comp_token_id < len(layers[ self._input_cp_tokens_layer ].span_list):
-                comp_token = layers[ self._input_cp_tokens_layer ].span_list[comp_token_id]
-                if (comp_token.start == morph_spanlist.start and \
+            if comp_token_id < len(layers[self._input_cp_tokens_layer]):
+                comp_token = layers[self._input_cp_tokens_layer][comp_token_id]
+                if (comp_token.start == morph_spanlist.start and
                     morph_spanlist.end == comp_token.end):
                     ignore_spans = False
                     # Found matching compound token
@@ -240,17 +239,15 @@ class PostMorphAnalysisTagger(Retagger):
                         ignore_spans = True
                     if ignore_spans:
                         # Mark all spans as to be ignored
-                        for span in morph_spanlist:
-                            setattr(span, IGNORE_ATTR, True)
+                        for annotation in morph_spanlist.annotations:
+                            setattr(annotation, IGNORE_ATTR, True)
                     comp_token_id += 1
             else:
                 # all compound tokens have been exhausted
                 break
 
-
-
-    def _fix_based_on_compound_tokens( self, raw_text: str, \
-                                       layers: MutableMapping[str, Layer], \
+    def _fix_based_on_compound_tokens( self, raw_text: str,
+                                       layers: MutableMapping[str, Layer],
                                        status: dict = None ):
         '''Fixes morph analyses based on information about compound tokens.
            For instance, if a word overlaps with a compound token of type 
@@ -275,13 +272,13 @@ class PostMorphAnalysisTagger(Retagger):
         comp_token_id  = 0
         has_normalized = 'normalized' in layers[ self._input_cp_tokens_layer ].attributes
         for morph_spanlist in layers[self.output_layer].spans:
-            if comp_token_id < len(layers[ self._input_cp_tokens_layer ].span_list):
-                comp_token = layers[ self._input_cp_tokens_layer ].span_list[comp_token_id]
+            if comp_token_id < len(layers[self._input_cp_tokens_layer]):
+                comp_token = layers[self._input_cp_tokens_layer][comp_token_id]
                 if (comp_token.start == morph_spanlist.start and
                     morph_spanlist.end == comp_token.end):
                     #  In order to avoid errors in downstream processing, let's 
                     # fix only non-empty spans, and skip the empty spans
-                    is_empty = not morph_spanlist or _is_empty_annotation(morph_spanlist[0])
+                    is_empty = not morph_spanlist.annotations or _is_empty_annotation(morph_spanlist.annotations[0])
                     if is_empty:
                         # Next compound token
                         comp_token_id += 1
@@ -291,15 +288,15 @@ class PostMorphAnalysisTagger(Retagger):
                     # 1) Fix names with initials, such as "T. S. Eliot"
                     if self.fix_names_with_initials and \
                        'name_with_initial' in comp_token.type:
-                        for span in morph_spanlist:
+                        for annotation in morph_spanlist.annotations:
                             # If it is a verb, then skip the fixes 
                             # ( verbs are more complicated, may need 
                             #   changing form, ending etc. )
-                            if getattr(span, 'partofspeech') == 'V':
+                            if getattr(annotation, 'partofspeech') == 'V':
                                 continue
                             # Set partofspeech to H
-                            setattr(span, 'partofspeech', 'H')
-                            root = getattr(span, 'root')
+                            setattr(annotation, 'partofspeech', 'H')
+                            root = getattr(annotation, 'root')
                             # Fix root: if there is no underscore/space, add it 
                             root = \
                                 self._pat_name_needs_underscore1.sub('\\1 _\\2', root)
@@ -313,31 +310,31 @@ class PostMorphAnalysisTagger(Retagger):
                             # 'root_tokens' and 'lemma' will be re-generated 
                             # based on it 
                             #
-                            setattr(span, 'root', root)
+                            setattr(annotation, 'root', root)
                     # 2) Fix emoticons, such as ":D"
                     if self.fix_emoticons and \
                        'emoticon' in comp_token.type:
-                        for span in morph_spanlist:
+                        for span in morph_spanlist.annotations:
                             # Set partofspeech to Z
                             setattr(span, 'partofspeech', 'Z')
                     # 3) Fix www-addresses, such as 'Postimees.ee'
                     if self.fix_www_addresses and \
                        ('www_address' in comp_token.type or \
                         'www_address_short' in comp_token.type):
-                        for span in morph_spanlist:
+                        for span in morph_spanlist.annotations:
                             # Set partofspeech to H
                             setattr(span, 'partofspeech', 'H')
                     # 4) Fix email addresses, such as 'big@boss.com'
                     if self.fix_email_addresses and \
                        'email' in comp_token.type:
-                        for span in morph_spanlist:
+                        for span in morph_spanlist.annotations:
                             # Set partofspeech to H
                             setattr(span, 'partofspeech', 'H')
                     # 5) Fix abbreviations, such as 'toim.', 'Tlk.'
                     if self.fix_abbreviations and \
                        ('abbreviation' in comp_token.type or \
                         'non_ending_abbreviation' in comp_token.type):
-                        for span in morph_spanlist:
+                        for span in morph_spanlist.annotations:
                             # Set partofspeech to Y, if it is S or H
                             if getattr(span, 'partofspeech') in ['S', 'H']:
                                 setattr(span, 'partofspeech', 'Y')
@@ -345,20 +342,20 @@ class PostMorphAnalysisTagger(Retagger):
                     if self.fix_numeric:
                         if 'numeric' in comp_token.type or \
                            'percentage' in comp_token.type:
-                            for span in morph_spanlist:
+                            for span in morph_spanlist.annotations:
                                 # Change partofspeech from Y to N
                                 if getattr(span, 'partofspeech') in ['Y']:
                                     setattr(span, 'partofspeech', 'N')
                         elif 'case_ending' in comp_token.type:
                             # a number with a case ending may also have 
                             # wrong partofspeech
-                            for span in morph_spanlist:
-                                if getattr(span, 'partofspeech') in ['Y']:
+                            for annotation in morph_spanlist.annotations:
+                                if getattr(annotation, 'partofspeech') in ['Y']:
                                     # if root looks like a numeric, 
                                     # then change pos Y -> N
-                                    root = getattr(span, 'root')
+                                    root = getattr(annotation, 'root')
                                     if self._pat_numeric.match(root):
-                                        setattr(span, 'partofspeech', 'N')
+                                        setattr(annotation, 'partofspeech', 'N')
                     # Next compound token
                     comp_token_id += 1
             else:
@@ -437,7 +434,7 @@ class PostMorphAnalysisTagger(Retagger):
                     for extra_attr in extra_attributes:
                         empty_morph_record[extra_attr] = first_span_rec[extra_attr]
                 # Record the new span
-                ambiguous_span = AmbiguousSpan(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
+                ambiguous_span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
                 # Add the new annotation
                 attributes = {attribute: empty_morph_record[attribute] for attribute in ambiguous_span.layer.attributes}
                 ambiguous_span.add_annotation(Annotation(ambiguous_span, **attributes))
@@ -476,7 +473,7 @@ class PostMorphAnalysisTagger(Retagger):
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
-            ambiguous_span = AmbiguousSpan(base_span=morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
+            ambiguous_span = Span(base_span=morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
 
             record_added = False
             for rec in rewritten_recs:

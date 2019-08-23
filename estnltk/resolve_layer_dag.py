@@ -59,7 +59,7 @@ class Resolver:
         return self.taggers.list_layers()
 
     def apply(self, text: 'Text', layer_name: str) -> 'Text':
-        if layer_name in text.layers.keys():
+        if layer_name in text.layers:
             return text
         for prerequisite in self.taggers.graph.predecessors(layer_name):
             self.apply(text, prerequisite)

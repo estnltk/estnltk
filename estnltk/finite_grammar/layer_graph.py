@@ -105,7 +105,7 @@ class SpanNode(Node):
         super().__init__(str(span.text), span.start, span.end)
 
     def __hash__(self):
-        return hash((self.name, self.start, self.end, self.span))
+        return hash((self.name, self.span.base_span))
 
 
 class GrammarNode(Node):
@@ -162,7 +162,7 @@ class TerminalNode(GrammarNode):
             self.attributes[attr] = getattr(span, attr)
 
     def __hash__(self):
-        return hash((self.name, self.span))
+        return hash((self.name, self.span.base_span))
 
     def __eq__(self, other):
         if isinstance(other, TerminalNode):
@@ -302,24 +302,23 @@ def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=
     assert not attributes or set(attributes) <= set(layer.attributes)
 
     graph = LayerGraph()
-    spans = layer.span_list
 
     if layer.ambiguous:
         for sp in layer:
             assert sp.start >= 0, sp
-            names_1 = {getattr(b, name_attribute) for b in sp}
+            names_1 = {getattr(b, name_attribute) for b in sp.annotations}
             for name_1 in names_1:
                 graph.add_node(TerminalNode(name_1, sp, attributes))
-        for sp_1, sp_2 in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
-            names_1 = {getattr(b, name_attribute) for b in sp_1}
-            names_2 = {getattr(b, name_attribute) for b in sp_2}
+        for sp_1, sp_2 in iterate_consecutive_spans(layer, raw_text, gap_validator=gap_validator):
+            names_1 = {getattr(b, name_attribute) for b in sp_1.annotations}
+            names_2 = {getattr(b, name_attribute) for b in sp_2.annotations}
             for name_1 in names_1:
                 for name_2 in names_2:
                     graph.add_edge(TerminalNode(name_1, sp_1, attributes), TerminalNode(name_2, sp_2, attributes))
     else:
         for sp in layer:
             graph.add_node(TerminalNode(getattr(sp, name_attribute), sp, attributes))
-        for a, b in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
+        for a, b in iterate_consecutive_spans(layer, raw_text, gap_validator=gap_validator):
             name_a = getattr(a, name_attribute)
             name_b = getattr(b, name_attribute)
             graph.add_edge(TerminalNode(name_a, a, attributes), TerminalNode(name_b, b, attributes))

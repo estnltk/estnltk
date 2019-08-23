@@ -13,7 +13,7 @@ def test_raises_error():
     layer.add_annotation((63, 68), grammar_symbol='TÄNAV')
     layer.add_annotation((69, 70), grammar_symbol='MAJA')
 
-    text['address_parts'] = layer
+    text.add_layer(layer)
 
     grammar = Grammar(start_symbols=['ADDRESS1', 'ADDRESS2'])
     grammar.add_rule('ADDRESS1', 'TÄNAV MAJA')

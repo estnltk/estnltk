@@ -1,6 +1,7 @@
 from estnltk.taggers import TaggerOld
+from estnltk.layer.base_span import EnvelopingBaseSpan
 from estnltk.layer.enveloping_span import EnvelopingSpan
-from estnltk.layer.layer import Layer
+from estnltk.layer.layer import Layer, Annotation
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 
@@ -80,9 +81,9 @@ class PhraseListTagger(TaggerOld):
 
     def tag(self, text, return_layer=False):
         input_layer = text[self._input_layer]
-        layer = Layer(
-                      name=self.layer_name,
+        layer = Layer(name=self.layer_name,
                       attributes = self.attributes,
+                      text_object=text,
                       enveloping=self._input_layer,
                       ambiguous=self.output_ambiguous)
         heads = self.heads
@@ -99,13 +100,13 @@ class PhraseListTagger(TaggerOld):
                                         match = False
                                         break
                                 if match:
-                                    span = EnvelopingSpan(spans=input_layer[i:i+len(tail)+1].spans,
+                                    base_span = EnvelopingBaseSpan(s.base_span for s in input_layer[i:i+len(tail)+1])
+                                    span = EnvelopingSpan(base_span=base_span,
                                                           layer=layer)
                                     phrase = (value,)+tail
                                     if self._consistency_checker(text, span, phrase):
                                         rec = self._decorator(text, span, phrase)
-                                        for attr in self.attributes:
-                                            setattr(span, attr, rec[attr])
+                                        span.add_annotation(Annotation(span, **rec))
                                         layer.add_span(span)
         else:
             for i, value in enumerate(value_list):
@@ -130,5 +131,5 @@ class PhraseListTagger(TaggerOld):
 
         if return_layer:
             return layer
-        text[self.layer_name] = layer
+        text.add_layer(layer)
         return text

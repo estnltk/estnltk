@@ -7,7 +7,7 @@
 
 import json
 
-from estnltk.text import Layer, EnvelopingSpan
+from estnltk.text import Layer
 
 from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
@@ -139,29 +139,28 @@ class ClauseSegmenter(Tagger):
 
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
-        morph_spans  = layers[ self._input_morph_analysis_layer ].span_list
-        word_spans   = layers[ self._input_words_layer ].span_list
-        assert len(morph_spans) == len(word_spans)
+        morph_layer = layers[self._input_morph_analysis_layer]
+        word_layer = layers[self._input_words_layer]
+        assert len(morph_layer) == len(word_layer)
         word_span_id = 0
-        for sentence in layers[ self._input_sentences_layer ].span_list:
+        for sentence in layers[self._input_sentences_layer]:
             #  Collect all words/morph_analyses inside the sentence
             #  Assume: len(word_spans) == len(morph_spans)
             sentence_morph_dicts = []
             sentence_words       = []
-            while word_span_id < len(word_spans):
+            while word_span_id < len(word_layer):
                 # Get corresponding word span
-                word_span  = word_spans[word_span_id]
+                word_span  = word_layer[word_span_id]
                 morph_span = None
                 if sentence.start <= word_span.start and \
                     word_span.end <= sentence.end:
                     morphFound = False
                     # Get corresponding morph span
-                    if word_span_id < len(morph_spans):
-                        morph_span = morph_spans[word_span_id]
-                        if word_span.start == morph_span.start and \
-                           word_span.end == morph_span.end and \
-                           len(morph_span) > 0 and \
-                           (not _is_empty_annotation(morph_span[0])):
+                    if word_span_id < len(morph_layer):
+                        morph_span = morph_layer[word_span_id]
+                        if word_span.base_span == morph_span.base_span and \
+                           len(morph_span.annotations) > 0 and \
+                           not _is_empty_annotation(morph_span.annotations[0]):
                             # Convert span to Vabamorf dict
                             word_morph_dict = \
                                     _convert_morph_analysis_span_to_vm_dict( \
@@ -210,16 +209,8 @@ class ClauseSegmenter(Tagger):
                     clause_index[word['clause_id']].append( word_span )
                     clause_type_index[word['clause_id']] = \
                         word['clause_type']
-                # Rewrite clause index to list of clause SpanList-s
-                for clause_id in clause_index.keys():
-                    clause_spans = EnvelopingSpan(spans=clause_index[clause_id], layer=layer)
-                    clause_spans.clause_type = \
-                        clause_type_index[clause_id]
-                    #clause_spans.spans = clause_index[clause_id]
-                    clause_spanlists.append( clause_spans )
-        # Populate layer
-        for clause_spl in clause_spanlists:
-            layer.add_span( clause_spl )
+                for clause_id, clause in clause_index.items():
+                    layer.add_annotation(clause, clause_type=clause_type_index[clause_id])
         return layer
 
     @staticmethod

@@ -3,8 +3,7 @@
 # 
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
-
-from estnltk import EnvelopingSpan, Layer
+from estnltk import Annotation, EnvelopingBaseSpan, EnvelopingSpan, Layer
 
 import regex as re
 
@@ -612,9 +611,9 @@ class SyntaxIgnoreTagger( Tagger ):
             if words_start != -1 and words_end != -1:
                 # Record ignored words
                 spans = words[words_start:words_end+1]
-                new_spanlist = EnvelopingSpan(spans=spans, layer=layer)
-                new_spanlist.type = sp.type
-                ignored_words_spans.append( new_spanlist )
+                new_span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
+                new_span.add_annotation(Annotation(new_span, type=sp.type))
+                ignored_words_spans.append(new_span)
                 #print('*',text.text[sp.start:sp.end], sp.start, sp.end)
                 #print(words[words_start].start, words[words_end].end, new_spanlist.spans)
                 # Advance in text
@@ -624,12 +623,12 @@ class SyntaxIgnoreTagger( Tagger ):
         #        in parentheses and/or less than 3 lc words
         if self.ignore_consecutive_parenthesized_sentences:
             ignored_words_spans = \
-                self._add_ignore_consecutive_parenthesized_sentences(text,layers,ignored_words_spans, layer)
+                self._add_ignore_consecutive_parenthesized_sentences(text, layers, ignored_words_spans, layer)
         
         # C) Add sentences that start with time (e.g. a time schedule of a TV program)
         if self.ignore_sentences_starting_with_time:
             ignored_words_spans = \
-                self._add_ignore_sentences_starting_with_time(text,layers,ignored_words_spans, layer)
+                self._add_ignore_sentences_starting_with_time(text, layers, ignored_words_spans, layer)
 
         # D) Add sentences starting with an uppercase letter (or an ordinal number followed by 
         #        an uppercase letter), containing otherwise less than 3 lowercase words, and 
@@ -741,8 +740,9 @@ class SyntaxIgnoreTagger( Tagger ):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan(spans=sent_words, layer=output_layer)
-                new_spanlist.type = 'consecutive_parenthesized_sentences'
+                new_span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in sent_words),
+                                          layer=output_layer)
+                new_span.add_annotation(Annotation(new_span, type='consecutive_parenthesized_sentences'))
                 # Remove overlapped spans
                 if ignored_candidate['ignored_words']:
                     # Rewrite 'ignored_words_spans': leave out words inside 'ignored_words'
@@ -752,7 +752,7 @@ class SyntaxIgnoreTagger( Tagger ):
                         if not ignore_span in ignored_candidate['ignored_words']:
                             new_ignored_words_spans.append( ignore_span )
                     ignored_words_spans = new_ignored_words_spans
-                ignored_words_spans.append(new_spanlist)
+                ignored_words_spans.append(new_span)
         return ignored_words_spans
 
     def _add_ignore_sentences_consisting_of_numbers( 
@@ -776,19 +776,20 @@ class SyntaxIgnoreTagger( Tagger ):
                 for word_span in sentence_span.spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan(spans=sent_words, layer=output_layer)
-                new_spanlist.type = 'sentence_with_number_no_letters'
+                new_span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in sent_words),
+                                          layer=output_layer)
+                new_span.add_annotation(Annotation(new_span, type='sentence_with_number_no_letters'))
                 # Add the sentence only iff it is not already added
                 add_sentence = True
                 if ignored_words_spans:
                     # Check if it exists already
                     for ignore_span in ignored_words_spans:
-                        if ignore_span.start == new_spanlist.start and \
-                           ignore_span.end == new_spanlist.end:
+                        if ignore_span.start == new_span.start and \
+                           ignore_span.end == new_span.end:
                             add_sentence = False
                             break
                 if add_sentence:
-                    ignored_words_spans.append( new_spanlist )
+                    ignored_words_spans.append(new_span)
         return ignored_words_spans
 
     def _add_ignore_sentences_starting_with_time( 
@@ -810,15 +811,16 @@ class SyntaxIgnoreTagger( Tagger ):
                 for word_span in sentence_span.spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan(spans=sent_words, layer=output_layer)
-                new_spanlist.type = 'sentence_starts_with_time'
+                new_span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in sent_words),
+                                          layer=output_layer)
+                new_span.add_annotation(Annotation(new_span, type='sentence_starts_with_time'))
                 # Add the sentence only iff it is not already added
                 add_sentence = True
                 if ignored_words_spans:
                     # Check if it exists already
                     for ignore_span in ignored_words_spans:
-                        if ignore_span.start == new_spanlist.start and \
-                           ignore_span.end == new_spanlist.end:
+                        if ignore_span.start == new_span.start and \
+                           ignore_span.end == new_span.end:
                             add_sentence = False
                             break
                 if add_sentence:
@@ -828,12 +830,12 @@ class SyntaxIgnoreTagger( Tagger ):
                         # of the current sentence (basically: remove overlapped ignore content)
                         new_ignored_words_spans = []
                         for ignore_span in ignored_words_spans:
-                            if not (new_spanlist.start <= ignore_span.start and
-                                    ignore_span.end <= new_spanlist.end):
+                            if not (new_span.start <= ignore_span.start and
+                                    ignore_span.end <= new_span.end):
                                 new_ignored_words_spans.append( ignore_span )
                         ignored_words_spans = new_ignored_words_spans
                     # After overlaps have been removed, add the span
-                    ignored_words_spans.append( new_spanlist )
+                    ignored_words_spans.append( new_span )
         return ignored_words_spans
 
     def _add_ignore_consecutive_enum_ucase_sentences(
@@ -915,15 +917,16 @@ class SyntaxIgnoreTagger( Tagger ):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan(spans=sent_words, layer=output_layer)
-                new_spanlist.type = 'consecutive_enum_ucase_sentences'
+                new_span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in sent_words),
+                                          layer=output_layer)
+                new_span.add_annotation(Annotation(new_span, type='consecutive_enum_ucase_sentences'))
                 # Add the sentence only iff it is not already added
                 add_sentence = True
                 if ignored_words_spans:
                     # Check if it exists already
                     for ignore_span in ignored_words_spans:
-                        if ignore_span.start == new_spanlist.start and \
-                           ignore_span.end == new_spanlist.end:
+                        if ignore_span.start == new_span.start and \
+                           ignore_span.end == new_span.end:
                             add_sentence = False
                             break
                 if add_sentence:
@@ -933,14 +936,13 @@ class SyntaxIgnoreTagger( Tagger ):
                         # of the current sentence (basically: remove overlapped ignore content)
                         new_ignored_words_spans = []
                         for ignore_span in ignored_words_spans:
-                            if not (new_spanlist.start <= ignore_span.start and
-                                    ignore_span.end <= new_spanlist.end):
+                            if not (new_span.start <= ignore_span.start and
+                                    ignore_span.end <= new_span.end):
                                 new_ignored_words_spans.append( ignore_span )
                         ignored_words_spans = new_ignored_words_spans
                     # After overlaps have been removed, add the span
-                    ignored_words_spans.append( new_spanlist )
+                    ignored_words_spans.append( new_span )
         return ignored_words_spans
-
 
     def _add_ignore_comma_separated_num_name_list_sentences( 
                 self, text: 'Text', layers, ignored_words_spans:list, output_layer) -> list:
@@ -994,15 +996,16 @@ class SyntaxIgnoreTagger( Tagger ):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan(spans=sent_words, layer=output_layer)
-                new_spanlist.type = 'sentence_with_comma_separated_list'
+                new_span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in sent_words),
+                                          layer=output_layer)
+                new_span.add_annotation(Annotation(new_span, type='sentence_with_comma_separated_list'))
                 # Add the sentence only iff it is not already added
                 add_sentence = True
                 if ignored_words_spans:
                     # Check if it exists already
                     for ignore_span in ignored_words_spans:
-                        if ignore_span.start == new_spanlist.start and \
-                           ignore_span.end == new_spanlist.end:
+                        if ignore_span.start == new_span.start and \
+                           ignore_span.end == new_span.end:
                             add_sentence = False
                             break
                 if add_sentence:
@@ -1012,10 +1015,10 @@ class SyntaxIgnoreTagger( Tagger ):
                         # of the current sentence (basically: remove overlapped ignore content)
                         new_ignored_words_spans = []
                         for ignore_span in ignored_words_spans:
-                            if not (new_spanlist.start <= ignore_span.start and
-                                    ignore_span.end <= new_spanlist.end):
+                            if not (new_span.start <= ignore_span.start and
+                                    ignore_span.end <= new_span.end):
                                 new_ignored_words_spans.append( ignore_span )
                         ignored_words_spans = new_ignored_words_spans
                     # After overlaps have been removed, add the span
-                    ignored_words_spans.append( new_spanlist )
+                    ignored_words_spans.append( new_span )
         return ignored_words_spans

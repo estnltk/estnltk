@@ -11,15 +11,15 @@ def test_enveloping_gaps_tagger():
     layer.add_annotation(text.words[0:2])
 
     layer.add_annotation(text.words[3:4])
-    text['test_3'] = layer
+    text.add_layer(layer)
 
     layer = Layer('test_4', enveloping='words', ambiguous=True)
     layer.add_annotation(text.words[3:5])
 
     layer.add_annotation(text.words[3:5])
-    text['test_4'] = layer
+    text.add_layer(layer)
 
-    text['test_5'] = Layer('test_5', enveloping='words')
+    text.add_layer(Layer('test_5', enveloping='words'))
 
     def decorator(spans):
         return {'gap_word_count': len(spans)}

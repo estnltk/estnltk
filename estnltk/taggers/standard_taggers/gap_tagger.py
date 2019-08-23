@@ -60,7 +60,7 @@ def find_gaps(layers, text_length):
         return
     cover_change = defaultdict(int)
     for layer in layers:
-        for span in layer.span_list:
+        for span in layer:
             cover_change[span.start] += 1
             cover_change[span.end] -= 1
     if not cover_change:
