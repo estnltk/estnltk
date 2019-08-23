@@ -52,7 +52,7 @@ setup(
     include_package_data=True,
     package_data={
         'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java/res/*.*'],
-        'estnltk.taggers': ['miscellaneous/*.csv', 'syntax/files/*.*', 'syntax/files/LICENSE', 'morph_analysis/hfst/models/*.*', 'verb_chains/v1_4_1/res/*.*', 'syntax_preprocessing/rules_files/*.*'],
+        'estnltk.taggers': ['miscellaneous/*.csv', 'syntax/files/*.*', 'syntax/files/LICENSE', 'morph_analysis/hfst/models/*.*', 'verb_chains/v1_4_1/res/*.*', 'syntax_preprocessing/rules_files/*.*', 'text_segmentation/*.csv'],
         'estnltk.tests': ['test_morph/*.csv', 'test_corpus_processing/*.vert', 'test_taggers/test_dict_taggers/*.csv', 'test_taggers/miscellaneous/*.json', 'test_taggers/test_standard_taggers/*.json', 'test_visualisation/expected_outputs/direct_plain_span_visualiser_outputs/*.txt', 'test_visualisation/expected_outputs/indirect_plain_span_visualiser_outputs/*.txt', 'test_converters/*.conll', 'test_syntax_preprocessing/*.txt',],
         'estnltk.vabamorf': ['dct/*.dct'],
         'estnltk.estner': ['gazetteer/*', 'models/py2_default/*', 'models/py3_default/*'],

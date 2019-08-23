@@ -31,7 +31,7 @@ from .patterns import case_endings_patterns, number_fixes_patterns
 _letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
 
 # List containing words that should be ignored during the normalization of words with hyphens
-DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'rewriting', 'premorph', 'rules_files', 'ignore.csv')
+DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'taggers', 'text_segmentation', 'ignorable_words_with_hyphens.csv')
 
 
 class CompoundTokenTagger(Tagger):
