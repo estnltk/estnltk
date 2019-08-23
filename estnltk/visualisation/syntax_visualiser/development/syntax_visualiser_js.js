@@ -89,7 +89,7 @@ function checkKey(e) {
         e.preventDefault();
         //e.preventDefault();
     } else if (e.keyCode == '13') {
-        // Enter key for dropdown choices 
+        // Enter key for dropdown choices
         console.log(start.tagName);
         console.log(start.id);
         //console.log(start.options[start.selectedIndex]);
