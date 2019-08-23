@@ -21,7 +21,7 @@ from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_e
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
-from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
+from estnltk.taggers.morph_analysis.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
 
 class PostMorphAnalysisTagger(Retagger):

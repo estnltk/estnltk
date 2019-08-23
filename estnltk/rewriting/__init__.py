@@ -1,3 +1,1 @@
 from .rewriting import ReverseRewriter
-
-from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter

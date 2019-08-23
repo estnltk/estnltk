@@ -336,8 +336,8 @@ def test_postanalysis_preserves_extra_attributes():
 
 # ----------------------------------
 
+from estnltk.taggers.morph_analysis.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
-from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
 def test_postanalysis_with_correction_rewriter_for_numbers():
     # Tests VabamorfCorrectionRewriter on providing fixes to numbers:
