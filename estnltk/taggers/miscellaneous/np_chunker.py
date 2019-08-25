@@ -160,8 +160,8 @@ class NounPhraseChunker( Tagger ):
         # *) convert output back to v1.6 data format;
         word_span_id = 0
         for sid, sentence in enumerate(layers[ self._input_sentences_layer ]):
-            sent_start = sentence['start']
-            sent_end   = sentence['end']
+            sent_start = sentence.start
+            sent_end = sentence.end
             # A) Collect all words/morph_analyses/syntactic analyses of the sentence
             #    Assume: len(word_spans) == len(morph_spans)
             #            len(syntax_spans) == len(morph_spans)
