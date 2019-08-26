@@ -205,9 +205,7 @@ def test_postanalysis_fix_abbreviations():
 def test_postanalysis_fix_number_postags():
     # Tests that numerics and percentages will have postag 'N':
     # Initialize tagger
-    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_number_postags=True,
-                                                                             fix_number_analyses_using_rules = True, 
-                                                                             fix_number_analyses_by_replacing = True))
+    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_number_postags=True) )
     # Case 1 : percentages
     text=Text('kahanenud 4,7% -lt 1,8% -ni')
     text.tag_layer(['words','sentences'])

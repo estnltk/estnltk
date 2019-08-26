@@ -27,7 +27,7 @@ from estnltk.taggers.morph_analysis.proxy import MorphAnalyzedToken
 
 # Default rules for correcting number analysis
 DEFAULT_NUMBER_ANALYSIS_RULES = os.path.join(os.path.dirname(__file__),
-                                'postmorph/rules_files/number_analysis_rules.csv')
+                                'number_fixes/number_analysis_rules.csv')
 
 class PostMorphAnalysisTagger(Retagger):
     """Applies post-corrections to ambiguous morphological analysis 
