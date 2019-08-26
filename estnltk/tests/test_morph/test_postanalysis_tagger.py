@@ -205,7 +205,9 @@ def test_postanalysis_fix_abbreviations():
 def test_postanalysis_fix_number_postags():
     # Tests that numerics and percentages will have postag 'N':
     # Initialize tagger
-    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_number_postags=True))
+    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_number_postags=True,
+                                                                             fix_number_analyses_using_rules = True, 
+                                                                             fix_number_analyses_by_replacing = True))
     # Case 1 : percentages
     text=Text('kahanenud 4,7% -lt 1,8% -ni')
     text.tag_layer(['words','sentences'])
@@ -336,16 +338,13 @@ def test_postanalysis_preserves_extra_attributes():
 
 # ----------------------------------
 
-from estnltk.taggers.morph_analysis.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
-
 
 def test_postanalysis_fix_number_analyses_using_rules():
     # Tests fix_number_analyses_using_rules 
     # (this was previously VabamorfCorrectionRewriter's functionality)
     # Initialize taggers
     postanalysis_tagger = \
-        PostMorphAnalysisTagger(correction_rewriter = None, 
-                                fix_number_analyses_using_rules = True, 
+        PostMorphAnalysisTagger(fix_number_analyses_using_rules = True, 
                                 fix_number_analyses_by_replacing = True)
     morf_tagger = \
         VabamorfTagger(postanalysis_tagger=postanalysis_tagger)
@@ -393,6 +392,7 @@ def test_postanalysis_fix_number_analyses_using_rules():
 
 def test_postanalysis_fix_pronouns_WIP():
     # Tests fix_pronouns
+    # (this was previously VabamorfCorrectionRewriter's functionality)
     # Basically: removes pronoun analyses from words in which the normalized word 
     #   form cannot be analysed as a pronoun;
     # TODO: currently, the side effect is that if the wrongly annotated word does 
@@ -402,8 +402,7 @@ def test_postanalysis_fix_pronouns_WIP():
     #       Future work: removals should go hand-in-hand with adding new fixed analyses
     # Initialize taggers
     postanalysis_tagger = \
-        PostMorphAnalysisTagger(correction_rewriter = None, 
-                                fix_number_analyses_using_rules = True, 
+        PostMorphAnalysisTagger(fix_number_analyses_using_rules = True, 
                                 fix_number_analyses_by_replacing = True, 
                                 fix_pronouns = True )
     morf_tagger = \

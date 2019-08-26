@@ -23,7 +23,6 @@ from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_e
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
-from estnltk.taggers.morph_analysis.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 from estnltk.taggers.morph_analysis.proxy import MorphAnalyzedToken
 
 # Default rules for correcting number analysis
@@ -41,7 +40,6 @@ class PostMorphAnalysisTagger(Retagger):
                   'fix_number_analyses_using_rules',
                   'fix_number_analyses_by_replacing',
                   'fix_pronouns',
-                  'correction_rewriter',
                   # Number analysis related
                   '_number_analysis_rules_file',
                   '_number_correction_rules',
@@ -70,13 +68,11 @@ class PostMorphAnalysisTagger(Retagger):
                  fix_abbreviations:bool=True,
                  remove_duplicates:bool=True,
                  fix_number_postags:bool=True,
-                 
-                 fix_number_analyses_using_rules:bool=False,
+                 fix_number_analyses_using_rules:bool=True,
                  number_analysis_rules:str=DEFAULT_NUMBER_ANALYSIS_RULES,
                  fix_number_analyses_by_replacing:bool=True,
-                 fix_pronouns:bool=False,
                  
-                 correction_rewriter=VabamorfCorrectionRewriter()):
+                 fix_pronouns:bool=False ):
         """Initialize PostMorphAnalysisTagger class.
 
         Parameters
@@ -135,11 +131,21 @@ class PostMorphAnalysisTagger(Retagger):
             If True, then postags of numeric and percentage
             tokens will be fixed (will be set to 'N');
        
-        fix_number_analyses: bool (Default: False)
-            TODO
+        fix_number_analyses_using_rules: bool (Default: True)
+            If True, then loads fixes for number analyses from the 
+            CSV file number_analysis_rules, and applies to correct 
+            the numeric tokens;
+            For instance, '6te' will be analysed not as a pronoun
+               ('6+sina //_P_ sg n //'), but as a number 
+                '6+te // _N_ sg p //';
         
-        number_analysis_rules: str (TODO)
-            TODO
+        number_analysis_rules: str (Defaults to: 'number_analysis_rules.csv')
+            A CSV file containing rules for fixing numbers. Each 
+            line should be in the form: 
+               number_regexp,suffix,pos,form,ending
+            For instance:
+               ([1-9][0-9]*)?1[1-9]$,,N,?,0
+               ([1-9][0-9]*)?1[1-9]$,lt,N,sg abl,lt
         
         fix_number_analyses_by_replacing:bool (default: True)
             If True, then during fixing number analyses old 
@@ -152,10 +158,6 @@ class PostMorphAnalysisTagger(Retagger):
         
         fix_pronouns: bool (TODO)
             TODO
-        
-        correction_rewriter (default: VabamorfCorrectionRewriter)
-            Rewriter class that will be applied on rewriting the layer.
-            
         """
         # Set attributes & configuration
         # The output layer
@@ -192,7 +194,6 @@ class PostMorphAnalysisTagger(Retagger):
         self.fix_abbreviations = fix_abbreviations
         self.fix_number_postags = fix_number_postags
         self.remove_duplicates = remove_duplicates
-        self.correction_rewriter = correction_rewriter
         
         # Compile regexes
         self._pat_name_needs_underscore1 = \
@@ -417,8 +418,10 @@ class PostMorphAnalysisTagger(Retagger):
            IGNORE_ATTR to it. Also provides fixes that require 
            removal or addition of spans:
              1. Removes duplicate analyses;
-             2. Rewrites elements of the layer using 
-                correction_rewriter;
+             2. Applies rule-based corrections to number analyses
+                (if  fix_number_analyses_using_rules  is set);
+             3. Removes redundant pronoun analyses
+                (if  fix_pronouns  is set);
            
            Note that this method also tries to preserve any extra
            attributes of the morph_analysis layer. Every rewritten
@@ -493,33 +496,9 @@ class PostMorphAnalysisTagger(Retagger):
 
             # B) Convert spans to records
             records = [_span_to_records_excl(annotation, [IGNORE_ATTR]) for annotation in morph_annotations]
-            
-            # B.1) Apply correction-rewriter:
             rewritten_recs = records
-            if self.correction_rewriter:
-                # B.1.1) Add 'word_normal'
-                normalized_text = _get_word_text( word )
-                for rec in records:
-                    # Assume all analyses of a single word share common
-                    # normal form
-                    rec['word_normal'] = normalized_text
-                # B.1.2) Rewrite records of a single word
-                rewritten_recs = \
-                    self.correction_rewriter.rewrite(records)
-                # B.1.3) Carry over extra attributes
-                if extra_attributes and len(records) > 0:
-                    # Assume that extra attributes are same for each record (of the word):
-                    # therefore, carry over attribute values from the first record
-                    first_old_rec = records[0]
-                    for rec in rewritten_recs:
-                        for extra_attr in extra_attributes:
-                            # Note: carry over the extra attribute value only when 
-                            # the record was changed by the rewriter (so, the attribute 
-                            # is missing from the record)
-                            if extra_attr not in rec:
-                                rec[extra_attr] = first_old_rec[extra_attr]
-            
-            # B.X) Fix pronouns 
+           
+            # B.1) Fix pronouns 
             if self.fix_pronouns and len(rewritten_recs) > 0:
                 # B.X.1) Add 'word_normal'
                 normalized_text = _get_word_text( word )
@@ -542,7 +521,7 @@ class PostMorphAnalysisTagger(Retagger):
                 if extra_attributes and len(rewritten_recs) > 0:
                     # Assume that extra attributes are same for each record (of the word):
                     # therefore, carry over attribute values from the first record
-                    first_old_rec = rewritten_recs[0]
+                    first_old_rec = records[0]
                     for rec in rewritten_recs:
                         for extra_attr in extra_attributes:
                             # Note: carry over the extra attribute value only when 
@@ -551,7 +530,7 @@ class PostMorphAnalysisTagger(Retagger):
                             if extra_attr not in rec:
                                 rec[extra_attr] = first_old_rec[extra_attr]
             
-            # B.X) Used rules (from CSV file) to fix number analyses
+            # B.2) Used rules (from CSV file) to fix number analyses
             if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
                 # B.X.1) Add 'word_normal'
                 normalized_text = _get_word_text( word )
@@ -576,7 +555,7 @@ class PostMorphAnalysisTagger(Retagger):
                 if extra_attributes and len(rewritten_recs) > 0:
                     # Assume that extra attributes are same for each record (of the word):
                     # therefore, carry over attribute values from the first record
-                    first_old_rec = rewritten_recs[0]
+                    first_old_rec = records[0]
                     for rec in rewritten_recs:
                         for extra_attr in extra_attributes:
                             # Note: carry over the extra attribute value only when 
