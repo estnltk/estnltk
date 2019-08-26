@@ -156,8 +156,16 @@ class PostMorphAnalysisTagger(Retagger):
             This option only works if the flag 
             fix_number_analyses_using_rules is set;
         
-        fix_pronouns: bool (TODO)
-            TODO
+        fix_pronouns: bool (default: False)
+            If True, then words mistakenly analysed as pronouns
+            (such as '11-endal' analysed as '11-ise', and
+             '22-selt' analysed as '22-see') will have their 
+            pronoun analyses deleted;
+            (!) Important: if the target word has only pronoun 
+            analyses, these fixes will erase all of its analyses, 
+            and you cannot disambiguate the resulting text. So,
+            use this option with care -- use it only when you 
+            do not need morphological disambiguation;
         """
         # Set attributes & configuration
         # The output layer
