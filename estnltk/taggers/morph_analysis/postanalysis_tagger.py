@@ -40,6 +40,7 @@ class PostMorphAnalysisTagger(Retagger):
                   'fix_abbreviations', 'fix_number_postags', 'remove_duplicates',
                   'fix_number_analyses_using_rules',
                   'fix_number_analyses_by_replacing',
+                  'fix_pronouns',
                   'correction_rewriter',
                   # Number analysis related
                   '_number_analysis_rules_file',
@@ -73,6 +74,7 @@ class PostMorphAnalysisTagger(Retagger):
                  fix_number_analyses_using_rules:bool=False,
                  number_analysis_rules:str=DEFAULT_NUMBER_ANALYSIS_RULES,
                  fix_number_analyses_by_replacing:bool=True,
+                 fix_pronouns:bool=False,
                  
                  correction_rewriter=VabamorfCorrectionRewriter()):
         """Initialize PostMorphAnalysisTagger class.
@@ -144,9 +146,12 @@ class PostMorphAnalysisTagger(Retagger):
             analyses will be replaced by new analyses;
             If False, then old analyses will be filtered, that 
             is, the intersection of old analysis and new analysis
-            will be returned;
+            will be taken as the new set of analyses;
             This option only works if the flag 
             fix_number_analyses_using_rules is set;
+        
+        fix_pronouns: bool (TODO)
+            TODO
         
         correction_rewriter (default: VabamorfCorrectionRewriter)
             Rewriter class that will be applied on rewriting the layer.
@@ -167,12 +172,16 @@ class PostMorphAnalysisTagger(Retagger):
         self.depends_on   = self.input_layers
         
         # Correction of number analyses
+        # (formerly in VabamorfCorrectionRewriter)
         self.fix_number_analyses_using_rules = fix_number_analyses_using_rules
         self.fix_number_analyses_by_replacing = fix_number_analyses_by_replacing
         self._number_analysis_rules_file = number_analysis_rules
         if self.fix_number_analyses_using_rules:
             self._number_correction_rules = \
                 self.load_number_analysis_rules( self._number_analysis_rules_file )
+        # Correction of pronouns
+        # (formerly in VabamorfCorrectionRewriter)
+        self.fix_pronouns = fix_pronouns
         
         self.ignore_emoticons = ignore_emoticons
         self.ignore_xml_tags = ignore_xml_tags
@@ -510,32 +519,64 @@ class PostMorphAnalysisTagger(Retagger):
                             if extra_attr not in rec:
                                 rec[extra_attr] = first_old_rec[extra_attr]
             
-            # B.X) Used rules (from CSV file) to fix number analyses
-            if self.fix_number_analyses_using_rules:
-                # B.1.1) Add 'word_normal'
+            # B.X) Fix pronouns 
+            if self.fix_pronouns and len(rewritten_recs) > 0:
+                # B.X.1) Add 'word_normal'
                 normalized_text = _get_word_text( word )
-                for rec in records:
+                for rec in rewritten_recs:
+                    # Assume all analyses of a single word share 
+                    # common normal form
+                    rec['word_normal'] = normalized_text
+                # B.X.2) Filter pronoun analyses: remove analyses in which the 
+                #        normalized word is actually not a pronoun;
+                token = MorphAnalyzedToken( rewritten_recs[0]['word_normal'] )
+                rewritten_recs_new = []
+                for rec in rewritten_recs:
+                    if rec['partofspeech'] == 'P':
+                        if token.is_pronoun:
+                            rewritten_recs_new.append(rec)
+                    else:
+                        rewritten_recs_new.append(rec)
+                rewritten_recs = rewritten_recs_new
+                # B.X.3) Carry over extra attributes
+                if extra_attributes and len(rewritten_recs) > 0:
+                    # Assume that extra attributes are same for each record (of the word):
+                    # therefore, carry over attribute values from the first record
+                    first_old_rec = rewritten_recs[0]
+                    for rec in rewritten_recs:
+                        for extra_attr in extra_attributes:
+                            # Note: carry over the extra attribute value only when 
+                            # the record was changed by the rewriter (so, the attribute 
+                            # is missing from the record)
+                            if extra_attr not in rec:
+                                rec[extra_attr] = first_old_rec[extra_attr]
+            
+            # B.X) Used rules (from CSV file) to fix number analyses
+            if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
+                # B.X.1) Add 'word_normal'
+                normalized_text = _get_word_text( word )
+                for rec in rewritten_recs:
                     # Assume all analyses of a single word share 
                     # common normal form
                     rec['word_normal'] = normalized_text
                 # B.X.2) Rewrite records of a single word
-                if records[0]['word_normal'].isalpha():
+                if rewritten_recs[0]['word_normal'].isalpha():
                     # skip number corrections if the normalized token consists of letters only
                     pass
                 else:
                     found_analyses = \
-                        self.find_analyses_for_numeric_token( records[0]['word_normal'] )
+                        self.find_analyses_for_numeric_token( rewritten_recs[0]['word_normal'] )
                     if found_analyses:
                         # Replace the old ones or take the intersection
                         if self.fix_number_analyses_by_replacing:
                             rewritten_recs = found_analyses
                         else:
-                            rewritten_recs = [rec for rec in records if rec in found_analyses]
+                            rewritten_recs = [rec for rec in rewritten_recs if rec in found_analyses]
                 # B.X.3) Carry over extra attributes
-                if extra_attributes and len(records) > 0:
+                if extra_attributes and len(rewritten_recs) > 0:
                     # Assume that extra attributes are same for each record (of the word):
                     # therefore, carry over attribute values from the first record
-                    first_old_rec = records[0]
+                    first_old_rec = rewritten_recs[0]
                     for rec in rewritten_recs:
                         for extra_attr in extra_attributes:
                             # Note: carry over the extra attribute value only when 
@@ -586,6 +627,8 @@ class PostMorphAnalysisTagger(Retagger):
                     first_span_rec = _span_to_records_excl(first_span, [IGNORE_ATTR])
                     for extra_attr in extra_attributes:
                         empty_morph_record[extra_attr] = first_span_rec[extra_attr]
+                empty_morph_record = \
+                    {attr: empty_morph_record[attr] for attr in ambiguous_span.layer.attributes}
                 # Add the new annotation
                 ambiguous_span.add_annotation(Annotation(ambiguous_span, **empty_morph_record))
 
