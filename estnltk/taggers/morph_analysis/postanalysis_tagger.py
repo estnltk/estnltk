@@ -5,6 +5,8 @@
 #  disambiguation.
 # 
 import regex as re
+import os.path
+import pickle
 
 from typing import MutableMapping
 
@@ -22,7 +24,11 @@ from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 from estnltk.taggers.morph_analysis.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
+from estnltk.taggers.morph_analysis.proxy import MorphAnalyzedToken
 
+# Default rules for correcting number analysis
+DEFAULT_NUMBER_ANALYSIS_RULES = os.path.join(os.path.dirname(__file__),
+                                'postmorph/rules_files/number_analysis_rules.csv')
 
 class PostMorphAnalysisTagger(Retagger):
     """Applies post-corrections to ambiguous morphological analysis 
@@ -31,8 +37,13 @@ class PostMorphAnalysisTagger(Retagger):
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
     conf_param = ['depends_on', 'ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials',
                   'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses',
-                  'fix_abbreviations', 'fix_numeric', 'remove_duplicates',
+                  'fix_abbreviations', 'fix_number_postags', 'remove_duplicates',
+                  'fix_number_analyses_using_rules',
+                  'fix_number_analyses_by_replacing',
                   'correction_rewriter',
+                  # Number analysis related
+                  '_number_analysis_rules_file',
+                  '_number_correction_rules',
                   # Names of input layers
                   '_input_cp_tokens_layer',
                   '_input_words_layer',
@@ -56,8 +67,13 @@ class PostMorphAnalysisTagger(Retagger):
                  fix_www_addresses:bool=True,
                  fix_email_addresses:bool=True,
                  fix_abbreviations:bool=True,
-                 fix_numeric:bool=True,
                  remove_duplicates:bool=True,
+                 fix_number_postags:bool=True,
+                 
+                 fix_number_analyses_using_rules:bool=False,
+                 number_analysis_rules:str=DEFAULT_NUMBER_ANALYSIS_RULES,
+                 fix_number_analyses_by_replacing:bool=True,
+                 
                  correction_rewriter=VabamorfCorrectionRewriter()):
         """Initialize PostMorphAnalysisTagger class.
 
@@ -109,13 +125,28 @@ class PostMorphAnalysisTagger(Retagger):
             If True, then abbreviations with postags 'S' & 'H' 
             will have their postags overwritten with 'Y';
         
-        fix_numeric: bool (default: True)
-            If True, then postags of numeric and percentage
-            tokens will be fixed (will be set to 'N');
-        
         remove_duplicates: bool (default: True)
             If True, then duplicate morphological analyses
             will be removed while rewriting the layer.
+        
+        fix_number_postags: bool (default: True)
+            If True, then postags of numeric and percentage
+            tokens will be fixed (will be set to 'N');
+       
+        fix_number_analyses: bool (Default: False)
+            TODO
+        
+        number_analysis_rules: str (TODO)
+            TODO
+        
+        fix_number_analyses_by_replacing:bool (default: True)
+            If True, then during fixing number analyses old 
+            analyses will be replaced by new analyses;
+            If False, then old analyses will be filtered, that 
+            is, the intersection of old analysis and new analysis
+            will be returned;
+            This option only works if the flag 
+            fix_number_analyses_using_rules is set;
         
         correction_rewriter (default: VabamorfCorrectionRewriter)
             Rewriter class that will be applied on rewriting the layer.
@@ -135,6 +166,14 @@ class PostMorphAnalysisTagger(Retagger):
         self._input_morph_analysis_layer = self.input_layers[3]
         self.depends_on   = self.input_layers
         
+        # Correction of number analyses
+        self.fix_number_analyses_using_rules = fix_number_analyses_using_rules
+        self.fix_number_analyses_by_replacing = fix_number_analyses_by_replacing
+        self._number_analysis_rules_file = number_analysis_rules
+        if self.fix_number_analyses_using_rules:
+            self._number_correction_rules = \
+                self.load_number_analysis_rules( self._number_analysis_rules_file )
+        
         self.ignore_emoticons = ignore_emoticons
         self.ignore_xml_tags = ignore_xml_tags
         self.fix_names_with_initials = fix_names_with_initials
@@ -142,7 +181,7 @@ class PostMorphAnalysisTagger(Retagger):
         self.fix_www_addresses = fix_www_addresses
         self.fix_email_addresses = fix_email_addresses
         self.fix_abbreviations = fix_abbreviations
-        self.fix_numeric = fix_numeric
+        self.fix_number_postags = fix_number_postags
         self.remove_duplicates = remove_duplicates
         self.correction_rewriter = correction_rewriter
         
@@ -339,7 +378,7 @@ class PostMorphAnalysisTagger(Retagger):
                             if getattr(span, 'partofspeech') in ['S', 'H']:
                                 setattr(span, 'partofspeech', 'Y')
                     # 6) Fix partofspeech of numerics and percentages
-                    if self.fix_numeric:
+                    if self.fix_number_postags:
                         if 'numeric' in comp_token.type or \
                            'percentage' in comp_token.type:
                             for span in morph_spanlist.annotations:
@@ -407,7 +446,7 @@ class PostMorphAnalysisTagger(Retagger):
                 extra_attributes.append( cur_attr )
         # Rewrite spans of the old layer
         morph_span_id = 0
-        morph_spans   = layers[self.output_layer].spans
+        morph_spans = layers[self.output_layer].spans
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s
             morph_annotations = morph_spans[morph_span_id].annotations
@@ -471,6 +510,40 @@ class PostMorphAnalysisTagger(Retagger):
                             if extra_attr not in rec:
                                 rec[extra_attr] = first_old_rec[extra_attr]
             
+            # B.X) Used rules (from CSV file) to fix number analyses
+            if self.fix_number_analyses_using_rules:
+                # B.1.1) Add 'word_normal'
+                normalized_text = _get_word_text( word )
+                for rec in records:
+                    # Assume all analyses of a single word share 
+                    # common normal form
+                    rec['word_normal'] = normalized_text
+                # B.X.2) Rewrite records of a single word
+                if records[0]['word_normal'].isalpha():
+                    # skip number corrections if the normalized token consists of letters only
+                    pass
+                else:
+                    found_analyses = \
+                        self.find_analyses_for_numeric_token( records[0]['word_normal'] )
+                    if found_analyses:
+                        # Replace the old ones or take the intersection
+                        if self.fix_number_analyses_by_replacing:
+                            rewritten_recs = found_analyses
+                        else:
+                            rewritten_recs = [rec for rec in records if rec in found_analyses]
+                # B.X.3) Carry over extra attributes
+                if extra_attributes and len(records) > 0:
+                    # Assume that extra attributes are same for each record (of the word):
+                    # therefore, carry over attribute values from the first record
+                    first_old_rec = records[0]
+                    for rec in rewritten_recs:
+                        for extra_attr in extra_attributes:
+                            # Note: carry over the extra attribute value only when 
+                            # the record was changed by the rewriter (so, the attribute 
+                            # is missing from the record)
+                            if extra_attr not in rec:
+                                rec[extra_attr] = first_old_rec[extra_attr]
+            
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
             ambiguous_span = Span(base_span=morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
@@ -520,6 +593,59 @@ class PostMorphAnalysisTagger(Retagger):
             morph_spans[morph_span_id] = ambiguous_span
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
+
+    # ========================================================================
+    #   Corrections for number analyses (from VabamorfCorrectionRewriter)
+    # ========================================================================
+
+    @staticmethod
+    def load_number_analysis_rules( csv_file:str ):
+        '''Loads number analysis corrections from an input CSV file.
+           Note: if a cached version of the file exists (a .pickle file) and 
+           it is up to date, then loads the cached version, otherwise, loads 
+           the csv file, and creates the cached version for the next loading.
+        '''
+        cache = csv_file + '.pickle'
+        if not os.path.exists(cache) or os.stat(cache).st_mtime < os.stat(csv_file).st_mtime:
+            df = read_csv(csv_file, na_filter=False, index_col=False)
+            rules = defaultdict(dict)
+            for _, r in df.iterrows():
+                if r.suffix not in rules[r.number]:
+                    rules[r.number][r.suffix] = []
+                rules[r.number][r.suffix].append({'partofspeech': r.pos, 'form': r.form, 'ending':r.ending})
+            with open(cache, 'wb') as out_file:
+                pickle.dump(rules, out_file)
+            return rules
+        with open(cache, 'rb') as in_file:
+            rules = pickle.load(in_file)
+        return rules
+
+
+    def find_analyses_for_numeric_token( self, token_str ):
+        '''Finds corrected morphological analyses for given 
+           numeric token.
+           Corrections are looked up from self._number_correction_rules
+           Returns corrected records, or an empty list, if no 
+           corrections are available.
+        '''
+        m = re.match('-?(\d+\.?)-?(\D*)$', token_str)
+        if not m:
+            return []
+        number_str = m.group(1)
+        ordinal_number_str = number_str.rstrip('.') + '.'
+        ending = m.group(2)
+        result = []
+        for number_re, analyses in self._number_correction_rules.items():
+            if re.match(number_re, number_str):
+                for analysis in analyses.get(ending, []):
+                    if analysis['partofspeech'] == 'O':
+                        a = {'lemma':ordinal_number_str, 'root':ordinal_number_str, 'root_tokens':(ordinal_number_str,), 'clitic':''}
+                    else:
+                        a = {'lemma':number_str, 'root':number_str, 'root_tokens':(number_str,), 'clitic':''}
+                    a.update(analysis)
+                    result.append(a)
+                break
+        return result
 
 
 # =================================

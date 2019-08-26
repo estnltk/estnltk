@@ -202,10 +202,10 @@ def test_postanalysis_fix_abbreviations():
     assert expected_records == results_dict
 
 
-def test_postanalysis_fix_numeric():
+def test_postanalysis_fix_number_postags():
     # Tests that numerics and percentages will have postag 'N':
     # Initialize tagger
-    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_numeric=True))
+    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_number_postags=True))
     # Case 1 : percentages
     text=Text('kahanenud 4,7% -lt 1,8% -ni')
     text.tag_layer(['words','sentences'])
@@ -339,11 +339,14 @@ def test_postanalysis_preserves_extra_attributes():
 from estnltk.taggers.morph_analysis.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
 
-def test_postanalysis_with_correction_rewriter_for_numbers():
-    # Tests VabamorfCorrectionRewriter on providing fixes to numbers:
+def test_postanalysis_fix_number_analyses_using_rules():
+    # Tests fix_number_analyses_using_rules 
+    # (this was previously VabamorfCorrectionRewriter's functionality)
     # Initialize taggers
     postanalysis_tagger = \
-        PostMorphAnalysisTagger(correction_rewriter = VabamorfCorrectionRewriter())
+        PostMorphAnalysisTagger(correction_rewriter = None, 
+                                fix_number_analyses_using_rules = True, 
+                                fix_number_analyses_by_replacing = True)
     morf_tagger = \
         VabamorfTagger(postanalysis_tagger=postanalysis_tagger)
     # Case 1
