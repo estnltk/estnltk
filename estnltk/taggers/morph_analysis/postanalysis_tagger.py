@@ -142,7 +142,7 @@ class PostMorphAnalysisTagger(Retagger):
         number_analysis_rules: str (Defaults to: 'number_analysis_rules.csv')
             A CSV file containing rules for fixing numbers. Each 
             line should be in the form: 
-               number_regexp,suffix,pos,form,ending
+               number_regexp,number_suffix,pos,form,ending
             For instance:
                ([1-9][0-9]*)?1[1-9]$,,N,?,0
                ([1-9][0-9]*)?1[1-9]$,lt,N,sg abl,lt
