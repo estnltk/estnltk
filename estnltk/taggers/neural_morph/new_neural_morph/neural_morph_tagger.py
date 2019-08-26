@@ -7,7 +7,7 @@ from estnltk.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model
 from estnltk.neural_morph.new_neural_morph import softmax
 from estnltk.neural_morph.new_neural_morph import seq2seq
 
-model_files = {"data":["analysis.txt",
+MODEL_FILES = {"data":["analysis.txt",
                        "chars.txt",
                        "embeddings.npz",
                        "singletons.txt",
@@ -20,21 +20,21 @@ model_files = {"data":["analysis.txt",
 
 def check_model_files(model_dir):
     if (os.path.exists(model_dir)):
-        for folder in model_files:
-            for file in model_files[folder]:
+        for folder in MODEL_FILES:
+            for file in MODEL_FILES[folder]:
                 if not os.path.exists(os.path.join(model_dir, folder, file)):
                     raise FileNotFoundError("TODO: Instructions for downloading model files")
 
-def softmax_emb_tag_sum():
+def load_softmax_emb_tag_sum_tagger():
     return load_tagger(softmax, "emb_tag_sum")
 
-def softmax_emb_cat_sum():
+def load_softmax_emb_cat_sum_tagger():
     return load_tagger(softmax, "emb_cat_sum")
 
-def seq2seq_emb_tag_sum():
+def load_seq2seq_emb_tag_sum_tagger():
     return load_tagger(seq2seq, "emb_tag_sum")    
     
-def seq2seq_emb_cat_sum():
+def load_seq2seq_emb_cat_sum_tagger():
     return load_tagger(seq2seq, "emb_cat_sum")
 
 def load_tagger(model_module, dir_name):
@@ -61,17 +61,17 @@ class NeuralMorphTagger(Tagger):
     Do not use this class directly. Use the following methods to get taggers with
     different types of neural models:
         
-    softmax_emb_tag_sum()
-    softmax_emb_cat_sum()
-    seq2seq_emb_tag_sum()
-    seq2seq_emb_cat_sum()
+    load_softmax_emb_tag_sum_tagger()
+    load_softmax_emb_cat_sum_tagger()
+    load_seq2seq_emb_tag_sum_tagger()
+    load_seq2seq_emb_cat_sum_tagger()
     
     For example:
     
         text = Text("See on lause.")
         text.tag_layer(['morph_analysis'])
         
-        tagger = softmax_emb_tag_sum()
+        tagger = load_softmax_emb_tag_sum_tagger()
         tagger.tag(text)
         
         print(text.neural_morph_analysis['morphtag'])
