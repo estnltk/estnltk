@@ -13,8 +13,9 @@ We depend on the _conda-forge_ project for most of our dependencies and publish 
 All developments and fixes should be made on the [`devel_1.6`](https://github.com/estnltk/estnltk/tree/devel_1.6)  branch.
 Before making the build, make sure that:
  
- 1. all the files required by EstNLTK (especially files without the `py` extension) are included `package_data` in [`setup.py`](https://github.com/estnltk/estnltk/blob/devel_1.6/setup.py); 
- 2. package requirements in [`linux_and_osx/meta.yaml`](
+ 1. all source code directories (packages) that should be distributed with EstNLTK have [`__init__.py`](https://python-packaging-tutorial.readthedocs.io/en/latest/setup_py.html#packages) files;
+ 2. all the resource files (files without the `py` extension) required by EstNLTK are included `package_data` in [`setup.py`](https://github.com/estnltk/estnltk/blob/devel_1.6/setup.py); 
+ 3. package requirements in [`linux_and_osx/meta.yaml`](
 https://github.com/estnltk/estnltk/blob/devel_1.6/conda-recipe/linux_and_osx/meta.yaml) and [`windows/meta.yaml`](
 https://github.com/estnltk/estnltk/blob/devel_1.6/conda-recipe/windows/meta.yaml) are up to date;
  
