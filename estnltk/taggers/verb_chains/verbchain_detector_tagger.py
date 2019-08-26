@@ -185,16 +185,16 @@ class VerbChainDetector( Tagger ):
         # *) convert output back to v1.6 data format;
         word_span_id = 0
         clause_id = 0
-        for sentence in layers[ self._input_sentences_layer ]:
-            sent_start = sentence['start']
-            sent_end   = sentence['end']
+        for sentence in layers[self._input_sentences_layer]:
+            sent_start = sentence.start
+            sent_end = sentence.end
             
             # A) Collect all clauses inside the current sentence 
             current_clauses = []
             while clause_id < len(clauses_spans):
                 clause   = clauses_spans[clause_id]
-                cl_start = clause['start']
-                cl_end   = clause['end']
+                cl_start = clause.start
+                cl_end   = clause.end
                 if sent_start <= cl_start and cl_end <= sent_end:
                     current_clauses.append( clause )
                     clause_id += 1
@@ -245,8 +245,8 @@ class VerbChainDetector( Tagger ):
                 parent_clause_id = None
                 while cur_clause_id < len( current_clauses ):
                     clause   = current_clauses[cur_clause_id]
-                    cl_start = clause['start']
-                    cl_end   = clause['end']
+                    cl_start = clause.start
+                    cl_end = clause.end
                     if cl_start <= word_span.start and \
                        word_span.end <= cl_end:
                         parent_clause_id = cur_clause_id

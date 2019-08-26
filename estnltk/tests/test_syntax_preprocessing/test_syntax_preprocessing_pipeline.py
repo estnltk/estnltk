@@ -42,7 +42,7 @@ def yield_tokens_analysis(file):
     """Reads the file of analysed tokens and yields the `(token, analysis)` tuples.
 
     """
-    with open(file, 'r') as f:
+    with open(file, 'r', encoding='utf-8') as f:
         for line in f:
             token, analysis_tuples = json.loads(line.rstrip('\n'))
             analysis = [{'lemma': t[0],
@@ -66,7 +66,7 @@ def test_syntax_preprocessing_on_tokens():
     analysed_tokens_file = abs_path('tests/test_syntax_preprocessing/analysed_tokens.txt')
     expected_cg3_file = abs_path('tests/test_syntax_preprocessing/expected_cg3.txt')
 
-    with open(expected_cg3_file) as expected_cg3:
+    with open(expected_cg3_file, 'r', encoding='utf-8') as expected_cg3:
         for (token_a, analysis), expected in zip(yield_tokens_analysis(analysed_tokens_file), expected_cg3):
             token_b, cg3 = json.loads(expected)
             assert token_a == token_b, (token_a, token_b)

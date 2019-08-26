@@ -14,9 +14,15 @@ def load_pronoun_lemmas(pronoun_file):
 
 
 class MorphAnalyzedToken():
-
+    """A class that provides (proxy) morphological analysis for a token. ( only for internal usage )
+       Contains methods that can be used to validate and normalize a token.
+       For morphological analysis Vabamorf is used with the configuration:
+           guess=False
+           propername=False
+           disambiguate=False
+    """
     _dir = os.path.dirname(__file__)
-    DEFAULT_PRONOUN_FILE = os.path.join(_dir, '../../taggers/syntax_preprocessing/rules_files/pronouns.csv')
+    DEFAULT_PRONOUN_FILE = os.path.join(_dir, '../../syntax_preprocessing/rules_files/pronouns.csv')
     DEFAULT_PRONOUN_LEMMAS = load_pronoun_lemmas(DEFAULT_PRONOUN_FILE)
     
     def __init__(self, token:str, pronoun_file:str=None) -> None:

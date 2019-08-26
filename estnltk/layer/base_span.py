@@ -51,6 +51,11 @@ class ElementaryBaseSpan(BaseSpan):
     def flatten(self):
         return (self.start, self.end),
 
+    def reduce(self, level):
+        if level == 0:
+            return self
+        raise ValueError(level)
+
     def __hash__(self):
         return self._hash
 
@@ -85,6 +90,15 @@ class EnvelopingBaseSpan(BaseSpan):
 
     def flatten(self):
         return tuple(sp for span in self._spans for sp in span.flatten())
+
+    def reduce(self, level):
+        if self.level == level:
+            return self
+        if self.level == level + 1:
+            return self._spans
+        if self.level > level:
+            return tuple(sp for span in self._spans for sp in span.reduce(level))
+        raise ValueError(level)
 
     def __len__(self):
         return len(self._spans)

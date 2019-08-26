@@ -99,7 +99,7 @@ class NeuralMorphTagger(Tagger):
                       attributes=self.output_attributes)
         
         for sentence in layers['sentences']:
-            sentence_words = sentence['text']
+            sentence_words = sentence.text
             analyses = []
             
             for word in sentence:

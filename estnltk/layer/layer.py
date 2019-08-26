@@ -406,10 +406,15 @@ class Layer:
         self._span_list.remove_span(self[key])
 
     def get(self, item):
-        if isinstance(item, BaseSpan):
-            return self._span_list.get(item)
+        if len(self._span_list) == 0:
+            return
         if isinstance(item, Span):
-            return self._span_list.get(item.base_span)
+            item = item.base_span
+        if isinstance(item, BaseSpan):
+            level = self._span_list[0].base_span.level
+            if level == item.level:
+                return self._span_list.get(item)
+            item = item.reduce(level)
 
         if isinstance(item, (list, tuple)):
             layer = Layer(name=self.name,
@@ -423,7 +428,7 @@ class Layer:
 
             wrapped = [self._span_list.get(i) for i in item]
             assert all(s is not None for s in wrapped)
-            layer.span_list.spans = wrapped
+            layer._span_list.spans = wrapped
             return layer
 
         raise ValueError(item)

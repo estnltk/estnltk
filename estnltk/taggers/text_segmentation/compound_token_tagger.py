@@ -19,8 +19,9 @@ from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.taggers import DisambiguatingTagger
+from estnltk.taggers.morph_analysis.proxy import MorphAnalyzedToken
 from estnltk.layer_operations import resolve_conflicts
-from estnltk.rewriting import MorphAnalyzedToken
+
 from .patterns import MACROS
 from .patterns import email_and_www_patterns, emoticon_patterns, xml_patterns
 from .patterns import unit_patterns, number_patterns, abbreviations_before_initials_patterns
@@ -31,7 +32,7 @@ from .patterns import case_endings_patterns, number_fixes_patterns
 _letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
 
 # List containing words that should be ignored during the normalization of words with hyphens
-DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'rewriting', 'premorph', 'rules_files', 'ignore.csv')
+DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'taggers', 'text_segmentation', 'ignorable_words_with_hyphens.csv')
 
 
 class CompoundTokenTagger(Tagger):

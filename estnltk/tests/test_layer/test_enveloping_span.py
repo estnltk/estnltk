@@ -70,5 +70,5 @@ def test_getitem():
 
     assert layer_4[0]['attr_4'] == '123'
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(KeyError):
         layer_4[0]['bla']

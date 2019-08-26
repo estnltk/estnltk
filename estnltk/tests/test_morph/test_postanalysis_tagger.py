@@ -202,10 +202,10 @@ def test_postanalysis_fix_abbreviations():
     assert expected_records == results_dict
 
 
-def test_postanalysis_fix_numeric():
+def test_postanalysis_fix_number_postags():
     # Tests that numerics and percentages will have postag 'N':
     # Initialize tagger
-    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_numeric=True))
+    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_number_postags=True) )
     # Case 1 : percentages
     text=Text('kahanenud 4,7% -lt 1,8% -ni')
     text.tag_layer(['words','sentences'])
@@ -337,13 +337,13 @@ def test_postanalysis_preserves_extra_attributes():
 # ----------------------------------
 
 
-from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
-
-def test_postanalysis_with_correction_rewriter_for_numbers():
-    # Tests VabamorfCorrectionRewriter on providing fixes to numbers:
+def test_postanalysis_fix_number_analyses_using_rules():
+    # Tests fix_number_analyses_using_rules 
+    # (this was previously VabamorfCorrectionRewriter's functionality)
     # Initialize taggers
     postanalysis_tagger = \
-        PostMorphAnalysisTagger(correction_rewriter = VabamorfCorrectionRewriter())
+        PostMorphAnalysisTagger(fix_number_analyses_using_rules = True, 
+                                fix_number_analyses_by_replacing = True)
     morf_tagger = \
         VabamorfTagger(postanalysis_tagger=postanalysis_tagger)
     # Case 1
@@ -386,3 +386,48 @@ def test_postanalysis_with_correction_rewriter_for_numbers():
     # Check results
     assert expected_records == results_dict
 
+
+
+def test_postanalysis_fix_pronouns_WIP():
+    # Tests fix_pronouns
+    # (this was previously VabamorfCorrectionRewriter's functionality)
+    # Basically: removes pronoun analyses from words in which the normalized word 
+    #   form cannot be analysed as a pronoun;
+    # TODO: currently, the side effect is that if the wrongly annotated word does 
+    #       not have any other analyses (other than pronoun ones), it will have an 
+    #       empty list of analyses, and as a result, the text cannot be disambiguated 
+    #       automatically anymore ...
+    #       Future work: removals should go hand-in-hand with adding new fixed analyses
+    # Initialize taggers
+    postanalysis_tagger = \
+        PostMorphAnalysisTagger(fix_number_analyses_using_rules = True, 
+                                fix_number_analyses_by_replacing = True, 
+                                fix_pronouns = True )
+    morf_tagger = \
+        VabamorfTagger(postanalysis_tagger=postanalysis_tagger, disambiguate=False)
+    # Case 1
+    text=Text(' 11-endal , 22-selt , 7-meid , 80selt . ')
+    #
+    #   For more analysis examples, see:
+    #   https://github.com/estnltk/koondkorpus-experiments/blob/master/results/pronoun_tagger/detected_pronouns_01.csv
+    #
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    #print(text['morph_analysis'].to_records())
+    #from pprint import pprint
+    #pprint(text['morph_analysis'].to_records())
+    expected_records = [ \
+         [{'end': 9, 'root': None, 'start': 1, 'form': None, '_ignore': False, 'root_tokens': None, 'partofspeech': None, 'clitic': None, 'lemma': None, 'ending': None}], 
+         [{'end': 11, 'root': ',', 'start': 10, 'form': '', '_ignore': False, 'root_tokens': (',',), 'partofspeech': 'Z', 'clitic': '', 'lemma': ',', 'ending': ''}], 
+         [{'end': 19, 'root': None, 'start': 12, 'form': None, '_ignore': False, 'root_tokens': None, 'partofspeech': None, 'clitic': None, 'lemma': None, 'ending': None}], 
+         [{'end': 21, 'root': ',', 'start': 20, 'form': '', '_ignore': False, 'root_tokens': (',',), 'partofspeech': 'Z', 'clitic': '', 'lemma': ',', 'ending': ''}], 
+         [{'end': 28, 'root': None, 'start': 22, 'form': None, '_ignore': False, 'root_tokens': None, 'partofspeech': None, 'clitic': None, 'lemma': None, 'ending': None}], 
+         [{'end': 30, 'root': ',', 'start': 29, 'form': '', '_ignore': False, 'root_tokens': (',',), 'partofspeech': 'Z', 'clitic': '', 'lemma': ',', 'ending': ''}], 
+         [{'end': 37, 'root': None, 'start': 31, 'form': None, '_ignore': False, 'root_tokens': None, 'partofspeech': None, 'clitic': None, 'lemma': None, 'ending': None}], 
+         [{'end': 39, 'root': '.', 'start': 38, 'form': '', '_ignore': False, 'root_tokens': ('.',), 'partofspeech': 'Z', 'clitic': '', 'lemma': '.', 'ending': ''}] 
+    ]
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
