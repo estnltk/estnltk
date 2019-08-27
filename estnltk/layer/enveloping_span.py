@@ -2,7 +2,6 @@ from typing import Any, Iterable
 
 from estnltk.layer.span import Span, Annotation
 from estnltk import BaseSpan, EnvelopingBaseSpan
-from estnltk.layer import AttributeList, AttributeTupleList
 
 
 class EnvelopingSpan(Span):
@@ -70,27 +69,7 @@ class EnvelopingSpan(Span):
         return layer.text_object._resolve(layer.name, item, sofar=self)
 
     def __getitem__(self, idx):
-        if isinstance(idx, str):
-            if self._layer.ambiguous:
-                return AttributeList((annotation[idx] for annotation in self._annotations), idx)
-            return self._annotations[0][idx]
-        if isinstance(idx, tuple):
-            if self._layer.ambiguous:
-                return AttributeTupleList((annotation[idx] for annotation in self._annotations), idx)
-            return self._annotations[0][idx]
-
-
-
-
-
         if isinstance(idx, int):
             return self.spans[idx]
 
-        if isinstance(idx, str):
-            return getattr(self, idx)
-
-        if isinstance(idx, slice):
-            res = EnvelopingSpan(self._base_span[idx], layer=self.layer)
-            return res
-
-        raise KeyError(idx)
+        return super().__getitem__(idx)
