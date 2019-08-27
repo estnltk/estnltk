@@ -129,7 +129,8 @@ class PostMorphAnalysisTagger(Retagger):
         
         fix_number_postags: bool (default: True)
             If True, then postags of numeric and percentage
-            tokens will be fixed (will be set to 'N');
+            tokens will be fixed (will be changed from 
+            'Y' to 'N');
        
         fix_number_analyses_using_rules: bool (Default: True)
             If True, then loads fixes for number analyses from the 
