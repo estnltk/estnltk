@@ -60,7 +60,7 @@ class EnvelopingSpan(Span):
         layer = self._layer
 
         if item in layer.attributes:
-            return self.annotations[0][item]
+            return self[item]
 
         target_layer = self.text_object.layers.get(item)
         if target_layer is not None:

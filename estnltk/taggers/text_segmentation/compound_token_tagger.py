@@ -432,7 +432,7 @@ class CompoundTokenTagger(Tagger):
             add_custom_abbrev = True
             if compound_tokens_lists:
                 last_compound = compound_tokens_lists[-1]
-                last_type = last_compound.type
+                last_type = last_compound.type[0]
                 if last_compound.start < span.start and \
                     span.end < last_compound.end:
                     # custom compound token is inside 
@@ -638,8 +638,8 @@ class CompoundTokenTagger(Tagger):
         #    (basis material for the new spanlist)
         #    (also, leave out duplicate spans, if such exist)
         all_covered_tokens = []
-        for compound_token_spanlist in compound_token_spans:
-            for span in compound_token_spanlist:
+        for compound_token_span in compound_token_spans:
+            for span in compound_token_span:
                 self._insert_span(span, all_covered_tokens, discard_duplicate=True)
         for span in regular_spans:
             self._insert_span(span, all_covered_tokens, discard_duplicate=True)
@@ -647,13 +647,13 @@ class CompoundTokenTagger(Tagger):
         # 2) Get attributes
         all_normalizations = {}
         all_types = []
-        for compound_token_spanlist in compound_token_spans:
-            span_start = compound_token_spanlist.start
-            span_end   = compound_token_spanlist.end
-            if compound_token_spanlist.normalized:   # if normalization != None
-                all_normalizations[span_start] = ( compound_token_spanlist.normalized, \
-                                                   span_end )
-            for compound_token_type in compound_token_spanlist.type:
+        for compound_token_span in compound_token_spans:
+            span_start = compound_token_span.start
+            span_end   = compound_token_span.end
+            if compound_token_span.normalized[0] is not None:   # if normalization != None
+                all_normalizations[span_start] = (compound_token_span.normalized[0],
+                                                  span_end)
+            for compound_token_type in compound_token_span.type[0]:
                 all_types.append( compound_token_type )
         # Add type of the joining span (if it exists) to the end
         joining_span_type = joining_span.pattern_type if hasattr(joining_span, 'pattern_type') else None

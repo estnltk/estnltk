@@ -147,8 +147,7 @@ class Span:
         if item in self._layer.attributes:
             return self[item]
 
-        elif self._layer is not None and self._layer.text_object is not None and self._layer.text_object._path_exists(
-                self._layer.name, item):
+        elif self._layer.text_object is not None and self._layer.text_object._path_exists(self._layer.name, item):
             # there exists an unambiguous path from this span to the target (attribute)
 
             looking_for_layer = False
