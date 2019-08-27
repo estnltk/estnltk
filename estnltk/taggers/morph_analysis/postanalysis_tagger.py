@@ -506,18 +506,13 @@ class PostMorphAnalysisTagger(Retagger):
             # B) Convert spans to records
             records = [_span_to_records_excl(annotation, [IGNORE_ATTR]) for annotation in morph_annotations]
             rewritten_recs = records
-           
+            normalized_word_str = _get_word_text( word )
+            
             # B.1) Fix pronouns 
             if self.fix_pronouns and len(rewritten_recs) > 0:
-                # B.X.1) Add 'word_normal'
-                normalized_text = _get_word_text( word )
-                for rec in rewritten_recs:
-                    # Assume all analyses of a single word share 
-                    # common normal form
-                    rec['word_normal'] = normalized_text
-                # B.X.2) Filter pronoun analyses: remove analyses in which the 
+                # B.X.1) Filter pronoun analyses: remove analyses in which the 
                 #        normalized word is actually not a pronoun;
-                token = MorphAnalyzedToken( rewritten_recs[0]['word_normal'] )
+                token = MorphAnalyzedToken( normalized_word_str )
                 rewritten_recs_new = []
                 for rec in rewritten_recs:
                     if rec['partofspeech'] == 'P':
@@ -526,7 +521,7 @@ class PostMorphAnalysisTagger(Retagger):
                     else:
                         rewritten_recs_new.append(rec)
                 rewritten_recs = rewritten_recs_new
-                # B.X.3) Carry over extra attributes
+                # B.X.2) Carry over extra attributes
                 if extra_attributes and len(rewritten_recs) > 0:
                     # Assume that extra attributes are same for each record (of the word):
                     # therefore, carry over attribute values from the first record
@@ -541,26 +536,20 @@ class PostMorphAnalysisTagger(Retagger):
             
             # B.2) Used rules (from CSV file) to fix number analyses
             if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
-                # B.X.1) Add 'word_normal'
-                normalized_text = _get_word_text( word )
-                for rec in rewritten_recs:
-                    # Assume all analyses of a single word share 
-                    # common normal form
-                    rec['word_normal'] = normalized_text
-                # B.X.2) Rewrite records of a single word
-                if rewritten_recs[0]['word_normal'].isalpha():
+                # B.X.1) Rewrite records of a single word
+                if normalized_word_str.isalpha():
                     # skip number corrections if the normalized token consists of letters only
                     pass
                 else:
                     found_analyses = \
-                        self.find_analyses_for_numeric_token( rewritten_recs[0]['word_normal'] )
+                        self.find_analyses_for_numeric_token( normalized_word_str )
                     if found_analyses:
                         # Replace the old ones or take the intersection
                         if self.fix_number_analyses_by_replacing:
                             rewritten_recs = found_analyses
                         else:
                             rewritten_recs = [rec for rec in rewritten_recs if rec in found_analyses]
-                # B.X.3) Carry over extra attributes
+                # B.X.2) Carry over extra attributes
                 if extra_attributes and len(rewritten_recs) > 0:
                     # Assume that extra attributes are same for each record (of the word):
                     # therefore, carry over attribute values from the first record
@@ -584,7 +573,7 @@ class PostMorphAnalysisTagger(Retagger):
                     continue
                 # Carry over attributes
                 for attr in current_attributes:
-                    if attr in ['start', 'end', 'text', 'word_normal']:
+                    if attr in ['start', 'end', 'text']:
                         continue
                     attr_value = rec[attr] if attr in rec else None
                     if attr == 'root_tokens':
