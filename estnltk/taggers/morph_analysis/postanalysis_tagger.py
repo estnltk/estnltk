@@ -22,6 +22,7 @@ from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_record
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
+from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
 
 from estnltk.taggers.morph_analysis.proxy import MorphAnalyzedToken
 
@@ -597,7 +598,7 @@ class PostMorphAnalysisTagger(Retagger):
                     {attr: empty_morph_record[attr] for attr in ambiguous_span.layer.attributes}
                 # Add the new annotation
                 ambiguous_span.add_annotation(Annotation(ambiguous_span, **empty_morph_record))
-                
+            
             # D) Rewrite the old span with new one
             morph_spans[morph_span_id] = ambiguous_span
             # Advance in the old "morph_analysis" layer
@@ -644,13 +645,36 @@ class PostMorphAnalysisTagger(Retagger):
         ordinal_number_str = number_str.rstrip('.') + '.'
         ending = m.group(2)
         result = []
+        # Add missing hyphens
+        number_str_final = number_str
+        ordinal_number_str_final = ordinal_number_str
+        if token_str.startswith('-'):
+            number_str_final = '-'+number_str_final
+            ordinal_number_str_final = '-'+ordinal_number_str_final
+        if token_str.endswith('-'):
+            number_str_final = number_str_final+'-'
+            ordinal_number_str_final = ordinal_number_str_final+'-'
+        # Apply rules
         for number_re, analyses in self._number_correction_rules.items():
             if re.match(number_re, number_str):
-                for analysis in analyses.get(ending, []):
+                # Add analyses according to the ending
+                for analysis in analyses.get( ending, [] ):
                     if analysis['partofspeech'] == 'O':
-                        a = {'lemma':ordinal_number_str, 'root':ordinal_number_str, 'root_tokens':(ordinal_number_str,), 'clitic':''}
+                        root, root_tokens, lemma = \
+                            _postprocess_root( ordinal_number_str_final, analysis['partofspeech'] )
+                        a = dict()
+                        a['root'] = root
+                        a['lemma'] = lemma
+                        a['root_tokens'] = root_tokens
+                        a['clitic'] = ''
                     else:
-                        a = {'lemma':number_str, 'root':number_str, 'root_tokens':(number_str,), 'clitic':''}
+                        root, root_tokens, lemma = \
+                            _postprocess_root( number_str_final, analysis['partofspeech'] )
+                        a = dict()
+                        a['root'] = root
+                        a['lemma'] = lemma
+                        a['root_tokens'] = root_tokens
+                        a['clitic'] = ''
                     a.update(analysis)
                     result.append(a)
                 break
