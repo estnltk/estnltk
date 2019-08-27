@@ -510,7 +510,7 @@ class PostMorphAnalysisTagger(Retagger):
             
             # B.1) Fix pronouns 
             if self.fix_pronouns and len(rewritten_recs) > 0:
-                # B.X.1) Filter pronoun analyses: remove analyses in which the 
+                # B.1.1) Filter pronoun analyses: remove analyses in which the 
                 #        normalized word is actually not a pronoun;
                 token = MorphAnalyzedToken( normalized_word_str )
                 rewritten_recs_new = []
@@ -521,22 +521,10 @@ class PostMorphAnalysisTagger(Retagger):
                     else:
                         rewritten_recs_new.append(rec)
                 rewritten_recs = rewritten_recs_new
-                # B.X.2) Carry over extra attributes
-                if extra_attributes and len(rewritten_recs) > 0:
-                    # Assume that extra attributes are same for each record (of the word):
-                    # therefore, carry over attribute values from the first record
-                    first_old_rec = records[0]
-                    for rec in rewritten_recs:
-                        for extra_attr in extra_attributes:
-                            # Note: carry over the extra attribute value only when 
-                            # the record was changed by the rewriter (so, the attribute 
-                            # is missing from the record)
-                            if extra_attr not in rec:
-                                rec[extra_attr] = first_old_rec[extra_attr]
             
             # B.2) Used rules (from CSV file) to fix number analyses
             if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
-                # B.X.1) Rewrite records of a single word
+                # B.2.1) Rewrite records of a single word
                 if normalized_word_str.isalpha():
                     # skip number corrections if the normalized token consists of letters only
                     pass
@@ -549,18 +537,19 @@ class PostMorphAnalysisTagger(Retagger):
                             rewritten_recs = found_analyses
                         else:
                             rewritten_recs = [rec for rec in rewritten_recs if rec in found_analyses]
-                # B.X.2) Carry over extra attributes
-                if extra_attributes and len(rewritten_recs) > 0:
-                    # Assume that extra attributes are same for each record (of the word):
-                    # therefore, carry over attribute values from the first record
-                    first_old_rec = records[0]
-                    for rec in rewritten_recs:
-                        for extra_attr in extra_attributes:
-                            # Note: carry over the extra attribute value only when 
-                            # the record was changed by the rewriter (so, the attribute 
-                            # is missing from the record)
-                            if extra_attr not in rec:
-                                rec[extra_attr] = first_old_rec[extra_attr]
+
+            # B.3) Carry over extra attributes
+            if extra_attributes and len(rewritten_recs) > 0 and len(records) > 0:
+                # Assume that extra attributes are same for each record (of the word):
+                # therefore, carry over attribute values from the first record
+                first_old_rec = records[0]
+                for rec in rewritten_recs:
+                    for extra_attr in extra_attributes:
+                        # Note: carry over the extra attribute value only when 
+                        # the record was changed (so that the attribute is missing 
+                        # from the record)
+                        if extra_attr not in rec:
+                            rec[extra_attr] = first_old_rec[extra_attr]
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
@@ -608,7 +597,7 @@ class PostMorphAnalysisTagger(Retagger):
                     {attr: empty_morph_record[attr] for attr in ambiguous_span.layer.attributes}
                 # Add the new annotation
                 ambiguous_span.add_annotation(Annotation(ambiguous_span, **empty_morph_record))
-
+                
             # D) Rewrite the old span with new one
             morph_spans[morph_span_id] = ambiguous_span
             # Advance in the old "morph_analysis" layer
