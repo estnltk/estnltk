@@ -3,7 +3,6 @@
 
 
 from __future__ import unicode_literals, print_function
-from estnltk.legacy.names import *
 
 from estnltk.core import PACKAGE_PATH
 import os, os.path
