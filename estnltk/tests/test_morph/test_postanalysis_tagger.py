@@ -2,6 +2,7 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import PostMorphAnalysisTagger
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
+from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 
 from estnltk.layer import AmbiguousAttributeTupleList
 
@@ -388,8 +389,40 @@ def test_postanalysis_fix_number_analyses_using_rules():
 
 
 
+def test_postanalysis_fix_number_analyses_using_rules_postcorrections():
+    # Tests some post-corrections to fix_number_analyses_using_rules 
+    # Initialize taggers
+    postanalysis_tagger = \
+        PostMorphAnalysisTagger(fix_number_analyses_using_rules = True, 
+                                fix_number_analyses_by_replacing = True)
+    morf_tagger = \
+        VabamorfTagger(postanalysis_tagger=postanalysis_tagger)
+    tokenizer = WhiteSpaceTokensTagger()
+    # Case 1: hyphens after and before numbers should be preserved in lemma
+    text=Text('4- ja 6-silindriline, -10 kraadi')
+    tokenizer.tag(text)
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    #print( text['morph_analysis'].to_records() )
+    #from pprint import pprint
+    #pprint( text['morph_analysis'].to_records() )
+    expected_records = [ \
+       [{'form': '?', 'root': '4-', 'root_tokens': ('4', ''), 'start': 0, 'lemma': '4-', 'clitic': '', 'ending': '0', 'end': 2, 'partofspeech': 'N'}], \
+       [{'form': '', 'root': 'ja', 'root_tokens': ('ja',), 'start': 3, 'lemma': 'ja', 'clitic': '', 'ending': '0', 'end': 5, 'partofspeech': 'J'}], \
+       [{'form': 'sg n', 'root': '6_silindriline', 'root_tokens': ('6', 'silindriline'), 'start': 6, 'lemma': '6silindriline', 'clitic': '', 'ending': '0', 'end': 21, 'partofspeech': 'A'}], \
+       [{'form': '?', 'root': '-10', 'root_tokens': ('', '10'), 'start': 22, 'lemma': '-10', 'clitic': '', 'ending': '0', 'end': 25, 'partofspeech': 'N'}], \
+       [{'form': 'sg p', 'root': 'kraad', 'root_tokens': ('kraad',), 'start': 26, 'lemma': 'kraad', 'clitic': '', 'ending': '0', 'end': 32, 'partofspeech': 'S'}]
+    ]
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
+
+
 def test_postanalysis_fix_pronouns_WIP():
-    # Tests fix_pronouns
+    # Tests remove_broken_pronoun_analyses
     # (this was previously VabamorfCorrectionRewriter's functionality)
     # Basically: removes pronoun analyses from words in which the normalized word 
     #   form cannot be analysed as a pronoun;
@@ -402,7 +435,7 @@ def test_postanalysis_fix_pronouns_WIP():
     postanalysis_tagger = \
         PostMorphAnalysisTagger(fix_number_analyses_using_rules = True, 
                                 fix_number_analyses_by_replacing = True, 
-                                fix_pronouns = True )
+                                remove_broken_pronoun_analyses = True )
     morf_tagger = \
         VabamorfTagger(postanalysis_tagger=postanalysis_tagger, disambiguate=False)
     # Case 1

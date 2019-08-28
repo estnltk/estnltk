@@ -22,6 +22,7 @@ from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_record
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
+from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
 
 from estnltk.taggers.morph_analysis.proxy import MorphAnalyzedToken
 
@@ -39,7 +40,7 @@ class PostMorphAnalysisTagger(Retagger):
                   'fix_abbreviations', 'fix_number_postags', 'remove_duplicates',
                   'fix_number_analyses_using_rules',
                   'fix_number_analyses_by_replacing',
-                  'fix_pronouns',
+                  'remove_broken_pronoun_analyses',
                   # Number analysis related
                   '_number_analysis_rules_file',
                   '_number_correction_rules',
@@ -72,7 +73,7 @@ class PostMorphAnalysisTagger(Retagger):
                  number_analysis_rules:str=DEFAULT_NUMBER_ANALYSIS_RULES,
                  fix_number_analyses_by_replacing:bool=True,
                  
-                 fix_pronouns:bool=False ):
+                 remove_broken_pronoun_analyses:bool=False ):
         """Initialize PostMorphAnalysisTagger class.
 
         Parameters
@@ -129,7 +130,8 @@ class PostMorphAnalysisTagger(Retagger):
         
         fix_number_postags: bool (default: True)
             If True, then postags of numeric and percentage
-            tokens will be fixed (will be set to 'N');
+            tokens will be fixed (will be changed from 
+            'Y' to 'N');
        
         fix_number_analyses_using_rules: bool (Default: True)
             If True, then loads fixes for number analyses from the 
@@ -156,7 +158,7 @@ class PostMorphAnalysisTagger(Retagger):
             This option only works if the flag 
             fix_number_analyses_using_rules is set;
         
-        fix_pronouns: bool (default: False)
+        remove_broken_pronoun_analyses: bool (default: False)
             If True, then words mistakenly analysed as pronouns
             (such as '11-endal' analysed as '11-ise', and
              '22-selt' analysed as '22-see') will have their 
@@ -191,7 +193,7 @@ class PostMorphAnalysisTagger(Retagger):
                 self.load_number_analysis_rules( self._number_analysis_rules_file )
         # Correction of pronouns
         # (formerly in VabamorfCorrectionRewriter)
-        self.fix_pronouns = fix_pronouns
+        self.remove_broken_pronoun_analyses = remove_broken_pronoun_analyses
         
         self.ignore_emoticons = ignore_emoticons
         self.ignore_xml_tags = ignore_xml_tags
@@ -429,7 +431,7 @@ class PostMorphAnalysisTagger(Retagger):
              2. Applies rule-based corrections to number analyses
                 (if  fix_number_analyses_using_rules  is set);
              3. Removes redundant pronoun analyses
-                (if  fix_pronouns  is set);
+                (if  remove_broken_pronoun_analyses  is set);
            
            Note that this method also tries to preserve any extra
            attributes of the morph_analysis layer. Every rewritten
@@ -505,18 +507,13 @@ class PostMorphAnalysisTagger(Retagger):
             # B) Convert spans to records
             records = [_span_to_records_excl(annotation, [IGNORE_ATTR]) for annotation in morph_annotations]
             rewritten_recs = records
-           
+            normalized_word_str = _get_word_text( word )
+            
             # B.1) Fix pronouns 
-            if self.fix_pronouns and len(rewritten_recs) > 0:
-                # B.X.1) Add 'word_normal'
-                normalized_text = _get_word_text( word )
-                for rec in rewritten_recs:
-                    # Assume all analyses of a single word share 
-                    # common normal form
-                    rec['word_normal'] = normalized_text
-                # B.X.2) Filter pronoun analyses: remove analyses in which the 
+            if self.remove_broken_pronoun_analyses and len(rewritten_recs) > 0:
+                # B.1.1) Filter pronoun analyses: remove analyses in which the 
                 #        normalized word is actually not a pronoun;
-                token = MorphAnalyzedToken( rewritten_recs[0]['word_normal'] )
+                token = MorphAnalyzedToken( normalized_word_str )
                 rewritten_recs_new = []
                 for rec in rewritten_recs:
                     if rec['partofspeech'] == 'P':
@@ -525,52 +522,35 @@ class PostMorphAnalysisTagger(Retagger):
                     else:
                         rewritten_recs_new.append(rec)
                 rewritten_recs = rewritten_recs_new
-                # B.X.3) Carry over extra attributes
-                if extra_attributes and len(rewritten_recs) > 0:
-                    # Assume that extra attributes are same for each record (of the word):
-                    # therefore, carry over attribute values from the first record
-                    first_old_rec = records[0]
-                    for rec in rewritten_recs:
-                        for extra_attr in extra_attributes:
-                            # Note: carry over the extra attribute value only when 
-                            # the record was changed by the rewriter (so, the attribute 
-                            # is missing from the record)
-                            if extra_attr not in rec:
-                                rec[extra_attr] = first_old_rec[extra_attr]
             
             # B.2) Used rules (from CSV file) to fix number analyses
             if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
-                # B.X.1) Add 'word_normal'
-                normalized_text = _get_word_text( word )
-                for rec in rewritten_recs:
-                    # Assume all analyses of a single word share 
-                    # common normal form
-                    rec['word_normal'] = normalized_text
-                # B.X.2) Rewrite records of a single word
-                if rewritten_recs[0]['word_normal'].isalpha():
+                # B.2.1) Rewrite records of a single word
+                if normalized_word_str.isalpha():
                     # skip number corrections if the normalized token consists of letters only
                     pass
                 else:
                     found_analyses = \
-                        self.find_analyses_for_numeric_token( rewritten_recs[0]['word_normal'] )
+                        self.find_analyses_for_numeric_token( normalized_word_str )
                     if found_analyses:
                         # Replace the old ones or take the intersection
                         if self.fix_number_analyses_by_replacing:
                             rewritten_recs = found_analyses
                         else:
                             rewritten_recs = [rec for rec in rewritten_recs if rec in found_analyses]
-                # B.X.3) Carry over extra attributes
-                if extra_attributes and len(rewritten_recs) > 0:
-                    # Assume that extra attributes are same for each record (of the word):
-                    # therefore, carry over attribute values from the first record
-                    first_old_rec = records[0]
-                    for rec in rewritten_recs:
-                        for extra_attr in extra_attributes:
-                            # Note: carry over the extra attribute value only when 
-                            # the record was changed by the rewriter (so, the attribute 
-                            # is missing from the record)
-                            if extra_attr not in rec:
-                                rec[extra_attr] = first_old_rec[extra_attr]
+
+            # B.3) Carry over extra attributes
+            if extra_attributes and len(rewritten_recs) > 0 and len(records) > 0:
+                # Assume that extra attributes are same for each record (of the word):
+                # therefore, carry over attribute values from the first record
+                first_old_rec = records[0]
+                for rec in rewritten_recs:
+                    for extra_attr in extra_attributes:
+                        # Note: carry over the extra attribute value only when 
+                        # the record was changed (so that the attribute is missing 
+                        # from the record)
+                        if extra_attr not in rec:
+                            rec[extra_attr] = first_old_rec[extra_attr]
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
@@ -583,7 +563,7 @@ class PostMorphAnalysisTagger(Retagger):
                     continue
                 # Carry over attributes
                 for attr in current_attributes:
-                    if attr in ['start', 'end', 'text', 'word_normal']:
+                    if attr in ['start', 'end', 'text']:
                         continue
                     attr_value = rec[attr] if attr in rec else None
                     if attr == 'root_tokens':
@@ -618,7 +598,7 @@ class PostMorphAnalysisTagger(Retagger):
                     {attr: empty_morph_record[attr] for attr in ambiguous_span.layer.attributes}
                 # Add the new annotation
                 ambiguous_span.add_annotation(Annotation(ambiguous_span, **empty_morph_record))
-
+            
             # D) Rewrite the old span with new one
             morph_spans[morph_span_id] = ambiguous_span
             # Advance in the old "morph_analysis" layer
@@ -665,13 +645,36 @@ class PostMorphAnalysisTagger(Retagger):
         ordinal_number_str = number_str.rstrip('.') + '.'
         ending = m.group(2)
         result = []
+        # Add missing hyphens
+        number_str_final = number_str
+        ordinal_number_str_final = ordinal_number_str
+        if token_str.startswith('-'):
+            number_str_final = '-'+number_str_final
+            ordinal_number_str_final = '-'+ordinal_number_str_final
+        if token_str.endswith('-'):
+            number_str_final = number_str_final+'-'
+            ordinal_number_str_final = ordinal_number_str_final+'-'
+        # Apply rules
         for number_re, analyses in self._number_correction_rules.items():
             if re.match(number_re, number_str):
-                for analysis in analyses.get(ending, []):
+                # Add analyses according to the ending
+                for analysis in analyses.get( ending, [] ):
                     if analysis['partofspeech'] == 'O':
-                        a = {'lemma':ordinal_number_str, 'root':ordinal_number_str, 'root_tokens':(ordinal_number_str,), 'clitic':''}
+                        root, root_tokens, lemma = \
+                            _postprocess_root( ordinal_number_str_final, analysis['partofspeech'] )
+                        a = dict()
+                        a['root'] = root
+                        a['lemma'] = lemma
+                        a['root_tokens'] = root_tokens
+                        a['clitic'] = ''
                     else:
-                        a = {'lemma':number_str, 'root':number_str, 'root_tokens':(number_str,), 'clitic':''}
+                        root, root_tokens, lemma = \
+                            _postprocess_root( number_str_final, analysis['partofspeech'] )
+                        a = dict()
+                        a['root'] = root
+                        a['lemma'] = lemma
+                        a['root_tokens'] = root_tokens
+                        a['clitic'] = ''
                     a.update(analysis)
                     result.append(a)
                 break
