@@ -25,16 +25,16 @@ def check_model_files(model_dir):
                 if not os.path.exists(os.path.join(model_dir, folder, file)):
                     raise FileNotFoundError("TODO: Instructions for downloading model files")
 
-def load_softmax_emb_tag_sum_tagger():
+def SoftmaxEmbTagSumTagger():
     return load_tagger(softmax, "emb_tag_sum")
 
-def load_softmax_emb_cat_sum_tagger():
+def SoftmaxEmbCatSumTagger():
     return load_tagger(softmax, "emb_cat_sum")
 
-def load_seq2seq_emb_tag_sum_tagger():
+def Seq2SeqEmbTagSumTagger():
     return load_tagger(seq2seq, "emb_tag_sum")    
     
-def load_seq2seq_emb_cat_sum_tagger():
+def Seq2SeqEmbCatSumTagger():
     return load_tagger(seq2seq, "emb_cat_sum")
 
 def load_tagger(model_module, dir_name):
@@ -61,17 +61,17 @@ class NeuralMorphTagger(Tagger):
     Do not use this class directly. Use the following methods to get taggers with
     different types of neural models:
         
-    load_softmax_emb_tag_sum_tagger()
-    load_softmax_emb_cat_sum_tagger()
-    load_seq2seq_emb_tag_sum_tagger()
-    load_seq2seq_emb_cat_sum_tagger()
+    SoftmaxEmbTagSumTagger()
+    SoftmaxEmbCatSumTagger()
+    Seq2SeqEmbTagSumTagger()
+    Seq2SeqEmbCatSumTagger()
     
     For example:
     
         text = Text("See on lause.")
         text.tag_layer(['morph_analysis'])
         
-        tagger = load_softmax_emb_tag_sum_tagger()
+        tagger = SoftmaxEmbTagSumTagger()
         tagger.tag(text)
         
         print(text.neural_morph_analysis['morphtag'])

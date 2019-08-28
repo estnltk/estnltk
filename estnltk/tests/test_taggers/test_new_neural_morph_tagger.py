@@ -8,6 +8,7 @@ from estnltk.neural_morph.new_neural_morph import softmax
 from estnltk.neural_morph.new_neural_morph import seq2seq
 from estnltk.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 
+# os.environ['NEURAL_MORPH_TAGGER_CONFIG'] = "/home/kermos/projects/estnltk/estnltk/neural_morph/new_neural_morph/seq2seq/emb_cat_sum/config.py"
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
 
 skip_reason = "Environment variable NEURAL_MORPH_TAGGER_CONFIG is not defined."
@@ -35,24 +36,27 @@ class TestDummyTagger(TestCase):
             self.assertEqual(morf_pred.morphtag, morf_true)
 
 
-def str2input(text):
+def test_sentences(filename):
+    file = open(filename)
     words, tags, analyses = [], [], []
-    for ln in text.strip().split("\n"):
-        items = ln.strip().split("\t")
-        word, tag, word_analyses = items[0], items[1], items[2:]
-        words.append(word)
-        tags.append(tag)
-        analyses.append(word_analyses)
-    return words, tags, analyses
-
-
-test_sentence = """
-Kõik	POS=P|NUMBER=pl|CASE=nom	POS=P|NUMBER=pl|CASE=nom	POS=P|NUMBER=sg|CASE=nom
-riigid	POS=S|NOUN_TYPE=com|NUMBER=pl|CASE=nom	POS=S|NUMBER=pl|CASE=nom
-ei	POS=V|VERB_TYPE=aux|VERB_POLARITY=neg	POS=V|VERB_POLARITY=neg
-täida	POS=V|VERB_TYPE=main|MOOD=indic|TENSE=pres|VERB_PS=ps|VERB_POLARITY=neg	POS=V|MOOD=imper|TENSE=pres|PERSON=ps2|NUMBER=sg|VERB_PS=ps|VERB_POLARITY=af
-kvalifikatsiooninorme	POS=S|NOUN_TYPE=com|NUMBER=pl|CASE=part	POS=S|NUMBER=pl|CASE=part
-"""
+    line = file.readline()
+    
+    while line:
+        if line.strip() == "":
+            yield words, tags, analyses
+            words, tags, analyses = [], [], []
+        else:
+            items = line.strip().split("\t")
+            word, tag, word_analyses = items[0], items[1], items[2:]
+            words.append(word)
+            tags.append(tag)
+            analyses.append(word_analyses)
+            
+        line = file.readline()
+        
+    if len(words) > 0:
+        yield words, tags, analyses
+    file.close()
 
 
 if NEURAL_MORPH_TAGGER_CONFIG is not None:
@@ -67,28 +71,42 @@ if NEURAL_MORPH_TAGGER_CONFIG is not None:
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
 class TestNeuralModel(TestCase):
     def test(self):
-        """
-        Sanity check: ensure that the model performs as expected on simple test cases.
-        """
-        words, tags, analyses = str2input(test_sentence)
-        pred = ['|'.join(p) if isinstance(p, (list, tuple)) else p
-                          for p in model.predict(words, analyses)]
-        self.assertEqual(tags, pred)
+        word_count = 0
+        correct_count = 0
+        sentences = test_sentences("neural_test_sentences.txt")
+        
+        for words, tags, analyses in sentences:
+            word_count += len(words)
+            
+            preds = model.predict(words, analyses)
+            for tag, prediction in zip(tags, preds):
+                if tag == prediction:
+                    correct_count += 1
+                    
+        self.assertTrue(correct_count/word_count >= 0.97)
                     
 
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
-class TestNeuralTagger(TestCase):
+class TestNeuralTagger(TestCase):  
     def test(self):
         tagger = NeuralMorphTagger(model)
+        sentences = test_sentences("neural_test_sentences.txt")
         
-        words, tags, analyses = str2input(test_sentence)
-        text = Text(" ".join(words))
-
-        text.tag_layer(["morph_analysis"])
-        tagger.tag(text)
-
-        self.assertTrue(tagger.output_layer in text.layers)
-        self.assertTrue(hasattr(text.words[0], 'morphtag'))
+        word_count = 0
+        correct_count = 0
         
-        for word, tag in zip(text.words, tags):
-            self.assertEqual(word.morphtag, tag)
+        for words, tags, analyses in sentences:
+            text = Text(" ".join(words))
+            text.tag_layer(['morph_analysis'])
+            tagger.tag(text)
+            
+            self.assertTrue(tagger.output_layer in text.layers)
+            self.assertTrue(hasattr(text.words[0], 'morphtag'))
+            
+            word_count += len(tags)
+            
+            for word, tag in zip(text.words, tags):
+                if word.morphtag == tag:
+                    correct_count += 1
+                    
+        self.assertTrue(correct_count/word_count >= 0.97)
