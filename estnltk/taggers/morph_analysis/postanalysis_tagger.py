@@ -40,7 +40,7 @@ class PostMorphAnalysisTagger(Retagger):
                   'fix_abbreviations', 'fix_number_postags', 'remove_duplicates',
                   'fix_number_analyses_using_rules',
                   'fix_number_analyses_by_replacing',
-                  'fix_pronouns',
+                  'remove_broken_pronoun_analyses',
                   # Number analysis related
                   '_number_analysis_rules_file',
                   '_number_correction_rules',
@@ -73,7 +73,7 @@ class PostMorphAnalysisTagger(Retagger):
                  number_analysis_rules:str=DEFAULT_NUMBER_ANALYSIS_RULES,
                  fix_number_analyses_by_replacing:bool=True,
                  
-                 fix_pronouns:bool=False ):
+                 remove_broken_pronoun_analyses:bool=False ):
         """Initialize PostMorphAnalysisTagger class.
 
         Parameters
@@ -158,7 +158,7 @@ class PostMorphAnalysisTagger(Retagger):
             This option only works if the flag 
             fix_number_analyses_using_rules is set;
         
-        fix_pronouns: bool (default: False)
+        remove_broken_pronoun_analyses: bool (default: False)
             If True, then words mistakenly analysed as pronouns
             (such as '11-endal' analysed as '11-ise', and
              '22-selt' analysed as '22-see') will have their 
@@ -193,7 +193,7 @@ class PostMorphAnalysisTagger(Retagger):
                 self.load_number_analysis_rules( self._number_analysis_rules_file )
         # Correction of pronouns
         # (formerly in VabamorfCorrectionRewriter)
-        self.fix_pronouns = fix_pronouns
+        self.remove_broken_pronoun_analyses = remove_broken_pronoun_analyses
         
         self.ignore_emoticons = ignore_emoticons
         self.ignore_xml_tags = ignore_xml_tags
@@ -431,7 +431,7 @@ class PostMorphAnalysisTagger(Retagger):
              2. Applies rule-based corrections to number analyses
                 (if  fix_number_analyses_using_rules  is set);
              3. Removes redundant pronoun analyses
-                (if  fix_pronouns  is set);
+                (if  remove_broken_pronoun_analyses  is set);
            
            Note that this method also tries to preserve any extra
            attributes of the morph_analysis layer. Every rewritten
@@ -510,7 +510,7 @@ class PostMorphAnalysisTagger(Retagger):
             normalized_word_str = _get_word_text( word )
             
             # B.1) Fix pronouns 
-            if self.fix_pronouns and len(rewritten_recs) > 0:
+            if self.remove_broken_pronoun_analyses and len(rewritten_recs) > 0:
                 # B.1.1) Filter pronoun analyses: remove analyses in which the 
                 #        normalized word is actually not a pronoun;
                 token = MorphAnalyzedToken( normalized_word_str )

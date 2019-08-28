@@ -422,7 +422,7 @@ def test_postanalysis_fix_number_analyses_using_rules_postcorrections():
 
 
 def test_postanalysis_fix_pronouns_WIP():
-    # Tests fix_pronouns
+    # Tests remove_broken_pronoun_analyses
     # (this was previously VabamorfCorrectionRewriter's functionality)
     # Basically: removes pronoun analyses from words in which the normalized word 
     #   form cannot be analysed as a pronoun;
@@ -435,7 +435,7 @@ def test_postanalysis_fix_pronouns_WIP():
     postanalysis_tagger = \
         PostMorphAnalysisTagger(fix_number_analyses_using_rules = True, 
                                 fix_number_analyses_by_replacing = True, 
-                                fix_pronouns = True )
+                                remove_broken_pronoun_analyses = True )
     morf_tagger = \
         VabamorfTagger(postanalysis_tagger=postanalysis_tagger, disambiguate=False)
     # Case 1
