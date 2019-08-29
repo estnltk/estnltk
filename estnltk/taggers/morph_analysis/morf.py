@@ -22,7 +22,7 @@ from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 
-from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_span
+from estnltk.taggers.morph_analysis.morf_common import _get_word_text
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
@@ -176,7 +176,6 @@ class VabamorfTagger(Tagger):
         self.layer_name = self.output_layer       # <- For backward compatibility
         self.attributes = self.output_attributes  # <- For backward compatibility
 
-
     def _make_layer(self, text: Text, layers, status: dict):
         """Analyses given Text object morphologically.
 
@@ -268,26 +267,25 @@ def _find_matching_old_record( new_record, old_records ):
 #          the morphological disambiguation
 # ========================================================
 
-def _is_ignore_span( span ):
-    ''' Checks if the given span (from the layer 'morph_analysis')
-        has attribute IGNORE_ATTR, and whether all of its values 
-        are True (which means: the span should be ignored). 
-        
-        Note: if some values are True, and others are False or None, 
-        then throws an Exception because partial ignoring is 
+def _is_ignore_span(span):
+    """ Checks if the given span (from the layer 'morph_analysis')
+        has attribute IGNORE_ATTR, and whether all of its values
+        are True (which means: the span should be ignored).
+
+        Note: if some values are True, and others are False or None,
+        then throws an Exception because partial ignoring is
         currently not implemented.
-    '''
-    if hasattr( span, IGNORE_ATTR ):
-        ignore_values = getattr(span, IGNORE_ATTR)
-        if ignore_values and all(ignore_values):
-            return True
-        if ignore_values and any(ignore_values):
-            # Only some of the Spans have ignore=True, but 
-            # partial ignoring is currently not implemented
-            raise Exception('(!) Partial ignoring is currently not '+\
-                            'implemented. Unexpected ignore attribute '+\
-                            "values encountered at the 'morph_analysis' "+\
-                            'span '+str((span.start,span.end))+'.')
+    """
+    ignore_values = [annotation.get(IGNORE_ATTR) for annotation in span.annotations]
+    if all(ignore_values):
+        return True
+    if any(ignore_values):
+        # Only some of the Spans have ignore=True, but
+        # partial ignoring is currently not implemented
+        raise Exception('(!) Partial ignoring is currently not '+\
+                        'implemented. Unexpected ignore attribute '+\
+                        "values encountered at the 'morph_analysis' "+\
+                        'span '+str((span.start,span.end))+'.')
     return False
 
 
