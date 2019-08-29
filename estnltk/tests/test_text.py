@@ -497,7 +497,6 @@ def test_enveloping_layer():
         for word in wordpair.words:
             assert (word)
 
-    print(t._g.nodes(), t._g.edges())
     for wordpair in t.wordpairs:
         wordpair.words.lemma  # this should not give a keyerror
 
