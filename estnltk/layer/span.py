@@ -141,7 +141,7 @@ class Span:
             raise AttributeError(key)
 
     def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__'}:
+        if item in {'__getstate__', '__setstate__', '__deepcopy__'}:
             raise AttributeError
 
         if item in self._layer.attributes:

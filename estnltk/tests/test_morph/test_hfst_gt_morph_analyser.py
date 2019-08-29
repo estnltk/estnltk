@@ -1,7 +1,9 @@
+import faulthandler
 import pytest
 import pkgutil
-import os, os.path
-import sys, faulthandler
+import sys
+
+
 faulthandler.enable(file=sys.stderr, all_threads=True)
 
 
@@ -10,12 +12,10 @@ def check_if_hfst_is_available():
     return pkgutil.find_loader("hfst") is not None
 
 
-
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_raw_output():
-    import hfst
-    
+
     from estnltk import Text
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
     
@@ -108,12 +108,9 @@ def test_hfst_gt_morph_analyser_raw_output():
     assert records == []
 
 
-
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
-    import hfst
-    
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import split_into_morphemes
     
     test_data = [ {'word':'talv',\
@@ -162,8 +159,6 @@ def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_extract_morpheme_features():
-    import hfst
-    
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import split_into_morphemes, extract_morpheme_features
     from collections import OrderedDict
     
@@ -246,8 +241,6 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
-    import hfst
-    
     from estnltk import Text
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
     
@@ -329,8 +322,6 @@ def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_with_guessing_switched_on_and_off():
-    import hfst
-    
     from estnltk import Text
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
     

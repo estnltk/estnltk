@@ -1,15 +1,10 @@
 import html
 from collections import defaultdict
-from typing import MutableMapping, Union, List, Sequence
+from typing import MutableMapping, List, Sequence
 import pandas
 import networkx as nx
 
-from estnltk.layer.span import Span
-from estnltk.layer.enveloping_span import EnvelopingSpan
-from estnltk.layer.layer import SpanList
 from estnltk.layer.layer import Layer
-from estnltk.layer.attribute_list import AttributeList
-from estnltk.layer.ambiguous_attribute_list import AmbiguousAttributeList
 
 
 class Text:
@@ -21,6 +16,9 @@ class Text:
         self.base_to_dependant = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self.enveloping_to_enveloped = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self._setup_structure()
+
+    base_level_attributes = {'lemma': 'morph_analysis',
+                             'partofspeech': 'morph_analysis'}
 
     @property
     def layers(self):
@@ -191,81 +189,6 @@ class Text:
         setattr(self, layer.name, layer)
 
         self._setup_structure()
-
-    def _resolve(self, frm: str, to: str, sofar: SpanList = None) -> Union['SpanList', List[None], Layer]:
-        # must return the correct object
-        # this method is supposed to centralize attribute access
-
-        # if sofar is set, it must be a SpanList at point "frm" with a path to "to"
-        # going down a level of enveloping layers adds a layer SpanLists
-
-        if not self._path_exists(frm, to):
-            raise AttributeError('{} -> {} not implemented - path does not exist'.format(frm, to))
-
-        if to in self._layers and frm in self._layers:
-            # from enveloping layer to its direct descendant
-            if to == self._layers[frm].enveloping:
-                if isinstance(sofar, EnvelopingSpan):
-                    return self._layers[to][[span.base_span for span in sofar]]
-                return self._layers[to][[span.base_span for enveloping_span in sofar for span in enveloping_span]]
-
-            # from an enveloping layer to dependant layer (one step only, skipping base layer)
-            elif self._layers[frm].enveloping == self._layers[to].parent and self._layers[to].parent is not None:
-
-                # path taken by text.sentences.morph_analysis
-                if isinstance(sofar[0], EnvelopingSpan):
-                    return self._layers[to][[base_span for envelop in sofar for base_span in envelop.base_span]]
-
-                # path taken by text.sentences[0].lemma
-                if isinstance(sofar[0], Span):
-                    return self._layers[to][[span.base_span for span in sofar]]
-
-            elif self._layers[frm]._base == self._layers[to]._base:
-                return self._layers[to][[span.base_span for span in self._layers[frm]]]
-
-            # through an enveloped layer (enveloping-enveloping-target)
-            elif to == self._layers[self._layers[frm].enveloping].enveloping:
-                base_spans = [span_2 for span in self._layers[frm] for span_1 in span.base_span for span_2 in span_1]
-                return self._layers[to][base_spans]
-        # attribute access
-        else:
-            to_layer_name = self.attributes[to][0]
-            path = self._get_path(frm, to_layer_name) + ['{}.{}'.format(to_layer_name, to)]
-
-            to_layer = self._layers[to_layer_name]
-            assert to_layer_name in self._layers.keys()
-
-            if self._layers[frm] == to_layer:
-                raise NotImplementedError('Seda ei tohiks juhtuda.')
-
-            # attributes of a (direct) dependant
-            if to_layer.parent == frm:
-                res = []
-                if sofar:
-                    for i in to_layer:
-                        if i.parent in sofar.spans:
-                            res.append(getattr(i, to))
-                    return AmbiguousAttributeList(res, to)
-
-            # attributes of an (directly) enveloped object
-            to_layer_name = path[-2]
-            to_layer = self._layers[to_layer_name]
-            from_layer_name = path[0]
-            from_layer = self._layers[from_layer_name]
-
-            if from_layer.enveloping == to_layer.name:
-                if sofar:
-                    res = []
-                    for i in sofar.spans:
-                        res.append(i.__getattr__(to))
-                    return res
-
-            if to_layer.parent == from_layer.enveloping:
-                if sofar:
-                    res = []
-                    for i in sofar.spans:
-                        res.append(i.__getattr__(to))
-                    return res
 
     def _path_exists(self, frm, to):
         paths = self._get_all_paths(frm, to)

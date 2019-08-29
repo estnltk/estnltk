@@ -1,9 +1,10 @@
 import os
 
 # Set data / output directories
+current_dir = os.path.dirname(os.path.abspath(__file__))
 try:
     data_dir = "" # os.environ['DATA_DIR']
-    out_dir = os.environ['OUT_DIR']
+    out_dir = os.path.join(current_dir, "output")
     embeddings_dir = "" # os.environ['EMBEDDINGS_DIR']
 except KeyError:
     print("Environment variable 'DATA_DIR','OUT_DIR' and 'EMBEDDINGS_DIR' are required.")
@@ -20,8 +21,8 @@ training_log = os.path.join(dir_output, "training.log")
 dim_char = 100  # checked
 use_char_embeddings = True
 # analysis
-analysis_embeddings = None  # None | tag | category | input_attention_tag | attention_tag | attention_category
-analysis_embeddings_combination = "mean"  # mean | sum
+analysis_embeddings = "tag"  # None | tag | category | input_attention_tag | attention_tag | attention_category
+analysis_embeddings_combination = "sum"  # mean | sum
 analysis_attention_project = False # True = concatenate
 use_analysis_dropout = False
 analysis_dropout_method = "random"  # random or first
@@ -57,13 +58,13 @@ filename_singletons = os.path.join(out_data_dir, "singletons.txt")
 # training
 train_embeddings = True
 l2_loss_weight = 0  # 0.0005
-batch_size = 20  # checked
+batch_size = 5  # checked
 batching_queque_size = 1000
 lr_method = "sgd"  # sgd | adam | adagrad | rmsprop | momentum
-lr = 1.0  # checked, optimal [1, 2] fr sql. TODO: test with decay. Run lr=1 for > 100 iterations.
-lr_decay = 0.98
+lr = 1.0  # checked, optimal [1, 2]. TODO: test with decay. Run lr=1 for > 100 iterations.
+lr_decay = 1.
 lr_decay_step = 2500
-lr_decay_strategy = "exponential"  # "on-no-improvement" | "step" | "exponential" | None
+lr_decay_strategy = None  # "on-no-improvement" | "step" | "exponential" | None
 momentum = 0.9
 clip = 5  # if negative, no clipping
 shuffle_train_data = False
@@ -89,17 +90,16 @@ encoder_lstm_dropout_output = 1.0
 use_encoder_lstm_batch_norm = False
 
 # decoder
+dim_tag = 150  # checked
+tag_embeddings_dropout = 0.5
+decoder_maximum_iterations = 12  # find maximum from the training corpus
+attention = None  # None | analysis-tag | analysis-category | char | sentence . Set to None to disable attention
+attention_mechanism = "luong"  # bahdanau | luong
+trainer = "basic"  # scheduled | basic
+scheduled_trainer_sampling_prob = .2
 use_crf = False  # if crf, training is 1.7x slower on CPU
 
 # evaluation
-eval_batch_size = 20
+eval_batch_size = 200
 
 tf_session_config = {}
-
-# alligaator :
-# tf_session_config = {
-#    "log_device_placement": False,
-#    "intra_op_parallelism_threads": 80,
-#    "allow_soft_placement": True,
-#    "device_count": {'CPU': 40},
-# }

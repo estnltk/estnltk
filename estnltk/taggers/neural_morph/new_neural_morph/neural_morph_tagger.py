@@ -2,11 +2,10 @@ import os
 
 from estnltk.text import Layer
 from estnltk.taggers import Tagger
-from estnltk.neural_morph.new_neural_morph.general_utils import load_config_from_file
-from estnltk.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
-from estnltk.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
-from estnltk.neural_morph.new_neural_morph import softmax
-from estnltk.neural_morph.new_neural_morph import seq2seq
+from estnltk.taggers.neural_morph.new_neural_morph.models import seq2seq, softmax
+from estnltk.taggers.neural_morph.new_neural_morph.models.general_utils import load_config_from_file
+from estnltk.taggers.neural_morph.new_neural_morph.models.vabamorf_2_neural import neural_model_tags
+from estnltk.taggers.neural_morph.new_neural_morph.models.neural_2_vabamorf import vabamorf_tags
 
 MODEL_FILES = {"data":["analysis.txt",
                        "chars.txt",
@@ -14,7 +13,7 @@ MODEL_FILES = {"data":["analysis.txt",
                        "singletons.txt",
                        "tags.txt",
                        "words.txt"],
- 
+
               "results":["model.weights.data-00000-of-00001",
                          "model.weights.index",
                          "model.weights.meta"]}
@@ -27,32 +26,32 @@ def check_model_files(model_dir):
                     raise FileNotFoundError("TODO: Instructions for downloading model files")
 
 def SoftmaxEmbTagSumTagger():
-    return load_tagger(softmax, "emb_tag_sum")
+    return load_tagger(os.path.join(os.path.dirname(softmax.__file__), "emb_tag_sum", "config.py"))
 
 def SoftmaxEmbCatSumTagger():
-    return load_tagger(softmax, "emb_cat_sum")
+    return load_tagger(os.path.join(os.path.dirname(softmax.__file__), "emb_cat_sum", "config.py"))
 
 def Seq2SeqEmbTagSumTagger():
-    return load_tagger(seq2seq, "emb_tag_sum")    
+    return load_tagger(os.path.join(os.path.dirname(seq2seq.__file__), "emb_tag_sum", "config.py"))    
     
 def Seq2SeqEmbCatSumTagger():
-    return load_tagger(seq2seq, "emb_cat_sum")
+    return load_tagger(os.path.join(os.path.dirname(seq2seq.__file__), "emb_cat_sum", "config.py"))
 
-def load_tagger(model_module, dir_name):
-    model_path = os.path.join(os.path.dirname(model_module.__file__), dir_name)
-    config_filename = os.path.join(model_path, "config.py")
-    model_dir = os.path.join(model_path, "output")
-    check_model_files(model_dir)
-    os.environ['OUT_DIR'] = model_dir
-    return NeuralMorphTagger(load_model(model_module, config_filename))
-
-def load_model(model_module, config_filename):
-    config = load_config_from_file(config_filename)
+def load_tagger(neural_model_config):
+    if "softmax" in neural_model_config:
+        model_module = softmax
+    else:
+        model_module = seq2seq
+        
+    config = load_config_from_file(neural_model_config)
+    check_model_files(config.out_dir)
+    
     config_holder = model_module.ConfigHolder(config)
     model = model_module.Model(config_holder)
     model.build()
     model.restore_session(config.dir_model)
-    return model
+    
+    return NeuralMorphTagger(model)
 
 class NeuralMorphTagger(Tagger):
     """
@@ -120,3 +119,6 @@ class NeuralMorphTagger(Tagger):
                 layer.add_annotation(word, morphtag=tag, pos=vm_pos, form=vm_form)
             
         return layer
+    
+    def reset(self):
+        self.model.reset()

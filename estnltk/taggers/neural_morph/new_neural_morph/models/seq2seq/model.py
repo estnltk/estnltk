@@ -1,15 +1,8 @@
-import os
-import math
-from time import time
-
 import numpy as np
 import tensorflow as tf
-from itertools import chain
 
-from .data_utils import minibatches, pad_sequences, PAD, SOS, EOS, MISSING_CATEGORY_ID
-from ..general_utils import Progbar
+from .data_utils import pad_sequences, PAD, SOS, EOS, MISSING_CATEGORY_ID
 from ..base_model import BaseModel
-from . import rnn_util
 
 
 class Model(BaseModel):
@@ -63,117 +56,6 @@ class Model(BaseModel):
                                      shape=[None, None, None],
                                      name="category_analyses_{}".format(self.escape_category(category)))
                 self.setattr("category_analyses", plh, category)
-
-    def prebuild_feed_dict_batch(self, words, analyses, labels=None):
-        """Given some data, pad it and build a feed dictionary
-
-                Args:
-                    words: list of sentences. A sentence is a list of ids of a list of
-                        words. A word is a list of ids
-                    labels: list of ids
-                    lr: (float) learning rate
-
-                Returns:
-                    dict {placeholder: value}
-
-                """
-        # build feed dictionary
-        feed = {}
-
-        # perform padding of the given data
-        if self.config.use_char_embeddings is True and self.config.use_word_embeddings is True:
-            char_ids, word_ids = zip(*words)
-            word_ids, sequence_lengths = pad_sequences(word_ids, self.pad_id)
-            char_ids, word_lengths = pad_sequences(char_ids, pad_tok=self.pad_id, nlevels=2)
-        elif self.config.use_word_embeddings is True:
-            word_ids, sequence_lengths = pad_sequences(words, self.pad_id)
-        elif self.config.use_char_embeddings is True:
-            char_ids, word_lengths = pad_sequences(words, pad_tok=self.pad_id, nlevels=2)
-            sequence_lengths = [len(snt) for snt in words]
-
-        if self.config.use_word_embeddings:
-            feed['word_ids'] = word_ids
-
-            if self.config.attention == "sentence":
-                # build word -> sentence matrix
-                word2sentence_map = np.full((len(word_ids), len(word_ids[0])), -1., dtype=np.int32)
-                for snt_id, snt_len in enumerate(sequence_lengths):
-                    word2sentence_map[snt_id, :snt_len] = snt_id
-                feed['word2sentence_map'] = word2sentence_map
-
-        if self.config.use_char_embeddings:
-            feed['char_ids'] = char_ids
-            feed['word_lengths'] = word_lengths
-
-        feed['sequence_lengths'] = sequence_lengths
-
-        if self.config.analysis_embeddings == "attention_tag" or self.config.analysis_embeddings == "tag":
-            analysis_ids, analysis_lengths = pad_sequences(analyses, pad_tok=0, nlevels=2)
-            feed['analysis_ids'] = analysis_ids
-            feed['analysis_lengths'] = analysis_lengths
-        elif self.config.analysis_embeddings == "attention_category":
-            for i in range(len(analyses)):
-                for j in range(len(analyses[i])):
-                    analyses[i][j] = list(set([c for cat_list in analyses[i][j] for c in cat_list]))
-            analysis_ids, analysis_lengths = pad_sequences(analyses, pad_tok=0, nlevels=2)
-            feed['analysis_ids'] = analysis_ids
-            feed['analysis_lengths'] = analysis_lengths
-        elif self.config.analysis_embeddings == "category":
-            category_analysis_id_list = []
-            for cat_idx in range(len(self.config.vocab_analysis)):
-                matrix = []
-                for snt in analyses:
-                    cat_snt = []
-                    for word in snt:
-                        word_analyses = set([analysis[cat_idx] for analysis in word])
-                        word_analyses = [a for a in word_analyses if a != MISSING_CATEGORY_ID]
-                        cat_snt.append(word_analyses)
-                    matrix.append(cat_snt)
-                category_analysis_ids, analysis_lengths = pad_sequences(matrix, pad_tok=0, nlevels=2)
-                category_analysis_id_list.append(category_analysis_ids)
-            feed['category_analysis_ids'] = category_analysis_id_list
-
-        if labels is not None:
-            word_tags = [word_tags + [self.eos_id, self.pad_id]
-                         for sentence in labels for word_tags in sentence]
-            tag_ids, tag_lengths = pad_sequences(word_tags, self.pad_id)
-            feed['tag_ids'] = tag_ids
-            feed['tag_lengths'] = tag_lengths  # Word tags include actual tags + eos-token + 1 pad-token.
-
-        return feed
-
-    def get_final_feed_dict(self, training_phase, feed_dict, lr=None):
-        fd = {self.training_phase: training_phase,
-              self.sequence_lengths: feed_dict['sequence_lengths']}
-
-        if self.config.use_word_embeddings:
-            fd[self.word_ids] = feed_dict['word_ids']
-            if self.config.attention == "sentence":
-                fd[self.word2sentence_map] = feed_dict['word2sentence_map']
-
-        if self.config.use_char_embeddings:
-            fd[self.char_ids] = feed_dict['char_ids']
-            fd[self.word_lengths] = feed_dict['word_lengths']
-
-        if (self.config.analysis_embeddings == "attention_tag" or
-                    self.config.analysis_embeddings == "tag" or
-                    self.config.analysis_embeddings == "attention_category"):
-            fd[self.analysis_ids] = feed_dict['analysis_ids']
-            fd[self.analysis_lengths] = feed_dict['analysis_lengths']
-        elif self.config.analysis_embeddings == "category":
-            category_analysis_ids = feed_dict["category_analysis_ids"]
-            for analysis_ids, cat in zip(category_analysis_ids, self.config.vocab_analysis):
-                fd[self.getattr("category_analyses", cat)] = analysis_ids
-
-        if 'tag_ids' in feed_dict:
-            fd[self.tag_ids] = feed_dict['tag_ids']
-            fd[self.tag_lengths] = feed_dict['tag_lengths']
-
-        if lr is not None:
-            fd[self.lr] = lr
-
-        sequence_lengths = feed_dict['sequence_lengths']
-        return fd, sequence_lengths
 
     def get_feed_dict(self, training_phase, words, analyses, labels=None, lr=None):
         """Given some data, pad it and build a feed dictionary
@@ -462,13 +344,3 @@ class Model(BaseModel):
         preds = [[self.idx_to_tag[tag_id] for tag_id in pred[:length][:-1]]
                  for pred, length in zip(labels_pred, labels_pred_lengths)]
         return ['|'.join(pred) for pred in preds]
-
-    def score(self, words, labels):
-        if type(words[0]) == tuple:
-            words = list(zip(*words))
-        fd, sequence_lengths = self.get_feed_dict(False, [words], [labels])
-        # labels_scores, labels_max_scores, labels_max_ids = self.sess.run([self.labels_scores,
-        #                                                                   self.labels_max_scores, self.labels_max_ids],
-        #                                                                  feed_dict=fd)
-        labels_scores = self.sess.run([self.labels_scores], feed_dict=fd)[0]
-        return labels_scores

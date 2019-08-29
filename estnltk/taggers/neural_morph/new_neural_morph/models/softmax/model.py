@@ -1,8 +1,6 @@
-import numpy as np
-import os
 import tensorflow as tf
 
-from .data_utils import minibatches, pad_sequences, MISSING_CATEGORY_ID
+from .data_utils import pad_sequences, MISSING_CATEGORY_ID
 from ..base_model import BaseModel
 
 
@@ -18,90 +16,6 @@ class Model(BaseModel):
         super().add_placeholders()
         # shape = (batch size, max length of sentence in batch)
         self.labels = tf.placeholder(tf.int32, shape=[None, None], name="labels")
-
-    def prebuild_feed_dict_batch(self, words, analyses, labels=None):
-        # perform padding of the given data
-        if self.config.use_char_embeddings:
-            char_ids, word_ids = zip(*words)
-            word_ids, sequence_lengths = pad_sequences(word_ids, 0)
-            char_ids, word_lengths = pad_sequences(char_ids, pad_tok=0, nlevels=2)
-        else:
-            word_ids, sequence_lengths = pad_sequences(words, 0)
-
-        # build feed dictionary
-        feed = {'word_ids': word_ids,
-                'sequence_lengths': sequence_lengths}
-
-        if self.config.use_char_embeddings:
-            feed['char_ids'] = char_ids
-            feed['word_lengths'] = word_lengths
-
-        if (self.config.analysis_embeddings == "tag" or
-                    self.config.analysis_embeddings == "input_attention_tag"):
-            analysis_ids, analysis_lengths = pad_sequences(analyses, pad_tok=0, nlevels=2)
-            feed['analysis_ids'] = analysis_ids
-            feed['analysis_lengths'] = analysis_lengths
-        elif self.config.analysis_embeddings == "input_attention_category":
-            for i in range(len(analyses)):
-                for j in range(len(analyses[i])):
-                    analyses[i][j] = list(set([c for cat_list in analyses[i][j] for c in cat_list]))
-            analysis_ids, analysis_lengths = pad_sequences(analyses, pad_tok=0, nlevels=2)
-            feed['analysis_ids'] = analysis_ids
-            feed['analysis_lengths'] = analysis_lengths
-        elif self.config.analysis_embeddings == "category":
-            category_analysis_id_list = []
-            category_analysis_lengths_list = []
-            for cat_idx in range(len(self.config.vocab_analysis)):
-                matrix = []
-                for snt in analyses:
-                    cat_snt = []
-                    for word in snt:
-                        word_analyses = set([analysis[cat_idx] for analysis in word])
-                        word_analyses = [a for a in word_analyses if a != MISSING_CATEGORY_ID]
-                        cat_snt.append(word_analyses)
-                    matrix.append(cat_snt)
-                category_analysis_ids, analysis_lengths = pad_sequences(matrix, pad_tok=0, nlevels=2)
-                category_analysis_id_list.append(category_analysis_ids)
-                category_analysis_lengths_list.append(analysis_lengths)
-            feed['category_analysis_ids'] = category_analysis_id_list
-            feed['category_analysis_lengths'] = category_analysis_lengths_list
-
-        if labels is not None:
-            labels, _ = pad_sequences(labels, 0)
-            feed['labels'] = labels
-
-        return feed
-
-    def get_final_feed_dict(self, training_phase, feed_dict, lr=None):
-        fd = {self.training_phase: training_phase,
-              self.word_ids: feed_dict['word_ids'],
-              self.sequence_lengths: feed_dict['sequence_lengths']
-              }
-
-        if self.config.use_char_embeddings:
-            fd[self.char_ids] = feed_dict['char_ids']
-            fd[self.word_lengths] = feed_dict['word_lengths']
-
-        if (self.config.analysis_embeddings == "tag" or
-                    self.config.analysis_embeddings == "input_attention_tag" or
-                    self.config.analysis_embeddings == "input_attention_category"):
-            fd[self.analysis_ids] = feed_dict['analysis_ids']
-            fd[self.analysis_lengths] = feed_dict['analysis_lengths']
-        elif self.config.analysis_embeddings == "category":
-            category_analysis_ids = feed_dict["category_analysis_ids"]
-            for analysis_ids, cat in zip(category_analysis_ids, self.config.vocab_analysis):
-                fd[self.getattr("category_analyses", cat)] = analysis_ids
-            category_analysis_lengths = feed_dict["category_analysis_lengths"]
-            for analysis_lengths, cat in zip(category_analysis_lengths, self.config.vocab_analysis):
-                fd[self.getattr("category_analysis_lengths", cat)] = analysis_lengths
-
-        if 'labels' in feed_dict:
-            fd[self.labels] = feed_dict['labels']
-
-        if lr is not None:
-            fd[self.lr] = lr
-
-        return fd, feed_dict['sequence_lengths']
 
     def get_feed_dict(self, training_phase, words, analyses, labels=None, lr=None):
         """Given some data, pad it and build a feed dictionary
@@ -251,7 +165,7 @@ class Model(BaseModel):
         self.add_decoder_op()
         self.add_pred_op()
         self.add_loss_op()
-
+        
         # Generic functions that add training op and initialize session
         self.add_train_op(self.config.lr_method, self.lr, self.loss,
                           self.config.clip)
@@ -304,24 +218,3 @@ class Model(BaseModel):
         pred_ids, _ = self.predict_batch([words], [analyses])
         preds = [self.idx_to_tag[idx] for idx in list(pred_ids[0])]
         return preds
-
-    def evaluate(self, test):
-        """Evaluates performance on test set
-
-        Args:
-            test: dataset that yields tuple of (sentences, tags)
-
-        Returns:
-            metrics: (dict) metrics["acc"] = 98.4, ...
-
-        """
-        accs = []
-        for words, labels, analyses in minibatches(test, self.config.eval_batch_size):
-            labels_pred, sequence_lengths = self.predict_batch(words, analyses)
-            for lbls_true, lbls_pred, snt_length in zip(labels, labels_pred, sequence_lengths):
-                # compare sentence labels
-                lbls_true = lbls_true[:snt_length]
-                lbls_pred = lbls_pred[:snt_length]
-                accs += [a == b for (a, b) in zip(lbls_true, lbls_pred)]
-        acc = np.mean(accs)
-        return acc

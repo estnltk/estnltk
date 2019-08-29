@@ -254,7 +254,7 @@ def test_morph_disambiguation_with_ignore():
                 setattr(span, IGNORE_ATTR, False)
     disambiguator.retag(text)
     # Assert that attribute IGNORE_ATTR has been removed 
-    assert not hasattr(text.morph_analysis, IGNORE_ATTR)
+    assert IGNORE_ATTR not in text.morph_analysis.attributes
     # Check that marked spans remain the same in the new layer
     for amb_span in text.morph_analysis:
         pos_key = (amb_span.start, amb_span.end)
@@ -276,7 +276,8 @@ def test_morph_disambiguation_with_ignore_all():
     disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     # Assert that attribute IGNORE_ATTR has been removed 
-    assert not hasattr(text.morph_analysis, IGNORE_ATTR)
+    assert IGNORE_ATTR not in text.morph_analysis.attributes
+
 
 
 def test_morph_disambiguation_with_ignore_emoticons():
@@ -289,7 +290,7 @@ def test_morph_disambiguation_with_ignore_emoticons():
       _ignore_morph_analyses_overlapping_with_compound_tokens(text, ['emoticon'])
     disambiguator.retag(text)
     # Assert that attribute IGNORE_ATTR has been removed 
-    assert not hasattr(text.morph_analysis, IGNORE_ATTR)
+    assert IGNORE_ATTR not in text.morph_analysis.attributes
     # Check that marked spans remain the same in the new layer
     for amb_span in text.morph_analysis:
         pos_key = (amb_span.start, amb_span.end)
@@ -308,8 +309,8 @@ def test_morph_disambiguation_with_ignore_xml_tags():
     #print(text['morph_analysis'].to_records())
     disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
-    # Assert that attribute IGNORE_ATTR has been removed 
-    assert not hasattr(text.morph_analysis, IGNORE_ATTR)
+    # Assert that attribute IGNORE_ATTR has been removed
+    assert IGNORE_ATTR not in text.morph_analysis.attributes
     for span in text.morph_analysis:
         # assert that all words have been disambiguated
         assert len(span.annotations) == 1

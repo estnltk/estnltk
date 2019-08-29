@@ -18,7 +18,7 @@ to as a multiclass (MC).
 """
 import os
 
-from estnltk.text import Span, Layer
+from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 from estnltk.neural_morph.old_neural_morph.data_utils import ConfigHolder
 from estnltk.neural_morph.old_neural_morph.model import Model
