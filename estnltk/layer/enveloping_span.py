@@ -56,8 +56,8 @@ class EnvelopingSpan(Span):
     def resolve_attribute(self, item):
         target_layer = self.text_object.layers.get(item)
         if target_layer is None:
-            attribute_map = {'lemma': 'morph_analysis'}
-            return self._layer.text_object[attribute_map[item]].get(self.base_span)[item]
+            base_level_attributes = self.text_object.base_level_attributes
+            return self._layer.text_object[base_level_attributes[item]].get(self.base_span)[item]
 
         return target_layer.get(self.base_span)
 

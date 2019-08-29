@@ -17,7 +17,7 @@
 # 
 
 from estnltk.text import Text
-from estnltk.text import Layer, EnvelopingSpan
+from estnltk.layer.layer import Layer
 from estnltk.converters import json_to_text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer

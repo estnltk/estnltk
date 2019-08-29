@@ -1,15 +1,10 @@
 import html
 from collections import defaultdict
-from typing import MutableMapping, Union, List, Sequence
+from typing import MutableMapping, List, Sequence
 import pandas
 import networkx as nx
 
-from estnltk.layer.span import Span
-from estnltk.layer.enveloping_span import EnvelopingSpan
-from estnltk.layer.layer import SpanList
 from estnltk.layer.layer import Layer
-from estnltk.layer.attribute_list import AttributeList
-from estnltk.layer.ambiguous_attribute_list import AmbiguousAttributeList
 
 
 class Text:
@@ -21,6 +16,9 @@ class Text:
         self.base_to_dependant = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self.enveloping_to_enveloped = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self._setup_structure()
+
+    base_level_attributes = {'lemma': 'morph_analysis',
+                             'partofspeech': 'morph_analysis'}
 
     @property
     def layers(self):
