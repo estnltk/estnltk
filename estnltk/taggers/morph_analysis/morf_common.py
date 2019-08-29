@@ -8,7 +8,7 @@ from functools import reduce
 
 from typing import MutableMapping, Any
 
-from estnltk.text import Span
+from estnltk.layer.span import Span
 
 from estnltk.vabamorf.morf import get_group_tokens
 from estnltk.vabamorf.morf import get_lemma

@@ -53,20 +53,22 @@ class EnvelopingSpan(Span):
         else:
             super().__setattr__(key, value)
 
+    def resolve_attribute(self, item):
+        target_layer = self.text_object.layers.get(item)
+        if target_layer is None:
+            base_level_attributes = self.text_object.base_level_attributes
+            return self._layer.text_object[base_level_attributes[item]].get(self.base_span)[item]
+
+        return target_layer.get(self.base_span)
+
     def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__'}:
+        if item in {'__getstate__', '__setstate__', '__deepcopy__'}:
             raise AttributeError
 
-        layer = self._layer
-
-        if item in layer.attributes:
+        if item in self._layer.attributes:
             return self[item]
 
-        target_layer = self.text_object.layers.get(item)
-        if target_layer is not None:
-            return target_layer.get(self.base_span)
-
-        return layer.text_object._resolve(layer.name, item, sofar=self)
+        return self.resolve_attribute(item)
 
     def __getitem__(self, idx):
         if isinstance(idx, int):

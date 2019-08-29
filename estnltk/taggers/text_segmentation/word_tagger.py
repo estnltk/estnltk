@@ -8,7 +8,7 @@
 from typing import MutableMapping
 
 from estnltk import ElementaryBaseSpan
-from estnltk.text import Layer, Span
+from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 
 

@@ -19,14 +19,15 @@
 
 import hfst
 
-from typing import MutableMapping, Any
+from typing import MutableMapping
 from collections import OrderedDict
 
-import os.path, re
+import os.path
+import re
 
 from estnltk import logger
 
-from estnltk.text import Layer, Span, Text
+from estnltk import Span, Layer, Text
 from estnltk.taggers import Tagger
 
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text

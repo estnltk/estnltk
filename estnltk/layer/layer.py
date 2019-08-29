@@ -304,13 +304,31 @@ class Layer:
     def rolling(self, window: int, min_periods: int = None, inside: str = None):
         return layer_operations.Rolling(self, window=window,  min_periods=min_periods, inside=inside)
 
+    def resolve_attribute(self, item):
+        base_level_attributes = self.text_object.base_level_attributes
+        if item not in base_level_attributes:
+            raise AttributeError(item)
+
+        target_layer = self.text_object[base_level_attributes[item]]
+        if len(target_layer) == 0 or len(self) == 0:
+            return AttributeList([], item)
+        result = [self.text_object[base_level_attributes[item]].get(span.base_span)[item] for span in self]
+
+        target_level = target_layer[0].base_span.level
+        self_level = self[0].base_span.level
+        if target_level > self_level:
+            raise AttributeError(item)
+        if target_level == self_level and target_layer.ambiguous:
+            return AmbiguousAttributeList(result, item)
+
+        return AttributeList(result, item)
+
     def __getattr__(self, item):
-        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__', '__setstate__'}:
+        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__', '__setstate__', '__deepcopy__'}:
             raise AttributeError
         if item in self.__getattribute__('attributes'):
             return self.__getitem__(item)
-
-        return self.text_object._resolve(self.name, item, sofar=self._span_list)
+        return self.resolve_attribute(item)
 
     def _set_attributes(self, attributes: Sequence[str]):
         assert not isinstance(attributes, str), attributes

@@ -15,7 +15,8 @@ from pandas.io.common import EmptyDataError
 from estnltk.core import PACKAGE_PATH
 
 from estnltk import EnvelopingSpan
-from estnltk.text import Layer, SpanList
+from estnltk.layer.span_list import SpanList
+from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.taggers import DisambiguatingTagger

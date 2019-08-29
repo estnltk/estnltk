@@ -16,17 +16,17 @@ def test_general():
 
     assert len(t.sentences) == 3
     assert len(t.words) == 15
-    assert len(t.sentences.words) == 15
-    assert t.sentences.words == t.words
+    with pytest.raises(AttributeError):
+        t.sentences.words
 
     assert {'tokens', 'compound_tokens', 'sentences', 'words', 'morph_analysis'} <= set(t.__dict__)
 
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         t.words.sentences
 
     assert len(t.words) == len(t.words.text)
-    #assert len(t.sentences) == len(t.sentences.text)
-    #assert len(t.sentences.words.text) == len(t.sentences.text)
+    # assert len(t.sentences) == len(t.sentences.text)
+    # assert len(t.sentences.words.text) == len(t.sentences.text)
     assert t.morph_analysis.lemma == AmbiguousAttributeList([['mina'], ['nimi'], ['olema', 'olema'], ['Uku'],
                                                              ['.'], ['mis', 'mis'], ['sina'], ['nimi'],
                                                              ['olema', 'olema'], ['?'], ['miks'], ['mina'],
@@ -36,21 +36,20 @@ def test_general():
     assert len(t.morph_analysis.lemma) == len(t.words)
     assert len(t.morph_analysis) == len(t.words)
 
-    assert t.words.morph_analysis.lemma == t.words.lemma
-    #assert len(t.sentences[1:].words) == len(t.sentences[1:].text)
+    # assert t.words.morph_analysis.lemma == t.words.lemma
+    # assert len(t.sentences[1:].words) == len(t.sentences[1:].text)
 
-    #assert len(t.sentences[1:].morph_analysis) == len(t.sentences[1:].text)
+    # assert len(t.sentences[1:].morph_analysis) == len(t.sentences[1:].text)
 
-    #assert len(t.sentences[:].morph_analysis) == len(t.sentences[:].text)
-    #assert t.sentences[:] == t.sentences.span_list
-    #assert t.words[:] == t.words.span_list
-    #assert (t.words[:].lemma) == (t.words.lemma)
-    #assert (t.words[:].text) == (t.words.text)
+    # assert len(t.sentences[:].morph_analysis) == len(t.sentences[:].text)
+    # assert t.sentences[:] == t.sentences.span_list
+    # assert t.words[:] == t.words.span_list
+    # assert (t.words[:].lemma) == (t.words.lemma)
+    # assert (t.words[:].text) == (t.words.text)
 
 
 def test_equivalences():
     t = Text('Minu nimi on Uku, mis sinu nimi on? Miks see üldse oluline on?')
-
 
     with pytest.raises(AttributeError):
         t.morph_analysis
@@ -58,10 +57,10 @@ def test_equivalences():
     t.tag_layer()
     t.morph_analysis.lemma  # nüüd töötab
 
-    #Text object has attribute access if attributes are unique
+    # Text object has attribute access if attributes are unique
     assert t.lemma == t.words.lemma
 
-    assert t.sentences.lemma == [sentence.lemma for sentence in t.sentences] == [[word.lemma for word in sentence] for sentence in t.sentences]
+    assert list(t.sentences.lemma) == [sentence.lemma for sentence in t.sentences]
 
     assert t.words.text == t.sentences.text
 
@@ -106,15 +105,68 @@ def test_to_record():
 
     # siin on kaks võimalikku (ja põhjendatavat) käitumist.
 
-    #esimene
-    #assert t.words.morph_analysis.to_records() == t.words.to_records()
+    # esimene
+    # assert t.words.morph_analysis.to_records() == t.words.to_records()
 
     # või teine
-    assert t.words.morph_analysis.to_records() == t.morph_analysis.to_records()
+    # assert t.words.morph_analysis.to_records() == t.morph_analysis.to_records()
 
-    #teine tundub veidi loogilisem, aga piisavalt harv vajadus ja piisavalt tülikas implementeerida, et valida esimene
+    # teine tundub veidi loogilisem, aga piisavalt harv vajadus ja piisavalt tülikas implementeerida, et valida esimene
     # alati saab teha lihtsalt
-    # t.morph_analysis.to_record()
+    assert t.morph_analysis.to_records() == [[{'lemma': 'mina',
+                                               'root': 'mina',
+                                               'root_tokens': ('mina',),
+                                               'ending': '0',
+                                               'clitic': '',
+                                               'form': 'sg g',
+                                               'partofspeech': 'P',
+                                               'start': 0,
+                                               'end': 4}],
+                                             [{'lemma': 'nimi',
+                                               'root': 'nimi',
+                                               'root_tokens': ('nimi',),
+                                               'ending': '0',
+                                               'clitic': '',
+                                               'form': 'sg n',
+                                               'partofspeech': 'S',
+                                               'start': 5,
+                                               'end': 9}],
+                                             [{'lemma': 'olema',
+                                               'root': 'ole',
+                                               'root_tokens': ('ole',),
+                                               'ending': '0',
+                                               'clitic': '',
+                                               'form': 'b',
+                                               'partofspeech': 'V',
+                                               'start': 10,
+                                               'end': 12},
+                                              {'lemma': 'olema',
+                                               'root': 'ole',
+                                               'root_tokens': ('ole',),
+                                               'ending': '0',
+                                               'clitic': '',
+                                               'form': 'vad',
+                                               'partofspeech': 'V',
+                                               'start': 10,
+                                               'end': 12}],
+                                             [{'lemma': 'Uku',
+                                               'root': 'Uku',
+                                               'root_tokens': ('Uku',),
+                                               'ending': '0',
+                                               'clitic': '',
+                                               'form': 'sg n',
+                                               'partofspeech': 'H',
+                                               'start': 13,
+                                               'end': 16}],
+                                             [{'lemma': '.',
+                                               'root': '.',
+                                               'root_tokens': ('.',),
+                                               'ending': '',
+                                               'clitic': '',
+                                               'form': '',
+                                               'partofspeech': 'Z',
+                                               'start': 16,
+                                               'end': 17}]]
 
 
 def test_paragraph_tokenizer():
@@ -127,28 +179,6 @@ Mis sinu nimi on?
     t.paragraphs
     assert t.paragraphs.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?', 'Mis', 'sinu', 'nimi', 'on', '?']
 
-    # Should not raise NotImplementedError
-    t.paragraphs.sentences
-    assert t.paragraphs.sentences.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?',
-                                           'Mis', 'sinu', 'nimi', 'on', '?']
-
-    # Should not raise NotImplementedError
-    t.paragraphs.sentences.words
-    assert t.paragraphs.sentences.words.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?', 'Mis', 'sinu', 'nimi', 'on', '?']
-
-    # Should not raise NotImplementedError
-    t.paragraphs.words
-    assert t.paragraphs.words.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?', 'Mis', 'sinu', 'nimi', 'on', '?']
-
-    assert t.paragraphs.text == t.paragraphs.sentences.text
-    assert t.paragraphs.sentences.text == t.paragraphs.sentences.words.text
-    assert t.paragraphs.sentences.words.text == t.paragraphs.words.text
-    assert t.paragraphs.words.text == t.paragraphs.text
-
-    assert t.paragraphs.sentences.words.morph_analysis.lemma == \
-           AmbiguousAttributeList([['mina'], ['nimi'], ['olema', 'olema'], ['Uku'], ['.'], ['miks'], ['?'],
-                                   ['mis', 'mis'], ['sina'], ['nimi'], ['olema', 'olema'], ['?']], 'lemma')
-
 
 def test_delete_layer():
     t = Text('Minu nimi on Uku.')
@@ -159,8 +189,8 @@ def test_delete_layer():
     assert set(layer_names) <= set(t.layers)
     assert set(layer_names) <= set(t.__dict__)
 
-    #Should not raise NotImplementedError
-    #deleting a root lalyer should also delete all its dependants
+    # Should not raise NotImplementedError
+    # deleting a root lalyer should also delete all its dependants
     del t.tokens
 
     assert 'tokens' not in t.__dict__
@@ -194,10 +224,10 @@ def test_new_span_hierarchy():
     ust seetõttu, et eelmisel nädalal avaldas kirjastus Gangemi "Hõbevalge"
     itaalia keeles, vahendas "Aktuaalne kaamera".''').tag_layer()
     l = Layer(
-        name='layer1',
-        parent='words',
-        attributes=['test1'],
-        text_object=text
+            name='layer1',
+            parent='words',
+            attributes=['test1'],
+            text_object=text
     )
     text.add_layer(l)
 
@@ -205,10 +235,10 @@ def test_new_span_hierarchy():
         l.add_annotation(i, test1='1234')
 
     l = Layer(
-        name='layer2',
-        parent='layer1',
-        attributes=['test2'],
-        text_object=text
+            name='layer2',
+            parent='layer1',
+            attributes=['test2'],
+            text_object=text
     )
     text.add_layer(l)
 
@@ -351,55 +381,53 @@ def test_from_dict():
 
 def test_ambiguous_from_dict():
     t = Text('Kui mitu kuud on aastas?')
-    words = Layer(name='words', attributes=['lemma'], ambiguous = True)
+    words = Layer(name='words', attributes=['lemma'], ambiguous=True)
     t.add_layer(words)
 
-
     words.from_records([
-                     [{'end': 3, 'lemma': 'kui', 'start': 0}, {'end': 3, 'lemma': 'KUU', 'start': 0}] ,
-                       [{'end': 8, 'lemma': 'mitu', 'start': 4}],
-                       [{'end': 13, 'lemma': 'kuu', 'start': 9}],
-                       [{'end': 16, 'lemma': 'olema', 'start': 14}],
-                       [{'end': 23, 'lemma': 'aasta', 'start': 17}],
-                       [{'end': 24, 'lemma': '?', 'start': 23}]
-                       ]
-                    )
+        [{'end': 3, 'lemma': 'kui', 'start': 0}, {'end': 3, 'lemma': 'KUU', 'start': 0}],
+        [{'end': 8, 'lemma': 'mitu', 'start': 4}],
+        [{'end': 13, 'lemma': 'kuu', 'start': 9}],
+        [{'end': 16, 'lemma': 'olema', 'start': 14}],
+        [{'end': 23, 'lemma': 'aasta', 'start': 17}],
+        [{'end': 24, 'lemma': '?', 'start': 23}]
+    ]
+    )
 
     assert t.words[0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
 
 
 def test_ambiguous_from_dict_unbound():
-    words = Layer(name='words', attributes=['lemma'], ambiguous = True)
+    words = Layer(name='words', attributes=['lemma'], ambiguous=True)
 
-    #We create the layer
+    # We create the layer
     words.from_records([
-                     [{'end': 3, 'lemma': 'kui', 'start': 0}, {'end': 3, 'lemma': 'KUU', 'start': 0}] ,
-                       [{'end': 8, 'lemma': 'mitu', 'start': 4}],
-                       [{'end': 13, 'lemma': 'kuu', 'start': 9}],
-                       [{'end': 16, 'lemma': 'olema', 'start': 14}],
-                       [{'end': 23, 'lemma': 'aasta', 'start': 17}],
-                       [{'end': 24, 'lemma': '?', 'start': 23}]
-                       ]
-                    )
+        [{'end': 3, 'lemma': 'kui', 'start': 0}, {'end': 3, 'lemma': 'KUU', 'start': 0}],
+        [{'end': 8, 'lemma': 'mitu', 'start': 4}],
+        [{'end': 13, 'lemma': 'kuu', 'start': 9}],
+        [{'end': 16, 'lemma': 'olema', 'start': 14}],
+        [{'end': 23, 'lemma': 'aasta', 'start': 17}],
+        [{'end': 24, 'lemma': '?', 'start': 23}]
+    ]
+    )
 
-    #then we bind it to an object
+    # then we bind it to an object
     t = Text('Kui mitu kuud on aastas?')
     t.add_layer(words)
 
     assert t.words[0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
 
-
-    words2 = Layer(name='words2', attributes=['lemma2'], ambiguous = True, parent='words')
-    #We create the layer
+    words2 = Layer(name='words2', attributes=['lemma2'], ambiguous=True, parent='words')
+    # We create the layer
     words2.from_records([
-                     [{'end': 3, 'lemma2': 'kui', 'start': 0}, {'end': 3, 'lemma2': 'KUU', 'start': 0}] ,
-                       [{'end': 8, 'lemma2': 'mitu', 'start': 4}],
-                       [{'end': 13, 'lemma2': 'kuu', 'start': 9}],
-                       [{'end': 16, 'lemma2': 'olema', 'start': 14}],
-                       [{'end': 23, 'lemma2': 'aasta', 'start': 17}],
-                       [{'end': 24, 'lemma2': '?', 'start': 23}]
-                       ]
-                    )
+        [{'end': 3, 'lemma2': 'kui', 'start': 0}, {'end': 3, 'lemma2': 'KUU', 'start': 0}],
+        [{'end': 8, 'lemma2': 'mitu', 'start': 4}],
+        [{'end': 13, 'lemma2': 'kuu', 'start': 9}],
+        [{'end': 16, 'lemma2': 'olema', 'start': 14}],
+        [{'end': 23, 'lemma2': 'aasta', 'start': 17}],
+        [{'end': 24, 'lemma2': '?', 'start': 23}]
+    ]
+    )
     t.add_layer(words2)
     assert t.words2[0].lemma2 == AttributeList(['kui', 'KUU'], 'lemma2')
 
@@ -420,9 +448,9 @@ def test_dependant_span():
     t.add_layer(words)
 
     dep = Layer(name='reverse_lemmas',
-                   parent='words',
-                   attributes=['revlemma']
-                   )
+                parent='words',
+                attributes=['revlemma']
+                )
     t.add_layer(dep)
 
     for word in t.words:
@@ -431,7 +459,7 @@ def test_dependant_span():
     for i in t.reverse_lemmas:
         assert (i.revlemma == i.lemma[::-1])
 
-    #TODO: how should this work?
+    # TODO: how should this work?
     # for i in t.words:
     #     assert (i.mark('reverse_lemmas').revlemma == i.lemma[::-1])
 
@@ -439,8 +467,8 @@ def test_dependant_span():
 def test_enveloping_layer():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(
-    name='words',
-    attributes = ['lemma']
+            name='words',
+            attributes=['lemma']
 
     ).from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
                     {'end': 8, 'lemma': 'mitu', 'start': 4},
@@ -471,16 +499,17 @@ def test_enveloping_layer():
 
     print(t._g.nodes(), t._g.edges())
     for wordpair in t.wordpairs:
-        (wordpair.lemma) #this should not give a keyerror
+        wordpair.words.lemma  # this should not give a keyerror
 
-    #I have changed my mind about what this should raise so much, I'm leaving it free at the moment
+    # I have changed my mind about what this should raise so much, I'm leaving it free at the moment
     with pytest.raises(Exception):
         for wordpair in t.wordpairs:
-            (wordpair.nonsense)  # this SHOULD give a --keyerror--
+            wordpair.nonsense  # this SHOULD give a --keyerror--
 
     assert (t.words.lemma == AttributeList(['kui', 'mitu', 'kuu', 'olema', 'aasta', '?'], 'lemma'))
-    print(t.wordpairs.lemma)
-    assert (t.wordpairs.lemma == [['kui', 'mitu'], ['mitu', 'kuu'], ['kuu', 'olema'], ['olema', 'aasta'], ['aasta', '?']])
+
+    assert ([list(wordpair.words.lemma) for wordpair in t.wordpairs] ==
+            [['kui', 'mitu'], ['mitu', 'kuu'], ['kuu', 'olema'], ['olema', 'aasta'], ['aasta', '?']])
 
     print(t.wordpairs.text)
     with pytest.raises(Exception):
@@ -508,19 +537,21 @@ def test_various():
     for word in text.words:
         assert (word.upper == word.text.upper())
 
-        #we have to get explicit access
-        #TODO: double marking
-        #word.mark('uppercase').upper = 'asd'
+        # we have to get explicit access
+        # TODO: double marking
+        # word.mark('uppercase').upper = 'asd'
 
 
 def test_words_sentences():
     t = Text('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?').tag_layer()
 
-    assert t.sentences.text == ['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?', 'Miks', 'me', 'seda', 'arutame', '?']
-    assert t.words.text == ['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?', 'Miks', 'me', 'seda', 'arutame', '?']
+    assert t.sentences.text == ['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?', 'Miks', 'me',
+                                'seda', 'arutame', '?']
+    assert t.words.text == ['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?', 'Miks', 'me', 'seda',
+                            'arutame', '?']
     assert t.text == 'Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?'
 
-    #assert [sentence.text for sentence in t.sentences] == t.sentences.text
+    # assert [sentence.text for sentence in t.sentences] == t.sentences.text
 
     with pytest.raises(AttributeError):
         t.nonsense
@@ -535,17 +566,18 @@ def test_words_sentences():
         t.words.nonsense
 
     dep = Layer(name='uppercase',
-                         parent='words',
-                         attributes=['upper']
-                         )
+                parent='words',
+                attributes=['upper']
+                )
     t.add_layer(dep)
     for word in t.words:
         dep.add_annotation(word, upper=word.text.upper())
 
-    assert t.uppercase.upper == AttributeList(['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?'],
-                                              'upper')
-    #assert t.sentences.uppercase.upper == [['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', ],[ 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']]
-    #assert t.words.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
+    assert t.uppercase.upper == AttributeList(
+            ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?'],
+            'upper')
+    # assert t.sentences.uppercase.upper == [['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', ],[ 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']]
+    # assert t.words.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
 
 
 def test_ambiguous_layer():
@@ -571,15 +603,14 @@ def test_morph():
     for i in text.words:
         i.morph_analysis
 
-
     text.words.lemma
     text.morph_analysis.lemma
 
-    #assert text.sentences.lemma != text.words.lemma
-    #text.sentences[:1].lemma
-    #text.sentences[:1].words
+    # assert text.sentences.lemma != text.words.lemma
+    # text.sentences[:1].lemma
+    # text.sentences[:1].words
 
-    #assert len(text.sentences[:1].words.lemma) > 0
+    # assert len(text.sentences[:1].words.lemma) > 0
 
 
 def test_change_lemma():
@@ -594,20 +625,30 @@ def test_change_lemma():
 def test_to_records():
     text = Text('Olnud aeg.').tag_layer()
 
-    #ambiguous
+    # ambiguous
     assert (text['morph_analysis'].to_records()) == [
-            [{'root': 'ol=nud', 'lemma': 'olnud', 'form': '', 'ending': '0', 'root_tokens': ('olnud',), 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
-             {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'sg n', 'ending': '0', 'root_tokens': ('olnud',), 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
-             {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'pl n', 'ending': 'd', 'root_tokens': ('olnud',), 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
-             {'root': 'ole', 'lemma': 'olema', 'form': 'nud', 'ending': 'nud', 'root_tokens': ('ole',), 'partofspeech': 'V', 'start': 0, 'end': 5, 'clitic': ''}],
-            [{'root': 'aeg', 'lemma': 'aeg', 'form': 'sg n', 'ending': '0', 'root_tokens': ('aeg',), 'partofspeech': 'S', 'start': 6, 'end': 9, 'clitic': ''}],
-            [{'root': '.', 'lemma': '.', 'form': '', 'ending': '', 'root_tokens': ('.',), 'partofspeech': 'Z', 'start': 9, 'end': 10, 'clitic': ''}]]
+        [{'root': 'ol=nud', 'lemma': 'olnud', 'form': '', 'ending': '0', 'root_tokens': ('olnud',), 'partofspeech': 'A',
+          'start': 0, 'end': 5, 'clitic': ''},
+         {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'sg n', 'ending': '0', 'root_tokens': ('olnud',),
+          'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
+         {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'pl n', 'ending': 'd', 'root_tokens': ('olnud',),
+          'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
+         {'root': 'ole', 'lemma': 'olema', 'form': 'nud', 'ending': 'nud', 'root_tokens': ('ole',), 'partofspeech': 'V',
+          'start': 0, 'end': 5, 'clitic': ''}],
+        [{'root': 'aeg', 'lemma': 'aeg', 'form': 'sg n', 'ending': '0', 'root_tokens': ('aeg',), 'partofspeech': 'S',
+          'start': 6, 'end': 9, 'clitic': ''}],
+        [{'root': '.', 'lemma': '.', 'form': '', 'ending': '', 'root_tokens': ('.',), 'partofspeech': 'Z', 'start': 9,
+          'end': 10, 'clitic': ''}]]
 
-    #base
-    assert (text['words'].to_records() == [{'start': 0, 'end': 5, 'normalized_form': None}, {'start': 6, 'end': 9, 'normalized_form': None}, {'start': 9, 'end': 10, 'normalized_form': None}])
+    # base
+    assert (text['words'].to_records() == [{'start': 0, 'end': 5, 'normalized_form': None},
+                                           {'start': 6, 'end': 9, 'normalized_form': None},
+                                           {'start': 9, 'end': 10, 'normalized_form': None}])
 
-    #enveloping (note nested lists)
-    assert (text['sentences'].to_records() == [[{'end': 5, 'start': 0, 'normalized_form': None}, {'end': 9, 'start': 6, 'normalized_form': None}, {'end': 10, 'start': 9, 'normalized_form': None}]])
+    # enveloping (note nested lists)
+    assert (text['sentences'].to_records() == [
+        [{'end': 5, 'start': 0, 'normalized_form': None}, {'end': 9, 'start': 6, 'normalized_form': None},
+         {'end': 10, 'start': 9, 'normalized_form': None}]])
 
 
 def test_morph2():
@@ -626,17 +667,20 @@ def test_morph2():
     assert len(text.morph_analysis[5].lemma) == 2
     assert text.morph_analysis[5].lemma == AttributeList(['olema', 'olema'], 'lemma')
     assert text.morph_analysis.lemma == AmbiguousAttributeList(
-        [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'],
-         ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'],
-         ['soome'], ['keel'], ['tõlgitud', 'tõlgitud', 'tõlgitud', 'tõlkima'], ['teos'], ['ilmuma'], ['äsja'], ['ka'],
-         ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'],
-         ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'],
-         ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala'], ['ja'], ['Vahemeri'],
-         ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'],
-         ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','],
-         ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['"'], ['.']
-         ],
-        'lemma')
+            [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'],
+             ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'],
+             ['vaid'],
+             ['soome'], ['keel'], ['tõlgitud', 'tõlgitud', 'tõlgitud', 'tõlkima'], ['teos'], ['ilmuma'], ['äsja'],
+             ['ka'],
+             ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'],
+             ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'],
+             ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala'], ['ja'],
+             ['Vahemeri'],
+             ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'],
+             ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','],
+             ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['"'], ['.']
+             ],
+            'lemma')
 
 
 def test_text_setitem():
@@ -646,7 +690,7 @@ def test_text_setitem():
 
     assert text['test'] is l
 
-    #getting something that is not in the dict
+    # getting something that is not in the dict
     with pytest.raises(KeyError):
         text['nothing']
 
@@ -672,20 +716,20 @@ def test_delete_annotation_in_ambiguous_span():
     assert len(text['test'][0].annotations) == 2
 
     (text['test'][0].annotations
-            .remove(
-        text['test'][0].annotations[0] #this is the annotation we want to remove
+        .remove(
+            text['test'][0].annotations[0]  # this is the annotation we want to remove
     )
-          )
+    )
     assert len(text['test'][0].annotations) == 1
 
     # removing the second
     assert len(text['test'][1].annotations) == 2
 
     (text['test'][1].annotations
-            .remove(
-        text['test'][1].annotations[0] #this is the annotation we want to remove
+        .remove(
+            text['test'][1].annotations[0]  # this is the annotation we want to remove
     )
-          )
+    )
     assert len(text['test'][1].annotations) == 1
 
 
@@ -704,29 +748,8 @@ def test_sentences_morph_analysis_lemma():
     text = Text('Oleme jõudnud kohale. Kus me oleme?')
 
     text.tag_layer()
-
-    x = text.sentences[0]
-
-    x.words
-
-    assert text.sentences[:1].morph_analysis.lemma == AmbiguousAttributeList([['olema'],
-                                                                    ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'],
-                                                                    ['koha','koht'],
-                                                                    ['.']],
-                                                                   'lemma')
-    assert text.sentences[:1].morph_analysis.lemma == text.sentences[:1].words.lemma
-    assert text.sentences[:].morph_analysis.lemma == text.sentences[:].words.lemma
-    assert text.sentences.morph_analysis.lemma == AmbiguousAttributeList(
-            [['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha','koht'], ['.'],
-            ['kus'], ['mina'], ['olema'], ['?']],
-            'lemma')
-    assert text.sentences.morph_analysis.lemma == text.sentences.words.lemma
-    assert text.sentences[0].words.lemma == AmbiguousAttributeList([['olema'],
-                                                                    ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'],
-                                                                    ['koha','koht'],
-                                                                    ['.']],
-                                                                   'lemma')
-    assert text.sentences[0].morph_analysis.lemma == text.sentences[0].words.lemma
+    with pytest.raises(AttributeError):
+        text.sentences.morph_analysis
 
 
 def test_phrase_layer():
@@ -769,15 +792,18 @@ def test_phrase_layer():
 
     assert (t.phrasetext) == AttributeList(['karu on punane', 'sinu karu'], 'phrasetext')
 
-    assert t.uppercasephrase.lemma == [[AttributeList(['karu'], 'lemma'),
-                                        AttributeList(['olema', 'olema'], 'lemma'),
-                                        AttributeList(['punane'], 'lemma')],
-                                       [AttributeList(['sina'], 'lemma'),
-                                        AttributeList(['karu'], 'lemma')]]
+    assert t.uppercasephrase.lemma == \
+           AttributeList([AmbiguousAttributeList([['karu'], ['olema', 'olema'], ['punane']], ('lemma')),
+                          AmbiguousAttributeList([['sina'], ['karu']], ('lemma'))],
+                         'lemma')
 
-    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) == ['Minu', '.', 'MIS',
+                                                                                                 'värvi', 'on', '?',
+                                                                                                 'Kuidas', 'PALUN', '?']
 
-    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) == ['Minu', '.', 'MIS',
+                                                                                                 'värvi', 'on', '?',
+                                                                                                 'Kuidas', 'PALUN', '?']
 
     mapping = {i: j for j in t.uppercasephrase for i in j.base_span}
     assert [mapping[i.base_span].tag if i.base_span in mapping else i.text for i in t.words] == \

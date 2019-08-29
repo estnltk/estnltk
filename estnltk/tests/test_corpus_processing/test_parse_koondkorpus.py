@@ -1,13 +1,7 @@
 import os.path
 
-from estnltk import Text
-
-from estnltk.layer import AmbiguousAttributeList, AttributeList
-
 from estnltk.corpus_processing.parse_koondkorpus import get_div_target
 from estnltk.corpus_processing.parse_koondkorpus import parse_tei_corpus_file_content
-
-from estnltk.layer_operations import split_by
 
 
 # ===========================================================
