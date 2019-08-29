@@ -3,16 +3,17 @@
 #  analysis.
 #  These post-corrections should be applied before morphological 
 #  disambiguation.
-# 
+#
+from collections import defaultdict
 import regex as re
 import os.path
+import pandas
 import pickle
 
 from typing import MutableMapping
 
 from estnltk import Annotation
 from estnltk.layer.layer import Layer
-from estnltk.layer.span import Span
 
 from estnltk.taggers import Retagger
 
@@ -495,11 +496,12 @@ class PostMorphAnalysisTagger(Retagger):
                     for extra_attr in extra_attributes:
                         empty_morph_record[extra_attr] = first_span_rec[extra_attr]
                 # Record the new span
-                ambiguous_span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
                 # Add the new annotation
-                attributes = {attribute: empty_morph_record[attribute] for attribute in ambiguous_span.layer.attributes}
-                ambiguous_span.add_annotation(Annotation(ambiguous_span, **attributes))
-                morph_spans[morph_span_id] = ambiguous_span
+                attributes = {attribute: empty_morph_record[attribute]
+                              for attribute in layers[self.output_layer].attributes}
+                span = morph_spans[morph_span_id]
+                span.clear_annotations()
+                span.add_annotation(Annotation(span, **attributes))
                 # Advance in the old morph_analysis layer
                 morph_span_id += 1
                 continue
@@ -554,7 +556,7 @@ class PostMorphAnalysisTagger(Retagger):
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
-            ambiguous_span = Span(base_span=morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
+            records = []
 
             record_added = False
             for rec in rewritten_recs:
@@ -574,16 +576,15 @@ class PostMorphAnalysisTagger(Retagger):
                     else:
                         rec[attr] = attr_value
                 # Add record as an annotation
-                rec = {attr: rec[attr] for attr in ambiguous_span.layer.attributes}
-                ambiguous_span.add_annotation(Annotation(ambiguous_span, **rec))
+                rec = {attr: rec[attr] for attr in layers[self.output_layer].attributes}
+                records.append(rec)
                 record_added = True
 
             # C.2) If no records were added (all were deleted),
             #      then add an empty record (unknown word)
             if not record_added:
                 empty_morph_record = \
-                    _create_empty_morph_record( word=word, \
-                        layer_attributes = current_attributes )
+                    _create_empty_morph_record(word=word, layer_attributes = current_attributes)
                 # Add ignore attribute
                 empty_morph_record[IGNORE_ATTR] = False
                 # Carry over extra attributes
@@ -595,12 +596,16 @@ class PostMorphAnalysisTagger(Retagger):
                     for extra_attr in extra_attributes:
                         empty_morph_record[extra_attr] = first_span_rec[extra_attr]
                 empty_morph_record = \
-                    {attr: empty_morph_record[attr] for attr in ambiguous_span.layer.attributes}
+                    {attr: empty_morph_record[attr] for attr in layers[self.output_layer].attributes}
                 # Add the new annotation
-                ambiguous_span.add_annotation(Annotation(ambiguous_span, **empty_morph_record))
+                records.append(empty_morph_record)
             
             # D) Rewrite the old span with new one
-            morph_spans[morph_span_id] = ambiguous_span
+            span = morph_spans[morph_span_id]
+            span.clear_annotations()
+            for record in records:
+                span.add_annotation(Annotation(span, **record))
+
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
 
@@ -617,7 +622,7 @@ class PostMorphAnalysisTagger(Retagger):
         '''
         cache = csv_file + '.pickle'
         if not os.path.exists(cache) or os.stat(cache).st_mtime < os.stat(csv_file).st_mtime:
-            df = read_csv(csv_file, na_filter=False, index_col=False)
+            df = pandas.read_csv(csv_file, na_filter=False, index_col=False)
             rules = defaultdict(dict)
             for _, r in df.iterrows():
                 if r.suffix not in rules[r.number]:
