@@ -4,6 +4,7 @@ from estnltk.text import Layer
 from estnltk.taggers import Tagger
 from estnltk.neural_morph.new_neural_morph.general_utils import load_config_from_file
 from estnltk.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
+from estnltk.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 from estnltk.neural_morph.new_neural_morph import softmax
 from estnltk.neural_morph.new_neural_morph import seq2seq
 
@@ -88,7 +89,7 @@ class NeuralMorphTagger(Tagger):
     def __init__(self, model):
         self.model = model
         self.output_layer = 'neural_morph_analysis'
-        self.output_attributes = ('morphtag',)
+        self.output_attributes = ('morphtag', 'pos', 'form')
         self.input_layers = ('morph_analysis',)
 
     def _make_layer(self, text, layers, status=None):
@@ -115,6 +116,7 @@ class NeuralMorphTagger(Tagger):
             tags = self.model.predict(sentence_words, analyses)
         
             for word, tag in zip(sentence.words, tags):
-                layer.add_annotation(word, morphtag=tag)
+                vm_pos, vm_form = vabamorf_tags(tag)
+                layer.add_annotation(word, morphtag=tag, pos=vm_pos, form=vm_form)
             
         return layer
