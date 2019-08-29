@@ -119,7 +119,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
     return text
 
 
-def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax') -> List[Text]:
+def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorrect_sent_ids: bool=True) -> List[Text]:
     """
     Reads file in conll format and creates separate Text objects according to 
     file names read from the 'sent_id' attributes in the metadata.
@@ -132,6 +132,10 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax') -> List[T
         name of the conll file
     :param syntax_layer: str
         name of the syntax layer
+    :param postcorrect_sent_ids: bool
+        if True, then postcorrections 
+        will be applied to broken 
+        'sent_id'-s;
     :return: List[Text]
     """
     texts = []
@@ -159,6 +163,7 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax') -> List[T
                    )
     syntax_layers.append( syntax )
     
+    broken_fnames = ['ntea_AA_05_6', 'ntea_dr8047']
     def _split_into_fname_and_counter( sent_id_str ):
         '''Splits sent_id from the metadata into file name and counter, e.g. 
              sent_id = 'aja_ee200110_2698' ==> ('aja_ee200110', '_2698')
@@ -187,6 +192,13 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax') -> List[T
                     # Separate fname from the sentence counter 
                     last_fname, _ = _split_into_fname_and_counter( last_sent_id )
                     cur_fname, _  = _split_into_fname_and_counter( cur_sent_id )
+                    if postcorrect_sent_ids:
+                        # Manually correct some broken file names
+                        # (remove redundant letter 'n' from the start)
+                        if last_fname in broken_fnames:
+                            last_fname = last_fname[1:]
+                        if cur_fname in broken_fnames:
+                            cur_fname = cur_fname[1:]
                     if last_fname != cur_fname:
                         # New document needs to be created
                         # 1) Finalize the previous Text object
