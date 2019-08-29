@@ -61,15 +61,6 @@ class EnvelopingSpan(Span):
 
         return target_layer.get(self.base_span)
 
-    def __getattr__(self, item):
-        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__', '__setstate__', '__deepcopy__'}:
-            raise AttributeError
-
-        if item in self._layer.attributes:
-            return self[item]
-
-        return self.resolve_attribute(item)
-
     def __getitem__(self, idx):
         if isinstance(idx, int):
             return self.spans[idx]
