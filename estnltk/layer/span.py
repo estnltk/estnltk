@@ -140,31 +140,22 @@ class Span:
         else:
             raise AttributeError(key)
 
+    def resolve_attribute(self, item):
+        target_layer = self.text_object.layers.get(item)
+        if target_layer is None:
+            attribute_mapping = self.text_object.attribute_mapping_for_spans
+            return self._layer.text_object[attribute_mapping[item]].get(self.base_span)[item]
+
+        return target_layer.get(self.base_span)
+
     def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__', '__deepcopy__'}:
+        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__', '__setstate__', '__deepcopy__'}:
             raise AttributeError
 
         if item in self._layer.attributes:
             return self[item]
 
-        elif self._layer.text_object is not None and self._layer.text_object._path_exists(self._layer.name, item):
-            # there exists an unambiguous path from this span to the target (attribute)
-
-            looking_for_layer = False
-            if item in self._layer.text_object.layers.keys():
-                looking_for_layer = True
-                target_layer_name = self.text_object._get_path(self._layer.name, item)[-1]
-            else:
-                target_layer_name = self.text_object._get_path(self._layer.name, item)[-2]
-
-            for i in self.text_object.layers[target_layer_name]:
-                if i.__getattribute__('parent') == self or self.__getattribute__('parent') == i:
-                    if looking_for_layer:
-                        return i
-                    else:
-                        return getattr(i, item)
-        else:
-            return getattr(self.__class__, item)
+        return self.resolve_attribute(item)
 
     def __lt__(self, other: Any) -> bool:
         return self.base_span < other.base_span

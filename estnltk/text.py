@@ -17,8 +17,14 @@ class Text:
         self.enveloping_to_enveloped = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self._setup_structure()
 
-    base_level_attributes = {'lemma': 'morph_analysis',
-                             'partofspeech': 'morph_analysis'}
+    attribute_mapping_for_spans = {'lemma': 'morph_analysis',
+                                   'root': 'morph_analysis',
+                                   'root_tokens': 'morph_analysis',
+                                   'ending': 'morph_analysis',
+                                   'clitic': 'morph_analysis',
+                                   'form': 'morph_analysis',
+                                   'partofspeech': 'morph_analysis'}
+    attribute_mapping_for_enveloping_spans = attribute_mapping_for_spans
 
     @property
     def layers(self):

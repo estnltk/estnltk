@@ -56,13 +56,13 @@ class EnvelopingSpan(Span):
     def resolve_attribute(self, item):
         target_layer = self.text_object.layers.get(item)
         if target_layer is None:
-            base_level_attributes = self.text_object.base_level_attributes
-            return self._layer.text_object[base_level_attributes[item]].get(self.base_span)[item]
+            attribute_mapping = self.text_object.attribute_mapping_for_enveloping_spans
+            return self._layer.text_object[attribute_mapping[item]].get(self.base_span)[item]
 
         return target_layer.get(self.base_span)
 
     def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__', '__deepcopy__'}:
+        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__', '__setstate__', '__deepcopy__'}:
             raise AttributeError
 
         if item in self._layer.attributes:

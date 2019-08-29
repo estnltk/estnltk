@@ -305,14 +305,14 @@ class Layer:
         return layer_operations.Rolling(self, window=window,  min_periods=min_periods, inside=inside)
 
     def resolve_attribute(self, item):
-        base_level_attributes = self.text_object.base_level_attributes
-        if item not in base_level_attributes:
+        attribute_mapping = self.text_object.attribute_mapping_for_spans
+        if item not in attribute_mapping:
             raise AttributeError(item)
 
-        target_layer = self.text_object[base_level_attributes[item]]
+        target_layer = self.text_object[attribute_mapping[item]]
         if len(target_layer) == 0 or len(self) == 0:
             return AttributeList([], item)
-        result = [self.text_object[base_level_attributes[item]].get(span.base_span)[item] for span in self]
+        result = [self.text_object[attribute_mapping[item]].get(span.base_span)[item] for span in self]
 
         target_level = target_layer[0].base_span.level
         self_level = self[0].base_span.level

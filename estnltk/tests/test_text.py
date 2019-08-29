@@ -457,7 +457,7 @@ def test_dependant_span():
         dep.add_annotation(word, revlemma=word.lemma[::-1])
 
     for i in t.reverse_lemmas:
-        assert (i.revlemma == i.lemma[::-1])
+        assert (i.revlemma == i.words.lemma[::-1])
 
     # TODO: how should this work?
     # for i in t.words:
@@ -527,7 +527,7 @@ def test_various():
     for word in text.words:
         upper.add_annotation(word, upper=word.text.upper())
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(KeyError):
         for word in text.words:
             word.nonsense
 
@@ -535,7 +535,7 @@ def test_various():
         assert word.text.upper() == word.upper
 
     for word in text.words:
-        assert (word.upper == word.text.upper())
+        assert (word.uppercase.upper == word.text.upper())
 
         # we have to get explicit access
         # TODO: double marking
