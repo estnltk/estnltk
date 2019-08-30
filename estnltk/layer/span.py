@@ -149,13 +149,12 @@ class Span:
         return target_layer.get(self.base_span)
 
     def __getattr__(self, item):
-        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__', '__setstate__', '__deepcopy__'}:
-            raise AttributeError
-
-        if item in self._layer.attributes:
+        if item in self.__getattribute__('_layer').attributes:
             return self[item]
-
-        return self.resolve_attribute(item)
+        try:
+            return self.resolve_attribute(item)
+        except KeyError as key_error:
+            raise AttributeError(key_error.args[0]) from key_error
 
     def __lt__(self, other: Any) -> bool:
         return self.base_span < other.base_span

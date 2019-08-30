@@ -324,8 +324,6 @@ class Layer:
         return AttributeList(result, item)
 
     def __getattr__(self, item):
-        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__', '__setstate__', '__deepcopy__'}:
-            raise AttributeError
         if item in self.__getattribute__('attributes'):
             return self.__getitem__(item)
         return self.resolve_attribute(item)

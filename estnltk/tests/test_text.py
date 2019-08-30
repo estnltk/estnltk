@@ -526,7 +526,7 @@ def test_various():
     for word in text.words:
         upper.add_annotation(word, upper=word.text.upper())
 
-    with pytest.raises(KeyError):
+    with pytest.raises(AttributeError):
         for word in text.words:
             word.nonsense
 
