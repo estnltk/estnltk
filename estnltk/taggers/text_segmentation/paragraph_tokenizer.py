@@ -8,12 +8,7 @@ class ParagraphTokenizer(Tagger):
     output_layer = 'paragraphs'
     input_layers = ['sentences']
     output_attributes = ()
-    conf_param = ['regex', 'paragraph_tokenizer', '_input_sentences_layer',
-                  # For backward compatibility:
-                  'depends_on', 'layer_name']
-    layer_name = output_layer      # <- For backward compatibility ...
-    depends_on = input_layers      # <- For backward compatibility ...
-    attributes = output_attributes # <- For backward compatibility ...
+    conf_param = ['regex', 'paragraph_tokenizer', '_input_sentences_layer']
 
     def __init__(self, 
                  output_layer:str='paragraphs',
@@ -23,8 +18,6 @@ class ParagraphTokenizer(Tagger):
         self.output_layer = output_layer
         self._input_sentences_layer = input_sentences_layer
         self.input_layers = [input_sentences_layer]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
         # Set regex
         self.paragraph_tokenizer = RegexpTokenizer(regex, gaps=True, discard_empty=True)
         self.regex = regex

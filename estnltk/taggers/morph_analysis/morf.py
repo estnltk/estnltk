@@ -34,32 +34,25 @@ class VabamorfTagger(Tagger):
     """Tags morphological analysis on words. Uses Vabamorf's analyzer and disambiguator.
 
     """
-    output_layer      = 'morph_analysis'
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES
-    input_layers      = None
-    conf_param = [  # VM configuration flags:
-                    "guess",
-                    "propername",
-                    'disambiguate',
-                    "compound",
-                    "phonetic",
-                    # postanalysis tagger
-                    'postanalysis_tagger',
-                    # Internal stuff: layer names
-                    '_input_compound_tokens_layer',
-                    '_input_words_layer',
-                    '_input_sentences_layer',
-                    # Internal stuff: taggers
-                    '_vabamorf_analyser',
-                    '_corpusbased_disambiguator',
-                    '_vabamorf_disambiguator',
-                    # For backward compatibility:
-                    'depends_on', 'layer_name',
-                    'attributes'
+
+    conf_param = [# VM configuration flags:
+                  "guess",
+                  "propername",
+                  'disambiguate',
+                  "compound",
+                  "phonetic",
+                  # postanalysis tagger
+                  'postanalysis_tagger',
+                  # Internal stuff: layer names
+                  '_input_compound_tokens_layer',
+                  '_input_words_layer',
+                  '_input_sentences_layer',
+                  # Internal stuff: taggers
+                  '_vabamorf_analyser',
+                  '_corpusbased_disambiguator',
+                  '_vabamorf_disambiguator',
     ]
-    layer_name    = output_layer       # <- For backward compatibility
-    attributes    = output_attributes  # <- For backward compatibility
-    depends_on    = None               # <- For backward compatibility
 
     def __init__(self,
                  output_layer='morph_analysis',
@@ -172,9 +165,6 @@ class VabamorfTagger(Tagger):
                 for extra_attribute in postanalysis_tagger.output_attributes:
                     if extra_attribute not in self.output_attributes:
                         self.output_attributes += (extra_attribute, )
-        self.depends_on = self.input_layers       # <- For backward compatibility
-        self.layer_name = self.output_layer       # <- For backward compatibility
-        self.attributes = self.output_attributes  # <- For backward compatibility
 
     def _make_layer(self, text: Text, layers, status: dict):
         """Analyses given Text object morphologically.

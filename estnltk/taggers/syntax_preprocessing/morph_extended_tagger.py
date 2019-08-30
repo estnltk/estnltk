@@ -34,11 +34,6 @@ class MorphExtendedTagger(Tagger):
                   'letter_case_retagger', 'remove_adposition_analyses_retagger', 'finite_form_retagger',
                   'verb_extension_suffix_retagger', 'subcat_retagger']
 
-    # TODO: remove next three lines
-    layer_name = output_layer
-    attributes = output_attributes
-    depends_on = input_layers
-
     def __init__(self,
                  fs_to_synt_rules_file=None,
                  allow_to_remove_all=False,

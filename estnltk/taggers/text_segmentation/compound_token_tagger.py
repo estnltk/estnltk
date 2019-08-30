@@ -42,19 +42,15 @@ class CompoundTokenTagger(Tagger):
     output_layer = 'compound_tokens'
     input_layers = ['tokens']
     custom_abbreviations = []
-    conf_param = [ 'custom_abbreviations', 'ignored_words', 'tag_numbers', 'tag_units',
-                   'tag_email_and_www', 'tag_emoticons', 'tag_xml', 'tag_initials',
-                   'tag_abbreviations', 'tag_case_endings', 'tag_hyphenations',
-                   'use_custom_abbreviations', 'do_not_join_on_strings',
-                   # Inner parameters
-                   '_tokenization_hints_tagger_1', '_tokenization_hints_tagger_2',
-                   '_conflict_resolving_strategy', '_input_tokens_layer',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name'
+    conf_param = ['custom_abbreviations', 'ignored_words', 'tag_numbers', 'tag_units',
+                  'tag_email_and_www', 'tag_emoticons', 'tag_xml', 'tag_initials',
+                  'tag_abbreviations', 'tag_case_endings', 'tag_hyphenations',
+                  'use_custom_abbreviations', 'do_not_join_on_strings',
+                  # Inner parameters
+                  '_tokenization_hints_tagger_1', '_tokenization_hints_tagger_2',
+                  '_conflict_resolving_strategy', '_input_tokens_layer',
                   ]
-    layer_name = output_layer   # <- For backward compatibility ...
-    depends_on = input_layers   # <- For backward compatibility ...
-    
+
     def __init__(self,
                  output_layer:str='compound_tokens',
                  input_tokens_layer:str='tokens',
@@ -144,8 +140,6 @@ class CompoundTokenTagger(Tagger):
         self.output_layer = output_layer
         self._input_tokens_layer = input_tokens_layer
         self.input_layers = [input_tokens_layer]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
         # Set tagging configuration
         conflict_resolving_strategy = 'MAX'
         self.tag_numbers = tag_numbers
