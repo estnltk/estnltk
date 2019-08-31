@@ -6,6 +6,12 @@ td, th {
     font-size: 0.9vw;
 }
 
-button {
+/*button {
     margin-left: 877px;
+}*/
+
+.iterable-table {
+    width: 100%;
+    table-layout: fixed;
 }
+
