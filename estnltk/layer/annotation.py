@@ -66,16 +66,6 @@ class Annotation(Mapping):
         else:
             self.__dict__[key] = value
 
-    def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__', '__deepcopy__'}:
-            raise AttributeError(item)
-
-        attributes = self.__dict__
-        if item in attributes:
-            return attributes[item]
-
-        return self.__getattribute__(item)
-
     def __contains__(self, item):
         return item in self.__dict__
 
@@ -92,22 +82,17 @@ class Annotation(Mapping):
             return tuple(self.__dict__[i] for i in item)
         raise TypeError(item)
 
-    def __delitem__(self, key):
-        attributes = self.__dict__
-        if key in attributes:
-            del attributes[key]
-        else:
-            raise KeyError(key)
-
     def __iter__(self):
         yield from self.__dict__
 
+    def __delitem__(self, key):
+        del self.__dict__[key]
+
     def __delattr__(self, item):
-        attributes = self.__dict__
-        if item in attributes:
-            del attributes[item]
-        else:
-            raise AttributeError(item)
+        try:
+            del self[item]
+        except KeyError as key_error:
+            raise AttributeError(key_error.args[0]) from key_error
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Annotation) and self.__dict__ == other.__dict__
