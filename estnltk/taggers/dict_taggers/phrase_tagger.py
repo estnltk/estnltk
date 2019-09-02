@@ -19,8 +19,6 @@ class PhraseTagger(Tagger):
                  vocabulary: Union[str, list, dict, Vocabulary],
                  key: str=None,
                  output_attributes: Sequence=None,
-                 global_validator: callable=None,
-                 validator_attribute: str = '_validator_',
                  decorator=None,
                  conflict_resolving_strategy: str='MAX',
                  priority_attribute: str=None,
@@ -54,7 +52,7 @@ class PhraseTagger(Tagger):
         :param ambiguous: bool
             Whether the output layer is ambiguous.
         """
-        self.conf_param = ('input_attribute', 'vocabulary', 'global_validator', 'validator_attribute', 'decorator',
+        self.conf_param = ('input_attribute', 'vocabulary', 'decorator',
                            'conflict_resolving_strategy', 'priority_attribute', 'output_ambiguous', '_heads',
                            'ignore_case')
 
@@ -67,10 +65,6 @@ class PhraseTagger(Tagger):
             output_attributes.append(priority_attribute)
         self.output_attributes = tuple(output_attributes)
 
-        self.global_validator = global_validator or default_validator
-
-        self.validator_attribute = validator_attribute
-
         self.decorator = decorator or default_decorator
 
         self.conflict_resolving_strategy = conflict_resolving_strategy
@@ -80,9 +74,8 @@ class PhraseTagger(Tagger):
 
         self.vocabulary = Vocabulary.parse(vocabulary=vocabulary,
                                            key=key,
-                                           attributes=list({key, *self.output_attributes, self.validator_attribute}),
-                                           default_rec={self.validator_attribute: default_validator,
-                                                        **{attr: None for attr in self.output_attributes}}
+                                           attributes=list({key, *self.output_attributes}),
+                                           default_rec={**{attr: None for attr in self.output_attributes}}
                                            )
 
         self.ignore_case = ignore_case
@@ -128,35 +121,31 @@ class PhraseTagger(Tagger):
         value_list = [{get_value(annotation) for annotation in span.annotations} for span in input_layer]
 
         heads = self._heads
-        validator_attribute = self.validator_attribute
         output_attributes = self.output_attributes
         for i, values in enumerate(value_list):
             for value in values:
-                if value in heads:
-                    for tail in heads[value]:
-                        if i + len(tail) < len(value_list):
-                            for a, b in zip(tail, value_list[i + 1:i + len(tail) + 1]):
-                                if a not in b:
-                                    break
-                            else:  # no break
-                                phrase = (value, *tail)
-                                base_span = EnvelopingBaseSpan(s.base_span
-                                                               for s in input_layer[i:i + len(tail) + 1])
-                                span = EnvelopingSpan(base_span=base_span, layer=layer)
-                                for record in self.vocabulary[phrase]:
-                                    annotation = Annotation(span, **{attr: record[attr]
-                                                                     for attr in output_attributes})
-                                    self.decorator(annotation)
-                                    for attr in output_attributes:
-                                        attr_value = annotation[attr]
-                                        if callable(attr_value):
-                                            annotation[attr] = attr_value(annotation)
-                                    if not self.global_validator(annotation):
-                                        continue
-                                    if record[validator_attribute](annotation):
-                                        span.add_annotation(annotation)
-                                if span.annotations:
-                                    layer.add_span(span)
+                if value not in heads:
+                    continue
+                for tail in heads[value]:
+                    if i + len(tail) < len(value_list):
+                        for a, b in zip(tail, value_list[i + 1:i + len(tail) + 1]):
+                            if a not in b:
+                                break
+                        else:  # no break
+                            phrase = (value, *tail)
+                            base_span = EnvelopingBaseSpan(s.base_span
+                                                           for s in input_layer[i:i + len(tail) + 1])
+                            span = EnvelopingSpan(base_span=base_span, layer=layer)
+                            for record in self.vocabulary[phrase]:
+                                annotation = Annotation(span, **{attr: record[attr]
+                                                                 for attr in output_attributes})
+                                is_valid =  self.decorator(span, annotation)
+                                assert isinstance(is_valid, bool), is_valid
+                                if not is_valid:
+                                    continue
+                                span.add_annotation(annotation)
+                            if span.annotations:
+                                layer.add_span(span)
 
         resolve_conflicts(layer,
                           conflict_resolving_strategy=self.conflict_resolving_strategy,
@@ -165,9 +154,5 @@ class PhraseTagger(Tagger):
         return layer
 
 
-def default_decorator(annotation: Annotation) -> None:
-    pass
-
-
-def default_validator(annotation: Annotation) -> bool:
+def default_decorator(span, annotation: Annotation) -> bool:
     return True

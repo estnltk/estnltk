@@ -6,11 +6,13 @@ from estnltk.layer import AmbiguousAttributeList
 from estnltk import Annotation
 
 
-def decorator(annotation):
+def decorator(span, annotation):
     assert isinstance(annotation, Annotation)
+    assert span is annotation.span
     annotation['attr_1'] = 'default_1'
     annotation['attr_2'] = len(annotation.span)
     annotation['_priority_'] = 1
+    return True
 
 
 def test_basic():
@@ -21,8 +23,6 @@ def test_basic():
                           vocabulary=vocabulary,
                           key='_phrase_',
                           output_attributes=['number', 'letter', '_priority_', 'attr_1', 'attr_2'],
-                          global_validator=None,
-                          validator_attribute='_validator_',
                           decorator=decorator,
                           conflict_resolving_strategy='ALL',
                           priority_attribute='_priority_',
