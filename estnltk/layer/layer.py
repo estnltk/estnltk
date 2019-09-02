@@ -70,14 +70,6 @@ class Layer:
         # the name of the parent layer.
         self.parent = parent
 
-        self._base = name if enveloping or not parent else None  # This is a placeholder for the base layer.
-        # _base is self.name if self.enveloping or not self.parent
-        # _base is parent._base otherwise, but we can't assign the value yet,
-        # because we have no access to the parent layer
-        # The goal is to swap the use of the "parent" attribute to the new "_base" attribute for all
-        # layer inheritance purposes. As the idea about new-style text objects has evolved, it has been decided that
-        # it is more sensible to keep the tree short and pruned. I'm hoping to avoid a rewrite though.
-
         # the name of the layer this class envelops
         # sentences envelop words
         # paragraphs envelop sentences
@@ -174,7 +166,6 @@ class Layer:
         for span in self:
             for annotation in span.annotations:
                 layer.add_annotation(span.base_span, **annotation)
-        layer._base = self._base
         return layer
 
     def to_records(self, with_text=False):
@@ -395,7 +386,6 @@ class Layer:
                       enveloping=self.enveloping,
                       ambiguous=self.ambiguous,
                       default_values=self.default_values)
-        layer._base = self._base
 
         if isinstance(item, slice):
             wrapped = self._span_list.spans.__getitem__(item)
@@ -445,7 +435,6 @@ class Layer:
                           enveloping=self.enveloping,
                           ambiguous=self.ambiguous,
                           default_values=self.default_values)
-            layer._base = self._base
 
             wrapped = [self._span_list.get(i) for i in item]
             assert all(s is not None for s in wrapped)
@@ -479,52 +468,6 @@ class Layer:
         from estnltk.visualisation import DisplaySpans
         display_spans = DisplaySpans(**kwargs)
         display_spans(self)
-
-    def to_html(self, header='Layer', start_end=False):
-        res = []
-        table2 = None
-        base_layer = self
-        if self._base:
-            base_layer = self.text_object[self._base]
-        if base_layer.enveloping:
-            if self.ambiguous:
-                attributes = ['text', 'start', 'end'] + self.attributes
-                aatl = AmbiguousAttributeTupleList((((getattr(es, name) for name in attributes) for es in eas)
-                                                    for eas in self), attributes)
-                table2 = aatl.to_html(index='text')
-            else:
-                for span in base_layer.span_list:
-                    # html.escape(span[i].text) TODO?
-                    t = ['<b>', self.text_object.text[span[0].start:span[0].end], '</b>']
-                    for i in range(1, len(span)):
-                        t.extend([self.text_object.text[span[i - 1].end: span[i].start], '<b>',
-                                  self.text_object.text[span[i].start:span[i].end], '</b>'])
-                    t = ''.join(t)
-                    res.append({'text': t, 'start': span.start, 'end': span.end,
-                                **{k: span.__getattribute__(k) for k in self.attributes}})
-        else:
-            if self.ambiguous:
-                for record in self.to_records(True):
-                    first = True
-                    for rec in record:
-                        if not first:
-                            rec['text'] = ''
-                        res.append(rec)
-                        first = False
-            else:
-                res = self.to_records(True)
-        if start_end:
-            columns = ('text', 'start', 'end') + tuple(self.attributes)
-        else:
-            columns = ('text',) + tuple(self.attributes)
-        df = pandas.DataFrame.from_records(res, columns=columns)
-        pandas.set_option('display.max_colwidth', -1)
-        table1 = self.metadata().to_html(index=False, escape=False)
-        if table2 is None:
-            table2 = df.to_html(index=False, escape=True)
-        if header:
-            return '\n'.join(('<h4>' + header + '</h4>', table1, table2))
-        return '\n'.join((table1, table2))
 
     print_start_end = False
 

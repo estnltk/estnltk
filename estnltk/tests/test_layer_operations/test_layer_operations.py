@@ -43,7 +43,7 @@ def test_apply_filter():
         'name': 'layer_1',
         'attributes': ('attr', 'attr_1'),
         'parent': None,
-        '_base': 'layer_1',
+        '_base': None,
         'enveloping': None,
         'ambiguous': True,
         'spans': [[{'attr_1': 'B', 'attr': 'L1-0', 'start': 0, 'end': 4}],

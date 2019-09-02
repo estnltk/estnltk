@@ -21,7 +21,7 @@ class ConllMorphTagger(Tagger):
         morph_extended_layer = layers[self.input_layers[0]]
 
         layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
-                      parent=morph_extended_layer._base, ambiguous=True)
+                      parent=morph_extended_layer.name, ambiguous=True)
 
         for i, span in enumerate(morph_extended_layer):
             for annotation in span.annotations:

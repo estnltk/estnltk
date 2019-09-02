@@ -136,9 +136,6 @@ class Text:
         # Let's feel free to change the layer we have been handed.
         #
 
-        if layer.parent:
-            layer._base = self._layers[layer.parent]._base
-
         self._layers[name] = layer
 
         setattr(self, layer.name, layer)
@@ -155,7 +152,6 @@ class Text:
         for layer_name, layer in self._layers.items():
             relations.update((b, a) for a, b in [
                 (layer_name, layer.parent),
-                (layer_name, layer._base),
                 (layer_name, layer.enveloping)] if b is not None and a != b
                              )
 

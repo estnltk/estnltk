@@ -6,7 +6,7 @@ from estnltk.taggers import VislTagger
 
 from estnltk.taggers.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
 
-visl_dict = {'_base': 'words',
+visl_dict = {'_base': None,
              'ambiguous': True,
              'attributes': ('id',
                             'lemma',
@@ -30,7 +30,7 @@ visl_dict = {'_base': 'words',
                             'head'),
              'enveloping': None,
              'name': 'visl',
-             'parent': 'words',
+             'parent': 'morph_extended',
              'spans': [[{'_index_': 0,
                          'capitalized': 'cap',
                          'case': '_',

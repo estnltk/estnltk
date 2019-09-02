@@ -290,7 +290,7 @@ class PgCollection:
                         assert layer_struct['ambiguous'] == layer.ambiguous
                         assert layer_struct['parent'] == layer.parent
                         assert layer_struct['enveloping'] == layer.enveloping
-                        assert layer_struct['_base'] == layer._base
+                        assert layer_struct['_base'] is None
                 if key is None:
                     key = DEFAULT
                 else:
