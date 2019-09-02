@@ -13,14 +13,14 @@ class Text:
         self._layers = {}  # type: MutableMapping[str, Layer]
         self.meta = {}  # type: MutableMapping
 
-    attribute_mapping_for_spans = {'lemma': 'morph_analysis',
-                                   'root': 'morph_analysis',
-                                   'root_tokens': 'morph_analysis',
-                                   'ending': 'morph_analysis',
-                                   'clitic': 'morph_analysis',
-                                   'form': 'morph_analysis',
-                                   'partofspeech': 'morph_analysis'}
-    attribute_mapping_for_enveloping_spans = attribute_mapping_for_spans
+    attribute_mapping_for_elementary_layers = {'lemma': 'morph_analysis',
+                                               'root': 'morph_analysis',
+                                               'root_tokens': 'morph_analysis',
+                                               'ending': 'morph_analysis',
+                                               'clitic': 'morph_analysis',
+                                               'form': 'morph_analysis',
+                                               'partofspeech': 'morph_analysis'}
+    attribute_mapping_for_enveloping_layers = attribute_mapping_for_elementary_layers
 
     @property
     def layers(self):
