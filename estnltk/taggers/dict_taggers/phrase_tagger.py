@@ -20,7 +20,7 @@ class PhraseTagger(Tagger):
                  key: str=None,
                  output_attributes: Sequence=None,
                  global_validator: callable=None,
-                 validator_attribute: str = None,
+                 validator_attribute: str = '_validator_',
                  decorator=None,
                  conflict_resolving_strategy: str='MAX',
                  priority_attribute: str=None,
@@ -80,7 +80,9 @@ class PhraseTagger(Tagger):
 
         self.vocabulary = Vocabulary.parse(vocabulary=vocabulary,
                                            key=key,
-                                           default_rec={self.validator_attribute: default_validator}
+                                           attributes=list({key, *self.output_attributes, self.validator_attribute}),
+                                           default_rec={self.validator_attribute: default_validator,
+                                                        **{attr: None for attr in self.output_attributes}}
                                            )
 
         self.ignore_case = ignore_case
@@ -103,8 +105,7 @@ class PhraseTagger(Tagger):
         for phrase in self.vocabulary:
             self._heads[phrase[0]].append(phrase[1:])
 
-    def _make_layer(self, text, layers: dict, status: dict):
-        raw_text = text.text
+    def _make_layer(self, text, layers: dict, status=None):
         input_layer = layers[self.input_layers[0]]
         layer = Layer(
             name=self.output_layer,
@@ -112,78 +113,48 @@ class PhraseTagger(Tagger):
             text_object=text,
             enveloping=input_layer.name,
             ambiguous=self.output_ambiguous)
-        heads = self._heads
-        value_list = getattr(input_layer, self.input_attribute)
-        validator_attribute = self.validator_attribute
-        if input_layer.ambiguous:
-            if self.ignore_case:
-                value_list = [{k.lower() for k in v} for v in value_list]
-            for i, values in enumerate(value_list):
-                for value in set(values):
-                    if value in heads:
-                        for tail in heads[value]:
-                            if i + len(tail) < len(value_list):
-                                match = True
-                                for a, b in zip(tail, value_list[i + 1:i + len(tail) + 1]):
-                                    if a not in b:
-                                        match = False
-                                        break
-                                if match:
-                                    phrase = (value, *tail)
-                                    base_span = EnvelopingBaseSpan(s.base_span
-                                                                   for s in input_layer[i:i + len(tail) + 1])
-                                    span = EnvelopingSpan(base_span=base_span, layer=layer)
-                                    for record in self.vocabulary[phrase]:
-                                        if not self.global_validator(span, raw_text):
-                                            continue
-                                        if validator_attribute is None or record[validator_attribute](span, raw_text):
-                                            attributes = {}
-                                            rec = {**record, **self.decorator(span, raw_text)}
-                                            for attr in self.output_attributes:
-                                                attr_value = rec[attr]
-                                                if callable(attr_value):
-                                                    attributes[attr] = attr_value(span, raw_text)
-                                                else:
-                                                    attributes[attr] = attr_value
 
-                                            annotation = Annotation(span, **attributes)
-                                            span.add_annotation(annotation)
-
-                                    if span.annotations:
-                                        layer.add_span(span)
+        if self.ignore_case:
+            if self.input_attribute == 'text':
+                get_value = lambda annotation: annotation.text.lower()
+            else:
+                get_value = lambda annotation: annotation[self.input_attribute].lower()
         else:
-            if self.ignore_case:
-                value_list = [v.lower() for v in value_list]
-            for i, value in enumerate(value_list):
+            if self.input_attribute == 'text':
+                get_value = lambda annotation: annotation.text
+            else:
+                get_value = lambda annotation: annotation[self.input_attribute]
+
+        value_list = [{get_value(annotation) for annotation in span.annotations} for span in input_layer]
+
+        heads = self._heads
+        validator_attribute = self.validator_attribute
+        output_attributes = self.output_attributes
+        for i, values in enumerate(value_list):
+            for value in values:
                 if value in heads:
                     for tail in heads[value]:
                         if i + len(tail) < len(value_list):
-                            match = True
                             for a, b in zip(tail, value_list[i + 1:i + len(tail) + 1]):
-                                if a != b:
-                                    match = False
+                                if a not in b:
                                     break
-                            if match:
-                                phrase = (value,) + tail
-                                spans = input_layer[i:i + len(tail) + 1]
-                                span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans),
-                                                      layer=layer)
+                            else:  # no break
+                                phrase = (value, *tail)
+                                base_span = EnvelopingBaseSpan(s.base_span
+                                                               for s in input_layer[i:i + len(tail) + 1])
+                                span = EnvelopingSpan(base_span=base_span, layer=layer)
                                 for record in self.vocabulary[phrase]:
-                                    if not self.global_validator(span, raw_text):
+                                    annotation = Annotation(span, **{attr: record[attr]
+                                                                     for attr in output_attributes})
+                                    self.decorator(annotation)
+                                    for attr in output_attributes:
+                                        attr_value = annotation[attr]
+                                        if callable(attr_value):
+                                            annotation[attr] = attr_value(annotation)
+                                    if not self.global_validator(annotation):
                                         continue
-                                    if validator_attribute is None or record[validator_attribute](self, raw_text):
-                                        attributes = {}
-                                        rec = {**record, **self.decorator(span, raw_text)}
-                                        for attr in self.output_attributes:
-                                            attr_value = rec[attr]
-                                            if callable(attr_value):
-                                                attributes[attr] = attr_value(span, raw_text)
-                                            else:
-                                                attributes[attr] = attr_value
-
-                                        annotation = Annotation(span, **attributes)
+                                    if record[validator_attribute](annotation):
                                         span.add_annotation(annotation)
-
                                 if span.annotations:
                                     layer.add_span(span)
 
@@ -194,9 +165,9 @@ class PhraseTagger(Tagger):
         return layer
 
 
-def default_decorator(span: EnvelopingSpan, raw_text: str) -> dict:
-    return {}
+def default_decorator(annotation: Annotation) -> None:
+    pass
 
 
-def default_validator(span: EnvelopingSpan, raw_text: str) -> bool:
+def default_validator(annotation: Annotation) -> bool:
     return True

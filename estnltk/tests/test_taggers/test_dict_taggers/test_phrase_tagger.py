@@ -3,13 +3,14 @@ from os import path
 from estnltk.taggers import PhraseTagger
 from estnltk.tests.helpers.text_objects import new_text
 from estnltk.layer import AmbiguousAttributeList
-from estnltk import EnvelopingSpan
+from estnltk import Annotation
 
 
-def decorator(span, raw_text):
-    assert isinstance(span, EnvelopingSpan)
-    assert isinstance(raw_text, str)
-    return {'attr_1': 'default_1', 'attr_2': len(span), '_priority_': 1}
+def decorator(annotation):
+    assert isinstance(annotation, Annotation)
+    annotation['attr_1'] = 'default_1'
+    annotation['attr_2'] = len(annotation.span)
+    annotation['_priority_'] = 1
 
 
 def test_basic():
@@ -21,7 +22,7 @@ def test_basic():
                           key='_phrase_',
                           output_attributes=['number', 'letter', '_priority_', 'attr_1', 'attr_2'],
                           global_validator=None,
-                          validator_attribute=None,
+                          validator_attribute='_validator_',
                           decorator=decorator,
                           conflict_resolving_strategy='ALL',
                           priority_attribute='_priority_',
