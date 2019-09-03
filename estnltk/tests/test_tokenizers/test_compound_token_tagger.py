@@ -545,7 +545,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                        # Normalization of halved words: do not separate hyphens, and do not delete hyphens
                        { 'text': 'Kas kindlustus- , väärtpaberi- ja pangainspektsioon ühendatakse?',\
                          'expected_compound_tokens': [['kindlustus', '-'], ['väärtpaberi', '-']] ,\
-                         'expected_texts': [ 'kindlustus-', 'väärtpaberi-' ] },\
+                         'expected_texts': [ 'kindlustus-', 'väärtpaberi-' ] ,\
                          'expected_normalizations': [ None, None ] },\
                      ]
         for test_text in test_texts:
@@ -561,7 +561,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                 self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
                 self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
                 if 'expected_texts' in test_text:
-                    self.assertEqual(test_text['expected_texts'][ctid], comp_token.text)
+                    self.assertEqual(test_text['expected_texts'][ctid], comp_token.enclosing_text)
 
 
     def test_using_custom_abbreviations(self):
