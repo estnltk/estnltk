@@ -546,6 +546,15 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                        'expected_compound_tokens': [['kindlustus', '-'], ['väärtpaberi', '-']],
                        'expected_texts': [ 'kindlustus-', 'väärtpaberi-'],
                        'expected_normalizations': [ None, None ]},
+                      # Normalization of numbers: keep the point inside two point-separated numbers (e.g. prices and times)
+                      {'text': 'Keskturul maksab kartul praegu 3.50 ja Nõmme turul 5 kr.',
+                       'expected_compound_tokens': [['3', '.', '50']],
+                       'expected_normalizations': [ None ],
+                       'expected_texts': [ '3.50' ]},
+                      {'text': 'Eile hommikul kell 8.30 või esmaspäeva öösel kl 2.31.',
+                       'expected_compound_tokens': [['8', '.', '30'], ['2', '.', '31']],
+                       'expected_normalizations': [ None, None ], 
+                       'expected_texts': [ '8.30', '2.31' ] },
                       ]
         for test_text in test_texts:
             text = Text( test_text['text'])
