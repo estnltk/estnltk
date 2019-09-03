@@ -31,7 +31,7 @@ class DateTagger(RegexTagger):
             rec = {'_regex_pattern_': record['regex'],
                    '_group_': 0,
                    '_priority_': (0, 0),
-                   'groups': lambda m: str(m.groupdict()),
+                   'groups': lambda m: m.groupdict(),
                    'date_text': lambda m: m.group(0),
                    'type': record['type'],
                    'probability': record['probability'],
