@@ -9,6 +9,8 @@ class DateTagger(RegexTagger):
 
     """
 
+    __slots__ = []
+
     def __init__(self, output_layer='dates', conflict_resolving_strategy='MAX', overlapped=False):
         regexes_dict = regexes.reset_index().to_dict('records')
         vocabulary = self._create_vocabulary(regexes_dict)

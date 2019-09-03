@@ -7,21 +7,20 @@ from estnltk.taggers import Vocabulary
 
 
 class RegexTagger(Tagger):
-    """
-    Tags regular expression matches on the text.
+    """Tags regular expression matches on the text.
+
     Searches matches for regular expressions in the text, solves the possible
     conflicts and creates a new layer of the matches.
+
     """
-    input_layers = ()
-    conf_param = ('conflict_resolving_strategy',
-                  'overlapped',
-                  'priority_attribute',
-                  '_illegal_keywords',
-                  '_internal_attributes',
-                  'vocabulary',
-                  '_disamb_tagger',
-                  'ambiguous'
-                  )
+    __slots__ = ['conflict_resolving_strategy',
+                 'overlapped',
+                 'priority_attribute',
+                 '_illegal_keywords',
+                 '_internal_attributes',
+                 'vocabulary',
+                 '_disamb_tagger',
+                 'ambiguous']
 
     def __init__(self,
                  vocabulary: Union[str, dict, list, Vocabulary],
@@ -53,6 +52,15 @@ class RegexTagger(Tagger):
             If True, then the output layer is ambiguous
             If False, then the output layer is not ambiguous
         """
+        self.conf_param = ['conflict_resolving_strategy',
+                           'overlapped',
+                           'priority_attribute',
+                           '_illegal_keywords',
+                           '_internal_attributes',
+                           'vocabulary',
+                           '_disamb_tagger',
+                           'ambiguous']
+        self.input_layers = ()
         self.output_layer = output_layer
         if output_attributes is None:
             self.output_attributes = ()
@@ -62,7 +70,7 @@ class RegexTagger(Tagger):
         self._illegal_keywords = {'start', 'end'}
 
         # output_attributes needed by tagger
-        self._internal_attributes = set(self.output_attributes)|{'_group_', '_priority_'}
+        self._internal_attributes = set(self.output_attributes) | {'_group_', '_priority_'}
 
         from estnltk.taggers import DisambiguatingTagger
 
