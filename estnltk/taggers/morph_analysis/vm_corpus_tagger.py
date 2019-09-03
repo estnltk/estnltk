@@ -276,7 +276,7 @@ class VabamorfCorpusTagger( object ):
         if self._validate_inputs:
             # Validate input structure
             assert input_format is not None, \
-                   '(!) Unexpected input structure. Input argument collections should be '+\
+                   '(!) Unexpected input structure. Input argument docs should be '+\
                    'either a list of Text objects, or a list of lists of Text objects.'
             # Validate input Texts for required layers
             for c_docs in in_docs:
