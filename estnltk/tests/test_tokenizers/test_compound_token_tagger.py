@@ -542,6 +542,11 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                        { 'text': 'kõ-kõ-kõik v-v-v-ve-ve-ve-vere-taoline on m-a-a-a-l-u-n-e...',\
                          'expected_compound_tokens': [['kõ', '-', 'kõ', '-', 'kõik'], ['v', '-', 'v', '-', 'v', '-', 've', '-', 've', '-', 've', '-', 'vere', '-', 'taoline'], ['m', '-', 'a', '-', 'a', '-', 'a', '-', 'l', '-', 'u', '-', 'n', '-', 'e']] ,\
                          'expected_normalizations': ['kõik', 'vere-taoline', 'maaalune'] },\
+                       # Normalization of halved words: do not separate hyphens, and do not delete hyphens
+                       { 'text': 'Kas kindlustus- , väärtpaberi- ja pangainspektsioon ühendatakse?',\
+                         'expected_compound_tokens': [['kindlustus', '-'], ['väärtpaberi', '-']] ,\
+                         'expected_texts': [ 'kindlustus-', 'väärtpaberi-' ] },\
+                         'expected_normalizations': [ None, None ] },\
                      ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -555,6 +560,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                 # Assert that the tokenization is correct
                 self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
                 self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
+                if 'expected_texts' in test_text:
+                    self.assertEqual(test_text['expected_texts'][ctid], comp_token.text)
 
 
     def test_using_custom_abbreviations(self):
