@@ -110,6 +110,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Mis', 'lil-li', 'müüs', 'Tiit', '10e', 'krooniga', '?'] }, \
             { 'text': 'See on vää-ää-ääga huvitav!', \
               'expected_words': ['See', 'on', 'vää-ää-ääga', 'huvitav', '!'] },\
+            # Tokens with repeated hyphens: keep these together as they make up dashes ('mõttekriipsud')
+            { 'text': 'Tõepoolest -- paar aastat tagasi oli olukord teine. Seega -- inimlikust vaatepunktist liiga keeruline.', \
+              'expected_words': ['Tõepoolest', '--', 'paar', 'aastat', 'tagasi', 'oli', 'olukord', 'teine', '.', \
+                                 'Seega', '--', 'inimlikust', 'vaatepunktist', 'liiga', 'keeruline', '.'] },\
             # Negative patterns: numeric ranges should not be considered as words with hyphens!
             { 'text': "14.04 jäi kaal nulli , 15-17.04. tuli korjet 6 kg kokku.", \
               'expected_words': ['14.04', 'jäi', 'kaal', 'nulli', ',', '15', '-', '17.04', '.', 'tuli', 'korjet', '6', 'kg', 'kokku', '.'] },\
