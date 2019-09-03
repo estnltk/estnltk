@@ -1,45 +1,38 @@
 from estnltk.taggers.raw_text_tagging.date_tagger.regexes_v import regexes
-from estnltk.taggers import TaggerOld, RegexTagger
+from estnltk.taggers import Tagger, RegexTagger
 import datetime
+
 
 regexes = regexes.reset_index().to_dict('records')
 
 
-class DateTagger(TaggerOld):
-    description = None
-    layer_name = None
-    attributes = []
-    depends_on = []
-    configuration = {}
+class DateTagger(Tagger):
+    """Tags date and time expressions.
+
+    """
+    conf_param = ['_tagger']
 
     def __init__(self, layer_name='dates', conflict_resolving_strategy='MAX', overlapped=False):
-        self.description = 'Tags date expressions.'
-        self.layer_name = layer_name
-        self.attributes = ['date_text','type', 'probability', 'groups', 'extracted_values']
+        self.output_layer = layer_name
+        self.output_attributes = ['date_text','type', 'probability', 'groups', 'extracted_values']
+        self.input_layers = []
 
         vocabulary = self._create_vocabulary(regexes)
 
         self._tagger = RegexTagger(vocabulary=vocabulary,
-                                   output_attributes=['date_text', 'type', 'probability', 'groups', 'extracted_values'],
+                                   output_attributes=self.output_attributes,
                                    conflict_resolving_strategy=conflict_resolving_strategy,
                                    overlapped=overlapped,
-                                   output_layer=layer_name,
+                                   output_layer=self.output_layer,
                                    )
 
-        #self.configuration = self._tagger.configuration
-
-  
-    def tag(self, text, return_layer=False):
-        """
-        Tags dates on text
-        """
-        return self._tagger.tag(text)#, return_layer=return_layer)
-
+    def _make_layer(self, text, layers, status=None):
+        return self._tagger.make_layer(text, layers, status)
 
     def _create_vocabulary(self, regexes):
-        '''
-        Creates _vocabulary for regex_tagger
-        '''
+        """Creates _vocabulary for regex_tagger
+
+        """
         vocabulary = []
         for record in regexes:
             rec = {'_regex_pattern_': record['regex'],
@@ -53,13 +46,12 @@ class DateTagger(TaggerOld):
                    'extracted_values' : lambda m: self._extract_values(m)
                   }
             vocabulary.append(rec)
-        return vocabulary   
-
+        return vocabulary
 
     def _clean_year(self, yearstring):
-        '''
-        If year is two digits, adds 1900 or 2000
-        '''
+        """If year is two digits, adds 1900 or 2000
+
+        """
         year = int(yearstring)
         if year < 100:
             if year < 30:
@@ -68,11 +60,10 @@ class DateTagger(TaggerOld):
                 year += 1900
         return year
 
-
     def _extract_values(self, match):
-        '''
-        Extracts datetime, date or time values from regex matches if possible
-        '''
+        """Extracts datetime, date or time values from regex matches if possible
+
+        """
         d = match.groupdict()
         if 'YEAR' in d or 'LONGYEAR' in d:
             if 'YEAR' in d:

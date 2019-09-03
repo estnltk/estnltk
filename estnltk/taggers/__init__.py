@@ -1,8 +1,6 @@
 from estnltk.taggers.tagger import Tagger
 from estnltk.taggers.retagger import Retagger
 
-from estnltk.taggers.tagger_old import TaggerOld
-
 from estnltk.taggers.tagger_tester import TaggerTester
 
 from estnltk.taggers.standard_taggers.atomizer import Atomizer
