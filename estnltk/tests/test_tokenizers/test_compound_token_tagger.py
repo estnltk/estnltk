@@ -560,7 +560,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                 self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
                 self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
                 if 'expected_texts' in test_text:
-                    self.assertEqual(test_text['expected_texts'][ctid], ''.join(comp_token.text))
+                    self.assertEqual(test_text['expected_texts'][ctid], comp_token.enclosing_text)
 
     def test_using_custom_abbreviations(self):
         # Tests using a list of custom abbreviations
