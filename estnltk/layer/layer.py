@@ -118,6 +118,34 @@ class Layer:
     def enclosing_text(self):
         return self.text_object.text[self.start:self.end]
 
+    def ancestor_layers(self):
+        layers = self.text_object.layers
+        map_ancestors = collections.defaultdict(set)
+        for layer_name, layer in layers.items():
+            if layer.parent is not None:
+                map_ancestors[layer.parent].add(layer_name)
+            if layer.enveloping is not None:
+                map_ancestors[layer.enveloping].add(layer_name)
+
+        def yield_ancestors(name):
+            for ancestor in map_ancestors.get(name, []):
+                yield ancestor
+                yield from yield_ancestors(ancestor)
+
+        return sorted(yield_ancestors(self.name))
+
+    def descendant_layers(self):
+        descendants = set()
+        if self.parent is not None:
+            descendant = self.text_object.layers[self.parent]
+            descendants.add(descendant.name)
+            descendants.update(descendant.descendant_layers())
+        if self.enveloping is not None:
+            descendant = self.text_object.layers[self.enveloping]
+            descendants.add(descendant.name)
+            descendants.update(descendant.descendant_layers())
+        return sorted(descendants)
+
     def from_records(self, records, rewriting=False) -> 'Layer':
         if rewriting:
             self._span_list = SpanList()
