@@ -12,13 +12,15 @@ class Text:
         self._text = text  # type: str
         self._layers = {}  # type: MutableMapping[str, Layer]
         self.meta = {}  # type: MutableMapping
-        self.layers_to_attributes = defaultdict(list)  # type: MutableMapping[str, List[str]]
-        self.base_to_dependant = defaultdict(list)  # type: MutableMapping[str, List[str]]
-        self.enveloping_to_enveloped = defaultdict(list)  # type: MutableMapping[str, List[str]]
-        self._setup_structure()
 
-    base_level_attributes = {'lemma': 'morph_analysis',
-                             'partofspeech': 'morph_analysis'}
+    attribute_mapping_for_elementary_layers = {'lemma': 'morph_analysis',
+                                               'root': 'morph_analysis',
+                                               'root_tokens': 'morph_analysis',
+                                               'ending': 'morph_analysis',
+                                               'clitic': 'morph_analysis',
+                                               'form': 'morph_analysis',
+                                               'partofspeech': 'morph_analysis'}
+    attribute_mapping_for_enveloping_layers = attribute_mapping_for_elementary_layers
 
     @property
     def layers(self):
@@ -53,10 +55,6 @@ class Text:
             del self.tokens
         return self
 
-    @staticmethod
-    def list_registered_layers():
-        return DEFAULT_RESOLVER.list_layers()
-
     def list_layers(self) -> List[Layer]:
         """
         Returns a list of all layers of this text object in order of dependences and layer names.
@@ -86,41 +84,6 @@ class Text:
         if not isinstance(t, str):
             raise TypeError('')
         self._text = t
-
-    def setup_structure(self):
-        return self._setup_structure()
-
-    def _setup_structure(self):
-        pairs = []
-        attributes = []
-
-        # we can go from enveloping to enveloped
-        for frm, tos in self.enveloping_to_enveloped.items():
-            for to in tos:
-                pairs.append((frm, to))
-
-        # we can go from base to dependant and back
-        for frm, tos in self.base_to_dependant.items():
-            for to in tos:
-                pairs.append((frm, to))
-                pairs.append((to, frm))
-
-        self.layers_to_attributes = defaultdict(list)
-        for name, layer in self._layers.items():
-            self.layers_to_attributes[name] = layer.attributes
-
-        # we can go from layer to attribute
-        for frm, tos in self.layers_to_attributes.items():
-            for to in tos:
-                attributes.append((frm, frm + '.' + to))
-
-        self.pairs = pairs
-        g = nx.DiGraph()
-        g.add_edges_from(pairs)
-        g.add_edges_from(attributes)
-        g.add_nodes_from(self._layers.keys())
-
-        self._g = g
 
     @property
     def attributes(self):
@@ -173,69 +136,9 @@ class Text:
         # Let's feel free to change the layer we have been handed.
         #
 
-        if layer.parent:
-            layer._base = self._layers[layer.parent]._base
-
-        if layer.parent:
-            # This is a change to accommodate pruning of the layer tree.
-            # self.base_to_dependant[layer.parent].append(name)
-            self.base_to_dependant[layer._base].append(name)
-
-        if layer.enveloping:
-            self.enveloping_to_enveloped[name].append(layer.enveloping)
-
         self._layers[name] = layer
 
         setattr(self, layer.name, layer)
-
-        self._setup_structure()
-
-    def _path_exists(self, frm, to):
-        paths = self._get_all_paths(frm, to)
-        assert len(paths) in (0, 1), 'ambiguous path to attribute {}'.format(to)
-
-        try:
-            res = len(paths) == 1 or nx.has_path(self._g, frm, to)
-        except nx.NodeNotFound:
-            res = False
-            # raise KeyError('No path found {} {}'.format(frm, to))
-        return res
-
-    def _get_all_paths(self, frm, to):
-        attributes = self._get_relevant_attributes()
-        tos = self._get_attribute_node_names(attributes, to)
-        paths = self._get_relevant_paths(frm, tos)
-        return paths
-
-    def _get_path(self, frm, to):
-        if self._path_exists(frm, to):
-            paths = self._get_all_paths(frm, to)
-            try:
-                return paths[0]
-            except IndexError:
-                res = nx.shortest_path(self._g, frm, to)
-                return res
-
-    def _get_relevant_paths(self, frm, tos):
-        paths = []
-        for to_ in tos:
-            paths.extend(list(nx.all_simple_paths(self._g, frm, to_)))
-        return paths
-
-    def _get_relevant_attributes(self):
-        attributes = []
-        for i in self.layers_to_attributes.values():
-            attributes.extend(i)
-        return attributes
-
-    def _get_attribute_node_names(self, attributes, to):
-        tos = []
-        if to in attributes:
-            for k, v in self.layers_to_attributes.items():
-                for i in v:
-                    if i == to:
-                        tos.append(k + '.' + i)
-        return tos
 
     def __getitem__(self, item):
         # always returns layer
@@ -249,7 +152,6 @@ class Text:
         for layer_name, layer in self._layers.items():
             relations.update((b, a) for a, b in [
                 (layer_name, layer.parent),
-                (layer_name, layer._base),
                 (layer_name, layer.enveloping)] if b is not None and a != b
                              )
 
@@ -263,8 +165,6 @@ class Text:
         for item in to_delete:
             self._layers.pop(item)
             super().__delattr__(item)
-
-        self._setup_structure()
 
     def diff(self, other):
         if not isinstance(other, Text):

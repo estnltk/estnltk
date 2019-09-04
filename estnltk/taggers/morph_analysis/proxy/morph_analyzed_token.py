@@ -1,7 +1,8 @@
 import os
+import regex as re
 from pandas import read_csv
 from estnltk.vabamorf.morf import Vabamorf
-
+from estnltk.taggers.text_segmentation.patterns import MACROS
 
 def load_pronoun_lemmas(pronoun_file):
     """
@@ -12,6 +13,8 @@ def load_pronoun_lemmas(pronoun_file):
     df = read_csv(pronoun_file, header=None, index_col=False)
     return set(df[0])
 
+# Pattern for detecting a halved word ("poolitatud sõna")
+_halved_word_pattern = re.compile(r'''^([{LETTERS}]+)-$'''.format(**MACROS), re.X)
 
 class MorphAnalyzedToken():
     """A class that provides (proxy) morphological analysis for a token. ( only for internal usage )
@@ -271,7 +274,12 @@ class MorphAnalyzedToken():
 
         if not self._replace('-', '')._isalpha():
             return self
-
+        
+        # do not delete hyphens from halved words, such as:
+        #    "kindlustus- , väärtpaberi- ja pangainspektsioon"
+        if _halved_word_pattern.match(self.text):
+            return self
+        
         result1 = self._strip('-')
         result1 = result1._remove_stammer()
         if result1._is_word_conservative:

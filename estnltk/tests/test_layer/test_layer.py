@@ -566,3 +566,79 @@ def test_copy():
     layer_copy[0].annotations[0].attr_0 = '101'
     assert layer_copy != layer
     layer_copy[0].annotations[0].attr_0 = '100'
+
+
+def test_ancestor_layers():
+    text = Text('')
+
+    layer_1 = Layer('layer_1', text_object=text)
+    layer_2 = Layer('layer_2', text_object=text, parent='layer_1')
+    layer_3 = Layer('layer_3', text_object=text, parent='layer_2')
+    layer_4 = Layer('layer_4', text_object=text, enveloping='layer_2')
+    layer_5 = Layer('layer_5', text_object=text, enveloping='layer_2')
+    layer_6 = Layer('layer_6', text_object=text, parent='layer_5')
+
+    layer_7 = Layer('layer_7', text_object=text)
+
+    layer_8 = Layer('layer_8', text_object=text)
+    layer_9 = Layer('layer_9', text_object=text, enveloping='layer_8')
+
+    text.add_layer(layer_1)
+    text.add_layer(layer_2)
+    text.add_layer(layer_3)
+    text.add_layer(layer_4)
+    text.add_layer(layer_5)
+    text.add_layer(layer_6)
+    text.add_layer(layer_7)
+    text.add_layer(layer_8)
+    text.add_layer(layer_9)
+
+    assert layer_1.ancestor_layers() == ['layer_2', 'layer_3', 'layer_4', 'layer_5', 'layer_6']
+    assert layer_2.ancestor_layers() == ['layer_3', 'layer_4', 'layer_5', 'layer_6']
+    assert layer_3.ancestor_layers() == []
+    assert layer_4.ancestor_layers() == []
+    assert layer_5.ancestor_layers() == ['layer_6']
+    assert layer_6.ancestor_layers() == []
+
+    assert layer_7.ancestor_layers() == []
+
+    assert layer_8.ancestor_layers() == ['layer_9']
+    assert layer_9.ancestor_layers() == []
+
+
+def test_descendant_layers():
+    text = Text('')
+
+    layer_1 = Layer('layer_1', text_object=text)
+    layer_2 = Layer('layer_2', text_object=text, parent='layer_1')
+    layer_3 = Layer('layer_3', text_object=text, parent='layer_2')
+    layer_4 = Layer('layer_4', text_object=text, enveloping='layer_2')
+    layer_5 = Layer('layer_5', text_object=text, enveloping='layer_2')
+    layer_6 = Layer('layer_6', text_object=text, parent='layer_5')
+
+    layer_7 = Layer('layer_7', text_object=text)
+
+    layer_8 = Layer('layer_8', text_object=text)
+    layer_9 = Layer('layer_9', text_object=text, enveloping='layer_8')
+
+    text.add_layer(layer_1)
+    text.add_layer(layer_2)
+    text.add_layer(layer_3)
+    text.add_layer(layer_4)
+    text.add_layer(layer_5)
+    text.add_layer(layer_6)
+    text.add_layer(layer_7)
+    text.add_layer(layer_8)
+    text.add_layer(layer_9)
+
+    assert layer_1.descendant_layers() == []
+    assert layer_2.descendant_layers() == ['layer_1']
+    assert layer_3.descendant_layers() == ['layer_1', 'layer_2']
+    assert layer_4.descendant_layers() == ['layer_1', 'layer_2']
+    assert layer_5.descendant_layers() == ['layer_1', 'layer_2']
+    assert layer_6.descendant_layers() == ['layer_1', 'layer_2', 'layer_5']
+
+    assert layer_7.descendant_layers() == []
+
+    assert layer_8.descendant_layers() == []
+    assert layer_9.descendant_layers() == ['layer_8']

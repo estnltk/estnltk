@@ -22,7 +22,7 @@ from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 
-from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_span
+from estnltk.taggers.morph_analysis.morf_common import _get_word_text
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
@@ -34,32 +34,25 @@ class VabamorfTagger(Tagger):
     """Tags morphological analysis on words. Uses Vabamorf's analyzer and disambiguator.
 
     """
-    output_layer      = 'morph_analysis'
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES
-    input_layers      = None
-    conf_param = [  # VM configuration flags:
-                    "guess",
-                    "propername",
-                    'disambiguate',
-                    "compound",
-                    "phonetic",
-                    # postanalysis tagger
-                    'postanalysis_tagger',
-                    # Internal stuff: layer names
-                    '_input_compound_tokens_layer',
-                    '_input_words_layer',
-                    '_input_sentences_layer',
-                    # Internal stuff: taggers
-                    '_vabamorf_analyser',
-                    '_corpusbased_disambiguator',
-                    '_vabamorf_disambiguator',
-                    # For backward compatibility:
-                    'depends_on', 'layer_name',
-                    'attributes'
+
+    conf_param = [# VM configuration flags:
+                  "guess",
+                  "propername",
+                  'disambiguate',
+                  "compound",
+                  "phonetic",
+                  # postanalysis tagger
+                  'postanalysis_tagger',
+                  # Internal stuff: layer names
+                  '_input_compound_tokens_layer',
+                  '_input_words_layer',
+                  '_input_sentences_layer',
+                  # Internal stuff: taggers
+                  '_vabamorf_analyser',
+                  '_corpusbased_disambiguator',
+                  '_vabamorf_disambiguator',
     ]
-    layer_name    = output_layer       # <- For backward compatibility
-    attributes    = output_attributes  # <- For backward compatibility
-    depends_on    = None               # <- For backward compatibility
 
     def __init__(self,
                  output_layer='morph_analysis',
@@ -172,10 +165,6 @@ class VabamorfTagger(Tagger):
                 for extra_attribute in postanalysis_tagger.output_attributes:
                     if extra_attribute not in self.output_attributes:
                         self.output_attributes += (extra_attribute, )
-        self.depends_on = self.input_layers       # <- For backward compatibility
-        self.layer_name = self.output_layer       # <- For backward compatibility
-        self.attributes = self.output_attributes  # <- For backward compatibility
-
 
     def _make_layer(self, text: Text, layers, status: dict):
         """Analyses given Text object morphologically.
@@ -268,26 +257,25 @@ def _find_matching_old_record( new_record, old_records ):
 #          the morphological disambiguation
 # ========================================================
 
-def _is_ignore_span( span ):
-    ''' Checks if the given span (from the layer 'morph_analysis')
-        has attribute IGNORE_ATTR, and whether all of its values 
-        are True (which means: the span should be ignored). 
-        
-        Note: if some values are True, and others are False or None, 
-        then throws an Exception because partial ignoring is 
+def _is_ignore_span(span):
+    """ Checks if the given span (from the layer 'morph_analysis')
+        has attribute IGNORE_ATTR, and whether all of its values
+        are True (which means: the span should be ignored).
+
+        Note: if some values are True, and others are False or None,
+        then throws an Exception because partial ignoring is
         currently not implemented.
-    '''
-    if hasattr( span, IGNORE_ATTR ):
-        ignore_values = getattr(span, IGNORE_ATTR)
-        if ignore_values and all(ignore_values):
-            return True
-        if ignore_values and any(ignore_values):
-            # Only some of the Spans have ignore=True, but 
-            # partial ignoring is currently not implemented
-            raise Exception('(!) Partial ignoring is currently not '+\
-                            'implemented. Unexpected ignore attribute '+\
-                            "values encountered at the 'morph_analysis' "+\
-                            'span '+str((span.start,span.end))+'.')
+    """
+    ignore_values = [annotation.get(IGNORE_ATTR) for annotation in span.annotations]
+    if all(ignore_values):
+        return True
+    if any(ignore_values):
+        # Only some of the Spans have ignore=True, but
+        # partial ignoring is currently not implemented
+        raise Exception('(!) Partial ignoring is currently not '+\
+                        'implemented. Unexpected ignore attribute '+\
+                        "values encountered at the 'morph_analysis' "+\
+                        'span '+str((span.start,span.end))+'.')
     return False
 
 
@@ -459,7 +447,6 @@ class VabamorfAnalyzer( Tagger ):
                             text_object=text,
                             ambiguous=True,
                             attributes=current_attributes )
-        morph_layer._base = self._input_words_layer
         # B) Populate layer
         for word, analyses_dict in zip(layers[ self._input_words_layer ], analysis_results):
             # Convert from Vabamorf dict to a list of Spans

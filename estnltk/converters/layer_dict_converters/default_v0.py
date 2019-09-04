@@ -15,7 +15,7 @@ def layer_to_dict(layer: Layer) -> dict:
     layer_dict = {'name': layer.name,
                   'attributes': layer.attributes,
                   'parent': layer.parent,
-                  '_base': layer._base,
+                  '_base': None,
                   'enveloping': layer.enveloping,
                   'ambiguous': layer.ambiguous,
                   'spans': []}
@@ -69,7 +69,6 @@ def dict_to_layer(layer_dict: dict, text: Text) -> Layer:
                   enveloping=layer_dict['enveloping'],
                   ambiguous=layer_dict['ambiguous']
                   )
-    layer._base = layer_dict['_base']
 
     if layer.parent:
         parent_layer = text[layer.parent]

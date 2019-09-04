@@ -70,14 +70,6 @@ class Layer:
         # the name of the parent layer.
         self.parent = parent
 
-        self._base = name if enveloping or not parent else None  # This is a placeholder for the base layer.
-        # _base is self.name if self.enveloping or not self.parent
-        # _base is parent._base otherwise, but we can't assign the value yet,
-        # because we have no access to the parent layer
-        # The goal is to swap the use of the "parent" attribute to the new "_base" attribute for all
-        # layer inheritance purposes. As the idea about new-style text objects has evolved, it has been decided that
-        # it is more sensible to keep the tree short and pruned. I'm hoping to avoid a rewrite though.
-
         # the name of the layer this class envelops
         # sentences envelop words
         # paragraphs envelop sentences
@@ -125,6 +117,34 @@ class Layer:
     @property
     def enclosing_text(self):
         return self.text_object.text[self.start:self.end]
+
+    def ancestor_layers(self):
+        layers = self.text_object.layers
+        map_ancestors = collections.defaultdict(set)
+        for layer_name, layer in layers.items():
+            if layer.parent is not None:
+                map_ancestors[layer.parent].add(layer_name)
+            if layer.enveloping is not None:
+                map_ancestors[layer.enveloping].add(layer_name)
+
+        def yield_ancestors(name):
+            for ancestor in map_ancestors.get(name, []):
+                yield ancestor
+                yield from yield_ancestors(ancestor)
+
+        return sorted(yield_ancestors(self.name))
+
+    def descendant_layers(self):
+        descendants = set()
+        if self.parent is not None:
+            descendant = self.text_object.layers[self.parent]
+            descendants.add(descendant.name)
+            descendants.update(descendant.descendant_layers())
+        if self.enveloping is not None:
+            descendant = self.text_object.layers[self.enveloping]
+            descendants.add(descendant.name)
+            descendants.update(descendant.descendant_layers())
+        return sorted(descendants)
 
     def from_records(self, records, rewriting=False) -> 'Layer':
         if rewriting:
@@ -174,7 +194,6 @@ class Layer:
         for span in self:
             for annotation in span.annotations:
                 layer.add_annotation(span.base_span, **annotation)
-        layer._base = self._base
         return layer
 
     def to_records(self, with_text=False):
@@ -305,14 +324,19 @@ class Layer:
         return layer_operations.Rolling(self, window=window,  min_periods=min_periods, inside=inside)
 
     def resolve_attribute(self, item):
-        base_level_attributes = self.text_object.base_level_attributes
-        if item not in base_level_attributes:
+        if len(self) == 0:
+            raise AttributeError(item, 'layer is empty')
+        if self._span_list[0].base_span.level == 0:
+            attribute_mapping = self.text_object.attribute_mapping_for_elementary_layers
+        else:
+            attribute_mapping = self.text_object.attribute_mapping_for_enveloping_layers
+        if item not in attribute_mapping:
             raise AttributeError(item)
 
-        target_layer = self.text_object[base_level_attributes[item]]
-        if len(target_layer) == 0 or len(self) == 0:
+        target_layer = self.text_object[attribute_mapping[item]]
+        if len(target_layer) == 0:
             return AttributeList([], item)
-        result = [self.text_object[base_level_attributes[item]].get(span.base_span)[item] for span in self]
+        result = [target_layer.get(span.base_span)[item] for span in self]
 
         target_level = target_layer[0].base_span.level
         self_level = self[0].base_span.level
@@ -324,8 +348,6 @@ class Layer:
         return AttributeList(result, item)
 
     def __getattr__(self, item):
-        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__', '__setstate__', '__deepcopy__'}:
-            raise AttributeError
         if item in self.__getattribute__('attributes'):
             return self.__getitem__(item)
         return self.resolve_attribute(item)
@@ -392,7 +414,6 @@ class Layer:
                       enveloping=self.enveloping,
                       ambiguous=self.ambiguous,
                       default_values=self.default_values)
-        layer._base = self._base
 
         if isinstance(item, slice):
             wrapped = self._span_list.spans.__getitem__(item)
@@ -442,7 +463,6 @@ class Layer:
                           enveloping=self.enveloping,
                           ambiguous=self.ambiguous,
                           default_values=self.default_values)
-            layer._base = self._base
 
             wrapped = [self._span_list.get(i) for i in item]
             assert all(s is not None for s in wrapped)
@@ -476,52 +496,6 @@ class Layer:
         from estnltk.visualisation import DisplaySpans
         display_spans = DisplaySpans(**kwargs)
         display_spans(self)
-
-    def to_html(self, header='Layer', start_end=False):
-        res = []
-        table2 = None
-        base_layer = self
-        if self._base:
-            base_layer = self.text_object[self._base]
-        if base_layer.enveloping:
-            if self.ambiguous:
-                attributes = ['text', 'start', 'end'] + self.attributes
-                aatl = AmbiguousAttributeTupleList((((getattr(es, name) for name in attributes) for es in eas)
-                                                    for eas in self), attributes)
-                table2 = aatl.to_html(index='text')
-            else:
-                for span in base_layer.span_list:
-                    # html.escape(span[i].text) TODO?
-                    t = ['<b>', self.text_object.text[span[0].start:span[0].end], '</b>']
-                    for i in range(1, len(span)):
-                        t.extend([self.text_object.text[span[i - 1].end: span[i].start], '<b>',
-                                  self.text_object.text[span[i].start:span[i].end], '</b>'])
-                    t = ''.join(t)
-                    res.append({'text': t, 'start': span.start, 'end': span.end,
-                                **{k: span.__getattribute__(k) for k in self.attributes}})
-        else:
-            if self.ambiguous:
-                for record in self.to_records(True):
-                    first = True
-                    for rec in record:
-                        if not first:
-                            rec['text'] = ''
-                        res.append(rec)
-                        first = False
-            else:
-                res = self.to_records(True)
-        if start_end:
-            columns = ('text', 'start', 'end') + tuple(self.attributes)
-        else:
-            columns = ('text',) + tuple(self.attributes)
-        df = pandas.DataFrame.from_records(res, columns=columns)
-        pandas.set_option('display.max_colwidth', -1)
-        table1 = self.metadata().to_html(index=False, escape=False)
-        if table2 is None:
-            table2 = df.to_html(index=False, escape=True)
-        if header:
-            return '\n'.join(('<h4>' + header + '</h4>', table1, table2))
-        return '\n'.join((table1, table2))
 
     print_start_end = False
 

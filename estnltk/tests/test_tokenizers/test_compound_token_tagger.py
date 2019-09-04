@@ -110,6 +110,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Mis', 'lil-li', 'müüs', 'Tiit', '10e', 'krooniga', '?'] }, \
             { 'text': 'See on vää-ää-ääga huvitav!', \
               'expected_words': ['See', 'on', 'vää-ää-ääga', 'huvitav', '!'] },\
+            # Tokens with repeated hyphens: keep these together as they make up dashes ('mõttekriipsud')
+            { 'text': 'Tõepoolest -- paar aastat tagasi oli olukord teine. Seega -- inimlikust vaatepunktist liiga keeruline.', \
+              'expected_words': ['Tõepoolest', '--', 'paar', 'aastat', 'tagasi', 'oli', 'olukord', 'teine', '.', \
+                                 'Seega', '--', 'inimlikust', 'vaatepunktist', 'liiga', 'keeruline', '.'] },\
             # Negative patterns: numeric ranges should not be considered as words with hyphens!
             { 'text': "14.04 jäi kaal nulli , 15-17.04. tuli korjet 6 kg kokku.", \
               'expected_words': ['14.04', 'jäi', 'kaal', 'nulli', ',', '15', '-', '17.04', '.', 'tuli', 'korjet', '6', 'kg', 'kokku', '.'] },\
@@ -524,23 +528,36 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                 if 'expected_normalizations' in test_text:
                     self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
 
-
     def test_compound_token_normalization(self):
         # Tests that the compound tokens are normalized properly
-        test_texts = [ # Normalization of words from tokenization hints
-                       { 'text': 'SKT -st või LinkedIn -ist ma eriti ei hooligi, aga 10 000\'es koht huvitab küll.',\
-                         'expected_compound_tokens': [['SKT', '-', 'st'], ['LinkedIn', '-', 'ist'],['10', '000', "'", 'es']] ,\
-                         'expected_normalizations': ['SKT-st', 'LinkedIn-ist', "10000'es"] },\
-                       # Normalization of words with hyphens 
-                       { 'text': 'Mis lil-li müüs Tiit 10-e krooniga?',\
-                         'expected_compound_tokens': [['lil', '-', 'li'], ['10', '-', 'e']] ,\
-                         'expected_normalizations': ['lilli', '10-e'] },\
-                       { 'text': 'kõ-kõ-kõik v-v-v-ve-ve-ve-vere-taoline on m-a-a-a-l-u-n-e...',\
-                         'expected_compound_tokens': [['kõ', '-', 'kõ', '-', 'kõik'], ['v', '-', 'v', '-', 'v', '-', 've', '-', 've', '-', 've', '-', 'vere', '-', 'taoline'], ['m', '-', 'a', '-', 'a', '-', 'a', '-', 'l', '-', 'u', '-', 'n', '-', 'e']] ,\
-                         'expected_normalizations': ['kõik', 'vere-taoline', 'maaalune'] },\
-                     ]
+        test_texts = [# Normalization of words from tokenization hints
+                      {'text': 'SKT -st või LinkedIn -ist ma eriti ei hooligi, aga 10 000\'es koht huvitab küll.',
+                       'expected_compound_tokens': [['SKT', '-', 'st'], ['LinkedIn', '-', 'ist'],['10', '000', "'", 'es']],
+                       'expected_normalizations': ['SKT-st', 'LinkedIn-ist', "10000'es"] },
+                      # Normalization of words with hyphens
+                      {'text': 'Mis lil-li müüs Tiit 10-e krooniga?',
+                       'expected_compound_tokens': [['lil', '-', 'li'], ['10', '-', 'e']],
+                       'expected_normalizations': ['lilli', '10-e']},
+                      {'text': 'kõ-kõ-kõik v-v-v-ve-ve-ve-vere-taoline on m-a-a-a-l-u-n-e...',
+                       'expected_compound_tokens': [['kõ', '-', 'kõ', '-', 'kõik'], ['v', '-', 'v', '-', 'v', '-', 've', '-', 've', '-', 've', '-', 'vere', '-', 'taoline'], ['m', '-', 'a', '-', 'a', '-', 'a', '-', 'l', '-', 'u', '-', 'n', '-', 'e']],
+                       'expected_normalizations': ['kõik', 'vere-taoline', 'maaalune']},
+                      # Normalization of halved words: do not separate hyphens, and do not delete hyphens
+                      {'text': 'Kas kindlustus- , väärtpaberi- ja pangainspektsioon ühendatakse?',
+                       'expected_compound_tokens': [['kindlustus', '-'], ['väärtpaberi', '-']],
+                       'expected_texts': [ 'kindlustus-', 'väärtpaberi-'],
+                       'expected_normalizations': [ None, None ]},
+                      # Normalization of numbers: keep the point inside two point-separated numbers (e.g. prices and times)
+                      {'text': 'Keskturul maksab kartul praegu 3.50 ja Nõmme turul 5 kr.',
+                       'expected_compound_tokens': [['3', '.', '50']],
+                       'expected_normalizations': [ None ],
+                       'expected_texts': [ '3.50' ]},
+                      {'text': 'Eile hommikul kell 8.30 või esmaspäeva öösel kl 2.31.',
+                       'expected_compound_tokens': [['8', '.', '30'], ['2', '.', '31']],
+                       'expected_normalizations': [ None, None ], 
+                       'expected_texts': [ '8.30', '2.31' ] },
+                      ]
         for test_text in test_texts:
-            text = Text( test_text['text'] )
+            text = Text( test_text['text'])
             # Perform analysis
             text.tag_layer(['compound_tokens'])
             # Check results
@@ -551,7 +568,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                 # Assert that the tokenization is correct
                 self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
                 self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
-
+                if 'expected_texts' in test_text:
+                    self.assertEqual(test_text['expected_texts'][ctid], comp_token.enclosing_text)
 
     def test_using_custom_abbreviations(self):
         # Tests using a list of custom abbreviations

@@ -314,4 +314,4 @@ def test_morph_disambiguation_with_ignore_xml_tags():
     for span in text.morph_analysis:
         # assert that all words have been disambiguated
         assert len(span.annotations) == 1
-        assert not hasattr(span, IGNORE_ATTR)
+        assert IGNORE_ATTR not in span.annotations[0]

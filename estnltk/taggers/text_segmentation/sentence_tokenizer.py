@@ -281,8 +281,6 @@ merge_patterns = [
 
 class SentenceTokenizer( Tagger ):
     """Tokenizes text into sentences, and makes sentence tokenization post-corrections where necessary."""
-    output_layer = 'sentences'
-    output_attributes = ()
     conf_param = ['base_sentence_tokenizer',
                   'fix_paragraph_endings', 'fix_compound_tokens',
                   'fix_numeric', 'fix_parentheses', 'fix_double_quotes',
@@ -295,12 +293,9 @@ class SentenceTokenizer( Tagger ):
                   '_apply_sentences_from_tokens',
                   # Names of the specific input layers
                   '_input_words_layer', '_input_compound_tokens_layer',
-                  # For backward compatibility:
-                  'depends_on', 'layer_name', 'attributes'
                   ]
-    # For backward compatibility:
-    layer_name = 'sentences'
-    attributes = ()
+    output_layer = 'sentences'
+    output_attributes = ()
 
     def __init__(self, 
                  output_layer:str='sentences',
@@ -407,8 +402,6 @@ class SentenceTokenizer( Tagger ):
         self._input_words_layer = input_words_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
         self.input_layers = [input_words_layer, input_compound_tokens_layer]
-        self.layer_name = self.output_layer
-        self.depends_on = self.input_layers
         # Set flags
         self.fix_paragraph_endings = fix_paragraph_endings
         self.fix_compound_tokens = fix_compound_tokens
@@ -622,7 +615,7 @@ class SentenceTokenizer( Tagger ):
                 self._counting_corrections_to_double_quotes(raw_text, sentences_list, sentence_fixes_list)
         # H) Create the layer and attach sentences
         layer = Layer(enveloping=self._input_words_layer,
-                      name=self.layer_name,
+                      name=self.output_layer,
                       attributes=self.output_attributes,
                       text_object=text,
                       ambiguous=False)

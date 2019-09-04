@@ -31,6 +31,8 @@ from .patterns import case_endings_patterns, number_fixes_patterns
 
 # Pattern for checking whether the string contains any letters
 _letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
+# Pattern for detecting if the string consists of repeated hyphens only
+_only_hyphens_pattern = re.compile('^(-{2,})$')
 
 # List containing words that should be ignored during the normalization of words with hyphens
 DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'taggers', 'text_segmentation', 'ignorable_words_with_hyphens.csv')
@@ -42,19 +44,15 @@ class CompoundTokenTagger(Tagger):
     output_layer = 'compound_tokens'
     input_layers = ['tokens']
     custom_abbreviations = []
-    conf_param = [ 'custom_abbreviations', 'ignored_words', 'tag_numbers', 'tag_units',
-                   'tag_email_and_www', 'tag_emoticons', 'tag_xml', 'tag_initials',
-                   'tag_abbreviations', 'tag_case_endings', 'tag_hyphenations',
-                   'use_custom_abbreviations', 'do_not_join_on_strings',
-                   # Inner parameters
-                   '_tokenization_hints_tagger_1', '_tokenization_hints_tagger_2',
-                   '_conflict_resolving_strategy', '_input_tokens_layer',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name'
+    conf_param = ['custom_abbreviations', 'ignored_words', 'tag_numbers', 'tag_units',
+                  'tag_email_and_www', 'tag_emoticons', 'tag_xml', 'tag_initials',
+                  'tag_abbreviations', 'tag_case_endings', 'tag_hyphenations',
+                  'use_custom_abbreviations', 'do_not_join_on_strings',
+                  # Inner parameters
+                  '_tokenization_hints_tagger_1', '_tokenization_hints_tagger_2',
+                  '_conflict_resolving_strategy', '_input_tokens_layer',
                   ]
-    layer_name = output_layer   # <- For backward compatibility ...
-    depends_on = input_layers   # <- For backward compatibility ...
-    
+
     def __init__(self,
                  output_layer:str='compound_tokens',
                  input_tokens_layer:str='tokens',
@@ -144,8 +142,6 @@ class CompoundTokenTagger(Tagger):
         self.output_layer = output_layer
         self._input_tokens_layer = input_tokens_layer
         self.input_layers = [input_tokens_layer]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
         # Set tagging configuration
         conflict_resolving_strategy = 'MAX'
         self.tag_numbers = tag_numbers
@@ -334,11 +330,15 @@ class CompoundTokenTagger(Tagger):
                     hyp_start = layers[ self._input_tokens_layer ][hyphenation_start].start
                     hyp_end   = layers[ self._input_tokens_layer ][i-1].end
                     text_snippet = raw_text[hyp_start:hyp_end]
-                    if _letter_pattern.search(text_snippet):
-                        # The text snippet should contain at least one letter to be 
-                        # considered as a potentially hyphenated word; 
-                        # This serves to leave out numeric ranges like 
-                        #    "15-17.04." or "920-980"
+                    if _letter_pattern.search(text_snippet) or _only_hyphens_pattern.match(text_snippet):
+                        # Conditions:
+                        # A) The text snippet should contain at least one letter to be 
+                        #    considered as a potentially hyphenated word; 
+                        #    This serves to leave out numeric ranges like 
+                        #        "15-17.04." or "920-980"
+                        # B) The text snippet can consist of repeated hyphens only: 
+                        #    in such case, repeated hyphens stand out as a dash 
+                        #    ("mõttekriips");
                         spans = layers[self._input_tokens_layer][hyphenation_start:i].spans
                         record = {'type': ('hyphenation',),
                                   'normalized': self._normalize_word_with_hyphens(text_snippet)}

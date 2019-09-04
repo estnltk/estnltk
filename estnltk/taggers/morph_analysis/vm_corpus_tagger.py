@@ -8,11 +8,10 @@
 #    5) corpus-based post-disambiguation (CorpusBasedMorphDisambiguator);
 #
 
-import re
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 
-from estnltk.text import Text, Layer
-from estnltk.taggers import Tagger, Retagger
+from estnltk.text import Text
+from estnltk.taggers import Retagger
 
 from estnltk.layer.ambiguous_attribute_tuple_list import to_str
 
@@ -22,8 +21,6 @@ from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_GUESS, DEFAULT_PARAM_PROPERNAME
-from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_PHONETIC, DEFAULT_PARAM_COMPOUND
 
 from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 from estnltk.taggers.morph_analysis.cb_disambiguator import is_list_of_texts
@@ -251,9 +248,7 @@ class VabamorfCorpusTagger( object ):
                    cbd_dependency != self.output_layer:
                     self.input_layers.append( cbd_dependency )
 
-
-
-    def tag( self, docs:list ):
+    def tag(self, docs: list):
         """ Processes given corpus of documents morphologically.
             By default, the morphological processing includes: 
             1) Vabamorf's morphological analysis;
@@ -281,7 +276,7 @@ class VabamorfCorpusTagger( object ):
         if self._validate_inputs:
             # Validate input structure
             assert input_format is not None, \
-                   '(!) Unexpected input structure. Input argument collections should be '+\
+                   '(!) Unexpected input structure. Input argument docs should be '+\
                    'either a list of Text objects, or a list of lists of Text objects.'
             # Validate input Texts for required layers
             for c_docs in in_docs:
@@ -305,8 +300,6 @@ class VabamorfCorpusTagger( object ):
         if self._use_postdisambiguation:
             self._cb_disambiguator.postdisambiguate( in_docs )
         return docs
-
-
 
     def _validate_docs_for_required_layers( self, docs:list ):
         """ Checks that all documens have the layers required

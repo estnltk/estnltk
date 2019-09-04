@@ -457,7 +457,7 @@ def test_dependant_span():
         dep.add_annotation(word, revlemma=word.lemma[::-1])
 
     for i in t.reverse_lemmas:
-        assert (i.revlemma == i.lemma[::-1])
+        assert (i.revlemma == i.words.lemma[::-1])
 
     # TODO: how should this work?
     # for i in t.words:
@@ -497,7 +497,6 @@ def test_enveloping_layer():
         for word in wordpair.words:
             assert (word)
 
-    print(t._g.nodes(), t._g.edges())
     for wordpair in t.wordpairs:
         wordpair.words.lemma  # this should not give a keyerror
 
@@ -535,7 +534,7 @@ def test_various():
         assert word.text.upper() == word.upper
 
     for word in text.words:
-        assert (word.upper == word.text.upper())
+        assert (word.uppercase.upper == word.text.upper())
 
         # we have to get explicit access
         # TODO: double marking

@@ -6,11 +6,11 @@ class Annotation(Mapping):
     """Mapping for Span attribute values.
 
     """
-    __slots__ = ['_attributes', '_span']
+    __slots__ = ['__dict__', '_span']
 
     def __init__(self, span, **attributes):
         self._span = span
-        self._attributes = attributes
+        self.__dict__ = attributes
 
     @property
     def span(self):
@@ -28,7 +28,7 @@ class Annotation(Mapping):
 
     # TODO: get rid of this
     def to_record(self, with_text=False) -> Mapping[str, Any]:
-        record = self._attributes.copy()
+        record = self.__dict__.copy()
         if with_text:
             record['text'] = getattr(self, 'text')
         record['start'] = self.start
@@ -64,53 +64,38 @@ class Annotation(Mapping):
             else:
                 raise AttributeError('this Annotation object already has a span')
         else:
-            self._attributes[key] = value
-
-    def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__', '__deepcopy__'}:
-            raise AttributeError(item)
-
-        attributes = self._attributes
-        if item in attributes:
-            return attributes[item]
-
-        return self.__getattribute__(item)
+            self.__dict__[key] = value
 
     def __contains__(self, item):
-        return item in self._attributes
+        return item in self.__dict__
 
     def __len__(self):
-        return len(self._attributes)
+        return len(self.__dict__)
 
     def __setitem__(self, key, value):
-        self._attributes[key] = value
+        self.__dict__[key] = value
 
     def __getitem__(self, item):
         if isinstance(item, str):
-            return self._attributes[item]
+            return self.__dict__[item]
         if isinstance(item, tuple):
-            return tuple(self._attributes[i] for i in item)
+            return tuple(self.__dict__[i] for i in item)
         raise TypeError(item)
 
-    def __delitem__(self, key):
-        attributes = self._attributes
-        if key in attributes:
-            del attributes[key]
-        else:
-            raise KeyError(key)
-
     def __iter__(self):
-        yield from self._attributes
+        yield from self.__dict__
+
+    def __delitem__(self, key):
+        del self.__dict__[key]
 
     def __delattr__(self, item):
-        attributes = self._attributes
-        if item in attributes:
-            del attributes[item]
-        else:
-            raise AttributeError(item)
+        try:
+            del self[item]
+        except KeyError as key_error:
+            raise AttributeError(key_error.args[0]) from key_error
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Annotation) and self._attributes == other._attributes
+        return isinstance(other, Annotation) and self.__dict__ == other.__dict__
 
     @recursive_repr()
     def __str__(self):
@@ -118,11 +103,11 @@ class Annotation(Mapping):
         # (to assure a consistent output, e.g. for automated testing)
 
         if self.legal_attribute_names is None:
-            attribute_names = sorted(self._attributes)
+            attribute_names = sorted(self.__dict__)
         else:
             attribute_names = self.legal_attribute_names
 
-        key_value_strings = ['{!r}: {!r}'.format(k, self._attributes[k]) for k in attribute_names]
+        key_value_strings = ['{!r}: {!r}'.format(k, self.__dict__[k]) for k in attribute_names]
 
         return '{class_name}({text!r}, {{{attributes}}})'.format(class_name=self.__class__.__name__, text=self.text,
                                                                  attributes=', '.join(key_value_strings))

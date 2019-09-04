@@ -41,7 +41,7 @@ class CollectionStructure(pg.CollectionStructureBase):
                 Literal(layer.ambiguous),
                 Literal(layer.parent),
                 Literal(layer.enveloping),
-                Literal(layer._base),
+                Literal(None),
                 Literal(meta)
             )
             )

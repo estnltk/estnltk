@@ -23,21 +23,14 @@ class ClauseSegmenter(Tagger):
     output_layer      = 'clauses'
     output_attributes = ('clause_type',)
     input_layers      = ['words', 'sentences', 'morph_analysis']
-    conf_param = [ 'ignore_missing_commas',
-                   # Names of specific input layers
-                   '_input_words_layer',
-                   '_input_sentences_layer',
-                   '_input_morph_analysis_layer',
-                   # Inner parameters
-                   '_java_process',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name'
+    conf_param = ['ignore_missing_commas',
+                  # Names of specific input layers
+                  '_input_words_layer',
+                  '_input_sentences_layer',
+                  '_input_morph_analysis_layer',
+                  # Inner parameters
+                  '_java_process',
                  ]
-    # For backward compatibility:
-    layer_name = output_layer
-    attributes = output_attributes
-    depends_on = input_layers
-
 
     def __init__( self,
                   output_layer:str='clauses',
@@ -72,10 +65,9 @@ class ClauseSegmenter(Tagger):
         self._input_words_layer          = input_words_layer
         self._input_sentences_layer      = input_sentences_layer
         self._input_morph_analysis_layer = input_morph_analysis_layer
-        self.input_layers = [ input_words_layer, input_sentences_layer, \
-                              input_morph_analysis_layer ]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
+        self.input_layers = [input_words_layer,
+                             input_sentences_layer,
+                             input_morph_analysis_layer]
         # Set flag
         self.ignore_missing_commas = ignore_missing_commas
         # Initialize JavaProcess
@@ -86,13 +78,11 @@ class ClauseSegmenter(Tagger):
         self._java_process = \
             JavaProcess( 'Osalau.jar', jar_path=JAVARES_PATH, check_java=True, lazy_initialize=True, args=args )
 
-
     def __enter__(self):
         # Initialize java process (only if we are inside the with context manager)
         if self._java_process and self._java_process._process is None:
             self._java_process.initialize_java_subprocess()
         return self
-
 
     def __exit__(self, *args):
         """ Terminates Java process. """
@@ -106,7 +96,6 @@ class ClauseSegmenter(Tagger):
             # 3) Assert that the process terminated
             assert self._java_process._process.poll() is not None
         return False
-
 
     def close(self):
         if self._java_process._process is not None: # if the process was initialized

@@ -20,13 +20,9 @@ class WordTagger(Tagger):
     output_layer = 'words'
     output_attributes = ('normalized_form',)
     input_layers = ['tokens', 'compound_tokens']
-    conf_param = [ # Names of the specific input layers
-                   '_input_tokens_layer', '_input_compound_tokens_layer',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name'
+    conf_param = [  # Names of the specific input layers
+                    '_input_tokens_layer', '_input_compound_tokens_layer',
                   ]
-    layer_name = output_layer   # <- For backward compatibility ...
-    depends_on = input_layers   # <- For backward compatibility ...
 
     def __init__(self,
                  output_layer:str='words',
@@ -51,8 +47,6 @@ class WordTagger(Tagger):
         self._input_tokens_layer = input_tokens_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
         self.input_layers = [input_tokens_layer, input_compound_tokens_layer]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
 
     def _make_layer(self, text, layers, status: dict):
         """Creates words layer.

@@ -6,7 +6,7 @@
 #  joined if necessary.
 # 
 
-from typing import MutableMapping, Sequence
+from typing import MutableMapping
 import re
 
 from estnltk.text import Layer
@@ -20,10 +20,9 @@ class TokensTagger(Tagger):
     """Tags tokens in raw text."""
     output_layer = 'tokens'
     attributes   = ()
-    conf_param   = ['depends_on', 'layer_name',  # <- For backward compatibility ...
-                    'apply_punct_postfixes',
+    conf_param   = ['apply_punct_postfixes',
                     '_punct_split_patterns',
-                    '_punct_no_split_patterns' ]
+                    '_punct_no_split_patterns']
     
     def __init__(self, 
                  output_layer:str='tokens',
@@ -44,8 +43,6 @@ class TokensTagger(Tagger):
         """
         self.output_layer = output_layer
         self.input_layers = []
-        self.layer_name   = self.output_layer  # <- For backward compatibility
-        self.depends_on   = []                 # <- For backward compatibility
 
         self.apply_punct_postfixes = apply_punct_postfixes
         #  Pattern describing tokens that should be 

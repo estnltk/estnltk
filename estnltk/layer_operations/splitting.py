@@ -55,7 +55,6 @@ def extract_sections(text: Text,
                               parent=parent,
                               enveloping=enveloping,
                               ambiguous=ambiguous)
-            new_layer._base = layer._base
             new_layer.meta.update(layer.meta)
             new_text.add_layer(new_layer)
 

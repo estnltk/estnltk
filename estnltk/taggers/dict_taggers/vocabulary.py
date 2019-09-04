@@ -60,6 +60,7 @@ class Vocabulary:
         assert key in attributes, (key, attributes)
 
         attribute_set = set(attributes)
+        assert len(attribute_set) == len(attributes), attributes
         assert all(set(record) == attribute_set for records in mapping.values() for record in records)
         assert all(record[key] == key_value for key_value, records in mapping.items() for record in records)
 

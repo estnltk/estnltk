@@ -22,10 +22,6 @@ class Retagger(Tagger):
     #    If set, then applies layer's method check_span_consistency()
     #    after modification of the layer.
     check_output_consistency=True,
-    # set_up_text_structure:
-    #    If set, then calls text.setup_structure()
-    #    after modification of the layer.
-    set_up_text_structure   =True
 
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
@@ -52,8 +48,6 @@ class Retagger(Tagger):
         if self.check_output_consistency:
             # Validate changed layer: check span consistency
             target_layers[self.output_layer].check_span_consistency()
-        if text and self.set_up_text_structure:
-            text.setup_structure()
 
     def retag(self, text: Text, status: dict = None ) -> Text:
         """

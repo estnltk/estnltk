@@ -108,6 +108,35 @@ function checkKey(e) {
     }
 }
 
+let visible_index = 0;
+
+function visibility() {
+    //let tableColumns = document.getElementsByTagName("table");
+    let tableColumns = document.getElementsByClassName('iterable-table');
+    console.log(tableColumns);
+    //let visible_table = document.getElementById(visible_index);
+    //visible_table.style.display = 'block';
+    for (let i = 0; i < tableColumns.length; i++) {
+        if (i !== visible_index) {
+            tableColumns.item(i).style.display = "none";
+        } else {
+            tableColumns.item(i).style.display = "block";
+        }
+    }
+}
+
+visibility();
+
+document.getElementById('previous').onclick = function () {
+    visible_index--;
+    visibility();
+};
+
+document.getElementById('next').onclick = function () {
+    visible_index++;
+    visibility();
+}
+
 function export_data() {
     //TODO
 }

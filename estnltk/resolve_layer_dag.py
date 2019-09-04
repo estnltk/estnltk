@@ -9,18 +9,18 @@ class Taggers:
     def __init__(self, taggers: List) -> None:
         self.rules = {}
         for tagger in taggers:
-            self.rules[tagger.layer_name] = tagger
+            self.rules[tagger.output_layer] = tagger
         self.graph = self._make_graph()
 
     def update(self, tagger):
-        self.rules[tagger.layer_name] = tagger
+        self.rules[tagger.output_layer] = tagger
         self.graph = self._make_graph()
 
     def _make_graph(self):
         graph = nx.DiGraph()
         graph.add_nodes_from(self.rules)
         for layer_name, tagger in self.rules.items():
-            for dep in tagger.depends_on:
+            for dep in tagger.input_layers:
                 graph.add_edge(dep, layer_name)
         assert nx.is_directed_acyclic_graph(graph)
         return graph
