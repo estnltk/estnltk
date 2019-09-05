@@ -3,12 +3,12 @@ import os
 from unittest import TestCase
 
 from estnltk import Text
-from estnltk.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger, load_model
-from estnltk.neural_morph.new_neural_morph import softmax
-from estnltk.neural_morph.new_neural_morph import seq2seq
-from estnltk.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
+from estnltk.taggers.neural_morph.new_neural_morph.models.vabamorf_2_neural import neural_model_tags
+from estnltk.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
+from estnltk.taggers.neural_morph.new_neural_morph.models.general_utils import load_config_from_file
+from estnltk.taggers.neural_morph.new_neural_morph.models import softmax
+from estnltk.taggers.neural_morph.new_neural_morph.models import seq2seq
 
-# os.environ['NEURAL_MORPH_TAGGER_CONFIG'] = "/home/kermos/projects/estnltk/estnltk/neural_morph/new_neural_morph/seq2seq/emb_cat_sum/config.py"
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
 
 skip_reason = "Environment variable NEURAL_MORPH_TAGGER_CONFIG is not defined."
@@ -36,7 +36,7 @@ class TestDummyTagger(TestCase):
             self.assertEqual(morf_pred.morphtag, morf_true)
 
 
-def test_sentences(filename):
+def get_test_sentences(filename):
     file = open(filename)
     words, tags, analyses = [], [], []
     line = file.readline()
@@ -64,8 +64,12 @@ if NEURAL_MORPH_TAGGER_CONFIG is not None:
         model_module = softmax
     else:
         model_module = seq2seq
-    os.environ['OUT_DIR'] = os.path.join(os.path.dirname(NEURAL_MORPH_TAGGER_CONFIG), "output")
-    model = load_model(model_module, NEURAL_MORPH_TAGGER_CONFIG)
+    
+    config = load_config_from_file(NEURAL_MORPH_TAGGER_CONFIG)
+    config_holder = model_module.ConfigHolder(config)
+    model = model_module.Model(config_holder)
+    model.build()
+    model.restore_session(config.dir_model)
 
 
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
@@ -73,7 +77,7 @@ class TestNeuralModel(TestCase):
     def test(self):
         word_count = 0
         correct_count = 0
-        sentences = test_sentences("neural_test_sentences.txt")
+        sentences = get_test_sentences("neural_test_sentences.txt")
         
         for words, tags, analyses in sentences:
             word_count += len(words)
@@ -90,7 +94,7 @@ class TestNeuralModel(TestCase):
 class TestNeuralTagger(TestCase):  
     def test(self):
         tagger = NeuralMorphTagger(model)
-        sentences = test_sentences("neural_test_sentences.txt")
+        sentences = get_test_sentences("neural_test_sentences.txt")
         
         word_count = 0
         correct_count = 0
@@ -99,14 +103,11 @@ class TestNeuralTagger(TestCase):
             text = Text(" ".join(words))
             text.tag_layer(['morph_analysis'])
             tagger.tag(text)
-            
             self.assertTrue(tagger.output_layer in text.layers)
-            self.assertTrue(hasattr(text.words[0], 'morphtag'))
-            
             word_count += len(tags)
             
             for word, tag in zip(text.words, tags):
-                if word.morphtag == tag:
+                if word.neural_morph_analysis['morphtag'] == tag:
                     correct_count += 1
                     
         self.assertTrue(correct_count/word_count >= 0.97)

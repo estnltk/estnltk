@@ -97,6 +97,7 @@ class NeuralMorphTagger(Tagger):
                       parent='words', 
                       ambiguous=False, 
                       attributes=self.output_attributes)
+        morphtags = []
         
         for sentence in layers['sentences']:
             sentence_words = sentence.text
@@ -112,11 +113,11 @@ class NeuralMorphTagger(Tagger):
                     word_analyses.extend(neural_model_tags(word_text, pos, form))
                 analyses.append(word_analyses)
                 
-            tags = self.model.predict(sentence_words, analyses)
+            morphtags.extend(self.model.predict(sentence_words, analyses))
         
-            for word, tag in zip(sentence.words, tags):
-                vm_pos, vm_form = vabamorf_tags(tag)
-                layer.add_annotation(word, morphtag=tag, pos=vm_pos, form=vm_form)
+        for word, tag in zip(layers['words'], morphtags):
+            vm_pos, vm_form = vabamorf_tags(tag)
+            layer.add_annotation(word, morphtag=tag, pos=vm_pos, form=vm_form)
             
         return layer
     
