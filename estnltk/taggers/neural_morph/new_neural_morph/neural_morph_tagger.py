@@ -2,10 +2,11 @@ import os
 
 from estnltk.text import Layer
 from estnltk.taggers import Tagger
-from estnltk.taggers.neural_morph.new_neural_morph.models import seq2seq, softmax
-from estnltk.taggers.neural_morph.new_neural_morph.models.general_utils import load_config_from_file
-from estnltk.taggers.neural_morph.new_neural_morph.models.vabamorf_2_neural import neural_model_tags
-from estnltk.taggers.neural_morph.new_neural_morph.models.neural_2_vabamorf import vabamorf_tags
+
+from estnltk.taggers.neural_morph.new_neural_morph import seq2seq, softmax
+from estnltk.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
+from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
+from estnltk.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 
 MODEL_FILES = {"data":["analysis.txt",
                        "chars.txt",

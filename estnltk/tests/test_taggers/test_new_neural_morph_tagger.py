@@ -3,11 +3,11 @@ import os
 from unittest import TestCase
 
 from estnltk import Text
-from estnltk.taggers.neural_morph.new_neural_morph.models.vabamorf_2_neural import neural_model_tags
+from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
-from estnltk.taggers.neural_morph.new_neural_morph.models.general_utils import load_config_from_file
-from estnltk.taggers.neural_morph.new_neural_morph.models import softmax
-from estnltk.taggers.neural_morph.new_neural_morph.models import seq2seq
+from estnltk.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
+from estnltk.taggers.neural_morph.new_neural_morph import softmax
+from estnltk.taggers.neural_morph.new_neural_morph import seq2seq
 
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
 

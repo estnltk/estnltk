@@ -1,13 +1,13 @@
 import os
 import math
-import pickle
 import random
+import pickle
+import numpy as np
 from pprint import pformat
 from collections import Counter
+from _collections import OrderedDict, defaultdict
 
-import numpy as np
-
-from .general_utils import get_logger
+from ..general_utils import get_logger
 
 UNK = "$UNK$"
 NUM = "$NUM$"
@@ -22,17 +22,208 @@ MISSING_CATEGORY_STR = "MISSING"
 MISSING_CATEGORY_ID = 0
 
 
-class BaseDataBuilder(object):
-    def __init__(self, config, CoNLLDatasetClass):
+class ConfigHolder():
+    def __init__(self, config):
+        for k, v in config.__dict__.items():
+            if not k.startswith('__') and not callable(v):
+                setattr(self, k, v)
+
+        # 1. vocabulary
+        self.vocab_words = load_vocab(self.filename_words)
+        self.vocab_tags = self.load_tag_vocab(self.filename_tags)
+        self.vocab_chars = load_vocab(self.filename_chars)
+        self.vocab_singletons = load_vocab(self.filename_singletons) if self.train_singletons else None
+
+        self.nwords = len(self.vocab_words)
+        self.nchars = len(self.vocab_chars)
+        self.ntags = len(self.vocab_tags)
+
+        # 2. get processing functions that map str -> id
+        self.processing_word_train = get_processing_word(self.vocab_words,
+                                                         self.vocab_chars,
+                                                         vocab_singletons=self.vocab_singletons,
+                                                         singleton_p=self.singleton_p,
+                                                         lowercase=self.lowercase,
+                                                         use_words=self.use_word_embeddings,
+                                                         use_chars=self.use_char_embeddings)
+        self.processing_word_infer = get_processing_word(self.vocab_words,
+                                                         self.vocab_chars,
+                                                         lowercase=self.lowercase,
+                                                         use_words=self.use_word_embeddings,
+                                                         use_chars=self.use_char_embeddings)
+        self.processing_tag = get_processing_word(self.vocab_tags,
+                                                  use_words=True,
+                                                  lowercase=False,
+                                                  allow_unk=True)
+        # don't process analyses by default
+        self.processing_analysis = lambda x: None
+
+        # 3. get pre-trained embeddings
+        self.embeddings = get_trimmed_glove_vectors(self.filename_embeddings_trimmed) if self.use_pretrained else None
+
+        self.logger = get_logger(self.path_log)
+        if self.analysis_embeddings == "tag" or self.analysis_embeddings == "input_attention_tag":
+            self.vocab_analysis = load_vocab(self.filename_analysis)
+            self.nanalyses = len(self.vocab_analysis)
+            print("Loaded analyses:", self.nanalyses, "from file", self.filename_analysis)
+            self.processing_analysis = get_processing_word(self.vocab_analysis,
+                                                           use_words=True,
+                                                           lowercase=False,
+                                                           allow_unk=True)
+        elif self.analysis_embeddings == "input_attention_category":
+            self.vocab_analysis = load_vocab(self.filename_analysis)
+            self.nanalyses = len(self.vocab_analysis)
+            self.processing_analysis = get_processing_analyses_input_attention_category(self.vocab_analysis)
+        elif self.analysis_embeddings == "category":
+            self.vocab_analysis = load_category_analysis_dict(self.filename_analysis)
+            self.processing_analysis = get_processing_category_analyses(self.vocab_analysis)
+    
+    def load_tag_vocab(self, filename_tags):
+        return load_vocab(filename_tags)
+
+    def __str__(self):
+        conf = {}
+        for k, v in self.__dict__.items():
+            if not k.startswith('__') and not callable(v):
+                conf[k] = v
+        return pformat(conf)
+
+
+class CoNLLDataset():
+    def __init__(self, filename, processing_word=None, processing_tag=None, processing_analysis=None, max_iter=None,
+                 shuffle=False, use_buckets=False, batch_size=None, sort=False, use_dummy_analysis=None,
+                 use_analysis_dropout=False, analysis_dropout_method=None, analysis_dropout_keep_prob=1.0):
+        """
+        Args:
+            filename: path to the file
+            processing_words: (optional) function that takes a word as input
+            processing_tags: (optional) function that takes a tag as input
+            max_iter: (optional) max number of sentences to yield
+            ...
+        """
+        self.filename = filename
+        self.processing_word = processing_word
+        self.processing_tag = processing_tag
+        self.processing_analysis = processing_analysis
+        self.max_iter = max_iter
+        self.shuffle = shuffle
+        self.sort = sort
+        self.use_buckets = use_buckets
+        self.batch_size = batch_size
+        self.use_dummy_analysis = use_dummy_analysis
+
+        self.use_analysis_dropout = use_analysis_dropout
+        self.analysis_dropout_method = analysis_dropout_method
+        self.analysis_dropout_keep_prob = analysis_dropout_keep_prob
+        self.length = None
+
+    def parse_line(self, line):
+        ls = line.split("\t")
+        word, tag, analyses = ls[0], ls[1], ls[2:]
+        analyses = [a.strip() for a in analyses]
+
+        if self.use_analysis_dropout is True and len(analyses) > 0:
+            if random.random() >= self.analysis_dropout_keep_prob:
+                analyses = []
+
+        if self.processing_word is not None:
+            word = self.processing_word(word)
+        if self.processing_tag is not None:
+            tag = self.processing_tag(tag)
+        if self.processing_analysis is not None:
+            analyses = [self.processing_analysis(anal) for anal in analyses]
+
+        return word, tag, analyses
+    
+    def __iter__(self):
+        sentences = self.read_sentences_from_file()
+        if self.shuffle:
+            random.shuffle(list(sentences))
+            n = 0
+            for words, tags, analyses in sentences:
+                yield words, tags, analyses
+                n += 1
+        elif self.sort:
+            sentences = list(sentences)
+            sentences.sort(key=lambda item: len(item[0]))
+            for words, tags, analyses in sentences:
+                yield words, tags, analyses
+        elif self.use_buckets:
+            assert self.batch_size is not None
+            sentences = list(sentences)
+            sentences.sort(key=lambda item: (len(item[0]), random.random()))
+            nbuckets = math.ceil(len(sentences) / self.batch_size)
+            bucket_list = list(range(nbuckets))
+            random.shuffle(bucket_list)
+            n = 0
+            for bucket in bucket_list:
+                offset = bucket * self.batch_size
+                for words, tags, analyses in sentences[offset: offset + self.batch_size]:
+                    yield words, tags, analyses
+                    n += 1
+            assert n == len(sentences), "n=%d, snt-num=%d" % (n, len(sentences))
+        else:
+            for words, tags, analyses in sentences:
+                yield words, tags, analyses
+
+    def read_sentences_from_file(self):
+        niter = 0
+        with open(self.filename, encoding="utf-8") as f:
+            words, tags, analyses = [], [], []
+            for line in f:
+                line = line.strip()
+                if len(line) == 0:
+                    if len(words) != 0:
+                        niter += 1
+                        if self.max_iter is not None and niter > self.max_iter:
+                            break
+                        yield words, tags, analyses
+                        words, tags, analyses = [], [], []
+                else:
+                    word, tag, analyses_ = self.parse_line(line)
+                    words += [word]
+                    tags += [tag]
+                    analyses += [analyses_]
+
+    def __len__(self):
+        """Iterates once over the corpus to set and store length"""
+        if self.length is None:
+            self.length = 0
+            for _ in self:
+                self.length += 1
+        return self.length
+
+
+class DataBuilder():
+    def __init__(self, config):
         self.config = config
-        self.CoNLLDatasetClass = CoNLLDatasetClass
 
         processing_word = get_processing_word(lowercase=config.lowercase, use_words=True)
 
-        self.dev = CoNLLDatasetClass(config.filename_dev, processing_word)
-        self.test = CoNLLDatasetClass(config.filename_test, processing_word)
-        self.train = CoNLLDatasetClass(config.filename_train, processing_word)
+        self.dev = CoNLLDataset(config.filename_dev, processing_word)
+        self.test = CoNLLDataset(config.filename_test, processing_word)
+        self.train = CoNLLDataset(config.filename_train, processing_word)
 
+    def handle_vocab_analyses(self, vocab_analyses_train, vocab_analyses_dev, vocab_analyses_test):
+        if self.config.analysis_embeddings == "tag" or self.config.analysis_embeddings == "input_attention_tag":
+            # treats analysis variants as flat-tags
+            vocab_tags = vocab_analyses_train
+            vocab_tags = [PAD, UNK, DUMMY_ANALYSIS_TAG] + list(vocab_tags)
+
+            write_vocab(vocab_tags, self.config.filename_analysis)
+            print("Saved vocab of %d analyses" % len(vocab_tags))
+        elif self.config.analysis_embeddings == "input_attention_category":
+            vocab_analyses = [PAD] + list(set(cat for tag in vocab_analyses_train for cat in tag.split("|")))
+            print("vocab_analyses ({}): {}".format(len(vocab_analyses), vocab_analyses))
+            write_vocab(vocab_analyses, self.config.filename_analysis)
+        elif self.config.analysis_embeddings == "category":
+            vocab_analyses = list(vocab_analyses_train | vocab_analyses_dev | vocab_analyses_test)
+            category2idx_dict = create_category_analysis_dict(vocab_analyses)
+            print("vocab_analysis ({}): {}".format(len(vocab_analyses), vocab_analyses))
+            print("category2idx_dict: {}".format(category2idx_dict))
+            # Save vocab
+            write_category_analysis_dict(category2idx_dict, self.config.filename_analysis)
+    
     def run(self):
         # Build Word and Tag vocab
         vocab_words_train, vocab_tags_train, vocab_analyses_train = get_vocab(self.train)
@@ -74,14 +265,6 @@ class BaseDataBuilder(object):
             f = open(self.config.training_log, "w")
             f.close()
 
-    def handle_vocab_analyses(self, vocab_analyses_train, vocab_analyses_dev, vocab_analyses_test):
-        # treats analysis variants as flat-tags
-        vocab_tags = vocab_analyses_train
-        vocab_tags = [PAD, UNK, DUMMY_ANALYSIS_TAG] + list(vocab_tags)
-
-        write_vocab(vocab_tags, self.config.filename_analysis)
-        print("Saved vocab of %d analyses" % len(vocab_tags))
-
     def handle_vocab_chars(self):
         # Build and save char vocab
         train = self.CoNLLDatasetClass(self.config.filename_train)
@@ -120,59 +303,6 @@ class BaseDataBuilder(object):
         # Save vocab
         write_vocab(vocab_tags, self.config.filename_tags)
         print("Saved vocab of %d tags" % len(vocab_tags))
-
-
-class BaseConfigHolder:
-    def __init__(self, config):
-        for k, v in config.__dict__.items():
-            if not k.startswith('__') and not callable(v):
-                setattr(self, k, v)
-
-        # 1. vocabulary
-        self.vocab_words = load_vocab(self.filename_words)
-        self.vocab_tags = self.load_tag_vocab(self.filename_tags)
-        self.vocab_chars = load_vocab(self.filename_chars)
-        self.vocab_singletons = load_vocab(self.filename_singletons) if self.train_singletons else None
-
-        self.nwords = len(self.vocab_words)
-        self.nchars = len(self.vocab_chars)
-        self.ntags = len(self.vocab_tags)
-
-        # 2. get processing functions that map str -> id
-        self.processing_word_train = get_processing_word(self.vocab_words,
-                                                         self.vocab_chars,
-                                                         vocab_singletons=self.vocab_singletons,
-                                                         singleton_p=self.singleton_p,
-                                                         lowercase=self.lowercase,
-                                                         use_words=self.use_word_embeddings,
-                                                         use_chars=self.use_char_embeddings)
-        self.processing_word_infer = get_processing_word(self.vocab_words,
-                                                         self.vocab_chars,
-                                                         lowercase=self.lowercase,
-                                                         use_words=self.use_word_embeddings,
-                                                         use_chars=self.use_char_embeddings)
-        self.processing_tag = get_processing_word(self.vocab_tags,
-                                                  use_words=True,
-                                                  lowercase=False,
-                                                  allow_unk=True)
-        # don't process analyses by default
-        self.processing_analysis = lambda x: None
-
-        # 3. get pre-trained embeddings
-        self.embeddings = get_trimmed_glove_vectors(self.filename_embeddings_trimmed) if self.use_pretrained else None
-
-        self.logger = get_logger(self.path_log)
-
-    def load_tag_vocab(self, filename_tags):
-        return load_vocab(filename_tags)
-
-    def __str__(self):
-        conf = {}
-        for k, v in self.__dict__.items():
-            if not k.startswith('__') and not callable(v):
-                conf[k] = v
-        return pformat(conf)
-
 
 def anylsis_category2matrix(sequences, category_idx, max_sentence_length):
     """
@@ -245,116 +375,6 @@ def get_singletons(dataset):
     counter = Counter(word for words, _, _ in dataset for word in words)
     singletons = [word for word, cnt in counter.items() if cnt == 1]
     return singletons
-
-
-class BaseCoNLLDataset(object):
-    """Class that iterates over CoNLL Dataset
-
-    __iter__ method yields a tuple (words, tags)
-        words: list of raw words
-        tags: list of raw tags
-
-    If processing_word and processing_tag are not None,
-    optional preprocessing is applied
-
-    Example:
-        ```python
-        data = CoNLLDataset(filename)
-        for sentence, tags in data:
-            pass
-        ```
-
-    """
-
-    def __init__(self, filename, processing_word=None, processing_tag=None, processing_analysis=None, max_iter=None,
-                 shuffle=False, use_buckets=False, batch_size=None, sort=False, use_dummy_analysis=None,
-                 use_analysis_dropout=False, analysis_dropout_method=None, analysis_dropout_keep_prob=1.0):
-        """
-        Args:
-            filename: path to the file
-            processing_words: (optional) function that takes a word as input
-            processing_tags: (optional) function that takes a tag as input
-            max_iter: (optional) max number of sentences to yield
-            ...
-        """
-        self.filename = filename
-        self.processing_word = processing_word
-        self.processing_tag = processing_tag
-        self.processing_analysis = processing_analysis
-        self.max_iter = max_iter
-        self.shuffle = shuffle
-        self.sort = sort
-        self.use_buckets = use_buckets
-        self.batch_size = batch_size
-        self.use_dummy_analysis = use_dummy_analysis
-
-        self.use_analysis_dropout = use_analysis_dropout
-        self.analysis_dropout_method = analysis_dropout_method
-        self.analysis_dropout_keep_prob = analysis_dropout_keep_prob
-        self.length = None
-
-    def parse_line(self, line):
-        # Returns a tuple of (word, word_tags)
-        raise NotImplemented()
-
-    def __iter__(self):
-        sentences = self.read_sentences_from_file()
-        if self.shuffle:
-            random.shuffle(list(sentences))
-            n = 0
-            for words, tags, analyses in sentences:
-                yield words, tags, analyses
-                n += 1
-        elif self.sort:
-            sentences = list(sentences)
-            sentences.sort(key=lambda item: len(item[0]))
-            for words, tags, analyses in sentences:
-                yield words, tags, analyses
-        elif self.use_buckets:
-            assert self.batch_size is not None
-            sentences = list(sentences)
-            sentences.sort(key=lambda item: (len(item[0]), random.random()))
-            nbuckets = math.ceil(len(sentences) / self.batch_size)
-            bucket_list = list(range(nbuckets))
-            random.shuffle(bucket_list)
-            n = 0
-            for bucket in bucket_list:
-                offset = bucket * self.batch_size
-                for words, tags, analyses in sentences[offset: offset + self.batch_size]:
-                    yield words, tags, analyses
-                    n += 1
-            assert n == len(sentences), "n=%d, snt-num=%d" % (n, len(sentences))
-        else:
-            for words, tags, analyses in sentences:
-                yield words, tags, analyses
-
-    def read_sentences_from_file(self):
-        niter = 0
-        with open(self.filename, encoding="utf-8") as f:
-            words, tags, analyses = [], [], []
-            for line in f:
-                line = line.strip()
-                if len(line) == 0:
-                    if len(words) != 0:
-                        niter += 1
-                        if self.max_iter is not None and niter > self.max_iter:
-                            break
-                        yield words, tags, analyses
-                        words, tags, analyses = [], [], []
-                else:
-                    word, tag, analyses_ = self.parse_line(line)
-                    words += [word]
-                    tags += [tag]
-                    analyses += [analyses_]
-
-    def __len__(self):
-        """Iterates once over the corpus to set and store length"""
-        if self.length is None:
-            self.length = 0
-            for _ in self:
-                self.length += 1
-        return self.length
-
 
 def get_processing_word(vocab_words=None, vocab_chars=None, vocab_singletons=None, singleton_p=0.5,
                         lowercase=False, use_words=False, use_chars=False, allow_unk=True):
@@ -655,3 +675,74 @@ def minibatches(data, minibatch_size):
 
     if len(x_batch) != 0:
         yield x_batch, y_batch, z_batch
+
+
+
+def load_category_analysis_dict(filename):
+    with open(filename, 'rb') as f:
+        tag_dict = pickle.load(f)
+        return tag_dict
+
+
+def write_category_analysis_dict(category_dict, filename):
+    with open(filename, 'wb') as f:
+        pickle.dump(category_dict, f)
+
+
+def get_processing_analyses_input_attention_category(vocab_categories):
+    def f(tag):
+        return [vocab_categories[c] for c in tag.split("|") if c in vocab_categories]
+
+    return f
+
+
+def get_processing_category_analyses(vocab_tags):
+    """
+    :param tag2idx:
+    :param morph_categories:
+    :return: list of ids for each category
+    """
+
+    def f(tag):
+        """
+        tags is a string of a form "POS=Noun|CASE=Nom|..."
+        """
+        tags = tag.split("|")
+        word_cat2tag_dict = {t.split("=")[0]: t for t in tags}
+        cat_ids = []
+        for cat in vocab_tags:
+            if cat in word_cat2tag_dict:
+                tid = vocab_tags[cat][word_cat2tag_dict[cat]]
+            else:
+                tid = MISSING_CATEGORY_ID
+            cat_ids.append(tid)
+        return cat_ids
+
+    return f
+
+
+def create_category_analysis_dict(tags):
+    """
+    :return: dict
+        {category-key -> {category-key-value -> category-key-value-id}}
+    """
+    cat2tag_dict = defaultdict(set)
+    for tag in tags:
+        for cat_kv in tag.split("|"):
+            cat_k = cat_kv.split("=")[0]
+            cat2tag_dict[cat_k].add(cat_kv)
+
+    # add dummy tag
+    for cat_kv in DUMMY_ANALYSIS_TAG.split("|"):
+        cat_k = cat_kv.split("=")[0]
+        cat2tag_dict[cat_k].add(cat_kv)
+
+    for cat_k, tag_set in cat2tag_dict.items():
+        cat2tag_dict[cat_k] = [MISSING_CATEGORY_STR] + list(tag_set)
+
+    tag2idx = defaultdict(lambda: dict())
+    for cat_k, tag_list in cat2tag_dict.items():
+        for i, tag in enumerate(tag_list):
+            tag2idx[cat_k][tag] = i
+    tag2idx = OrderedDict(tag2idx)
+    return tag2idx
