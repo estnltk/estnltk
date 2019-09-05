@@ -396,4 +396,6 @@ def test_morph_extended_tagger():
     tagger = MorphExtendedTagger()
     tagger.tag(text)
     expected = dict_to_layer(expected_morph_extended_dict)
+    # TODO remove hack:
+    expected.dict_converter_module = text.morph_extended.dict_converter_module
     assert expected == text.morph_extended, expected.diff(text.morph_extended)

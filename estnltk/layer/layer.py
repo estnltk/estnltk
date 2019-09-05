@@ -537,6 +537,8 @@ class Layer:
         return str(self)
 
     def diff(self, other):
+        if self is other:
+            return None
         if not isinstance(other, Layer):
             return 'Other is not a Layer.'
         if self.name != other.name:
@@ -552,6 +554,9 @@ class Layer:
         if self.enveloping != other.enveloping:
             return "{self.name} layer enveloping differs: {self.enveloping}!={other.enveloping}".format(self=self,
                                                                                                         other=other)
+        if self.dict_converter_module != other.dict_converter_module:
+            return "{self.name!r} layer dict converter modules are different: " \
+                   "{self.dict_converter_module!r}!={other.dict_converter_module!r}".format(self=self, other=other)
         if self._span_list != other._span_list:
             return "{self.name} layer spans differ".format(self=self)
         return None
