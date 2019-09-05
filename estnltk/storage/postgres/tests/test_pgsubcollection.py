@@ -245,6 +245,3 @@ class TestPgSubCollection(unittest.TestCase):
     def test_fragmented_layer(self):
         sub_collection_fragments = self.subcollection.fragmented_layer('words')
         self.assertIsInstance(sub_collection_fragments, pg.PgSubCollectionFragments)
-        #subcollection = pg.PgSubCollection(self.collection)
-        #with self.assertRaises(NotImplementedError):
-        #    subcollection.fragmented_layer('words')

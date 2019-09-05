@@ -52,6 +52,7 @@ class VabamorfTagger(Tagger):
                   '_vabamorf_analyser',
                   '_corpusbased_disambiguator',
                   '_vabamorf_disambiguator',
+                  'converter_module'
     ]
 
     def __init__(self,
@@ -64,7 +65,8 @@ class VabamorfTagger(Tagger):
                  propername = DEFAULT_PARAM_PROPERNAME,
                  disambiguate = DEFAULT_PARAM_DISAMBIGUATE,
                  compound = DEFAULT_PARAM_COMPOUND,
-                 phonetic = DEFAULT_PARAM_PHONETIC ):
+                 phonetic = DEFAULT_PARAM_PHONETIC,
+                 converter_module='default_v0'):
         """Initialize VabamorfTagger class.
 
         Note: Keyword arguments 'disambiguate', 'guess', 'propername',
@@ -103,6 +105,7 @@ class VabamorfTagger(Tagger):
         phonetic: boolean (default: False)
             Add phonetic information to root forms.
         """
+        self.converter_module = converter_module
         # Set VM analysis parameters:
         self.guess        = guess
         self.propername   = propername
@@ -209,6 +212,7 @@ class VabamorfTagger(Tagger):
         if self.disambiguate:
             self._vabamorf_disambiguator.change_layer( text, layers_with_morph, status )
         # TODO: Apply text-based post-disambiguation of proper names (if required)
+        morph_layer.dict_converter_module = self.converter_module
         return morph_layer
 
 

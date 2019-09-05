@@ -9,6 +9,7 @@ def layer_to_dict(layer):
         'parent': layer.parent,
         'enveloping': layer.enveloping,
         'ambiguous': layer.ambiguous,
+        'dict_converter_module': layer.dict_converter_module,
         'meta': layer.meta
     }
 

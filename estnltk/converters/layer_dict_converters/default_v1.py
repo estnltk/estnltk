@@ -2,9 +2,6 @@ from estnltk.text import Text
 from estnltk.layer.layer import Layer, to_base_span
 
 
-__version__ = 'default_v1'
-
-
 def list_to_tuple(value):
     if isinstance(value, list):
         return tuple(value)
@@ -12,13 +9,13 @@ def list_to_tuple(value):
 
 
 def layer_to_dict(layer: Layer) -> dict:
-    layer.meta['dict_converter'] = __version__
     return {
         'name': layer.name,
         'attributes': layer.attributes,
         'parent': layer.parent,
         'enveloping': layer.enveloping,
         'ambiguous': layer.ambiguous,
+        'dict_converter_module': layer.dict_converter_module,
         'meta': layer.meta,
         'spans': [{'base_span': span.base_span.raw(),
                    'annotations': [dict(annotation) for annotation in span.annotations]}
@@ -32,7 +29,8 @@ def dict_to_layer(layer_dict: dict, text: Text) -> Layer:
                   text_object=text,
                   parent=layer_dict['parent'],
                   enveloping=layer_dict['enveloping'],
-                  ambiguous=layer_dict['ambiguous']
+                  ambiguous=layer_dict['ambiguous'],
+                  dict_converter_module=layer_dict['dict_converter_module']
                   )
     layer.meta.update(layer_dict['meta'])
 

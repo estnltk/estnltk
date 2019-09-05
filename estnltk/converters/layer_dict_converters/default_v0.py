@@ -82,6 +82,7 @@ def dict_to_layer(layer_dict: dict, text: Text) -> Layer:
                 layer.add_span(span)
         else:
             for rec in layer_dict['spans']:
+                # layer.add_annotation(parent_layer[rec['_index_']].base_span, **rec)
                 layer.add_annotation(Span(base_span=parent_layer[rec['_index_']].base_span, layer=layer), **rec)
     elif layer.enveloping:
         enveloped_layer = text[layer.enveloping]

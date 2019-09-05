@@ -468,27 +468,28 @@ class TestLayerFragment(unittest.TestCase):
         layer_fragment_name = "layer_fragment_1"
         tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
 
-        collection.create_fragmented_layer(tagger=tagger1, fragmenter=lambda layer: [layer, layer])
+        def fragmenter(layer):
+            layer.dict_converter_module = 'default_v1'
+            return [layer, layer]
+
+        collection.create_fragmented_layer(tagger=tagger1, fragmenter=fragmenter)
 
         self.assertTrue(collection.has_layer(layer_fragment_name))
 
-        rows = [row for row in pg.select_raw(collection=collection,
-                                             detached_layers=[layer_fragment_name])]
-        self.assertEqual(len(rows), 4)
+        rows = list(collection.select().fragmented_layer(name=layer_fragment_name))
+
+        assert len(rows) == 4
 
         text_ids = [row[0] for row in rows]
         self.assertEqual(text_ids[0], text_ids[1])
         self.assertEqual(text_ids[2], text_ids[3])
         self.assertNotEqual(text_ids[1], text_ids[2])
 
-        layer_ids = [row[3][layer_fragment_name]['layer_id'] for row in rows]
-        self.assertEqual(len(set(layer_ids)), 4, layer_ids)
-
-        texts = [row[1] for row in rows]
-        self.assertTrue(isinstance(texts[0], Text))
-
-        layers = [row[3][layer_fragment_name]['layer'] for row in rows]
-        self.assertTrue(isinstance(layers[0], Layer), layers)
+        for row in rows:
+            assert len(row) == 2, row
+            assert isinstance(row[0], int), row
+            assert isinstance(row[1], Layer), row
+            assert row[1].text_object is None
 
         self.assertTrue(layer_table_exists(self.storage, collection.name, layer_fragment_name))
 
@@ -519,7 +520,7 @@ class TestFragment(unittest.TestCase):
             collection_insert(text2)
 
         layer_fragment_name = "layer_fragment_1"
-        tagger = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
+        tagger = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name, converter_module='default_v1')
 
         collection.create_layer(tagger=tagger)
 
@@ -528,15 +529,12 @@ class TestFragment(unittest.TestCase):
         fragment_name = "fragment_1"
 
         def row_mapper(row):
-            text_id, text, meta, detached_layers = row
-            parent_layer = detached_layers[layer_fragment_name]['layer']
-            parent_id = detached_layers[layer_fragment_name]['layer_id']
-            return [{'fragment': parent_layer, 'parent_id': parent_id},
-                    {'fragment': parent_layer, 'parent_id': parent_id}]
+            parent_id, layer = row
+            return [{'fragment': layer, 'parent_id': parent_id},
+                    {'fragment': layer, 'parent_id': parent_id}]
 
         collection.create_fragment(fragment_name,
-                            data_iterator=pg.select_raw(collection=collection,
-                                                        detached_layers=[layer_fragment_name]),
+                            data_iterator=collection.select().fragmented_layer(name=layer_fragment_name),
                             row_mapper=row_mapper,
                             create_index=False,
                             ngram_index=None)

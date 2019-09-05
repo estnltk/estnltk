@@ -63,7 +63,6 @@ from .pg_operations import drop_layer_table
 
 from .pg_operations import build_layer_ngram_query
 from .pg_operations import build_column_ngram_query
-from .pg_operations import select_raw
 
 from .pg_operations import count_rows
 

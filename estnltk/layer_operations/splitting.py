@@ -56,6 +56,7 @@ def extract_sections(text: Text,
                               enveloping=enveloping,
                               ambiguous=ambiguous)
             new_layer.meta.update(layer.meta)
+            new_layer.dict_converter_module = layer.dict_converter_module
             new_text.add_layer(new_layer)
 
             if parent:

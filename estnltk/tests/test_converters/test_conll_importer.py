@@ -24,7 +24,8 @@ text_dict = {
                 'parent': None,
                 'enveloping': None,
                 'ambiguous': False,
-                'meta': {'dict_converter': 'syntax_v0'},
+                'dict_converter_module': 'syntax_v0',
+                'meta': {},
                 'spans': [{'base_span': (0, 3),
                            'annotations': [{'id': 1,
                                             'lemma': 'iga',
@@ -216,7 +217,8 @@ text_dict = {
                 'parent': None,
                 'enveloping': None,
                 'ambiguous': False,
-                'meta': {'dict_converter': 'default_v1'},
+                'dict_converter_module': 'default_v1',
+                'meta': {},
                 'spans': [{'base_span': (0, 3), 'annotations': [{}]},
                           {'base_span': (4, 11), 'annotations': [{}]},
                           {'base_span': (12, 17), 'annotations': [{}]},
@@ -240,7 +242,8 @@ text_dict = {
                 'parent': None,
                 'enveloping': 'words',
                 'ambiguous': False,
-                'meta': {'dict_converter': 'default_v1'},
+                'dict_converter_module': 'default_v1',
+                'meta': {},
                 'spans': [{'base_span': ((0, 3),
                                          (4, 11),
                                          (12, 17),
@@ -267,8 +270,8 @@ def test_conll_importers():
     file = rel_path('tests/test_converters/test_conll.conll')
     text = conll_to_text(file, syntax_layer='syntax')
 
-    text.words.meta['dict_converter'] = 'default_v1'
-    text.sentences.meta['dict_converter'] = 'default_v1'
+    text.words.dict_converter_module = 'default_v1'
+    text.sentences.dict_converter_module = 'default_v1'
 
     assert text_to_dict(text) == text_dict
 

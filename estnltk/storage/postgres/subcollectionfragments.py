@@ -53,9 +53,8 @@ class PgSubCollectionFragments:
 
         structure = collection._structure
         assert fragmented_layer in structure
-        assert structure[fragmented_layer]['layer_type'] == 'detached'
-        assert structure[fragmented_layer]['parent'] is None
-        assert structure[fragmented_layer]['enveloping'] is None
+        assert structure[fragmented_layer]['layer_type'] in {'fragmented', 'detached'}, \
+            structure[fragmented_layer]['layer_type']
 
     @property
     def sql_query(self):

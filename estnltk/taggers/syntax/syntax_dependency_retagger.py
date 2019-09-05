@@ -54,7 +54,7 @@ class SyntaxDependencyRetagger(Retagger):
 
         annotate_spans(id_to_span, id_to_children)
 
-        layer.meta['dict_converter'] = 'syntax_v0'
+        layer.dict_converter_module = 'syntax_v0'
 
 
 def annotate_spans(id_to_span, id_to_children):

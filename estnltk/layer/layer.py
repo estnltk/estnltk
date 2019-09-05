@@ -23,6 +23,11 @@ def to_base_span(x) -> BaseSpan:
     raise TypeError(x)
 
 
+LAYER_DICT_CONVERTER_V0 = 'default_v0'
+LAYER_DICT_CONVERTER_V1 = 'default_v1'
+SYNTAX_LAYER_DICT_CONVERTER_V0 = 'syntax_v0'
+
+
 class Layer:
     """Basic container for text annotations.
 
@@ -51,7 +56,8 @@ class Layer:
                  parent: str = None,
                  enveloping: str = None,
                  ambiguous: bool = False,
-                 default_values: dict = None
+                 default_values: dict = None,
+                 dict_converter_module=LAYER_DICT_CONVERTER_V0
                  ) -> None:
         assert parent is None or enveloping is None, "can't be derived AND enveloping"
 
@@ -85,6 +91,8 @@ class Layer:
 
         # placeholder. is set when `_add_layer` is called on text object
         self.text_object = text_object  # type: Text
+
+        self.dict_converter_module = dict_converter_module
 
         self.meta = {}
 
