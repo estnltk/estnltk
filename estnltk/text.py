@@ -8,9 +8,11 @@ from estnltk.layer.layer import Layer
 
 
 class Text:
+    __slots__ = ['_text', '__dict__', 'meta']
+
     def __init__(self, text: str = None) -> None:
         self._text = text  # type: str
-        self._layers = {}  # type: MutableMapping[str, Layer]
+        self.__dict__ = {}  # type: MutableMapping[str, Layer]
         self.meta = {}  # type: MutableMapping
 
     attribute_mapping_for_elementary_layers = {'lemma': 'morph_analysis',
@@ -24,7 +26,7 @@ class Text:
 
     @property
     def layers(self):
-        return dict(self._layers)
+        return dict(self.__dict__)
 
     def set_text(self, text: str):
         assert self._text is None, "raw text has already been set"
@@ -51,7 +53,7 @@ class Text:
         else:
             raise ValueError("invalid argument: '" + str(t) +
                              "', use 'segmentation', 'morphology' or 'syntax' instead")
-        if 'tokens' in self._layers and t != 'all':
+        if 'tokens' in self.__dict__ and t != 'all':
             del self.tokens
         return self
 
@@ -60,7 +62,7 @@ class Text:
         Returns a list of all layers of this text object in order of dependences and layer names.
         The order is uniquely determined.
         """
-        layer_list = sorted(self._layers.values(), key=lambda l: l.name)
+        layer_list = sorted(self.__dict__.values(), key=lambda l: l.name)
         sorted_layers = []
         sorted_layer_names = set()
         while layer_list:
@@ -88,7 +90,7 @@ class Text:
     @property
     def attributes(self):
         res = defaultdict(list)
-        for k, layer in self._layers.items():
+        for k, layer in self.__dict__.items():
             for attrib in layer.__getattribute__('attributes'):
                 res[attrib].append(k)
 
@@ -100,14 +102,12 @@ class Text:
         super.__setattr__(self, name, value)
 
     def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__'}:
-            raise AttributeError
-        if item in self._layers.keys():
-            return self._layers[item]  # .spans
+        if item in self.__dict__:
+            return self.__dict__[item]
 
         attributes = self.__getattribute__('attributes')
         if len(attributes[item]) == 1:
-            return getattr(self._layers[attributes[item][0]], item)
+            return getattr(self.__dict__[attributes[item][0]], item)
 
         return self.__getattribute__(item)
 
@@ -116,7 +116,7 @@ class Text:
 
         name = layer.name
 
-        assert name not in self._layers, 'this Text object already has a layer with name {!r}'.format(name)
+        assert name not in self.__dict__, 'this Text object already has a layer with name {!r}'.format(name)
 
         if layer.text_object is None:
             layer.text_object = self
@@ -125,31 +125,24 @@ class Text:
                 "can't add layer {!r}, this layer is already bound to another Text object".format(name)
 
         if layer.parent:
-            assert layer.parent in self._layers.keys(), 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
+            assert layer.parent in self.__dict__, 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
                 parent=layer.parent, layer=layer.name)
 
         if layer.enveloping:
-            assert layer.enveloping in self._layers.keys(), "can't add an enveloping layer before adding the layer it envelops"
+            assert layer.enveloping in self.__dict__, "can't add an enveloping layer before adding the layer it envelops"
 
-        #
-        # ASSERTS DONE,
-        # Let's feel free to change the layer we have been handed.
-        #
-
-        self._layers[name] = layer
-
-        setattr(self, layer.name, layer)
+        self.__dict__[name] = layer
 
     def __getitem__(self, item):
         # always returns layer
-        return self._layers[item]
+        return self.__dict__[item]
 
     def __delattr__(self, item):
-        assert item in self._layers, '{item} is not a valid layer in this Text object'.format(item=item)
+        assert item in self.__dict__, '{item} is not a valid layer in this Text object'.format(item=item)
 
         # find all dependencies between layers
         relations = set()
-        for layer_name, layer in self._layers.items():
+        for layer_name, layer in self.__dict__.items():
             relations.update((b, a) for a, b in [
                 (layer_name, layer.parent),
                 (layer_name, layer.enveloping)] if b is not None and a != b
@@ -157,26 +150,25 @@ class Text:
 
         g = nx.DiGraph()
         g.add_edges_from(relations)
-        g.add_nodes_from(self._layers.keys())
+        g.add_nodes_from(self.__dict__.keys())
 
         to_delete = nx.descendants(g, item)
         to_delete.add(item)
 
         for item in to_delete:
-            self._layers.pop(item)
-            super().__delattr__(item)
+            self.__dict__.pop(item)
 
     def diff(self, other):
         if not isinstance(other, Text):
             return 'Not a Text object.'
         if self.text != other.text:
             return 'The raw text is different.'
-        if set(self._layers) != set(other.layers):
-            return 'Different layer names: {} != {}'.format(set(self._layers), set(other.layers))
+        if set(self.__dict__) != set(other.layers):
+            return 'Different layer names: {} != {}'.format(set(self.__dict__), set(other.layers))
         if self.meta != other.meta:
             return 'Different metadata.'
-        for layer_name in self._layers:
-            difference = self._layers[layer_name].diff(other.layers[layer_name])
+        for layer_name in self.__dict__:
+            difference = self.__dict__[layer_name].diff(other.layers[layer_name])
             if difference:
                 return difference
         return None
@@ -214,7 +206,7 @@ class Text:
             table_meta = pandas.DataFrame(data, columns=['key', 'value'])
             table_meta = table_meta.to_html(header=False, index=False)
             table = '\n'.join((table, '<h4>Metadata</h4>', table_meta))
-        if self._layers:
+        if self.__dict__:
             # create a list of layers preserving the order of registered layers
             # can be optimized
             layers = []
@@ -228,12 +220,12 @@ class Text:
                 'morph_analysis',
                 'morph_extended')
             for layer_name in presort:
-                layer = self._layers.get(layer_name)
+                layer = self.__dict__.get(layer_name)
                 if layer is not None:
                     layers.append(layer)
-            for layer_name in sorted(self._layers):
+            for layer_name in sorted(self.__dict__):
                 if layer_name not in presort:
-                    layers.append(self._layers[layer_name])
+                    layers.append(self.__dict__[layer_name])
 
             layer_table = pandas.DataFrame()
             for layer in layers:
