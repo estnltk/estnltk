@@ -2,8 +2,6 @@ from typing import Union, Sequence, List, Container
 
 from estnltk.text import Text
 from estnltk.layer.layer import Layer
-from estnltk.layer.span import Span
-from estnltk.layer.enveloping_span import EnvelopingSpan
 from estnltk.layer.annotation import Annotation
 from estnltk.converters.layer_dict_converters import layer_dict_converter
 
