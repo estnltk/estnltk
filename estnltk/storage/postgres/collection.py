@@ -729,7 +729,7 @@ class PgCollection:
 
                         for fragment in fragmenter(tagger.make_layer(text, status={})):
                             layer = fragment.layer
-                            layer_json = layer_to_json(fragment, text)
+                            layer_json = layer_to_json(fragment)
 
                             values = [None, text_id, layer_json]
 

@@ -69,7 +69,7 @@ class TaggerTester:
         else:
             input_texts = [test.text for test in self.tests]
             expected_layers = [test.expected_layer for test in self.tests]
-            layer_to_json(expected_layers, input_texts, self.target_file)
+            layer_to_json(expected_layers, file=self.target_file)
             print("Created target layers file '" + self.target_file + "'.")
 
     def add_test(self, annotation, text, expected_text: List[str]):
