@@ -48,12 +48,13 @@ def text_to_json(text: Union['Text', Sequence['Text']], file: str = None, file_e
 
 
 def layer_to_json(layer: Union['Layer', Sequence['Layer']],
-                  text: Union['Text', Sequence['Text']],
+                  text: Union['Text', Sequence['Text']] = None,  # TODO: remve unused parameter
                   file: str = None,
                   file_encoding: str = 'utf-8'):
     """Exports list of Layer objects to json.
     If file is None, returns json string,
     otherwise dumps json string to file and returns None.
+
     """
     layer_dict = layer_to_dict(layer)
     if file is None:

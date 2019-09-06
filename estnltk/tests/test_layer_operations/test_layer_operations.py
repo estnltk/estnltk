@@ -2,7 +2,7 @@ from estnltk import Text, Layer, ElementaryBaseSpan
 
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.tests import new_text
-from estnltk.converters import layer_to_dict
+from estnltk.converters import dict_to_layer
 
 from estnltk.layer_operations import apply_filter
 from estnltk.layer_operations import drop_annotations
@@ -39,17 +39,21 @@ def test_apply_filter():
                  preserve_spans=False,
                  drop_immediately=False
                  )
-    assert layer_to_dict(layer) == {
+    expected = {
         'name': 'layer_1',
         'attributes': ('attr', 'attr_1'),
         'parent': None,
-        '_base': None,
         'enveloping': None,
         'ambiguous': True,
-        'spans': [[{'attr_1': 'B', 'attr': 'L1-0', 'start': 0, 'end': 4}],
-                  [{'attr_1': 'C', 'attr': 'L1-1', 'start': 4, 'end': 5}],
-                  [{'attr_1': 'E', 'attr': 'L1-2', 'start': 6, 'end': 12}],
-                  [{'attr_1': 'F', 'attr': 'L1-3', 'start': 12, 'end': 13}]]}
+        'dict_converter_module': 'default_v1',
+        'meta': {},
+        'spans': [{'base_span': (0, 4),
+                   'annotations': [{'attr_1': 'B', 'attr': 'L1-0'}]},
+                  {'base_span': (4, 5), 'annotations': [{'attr_1': 'C', 'attr': 'L1-1'}]},
+                  {'base_span': (6, 12), 'annotations': [{'attr_1': 'E', 'attr': 'L1-2'}]},
+                  {'base_span': (12, 13), 'annotations': [{'attr_1': 'F', 'attr': 'L1-3'}]}]}
+    expected = dict_to_layer(expected)
+    assert expected == layer
 
 
 def test_drop_annotations():
@@ -232,7 +236,7 @@ class TestLayerOperation():
         assert ('named_entities' in text)
         assert ('text' in text)
         processed_text = apply_simple_filter(text, 'named_entities', {'end': 44, 'label': 'LOC'}, 'OR')
-        assert  text_apply_layer_filter_or() == processed_text
+        assert text_apply_layer_filter_or() == processed_text
 
     # TODO: fix
     def broken_test_apply_simple_filter_and(self):
@@ -334,7 +338,7 @@ class TestLayerOperation():
     # broken in python 3.6
     def broken_test_dict_to_df(self):
         counter = {(2, 3): 4, (5, 6): 7}
-        result = dict_to_df(counter, table_type='keyvalue', attributes=[0,1]).to_dict()
+        result = dict_to_df(counter, table_type='keyvalue', attributes=[0, 1]).to_dict()
         expected = {0: {0: 5, 1: 2}, 1: {0: 6, 1: 3}, 'count': {0: 7, 1: 4}}
         assert result == expected
 
@@ -448,7 +452,7 @@ class TestLayerOperation():
                     {'start': [25, 29], 'end': [33, 35], 'syndrome': 'SEOM'}, 
                     {'start': [29, 25], 'end': [35, 33], 'syndrome': 'O'}]
         assert result == expected
- 
+
         text = Text('Üks kaks')
                     #01234567
         a = [{'start':  0, 'end':  2},  # E O
@@ -462,7 +466,7 @@ class TestLayerOperation():
                     {'start': [5, 4], 'end': [8, 6], 'syndrome': 'SO'}]
         assert result == expected
 
-        a = [{'start':  1, 'end':  6}]  # S E M
+        a = [{'start': 1, 'end': 6}]  # S E M
         result = list(conflicts(text, a, multilayer=False))
         expected = [{'start': 1, 'end': 6, 'syndrome': 'SEM'}]
         assert result == expected

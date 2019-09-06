@@ -370,8 +370,7 @@ class Layer:
         for attr in set(self.default_values) - set(attributes):
             del self.default_values[attr]
 
-        for attr in set(attributes) - set(self.default_values):
-            self.default_values[attr] = None
+        self.default_values = {attr: self.default_values.get(attr) for attr in attributes}
 
     def __setattr__(self, key, value):
         if key == 'attributes':

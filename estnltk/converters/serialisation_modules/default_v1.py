@@ -30,7 +30,6 @@ def dict_to_layer(layer_dict: dict, text: Text) -> Layer:
                   parent=layer_dict['parent'],
                   enveloping=layer_dict['enveloping'],
                   ambiguous=layer_dict['ambiguous'],
-                  dict_converter_module=layer_dict['dict_converter_module']
                   )
     layer.meta.update(layer_dict['meta'])
 

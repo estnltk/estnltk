@@ -399,6 +399,8 @@ class TestFragment(unittest.TestCase):
 
         def row_mapper(row):
             parent_id, layer = row
+            # TODO: remove next line
+            layer.dict_converter_module = 'default_v1'
             return [{'fragment': layer, 'parent_id': parent_id},
                     {'fragment': layer, 'parent_id': parent_id}]
 

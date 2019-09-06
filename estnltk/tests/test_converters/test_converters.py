@@ -53,7 +53,7 @@ def test_json_export_import():
     text.meta['year'] = 2017
     json_text = text_to_json(text)
     text_import = json_to_text(json_text)
-    assert text_import == text  
+    assert text_import == text, text.diff(text_import)
     assert json_text == text_to_json(text_import)
 
     text = Text(T_2)
