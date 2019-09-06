@@ -1,6 +1,6 @@
 from typing import List, Mapping, Union, Sequence
 from estnltk.text import Text
-from estnltk.converters.layer_dict_converters import layer_dict_converter
+from estnltk.converters.serialisation_modules import layer_dict_converter
 
 
 def annotation_to_dict(annotation: Union['Annotation', Sequence['Annotation']]) -> Union[dict, List[dict]]:
