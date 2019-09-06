@@ -6,7 +6,7 @@ from estnltk import Text
 from estnltk.taggers import TaggerTester
 
 from estnltk.taggers import Tagger
-from estnltk import Layer, Span
+from estnltk import Layer
 
 
 def path(filename):
