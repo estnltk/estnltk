@@ -12,7 +12,6 @@ class Text:
 
     def __init__(self, text: str = None) -> None:
         self._text = text  # type: str
-        self.__dict__ = {}  # type: MutableMapping[str, Layer]
         self.meta = {}  # type: MutableMapping
 
     attribute_mapping_for_elementary_layers = {'lemma': 'morph_analysis',
@@ -91,7 +90,7 @@ class Text:
     def attributes(self):
         res = defaultdict(list)
         for k, layer in self.__dict__.items():
-            for attrib in layer.__getattribute__('attributes'):
+            for attrib in layer.attributes:
                 res[attrib].append(k)
 
         return res
@@ -159,6 +158,8 @@ class Text:
             self.__dict__.pop(item)
 
     def diff(self, other):
+        if self is other:
+            return None
         if not isinstance(other, Text):
             return 'Not a Text object.'
         if self.text != other.text:
@@ -174,9 +175,7 @@ class Text:
         return None
 
     def __eq__(self, other):
-        if self is other:
-            return True
-        return not self.diff(other)
+        return self.diff(other) is None
 
     def __str__(self):
         if self._text is None:
