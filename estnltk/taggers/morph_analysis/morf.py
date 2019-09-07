@@ -52,7 +52,6 @@ class VabamorfTagger(Tagger):
                   '_vabamorf_analyser',
                   '_corpusbased_disambiguator',
                   '_vabamorf_disambiguator',
-                  'converter_module'
     ]
 
     def __init__(self,
