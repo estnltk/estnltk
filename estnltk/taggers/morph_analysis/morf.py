@@ -512,9 +512,9 @@ class VabamorfDisambiguator(Retagger):
         # Set attributes & configuration
         self.output_layer = output_layer
         self.output_attributes = self.attributes
-        self.input_layers = [input_words_layer, \
-                             input_sentences_layer, \
-                             output_layer ]
+        self.input_layers = [input_words_layer,
+                             input_sentences_layer,
+                             output_layer]
         self._input_words_layer     = self.input_layers[0]
         self._input_sentences_layer = self.input_layers[1]
         self.depends_on = self.input_layers
@@ -671,19 +671,8 @@ class VabamorfDisambiguator(Retagger):
                          lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'], 
                          reverse=False )
                 for analysis_record in disambiguated_records:
-                    new_record = {}
                     # Fill in attributes of the record
-                    for attr in current_attributes:
-                        if attr in analysis_record:
-                            # We have a Vabamorf's attribute
-                            if attr == 'root_tokens':
-                                # make it hashable for Span.__hash__
-                                new_record[attr] = tuple(analysis_record[attr])
-                            else:
-                                new_record[attr] = analysis_record[attr]
-                        else:
-                            # We have an extra attribute -- initialize with None
-                            new_record[attr] = None
+                    new_record = {attr: analysis_record.get(attr) for attr in current_attributes}
                     if extra_attributes:
                         # Carry over attribute values (if needed)
                         matching_old_record = \
