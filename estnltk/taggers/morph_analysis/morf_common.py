@@ -123,31 +123,24 @@ def _span_to_records_excl( span: Span, exclude_attribs ) -> MutableMapping[str, 
 # ========================================================
 
 def _convert_morph_analysis_span_to_vm_dict(span: Span):
-    """ Converts a SpanList from the layer 'morph_analysis'
+    """ Converts a Span from the 'morph_analysis' layer
         into a dictionary object that has the structure
         required by the Vabamorf:
-        { 'text' : ..., 
-          'analysis' : [
-             { 'root': ..., 
-               'partofspeech' : ..., 
-               'clitic': ... ,
-               'ending': ... ,
-               'form': ... ,
-             },
-             ...
-          ]
+        {'text' : ...,
+         'analysis' : [
+            {'root': ...,
+             'partofspeech' : ...,
+             'clitic': ... ,
+             'ending': ... ,
+             'form': ... ,
+            },
+            ...
+         ]
         }
         Returns the dictionary.
-    """
-    attrib_dicts = {}
-    # Get lists corresponding to attributes
-    for attr in ESTNLTK_MORPH_ATTRIBUTES:
-        attrib_dicts[attr] = getattr(span, attr)
-    # Rewrite attributes in Vabamorf's analysis format
-    # Collect analysis dicts
-    nr_of_analyses = len(attrib_dicts['lemma'])
 
-    analyses = [{attr: attrib_dicts[attr][i] for attr in attrib_dicts} for i in range(nr_of_analyses)]
+    """
+    analyses = [dict(annotation) for annotation in span.annotations]
     return {'text': span.text, 'analysis': analyses}
 
 
