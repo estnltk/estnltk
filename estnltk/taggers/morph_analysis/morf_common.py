@@ -146,17 +146,9 @@ def _convert_morph_analysis_span_to_vm_dict(span: Span):
     # Rewrite attributes in Vabamorf's analysis format
     # Collect analysis dicts
     nr_of_analyses = len(attrib_dicts['lemma'])
-    word_dict = {'text': span.text,
-                 'analysis': []}
-    for i in range(nr_of_analyses):
-        analysis = {}
-        for attr in attrib_dicts.keys():
-            attr_value = attrib_dicts[attr][i]
-            if attr == 'root_tokens':
-                attr_value = list(attr_value)
-            analysis[attr] = attr_value
-        word_dict['analysis'].append(analysis)
-    return word_dict
+
+    analyses = [{attr: attrib_dicts[attr][i] for attr in attrib_dicts} for i in range(nr_of_analyses)]
+    return {'text': span.text, 'analysis': analyses}
 
 
 def _convert_vm_records_to_morph_analysis_records(vm_dict, layer_attributes=None, sort_analyses=True):
