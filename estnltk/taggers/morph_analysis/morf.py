@@ -211,12 +211,11 @@ class VabamorfTagger(Tagger):
         # --------------------------------------------
         if self.disambiguate:
             self._vabamorf_disambiguator.change_layer( text, layers_with_morph, status )
-        # TODO: Apply text-based post-disambiguation of proper names (if required)
+
+        # TODO: remove
         morph_layer.dict_converter_module = self.converter_module
-        for span in morph_layer:
-            for annotation in span.annotations:
-                if annotation['root_tokens'] is not None:
-                    annotation['root_tokens'] = list(annotation['root_tokens'])
+
+        # TODO: Apply text-based post-disambiguation of proper names (if required)
         return morph_layer
 
 
