@@ -384,20 +384,15 @@ class CorpusBasedMorphDisambiguator( object ):
             # Create temporary hidden words layer
             hidden_words_tagger.tag( doc )
 
-
-
-    def _remove_hidden_analyses_layers(self, docs, 
-                                       hidden_words_layer:str='_hidden_morph_analysis'):
+    @staticmethod
+    def _remove_hidden_analyses_layers(docs, hidden_words_layer: str = '_hidden_morph_analysis'):
         """ Removes temporary hidden_words_layer-s that were 
             created with the method _add_hidden_analyses_layers().
         """
         for doc in docs:
-            if hidden_words_layer in doc.layers.keys():
+            if hidden_words_layer in doc.layers:
                 # Delete existing layer
-                doc[ hidden_words_layer ]._bound = False
                 delattr(doc, hidden_words_layer)
-
-
 
     def _supplement_lemma_frequency_lexicon(self, docs, lexicon, amb_lexicon,
                                                   hidden_words_layer:str='_hidden_morph_analysis' ):
