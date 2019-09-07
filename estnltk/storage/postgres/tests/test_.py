@@ -389,7 +389,7 @@ class TestFragment(unittest.TestCase):
             collection_insert(text2)
 
         layer_fragment_name = "layer_fragment_1"
-        tagger = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name, converter_module='default_v1')
+        tagger = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
 
         collection.create_layer(tagger=tagger)
 
@@ -598,14 +598,6 @@ class TestLayer(unittest.TestCase):
                 "ambiguous": True
             }})
         self.assertEqual(len(list(res)), 1)
-
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": ["ööbik"],
-                "ambiguous": False
-            }})
-        self.assertEqual(len(list(res)), 0)
 
         res = collection.find_fingerprint(layer_query={
             layer1: {

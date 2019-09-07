@@ -57,7 +57,7 @@ class Layer:
                  enveloping: str = None,
                  ambiguous: bool = False,
                  default_values: dict = None,
-                 dict_converter_module=LAYER_DICT_CONVERTER_V0
+                 dict_converter_module=LAYER_DICT_CONVERTER_V1
                  ) -> None:
         assert parent is None or enveloping is None, "can't be derived AND enveloping"
 
