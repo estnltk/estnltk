@@ -4,12 +4,6 @@ from estnltk.layer.span import Span
 from estnltk.layer.annotation import Annotation
 
 
-def list_to_tuple(value):
-    if isinstance(value, list):
-        return tuple(value)
-    return value
-
-
 def layer_to_dict(layer: Layer) -> dict:
     assert '_index_' not in layer.attributes
     layer_dict = {'name': layer.name,
@@ -77,7 +71,7 @@ def dict_to_layer(layer_dict: dict, text: Text) -> Layer:
                 parent = parent_layer[rec[0]['_index_']]
                 span = Span(parent.base_span, layer)
                 for r in rec:
-                    attributes = {attr: list_to_tuple(r[attr]) for attr in layer.attributes}
+                    attributes = {attr: r[attr] for attr in layer.attributes}
                     span.add_annotation(Annotation(span, **attributes))
                 layer.add_span(span)
         else:
@@ -90,12 +84,12 @@ def dict_to_layer(layer_dict: dict, text: Text) -> Layer:
             for records in layer_dict['spans']:
                 for rec in records:
                     spans = [enveloped_layer[i] for i in rec['_index_']]
-                    attributes = {attr: list_to_tuple(rec[attr]) for attr in layer.attributes}
+                    attributes = {attr: rec[attr] for attr in layer.attributes}
                     layer.add_annotation(spans, **attributes)
         else:
             for rec in layer_dict['spans']:
                 spans = [enveloped_layer[i] for i in rec['_index_']]
-                attributes = {attr: list_to_tuple(rec[attr]) for attr in layer.attributes}
+                attributes = {attr: rec[attr] for attr in layer.attributes}
 
                 layer.add_annotation(spans, **attributes)
     else:

@@ -213,16 +213,20 @@ class VabamorfTagger(Tagger):
             self._vabamorf_disambiguator.change_layer( text, layers_with_morph, status )
         # TODO: Apply text-based post-disambiguation of proper names (if required)
         morph_layer.dict_converter_module = self.converter_module
+        for span in morph_layer:
+            for annotation in span.annotations:
+                if annotation['root_tokens'] is not None:
+                    annotation['root_tokens'] = list(annotation['root_tokens'])
         return morph_layer
 
 
 # ========================================================
-#    Util: find a matching morphological analysis 
+#    Util: find a matching morphological analysis
 #          record from a list of records;
 # ========================================================
 
 def _find_matching_old_record( new_record, old_records ):
-    '''Finds a record from old_records that matches the morphological 
+    '''Finds a record from old_records that matches the morphological
        analyses attributes of the new record. Returns the matching
        record, or None, if matching record was not found.
        Two records are considered as matching if all of their 

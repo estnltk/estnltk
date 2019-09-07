@@ -5,13 +5,6 @@ from . import dict_to_layer
 from . import dict_to_text
 
 
-def _convert_list_to_tuple(d):
-    for key, value in d.items():
-        if isinstance(value, list):
-            d[key] = tuple(value)
-    return d
-
-
 def json_to_text(json_text:str=None, file:str=None, file_encoding:str= 'utf-8') -> 'Text':
     """Imports Text object from json.
     If file is None, then loads corresponding dictionary 
@@ -28,9 +21,9 @@ def json_to_text(json_text:str=None, file:str=None, file_encoding:str= 'utf-8') 
     """
     if file:
         with open(file, 'r', encoding=file_encoding) as in_f:
-            text_dict = json.load(fp=in_f, object_hook=_convert_list_to_tuple)
+            text_dict = json.load(fp=in_f)
     elif json_text:
-        text_dict = json.loads(json_text, object_hook=_convert_list_to_tuple)
+        text_dict = json.loads(json_text)
     else:
         raise TypeError("either 'text_json' or 'file' argument needed")
     return dict_to_text(text_dict)
@@ -46,9 +39,9 @@ def import_text_list_json(json_text: str=None, file: str=None, file_encoding: st
     """
     if file:
         with open(file, 'r', encoding=file_encoding) as in_f:
-            text_dict_list = json.load(fp=in_f, object_hook=_convert_list_to_tuple)
+            text_dict_list = json.load(fp=in_f)
     elif json_text:
-        text_dict_list = json.loads(json_text, object_hook=_convert_list_to_tuple)
+        text_dict_list = json.loads(json_text)
     else:
         raise TypeError("either 'text_json' or 'file' argument needed")
     return [dict_to_text(text_dict) for text_dict in text_dict_list]
@@ -64,9 +57,9 @@ def json_to_layer(texts, json_str: str = None, file: str = None, file_encoding: 
     """
     if file:
         with open(file, 'r', encoding=file_encoding) as in_f:
-            layer_dict_list = json.load(fp=in_f, object_hook=_convert_list_to_tuple)
+            layer_dict_list = json.load(fp=in_f)
     elif json_str:
-        layer_dict_list = json.loads(json_str, object_hook=_convert_list_to_tuple)
+        layer_dict_list = json.loads(json_str)
     else:
         raise TypeError("either 'json_str' or 'file' argument needed")
     return [dict_to_layer(layer_dict, text) for layer_dict, text in zip(layer_dict_list, texts)]
@@ -82,9 +75,9 @@ def json_to_annotation(span, json_str: str = None, file: str = None, file_encodi
     """
     if file:
         with open(file, 'r', encoding=file_encoding) as in_f:
-            layer_dict_list = json.load(fp=in_f, object_hook=_convert_list_to_tuple)
+            layer_dict_list = json.load(fp=in_f)
     elif json_str:
-        layer_dict_list = json.loads(json_str, object_hook=_convert_list_to_tuple)
+        layer_dict_list = json.loads(json_str)
     else:
         raise TypeError("either 'json_str' or 'file' argument needed")
     return dict_to_annotation(layer_dict_list, span)

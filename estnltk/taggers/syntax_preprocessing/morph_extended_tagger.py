@@ -91,4 +91,12 @@ class MorphExtendedTagger(Tagger):
         self.subcat_retagger.change_layer(text, {'morph_extended': layer})
         self.remove_adposition_analyses_retagger.change_layer(text, {'morph_extended': layer})
 
+        # TODO: remove
+        for span in layer:
+            for annotation in span.annotations:
+                if annotation['pronoun_type'] is not None:
+                    annotation['pronoun_type'] = list(annotation['pronoun_type'])
+                if annotation['subcat'] is not None:
+                    annotation['subcat'] = list(annotation['subcat'])
+                annotation['verb_extension_suffix'] = list(annotation['verb_extension_suffix'])
         return layer

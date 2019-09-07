@@ -376,6 +376,11 @@ class CompoundTokenTagger(Tagger):
         temp_layers[self.output_layer] = layer
         layer = disamb_tagger.make_layer(text=text, layers=temp_layers, status=status)
 
+        # TODO: remove
+        for span in layer:
+            for annotation in span.annotations:
+                annotation['type'] = list(annotation['type'])
+
         return layer
 
     @staticmethod

@@ -328,6 +328,7 @@ class UserDictTagger(Retagger):
         morph_span_id = 0
         morph_spans = layers[self.output_layer].spans
         word_spans  = layers[self._input_words_layer].spans
+        attribute_names = layers[self.output_layer].attributes
         assert len(morph_spans) == len(word_spans)
         while morph_span_id < len(morph_spans):
             # 1) Get corresponding word
@@ -360,26 +361,15 @@ class UserDictTagger(Retagger):
                     records = self._dict[word_text]['analysis']
 
                 # 2.3) Create a new Span
-                ambiguous_span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
+                span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
 
                 # 2.4) Populate it with new records
                 for rec in records:
-                    # Carry over attributes
-                    for attr in current_attributes:
-                        if attr in ['start', 'end', 'text', 'word_normal']:
-                            continue
-                        attr_value = rec[attr] if attr in rec else None
-                        if attr == 'root_tokens':
-                            # make it hashable for Span.__hash__
-                            rec[attr] = tuple(attr_value)
-                        else:
-                            rec[attr] = attr_value
-                    # Add record as an annotation
-                    attributes = {attr: rec[attr] for attr in ambiguous_span.layer.attributes}
-                    ambiguous_span.add_annotation(Annotation(ambiguous_span, **attributes))
+                    attributes = {attr: rec.get(attr) for attr in attribute_names}
+                    span.add_annotation(Annotation(span, **attributes))
 
                 # 2.5) Overwrite the old span
-                morph_spans[morph_span_id] = ambiguous_span
+                morph_spans[morph_span_id] = span
 
             # 3) If the word was not inside user dictionary
             #       or a new analysis was not added,

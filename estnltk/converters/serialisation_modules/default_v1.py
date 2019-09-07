@@ -2,12 +2,6 @@ from estnltk.text import Text
 from estnltk.layer.layer import Layer, to_base_span
 
 
-def list_to_tuple(value):
-    if isinstance(value, list):
-        return tuple(value)
-    return value
-
-
 def layer_to_dict(layer: Layer) -> dict:
     return {
         'name': layer.name,
