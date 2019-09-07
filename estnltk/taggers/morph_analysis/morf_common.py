@@ -187,8 +187,6 @@ def _convert_vm_records_to_morph_analysis_records(vm_dict, layer_attributes=None
     records = []
     for analysis in word_analyses:
         record = {attr: analysis.get(attr) for attr in current_attributes}
-        if 'root_tokens' in record:
-            record['root_tokens'] = tuple(record['root_tokens'])
         records.append(record)
 
     return records

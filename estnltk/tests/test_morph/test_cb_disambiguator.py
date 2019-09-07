@@ -186,7 +186,7 @@ def test_remove_duplicate_and_problematic_analyses():
             for rec in records:
                 del rec['start']
                 del rec['end']
-            assert records == [{'root': 'palk', 'partofspeech': 'S', 'ending': '0', 'form': 'sg n', 'lemma': 'palk', 'clitic': '', 'root_tokens': ('palk',)}]
+            assert records == [{'root': 'palk', 'partofspeech': 'S', 'ending': '0', 'form': 'sg n', 'lemma': 'palk', 'clitic': '', 'root_tokens': ['palk']}]
     # 
     #  Case 2: removing 'tama' if verb contains both 'tama' and 'ma'
     #  
@@ -201,11 +201,11 @@ def test_remove_duplicate_and_problematic_analyses():
                 del rec['start']
                 del rec['end']
             if word.text == 'kuulutama':
-                assert records == [{'root': 'kuuluta', 'lemma': 'kuulutama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ('kuuluta',), 'clitic': '', 'form': 'ma'}]
+                assert records == [{'root': 'kuuluta', 'lemma': 'kuulutama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ['kuuluta'], 'clitic': '', 'form': 'ma'}]
             if word.text == 'kuulatama':
-                assert records == [{'root': 'kuulata', 'lemma': 'kuulatama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ('kuulata',), 'clitic': '', 'form': 'ma'}]
+                assert records == [{'root': 'kuulata', 'lemma': 'kuulatama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ['kuulata'], 'clitic': '', 'form': 'ma'}]
             if word.text == 'kajastama':
-                assert records == [{'root': 'kajasta', 'lemma': 'kajastama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ('kajasta',), 'clitic': '', 'form': 'ma'}]
+                assert records == [{'root': 'kajasta', 'lemma': 'kajastama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ['kajasta'], 'clitic': '', 'form': 'ma'}]
 
 
 
@@ -232,21 +232,21 @@ def test_mark_ambiguities_to_be_ignored():
         hidden_words.append( hidden_word.text[0] )
     assert hidden_words == ['kõlanud', 'nagu', 'Mis', 'on', 'üks', 'ega', 'teine']
     expected_hidden_words_records = [
-        [ {'lemma': 'kõlanud', 'form': '', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ('kõlanud',), 'end': 18, 'ending': '0', 'start': 11, 'clitic': ''}, 
-          {'lemma': 'kõlanud', 'form': 'sg n', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ('kõlanud',), 'end': 18, 'ending': '0', 'start': 11, 'clitic': ''}, 
-          {'lemma': 'kõlanu', 'form': 'pl n', 'partofspeech': 'S', 'root': 'kõla=nu', 'root_tokens': ('kõlanu',), 'end': 18, 'ending': 'd', 'start': 11, 'clitic': ''}, 
-          {'lemma': 'kõlanud', 'form': 'pl n', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ('kõlanud',), 'end': 18, 'ending': 'd', 'start': 11, 'clitic': ''}, 
-          {'lemma': 'kõlama', 'form': 'nud', 'partofspeech': 'V', 'root': 'kõla', 'root_tokens': ('kõla',), 'end': 18, 'ending': 'nud', 'start': 11, 'clitic': ''} ], \
-        [ {'lemma': 'nagu', 'form': '', 'partofspeech': 'D', 'root': 'nagu', 'root_tokens': ('nagu',), 'end': 23, 'ending': '0', 'start': 19, 'clitic': ''}, 
-          {'lemma': 'nagu', 'form': '', 'partofspeech': 'J', 'root': 'nagu', 'root_tokens': ('nagu',), 'end': 23, 'ending': '0', 'start': 19, 'clitic': ''} ], \
-        [ {'lemma': 'mis', 'form': 'pl n', 'partofspeech': 'P', 'root': 'mis', 'root_tokens': ('mis',), 'end': 33, 'ending': '0', 'start': 30, 'clitic': ''}, 
-          {'lemma': 'mis', 'form': 'sg n', 'partofspeech': 'P', 'root': 'mis', 'root_tokens': ('mis',), 'end': 33, 'ending': '0', 'start': 30, 'clitic': ''} ], \
-        [ {'lemma': 'olema', 'form': 'b', 'partofspeech': 'V', 'root': 'ole', 'root_tokens': ('ole',), 'end': 36, 'ending': '0', 'start': 34, 'clitic': ''}, 
-          {'lemma': 'olema', 'form': 'vad', 'partofspeech': 'V', 'root': 'ole', 'root_tokens': ('ole',), 'end': 36, 'ending': '0', 'start': 34, 'clitic': ''} ],
-        [ {'lemma': 'üks', 'form': 'sg n', 'partofspeech': 'N', 'root': 'üks', 'root_tokens': ('üks',), 'end': 50, 'ending': '0', 'start': 47, 'clitic': ''}, 
-          {'lemma': 'üks', 'form': 'sg n', 'partofspeech': 'P', 'root': 'üks', 'root_tokens': ('üks',), 'end': 50, 'ending': '0', 'start': 47, 'clitic': ''} ],
-        [{'lemma': 'ega', 'form': '', 'partofspeech': 'D', 'root': 'ega', 'root_tokens': ('ega',), 'end': 54, 'ending': '0', 'start': 51, 'clitic': ''}, {'lemma': 'ega', 'form': '', 'partofspeech': 'J', 'root': 'ega', 'root_tokens': ('ega',), 'end': 54, 'ending': '0', 'start': 51, 'clitic': ''}],
-        [{'lemma': 'teine', 'form': 'sg n', 'partofspeech': 'O', 'root': 'teine', 'root_tokens': ('teine',), 'end': 60, 'ending': '0', 'start': 55, 'clitic': ''}, {'lemma': 'teine', 'form': 'sg n', 'partofspeech': 'P', 'root': 'teine', 'root_tokens': ('teine',), 'end': 60, 'ending': '0', 'start': 55, 'clitic': ''}] ]
+        [ {'lemma': 'kõlanud', 'form': '', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ['kõlanud',], 'end': 18, 'ending': '0', 'start': 11, 'clitic': ''},
+          {'lemma': 'kõlanud', 'form': 'sg n', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ['kõlanud',], 'end': 18, 'ending': '0', 'start': 11, 'clitic': ''},
+          {'lemma': 'kõlanu', 'form': 'pl n', 'partofspeech': 'S', 'root': 'kõla=nu', 'root_tokens': ['kõlanu',], 'end': 18, 'ending': 'd', 'start': 11, 'clitic': ''},
+          {'lemma': 'kõlanud', 'form': 'pl n', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ['kõlanud',], 'end': 18, 'ending': 'd', 'start': 11, 'clitic': ''},
+          {'lemma': 'kõlama', 'form': 'nud', 'partofspeech': 'V', 'root': 'kõla', 'root_tokens': ['kõla',], 'end': 18, 'ending': 'nud', 'start': 11, 'clitic': ''} ], \
+        [ {'lemma': 'nagu', 'form': '', 'partofspeech': 'D', 'root': 'nagu', 'root_tokens': ['nagu',], 'end': 23, 'ending': '0', 'start': 19, 'clitic': ''},
+          {'lemma': 'nagu', 'form': '', 'partofspeech': 'J', 'root': 'nagu', 'root_tokens': ['nagu',], 'end': 23, 'ending': '0', 'start': 19, 'clitic': ''} ], \
+        [ {'lemma': 'mis', 'form': 'pl n', 'partofspeech': 'P', 'root': 'mis', 'root_tokens': ['mis',], 'end': 33, 'ending': '0', 'start': 30, 'clitic': ''},
+          {'lemma': 'mis', 'form': 'sg n', 'partofspeech': 'P', 'root': 'mis', 'root_tokens': ['mis',], 'end': 33, 'ending': '0', 'start': 30, 'clitic': ''} ], \
+        [ {'lemma': 'olema', 'form': 'b', 'partofspeech': 'V', 'root': 'ole', 'root_tokens': ['ole',], 'end': 36, 'ending': '0', 'start': 34, 'clitic': ''},
+          {'lemma': 'olema', 'form': 'vad', 'partofspeech': 'V', 'root': 'ole', 'root_tokens': ['ole',], 'end': 36, 'ending': '0', 'start': 34, 'clitic': ''} ],
+        [ {'lemma': 'üks', 'form': 'sg n', 'partofspeech': 'N', 'root': 'üks', 'root_tokens': ['üks',], 'end': 50, 'ending': '0', 'start': 47, 'clitic': ''},
+          {'lemma': 'üks', 'form': 'sg n', 'partofspeech': 'P', 'root': 'üks', 'root_tokens': ['üks',], 'end': 50, 'ending': '0', 'start': 47, 'clitic': ''} ],
+        [{'lemma': 'ega', 'form': '', 'partofspeech': 'D', 'root': 'ega', 'root_tokens': ['ega',], 'end': 54, 'ending': '0', 'start': 51, 'clitic': ''}, {'lemma': 'ega', 'form': '', 'partofspeech': 'J', 'root': 'ega', 'root_tokens': ['ega',], 'end': 54, 'ending': '0', 'start': 51, 'clitic': ''}],
+        [{'lemma': 'teine', 'form': 'sg n', 'partofspeech': 'O', 'root': 'teine', 'root_tokens': ['teine',], 'end': 60, 'ending': '0', 'start': 55, 'clitic': ''}, {'lemma': 'teine', 'form': 'sg n', 'partofspeech': 'P', 'root': 'teine', 'root_tokens': ['teine',], 'end': 60, 'ending': '0', 'start': 55, 'clitic': ''}] ]
     assert hidden_words_records == expected_hidden_words_records
 
 
