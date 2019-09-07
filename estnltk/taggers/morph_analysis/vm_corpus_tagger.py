@@ -162,7 +162,7 @@ class VabamorfCorpusTagger( object ):
             vm_instance = self._vabamorf_analyser.vm_instance
         # Add new dependencies from VabamorfAnalyzer (if there are any)
         if self._vabamorf_analyser is not None:
-            for vm_dependency in self._vabamorf_analyser.depends_on:
+            for vm_dependency in self._vabamorf_analyser.input_layers:
                 if vm_dependency not in self.input_layers and \
                    vm_dependency != self.output_layer:
                     self.input_layers.append( vm_dependency )

@@ -61,12 +61,11 @@ class VabamorfTagger(Tagger):
                  input_sentences_layer='sentences',
                  input_compound_tokens_layer='compound_tokens',
                  postanalysis_tagger=None,
-                 guess = DEFAULT_PARAM_GUESS,
-                 propername = DEFAULT_PARAM_PROPERNAME,
-                 disambiguate = DEFAULT_PARAM_DISAMBIGUATE,
-                 compound = DEFAULT_PARAM_COMPOUND,
-                 phonetic = DEFAULT_PARAM_PHONETIC,
-                 converter_module='default_v0'):
+                 guess=DEFAULT_PARAM_GUESS,
+                 propername=DEFAULT_PARAM_PROPERNAME,
+                 disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
+                 compound=DEFAULT_PARAM_COMPOUND,
+                 phonetic=DEFAULT_PARAM_PHONETIC):
         """Initialize VabamorfTagger class.
 
         Note: Keyword arguments 'disambiguate', 'guess', 'propername',
@@ -104,8 +103,8 @@ class VabamorfTagger(Tagger):
             Add compound word markers to root forms.
         phonetic: boolean (default: False)
             Add phonetic information to root forms.
+
         """
-        self.converter_module = converter_module
         # Set VM analysis parameters:
         self.guess        = guess
         self.propername   = propername
@@ -212,9 +211,6 @@ class VabamorfTagger(Tagger):
         if self.disambiguate:
             self._vabamorf_disambiguator.change_layer( text, layers_with_morph, status )
 
-        # TODO: remove
-        morph_layer.dict_converter_module = self.converter_module
-
         # TODO: Apply text-based post-disambiguation of proper names (if required)
         return morph_layer
 
@@ -290,31 +286,26 @@ def _is_ignore_span(span):
 #    VabamorfAnalyzer
 # ===============================
 
-class VabamorfAnalyzer( Tagger ):
+class VabamorfAnalyzer(Tagger):
     """Performs morphological analysis with Vabamorf's analyzer.
        Note: resulting analyses will be ambiguous."""
     output_layer      = 'morph_analysis'
     output_attributes = VabamorfTagger.output_attributes
     input_layers      = ['words', 'sentences']
-    conf_param = [ # Configuration flags:
-                   "guess",
-                   "propername",
-                   "compound",
-                   "phonetic",
-                   # Internal stuff:
-                   '_vm_instance', \
-                   # Names of the specific input layers:
-                   '_input_words_layer', \
-                   '_input_sentences_layer', \
-                   # For backward compatibility:
-                   'depends_on', 'layer_name', 'attributes',
-                   # Extra configuration flags:
-                   'extra_attributes', \
+    conf_param = [# Configuration flags:
+                  "guess",
+                  "propername",
+                  "compound",
+                  "phonetic",
+                  # Internal stuff:
+                  '_vm_instance',
+                  # Names of the specific input layers:
+                  '_input_words_layer',
+                  '_input_sentences_layer',
+                  # Extra configuration flags:
+                  'extra_attributes',
                  ]
-    layer_name = output_layer       # <- For backward compatibility ...
-    depends_on = input_layers       # <- For backward compatibility ...
-    attributes = output_attributes  # <- For backward compatibility ...
-    
+
     def __init__(self,
                  output_layer='morph_analysis',
                  input_words_layer='words',
@@ -362,7 +353,6 @@ class VabamorfAnalyzer( Tagger ):
         if self.extra_attributes:
             for extra_attr in self.extra_attributes:
                 self.output_attributes += (extra_attr,)
-            self.attributes = self.output_attributes  # <- For backward compatibility ...
         if vm_instance:
             self._vm_instance = vm_instance
         else:
@@ -373,8 +363,6 @@ class VabamorfAnalyzer( Tagger ):
         self.compound = compound
         self.phonetic = phonetic
         # Other stuff
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
 
     def _make_layer(self, text: Text, layers, status: dict):
         """Analyses given Text object morphologically. 
@@ -482,8 +470,7 @@ class VabamorfDisambiguator(Retagger):
     """Disambiguates morphologically analysed texts. 
        Uses Vabamorf for disambiguating.
     """
-    attributes    = VabamorfTagger.output_attributes
-    conf_param = ['depends_on', '_vm_instance',
+    conf_param = ['_vm_instance',
                   '_input_words_layer',
                   '_input_sentences_layer' ]
 
@@ -510,13 +497,12 @@ class VabamorfDisambiguator(Retagger):
         """
         # Set attributes & configuration
         self.output_layer = output_layer
-        self.output_attributes = self.attributes
+        self.output_attributes = VabamorfTagger.output_attributes
         self.input_layers = [input_words_layer,
                              input_sentences_layer,
                              output_layer]
         self._input_words_layer     = self.input_layers[0]
         self._input_sentences_layer = self.input_layers[1]
-        self.depends_on = self.input_layers
         if vm_instance:
             self._vm_instance = vm_instance
         else:
@@ -557,9 +543,8 @@ class VabamorfDisambiguator(Retagger):
         # from the old layer
         extra_attributes = []
         for cur_attr in current_attributes:
-            if cur_attr not in self.attributes and \
-               cur_attr != IGNORE_ATTR:
-                extra_attributes.append( cur_attr )
+            if cur_attr not in self.output_attributes and cur_attr != IGNORE_ATTR:
+                extra_attributes.append(cur_attr)
         # Check that len(word_spans) >= len(morph_spans)
         morph_layer = layers[self.output_layer]
         word_spans  = layers[self._input_words_layer]
