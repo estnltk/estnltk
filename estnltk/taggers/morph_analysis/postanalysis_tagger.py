@@ -559,24 +559,14 @@ class PostMorphAnalysisTagger(Retagger):
             records = []
 
             record_added = False
+            attributes = layers[self.output_layer].attributes
             for rec in rewritten_recs:
                 if not rec:
                     # Skip if a record was deleted
                     continue
-                # Carry over attributes
-                for attr in current_attributes:
-                    if attr in ['start', 'end', 'text']:
-                        continue
-                    attr_value = rec[attr] if attr in rec else None
-                    if attr == 'root_tokens':
-                        # make it hashable for Span.__hash__
-                        rec[attr] = tuple(attr_value)
-                    elif attr == IGNORE_ATTR:
-                        rec[attr] = False
-                    else:
-                        rec[attr] = attr_value
+                rec[IGNORE_ATTR] = False
                 # Add record as an annotation
-                rec = {attr: rec[attr] for attr in layers[self.output_layer].attributes}
+                rec = {attr: rec.get(attr) for attr in attributes}
                 records.append(rec)
                 record_added = True
 
