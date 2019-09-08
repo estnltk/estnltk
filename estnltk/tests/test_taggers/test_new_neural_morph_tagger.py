@@ -1,13 +1,11 @@
-import unittest
 import os
+import unittest
 from unittest import TestCase
 
 from estnltk import Text
 from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
 from estnltk.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
-from estnltk.taggers.neural_morph.new_neural_morph import softmax
-from estnltk.taggers.neural_morph.new_neural_morph import seq2seq
 
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
 
@@ -60,11 +58,15 @@ def get_test_sentences(filename):
 
 
 if NEURAL_MORPH_TAGGER_CONFIG is not None:
-    if "softmax" in NEURAL_MORPH_TAGGER_CONFIG:
-        model_module = softmax
+    if "softmax_emb_tag_sum" in NEURAL_MORPH_TAGGER_CONFIG:
+        import estnltk.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
+    elif "softmax_emb_cat_sum" in NEURAL_MORPH_TAGGER_CONFIG:
+        import estnltk.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
+    elif "seq2seq_emb_tag_sum" in NEURAL_MORPH_TAGGER_CONFIG:
+        import estnltk.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
     else:
-        model_module = seq2seq
-    
+        import estnltk.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
+        
     config = load_config_from_file(NEURAL_MORPH_TAGGER_CONFIG)
     config_holder = model_module.ConfigHolder(config)
     model = model_module.Model(config_holder)

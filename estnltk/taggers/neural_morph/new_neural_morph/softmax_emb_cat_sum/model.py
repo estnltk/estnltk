@@ -1,7 +1,70 @@
 import tensorflow as tf
+import numpy as np
 
 from .. import rnn_util
-from .data_utils import create_numpy_embeddings_matrix, pad_sequences, MISSING_CATEGORY_ID
+
+MISSING_CATEGORY_ID = 0
+
+
+def _pad_sequences(sequences, pad_tok, max_length):
+    """
+    Args:
+        sequences: a generator of list or tuple
+        pad_tok: the char to pad with
+
+    Returns:
+        a list of list where each sublist has same length
+    """
+    sequence_padded, sequence_length = [], []
+
+    for seq in sequences:
+        seq = list(seq)
+        seq_ = seq[:max_length] + [pad_tok] * max(max_length - len(seq), 0)
+        sequence_padded += [seq_]
+        sequence_length += [min(len(seq), max_length)]
+
+    return sequence_padded, sequence_length
+
+
+def pad_sequences(sequences, pad_tok, nlevels=1):
+    """
+    Args:
+        sequences: a generator of list or tuple
+        pad_tok: the char to pad with
+        nlevels: "depth" of padding, for the case where we have characters ids
+
+    Returns:
+        a list of list where each sublist has same length
+
+    """
+    if nlevels == 1:
+        max_length = max(map(lambda x: len(x), sequences))
+        sequence_padded, sequence_length = _pad_sequences(sequences, pad_tok, max_length)
+    elif nlevels == 2:
+        max_length_word = max([max(map(lambda x: len(x), seq))
+                               for seq in sequences])
+        sequence_padded, sequence_length = [], []
+        for seq in sequences:
+            # all words are same length now
+            sp, sl = _pad_sequences(seq, pad_tok, max_length_word)
+            sequence_padded += [sp]
+            sequence_length += [sl]
+
+        max_length_sentence = max(map(lambda x: len(x), sequences))
+        sequence_padded, _ = _pad_sequences(sequence_padded,
+                                            [pad_tok] * max_length_word, max_length_sentence)
+        sequence_length, _ = _pad_sequences(sequence_length, 0,
+                                            max_length_sentence)
+
+    return sequence_padded, sequence_length
+
+
+def create_numpy_embeddings_matrix(dim1, dim2):
+    limit = np.sqrt(6 / (dim1 + dim2))
+    M = np.random.uniform(low=-limit, high=limit,
+                          size=[dim1, dim2]).astype(np.float32)
+    M[0, :] = 0.0  # padding vector
+    return M
 
 
 class Model():
@@ -57,12 +120,20 @@ class Model():
 
     def setattr(self, name, value, category):
         setattr(self, "{}_{}".format(name, self.escape_category(category)), value)
-
-    def reinitialize_weights(self, scope_name):
-        """Reinitializes the weights of a given layer"""
-        variables = tf.contrib.framework.get_variables(scope_name)
-        init = tf.variables_initializer(variables)
-        self.sess.run(init)
+        
+    def build(self):
+        # NER specific functions
+        self.add_placeholders()
+        self.add_word_embeddings_op()
+        self.add_encoder_op()
+        self.add_decoder_op()
+        self.add_pred_op()
+        self.add_loss_op()
+        
+        # Generic functions that add training op and initialize session
+        self.add_train_op(self.config.lr_method, self.lr, self.loss,
+                          self.config.clip)
+        self.initialize_session()  # now self.sess is defined and vars are init
     
     def initialize_session(self):
         """Defines self.sess and initialize the variables"""
@@ -81,26 +152,12 @@ class Model():
         """
         self.logger.info("Reloading the latest trained model...")
         self.saver.restore(self.sess, dir_model)
-
-    def close_session(self):
-        """Closes the session"""
-        self.sess.close()
+        
     
     def reset(self):
         """Closes the session and destroys the default graph."""
-        self.close_session()
+        self.sess.close()
         tf.reset_default_graph()
-
-    def add_summary(self):
-        """Defines variables for Tensorboard
-
-        Args:
-            dir_output: (string) where the results are written
-
-        """
-        self.merged = tf.summary.merge_all()
-        self.file_writer = tf.summary.FileWriter(self.config.dir_output,
-                                                 self.sess.graph)
 
     def get_feed_dict(self, training_phase, words, analyses, labels=None, lr=None):
         """Given some data, pad it and build a feed dictionary
@@ -426,10 +483,7 @@ class Model():
             memory_length = tf.where(tf.equal(memory_length, 0),
                                      tf.ones_like(memory_length),
                                      memory_length)
-            #attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(
-            #    num_units=self.config.dim_analysis,
-            #    memory=memory,
-            #    memory_sequence_length=memory_length)
+            
             attention_mechanism = tf.contrib.seq2seq.LuongAttention(
                 num_units=self.config.dim_analysis,
                 memory=memory,
@@ -486,19 +540,6 @@ class Model():
         # for tensorboard
         tf.summary.scalar("loss", self.loss)
 
-    def build(self):
-        # NER specific functions
-        self.add_placeholders()
-        self.add_word_embeddings_op()
-        self.add_encoder_op()
-        self.add_decoder_op()
-        self.add_pred_op()
-        self.add_loss_op()
-        
-        # Generic functions that add training op and initialize session
-        self.add_train_op(self.config.lr_method, self.lr, self.loss,
-                          self.config.clip)
-        self.initialize_session()  # now self.sess is defined and vars are init
 
     def predict_batch(self, words, analyses):
         """

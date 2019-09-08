@@ -2,8 +2,6 @@ import os
 
 from estnltk.text import Layer
 from estnltk.taggers import Tagger
-
-from estnltk.taggers.neural_morph.new_neural_morph import seq2seq, softmax
 from estnltk.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
 from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
@@ -27,24 +25,24 @@ def check_model_files(model_dir):
                     raise FileNotFoundError("TODO: Instructions for downloading model files")
 
 def SoftmaxEmbTagSumTagger():
-    return load_tagger(os.path.join(os.path.dirname(softmax.__file__), "emb_tag_sum", "config.py"))
+    from estnltk.taggers.neural_morph.new_neural_morph import softmax_emb_tag_sum
+    return load_tagger(softmax_emb_tag_sum)
 
 def SoftmaxEmbCatSumTagger():
-    return load_tagger(os.path.join(os.path.dirname(softmax.__file__), "emb_cat_sum", "config.py"))
+    from estnltk.taggers.neural_morph.new_neural_morph import softmax_emb_cat_sum
+    return load_tagger(softmax_emb_cat_sum)
 
 def Seq2SeqEmbTagSumTagger():
-    return load_tagger(os.path.join(os.path.dirname(seq2seq.__file__), "emb_tag_sum", "config.py"))    
+    from estnltk.taggers.neural_morph.new_neural_morph import seq2seq_emb_tag_sum
+    return load_tagger(seq2seq_emb_tag_sum)    
     
 def Seq2SeqEmbCatSumTagger():
-    return load_tagger(os.path.join(os.path.dirname(seq2seq.__file__), "emb_cat_sum", "config.py"))
+    from estnltk.taggers.neural_morph.new_neural_morph import seq2seq_emb_cat_sum
+    return load_tagger(seq2seq_emb_cat_sum)
 
-def load_tagger(neural_model_config):
-    if "softmax" in neural_model_config:
-        model_module = softmax
-    else:
-        model_module = seq2seq
-        
-    config = load_config_from_file(neural_model_config)
+def load_tagger(model_module):
+    module_path = os.path.dirname(model_module.__file__)
+    config = load_config_from_file(os.path.join(module_path, "config.py"))
     check_model_files(config.out_dir)
     
     config_holder = model_module.ConfigHolder(config)
