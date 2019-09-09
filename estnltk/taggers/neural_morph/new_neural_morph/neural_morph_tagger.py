@@ -6,16 +6,17 @@ from estnltk.taggers.neural_morph.new_neural_morph.general_utils import load_con
 from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 
-MODEL_FILES = {"data":["analysis.txt",
-                       "chars.txt",
-                       "embeddings.npz",
-                       "singletons.txt",
-                       "tags.txt",
-                       "words.txt"],
+MODEL_FILES = {"data": ["analysis.txt",
+                        "chars.txt",
+                        "embeddings.npz",
+                        "singletons.txt",
+                        "tags.txt",
+                        "words.txt"],
 
-              "results":["model.weights.data-00000-of-00001",
-                         "model.weights.index",
-                         "model.weights.meta"]}
+               "results": ["model.weights.data-00000-of-00001",
+                           "model.weights.index",
+                           "model.weights.meta"]}
+
 
 def check_model_files(model_dir):
     if (os.path.exists(model_dir)):
@@ -24,23 +25,28 @@ def check_model_files(model_dir):
                 if not os.path.exists(os.path.join(model_dir, folder, file)):
                     raise FileNotFoundError("TODO: Instructions for downloading model files")
 
-def SoftmaxEmbTagSumTagger():
+
+def SoftmaxEmbTagSumTagger(output_layer='neural_morph_analysis'):
     from estnltk.taggers.neural_morph.new_neural_morph import softmax_emb_tag_sum
-    return load_tagger(softmax_emb_tag_sum)
+    return load_tagger(softmax_emb_tag_sum, output_layer=output_layer)
 
-def SoftmaxEmbCatSumTagger():
+
+def SoftmaxEmbCatSumTagger(output_layer='neural_morph_analysis'):
     from estnltk.taggers.neural_morph.new_neural_morph import softmax_emb_cat_sum
-    return load_tagger(softmax_emb_cat_sum)
+    return load_tagger(softmax_emb_cat_sum, output_layer=output_layer)
 
-def Seq2SeqEmbTagSumTagger():
+
+def Seq2SeqEmbTagSumTagger(output_layer='neural_morph_analysis'):
     from estnltk.taggers.neural_morph.new_neural_morph import seq2seq_emb_tag_sum
-    return load_tagger(seq2seq_emb_tag_sum)    
-    
-def Seq2SeqEmbCatSumTagger():
-    from estnltk.taggers.neural_morph.new_neural_morph import seq2seq_emb_cat_sum
-    return load_tagger(seq2seq_emb_cat_sum)
+    return load_tagger(seq2seq_emb_tag_sum, output_layer=output_layer)
 
-def load_tagger(model_module):
+
+def Seq2SeqEmbCatSumTagger(output_layer='neural_morph_analysis'):
+    from estnltk.taggers.neural_morph.new_neural_morph import seq2seq_emb_cat_sum
+    return load_tagger(seq2seq_emb_cat_sum, output_layer=output_layer)
+
+
+def load_tagger(model_module, output_layer):
     module_path = os.path.dirname(model_module.__file__)
     config = load_config_from_file(os.path.join(module_path, "config.py"))
     check_model_files(config.out_dir)
@@ -50,7 +56,8 @@ def load_tagger(model_module):
     model.build()
     model.restore_session(config.dir_model)
     
-    return NeuralMorphTagger(model)
+    return NeuralMorphTagger(model, output_layer=output_layer)
+
 
 class NeuralMorphTagger(Tagger):
     """
@@ -81,12 +88,13 @@ class NeuralMorphTagger(Tagger):
          'POS=V|VERB_TYPE=main|MOOD=indic|TENSE=pres|PERSON=ps3|NUMBER=sg|VERB_PS=ps|VERB_POLARITY=af', 
          'POS=S|NOUN_TYPE=com|NUMBER=sg|CASE=nom', 
          'POS=Z|PUNCT_TYPE=Fst']
+
     """
     conf_param = ('model',)
     
-    def __init__(self, model):
+    def __init__(self, model, output_layer='neural_morph_analysis'):
         self.model = model
-        self.output_layer = 'neural_morph_analysis'
+        self.output_layer = output_layer
         self.output_attributes = ('morphtag', 'pos', 'form')
         self.input_layers = ('morph_analysis',)
 
