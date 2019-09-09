@@ -1,5 +1,5 @@
 from estnltk.core import PACKAGE_PATH
-from estnltk.logger import logger
+from estnltk.helpers.logger import logger
 
 from estnltk.layer.annotation import Annotation
 from estnltk.layer.base_span import BaseSpan

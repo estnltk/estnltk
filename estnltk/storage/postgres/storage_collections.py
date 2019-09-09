@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2.sql import SQL, Literal
 
-from estnltk.logger import logger
+from estnltk import logger
 from estnltk.storage import postgres as pg
 
 
