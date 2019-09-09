@@ -1,7 +1,7 @@
 from typing import Sequence, List
 from psycopg2.sql import SQL
 
-from estnltk import logger
+from estnltk import logger, Progressbar
 from estnltk import Text
 from estnltk.converters import dict_to_text, dict_to_layer
 from estnltk.storage import postgres as pg
@@ -213,7 +213,7 @@ class PgSubCollection:
                                                  withhold=True) as c:
             c.execute(self.sql_query)
             logger.debug(c.query.decode())
-            data_iterator = pg.Progressbar(iterable=c, total=total, initial=0, progressbar_type=self.progressbar)
+            data_iterator = Progressbar(iterable=c, total=total, initial=0, progressbar_type=self.progressbar)
 
             # Cash configuration attributes to protect against unexpected changes during iteration
             return_index = self.return_index

@@ -1,5 +1,6 @@
 from estnltk.core import PACKAGE_PATH
 from estnltk.helpers.logger import logger
+from estnltk.helpers.progressbar import Progressbar
 
 from estnltk.layer.annotation import Annotation
 from estnltk.layer.base_span import BaseSpan

@@ -84,8 +84,6 @@ from .sql_composition.selected_columns import SelectedColumns
 
 from .pgpass_parsing import parse_pgpass
 
-from .progressbar import Progressbar
-
 from .subcollectionlayer import PgSubCollectionLayer
 from .subcollectionfragments import PgSubCollectionFragments
 from .subcollection import PgSubCollection
