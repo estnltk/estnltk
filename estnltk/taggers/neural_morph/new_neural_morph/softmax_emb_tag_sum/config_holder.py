@@ -2,7 +2,7 @@ import pickle
 import numpy as np
 from pprint import pformat
 
-from ..general_utils import get_logger
+from estnltk.helpers.neural_morph_logger import neural_morph_logger
 
 UNK = "$UNK$"
 NUM = "$NUM$"
@@ -49,7 +49,7 @@ class ConfigHolder():
         # 3. get pre-trained embeddings
         self.embeddings = get_trimmed_glove_vectors(self.filename_embeddings_trimmed) if self.use_pretrained else None
 
-        self.logger = get_logger(self.path_log)
+        self.logger = neural_morph_logger(self.path_log)
         if self.analysis_embeddings == "tag" or self.analysis_embeddings == "input_attention_tag":
             self.vocab_analysis = load_vocab(self.filename_analysis)
             self.nanalyses = len(self.vocab_analysis)
