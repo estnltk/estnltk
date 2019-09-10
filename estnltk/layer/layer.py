@@ -49,8 +49,9 @@ class Layer:
     as database serialisation does not work for other types. See [estnltk.storage.postgres] for further documentation.
 
     """
-    __slots__ = ['name', 'default_values', 'attributes', 'parent', 'enveloping', '_span_list', 'ambiguous',
-                 'text_object', 'serialisation_module', 'meta']
+    # TODO: make __slots__ work in Python 3.5
+    # __slots__ = ['name', 'default_values', 'attributes', 'parent', 'enveloping', '_span_list', 'ambiguous',
+    #              'text_object', 'serialisation_module', 'meta']
 
     def __init__(self,
                  name: str,
