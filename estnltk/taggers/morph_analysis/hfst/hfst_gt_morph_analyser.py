@@ -30,7 +30,7 @@ from estnltk import logger
 from estnltk import Span, Layer, Text
 from estnltk.taggers import Tagger
 
-from estnltk.taggers.morph_analysis.morf_common import _get_word_text
+from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 
 from estnltk.core import PACKAGE_PATH
 
@@ -214,10 +214,13 @@ class HfstEstMorphAnalyser(Tagger):
                                attributes=self.output_attributes
         )
         for word in layers[ self._input_words_layer ]:
-            word_str = _get_word_text(word)
-            raw_analyses = self._transducer.lookup( word_str, output='text' )
+            # Collect analyses for all normalized variants of the word
+            all_raw_analyses = []
+            for word_str in _get_word_texts(word):
+                raw_analyses = self._transducer.lookup( word_str, output='text' )
+                all_raw_analyses.append( raw_analyses )
             # Remove flag diacritics
-            cleaned_analyses = self.filter_flags(raw_analyses)
+            cleaned_analyses = self.filter_flags( '\n'.join(all_raw_analyses) )
             # Use output_extractor for getting the output
             self.output_extractor.extract_annotation_and_add_to_layer( \
                                 word, cleaned_analyses, new_layer, \

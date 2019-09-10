@@ -110,6 +110,40 @@ def test_hfst_gt_morph_analyser_raw_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
+def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
+    from estnltk import Text
+    from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
+    # Test HfstEstMorphAnalyser's raw output format
+    hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
+    # Case 1
+    text = Text('''isaand kui juuuubbeee ...''')
+    text.tag_layer(['compound_tokens', 'words'])
+    # Add multiple normalized forms
+    for word in text.words:
+        if word.text == 'isaand':
+            word.annotations[0].normalized_form = ['isand', 'issand']
+        if word.text == 'juuuubbeee':
+            word.annotations[0].normalized_form = ['jube']
+    hfstAnalyser.tag(text)
+    results = text['hfst_gt_morph_analysis'].to_records()
+    #print(results)
+    expected_results = \
+    [
+      [{'start': 0, 'weight': 7.0, 'raw_analysis': 'isand+N+Sg+Nom', 'end': 6}, 
+       {'start': 0, 'weight': 7.0, 'raw_analysis': 'issand+N+Sg+Nom', 'end': 6}], 
+      [{'start': 7, 'weight': 2.0, 'raw_analysis': 'kui+CS', 'end': 10}, 
+       {'start': 7, 'weight': 2.0, 'raw_analysis': 'kui+Adv', 'end': 10}, 
+       {'start': 7, 'weight': 200.0, 'raw_analysis': 'kui+Guess+N+Sg+Nom', 'end': 10}, 
+       {'start': 7, 'weight': 201.0, 'raw_analysis': 'kui+Guess+N+Sg+Gen', 'end': 10}], 
+      [{'start': 11, 'weight': 7.0, 'raw_analysis': 'jube+A+Sg+Nom', 'end': 21}, 
+       {'start': 11, 'weight': 7.0, 'raw_analysis': 'jube+Adv', 'end': 21}], 
+      [{'start': 22, 'weight': 0.0, 'raw_analysis': '...+CLB', 'end': 25}]
+    ]
+    assert results == expected_results
+
+
+@pytest.mark.skipif(not check_if_hfst_is_available(),
+                    reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import split_into_morphemes
     
