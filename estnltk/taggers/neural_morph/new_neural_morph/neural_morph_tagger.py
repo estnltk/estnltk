@@ -28,35 +28,22 @@ def check_model_files(model_dir):
 
 def SoftmaxEmbTagSumTagger(output_layer='neural_morph_analysis'):
     from estnltk.taggers.neural_morph.new_neural_morph import softmax_emb_tag_sum
-    return load_tagger(softmax_emb_tag_sum, output_layer=output_layer)
+    return NeuralMorphTagger(model_module=softmax_emb_tag_sum, output_layer=output_layer)
 
 
 def SoftmaxEmbCatSumTagger(output_layer='neural_morph_analysis'):
     from estnltk.taggers.neural_morph.new_neural_morph import softmax_emb_cat_sum
-    return load_tagger(softmax_emb_cat_sum, output_layer=output_layer)
+    return NeuralMorphTagger(model_module=softmax_emb_cat_sum, output_layer=output_layer)
 
 
 def Seq2SeqEmbTagSumTagger(output_layer='neural_morph_analysis'):
     from estnltk.taggers.neural_morph.new_neural_morph import seq2seq_emb_tag_sum
-    return load_tagger(seq2seq_emb_tag_sum, output_layer=output_layer)
+    return NeuralMorphTagger(model_module=seq2seq_emb_tag_sum, output_layer=output_layer)
 
 
 def Seq2SeqEmbCatSumTagger(output_layer='neural_morph_analysis'):
     from estnltk.taggers.neural_morph.new_neural_morph import seq2seq_emb_cat_sum
-    return load_tagger(seq2seq_emb_cat_sum, output_layer=output_layer)
-
-
-def load_tagger(model_module, output_layer):
-    module_path = os.path.dirname(model_module.__file__)
-    config = load_config_from_file(os.path.join(module_path, "config.py"))
-    check_model_files(config.out_dir)
-    
-    config_holder = model_module.ConfigHolder(config)
-    model = model_module.Model(config_holder)
-    model.build()
-    model.restore_session(config.dir_model)
-    
-    return NeuralMorphTagger(model, output_layer=output_layer)
+    return NeuralMorphTagger(model_module=seq2seq_emb_cat_sum, output_layer=output_layer)
 
 
 class NeuralMorphTagger(Tagger):
@@ -92,11 +79,23 @@ class NeuralMorphTagger(Tagger):
     """
     conf_param = ('model',)
     
-    def __init__(self, model, output_layer='neural_morph_analysis'):
-        self.model = model
+    def __init__(self, model_module=None, model=None, output_layer='neural_morph_analysis'):
+        if model_module is not None:
+            module_path = os.path.dirname(model_module.__file__)
+            config = load_config_from_file(os.path.join(module_path, "config.py"))
+            check_model_files(config.out_dir)
+            
+            config_holder = model_module.ConfigHolder(config)
+            self.model = model_module.Model(config_holder)
+            self.model.build()
+            self.model.restore_session(config.dir_model)
+        else:
+            self.model = model # For unit testing
+            
         self.output_layer = output_layer
         self.output_attributes = ('morphtag', 'pos', 'form')
         self.input_layers = ('morph_analysis',)
+        
 
     def _make_layer(self, text, layers, status=None):
         layer = Layer(name=self.output_layer, 

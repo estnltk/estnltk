@@ -5,7 +5,6 @@ from unittest import TestCase
 from estnltk import Text
 from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
-from estnltk.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
 
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
 
@@ -24,7 +23,8 @@ class DummyTagger:
 
 class TestDummyTagger(TestCase):
     def test(self):
-        tagger = NeuralMorphTagger(DummyTagger())
+        tagger = NeuralMorphTagger(model=DummyTagger())
+        
         text = Text("Ära mine sinna.")
         text.tag_layer(["morph_analysis"])
         tagger.tag(text)
@@ -67,19 +67,16 @@ if NEURAL_MORPH_TAGGER_CONFIG is not None:
     else:
         import estnltk.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
         
-    config = load_config_from_file(NEURAL_MORPH_TAGGER_CONFIG)
-    config_holder = model_module.ConfigHolder(config)
-    model = model_module.Model(config_holder)
-    model.build()
-    model.restore_session(config.dir_model)
+    tagger = NeuralMorphTagger(model_module=model_module)
 
 
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
 class TestNeuralModel(TestCase):
     def test(self):
+        model = tagger.model
+        sentences = get_test_sentences("neural_test_sentences.txt")
         word_count = 0
         correct_count = 0
-        sentences = get_test_sentences("neural_test_sentences.txt")
         
         for words, tags, analyses in sentences:
             word_count += len(words)
@@ -95,9 +92,7 @@ class TestNeuralModel(TestCase):
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
 class TestNeuralTagger(TestCase):  
     def test(self):
-        tagger = NeuralMorphTagger(model)
         sentences = get_test_sentences("neural_test_sentences.txt")
-        
         word_count = 0
         correct_count = 0
         
