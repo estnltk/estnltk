@@ -20,7 +20,7 @@ from estnltk.taggers import Retagger
 from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_record
+from estnltk.taggers.morph_analysis.morf_common import _get_word_texts, _create_empty_morph_record
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
@@ -509,37 +509,45 @@ class PostMorphAnalysisTagger(Retagger):
             # B) Convert spans to records
             records = [_span_to_records_excl(annotation, [IGNORE_ATTR]) for annotation in morph_annotations]
             rewritten_recs = records
-            normalized_word_str = _get_word_text( word )
-            
-            # B.1) Fix pronouns 
+            # B.0) First, determine if we have correct conditions for fixing
+            pronoun_tokens = []
+            numeric_tokens = []
+            normalized_words = _get_word_texts( word )
+            for normalized_word_str in normalized_words:
+                if self.remove_broken_pronoun_analyses and len(rewritten_recs) > 0:
+                    token = MorphAnalyzedToken( normalized_word_str )
+                    pronoun_tokens.append( token.is_pronoun )
+                if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
+                    is_numeric = any([c.isnumeric() for c in normalized_word_str])
+                    numeric_tokens.append( is_numeric )
+
+            # B.1) Fix pronouns
             if self.remove_broken_pronoun_analyses and len(rewritten_recs) > 0:
-                # B.1.1) Filter pronoun analyses: remove analyses in which the 
+                # B.1.1) Filter pronoun analyses: remove analyses in which the
                 #        normalized word is actually not a pronoun;
-                token = MorphAnalyzedToken( normalized_word_str )
-                rewritten_recs_new = []
-                for rec in rewritten_recs:
-                    if rec['partofspeech'] == 'P':
-                        if token.is_pronoun:
+                if pronoun_tokens and not any(pronoun_tokens):
+                    # Only fire if there are no pronoun tokens in normalized words
+                    rewritten_recs_new = []
+                    for rec in rewritten_recs:
+                        if not rec['partofspeech'] == 'P': # Only add non-pronouns
                             rewritten_recs_new.append(rec)
-                    else:
-                        rewritten_recs_new.append(rec)
-                rewritten_recs = rewritten_recs_new
-            
+                    rewritten_recs = rewritten_recs_new
+
             # B.2) Used rules (from CSV file) to fix number analyses
             if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
-                # B.2.1) Rewrite records of a single word
-                if normalized_word_str.isalpha():
-                    # skip number corrections if the normalized token consists of letters only
-                    pass
-                else:
-                    found_analyses = \
-                        self.find_analyses_for_numeric_token( normalized_word_str )
-                    if found_analyses:
+                # Only fire if all normalized words represent numeric tokens
+                if numeric_tokens and all(numeric_tokens):
+                    all_found_analyses = []
+                    for normalized_word_str in normalized_words:
+                        found_analyses = \
+                            self.find_analyses_for_numeric_token( normalized_word_str )
+                        all_found_analyses.extend( found_analyses )
+                    if all_found_analyses:
                         # Replace the old ones or take the intersection
                         if self.fix_number_analyses_by_replacing:
-                            rewritten_recs = found_analyses
+                            rewritten_recs = all_found_analyses
                         else:
-                            rewritten_recs = [rec for rec in rewritten_recs if rec in found_analyses]
+                            rewritten_recs = [rec for rec in rewritten_recs if rec in all_found_analyses]
 
             # B.3) Carry over extra attributes
             if extra_attributes and len(rewritten_recs) > 0 and len(records) > 0:

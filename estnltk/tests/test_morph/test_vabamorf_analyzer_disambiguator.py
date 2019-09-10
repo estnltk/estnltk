@@ -128,6 +128,48 @@ def test_morph_analyzer_without_guessing():
     assert ['Mulll', 'yks', 'rõlgelt'] == unknown_words
 
 
+
+# ----------------------------------
+#   Test 
+#      morphological analyser
+#      can analyse words with 
+#      multiple normalized forms
+# ----------------------------------
+
+def test_morph_analyzer_with_multiple_normalized_forms():
+    # Tests that morphological analyser can analyse words with multiple normalized forms
+    analyzer2multnorm = VabamorfAnalyzer()
+    # Case 1
+    text = Text('''isaand kui juuuubbeee ...''')
+    text.tag_layer(['words', 'sentences'])
+    # Add multiple normalized forms
+    for word in text.words:
+        if word.text == 'isaand':
+            word.annotations[0].normalized_form = ['isand', 'issand']
+        if word.text == 'juuuubbeee':
+            word.annotations[0].normalized_form = ['jube']
+    # Tag morph analyses
+    analyzer2multnorm.tag(text)
+    expected_records = \
+         [ [{'lemma': 'isand', 'end': 6, 'form': 'sg n', 'root_tokens': ['isand'], 'root': 'isand', 'ending': '0', 'clitic': '', 'partofspeech': 'S', 'start': 0}, 
+            {'lemma': 'issand', 'end': 6, 'form': '', 'root_tokens': ['issand'], 'root': 'issand', 'ending': '0', 'clitic': '', 'partofspeech': 'I', 'start': 0}, 
+            {'lemma': 'issand', 'end': 6, 'form': 'sg n', 'root_tokens': ['issand'], 'root': 'issand', 'ending': '0', 'clitic': '', 'partofspeech': 'S', 'start': 0}], 
+           [{'lemma': 'kui', 'end': 10, 'form': '', 'root_tokens': ['kui'], 'root': 'kui', 'ending': '0', 'clitic': '', 'partofspeech': 'D', 'start': 7}, 
+            {'lemma': 'kui', 'end': 10, 'form': '', 'root_tokens': ['kui'], 'root': 'kui', 'ending': '0', 'clitic': '', 'partofspeech': 'J', 'start': 7}], 
+           [{'lemma': 'jube', 'end': 21, 'form': 'sg n', 'root_tokens': ['jube'], 'root': 'jube', 'ending': '0', 'clitic': '', 'partofspeech': 'A', 'start': 11}, 
+            {'lemma': 'jube', 'end': 21, 'form': '', 'root_tokens': ['jube'], 'root': 'jube', 'ending': '0', 'clitic': '', 'partofspeech': 'D', 'start': 11}], 
+           [{'lemma': '...', 'end': 25, 'form': '', 'root_tokens': ['...'], 'root': '...', 'ending': '', 'clitic': '', 'partofspeech': 'Z', 'start': 22}]
+         ]
+    #print(text['morph_analysis'].to_records())
+    # Sort analyses (so that the order within a word is always the same)
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
+
+
 # ----------------------------------
 #   Test 
 #      morphological disambiguator

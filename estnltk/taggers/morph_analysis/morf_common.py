@@ -37,26 +37,52 @@ IGNORE_ATTR = '_ignore'
 #    Helper functions
 # =================================
 
-def _get_word_text( word:Span ):
-    '''Returns a word string corresponding to the given (word) Span. 
-       If the normalized word form is available, returns the normalized 
-       form instead of the surface form. 
-        
+def _get_word_texts(word: Span):
+    ''' Returns all possible normalized forms of the given (word) Span.
+       If there are normalized word forms available, returns a list
+       containing all normalized forms (excluding word.text).
+       Otherwise, if no normalized word forms have been set, returns
+       a list containing only one item: the surface form (word.text).
+
+       Parameters
+       ----------
+       word: Span
+          word which normalized texts need to be acquired;
+
+       Returns
+       -------
+       str
+          a list of normalized forms of the word, or [ word.text ]
+    '''
+    if hasattr(word, 'normalized_form') and word.normalized_form != None:
+        # return normalized versions of the word
+        if isinstance(word.normalized_form, str):
+            return [ word.normalized_form ]
+        elif isinstance(word.normalized_form, list):
+            return word.normalized_form
+        else:
+            raise TypeError('(!) Unexpected data type for word.normalized_form: {}', type(word.normalized_form) )
+    else:
+        # return the surface form
+        return [ word.text ]
+
+
+def _get_word_text(word: Span):
+    '''Returns a word string corresponding to the given (word) Span.
+       If there are normalized word forms available, returns the first
+       normalized form instead of the surface form.
+
        Parameters
        ----------
        word: Span
           word which text (or normalized text) needs to be acquired;
-            
+
        Returns
        -------
        str
-          normalized text of the word, or word.text
+          first normalized text of the word, or word.text
     '''
-    if hasattr(word, 'normalized_form') and word.normalized_form != None:
-        # return the normalized version of the word
-        return word.normalized_form
-    else:
-        return word.text
+    return _get_word_texts(word)[0]
 
 
 def _create_empty_morph_record( word = None, layer_attributes = None ):

@@ -13,7 +13,7 @@ from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morph_analysis.morf_common import _get_word_text
+from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
 
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_POSTAGS
@@ -333,32 +333,42 @@ class UserDictTagger(Retagger):
         while morph_span_id < len(morph_spans):
             # 1) Get corresponding word
             word_span = word_spans[morph_span_id]
-            word_text = _get_word_text(word_span)
-            # Check the dictionary
-            if self.ignore_case:
-                word_text = word_text.lower()
-
-            new_morph_spans_added = False
-            if word_text in self._dict:
-                # 2) If the word is inside user dictionary
-
+            merge_records = []
+            overwrite_records = []
+            for word_text in _get_word_texts(word_span):
+                # Check the dictionary
+                if self.ignore_case:
+                    word_text = word_text.lower()
+                if word_text in self._dict:
+                    # 2) If the word is inside user dictionary
+                    if self._dict[word_text]['merge']:
+                        merge_records.extend(self._dict[word_text]['analysis'])
+                    else:
+                        overwrite_records.extend(self._dict[word_text]['analysis'])
+            # 2) If there were any records that could be added
+            if len(overwrite_records) > 0 or len(merge_records) > 0:
                 # 2.1) Convert spans to records
                 records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
 
                 # 2.2) Process records:
-                if self._dict[word_text]['merge']:
-                    # 2.2.1) Merge existing records with new ones
-                    new_analysis = self._dict[word_text]['analysis'][0]
-                    for rec in records:
-                        # Overwrite keys in dict, keep all other
-                        # keys-values as they were before
-                        for key in new_analysis:
-                            rec[key] = new_analysis[key]
-                else:
-                    # 2.2.2) Overwrite existing records with new ones
+                if overwrite_records:
+                    # 2.2.1) Overwrite existing records with new ones
                     # NB! This assumes that records in the dict are
                     #     in the valid format;
-                    records = self._dict[word_text]['analysis']
+                    # NB! If there are any competing merge records,
+                    #     these will be overwritten completely ...
+                    records = overwrite_records
+                elif merge_records:
+                    # 2.2.2) Merge existing records with new ones
+                    #        NB! Order: first normalized words last,
+                    #        as they first normalized words are more
+                    #        important;
+                    for merge_rec in merge_records[::-1]:
+                        for rec in records:
+                            # Overwrite keys in dict, keep all other
+                            # keys-values as they were before
+                            for key in merge_rec:
+                                rec[key] = merge_rec[key]
 
                 # 2.3) Create a new Span
                 span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
@@ -370,13 +380,6 @@ class UserDictTagger(Retagger):
 
                 # 2.5) Overwrite the old span
                 morph_spans[morph_span_id] = span
-
-            # 3) If the word was not inside user dictionary
-            #       or a new analysis was not added,
-            #    then we do not have to do anything: the old analysis
-            #    span will be preserved in the layer
-            if not new_morph_spans_added:
-                pass
 
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1

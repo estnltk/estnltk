@@ -22,7 +22,7 @@ from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 
-from estnltk.taggers.morph_analysis.morf_common import _get_word_text
+from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
@@ -400,28 +400,39 @@ class VabamorfAnalyzer(Tagger):
         for sentence in layers[self._input_sentences_layer]:
             # A) Collect all words inside the sentence
             sentence_words = []
+            sentence_words_count = 0
             while word_span_id < len(word_layer):
                 span = word_layer[word_span_id]
                 if sentence.start <= span.start and \
                     span.end <= sentence.end:
-                    # Word is inside the sentence
-                    sentence_words.append(
-                        _get_word_text( span ) 
-                    )
+                    # > Word is inside the sentence
+                    # Get the normalized variants
+                    _words = _get_word_texts( span )
+                    assert isinstance( _words, list )
+                    sentence_words.append( _words )
+                    sentence_words_count += len( _words )
                     word_span_id += 1
+                    # B) Use Vabamorf for analysis
+                    #    (but check length limitations first)
+                    if len(sentence_words) > 15000:
+                        # if 149129 < len(wordlist) on Linux,
+                        # if  15000 < len(wordlist) < 17500 on Windows,
+                        # then self.instance.analyze(words=wordlist, **self.current_kwargs) raises
+                        # RuntimeError: CFSException: internal error with vabamorf
+                        res = self._perform_vm_analysis(sentence_words, current_kwargs)
+                        packed_res = self._pack_expanded_analysis_results(res, sentence_words)
+                        analysis_results.extend(packed_res)
+                        sentence_words = []
+                        sentence_words_count = 0
                 elif sentence.end <= span.start:
                     break
-            # B) Use Vabamorf for analysis 
-            #    (but check length limitations first)
-            if len(sentence_words) > 15000:
-                # if 149129 < len(wordlist) on Linux,
-                # if  15000 < len(wordlist) < 17500 on Windows,
-                # then self.instance.analyze(words=wordlist, **self.current_kwargs) raises
-                # RuntimeError: CFSException: internal error with vabamorf
-                for i in range(0, len(sentence_words), 15000):
-                    analysis_results.extend( self._vm_instance.analyze(words=sentence_words[i:i+15000], **current_kwargs) )
-            else:
-                analysis_results.extend( self._vm_instance.analyze(words=sentence_words, **current_kwargs) )
+            # B) Analyse what's left
+            if sentence_words_count > 0:
+                assert sentence_words_count < 15000, \
+                    '(!) Unexpected amount of unanalysed words left: {}'.format(len(sentence_words_count))
+                res = self._perform_vm_analysis( sentence_words, current_kwargs )
+                packed_res = self._pack_expanded_analysis_results( res, sentence_words )
+                analysis_results.extend( packed_res )
 
         # Assert that all words obtained an analysis 
         # ( Note: there must be empty analyses for unknown 
@@ -459,6 +470,37 @@ class VabamorfAnalyzer(Tagger):
         # C) Return the layer
         return morph_layer
 
+
+    def _perform_vm_analysis( self, sentence_words, analysis_kwargs ):
+        """Analyses given list of words with Vabamorf. (Only for internal usage) """
+        # Flatten the input list
+        flat_words = [w for word_variants in sentence_words for w in word_variants]
+        # Analyse words
+        return self._vm_instance.analyze(words=flat_words, **analysis_kwargs)
+
+
+    def _pack_expanded_analysis_results( self, analysis_results, initial_sentence_words ):
+        """ Packs expanded analysis results. (Only for internal usage)
+            Motivation: if there are multiple normalized forms for a word,
+            all of these will be analysed as separate words in the method
+            _perform_vm_analysis(). So, we need to "pack the results" in
+            a way that all separate analyses are aggregated to the record
+            of their corresponding word.
+        """
+        merged_analysis_results = []
+        analysis_index      = 0
+        initial_words_index = 0
+        while initial_words_index < len(initial_sentence_words):
+            merged_morph_record = { 'analysis':[] }
+            for initial_word in initial_sentence_words[initial_words_index]:
+                current_analysis_dict = analysis_results[analysis_index]
+                # Sanity check
+                assert current_analysis_dict['text'] == initial_word
+                merged_morph_record['analysis'].extend( current_analysis_dict['analysis'] )
+                analysis_index += 1
+            merged_analysis_results.append( merged_morph_record )
+            initial_words_index += 1
+        return merged_analysis_results
 
 
 # ===============================
