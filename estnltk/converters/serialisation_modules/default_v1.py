@@ -9,7 +9,7 @@ def layer_to_dict(layer: Layer) -> dict:
         'parent': layer.parent,
         'enveloping': layer.enveloping,
         'ambiguous': layer.ambiguous,
-        'dict_converter_module': layer.dict_converter_module,
+        'serialisation_module': layer.serialisation_module,
         'meta': layer.meta,
         'spans': [{'base_span': span.base_span.raw(),
                    'annotations': [dict(annotation) for annotation in span.annotations]}

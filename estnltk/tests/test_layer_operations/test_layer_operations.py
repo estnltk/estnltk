@@ -45,7 +45,7 @@ def test_apply_filter():
         'parent': None,
         'enveloping': None,
         'ambiguous': True,
-        'dict_converter_module': 'default_v1',
+        'serialisation_module': 'default_v1',
         'meta': {},
         'spans': [{'base_span': (0, 4),
                    'annotations': [{'attr_1': 'B', 'attr': 'L1-0'}]},

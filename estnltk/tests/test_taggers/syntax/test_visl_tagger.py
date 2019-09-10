@@ -31,7 +31,7 @@ visl_dict = {
     'parent': 'morph_extended',
     'enveloping': None,
     'ambiguous': True,
-    'dict_converter_module': 'default_v1',
+    'serialisation_module': 'default_v1',
     'meta': {},
     'spans': [{'base_span': (0, 4),
                'annotations': [{'person': '_',

@@ -50,7 +50,7 @@ class Layer:
 
     """
     __slots__ = ['name', 'default_values', 'attributes', 'parent', 'enveloping', '_span_list', 'ambiguous',
-                 'text_object', 'dict_converter_module', 'meta']
+                 'text_object', 'serialisation_module', 'meta']
 
     def __init__(self,
                  name: str,
@@ -60,7 +60,7 @@ class Layer:
                  enveloping: str = None,
                  ambiguous: bool = False,
                  default_values: dict = None,
-                 dict_converter_module=LAYER_DICT_CONVERTER_V1
+                 serialisation_module=LAYER_DICT_CONVERTER_V1
                  ) -> None:
         assert parent is None or enveloping is None, "can't be derived AND enveloping"
 
@@ -95,7 +95,7 @@ class Layer:
         # placeholder. is set when `_add_layer` is called on text object
         self.text_object = text_object  # type: Text
 
-        self.dict_converter_module = dict_converter_module
+        self.serialisation_module = serialisation_module
 
         self.meta = {}
 
@@ -556,7 +556,7 @@ class Layer:
         if self.enveloping != other.enveloping:
             return "{self.name} layer enveloping differs: {self.enveloping}!={other.enveloping}".format(self=self,
                                                                                                         other=other)
-        if self.dict_converter_module != other.dict_converter_module:
+        if self.serialisation_module != other.serialisation_module:
             return "{self.name!r} layer dict converter modules are different: " \
                    "{self.dict_converter_module!r}!={other.dict_converter_module!r}".format(self=self, other=other)
         if self._span_list != other._span_list:

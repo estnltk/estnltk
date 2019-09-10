@@ -12,10 +12,10 @@ layer_converter_collection = {LAYER_DICT_CONVERTER_V0: default_v0,
 
 
 def layer_to_dict(layer):
-    converter = layer.dict_converter_module
+    converter = layer.serialisation_module
     return layer_converter_collection[converter].layer_to_dict(layer)
 
 
 def dict_to_layer(layer_dict: dict, text_object=None):
-    converter = layer_converter_collection[layer_dict.get('dict_converter_module', LAYER_DICT_CONVERTER_V0)]
+    converter = layer_converter_collection[layer_dict.get('serialisation_module', LAYER_DICT_CONVERTER_V0)]
     return converter.dict_to_layer(layer_dict, text_object)

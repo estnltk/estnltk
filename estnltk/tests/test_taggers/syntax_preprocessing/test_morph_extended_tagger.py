@@ -16,7 +16,7 @@ def test_morph_extended_tagger():
                     'enveloping': None,
                     'ambiguous': False,
                     'meta': {},
-                    'dict_converter_module': 'default_v1',
+                    'serialisation_module': 'default_v1',
                     'spans': [{'base_span': (0, 4), 'annotations': [{'normalized_form': None}]},
                               {'base_span': (5, 7), 'annotations': [{'normalized_form': None}]},
                               {'base_span': (8, 13), 'annotations': [{'normalized_form': None}]},
@@ -36,7 +36,7 @@ def test_morph_extended_tagger():
                     'parent': 'words',
                     'enveloping': None,
                     'ambiguous': True,
-                    'dict_converter_module': 'default_v1',
+                    'serialisation_module': 'default_v1',
                     'meta': {},
                     'spans': [{'base_span': (0, 4),
                                'annotations': [{'lemma': 'kuhu',
@@ -122,7 +122,7 @@ def test_morph_extended_tagger():
         'enveloping': None,
         'ambiguous': True,
         'meta': {},
-        'dict_converter_module': 'default_v1',
+        'serialisation_module': 'default_v1',
         'spans': [{'base_span': (0, 4),
                    'annotations': [{'form': '',
                                     'letter_case': 'cap',
@@ -397,5 +397,5 @@ def test_morph_extended_tagger():
     tagger.tag(text)
     expected = dict_to_layer(expected_morph_extended_dict)
     # TODO remove hack:
-    expected.dict_converter_module = text.morph_extended.dict_converter_module
+    expected.serialisation_module = text.morph_extended.serialisation_module
     assert expected == text.morph_extended, expected.diff(text.morph_extended)

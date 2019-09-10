@@ -41,7 +41,7 @@ class CollectionStructure(pg.CollectionStructureBase):
                 Literal(layer.enveloping),
                 Literal(meta),
                 Literal(layer_type),
-                Literal(layer.dict_converter_module)
+                Literal(layer.serialisation_module)
             )
             )
             logger.debug(c.query.decode())

@@ -290,7 +290,7 @@ class PgCollection:
                         assert layer_struct['ambiguous'] == layer.ambiguous
                         assert layer_struct['parent'] == layer.parent
                         assert layer_struct['enveloping'] == layer.enveloping
-                        assert layer_struct['serialisation_module'] == layer.dict_converter_module
+                        assert layer_struct['serialisation_module'] == layer.serialisation_module
                 if key is None:
                     key = DEFAULT
                 else:
