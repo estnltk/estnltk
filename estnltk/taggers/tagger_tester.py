@@ -3,8 +3,8 @@ from os import path
 
 from estnltk.text import Text, Layer
 from estnltk.taggers import Tagger
-from estnltk.converters import text_to_json, json_to_text
-from estnltk.converters import layer_to_json, json_to_layer
+from estnltk.converters import texts_to_json, json_to_texts
+from estnltk.converters import layers_to_json, json_to_layers
 
 
 class Test:
@@ -47,8 +47,8 @@ class TaggerTester:
         self.tests = []
 
     def load(self):
-        input_texts = json_to_text(file=self.input_file)
-        expected_layers = json_to_layer(input_texts, file=self.target_file)
+        input_texts = json_to_texts(file=self.input_file)
+        expected_layers = json_to_layers(input_texts, file=self.target_file)
         self.tests = [Test(text.meta['test_description'], text, self.tagger, layer)
                       for text, layer in zip(input_texts, expected_layers)]
         return self
@@ -59,7 +59,7 @@ class TaggerTester:
                   "' already exists. Use 'overwrite=True' to overwrite.")
         else:
             input_texts = [test.text for test in self.tests]
-            text_to_json(input_texts, self.input_file)
+            texts_to_json(input_texts, self.input_file)
             print("Created input texts file '" + self.input_file + "'.")
 
     def save_target(self, overwrite=False):
@@ -67,9 +67,8 @@ class TaggerTester:
             print("Target layers file '" + self.target_file +
                   "' already exists. Use 'overwrite=True' to overwrite.")
         else:
-            input_texts = [test.text for test in self.tests]
             expected_layers = [test.expected_layer for test in self.tests]
-            layer_to_json(expected_layers, file=self.target_file)
+            layers_to_json(expected_layers, file=self.target_file)
             print("Created target layers file '" + self.target_file + "'.")
 
     def add_test(self, annotation, text, expected_text: List[str]):

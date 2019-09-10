@@ -26,6 +26,3 @@ def test_dict_export_import():
 
     text = new_text(5)
     assert text == dict_to_text(text_to_dict(text))
-
-    text_list = [Text(''), Text(T_1), Text(T_2)]
-    assert text_list == dict_to_text(text_to_dict(text_list))

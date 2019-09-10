@@ -27,7 +27,16 @@ def annotation_to_json(annotation: Union['Annotation', Sequence['Annotation']], 
         json.dump(d, fp=out_f, ensure_ascii=False)
 
 
-def text_to_json(text: Union['Text', Sequence['Text']], file: str = None, file_encoding: str = 'utf-8'):
+def texts_to_json(texts:  Sequence['Text'], file: str = None, file_encoding: str = 'utf-8'):
+    text_dict_list = [text_to_dict(text) for text in texts]
+    if file is None:
+        return json.dumps(text_dict_list, ensure_ascii=False)
+
+    with open(file, 'w', encoding=file_encoding) as out_f:
+        json.dump(text_dict_list, fp=out_f, ensure_ascii=False)
+
+
+def text_to_json(text: 'Text', file: str = None, file_encoding: str = 'utf-8'):
     """Exports Text object to json.
     If file is None, returns json string,
     otherwise dumps json string to file and returns None.
@@ -47,10 +56,11 @@ def text_to_json(text: Union['Text', Sequence['Text']], file: str = None, file_e
         json.dump(text_dict, fp=out_f, ensure_ascii=False)
 
 
-def layer_to_json(layer: Union['Layer', Sequence['Layer']],
+def layer_to_json(layer: 'Layer',
                   file: str = None,
                   file_encoding: str = 'utf-8'):
-    """Exports list of Layer objects to json.
+    """Exports a Layer object to json.
+
     If file is None, returns json string,
     otherwise dumps json string to file and returns None.
 
@@ -61,3 +71,20 @@ def layer_to_json(layer: Union['Layer', Sequence['Layer']],
 
     with open(file, 'w', encoding=file_encoding) as out_f:
         json.dump(layer_dict, fp=out_f, ensure_ascii=False)
+
+
+def layers_to_json(layers: Sequence['Layer'],
+                   file: str = None,
+                   file_encoding: str = 'utf-8'):
+    """Exports list of Layer objects to json.
+
+    If file is None, returns json string,
+    otherwise dumps json string to file and returns None.
+
+    """
+    layer_dict_list = [layer_to_dict(layer) for layer in layers]
+    if file is None:
+        return json.dumps(layer_dict_list, ensure_ascii=False)
+
+    with open(file, 'w', encoding=file_encoding) as out_f:
+        json.dump(layer_dict_list, fp=out_f, ensure_ascii=False)

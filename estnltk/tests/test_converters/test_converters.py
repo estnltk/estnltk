@@ -82,9 +82,6 @@ def test_json_export_import():
     text = json_to_text(text_to_json(text))
     assert text == Text(T_2).tag_layer(['morph_extended', 'paragraphs'])
 
-    text_list = [text, Text(''), Text(T_1), Text(T_2)]
-    assert text_list == json_to_text(text_to_json(text_list))
-
 
 def test_annotation_json_export_import():
     layer = Layer('my_layer', attributes=['attr', 'attr_0'])
