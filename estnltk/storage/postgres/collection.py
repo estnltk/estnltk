@@ -290,7 +290,7 @@ class PgCollection:
                         assert layer_struct['ambiguous'] == layer.ambiguous
                         assert layer_struct['parent'] == layer.parent
                         assert layer_struct['enveloping'] == layer.enveloping
-                        assert layer_struct['_base'] is None
+                        assert layer_struct['serialisation_module'] == layer.dict_converter_module
                 if key is None:
                     key = DEFAULT
                 else:
@@ -1092,7 +1092,7 @@ class PgCollection:
         for ln, struct in self._structure.structure.items():
             if ln == layer_name:
                 continue
-            if layer_name == struct['enveloping'] or layer_name == struct['parent'] or layer_name == struct['_base']:
+            if layer_name == struct['enveloping'] or layer_name == struct['parent']:
                 if cascade:
                     self.delete_layer(ln, cascade=True)
                 else:
@@ -1217,7 +1217,7 @@ class PgCollection:
             structure_html = pandas.DataFrame.from_dict(self._structure.structure,
                                                         orient='index',
                                                         columns=['layer_type', 'attributes', 'ambiguous', 'parent',
-                                                                 'enveloping', '_base', 'meta']
+                                                                 'enveloping', 'meta']
                                                         ).to_html()
         column_meta = self._collection_table_meta()
         meta_html = ''

@@ -20,10 +20,9 @@ class CollectionStructure(pg.CollectionStructureBase):
                           'ambiguous bool not null, '
                           'parent text, '
                           'enveloping text, '
-                          '_base text, '
                           'meta text[], '
                           'layer_type text not null, '
-                          'loader text);').format(temporary=temporary,
+                          'serialisation_module text);').format(temporary=temporary,
                                                   table=table))
             logger.debug(c.query.decode())
 
@@ -32,18 +31,17 @@ class CollectionStructure(pg.CollectionStructureBase):
 
         meta = list(meta or [])
         with self.collection.storage.conn.cursor() as c:
-            c.execute(SQL("INSERT INTO {} (layer_name, attributes, ambiguous, parent, enveloping, _base, meta, layer_type, loader) "
-                          "VALUES ({}, {}, {}, {}, {}, {}, {}, {}, {});").format(
+            c.execute(SQL("INSERT INTO {} (layer_name, attributes, ambiguous, parent, enveloping, meta, layer_type, serialisation_module) "
+                          "VALUES ({}, {}, {}, {}, {}, {}, {}, {});").format(
                 pg.structure_table_identifier(self.collection.storage, self.collection.name),
                 Literal(layer.name),
                 Literal(list(layer.attributes)),
                 Literal(layer.ambiguous),
                 Literal(layer.parent),
                 Literal(layer.enveloping),
-                Literal(None),
                 Literal(meta),
                 Literal(layer_type),
-                Literal('')
+                Literal(layer.dict_converter_module)
             )
             )
             logger.debug(c.query.decode())
@@ -54,7 +52,7 @@ class CollectionStructure(pg.CollectionStructureBase):
             return None
         structure = {}
         with self.collection.storage.conn.cursor() as c:
-            c.execute(SQL("SELECT layer_name, attributes, ambiguous, parent, enveloping, _base, meta, layer_type, loader "
+            c.execute(SQL("SELECT layer_name, attributes, ambiguous, parent, enveloping, meta, layer_type, serialisation_module "
                           "FROM {};").
                       format(pg.structure_table_identifier(self.collection.storage, self.collection.name)))
 
@@ -63,9 +61,8 @@ class CollectionStructure(pg.CollectionStructureBase):
                                      'ambiguous': row[2],
                                      'parent': row[3],
                                      'enveloping': row[4],
-                                     '_base': row[5],
-                                     'meta': row[6],
-                                     'layer_type': row[7],
-                                     'loader': row[8]
+                                     'meta': row[5],
+                                     'layer_type': row[6],
+                                     'serialisation_module': row[7]
                                      }
         return structure
