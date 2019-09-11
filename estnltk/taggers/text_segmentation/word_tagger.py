@@ -11,6 +11,10 @@ from estnltk import ElementaryBaseSpan
 from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 
+# Whether the words layer should be made ambiguous?
+#  ( e.g. to provide multiple normalized forms )
+MAKE_AMBIGUOUS = False
+
 
 class WordTagger(Tagger):
     """Creates words layer based on the tokens and compound_tokens layers.
@@ -22,12 +26,15 @@ class WordTagger(Tagger):
     input_layers = ['tokens', 'compound_tokens']
     conf_param = [  # Names of the specific input layers
                     '_input_tokens_layer', '_input_compound_tokens_layer',
+                    # Settings
+                    'make_ambiguous'
                   ]
 
     def __init__(self,
                  output_layer:str='words',
                  input_tokens_layer:str='tokens',
                  input_compound_tokens_layer:str='compound_tokens',
+                 make_ambiguous:bool=MAKE_AMBIGUOUS
                  ):
         """Initializes WordTagger.
 
@@ -41,12 +48,16 @@ class WordTagger(Tagger):
 
         input_compound_tokens_layer: str (default: 'compound_tokens')
             Name of the input compound_tokens layer;
+        
+        make_ambiguous: bool (default: see the variable MAKE_AMBIGUOUS)
+            If set, then the words layer will be made ambiguous.
         """
         # Set input/output layer names
         self.output_layer = output_layer
         self._input_tokens_layer = input_tokens_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
         self.input_layers = [input_tokens_layer, input_compound_tokens_layer]
+        self.make_ambiguous = make_ambiguous
 
     def _make_layer(self, text, layers, status: dict):
         """Creates words layer.
@@ -73,7 +84,7 @@ class WordTagger(Tagger):
         words = Layer(name=self.output_layer,
                       attributes=self.output_attributes,
                       text_object=text,
-                      ambiguous=False)
+                      ambiguous=self.make_ambiguous)
 
         compounds = set()
         for spl in layers[self._input_compound_tokens_layer]:
