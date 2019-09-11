@@ -22,6 +22,8 @@ from estnltk.converters import json_to_text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
 
+from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
+
 from estnltk.taggers import Tagger
 
 from bs4 import BeautifulSoup
@@ -599,11 +601,13 @@ def _reconstruct_enveloping_tokenization_layers( text_object, \
                  text_object=text_object,\
                  ambiguous=False)
        # Create words layer from the token records
+       if _MAKE_WORDS_AMBIGUOUS:
+           token_locations = [ [tl] for tl in token_locations ]
        orig_words = \
            Layer(name=layer_name_prefix+WordTagger.output_layer, \
                  attributes=WordTagger.output_attributes, \
                  text_object=text_object,\
-                 ambiguous=False).from_records(token_locations)
+                 ambiguous=_MAKE_WORDS_AMBIGUOUS).from_records(token_locations)
        # Envelop sentences around words
        orig_sentences = Layer(name=layer_name_prefix+SentenceTokenizer.output_layer, \
                               enveloping=orig_words.name, \
@@ -786,10 +790,6 @@ def reconstruct_text( doc, \
                  text_object=text).from_records(para_locations)
         created_layers = [orig_sentences, orig_paragraphs]
         if tokens_tagger:
-           orig_words = \
-              Layer(name=layer_name_prefix+'words',\
-                    text_object=text).from_records(token_locations)
-           created_layers.insert(0, orig_words)
            orig_compound_tokens = Layer(name='compound_tokens',\
                                         text_object=text)
            created_layers.insert(0, orig_compound_tokens)
@@ -797,6 +797,13 @@ def reconstruct_text( doc, \
               Layer(name=layer_name_prefix+'tokens',\
                     text_object=text).from_records(token_locations)
            created_layers.insert(0, orig_tokens)
+           if _MAKE_WORDS_AMBIGUOUS:
+              token_locations = [ [tl] for tl in token_locations ]
+           orig_words = \
+              Layer(name=layer_name_prefix+'words',\
+                    text_object=text, 
+                    ambiguous=_MAKE_WORDS_AMBIGUOUS).from_records(token_locations)
+           created_layers.insert(0, orig_words)
     else:
         # 4.2) Make connected layers
         created_layers = _reconstruct_enveloping_tokenization_layers( 

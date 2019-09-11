@@ -32,6 +32,8 @@ from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
 
+from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
+
 # =================================================
 #   Helpful utils
 # =================================================
@@ -473,11 +475,13 @@ class ENC2017TextReconstructor:
                           text_object=text_obj,\
                           ambiguous=False)
             # Create words layer
+            if _MAKE_WORDS_AMBIGUOUS:
+                word_locations = [ [wl] for wl in word_locations ]
             orig_words = \
                 Layer(name=self.layer_name_prefix+WordTagger.output_layer, \
                       attributes=WordTagger.output_attributes, \
                       text_object=text_obj,\
-                      ambiguous=False).from_records( word_locations )
+                      ambiguous=_MAKE_WORDS_AMBIGUOUS).from_records( word_locations )
         # Create sentences layer enveloping around words
         if sent_locations is not None and len(sent_locations) > 0 and \
            orig_words is not None: 
