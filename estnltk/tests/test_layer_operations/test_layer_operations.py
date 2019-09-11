@@ -2,7 +2,7 @@ from estnltk import Text, Layer, ElementaryBaseSpan
 
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.tests import new_text
-from estnltk.converters import dict_to_layer
+from estnltk.converters.layer_dict_converter import dict_to_layer
 
 from estnltk.layer_operations import apply_filter
 from estnltk.layer_operations import drop_annotations
