@@ -49,9 +49,8 @@ class Layer:
     as database serialisation does not work for other types. See [estnltk.storage.postgres] for further documentation.
 
     """
-    # TODO: make __slots__ work in Python 3.5
-    # __slots__ = ['name', 'default_values', 'attributes', 'parent', 'enveloping', '_span_list', 'ambiguous',
-    #              'text_object', 'serialisation_module', 'meta']
+    __slots__ = ['name', 'default_values', 'attributes', 'parent', 'enveloping', '_span_list', 'ambiguous',
+                 'text_object', 'serialisation_module', 'meta']
 
     def __init__(self,
                  name: str,
@@ -371,6 +370,14 @@ class Layer:
         assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
         super().__setattr__('attributes', attributes)
 
+        try:
+            # due to unordered __slots__ in case of Python <= 3.5
+            # 'default_values' might not be set by __deepcopy__ before setting 'attributes'
+            #  which would lead to nasty errors
+            self.__getattribute__('default_values')
+        except AttributeError:
+            self.default_values = {}
+
         for attr in set(self.default_values) - set(attributes):
             del self.default_values[attr]
 
@@ -379,11 +386,6 @@ class Layer:
     def __setattr__(self, key, value):
         if key == 'attributes':
             return self._set_attributes(value)
-        if key == 'default_values':
-            return super().__setattr__(key, value)
-        # TODO: can 'name' be an attribute name?
-        if key != 'name' and key in self.attributes:
-            raise AttributeError(key)
         super().__setattr__(key, value)
 
     def __iter__(self):
