@@ -455,8 +455,9 @@ class VabamorfAnalyzer(Tagger):
         # B) Populate layer
         for word, analyses_dict in zip(layers[ self._input_words_layer ], analysis_results):
             # Convert from Vabamorf dict to a list of Spans
-            records = _convert_vm_records_to_morph_analysis_records(analyses_dict, layer_attributes=current_attributes,
-                                                                    sort_analyses=True)
+            records = _convert_vm_records_to_morph_analysis_records(analyses_dict, 
+                                                                    layer_attributes=current_attributes,
+                                                                    sort_analyses=False)
             # Attach spans (if word has morphological analyses)
             for record in records:
                 # the analyses here are not always unique
@@ -479,7 +480,7 @@ class VabamorfAnalyzer(Tagger):
         return self._vm_instance.analyze(words=flat_words, **analysis_kwargs)
 
 
-    def _pack_expanded_analysis_results( self, analysis_results, initial_sentence_words ):
+    def _pack_expanded_analysis_results( self, analysis_results, initial_sentence_words, sort_analyses=True ):
         """ Packs expanded analysis results. (Only for internal usage)
             Motivation: if there are multiple normalized forms for a word,
             all of these will be analysed as separate words in the method
@@ -496,6 +497,11 @@ class VabamorfAnalyzer(Tagger):
                 current_analysis_dict = analysis_results[analysis_index]
                 # Sanity check
                 assert current_analysis_dict['text'] == initial_word
+                if sort_analyses:
+                    # Sort analyses locally (to assure a fixed order, e.g. for testing purposes)
+                    current_analysis_dict['analysis'] = sorted(current_analysis_dict['analysis'],
+                                           key=lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'],
+                                           reverse=False )
                 merged_morph_record['analysis'].extend( current_analysis_dict['analysis'] )
                 analysis_index += 1
             merged_analysis_results.append( merged_morph_record )
