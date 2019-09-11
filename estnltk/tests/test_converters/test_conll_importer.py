@@ -4,6 +4,7 @@ from estnltk.converters import text_to_dict
 from estnltk.converters.conll_importer import conll_to_text
 from estnltk.converters.conll_importer import add_layer_from_conll
 
+from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
 
 text_dict = {
     'text': 'Iga üheksas kroon tuli salapärastelt isikutelt . '
@@ -216,7 +217,7 @@ text_dict = {
                 'attributes': (),
                 'parent': None,
                 'enveloping': None,
-                'ambiguous': False,
+                'ambiguous': _MAKE_WORDS_AMBIGUOUS,
                 'serialisation_module': 'default_v1',
                 'meta': {},
                 'spans': [{'base_span': (0, 3), 'annotations': [{}]},
