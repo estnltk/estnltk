@@ -57,9 +57,9 @@ def _get_word_texts(word: Span):
     '''
     if hasattr(word, 'normalized_form') and word.normalized_form != None:
         # return normalized versions of the word
-        if isinstance(word.normalized_form, str):
+        if isinstance(word.normalized_form, str):     # <- for backward compatibility
             return [ word.normalized_form ]
-        elif isinstance(word.normalized_form, list):
+        elif isinstance(word.normalized_form, list):  # <- for backward compatibility
             return word.normalized_form
         elif isinstance(word.normalized_form, AttributeList):
             atr_list = [nf for nf in word.normalized_form if nf != None]

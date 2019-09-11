@@ -4,7 +4,9 @@ from estnltk import Text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 from estnltk.taggers.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
-     
+
+from estnltk.layer import AttributeList
+
 normalized_attr_nm = 'normalized_form'
 
 class WordTaggerTest(unittest.TestCase):
@@ -39,7 +41,14 @@ class WordTaggerTest(unittest.TestCase):
             for wid, word in enumerate( text.words ):
                 if hasattr(word, normalized_attr_nm) and \
                    getattr(word, normalized_attr_nm) != None:
-                    normalized.append( (wid, getattr(word, normalized_attr_nm) ) )
+                    normalized_form = getattr(word, normalized_attr_nm)
+                    if isinstance(normalized_form, AttributeList):
+                        forms_list = [nf for nf in normalized_form if nf != None]
+                        if len(forms_list) > 0:
+                            normalized.append( (wid, forms_list[0] ) )
+                    else:
+                        # for backward compatibility:
+                        normalized.append( (wid, getattr(word, normalized_attr_nm) ) )
             #print(normalized)
             # Check normalized words
             self.assertListEqual(test_text['normalized_words'], normalized)
@@ -84,11 +93,22 @@ class WordTaggerTest(unittest.TestCase):
             text.tag_layer(['words'])
             # Collect results 
             words = []
+            normalized = []
             for wid, word in enumerate( text.words ):
                 if hasattr(word, normalized_attr_nm) and \
                    getattr(word, normalized_attr_nm) != None:
                     # Take normalized word, if available
-                    normalized.append( (wid, getattr(word, normalized_attr_nm) ) )
+                    normalized_form = getattr(word, normalized_attr_nm)
+                    if isinstance(normalized_form, AttributeList):
+                        forms_list = [nf for nf in normalized_form if nf != None]
+                        if len(forms_list) > 0:
+                            normalized.append( (wid, forms_list[0] ) )
+                        else:
+                            # Take surface form of the word
+                            words.append( word.text )
+                    else:
+                        # for backward compatibility:
+                        normalized.append( (wid, getattr(word, normalized_attr_nm) ) )
                 else:
                     # Take surface form of the word
                     words.append( word.text )
