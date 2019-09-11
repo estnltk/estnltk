@@ -9,6 +9,7 @@ from functools import reduce
 from typing import MutableMapping, Any
 
 from estnltk.layer.span import Span
+from estnltk.layer import AttributeList
 
 from estnltk.vabamorf.morf import get_group_tokens
 from estnltk.vabamorf.morf import get_lemma
@@ -60,6 +61,9 @@ def _get_word_texts(word: Span):
             return [ word.normalized_form ]
         elif isinstance(word.normalized_form, list):
             return word.normalized_form
+        elif isinstance(word.normalized_form, AttributeList):
+            atr_list = [nf for nf in word.normalized_form if nf != None]
+            return atr_list if len(atr_list) > 0 else [ word.text ]
         else:
             raise TypeError('(!) Unexpected data type for word.normalized_form: {}', type(word.normalized_form) )
     else:
