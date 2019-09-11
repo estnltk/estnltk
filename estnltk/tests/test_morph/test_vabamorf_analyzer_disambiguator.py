@@ -1,9 +1,11 @@
 import pytest
 
 from estnltk import Text
+from estnltk import Annotation
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.morf import IGNORE_ATTR
 from estnltk.layer import AmbiguousAttributeList
+
 
 # ----------------------------------
 #   Helper functions
@@ -145,9 +147,18 @@ def test_morph_analyzer_with_multiple_normalized_forms():
     # Add multiple normalized forms
     for word in text.words:
         if word.text == 'isaand':
-            word.annotations[0].normalized_form = ['isand', 'issand']
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['isand', 'issand']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='isand') )
+                word.add_annotation( Annotation(word, normalized_form='issand') )
         if word.text == 'juuuubbeee':
-            word.annotations[0].normalized_form = ['jube']
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['jube']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='jube') )
     # Tag morph analyses
     analyzer2.tag(text)
     expected_records = \
@@ -175,7 +186,13 @@ def test_morph_analyzer_with_multiple_normalized_forms():
     # Add multiple normalized forms (and one of them will remain an unknown word)
     for word in text.words:
         if word.text == 'hää':
-            word.annotations[0].normalized_form = ['hea', 'hää', 'head']
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['hea', 'hää', 'head']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='hea') )
+                word.add_annotation( Annotation(word, normalized_form='hää') )
+                word.add_annotation( Annotation(word, normalized_form='head') )
     analyzer2x.tag(text)
     expected_records = \
         [
