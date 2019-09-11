@@ -13,7 +13,7 @@ from estnltk.taggers import Tagger
 
 # Whether the words layer should be made ambiguous?
 #  ( e.g. to provide multiple normalized forms )
-MAKE_AMBIGUOUS = False
+MAKE_AMBIGUOUS = True
 
 
 class WordTagger(Tagger):
