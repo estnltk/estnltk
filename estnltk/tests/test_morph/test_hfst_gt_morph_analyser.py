@@ -115,7 +115,7 @@ def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
     # Test HfstEstMorphAnalyser's raw output format
     hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
-    # Case 1
+    # Case 1: word normalizations without unknown words
     text = Text('''isaand kui juuuubbeee ...''')
     text.tag_layer(['compound_tokens', 'words'])
     # Add multiple normalized forms
@@ -139,6 +139,32 @@ def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
        {'start': 11, 'weight': 7.0, 'raw_analysis': 'jube+Adv', 'end': 21}], 
       [{'start': 22, 'weight': 0.0, 'raw_analysis': '...+CLB', 'end': 25}]
     ]
+    assert results == expected_results
+    
+    # Case 2: word normalizations with unknown words
+    text = Text('''päris hää !''')
+    text.tag_layer(['compound_tokens', 'words'])
+    # Add multiple normalized forms (include unknown words)
+    for word in text.words:
+        if word.text == 'hää':
+            word.annotations[0].normalized_form = ['hea', 'hääx0R', 'head']
+    hfstAnalyser.tag(text)
+    results = text['hfst_gt_morph_analysis'].to_records()
+    #print(results)
+    expected_results = \
+    [
+        [{'weight': 5.0, 'end': 5, 'raw_analysis': 'päris+A', 'start': 0}, 
+         {'weight': 5.0, 'end': 5, 'raw_analysis': 'päris+Adv', 'start': 0}, 
+         {'weight': 7.0, 'end': 5, 'raw_analysis': 'pärima+V+Pers+Prt+Ind+Sg3+Aff', 'start': 0}], 
+        [{'weight': 4.0, 'end': 9, 'raw_analysis': 'hea+A+Sg+Nom', 'start': 6}, 
+         {'weight': 4.0, 'end': 9, 'raw_analysis': 'hea+N+Sg+Nom', 'start': 6}, 
+         {'weight': 5.0, 'end': 9, 'raw_analysis': 'hea+A+Sg+Gen', 'start': 6}, 
+         {'weight': 5.0, 'end': 9, 'raw_analysis': 'hea+N+Sg+Gen', 'start': 6}, 
+         {'weight': 5.0, 'end': 9, 'raw_analysis': 'hea+A+Pl+Nom', 'start': 6}, 
+         {'weight': 5.0, 'end': 9, 'raw_analysis': 'hea+N+Pl+Nom', 'start': 6}, 
+         {'weight': 6.0, 'end': 9, 'raw_analysis': 'hea+A+Sg+Par', 'start': 6}, 
+         {'weight': 6.0, 'end': 9, 'raw_analysis': 'hea+N+Sg+Par', 'start': 6}], 
+        [{'weight': 0.0, 'end': 11, 'raw_analysis': '!+CLB', 'start': 10}] ]
     assert results == expected_results
 
 

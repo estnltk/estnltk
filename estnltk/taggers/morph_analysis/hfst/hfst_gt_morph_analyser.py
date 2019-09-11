@@ -335,6 +335,7 @@ class RawAnalysesHfstMorphOutputExtractor(HfstMorphOutputExtractor):
     def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer, \
                                                   remove_guesses:bool ):
         records = self.extract_annotation_records( output_text, remove_guesses=remove_guesses )
+        # TODO: reorder records by their weights
         if len(records) == 0:
             # Empty analysis == unknown word
             record = {}
@@ -683,6 +684,7 @@ class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
     def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer, \
                                                   remove_guesses:bool ):
         records = self.extract_annotation_records( output_text, remove_guesses=remove_guesses )
+        # TODO: reorder records by their weights
         if len(records) == 0:
             # Empty analysis == unknown word
             record = self._create_unknown_word_record()
