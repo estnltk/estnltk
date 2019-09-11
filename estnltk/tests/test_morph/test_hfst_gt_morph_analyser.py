@@ -111,7 +111,7 @@ def test_hfst_gt_morph_analyser_raw_output():
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
-    from estnltk import Text
+    from estnltk import Text, Annotation
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
     # Test HfstEstMorphAnalyser's raw output format
     hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
@@ -121,9 +121,18 @@ def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
     # Add multiple normalized forms
     for word in text.words:
         if word.text == 'isaand':
-            word.annotations[0].normalized_form = ['isand', 'issand']
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['isand', 'issand']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='isand') )
+                word.add_annotation( Annotation(word, normalized_form='issand') )
         if word.text == 'juuuubbeee':
-            word.annotations[0].normalized_form = ['jube']
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['jube']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='jube') )
     hfstAnalyser.tag(text)
     results = text['hfst_gt_morph_analysis'].to_records()
     #print(results)
@@ -147,7 +156,13 @@ def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
     # Add multiple normalized forms (include unknown words)
     for word in text.words:
         if word.text == 'hää':
-            word.annotations[0].normalized_form = ['hea', 'hääx0R', 'head']
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['hea', 'hääx0R', 'head']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='hea') )
+                word.add_annotation( Annotation(word, normalized_form='hääx0R') )
+                word.add_annotation( Annotation(word, normalized_form='head') )
     hfstAnalyser.tag(text)
     results = text['hfst_gt_morph_analysis'].to_records()
     #print(results)
