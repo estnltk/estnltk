@@ -100,10 +100,15 @@ class SpanTagger(Tagger):
         case_sensitive = self.case_sensitive
         if input_layer.ambiguous:
             for parent_span in input_layer:
+                attr_list = getattr(parent_span, input_attribute)
+                if isinstance(attr_list, str):
+                    # If we ask for 'text', then we get str instead of 
+                    # AttributeList, so we have to package it into list
+                    attr_list = [ attr_list ]
                 if case_sensitive:
-                    values = set(getattr(parent_span, input_attribute))
+                    values = set( attr_list )
                 else:
-                    values = {v.lower() for v in getattr(parent_span, input_attribute)}
+                    values = {v.lower() for v in attr_list}
                 for value in values:
                     if value in vocabulary:
                         if self.ambiguous:
