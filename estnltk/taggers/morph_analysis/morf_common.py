@@ -57,13 +57,16 @@ def _get_word_texts(word: Span):
     '''
     if hasattr(word, 'normalized_form') and word.normalized_form != None:
         # return normalized versions of the word
-        if isinstance(word.normalized_form, str):     # <- for backward compatibility
-            return [ word.normalized_form ]
-        elif isinstance(word.normalized_form, list):  # <- for backward compatibility
-            return word.normalized_form
-        elif isinstance(word.normalized_form, AttributeList):
+        if isinstance(word.normalized_form, AttributeList):
+            # words is ambiguous
             atr_list = [nf for nf in word.normalized_form if nf != None]
             return atr_list if len(atr_list) > 0 else [ word.text ]
+        elif isinstance(word.normalized_form, str):
+            # words is not ambiguous, and attribute has a single value
+            return [ word.normalized_form ]
+        elif isinstance(word.normalized_form, list):
+            # words is not ambiguous, and attribute has multiple values
+            return word.normalized_form
         else:
             raise TypeError('(!) Unexpected data type for word.normalized_form: {}', type(word.normalized_form) )
     else:
