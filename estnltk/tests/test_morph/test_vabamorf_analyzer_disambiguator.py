@@ -138,8 +138,8 @@ def test_morph_analyzer_without_guessing():
 
 def test_morph_analyzer_with_multiple_normalized_forms():
     # Tests that morphological analyser can analyse words with multiple normalized forms
-    analyzer2multnorm = VabamorfAnalyzer()
-    # Case 1
+    assert isinstance(analyzer2, VabamorfAnalyzer)
+    # Case 1: analyse with guessing
     text = Text('''isaand kui juuuubbeee ...''')
     text.tag_layer(['words', 'sentences'])
     # Add multiple normalized forms
@@ -149,7 +149,7 @@ def test_morph_analyzer_with_multiple_normalized_forms():
         if word.text == 'juuuubbeee':
             word.annotations[0].normalized_form = ['jube']
     # Tag morph analyses
-    analyzer2multnorm.tag(text)
+    analyzer2.tag(text)
     expected_records = \
          [ [{'lemma': 'isand', 'end': 6, 'form': 'sg n', 'root_tokens': ['isand'], 'root': 'isand', 'ending': '0', 'clitic': '', 'partofspeech': 'S', 'start': 0}, 
             {'lemma': 'issand', 'end': 6, 'form': '', 'root_tokens': ['issand'], 'root': 'issand', 'ending': '0', 'clitic': '', 'partofspeech': 'I', 'start': 0}, 
@@ -162,6 +162,36 @@ def test_morph_analyzer_with_multiple_normalized_forms():
          ]
     #print(text['morph_analysis'].to_records())
     # Sort analyses (so that the order within a word is always the same)
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
+    # Case 2: analyse without guessing
+    analyzer2x = VabamorfAnalyzer(guess=False, propername=False)
+    text = Text('''päris hää !''')
+    text.tag_layer(['words', 'sentences'])
+    # Add multiple normalized forms (and one of them will remain an unknown word)
+    for word in text.words:
+        if word.text == 'hää':
+            word.annotations[0].normalized_form = ['hea', 'hää', 'head']
+    analyzer2x.tag(text)
+    expected_records = \
+        [
+          [{'clitic': '', 'partofspeech': 'A', 'lemma': 'päris', 'root_tokens': ['päris'], 'ending': '0', 'end': 5, 'form': '', 'root': 'päris', 'start': 0}, 
+           {'clitic': '', 'partofspeech': 'D', 'lemma': 'päris', 'root_tokens': ['päris'], 'ending': '0', 'end': 5, 'form': '', 'root': 'päris', 'start': 0}, 
+           {'clitic': '', 'partofspeech': 'V', 'lemma': 'pärima', 'root_tokens': ['päri'], 'ending': 's', 'end': 5, 'form': 's', 'root': 'päri', 'start': 0}], 
+          [{'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg g', 'root': 'hea', 'start': 6}, 
+           {'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg n', 'root': 'hea', 'start': 6}, 
+           {'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg g', 'root': 'hea', 'start': 6}, 
+           {'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg n', 'root': 'hea', 'start': 6}, 
+           {'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'pl n', 'root': 'hea', 'start': 6}, 
+           {'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'sg p', 'root': 'hea', 'start': 6}, 
+           {'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'pl n', 'root': 'hea', 'start': 6}, 
+           {'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'sg p', 'root': 'hea', 'start': 6}], 
+          [{'root_tokens': None, 'clitic': None, 'lemma': None, 'root': None, 'ending': None, 'end': 11, 'partofspeech': None, 'form': None, 'start': 10}] ]
+    #print(text['morph_analysis'].to_records())
     results_dict = text['morph_analysis'].to_records()
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )

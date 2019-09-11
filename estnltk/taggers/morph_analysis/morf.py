@@ -414,7 +414,7 @@ class VabamorfAnalyzer(Tagger):
                     word_span_id += 1
                     # B) Use Vabamorf for analysis
                     #    (but check length limitations first)
-                    if len(sentence_words) > 15000:
+                    if len(sentence_words) >= 15000:
                         # if 149129 < len(wordlist) on Linux,
                         # if  15000 < len(wordlist) < 17500 on Windows,
                         # then self.instance.analyze(words=wordlist, **self.current_kwargs) raises

@@ -8,13 +8,6 @@
 # Once you have compiled HFST models of this repository, look for file 
 # 'src/analyser-gt-desc.hfstol'. This is the file that can be given to 
 # HfstEstMorphAnalyser as the transducer model.
-# 
-# (!) Currently, if you want to use HfstEstMorphAnalyser, you should always
-#     make "import hfst" before importing anything from estnltk, or else, you 
-#     will later run into a conflict with the Vabamorf package. 
-#     Conflict described: if you import estnltk/Vabamorf, and then import hfst, 
-#     and then try to use Vabamorf, the Vabamorf gives you a "Segmentation 
-#     fault";
 #
 
 import hfst

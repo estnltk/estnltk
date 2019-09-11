@@ -518,7 +518,11 @@ class PostMorphAnalysisTagger(Retagger):
                     token = MorphAnalyzedToken( normalized_word_str )
                     pronoun_tokens.append( token.is_pronoun )
                 if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
-                    is_numeric = any([c.isnumeric() for c in normalized_word_str])
+                    is_numeric = False
+                    for c in normalized_word_str:
+                        if c.isnumeric():
+                            is_numeric = True
+                            break
                     numeric_tokens.append( is_numeric )
 
             # B.1) Fix pronouns
