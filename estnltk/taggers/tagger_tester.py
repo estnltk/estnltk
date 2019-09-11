@@ -3,8 +3,9 @@ from os import path
 
 from estnltk.text import Text, Layer
 from estnltk.taggers import Tagger
-from estnltk.converters import texts_to_json, json_to_texts
-from estnltk.converters import layers_to_json, json_to_layers
+from estnltk.converters import to_json_file, from_json_file
+from estnltk.converters import layer_to_dict, dict_to_layer
+from estnltk.converters import text_to_dict, dict_to_text
 
 
 class Test:
@@ -47,8 +48,9 @@ class TaggerTester:
         self.tests = []
 
     def load(self):
-        input_texts = json_to_texts(file=self.input_file)
-        expected_layers = json_to_layers(input_texts, file=self.target_file)
+        input_texts = [dict_to_text(text_dict) for text_dict in from_json_file(file=self.input_file)]
+        expected_layers = [dict_to_layer(layer_dict, text_object) for
+                           layer_dict, text_object in zip(from_json_file(self.target_file), input_texts)]
         self.tests = [Test(text.meta['test_description'], text, self.tagger, layer)
                       for text, layer in zip(input_texts, expected_layers)]
         return self
@@ -58,8 +60,8 @@ class TaggerTester:
             print("Input texts file '" + self.input_file +
                   "' already exists. Use 'overwrite=True' to overwrite.")
         else:
-            input_texts = [test.text for test in self.tests]
-            texts_to_json(input_texts, self.input_file)
+            input_texts = [text_to_dict(test.text) for test in self.tests]
+            to_json_file(input_texts, file=self.input_file)
             print("Created input texts file '" + self.input_file + "'.")
 
     def save_target(self, overwrite=False):
@@ -67,8 +69,8 @@ class TaggerTester:
             print("Target layers file '" + self.target_file +
                   "' already exists. Use 'overwrite=True' to overwrite.")
         else:
-            expected_layers = [test.expected_layer for test in self.tests]
-            layers_to_json(expected_layers, file=self.target_file)
+            layer_dicts = [layer_to_dict(test.expected_layer) for test in self.tests]
+            to_json_file(layer_dicts, file=self.target_file)
             print("Created target layers file '" + self.target_file + "'.")
 
     def add_test(self, annotation, text, expected_text: List[str]):
