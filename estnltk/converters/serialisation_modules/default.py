@@ -2,9 +2,6 @@ from estnltk.text import Text
 from estnltk.layer.layer import Layer, to_base_span
 
 
-__version__ = 'default_v1'
-
-
 def layer_to_dict(layer: Layer) -> dict:
     return {
         'name': layer.name,
@@ -12,7 +9,7 @@ def layer_to_dict(layer: Layer) -> dict:
         'parent': layer.parent,
         'enveloping': layer.enveloping,
         'ambiguous': layer.ambiguous,
-        'serialisation_module': __version__,
+        'serialisation_module': None,
         'meta': layer.meta,
         'spans': [{'base_span': span.base_span.raw(),
                    'annotations': [dict(annotation) for annotation in span.annotations]}

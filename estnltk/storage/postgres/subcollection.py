@@ -191,13 +191,15 @@ class PgSubCollection:
         if self.collection.structure.version in {'0.0', '1.0'}:
             return serialisation_modules.legacy_v0.dict_to_layer(layer_dict, text_object)
 
-        version = self.collection.structure[layer_dict['name']]['serialisation_module']
+        serialisation_module = self.collection.structure[layer_dict['name']]['serialisation_module']
         # use default serialisation if specification is missing
-        if version is None:
+        if serialisation_module is None:
             return serialisation_modules.default.dict_to_layer(layer_dict, text_object)
 
-        converter = layer_converter_collection[version]
-        return converter.dict_to_layer(layer_dict, text_object)
+        if serialisation_module in layer_converter_collection:
+            return layer_converter_collection[serialisation_module].dict_to_layer(layer_dict, text_object)
+
+        raise ValueError('serialisation module not registered in serialisation map: ' + layer_converter_collection)
 
     def _dict_to_text(self, text_dict: dict, attached_layers) -> Text:
         text = Text(text_dict['text'])

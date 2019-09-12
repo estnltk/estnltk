@@ -338,7 +338,7 @@ class TestLayerFragment(unittest.TestCase):
         tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
 
         def fragmenter(layer):
-            layer.serialisation_module = 'default_v1'
+            # layer.serialisation_module = 'default_v1'
             return [layer, layer]
 
         collection.create_fragmented_layer(tagger=tagger1, fragmenter=fragmenter)
@@ -400,7 +400,7 @@ class TestFragment(unittest.TestCase):
         def row_mapper(row):
             parent_id, layer = row
             # TODO: remove next line
-            layer.serialisation_module = 'default_v1'
+            # layer.serialisation_module = 'default_v1'
             return [{'fragment': layer, 'parent_id': parent_id},
                     {'fragment': layer, 'parent_id': parent_id}]
 
