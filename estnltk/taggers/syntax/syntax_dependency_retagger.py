@@ -3,6 +3,7 @@ from typing import MutableMapping
 
 from estnltk.layer.layer import Layer
 from estnltk.taggers.retagger import Retagger
+from estnltk.converters.serialisation_modules import syntax_v0
 
 
 class SyntaxDependencyRetagger(Retagger):
@@ -54,7 +55,7 @@ class SyntaxDependencyRetagger(Retagger):
 
         annotate_spans(id_to_span, id_to_children)
 
-        layer.serialisation_module = 'syntax_v0'
+        layer.serialisation_module = syntax_v0.__version__
 
 
 def annotate_spans(id_to_span, id_to_children):

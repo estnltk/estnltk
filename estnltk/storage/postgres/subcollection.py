@@ -3,8 +3,9 @@ from psycopg2.sql import SQL
 
 from estnltk import logger, Progressbar
 from estnltk import Text
-from estnltk.converters import dict_to_text, dict_to_layer
+from estnltk.converters.serialisation_modules import default_v0
 from estnltk.storage import postgres as pg
+from estnltk.converters.layer_dict_converter import layer_converter_collection
 
 
 class PgSubCollection:
@@ -185,6 +186,22 @@ class PgSubCollection:
 
     __read_cursor_counter = 0
 
+    def _dict_to_layer(self, layer_dict: dict, text_object=None):
+        version = self.collection.structure[layer_dict['name']]['serialisation_module']
+        if version is None:
+            version = default_v0.__version__
+        converter = layer_converter_collection[version]
+        return converter.dict_to_layer(layer_dict, text_object)
+
+    def _dict_to_text(self, text_dict: dict, attached_layers) -> Text:
+        text = Text(text_dict['text'])
+        text.meta = text_dict['meta']
+        for layer_dict in text_dict['layers']:
+            if layer_dict['name'] in attached_layers:
+                layer = self._dict_to_layer(layer_dict, text)
+                text.add_layer(layer)
+        return text
+
     def __iter__(self):
         """
         Yields all subcollection elements ordered by the text_id 
@@ -223,10 +240,10 @@ class PgSubCollection:
                     data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
 
                     text_dict = row[1]
-                    text = dict_to_text(text_dict, self._attached_layers)
+                    text = self._dict_to_text(text_dict, self._attached_layers)
 
                     for layer_dict in row[2 + len(self.meta_attributes):]:
-                        layer = dict_to_layer(layer_dict, text)
+                        layer = self._dict_to_layer(layer_dict, text)
                         text.add_layer(layer)
 
                     meta_values = row[2:2 + len(self.meta_attributes)]
@@ -241,10 +258,10 @@ class PgSubCollection:
                     data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
 
                     text_dict = row[1]
-                    text = dict_to_text(text_dict, self._attached_layers)
+                    text = self._dict_to_text(text_dict, self._attached_layers)
 
                     for layer_dict in row[2:]:
-                        layer = dict_to_layer(layer_dict, text)
+                        layer = self._dict_to_layer(layer_dict, text)
                         text.add_layer(layer)
 
                     if return_index:

@@ -2,6 +2,9 @@ from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRe
 from . import default_v1
 
 
+__version__ = 'syntax_v0'
+
+
 def layer_to_dict(layer):
     layer_dict = {
         'name': layer.name,
@@ -9,7 +12,7 @@ def layer_to_dict(layer):
         'parent': layer.parent,
         'enveloping': layer.enveloping,
         'ambiguous': layer.ambiguous,
-        'serialisation_module': layer.serialisation_module,
+        'serialisation_module': __version__,
         'meta': layer.meta
     }
 

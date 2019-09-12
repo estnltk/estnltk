@@ -4,6 +4,9 @@ from estnltk.layer.span import Span
 from estnltk.layer.annotation import Annotation
 
 
+__version__ = 'default_v0'
+
+
 def layer_to_dict(layer: Layer) -> dict:
     assert '_index_' not in layer.attributes
     layer_dict = {'name': layer.name,

@@ -23,11 +23,6 @@ def to_base_span(x) -> BaseSpan:
     raise TypeError(x)
 
 
-LAYER_DICT_CONVERTER_V0 = 'default_v0'
-LAYER_DICT_CONVERTER_V1 = 'default_v1'
-SYNTAX_LAYER_DICT_CONVERTER_V0 = 'syntax_v0'
-
-
 class Layer:
     """Basic container for text annotations.
 
@@ -60,7 +55,7 @@ class Layer:
                  enveloping: str = None,
                  ambiguous: bool = False,
                  default_values: dict = None,
-                 serialisation_module=LAYER_DICT_CONVERTER_V1
+                 serialisation_module='default_v1'
                  ) -> None:
         assert parent is None or enveloping is None, "can't be derived AND enveloping"
 
