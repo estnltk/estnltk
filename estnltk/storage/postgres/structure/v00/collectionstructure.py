@@ -8,6 +8,8 @@ __version__ = '0.0'
 
 
 class CollectionStructure(pg.CollectionStructureBase):
+    def __init__(self, collection):
+        super().__init__(collection, __version__)
 
     def create_table(self):
         storage = self.collection.storage

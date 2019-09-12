@@ -1,5 +1,5 @@
 from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
-from . import default_v1
+from . import default
 
 
 __version__ = 'syntax_v0'
@@ -28,7 +28,7 @@ def layer_to_dict(layer):
 
 
 def dict_to_layer(layer_dict: dict, text_object=None):
-    layer = default_v1.dict_to_layer(layer_dict, text_object)
+    layer = default.dict_to_layer(layer_dict, text_object)
 
     retagger = SyntaxDependencyRetagger(layer.name)
     retagger.change_layer(text_object, {layer.name: layer})

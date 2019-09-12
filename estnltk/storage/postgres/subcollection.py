@@ -3,7 +3,7 @@ from psycopg2.sql import SQL
 
 from estnltk import logger, Progressbar
 from estnltk import Text
-from estnltk.converters.serialisation_modules import default_v0
+from estnltk.converters import serialisation_modules
 from estnltk.storage import postgres as pg
 from estnltk.converters.layer_dict_converter import layer_converter_collection
 
@@ -187,9 +187,15 @@ class PgSubCollection:
     __read_cursor_counter = 0
 
     def _dict_to_layer(self, layer_dict: dict, text_object=None):
+        # collections with structure versions <2.0 are used same old serialisation module for all layers
+        if self.collection.structure.version in {'0.0', '1.0'}:
+            return serialisation_modules.legacy_v0.dict_to_layer(layer_dict, text_object)
+
         version = self.collection.structure[layer_dict['name']]['serialisation_module']
+        # use default serialisation if specification is missing
         if version is None:
-            version = default_v0.__version__
+            return serialisation_modules.default.dict_to_layer(layer_dict, text_object)
+
         converter = layer_converter_collection[version]
         return converter.dict_to_layer(layer_dict, text_object)
 

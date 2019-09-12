@@ -9,6 +9,9 @@ __version__ = '1.0'
 
 class CollectionStructure(pg.CollectionStructureBase):
 
+    def __init__(self, collection):
+        super().__init__(collection, __version__)
+
     def create_table(self):
         storage = self.collection.storage
         table = pg.table_identifier(storage, pg.structure_table_name(self.collection.name))

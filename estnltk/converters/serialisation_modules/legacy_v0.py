@@ -4,7 +4,7 @@ from estnltk.layer.span import Span
 from estnltk.layer.annotation import Annotation
 
 
-__version__ = 'default_v0'
+__version__ = 'legacy_v0'
 
 
 def layer_to_dict(layer: Layer) -> dict:
