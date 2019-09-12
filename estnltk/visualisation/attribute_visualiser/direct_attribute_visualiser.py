@@ -1,7 +1,7 @@
 from estnltk.visualisation.core.span_visualiser import SpanVisualiser
 from estnltk.core import rel_path
 import html
-from estnltk.converters import annotation_to_json
+from estnltk.converters import to_json
 import copy
 
 
@@ -48,7 +48,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
                 output.append(" span_info")
                 output.append(str(segment_index))
                 output.append("='")
-                output.append(annotation_to_json(spans[all_spans_index].annotations))
+                output.append(to_json([dict(annotation) for annotation in spans[all_spans_index].annotations]))
                 output.append("'")
                 output.append(" span_index")
                 output.append(str(segment_index))

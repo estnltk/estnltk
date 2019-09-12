@@ -12,7 +12,7 @@ def from_json_file(file: str, file_encoding: str = 'utf-8'):
 
 
 def to_json(obj):
-    json.dumps(obj, ensure_ascii=False)
+    return json.dumps(obj, ensure_ascii=False)
 
 
 def from_json(s):
