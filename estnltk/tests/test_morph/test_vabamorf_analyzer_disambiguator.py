@@ -315,7 +315,97 @@ def test_morph_disambiguation_preserves_extra_attributes():
     # Check results
     assert expected_records == results_dict
 
-    
+
+# ----------------------------------
+#   Test 
+#      disambiguation runs OK if 
+#      multiple normalized forms 
+#      are provided
+# ----------------------------------
+
+from estnltk.converters import dict_to_layer
+
+def test_morph_disambiguation_if_analysis_has_normalized_text_attribute():
+    # Tests that morphological disambiguator works if morphological_analysis 
+    # layer has 'normalized_text' attribute
+    analyzer2a = VabamorfAnalyzer( add_normalized_text=True )
+    # Case 1
+    text = Text('''Mjees peeti knni.''')
+    text.tag_layer(['words', 'sentences'])
+    # Add multiple normalized forms for words
+    for word in text.words:
+        if word.text == 'Mjees':
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['Mees', 'mees']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='Mees') )
+                word.add_annotation( Annotation(word, normalized_form='mees') )
+        if word.text == 'knni':
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['kinni']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='kinni') )
+    analyzer2a.tag( text )
+    disambiguator.retag( text )
+    #from estnltk.converters import layer_to_dict
+    #from pprint import pprint
+    #pprint(layer_to_dict( text['morph_analysis'] ))
+    expected_layer = \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': 'default_v1',
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'mees',
+                                     'normalized_text': 'Mees',
+                                     'partofspeech': 'S',
+                                     'root': 'mees',
+                                     'root_tokens': ['mees']}],
+                    'base_span': (0, 5)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'ti',
+                                     'form': 'ti',
+                                     'lemma': 'pidama',
+                                     'normalized_text': 'peeti',
+                                     'partofspeech': 'V',
+                                     'root': 'pida',
+                                     'root_tokens': ['pida']}],
+                    'base_span': (6, 11)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'kinni',
+                                     'normalized_text': 'kinni',
+                                     'partofspeech': 'D',
+                                     'root': 'kinni',
+                                     'root_tokens': ['kinni']}],
+                    'base_span': (12, 16)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (16, 17)}]}
+    assert dict_to_layer( expected_layer ) == text['morph_analysis']
+
+
 # ----------------------------------
 #   Test 
 #      disambiguation_with_ignore
