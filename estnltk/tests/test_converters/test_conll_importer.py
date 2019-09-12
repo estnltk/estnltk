@@ -218,7 +218,7 @@ text_dict = {
                 'parent': None,
                 'enveloping': None,
                 'ambiguous': _MAKE_WORDS_AMBIGUOUS,
-                'serialisation_module': 'default',
+                'serialisation_module': None,
                 'meta': {},
                 'spans': [{'base_span': (0, 3), 'annotations': [{}]},
                           {'base_span': (4, 11), 'annotations': [{}]},
@@ -243,7 +243,7 @@ text_dict = {
                 'parent': None,
                 'enveloping': 'words',
                 'ambiguous': False,
-                'serialisation_module': 'default',
+                'serialisation_module': None,
                 'meta': {},
                 'spans': [{'base_span': ((0, 3),
                                          (4, 11),
@@ -270,8 +270,6 @@ text_dict = {
 def test_conll_importers():
     file = rel_path('tests/test_converters/test_conll.conll')
     text = conll_to_text(file, syntax_layer='syntax')
-
-    text.sentences.serialisation_module = 'default'
 
     assert text_to_dict(text) == text_dict
 

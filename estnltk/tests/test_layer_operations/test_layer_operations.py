@@ -45,7 +45,7 @@ def test_apply_filter():
         'parent': None,
         'enveloping': None,
         'ambiguous': True,
-        'serialisation_module': 'default',
+        'serialisation_module': None,
         'meta': {},
         'spans': [{'base_span': (0, 4),
                    'annotations': [{'attr_1': 'B', 'attr': 'L1-0'}]},

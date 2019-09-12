@@ -366,7 +366,7 @@ def test_morph_disambiguation_if_analysis_has_normalized_text_attribute():
          'meta': {},
          'name': 'morph_analysis',
          'parent': 'words',
-         'serialisation_module': 'default_v1',
+         'serialisation_module': None,
          'spans': [{'annotations': [{'clitic': '',
                                      'ending': '0',
                                      'form': 'sg n',
