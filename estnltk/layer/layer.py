@@ -55,7 +55,7 @@ class Layer:
                  enveloping: str = None,
                  ambiguous: bool = False,
                  default_values: dict = None,
-                 serialisation_module='default_v1'
+                 serialisation_module=None
                  ) -> None:
         assert parent is None or enveloping is None, "can't be derived AND enveloping"
 

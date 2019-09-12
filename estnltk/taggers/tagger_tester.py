@@ -39,13 +39,14 @@ class Test:
 
 
 class TaggerTester:
-    def __init__(self, tagger, input_file: str, target_file: str):
+    def __init__(self, tagger, input_file: str, target_file: str, serialisation_module=None):
         if not isinstance(tagger, Tagger):
             print('tagger is not an instance of Tagger:', type(tagger))
         self.tagger = tagger
         self.input_file = input_file
         self.target_file = target_file
         self.tests = []
+        self.serialisation_module = serialisation_module
 
     def load(self):
         input_texts = [dict_to_text(text_dict) for text_dict in from_json_file(file=self.input_file)]
