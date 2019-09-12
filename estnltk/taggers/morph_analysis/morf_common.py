@@ -29,6 +29,11 @@ VABAMORF_ATTRIBUTES = ('root', 'ending', 'clitic', 'form', 'partofspeech')
 # Morphological analysis attributes used by ESTNLTK
 ESTNLTK_MORPH_ATTRIBUTES = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
 
+# Name of the normalized text attribute. This refers to 
+# the normalized word form that was used as a basis in 
+# morphological analysis.
+NORMALIZED_TEXT = 'normalized_text'
+
 # Name of the ignore attribute. During the morphological 
 # disambiguation, all spans of "morph_analysis" that have 
 # ignore attribute set to True will be skipped;

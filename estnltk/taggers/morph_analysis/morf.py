@@ -21,6 +21,7 @@ from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_COMPOUND
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
+from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
 
 from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
@@ -296,6 +297,7 @@ class VabamorfAnalyzer(Tagger):
                   "propername",
                   "compound",
                   "phonetic",
+                  'add_normalized_text',
                   # Internal stuff:
                   '_vm_instance',
                   # Names of the specific input layers:
@@ -314,7 +316,8 @@ class VabamorfAnalyzer(Tagger):
                  guess = DEFAULT_PARAM_GUESS,
                  propername = DEFAULT_PARAM_PROPERNAME,
                  compound = DEFAULT_PARAM_COMPOUND,
-                 phonetic = DEFAULT_PARAM_PHONETIC ):
+                 phonetic = DEFAULT_PARAM_PHONETIC,
+                 add_normalized_text=False):
         """Initialize VabamorfAnalyzer class.
 
         Parameters
@@ -342,6 +345,10 @@ class VabamorfAnalyzer(Tagger):
             Add compound word markers to root forms.
         phonetic: boolean (default: False)
             Add phonetic information to root forms.
+        add_normalized_text: boolean (default: False)
+            Add the attribute NORMALIZED_TEXT to each analysis.
+            ( refers to the original normalized word that was 
+              used as a basis for this analysis )
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -361,7 +368,10 @@ class VabamorfAnalyzer(Tagger):
         self.propername = propername
         self.compound = compound
         self.phonetic = phonetic
-        # Other stuff
+        self.add_normalized_text = add_normalized_text
+        if self.add_normalized_text:
+            self.output_attributes = (NORMALIZED_TEXT,) + self.output_attributes
+
 
     def _make_layer(self, text: Text, layers, status: dict):
         """Analyses given Text object morphologically. 
@@ -502,6 +512,10 @@ class VabamorfAnalyzer(Tagger):
                     current_analysis_dict['analysis'] = sorted(current_analysis_dict['analysis'],
                                            key=lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'],
                                            reverse=False )
+                if self.add_normalized_text:
+                    # Add the normalized word text that was used as a basis for this analysis
+                    for analysis in current_analysis_dict['analysis']:
+                        analysis[NORMALIZED_TEXT] = current_analysis_dict['text']
                 merged_morph_record['analysis'].extend( current_analysis_dict['analysis'] )
                 analysis_index += 1
             merged_analysis_results.append( merged_morph_record )

@@ -140,7 +140,7 @@ def test_morph_analyzer_without_guessing():
 
 def test_morph_analyzer_with_multiple_normalized_forms():
     # Tests that morphological analyser can analyse words with multiple normalized forms
-    assert isinstance(analyzer2, VabamorfAnalyzer)
+    analyzer2a = VabamorfAnalyzer(add_normalized_text=True)
     # Case 1: analyse with guessing
     text = Text('''isaand kui juuuubbeee ...''')
     text.tag_layer(['words', 'sentences'])
@@ -160,16 +160,16 @@ def test_morph_analyzer_with_multiple_normalized_forms():
                 word.clear_annotations()
                 word.add_annotation( Annotation(word, normalized_form='jube') )
     # Tag morph analyses
-    analyzer2.tag(text)
+    analyzer2a.tag(text)
     expected_records = \
-         [ [{'lemma': 'isand', 'end': 6, 'form': 'sg n', 'root_tokens': ['isand'], 'root': 'isand', 'ending': '0', 'clitic': '', 'partofspeech': 'S', 'start': 0}, 
-            {'lemma': 'issand', 'end': 6, 'form': '', 'root_tokens': ['issand'], 'root': 'issand', 'ending': '0', 'clitic': '', 'partofspeech': 'I', 'start': 0}, 
-            {'lemma': 'issand', 'end': 6, 'form': 'sg n', 'root_tokens': ['issand'], 'root': 'issand', 'ending': '0', 'clitic': '', 'partofspeech': 'S', 'start': 0}], 
-           [{'lemma': 'kui', 'end': 10, 'form': '', 'root_tokens': ['kui'], 'root': 'kui', 'ending': '0', 'clitic': '', 'partofspeech': 'D', 'start': 7}, 
-            {'lemma': 'kui', 'end': 10, 'form': '', 'root_tokens': ['kui'], 'root': 'kui', 'ending': '0', 'clitic': '', 'partofspeech': 'J', 'start': 7}], 
-           [{'lemma': 'jube', 'end': 21, 'form': 'sg n', 'root_tokens': ['jube'], 'root': 'jube', 'ending': '0', 'clitic': '', 'partofspeech': 'A', 'start': 11}, 
-            {'lemma': 'jube', 'end': 21, 'form': '', 'root_tokens': ['jube'], 'root': 'jube', 'ending': '0', 'clitic': '', 'partofspeech': 'D', 'start': 11}], 
-           [{'lemma': '...', 'end': 25, 'form': '', 'root_tokens': ['...'], 'root': '...', 'ending': '', 'clitic': '', 'partofspeech': 'Z', 'start': 22}]
+         [ [{'normalized_text': 'isand', 'lemma': 'isand', 'end': 6, 'form': 'sg n', 'root_tokens': ['isand'], 'root': 'isand', 'ending': '0', 'clitic': '', 'partofspeech': 'S', 'start': 0}, 
+            {'normalized_text': 'issand', 'lemma': 'issand', 'end': 6, 'form': '', 'root_tokens': ['issand'], 'root': 'issand', 'ending': '0', 'clitic': '', 'partofspeech': 'I', 'start': 0}, 
+            {'normalized_text': 'issand', 'lemma': 'issand', 'end': 6, 'form': 'sg n', 'root_tokens': ['issand'], 'root': 'issand', 'ending': '0', 'clitic': '', 'partofspeech': 'S', 'start': 0}], 
+           [{'normalized_text': 'kui', 'lemma': 'kui', 'end': 10, 'form': '', 'root_tokens': ['kui'], 'root': 'kui', 'ending': '0', 'clitic': '', 'partofspeech': 'D', 'start': 7}, 
+            {'normalized_text': 'kui', 'lemma': 'kui', 'end': 10, 'form': '', 'root_tokens': ['kui'], 'root': 'kui', 'ending': '0', 'clitic': '', 'partofspeech': 'J', 'start': 7}], 
+           [{'normalized_text': 'jube', 'lemma': 'jube', 'end': 21, 'form': 'sg n', 'root_tokens': ['jube'], 'root': 'jube', 'ending': '0', 'clitic': '', 'partofspeech': 'A', 'start': 11}, 
+            {'normalized_text': 'jube', 'lemma': 'jube', 'end': 21, 'form': '', 'root_tokens': ['jube'], 'root': 'jube', 'ending': '0', 'clitic': '', 'partofspeech': 'D', 'start': 11}], 
+           [{'normalized_text': '...', 'lemma': '...', 'end': 25, 'form': '', 'root_tokens': ['...'], 'root': '...', 'ending': '', 'clitic': '', 'partofspeech': 'Z', 'start': 22}]
          ]
     #print(text['morph_analysis'].to_records())
     # Sort analyses (so that the order within a word is always the same)
@@ -180,7 +180,7 @@ def test_morph_analyzer_with_multiple_normalized_forms():
     assert expected_records == results_dict
 
     # Case 2: analyse without guessing
-    analyzer2x = VabamorfAnalyzer(guess=False, propername=False)
+    analyzer2b = VabamorfAnalyzer(guess=False, propername=False, add_normalized_text=True)
     text = Text('''päris hää !''')
     text.tag_layer(['words', 'sentences'])
     # Add multiple normalized forms (and one of them will remain an unknown word)
@@ -193,21 +193,21 @@ def test_morph_analyzer_with_multiple_normalized_forms():
                 word.add_annotation( Annotation(word, normalized_form='hea') )
                 word.add_annotation( Annotation(word, normalized_form='hää') )
                 word.add_annotation( Annotation(word, normalized_form='head') )
-    analyzer2x.tag(text)
+    analyzer2b.tag(text)
     expected_records = \
         [
-          [{'clitic': '', 'partofspeech': 'A', 'lemma': 'päris', 'root_tokens': ['päris'], 'ending': '0', 'end': 5, 'form': '', 'root': 'päris', 'start': 0}, 
-           {'clitic': '', 'partofspeech': 'D', 'lemma': 'päris', 'root_tokens': ['päris'], 'ending': '0', 'end': 5, 'form': '', 'root': 'päris', 'start': 0}, 
-           {'clitic': '', 'partofspeech': 'V', 'lemma': 'pärima', 'root_tokens': ['päri'], 'ending': 's', 'end': 5, 'form': 's', 'root': 'päri', 'start': 0}], 
-          [{'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg g', 'root': 'hea', 'start': 6}, 
-           {'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg n', 'root': 'hea', 'start': 6}, 
-           {'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg g', 'root': 'hea', 'start': 6}, 
-           {'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg n', 'root': 'hea', 'start': 6}, 
-           {'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'pl n', 'root': 'hea', 'start': 6}, 
-           {'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'sg p', 'root': 'hea', 'start': 6}, 
-           {'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'pl n', 'root': 'hea', 'start': 6}, 
-           {'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'sg p', 'root': 'hea', 'start': 6}], 
-          [{'root_tokens': None, 'clitic': None, 'lemma': None, 'root': None, 'ending': None, 'end': 11, 'partofspeech': None, 'form': None, 'start': 10}] ]
+          [{'normalized_text': 'päris', 'clitic': '', 'partofspeech': 'A', 'lemma': 'päris', 'root_tokens': ['päris'], 'ending': '0', 'end': 5, 'form': '', 'root': 'päris', 'start': 0}, 
+           {'normalized_text': 'päris', 'clitic': '', 'partofspeech': 'D', 'lemma': 'päris', 'root_tokens': ['päris'], 'ending': '0', 'end': 5, 'form': '', 'root': 'päris', 'start': 0}, 
+           {'normalized_text': 'päris', 'clitic': '', 'partofspeech': 'V', 'lemma': 'pärima', 'root_tokens': ['päri'], 'ending': 's', 'end': 5, 'form': 's', 'root': 'päri', 'start': 0}], 
+          [{'normalized_text': 'hea', 'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg g', 'root': 'hea', 'start': 6}, 
+           {'normalized_text': 'hea', 'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg n', 'root': 'hea', 'start': 6}, 
+           {'normalized_text': 'hea', 'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg g', 'root': 'hea', 'start': 6}, 
+           {'normalized_text': 'hea', 'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': '0', 'end': 9, 'form': 'sg n', 'root': 'hea', 'start': 6}, 
+           {'normalized_text': 'head', 'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'pl n', 'root': 'hea', 'start': 6}, 
+           {'normalized_text': 'head', 'clitic': '', 'partofspeech': 'A', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'sg p', 'root': 'hea', 'start': 6}, 
+           {'normalized_text': 'head', 'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'pl n', 'root': 'hea', 'start': 6}, 
+           {'normalized_text': 'head', 'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'sg p', 'root': 'hea', 'start': 6}], 
+          [{'normalized_text':  None, 'root_tokens': None, 'clitic': None, 'lemma': None, 'root': None, 'ending': None, 'end': 11, 'partofspeech': None, 'form': None, 'start': 10}] ]
     #print(text['morph_analysis'].to_records())
     results_dict = text['morph_analysis'].to_records()
     _sort_morph_analysis_records( results_dict )
