@@ -9,12 +9,12 @@ def test_legacy_to_current_json():
     legacy_test_input = 'legacy_test_input'
     legacy_test_output = 'legacy_test_output'
 
-    with open(legacy_test_input, 'w') as in_file:
+    with open(legacy_test_input, 'w', encoding='utf-8') as in_file:
         in_file.write(input_json)
 
     legacy_to_current_json(input_file=legacy_test_input, output_file=legacy_test_output)
 
-    with open(legacy_test_output, 'r') as out_file:
+    with open(legacy_test_output, 'r', encoding='utf-8') as out_file:
         result = out_file.read()
         assert json.loads(result) == json.loads(expected)
 
