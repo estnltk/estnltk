@@ -61,6 +61,7 @@ class VabamorfTagger(Tagger):
                  input_sentences_layer='sentences',
                  input_compound_tokens_layer='compound_tokens',
                  postanalysis_tagger=None,
+                 vm_instance=None,
                  guess=DEFAULT_PARAM_GUESS,
                  propername=DEFAULT_PARAM_PROPERNAME,
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
@@ -91,6 +92,9 @@ class VabamorfTagger(Tagger):
             This tagger corrects morphological analyses, prepares morpho-
             logical analyses for disambiguation (if required) and fills in 
             values of extra attributes in morph_analysis Spans.
+        vm_instance: estnltk.vabamorf.morf.Vabamorf
+            An instance of Vabamorf that is to be used for 
+            analysing text morphologically.
         guess: boolean (default: True)
             Use guessing in case of unknown words.
         propername: boolean (default: True)
@@ -140,8 +144,15 @@ class VabamorfTagger(Tagger):
         self.postanalysis_tagger = postanalysis_tagger
         # Initialize morf analyzer and disambiguator;
         # Also propagate layer names to submodules;
-        vm_instance = Vabamorf.instance()
-        self._vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance,
+        _vm_instance = None
+        if vm_instance:
+            # Check Vabamorf Instance
+            if not isinstance(vm_instance, Vabamorf):
+                raise TypeError('(!) vm_instance should be of type estnltk.vabamorf.morf.Vabamorf')
+            _vm_instance = vm_instance
+        else:
+            _vm_instance = Vabamorf.instance()
+        self._vabamorf_analyser      = VabamorfAnalyzer( vm_instance=_vm_instance,
                                                         output_layer=output_layer,
                                                         input_words_layer=self._input_words_layer,
                                                         input_sentences_layer=self._input_sentences_layer,
@@ -149,7 +160,7 @@ class VabamorfTagger(Tagger):
                                                         propername=self.propername,
                                                         compound=self.compound,
                                                         phonetic=self.phonetic)
-        self._vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
+        self._vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=_vm_instance,
                                                              output_layer=output_layer,
                                                              input_words_layer=self._input_words_layer,
                                                              input_sentences_layer=self._input_sentences_layer )
@@ -367,6 +378,9 @@ class VabamorfAnalyzer(Tagger):
             for extra_attr in self.extra_attributes:
                 self.output_attributes += (extra_attr,)
         if vm_instance:
+            # Check Vabamorf Instance
+            if not isinstance(vm_instance, Vabamorf):
+                raise TypeError('(!) vm_instance should be of type estnltk.vabamorf.morf.Vabamorf')
             self._vm_instance = vm_instance
         else:
             self._vm_instance = Vabamorf.instance()
@@ -572,9 +586,13 @@ class VabamorfDisambiguator(Retagger):
         self._input_words_layer     = self.input_layers[0]
         self._input_sentences_layer = self.input_layers[1]
         if vm_instance:
+            # Check Vabamorf Instance
+            if not isinstance(vm_instance, Vabamorf):
+                raise TypeError('(!) vm_instance should be of type estnltk.vabamorf.morf.Vabamorf')
             self._vm_instance = vm_instance
         else:
             self._vm_instance = Vabamorf.instance()
+
 
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
         """Performs morphological disambiguation, and replaces ambiguous 
