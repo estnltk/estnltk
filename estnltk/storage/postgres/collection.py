@@ -956,7 +956,7 @@ class PgCollection:
 
                 assert layer_structure == (layer.name, layer.attributes, layer.ambiguous, layer.parent, layer.enveloping)
 
-                layer_dict = layer_to_dict(layer, text)
+                layer_dict = layer_to_dict(layer)
                 layer_json = json.dumps(layer_dict, ensure_ascii=False)
 
                 values = [Literal(collection_id), Literal(collection_id), Literal(layer_json)]
@@ -1201,10 +1201,10 @@ class PgCollection:
             i = 0
             for text_id, text, meta in texts:
                 for span_nr, span in enumerate(text[layer]):
-                    for annotation in span:
+                    for annotation in span.annotations:
                         i += 1
                         values = [Literal(i), Literal(text_id), Literal(span_nr), Literal(span.start), Literal(span.end)]
-                        values.extend(Literal(getattr(annotation, attr)) for attr in attributes)
+                        values.extend(Literal(annotation[attr]) for attr in attributes)
                         values.extend(Literal(meta[k]) for k in collection_meta)
                         insert(values)
 
