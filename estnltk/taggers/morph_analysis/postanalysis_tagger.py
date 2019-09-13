@@ -488,10 +488,10 @@ class PostMorphAnalysisTagger(Retagger):
                 # Add ignore attribute
                 empty_morph_record[IGNORE_ATTR] = False
                 # Carry over extra attributes
-                if extra_attributes and len(morph_spans[morph_span_id].spans) > 0:
-                    # Assume that extra attributes are same for each sub-span (of the word):
-                    # therefore, carry over attribute values from the first span
-                    first_span = morph_spans[morph_span_id].spans[0]
+                if extra_attributes and len(morph_spans[morph_span_id].annotations) > 0:
+                    # Assume that extra attributes are same for each annotation (of the word):
+                    # therefore, carry over attribute values from the first annotation
+                    first_span = morph_spans[morph_span_id].annotations[0]
                     first_span_rec = _span_to_records_excl(first_span, [IGNORE_ATTR])
                     for extra_attr in extra_attributes:
                         empty_morph_record[extra_attr] = first_span_rec[extra_attr]
@@ -590,10 +590,10 @@ class PostMorphAnalysisTagger(Retagger):
                 # Add ignore attribute
                 empty_morph_record[IGNORE_ATTR] = False
                 # Carry over extra attributes
-                if extra_attributes and len(morph_spans[morph_span_id].spans) > 0:
-                    # Assume that extra attributes are same for each sub-span (of the word):
-                    # therefore, carry over attribute values from the first span
-                    first_span = morph_spans[morph_span_id].spans[0]
+                if extra_attributes and len(morph_spans[morph_span_id].annotations) > 0:
+                    # Assume that extra attributes are same for each annotation (of the word):
+                    # therefore, carry over attribute values from the first annotation
+                    first_span = morph_spans[morph_span_id].annotations[0]
                     first_span_rec = _span_to_records_excl(first_span, [IGNORE_ATTR])
                     for extra_attr in extra_attributes:
                         empty_morph_record[extra_attr] = first_span_rec[extra_attr]
