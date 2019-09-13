@@ -123,7 +123,7 @@ class VabamorfTagger(Tagger):
             postanalysis_tagger = PostMorphAnalysisTagger(output_layer=output_layer,\
                                                           input_compound_tokens_layer=input_compound_tokens_layer, \
                                                           input_words_layer=input_words_layer, \
-                                                          input_sentences_layer=input_sentences_layer )
+                                                          input_sentences_layer=input_sentences_layer)
         # Initialize postanalysis_tagger;
         if postanalysis_tagger:
             # Check for Retagger
@@ -167,6 +167,10 @@ class VabamorfTagger(Tagger):
                 for extra_attribute in postanalysis_tagger.output_attributes:
                     if extra_attribute not in self.output_attributes:
                         self.output_attributes += (extra_attribute, )
+        if NORMALIZED_TEXT in self._vabamorf_analyser.output_attributes:
+            if NORMALIZED_TEXT not in self.output_attributes:
+                self.output_attributes = (NORMALIZED_TEXT,) + self.output_attributes
+
 
     def _make_layer(self, text: Text, layers, status: dict):
         """Analyses given Text object morphologically.
@@ -330,12 +334,12 @@ class VabamorfAnalyzer(Tagger):
         input_sentences_layer: str (default: 'sentences')
             Name of the input sentences layer;
         extra_attributes: list of str (default: None)
-            List containing names of extra attributes that will be 
-            attached to Spans. All extra attributes will be 
+            List containing names of extra attributes that will 
+            be attached to Spans. All extra attributes will be 
             initialized to None.
         vm_instance: estnltk.vabamorf.morf.Vabamorf
-            An instance of Vabamorf that is to be used for analysing
-            text morphologically.
+            An instance of Vabamorf that is to be used for 
+            analysing text morphologically.
         propername: boolean (default: True)
             Propose additional analysis variants for proper names 
             (a.k.a. proper name guessing).
@@ -349,6 +353,9 @@ class VabamorfAnalyzer(Tagger):
             Add the attribute NORMALIZED_TEXT to each analysis.
             ( refers to the original normalized word that was 
               used as a basis for this analysis )
+            Note: adding this attribute is currently work-in-
+            progress, and there is no guarantee that it fully 
+            works.
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -369,7 +376,7 @@ class VabamorfAnalyzer(Tagger):
         self.compound = compound
         self.phonetic = phonetic
         self.add_normalized_text = add_normalized_text
-        if self.add_normalized_text:
+        if self.add_normalized_text and NORMALIZED_TEXT not in self.output_attributes:
             self.output_attributes = (NORMALIZED_TEXT,) + self.output_attributes
 
 
