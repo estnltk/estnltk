@@ -11,7 +11,7 @@ from estnltk.text import Layer
 
 from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation, _get_word_text
 
 from estnltk.java.javaprocess import JavaProcess
 from estnltk.core import JAVARES_PATH
@@ -29,6 +29,7 @@ class ClauseSegmenter(Tagger):
                   '_input_sentences_layer',
                   '_input_morph_analysis_layer',
                   # Inner parameters
+                  '_use_normalized_word_form',
                   '_java_process',
                  ]
 
@@ -37,7 +38,8 @@ class ClauseSegmenter(Tagger):
                   input_words_layer:str='words',
                   input_sentences_layer:str='sentences',
                   input_morph_analysis_layer:str='morph_analysis',
-                  ignore_missing_commas:bool=False):
+                  ignore_missing_commas:bool=False,
+                  use_normalized_word_form:bool=True):
         """Initializes Java-based ClauseSegmenter.
         
         Parameters
@@ -59,6 +61,13 @@ class ClauseSegmenter(Tagger):
              guess clause boundaries even if the commas are missing in the input.
              Note that compared to the default mode, this mode may introduce some
              additional errors;
+        
+        use_normalized_word_form: boolean (default: True)
+             If set, then normalized word forms will be passed to ClauseSegmenter's
+             input: the word.text will always be overwritten by (the first value of) 
+             word.normalized_form. 
+             Otherwise, ClauseSegmenter uses only the surface word forms (word.text),
+             and no attention is paid on word normalizations;             
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -70,6 +79,7 @@ class ClauseSegmenter(Tagger):
                              input_morph_analysis_layer]
         # Set flag
         self.ignore_missing_commas = ignore_missing_commas
+        self._use_normalized_word_form = use_normalized_word_form
         # Initialize JavaProcess
         args = ['-pyvabamorf']
         if self.ignore_missing_commas:
@@ -154,12 +164,20 @@ class ClauseSegmenter(Tagger):
                             word_morph_dict = \
                                     _convert_morph_analysis_span_to_vm_dict( \
                                         morph_span )
+                            # Use normalized_form of the word (if available)
+                            if self._use_normalized_word_form:
+                                word_morph_dict['text'] = \
+                                       _get_word_text( word_span )
                             sentence_morph_dicts.append( word_morph_dict )
                             morphFound = True
                     if not morphFound:
                         # No morph found: add an empty Vabamorf dict
                         empty_analysis_dict = { 'text' : word_span.text, \
                                                 'analysis' : [] }
+                        if self._use_normalized_word_form:
+                            # Use normalized_form of the word (if available)
+                            empty_analysis_dict['text'] = \
+                                   _get_word_text( word_span )
                         sentence_morph_dicts.append( empty_analysis_dict )
                     sentence_words.append( word_span )
                 if sentence.end <= word_span.start:
