@@ -24,12 +24,12 @@ class ClauseSegmenter(Tagger):
     output_attributes = ('clause_type',)
     input_layers      = ['words', 'sentences', 'morph_analysis']
     conf_param = ['ignore_missing_commas',
+                  'use_normalized_word_form',
                   # Names of specific input layers
                   '_input_words_layer',
                   '_input_sentences_layer',
                   '_input_morph_analysis_layer',
                   # Inner parameters
-                  '_use_normalized_word_form',
                   '_java_process',
                  ]
 
@@ -65,9 +65,9 @@ class ClauseSegmenter(Tagger):
         use_normalized_word_form: boolean (default: True)
              If set, then normalized word forms will be passed to ClauseSegmenter's
              input: the word.text will always be overwritten by (the first value of) 
-             word.normalized_form. 
+             word.normalized_form (if word.normalized_form is not None). 
              Otherwise, ClauseSegmenter uses only the surface word forms (word.text),
-             and no attention is paid on word normalizations;             
+             and no attention is paid on word normalizations;
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -77,9 +77,9 @@ class ClauseSegmenter(Tagger):
         self.input_layers = [input_words_layer,
                              input_sentences_layer,
                              input_morph_analysis_layer]
-        # Set flag
+        # Set flags
         self.ignore_missing_commas = ignore_missing_commas
-        self._use_normalized_word_form = use_normalized_word_form
+        self.use_normalized_word_form = use_normalized_word_form
         # Initialize JavaProcess
         args = ['-pyvabamorf']
         if self.ignore_missing_commas:
@@ -164,8 +164,8 @@ class ClauseSegmenter(Tagger):
                             word_morph_dict = \
                                     _convert_morph_analysis_span_to_vm_dict( \
                                         morph_span )
-                            # Use normalized_form of the word (if available)
-                            if self._use_normalized_word_form:
+                            if self.use_normalized_word_form:
+                                # Use normalized_form of the word (if available)
                                 word_morph_dict['text'] = \
                                        _get_word_text( word_span )
                             sentence_morph_dicts.append( word_morph_dict )
@@ -174,7 +174,7 @@ class ClauseSegmenter(Tagger):
                         # No morph found: add an empty Vabamorf dict
                         empty_analysis_dict = { 'text' : word_span.text, \
                                                 'analysis' : [] }
-                        if self._use_normalized_word_form:
+                        if self.use_normalized_word_form:
                             # Use normalized_form of the word (if available)
                             empty_analysis_dict['text'] = \
                                    _get_word_text( word_span )

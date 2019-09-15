@@ -39,8 +39,9 @@ class TimexTagger( Tagger ):
     output_attributes = ('tid', 'type', 'value', 'temporal_function', 'anchor_time_id', \
                          'mod', 'quant', 'freq', 'begin_point', 'end_point' )
     input_layers = ['words', 'sentences', 'morph_analysis']
-    conf_param = [ 'pick_first_in_overlap', 'mark_part_of_interval',
-                   'output_ordered_dicts', 'rules_file', 
+    conf_param = [ 'rules_file', 'pick_first_in_overlap', 
+                   'mark_part_of_interval', 'output_ordered_dicts', 
+                   'use_normalized_word_form',
                    # Names of the specific input layers
                    '_input_words_layer', '_input_sentences_layer',
                    '_input_morph_analysis_layer',
@@ -61,7 +62,8 @@ class TimexTagger( Tagger ):
                        rules_file:str=None, \
                        pick_first_in_overlap:bool=True, \
                        mark_part_of_interval:bool=True, \
-                       output_ordered_dicts:bool=True ):
+                       output_ordered_dicts:bool=True, \
+                       use_normalized_word_form:bool=True ):
         """Initializes Java-based temporal expression tagger.
         
         Parameters
@@ -105,6 +107,13 @@ class TimexTagger( Tagger ):
              and part_of_interval will be converted into OrderedDict-s. Use this to 
              ensure fixed order of elements in the dictionaries (might be useful for
              nbval testing).
+             
+        use_normalized_word_form: boolean (default: True)
+             If set, then normalized word forms will be passed to temporal expression 
+             tagger's input: the word.text will always be overwritten by (the first 
+             value of) word.normalized_form (if word.normalized_form is not None). 
+             Otherwise, timex tagger uses only the surface word forms (word.text),
+             and no attention is paid on word normalizations;
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -120,6 +129,7 @@ class TimexTagger( Tagger ):
         self.output_ordered_dicts  = output_ordered_dicts
         if self.mark_part_of_interval:
            self.output_attributes += ('part_of_interval', )
+        self.use_normalized_word_form = use_normalized_word_form
         # Fetch & check rules file 
         use_rules_file = \
             os.path.join(JAVARES_PATH, 'reeglid.xml') if not rules_file else rules_file
@@ -406,18 +416,20 @@ class TimexTagger( Tagger ):
                             word_morph_dict = \
                                     _convert_morph_analysis_span_to_vm_dict(
                                         morph_span )
-                            # Use normalized_form of the word (if available)
-                            word_morph_dict['text'] = \
-                                   _get_word_text( word_span )
+                            if self.use_normalized_word_form:
+                                # Use normalized_form of the word (if available)
+                                word_morph_dict['text'] = \
+                                       _get_word_text( word_span )
                             sentence_morph_dicts.append( word_morph_dict )
                             morphFound = True
                     if not morphFound:
                         # No morph found: add an empty Vabamorf dict
                         empty_analysis_dict = { 'text' : word_span.text,
                                                 'analysis' : [] }
-                        # Use normalized_form of the word (if available)
-                        empty_analysis_dict['text'] = \
-                                              _get_word_text( word_span )
+                        if self.use_normalized_word_form:
+                            # Use normalized_form of the word (if available)
+                            empty_analysis_dict['text'] = \
+                                                  _get_word_text( word_span )
                         sentence_morph_dicts.append( empty_analysis_dict )
                     sentence_words.append( word_span )
                 if sentence.end <= word_span.start:
@@ -466,7 +478,10 @@ class TimexTagger( Tagger ):
             vm_sent = result_vm_json['sentences'][vm_sent_id]
             vm_word = vm_sent['words'][vm_word_id]
             word_span = word_spans[word_span_id]
-            assert vm_word['text'] == _get_word_text( word_span )
+            if self.use_normalized_word_form:
+                assert vm_word['text'] == _get_word_text( word_span )
+            else:
+                assert vm_word['text'] == word_span.text
             if 'timexes' in vm_word:
                for timex in vm_word['timexes']:
                    if 'tid' in timex:
