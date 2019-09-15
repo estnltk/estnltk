@@ -3,6 +3,31 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.6.4-beta] - 2019-09-16
+## Changed
+
+* Removed AmbiguousSpan. Span and EnvelopingSpan act as ambiguous or not ambiguous spans depending on the `ambiguous` 
+attribute value of the layer they belong to. Every span now has its base span whitch represents its location on the raw 
+text and can be used as an index to retrive spans from layers. Also, every span has its own list of annotations where annotation data is stored. No annotation data is stored as an attribute value of a span.
+
+* Resolving of layer/span attributes is rewritten and now works similarily but not exactly as before.
+
+* The default dict representation of a layer is now independent of the layer type (ambiguous, enveloping, parent).
+
+* The new dict representation is also used when storing texts in the PgStrorage collections. Old Postgres databases might not work.
+
+## Removed 
+* `TaggerOld`
+* Layer rewriting functionality.
+* `PhraseListTagger`
+* `PronounTypeTagger`
+* `LambdaAttribute`
+
+## Added
+
+## Fixed
+
+
 # [1.6.3-beta] - 2019-05-10
 ## Changed
  * EstNLTK core classes `Span`, `AmbiguousSpan`, `EnvelopingSpan`, `Layer`, `Text`, `SpanList`, `Annotation` are under reconstruction. The easiest and recommended way of adding spans and annotations to layers is the `Layer.add_annotation` method.
