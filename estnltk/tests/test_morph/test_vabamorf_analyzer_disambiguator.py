@@ -330,7 +330,7 @@ def test_morph_disambiguation_if_analysis_has_normalized_text_attribute():
     # layer has 'normalized_text' attribute
     analyzer2a = VabamorfAnalyzer( add_normalized_text=True )
     # Case 1
-    text = Text('''Mjees peeti knni.''')
+    text = Text('''Mjees ppeeti knni.''')
     text.tag_layer(['words', 'sentences'])
     # Add multiple normalized forms for words
     for word in text.words:
@@ -341,6 +341,12 @@ def test_morph_disambiguation_if_analysis_has_normalized_text_attribute():
                 word.clear_annotations()
                 word.add_annotation( Annotation(word, normalized_form='Mees') )
                 word.add_annotation( Annotation(word, normalized_form='mees') )
+        if word.text == 'ppeeti':
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['peeti']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='peeti') )
         if word.text == 'knni':
             if text.words.ambiguous == False:
                 word.annotations[0].normalized_form = ['kinni']
@@ -384,7 +390,7 @@ def test_morph_disambiguation_if_analysis_has_normalized_text_attribute():
                                      'partofspeech': 'V',
                                      'root': 'pida',
                                      'root_tokens': ['pida']}],
-                    'base_span': (6, 11)},
+                    'base_span': (6, 12)},
                    {'annotations': [{'clitic': '',
                                      'ending': '0',
                                      'form': '',
@@ -393,7 +399,7 @@ def test_morph_disambiguation_if_analysis_has_normalized_text_attribute():
                                      'partofspeech': 'D',
                                      'root': 'kinni',
                                      'root_tokens': ['kinni']}],
-                    'base_span': (12, 16)},
+                    'base_span': (13, 17)},
                    {'annotations': [{'clitic': '',
                                      'ending': '',
                                      'form': '',
@@ -402,8 +408,9 @@ def test_morph_disambiguation_if_analysis_has_normalized_text_attribute():
                                      'partofspeech': 'Z',
                                      'root': '.',
                                      'root_tokens': ['.']}],
-                    'base_span': (16, 17)}]}
+                    'base_span': (17, 18)}]}
     assert dict_to_layer( expected_layer ) == text['morph_analysis']
+
 
 
 # ----------------------------------

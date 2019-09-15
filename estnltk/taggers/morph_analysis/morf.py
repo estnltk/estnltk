@@ -677,6 +677,28 @@ class VabamorfDisambiguator(Retagger):
                                 word_morph_dict = \
                                     _convert_morph_analysis_span_to_vm_dict( \
                                         morph_span )
+                                # Try to change word['text'] according to word normalization
+                                # * This is important because disambiguator looks both 
+                                #   word['text'] and word['analysis'], and if these are not 
+                                #   in correspondence (as they were in the training data),
+                                #   then quality of the disambiguation suffers;
+                                normalized_texts = set()
+                                for analysis in word_morph_dict['analysis']:
+                                    if NORMALIZED_TEXT in analysis:
+                                        normalized_texts.add( analysis[NORMALIZED_TEXT] )
+                                if len(normalized_texts) == 1:
+                                    # PLAN A: if an unambiguous normalized word form 
+                                    # exists in morph_analysis, then overwrite the surface 
+                                    # form with the normalized word form
+                                    word_morph_dict['text'] = list(normalized_texts)[0]
+                                elif len(normalized_texts) == 0:
+                                    _words = _get_word_texts( word_span )
+                                    if len(_words) == 1:
+                                        # PLAN B: If an unambiguous normalized word form 
+                                        # exists in words layer, then overwrite the surface 
+                                        # form with the normalized word form
+                                        word_morph_dict['text'] = _words[0]
+                                # Finally, collect the dict
                                 sentence_morph_dicts.append( word_morph_dict )
                             else:
                                 # Remember that this word was ignored during 
