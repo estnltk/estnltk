@@ -59,7 +59,7 @@ def group_by(layer: Layer, by: Layer):
         iterator of SpanList
     """
     for enveloping_span in by:
-        span_list = SpanList(layer=layer)
+        span_list = SpanList()
         for span in enveloping_span.spans:
             sp = layer.get(span)
             if sp is not None:

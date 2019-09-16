@@ -60,6 +60,7 @@ class Vocabulary:
         assert key in attributes, (key, attributes)
 
         attribute_set = set(attributes)
+        assert len(attribute_set) == len(attributes), attributes
         assert all(set(record) == attribute_set for records in mapping.values() for record in records)
         assert all(record[key] == key_value for key_value, records in mapping.items() for record in records)
 
@@ -100,7 +101,8 @@ class Vocabulary:
         else:
             attribute_set = set(attributes)
             default_rec = {k: v for k, v in default_rec.items() if k in attribute_set-set(vocabulary.attributes)}
-            assert attribute_set <= set(vocabulary.attributes) | set(default_rec)
+            assert attribute_set <= set(vocabulary.attributes) | set(default_rec), '{} <= {} not satisfied'.format(
+                     attribute_set, set(vocabulary.attributes) | set(default_rec))
             new_mapping = defaultdict(list)
             for k, records in mapping.items():
                 for record in records:
@@ -130,7 +132,7 @@ class Vocabulary:
             new_mapping = defaultdict(list)
             flag = re.IGNORECASE if ignore_case else 0
             for k, records in mapping.items():
-                if ignore_case and isinstance(k, re.Pattern):
+                if ignore_case and isinstance(k, re.regex.Pattern):
                     k = k.pattern
                 try:
                     k_new = re.compile(k, flag)
@@ -297,7 +299,7 @@ class Vocabulary:
             color = 'Moccasin'
         elif isinstance(val, float):
             color = 'cyan'
-        elif isinstance(val, re.Pattern):
+        elif isinstance(val, re.regex.Pattern):
             color = 'yellow'
         elif callable(val):
             color = 'magenta'

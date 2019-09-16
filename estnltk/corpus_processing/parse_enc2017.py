@@ -25,12 +25,14 @@ from logging import getLevelName
 
 from tqdm import tqdm, tqdm_notebook
 
-from estnltk.text import Text, Layer, Span, EnvelopingSpan
+from estnltk.text import Text, Layer
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
+
+from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
 
 # =================================================
 #   Helpful utils
@@ -473,11 +475,13 @@ class ENC2017TextReconstructor:
                           text_object=text_obj,\
                           ambiguous=False)
             # Create words layer
+            if _MAKE_WORDS_AMBIGUOUS:
+                word_locations = [ [wl] for wl in word_locations ]
             orig_words = \
                 Layer(name=self.layer_name_prefix+WordTagger.output_layer, \
                       attributes=WordTagger.output_attributes, \
                       text_object=text_obj,\
-                      ambiguous=False).from_records( word_locations )
+                      ambiguous=_MAKE_WORDS_AMBIGUOUS).from_records( word_locations )
         # Create sentences layer enveloping around words
         if sent_locations is not None and len(sent_locations) > 0 and \
            orig_words is not None: 
@@ -505,8 +509,7 @@ class ENC2017TextReconstructor:
                           for attrib in sent_extra_attribs:
                               current_sent_attribs[attrib] = \
                                   sentence[attrib] if attrib in sentence else None
-                    span = EnvelopingSpan(spans=orig_words[s_start:s_end+1].spans)
-                    orig_sentences.add_annotation(span, **current_sent_attribs)
+                    orig_sentences.add_annotation(orig_words[s_start:s_end+1], **current_sent_attribs)
                     sid += 1; s_start = -1; s_end = -1
             orig_sentences.check_span_consistency()
             assert sid == len(sent_locations)
@@ -537,8 +540,7 @@ class ENC2017TextReconstructor:
                       for attrib in para_extra_attribs: 
                           current_paragraph_attribs[attrib] = \
                               paragraph[attrib] if attrib in paragraph else None
-                  span = EnvelopingSpan(spans=orig_sentences[p_start:p_end+1].spans)
-                  orig_paragraphs.add_annotation(span, **current_paragraph_attribs)
+                  orig_paragraphs.add_annotation(orig_sentences[p_start:p_end+1], **current_paragraph_attribs)
                   pid += 1; p_start = -1; p_end = -1
             orig_paragraphs.check_span_consistency()
             assert pid == len(para_locations)
@@ -555,53 +557,39 @@ class ENC2017TextReconstructor:
         if attach_layers:
             for layer in created_layers:
                 if layer is not None:
-                    text_obj[layer.name] = layer
+                    text_obj.add_layer(layer)
         else:
             return created_layers
 
+    def _create_original_morph_analysis_layer(self, text_obj: Text,
+                                              word_locations: list,
+                                              orig_words_layer: Layer,
+                                              raw_morph_analyses: list):
+        """Creates a morph_analysis layer based on raw_morph_analyses
+        extracted from the vert / prevert content.
 
+        """
+        assert len(raw_morph_analyses) == len(orig_words_layer)
+        assert len(raw_morph_analyses) == len(word_locations)
 
-    def _create_original_morph_analysis_layer( self, text_obj:Text,
-                                               word_locations:list,
-                                               orig_words_layer:Layer,
-                                               raw_morph_analyses:list):
-        '''Creates a morph_analysis layer based on raw_morph_analyses
-           extracted from the vert / prevert content.
-        '''
         layer_attributes = ESTNLTK_MORPH_ATTRIBUTES
         morph_layer = Layer(name=self.layer_name_prefix+'morph_analysis',
                             parent=orig_words_layer.name,
                             ambiguous=True,
-                            text_object=text_obj, \
+                            text_object=text_obj,
                             attributes=layer_attributes)
-        word_spans = orig_words_layer.spans
-        assert len(raw_morph_analyses) == len(word_spans)
-        assert len(raw_morph_analyses) == len(word_locations)
-        word_id = 0
-        while word_id < len(raw_morph_analyses):
-            raw_analysis = raw_morph_analyses[word_id]
-            word = word_spans[word_id]
-            span = Span(parent=word)
+
+        for word, raw_analysis in zip(orig_words_layer, raw_morph_analyses):
             # A) Parse morph analysis from the raw analysis
             analysis_dict = self._create_morph_analysis_dict(raw_analysis)
             # B) Normalize and set attributes
-            for attr in layer_attributes:
-                if attr in analysis_dict:
-                    # We have a Vabamorf's/Estnltk's morf attribute
-                    if attr == 'root_tokens':
-                        # make it hashable for Span.__hash__
-                        setattr(span, attr, tuple(analysis_dict[attr]))
-                    else:
-                        setattr(span, attr, analysis_dict[attr])
-                else:
-                    # We have an extra attribute -- initialize with None
-                    setattr(span, attr, None)
+            attributes = {attr: analysis_dict.get(attr) for attr in layer_attributes}
+            if 'root_tokens' in attributes:
+                attributes['root_tokens'] = tuple(attributes['root_tokens'])
+
             # C) Record span to the layer
-            morph_layer.add_span( span )
-            word_id += 1
+            morph_layer.add_annotation(word.base_span, **attributes)
         return morph_layer
-
-
 
     def _create_morph_analysis_dict(self, raw_morph_analysis:str):
         '''Creates a morph analysis dict from the raw_morph_analysis line 

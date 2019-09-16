@@ -1,0 +1,1 @@
+from estnltk.taggers.verb_chains.verbchain_detector_tagger import VerbChainDetector

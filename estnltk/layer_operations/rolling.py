@@ -1,4 +1,4 @@
-from estnltk.layer.layer import SpanList, Layer
+from estnltk.layer.layer import Layer
 from estnltk.layer.enveloping_span import EnvelopingSpan
 
 
@@ -34,9 +34,7 @@ class Rolling:
                     end = min(start + window, len_s)
                     start = max(0, start)
 
-                    yield SpanList(spans=self.layer.spans[start:end],
-                                   layer=self.layer
-                                   )
+                    yield self.layer[start:end]
         else:
             if self.inside in self.layer.text_object.layers:
                 enveloping_layer = self.layer.text_object.layers[self.inside]
@@ -48,9 +46,7 @@ class Rolling:
                             end = min(start + window, len_s)
                             start = max(0, start)
 
-                            yield SpanList(spans=spans[start:end],
-                                           layer=self.layer
-                                           )
+                            yield self.layer[span.base_span[start:end]]
             else:
                 raise ValueError(self.inside)
 

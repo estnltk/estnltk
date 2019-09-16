@@ -5,10 +5,15 @@
 #  succeeding phase of morphological analysis.
 # 
 
-from typing import MutableMapping, Sequence
+from typing import MutableMapping
 
-from estnltk.text import Layer, Span
+from estnltk import ElementaryBaseSpan
+from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
+
+# Whether the words layer should be made ambiguous?
+#  ( e.g. to provide multiple normalized forms )
+MAKE_AMBIGUOUS = True
 
 
 class WordTagger(Tagger):
@@ -19,18 +24,17 @@ class WordTagger(Tagger):
     output_layer = 'words'
     output_attributes = ('normalized_form',)
     input_layers = ['tokens', 'compound_tokens']
-    conf_param = [ # Names of the specific input layers
-                   '_input_tokens_layer', '_input_compound_tokens_layer',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name'
+    conf_param = [  # Names of the specific input layers
+                    '_input_tokens_layer', '_input_compound_tokens_layer',
+                    # Settings
+                    'make_ambiguous'
                   ]
-    layer_name = output_layer   # <- For backward compatibility ...
-    depends_on = input_layers   # <- For backward compatibility ...
 
     def __init__(self,
                  output_layer:str='words',
                  input_tokens_layer:str='tokens',
                  input_compound_tokens_layer:str='compound_tokens',
+                 make_ambiguous:bool=MAKE_AMBIGUOUS
                  ):
         """Initializes WordTagger.
 
@@ -44,14 +48,16 @@ class WordTagger(Tagger):
 
         input_compound_tokens_layer: str (default: 'compound_tokens')
             Name of the input compound_tokens layer;
+        
+        make_ambiguous: bool (default: see the variable MAKE_AMBIGUOUS)
+            If set, then the words layer will be made ambiguous.
         """
         # Set input/output layer names
         self.output_layer = output_layer
         self._input_tokens_layer = input_tokens_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
         self.input_layers = [input_tokens_layer, input_compound_tokens_layer]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
+        self.make_ambiguous = make_ambiguous
 
     def _make_layer(self, text, layers, status: dict):
         """Creates words layer.
@@ -69,27 +75,26 @@ class WordTagger(Tagger):
           
         status: dict
            This can be used to store metadata on layer tagging.
+
         """
         # 1) Create layer 'words' based on the layers 
         #    'tokens' and 'compound_tokens';
         #    ( include 'normalized' word forms from 
         #      previous layers if available )
-        compounds = dict()
-        for spl in layers[self._input_compound_tokens_layer]:
-            compounds[spl[0]] = Span(start=spl.start, end=spl.end)
-            compounds[spl[0]].normalized_form = spl.normalized
-        words = Layer(name=self.output_layer, 
+        words = Layer(name=self.output_layer,
                       attributes=self.output_attributes,
                       text_object=text,
-                      ambiguous=False)
-        for span in layers[ self._input_tokens_layer ]:
-            if span in compounds:
-                words.add_span(compounds[span])
-            elif words.span_list:
-                if span.start >= words.span_list[-1].end:
-                    words.add_annotation(Span(start=span.start, end=span.end), normalized_form=None)
-            else:
-                words.add_annotation(Span(start=span.start, end=span.end), normalized_form=None)
+                      ambiguous=self.make_ambiguous)
+
+        compounds = set()
+        for spl in layers[self._input_compound_tokens_layer]:
+            words.add_annotation(ElementaryBaseSpan(spl.start, spl.end), normalized_form=spl.normalized)
+            for sp in spl:
+                compounds.add(sp.base_span)
+
+        for span in layers[self._input_tokens_layer]:
+            if span.base_span not in compounds:
+                words.add_annotation(span.base_span, normalized_form=None)
 
         # 2) Apply custom word normalization 
         #    ( to be implemented if required )

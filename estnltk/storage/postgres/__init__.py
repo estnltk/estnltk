@@ -63,12 +63,12 @@ from .pg_operations import drop_layer_table
 
 from .pg_operations import build_layer_ngram_query
 from .pg_operations import build_column_ngram_query
-from .pg_operations import select_raw
 
 from .pg_operations import count_rows
 
-from .jsonb_layer_query import JsonbLayerQuery
-from .jsonb_text_query import JsonbTextQuery
+from estnltk.storage.postgres.queries.jsonb_layer_query import JsonbLayerQuery
+from estnltk.storage.postgres.queries.jsonb_text_query import JsonbTextQuery
+from estnltk.storage.postgres.queries.block_query import BlockQuery
 
 from .structure.base.collection_structure_base import CollectionStructureBase
 from .structure import v00
@@ -83,8 +83,6 @@ from .sql_composition.where_clause import WhereClause
 from .sql_composition.selected_columns import SelectedColumns
 
 from .pgpass_parsing import parse_pgpass
-
-from .progressbar import Progressbar
 
 from .subcollectionlayer import PgSubCollectionLayer
 from .subcollectionfragments import PgSubCollectionFragments

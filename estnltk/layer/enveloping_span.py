@@ -1,129 +1,33 @@
-from typing import Any, Union, Sequence
-import itertools
+from typing import Any, Iterable
 
 from estnltk.layer.span import Span, Annotation
-from estnltk.layer.ambiguous_span import AmbiguousSpan
+from estnltk import BaseSpan, EnvelopingBaseSpan
 
 
-class EnvelopingSpan:
-    def __init__(self, spans, layer=None):
-        spans = tuple(spans)
-        assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)) for span in spans), [type(span) for span in spans]
-        self.spans = spans
+class EnvelopingSpan(Span):
+    __slots__ = ['_spans']
 
-        self._layer = layer
+    def __init__(self, base_span: BaseSpan, layer):
+        self._spans = None
+        super().__init__(base_span, layer)
 
-        self.parent = None  # type:Union[Span, None]
-
-        # placeholder for dependant layer
-        self._base = None  # type:Union[Span, None]
-
-        self._annotations = []
-
-        # TODO: remove self._attributes
-        self._attributes = {}
-
-    def add_annotation(self, **attributes) -> Annotation:
-        self._attributes.update(attributes)
-
-        # TODO: try and remove if-s
-        annotation = Annotation(self)
-        if self.layer:
-            for attr in self.layer.attributes:
-                if attr in attributes:
-                    setattr(annotation, attr, attributes[attr])
-        else:
-            for attr, value in attributes.items():
-                if attr == 'text':
-                    continue
-                setattr(annotation, attr, value)
-
-        if annotation not in self._annotations:
-            self._annotations.append(annotation)
-
-        return annotation
+    @classmethod
+    def from_spans(cls, spans: Iterable[Span], layer, records):
+        span = cls(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
+        for record in records:
+            span.add_annotation(Annotation(span, **record))
+        return span
 
     @property
-    def annotations(self):
-        return self._annotations
+    def spans(self):
+        if self._spans is None:
+            get_from_enveloped = self._layer.text_object[self._layer.enveloping].get
+            self._spans = tuple(get_from_enveloped(base) for base in self._base_span)
 
-    def add_layer(self, layer):
-        self._layer = layer
-
-    def get_attributes(self, items):
-        r = []
-        for x in zip(*[[i
-                        if isinstance(i, (list, tuple))
-                        else itertools.cycle([i]) for i in getattr(self, item)] for item in items]
-
-                     ):
-
-            quickbreak = all(isinstance(i, itertools.cycle) for i in x)
-
-            tmp = []
-            for pair in zip(*x):
-                tmp.append(pair)
-                if quickbreak:
-                    break
-
-            r.append(tmp)
-        return r
-
-    @property
-    def legal_attribute_names(self) -> Sequence[str]:
-        if self.__getattribute__('layer') is not None:
-            return self.__getattribute__('layer').__getattribute__('attributes')
-        return sorted(self.__getattribute__('_attributes'))
+        return self._spans
 
     def to_records(self, with_text=False):
         return [i.to_records(with_text) for i in self.spans]
-
-    @property
-    def layer(self):
-        return self._layer
-
-    @layer.setter
-    def layer(self, value):
-        # assert isinstance(value, Layer) or value is None
-        self._layer = value
-
-    @property
-    def start(self):
-        return self.spans[0].start
-
-    @property
-    def end(self):
-        return self.spans[-1].end
-
-    @property
-    def base_span(self):
-        return tuple(s.base_span for s in self.spans)
-
-    @property
-    def base_spans(self):
-        return tuple(s for span in self.spans for s in span.base_spans)
-
-    @property
-    def text(self):
-        result = []
-        for span in self.spans:
-            if isinstance(span, EnvelopingSpan):
-                result.extend(span.text)
-            else:
-                result.append(span.text)
-        return result
-
-    @property
-    def enclosing_text(self):
-        return self.layer.text_object.text[self.start:self.end]
-
-    @property
-    def raw_text(self):
-        return self.text_object.text
-
-    # TODO
-    def html_text(self, margin: int = 0):
-        return self.text
 
     @property
     def _html_text(self):
@@ -138,67 +42,34 @@ class EnvelopingSpan:
         yield from self.spans
 
     def __len__(self) -> int:
-        return len(self.__getattribute__(
-            'spans'
-        ))
+        return len(self._base_span)
 
     def __contains__(self, item: Any) -> bool:
         return item in self.spans
 
     def __setattr__(self, key, value):
-        if key in {'spans', '_attributes', 'parent', '_base', '_layer', '_annotations'}:
-            super().__setattr__(key, value)
+        if key == '_spans':
+            object.__setattr__(self, key, value)
         else:
-            self._attributes[key] = value
-            for annotation in self._annotations:
-                setattr(annotation, key, value)
+            super().__setattr__(key, value)
 
-    def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__'}:
-            raise AttributeError
-        if item == '_ipython_canary_method_should_not_exist_' and self.layer is not None and self is self.layer.spans:
-            raise AttributeError
+    def resolve_attribute(self, item):
+        target_layer = self.text_object.layers.get(item)
+        if target_layer is None:
+            attribute_mapping = self.text_object.attribute_mapping_for_enveloping_layers
+            return self._layer.text_object[attribute_mapping[item]].get(self.base_span)[item]
 
-        if item in self._attributes:
-            return self._attributes[item]
+        if len(target_layer) == 0:
+            return
 
-        if item == getattr(self.layer, 'parent', None):
-            return self.parent
-        layer = self.__getattribute__('layer')  # type: Layer
-        return layer.text_object._resolve(layer.name, item, sofar=self)
+        if target_layer[0].base_span.level >= self._base_span.level:
+            raise AttributeError('target layer level {} should be lower than {}'.format(
+                    target_layer[0].base_span.level, self._base_span.level))
 
-    def __getitem__(self, idx: int) -> Union[Span, 'EnvelopingSpan']:
+        return target_layer.get(self.base_span)
+
+    def __getitem__(self, idx):
         if isinstance(idx, int):
-            return self.spans[0]
+            return self.spans[idx]
 
-        if isinstance(idx, str):
-            return getattr(self, idx)
-
-        if isinstance(idx, slice):
-            res = EnvelopingSpan(spans=self.spans[idx], layer=self.layer)
-            return res
-
-        raise KeyError(idx)
-
-    def __lt__(self, other: Any) -> bool:
-        return isinstance(other, EnvelopingSpan) and \
-            (self.start, self.end, self.spans) < (other.start, other.end, other.spans)
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, EnvelopingSpan) \
-               and self._attributes == other._attributes \
-               and self.spans == other.spans
-
-    def __hash__(self):
-        return hash((tuple(self.spans), None))
-
-    def __str__(self):
-        return 'ES[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
-
-    def __repr__(self):
-        return str(self)
-
-    def _repr_html_(self):
-        if self.layer and self is self.layer.spans:
-            return self.layer.to_html(header='SpanList', start_end=True)
-        return str(self)
+        return super().__getitem__(idx)

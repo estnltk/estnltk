@@ -3,9 +3,73 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.6.4-beta] - 2019-09-16
+## Changed
+
+* Removed AmbiguousSpan. Span and EnvelopingSpan act as ambiguous or not ambiguous spans depending on the `ambiguous` 
+attribute value of the layer they belong to. Every span now has its base span whitch represents its location on the raw 
+text and can be used as an index to retrive spans from layers. Also, every span has its own list of annotations where annotation data is stored. No annotation data is stored as an attribute value of a span.
+
+* Resolving of layer/span attributes is rewritten and now works similarily but not exactly as before.
+
+* The default dict representation of a layer is now independent of the layer type (ambiguous, enveloping, parent).
+
+* The new dict representation is also used when storing texts in the PgStrorage collections. Old Postgres databases might not work.
+
+* Converted `VabamorfAnalyzer` and `VabamorfTagger` from `TaggerOld` to `Tagger`. As a result, exact parameters of the morphological analysis (`propername`, `guess`, `compound`, `phonetic`) must be specified at the initialization of `VabamorfAnalyzer`, and cannot be changed afterwards while running `VabamorfAnalyzer`. Also, `VabamorfAnalyzer` and `VabamorfTagger` no longer accept unspecified set of parameters (`**kwargs`) in their constructors;
+
+* Relocated `RobustDateNumberTagger`, `AddressPartTagger`, `AddressGrammarTagger`, `AdjectivePhraseTagger`, `SentenceFleschScoreRetagger` from `estnltk.taggers.standard_taggers` to `estnltk.taggers.miscellaneous`;
+
+* Relocated `MorphAnalyzedToken` from `estnltk.rewriting.helpers` to `estnltk.taggers.morph_analysis.proxy`;
+
+* Removed `VabamorfCorrectionRewriter`, and carried over its functionalities to `PostMorphAnalysisTagger`. Flags `fix_number_analyses_using_rules` and `remove_broken_pronoun_analyses` can now be used in `PostMorphAnalysisTagger` to switch the functionalities on/off;
+
+
+* Made the `'words'` layer ambiguous. `VabamorfAnalyzer` and `HfstEstMorphAnalyser` now provide analyses for every normalized word form in the `'words'` layer. `PostMorphAnalysisTagger` and `UserDictTagger` can overwrite analyses in the context of word normalization ambiguities. However, `VabamorfDisambiguator` has not been fully tested on multiple normalized word forms, and its performance is not guaranteed in such settings. So, we suggest to use multiple normalized forms only with the morphological analyzer, and keep ambiguities minimal if (Vabamorf's) disambiguation needs to be applied. For more details, see [this tutorial](https://github.com/estnltk/estnltk/blob/5541c1a18a4277debdc50f50a997d1e555de6c20/tutorials/nlp_pipeline/B_03_segmentation_words.ipynb );
+	 * Ambiguity of  `'words'` also affects `TimexTagger` and `ClauseSegmenter`, which now always pick the first normalized form in  every word (if normalized forms exist) for their input. This behaviour can be switched off by the parameter `use_normalized_word_form`;
+
+
+
+## Removed 
+* `TaggerOld`
+* Layer rewriting functionality.
+* `PhraseListTagger`
+* `PronounTypeTagger`
+* `LambdaAttribute`
+
+## Added
+
+ * Class `CorpusBasedMorphDisambiguator`, which provides text-based and corpus-based disambiguation for Vabamorf's morphological analysis. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/5541c1a18a4277debdc50f50a997d1e555de6c20/tutorials/nlp_pipeline/B_07b_morph_analysis_with_corpus-based_disambiguation.ipynb);
+ 	* added experimental parameters to `CorpusBasedMorphDisambiguator`:
+	 	* `count_position_duplicates_once` -- if set, then lemma duplicates  appearing in analyses of a word will be only counted once during the post-           disambiguation;
+	 	* `count_inside_compounds` -- if set, then additional lemma counts will be obtained from the last words of compound words during the post-disambiguation;
+
+ * `VabamorfCorpusTagger` -- a tool that combines functionalities of `VabamorfTagger` and `CorpusBasedMorphDisambiguator`, and provides full  morphological analysis and disambiguation for a collection of `Text` objects. For usage details, see [this tutorial](https://github.com/estnltk/estnltk/blob/5541c1a18a4277debdc50f50a997d1e555de6c20/tutorials/nlp_pipeline/B_07b_morph_analysis_with_corpus-based_disambiguation.ipynb);
+ * Updated `VabamorfTagger`: added parameter `vm_instance`, which can be used to change the instance of `Vabamorf` used by the tagger. This can be useful when you need to change `Vabamorf`'s binary lexicons inside the `VabamorfTagger`. See [this tutorial](https://github.com/estnltk/estnltk/blob/5541c1a18a4277debdc50f50a997d1e555de6c20/tutorials/nlp_pipeline/B_06_morphological_analysis.ipynb) f0r details;
+
+ * `VerbChainDetector` -- a tagger which identifies main verbs and their extensions (verb chains) in clauses. The implementation uses the source code ported from the EstNLTK version 1.4.1.1. For usage details, see [this tutorial](https://github.com/estnltk/estnltk/blob/5541c1a18a4277debdc50f50a997d1e555de6c20/tutorials/taggers/verb_chain_detector.ipynb);
+
+ * Updated `SentenceTokenizer`: added sentence boundary corrections that are based on counting quotation marks in the whole text. Note that these corrections are switched off by default, but they can be switched on with the flag `fix_double_quotes_based_on_counts`. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/5541c1a18a4277debdc50f50a997d1e555de6c20/tutorials/nlp_pipeline/B_04_segmentation_sentences.ipynb);
+
+ * Function `conll_to_texts_list` which can be used to import a list of `Text` objects from a single `.conllu` file. This can be useful if you need to load documents separately from `.conllu` files of [the UD Estonian corpus](https://github.com/UniversalDependencies/UD_Estonian-EDT); 
+
+## Fixed
+
+ * `CompoundTokenTagger`'s rules: 
+   * improved detection of short web addresses;
+   * improved normalization of numbers containing a period;
+ * `CompoundTokenTagger`'s logic: 
+   * abbreviations that overlap with hyphenations can be detected without running into an error;
+   * tokens consisting of repeated hyphens will be compounded to words; 
+ * `SentenceTokenizer`'s rules: improved detection of sentence endings after prolonged punctuation;
+ * `PostMorphAnalysisTagger`'s rules for fixing number analyses: preserve hyphens at the start and end of a lemma; 
+ * `MorphAnalyzedToken`: a hyphen at the end of a word will not be removed during token normalization (to preserve marker of a halved word);
+
+
+
 # [1.6.3-beta] - 2019-05-10
 ## Changed
- * EstNLTK core classes `Span`, `AmbiguousSpan`, `EnvelopingSpan`, `Layer`, `Text`, `SpanList`, `Annotation` are under reconstruction. The easiest and recommended way of adding spans and annotations to layers is the `Layer.add_Annotation` method.
+ * EstNLTK core classes `Span`, `AmbiguousSpan`, `EnvelopingSpan`, `Layer`, `Text`, `SpanList`, `Annotation` are under reconstruction. The easiest and recommended way of adding spans and annotations to layers is the `Layer.add_annotation` method.
  * Major refactoring in Koondkorpus processing module (`parse_koondkorpus.py`): A) during the reconstruction of text strings, you can now change the default paragraph and sentence separators, B) reconstruction of the tokenization layers can now be made independently of the concrete paragraph and sentence separators present in the text string; C) `reconstruct_text` now also creates layers 'tokens' and 'compound_tokens' (to enable morph analysis); D) a custom prefix can now be added to names of original tokenization layers, E) XML content can be loaded from the zipped files, F) Text objects can be reconstructed from a string content;
  * Improved `Tagger`, the abstract base class for taggers.
  * Made `Retagger` as a subclass of `Tagger`, and introduced span consistency checks that take place after retagging of a layer;

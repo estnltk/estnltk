@@ -18,7 +18,6 @@
 # 
 
 
-from estnltk import EnvelopingSpan
 from estnltk.text import Layer
 from estnltk.taggers import Tagger
 
@@ -104,10 +103,10 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
            mw_components = self._multiword_units
            mw_comp_id = 0
            mw_id      = 0
-           token_spans = layers[self._input_tokens_layer].span_list
+           token_layer = layers[self._input_tokens_layer]
            token_span_id = 0
-           while token_span_id < len(token_spans):
-                 token_span = token_spans[token_span_id]
+           while token_span_id < len(token_layer):
+                 token_span = token_layer[token_span_id]
                  if len(mw_components) == mw_comp_id:
                     # All multiword units have been located
                     break 
@@ -117,22 +116,19 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
                     i = mw_id
                     while (i < len(mw_components[mw_comp_id])):
                          mw_text = mw_components[mw_comp_id][i]
-                         word_span_text = token_spans[token_span_id_2].text
+                         word_span_text = token_layer[token_span_id_2].text
                          if mw_text != word_span_text:
                             break
-                         if token_span_id_2 + 1 < len(token_spans):
+                         if token_span_id_2 + 1 < len(token_layer):
                             token_span_id_2 += 1
                          else:
                             break
                          i += 1
                     if i == len(mw_components[mw_comp_id]):
-                       # Create a new multiword unit
-                       spans = layers[self._input_tokens_layer][token_span_id:token_span_id+i]
-                       spl = EnvelopingSpan(spans=spans)
-                       spl.type = ('multiword',)
-                       spl.normalized = None
-                       layer.add_span(spl)
-                       mw_comp_id += 1
-                       mw_id = 0
+                        # Create a new multiword unit
+                        spans = layers[self._input_tokens_layer][token_span_id:token_span_id+i]
+                        layer.add_annotation(spans, type=('multiword',), normalized=None)
+                        mw_comp_id += 1
+                        mw_id = 0
                  token_span_id += 1
         return layer

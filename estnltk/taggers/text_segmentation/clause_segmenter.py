@@ -7,11 +7,11 @@
 
 import json
 
-from estnltk.text import Layer, EnvelopingSpan
+from estnltk.text import Layer
 
 from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation, _get_word_text
 
 from estnltk.java.javaprocess import JavaProcess
 from estnltk.core import JAVARES_PATH
@@ -23,28 +23,23 @@ class ClauseSegmenter(Tagger):
     output_layer      = 'clauses'
     output_attributes = ('clause_type',)
     input_layers      = ['words', 'sentences', 'morph_analysis']
-    conf_param = [ 'ignore_missing_commas',
-                   # Names of specific input layers
-                   '_input_words_layer',
-                   '_input_sentences_layer',
-                   '_input_morph_analysis_layer',
-                   # Inner parameters
-                   '_java_process',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name'
+    conf_param = ['ignore_missing_commas',
+                  'use_normalized_word_form',
+                  # Names of specific input layers
+                  '_input_words_layer',
+                  '_input_sentences_layer',
+                  '_input_morph_analysis_layer',
+                  # Inner parameters
+                  '_java_process',
                  ]
-    # For backward compatibility:
-    layer_name = output_layer
-    attributes = output_attributes
-    depends_on = input_layers
-
 
     def __init__( self,
                   output_layer:str='clauses',
                   input_words_layer:str='words',
                   input_sentences_layer:str='sentences',
                   input_morph_analysis_layer:str='morph_analysis',
-                  ignore_missing_commas:bool=False):
+                  ignore_missing_commas:bool=False,
+                  use_normalized_word_form:bool=True):
         """Initializes Java-based ClauseSegmenter.
         
         Parameters
@@ -66,18 +61,25 @@ class ClauseSegmenter(Tagger):
              guess clause boundaries even if the commas are missing in the input.
              Note that compared to the default mode, this mode may introduce some
              additional errors;
+        
+        use_normalized_word_form: boolean (default: True)
+             If set, then normalized word forms will be passed to ClauseSegmenter's
+             input: the word.text will always be overwritten by (the first value of) 
+             word.normalized_form (if word.normalized_form is not None). 
+             Otherwise, ClauseSegmenter uses only the surface word forms (word.text),
+             and no attention is paid on word normalizations;
         """
         # Set input/output layer names
         self.output_layer = output_layer
         self._input_words_layer          = input_words_layer
         self._input_sentences_layer      = input_sentences_layer
         self._input_morph_analysis_layer = input_morph_analysis_layer
-        self.input_layers = [ input_words_layer, input_sentences_layer, \
-                              input_morph_analysis_layer ]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
-        # Set flag
+        self.input_layers = [input_words_layer,
+                             input_sentences_layer,
+                             input_morph_analysis_layer]
+        # Set flags
         self.ignore_missing_commas = ignore_missing_commas
+        self.use_normalized_word_form = use_normalized_word_form
         # Initialize JavaProcess
         args = ['-pyvabamorf']
         if self.ignore_missing_commas:
@@ -86,13 +88,11 @@ class ClauseSegmenter(Tagger):
         self._java_process = \
             JavaProcess( 'Osalau.jar', jar_path=JAVARES_PATH, check_java=True, lazy_initialize=True, args=args )
 
-
     def __enter__(self):
         # Initialize java process (only if we are inside the with context manager)
         if self._java_process and self._java_process._process is None:
             self._java_process.initialize_java_subprocess()
         return self
-
 
     def __exit__(self, *args):
         """ Terminates Java process. """
@@ -107,12 +107,10 @@ class ClauseSegmenter(Tagger):
             assert self._java_process._process.poll() is not None
         return False
 
-
     def close(self):
         if self._java_process._process is not None: # if the process was initialized
             if self._java_process._process.poll() is None:
                 self.__exit__()
-
 
     def _make_layer(self, text, layers, status: dict):
         """Tags clauses layer.
@@ -130,42 +128,56 @@ class ClauseSegmenter(Tagger):
           
         status: dict
            This can be used to store metadata on layer tagging.
+
         """
+        layer = Layer(name=self.output_layer,
+                      enveloping=self._input_words_layer,
+                      text_object=text,
+                      attributes=self.output_attributes,
+                      ambiguous=False)
+
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
-        morph_spans  = layers[ self._input_morph_analysis_layer ].span_list
-        word_spans   = layers[ self._input_words_layer ].span_list
-        assert len(morph_spans) == len(word_spans)
+        morph_layer = layers[self._input_morph_analysis_layer]
+        word_layer = layers[self._input_words_layer]
+        assert len(morph_layer) == len(word_layer)
         word_span_id = 0
-        for sentence in layers[ self._input_sentences_layer ].span_list:
+        for sentence in layers[self._input_sentences_layer]:
             #  Collect all words/morph_analyses inside the sentence
             #  Assume: len(word_spans) == len(morph_spans)
             sentence_morph_dicts = []
             sentence_words       = []
-            while word_span_id < len(word_spans):
+            while word_span_id < len(word_layer):
                 # Get corresponding word span
-                word_span  = word_spans[word_span_id]
+                word_span  = word_layer[word_span_id]
                 morph_span = None
                 if sentence.start <= word_span.start and \
                     word_span.end <= sentence.end:
                     morphFound = False
                     # Get corresponding morph span
-                    if word_span_id < len(morph_spans):
-                        morph_span = morph_spans[word_span_id]
-                        if word_span.start == morph_span.start and \
-                           word_span.end == morph_span.end and \
-                           len(morph_span) > 0 and \
-                           (not _is_empty_annotation(morph_span[0])):
+                    if word_span_id < len(morph_layer):
+                        morph_span = morph_layer[word_span_id]
+                        if word_span.base_span == morph_span.base_span and \
+                           len(morph_span.annotations) > 0 and \
+                           not _is_empty_annotation(morph_span.annotations[0]):
                             # Convert span to Vabamorf dict
                             word_morph_dict = \
                                     _convert_morph_analysis_span_to_vm_dict( \
                                         morph_span )
+                            if self.use_normalized_word_form:
+                                # Use normalized_form of the word (if available)
+                                word_morph_dict['text'] = \
+                                       _get_word_text( word_span )
                             sentence_morph_dicts.append( word_morph_dict )
                             morphFound = True
                     if not morphFound:
                         # No morph found: add an empty Vabamorf dict
                         empty_analysis_dict = { 'text' : word_span.text, \
                                                 'analysis' : [] }
+                        if self.use_normalized_word_form:
+                            # Use normalized_form of the word (if available)
+                            empty_analysis_dict['text'] = \
+                                   _get_word_text( word_span )
                         sentence_morph_dicts.append( empty_analysis_dict )
                     sentence_words.append( word_span )
                 if sentence.end <= word_span.start:
@@ -204,32 +216,19 @@ class ClauseSegmenter(Tagger):
                     clause_index[word['clause_id']].append( word_span )
                     clause_type_index[word['clause_id']] = \
                         word['clause_type']
-                # Rewrite clause index to list of clause SpanList-s
-                for clause_id in clause_index.keys():
-                    clause_spans = EnvelopingSpan(spans=clause_index[clause_id])
-                    clause_spans.clause_type = \
-                        clause_type_index[clause_id]
-                    #clause_spans.spans = clause_index[clause_id]
-                    clause_spanlists.append( clause_spans )
-        # Create and populate layer
-        layer = Layer(name=self.output_layer, 
-                      enveloping=self._input_words_layer,
-                      text_object=text,
-                      attributes=self.output_attributes, 
-                      ambiguous=False)
-        for clause_spl in clause_spanlists:
-            layer.add_span( clause_spl )
+                for clause_id, clause in clause_index.items():
+                    layer.add_annotation(clause, clause_type=clause_type_index[clause_id])
         return layer
 
-
-
-    def annotate_clause_indices( self, sentence ):
+    @staticmethod
+    def annotate_clause_indices(sentence):
         """ Rewrites clause boundary markings in given sentence
             to clause indexes and clause types marked to words.
             
             Method is ported from:
              https://github.com/estnltk/estnltk/blob/1.4.1.1/estnltk/clausesegmenter.py
              ( with slight modifications )
+
         """
         max_index = 0
         max_depth = 1

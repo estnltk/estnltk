@@ -1,18 +1,16 @@
-from typing import Any, Sequence, Mapping, MutableMapping
-from estnltk.layer.lambda_attribute import LambdaAttribute
+from reprlib import recursive_repr
+from typing import Any, Mapping, Sequence
 
 
-class Annotation:
-    __slots__ = ['_attributes', '_span']
+class Annotation(Mapping):
+    """Mapping for Span attribute values.
 
-    def __init__(self, span=None, **attributes):
-        self._attributes = attributes
+    """
+    __slots__ = ['__dict__', '_span']
+
+    def __init__(self, span, **attributes):
         self._span = span
-
-    @property
-    def attributes(self) -> MutableMapping[str, Any]:
-        # assert set(self.legal_attribute_names) == set(self._attributes), self._attributes
-        return self._attributes.copy()
+        self.__dict__ = attributes
 
     @property
     def span(self):
@@ -30,7 +28,7 @@ class Annotation:
 
     # TODO: get rid of this
     def to_record(self, with_text=False) -> Mapping[str, Any]:
-        record = self.attributes
+        record = self.__dict__.copy()
         if with_text:
             record['text'] = getattr(self, 'text')
         record['start'] = self.start
@@ -49,7 +47,7 @@ class Annotation:
 
     @property
     def text_object(self):
-        if self._span:
+        if self._span is not None:
             return self._span.text_object
 
     @property
@@ -66,66 +64,53 @@ class Annotation:
             else:
                 raise AttributeError('this Annotation object already has a span')
         else:
-            self._attributes[key] = value
+            self.__dict__[key] = value
 
-    def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__'}:
-            raise AttributeError
+    def __contains__(self, item):
+        return item in self.__dict__
 
-        attributes = self._attributes
-        if item in attributes:
-            value = attributes[item]
-            if isinstance(value, str) and value.startswith('lambda a: '):
-                return eval(value)(self)
-            elif isinstance(value, LambdaAttribute):
-                return value(self)
-            return value
+    def __len__(self):
+        return len(self.__dict__)
 
-        # item == '__deepcopy__'
-        return self.__getattribute__('__class__').__getattribute__(self, item)
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
+
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            return self.__dict__[item]
+        if isinstance(item, tuple):
+            return tuple(self.__dict__[i] for i in item)
+        raise TypeError(item)
+
+    def __iter__(self):
+        yield from self.__dict__
+
+    def __delitem__(self, key):
+        del self.__dict__[key]
 
     def __delattr__(self, item):
-        attributes = self._attributes
-        if item in attributes:
-            del attributes[item]
-        else:
-            raise AttributeError(item)
+        try:
+            del self[item]
+        except KeyError as key_error:
+            raise AttributeError(key_error.args[0]) from key_error
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Annotation):
-            return False
-        if self.legal_attribute_names is None or other.legal_attribute_names is None:
-            if set(self._attributes) == set(other._attributes):
-                return all(getattr(self, i) == getattr(other, i) for i in self._attributes)
-            return False
+        return isinstance(other, Annotation) and self.__dict__ == other.__dict__
 
-        if set(self.legal_attribute_names) == set(other.legal_attribute_names):
-            return all(getattr(self, i) == getattr(other, i) for i in self.legal_attribute_names)
-
-        return False
-
-    def __hash__(self):
-        return hash((self.start, self.end))
-
+    @recursive_repr()
     def __str__(self):
-        # Output key-value pairs in a sorted way
+        # Output key-value pairs in an ordered way
         # (to assure a consistent output, e.g. for automated testing)
+
         if self.legal_attribute_names is None:
-            attribute_names = sorted(self._attributes)
+            attribute_names = sorted(self.__dict__)
         else:
             attribute_names = self.legal_attribute_names
 
-        mapping_sorted = []
+        key_value_strings = ['{!r}: {!r}'.format(k, self.__dict__[k]) for k in attribute_names]
 
-        for k in sorted(attribute_names):
-            key_value_str = "{key_val}".format(key_val={k: getattr(self, k)})
-            # Hack: Remove surrounding '{' and '}'
-            key_value_str = key_value_str[1:-1]
-            mapping_sorted.append(key_value_str)
-
-        # Hack: Put back surrounding '{' and '}' (mimic dict's representation)
-        mapping_sorted_str = '{' + (', '.join(mapping_sorted)) + '}'
-        return 'Annotation({text}, {attributes})'.format(text=self.text, attributes=mapping_sorted_str)
+        return '{class_name}({text!r}, {{{attributes}}})'.format(class_name=self.__class__.__name__, text=self.text,
+                                                                 attributes=', '.join(key_value_strings))
 
     def __repr__(self):
         return str(self)

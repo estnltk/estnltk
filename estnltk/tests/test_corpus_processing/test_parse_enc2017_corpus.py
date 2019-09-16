@@ -1,15 +1,10 @@
 import os, os.path
-import tempfile
 
-from estnltk import Text
 from estnltk.core import PACKAGE_PATH
-
-from estnltk.layer import AmbiguousAttributeList, AttributeList
 
 from estnltk.corpus_processing.parse_enc2017 import VertXMLFileParser
 from estnltk.corpus_processing.parse_enc2017 import ENC2017TextReconstructor
 
-from estnltk.corpus_processing.parse_enc2017 import parse_enc2017_file_content_iterator
 from estnltk.corpus_processing.parse_enc2017 import parse_enc2017_file_iterator
 
 from estnltk.layer_operations import split_by

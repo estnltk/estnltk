@@ -8,28 +8,22 @@
 # Once you have compiled HFST models of this repository, look for file 
 # 'src/analyser-gt-desc.hfstol'. This is the file that can be given to 
 # HfstEstMorphAnalyser as the transducer model.
-# 
-# (!) Currently, if you want to use HfstEstMorphAnalyser, you should always
-#     make "import hfst" before importing anything from estnltk, or else, you 
-#     will later run into a conflict with the Vabamorf package. 
-#     Conflict described: if you import estnltk/Vabamorf, and then import hfst, 
-#     and then try to use Vabamorf, the Vabamorf gives you a "Segmentation 
-#     fault";
 #
 
 import hfst
 
-from typing import MutableMapping, Any
+from typing import MutableMapping
 from collections import OrderedDict
 
-import os.path, re
+import os.path
+import re
 
 from estnltk import logger
 
-from estnltk.text import Layer, Span, Text
+from estnltk import Span, Layer, Text
 from estnltk.taggers import Tagger
 
-from estnltk.taggers.morph_analysis.morf_common import _get_word_text
+from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 
 from estnltk.core import PACKAGE_PATH
 
@@ -213,10 +207,13 @@ class HfstEstMorphAnalyser(Tagger):
                                attributes=self.output_attributes
         )
         for word in layers[ self._input_words_layer ]:
-            word_str = _get_word_text(word)
-            raw_analyses = self._transducer.lookup( word_str, output='text' )
+            # Collect analyses for all normalized variants of the word
+            all_raw_analyses = []
+            for word_str in _get_word_texts(word):
+                raw_analyses = self._transducer.lookup( word_str, output='text' )
+                all_raw_analyses.append( raw_analyses )
             # Remove flag diacritics
-            cleaned_analyses = self.filter_flags(raw_analyses)
+            cleaned_analyses = self.filter_flags( '\n'.join(all_raw_analyses) )
             # Use output_extractor for getting the output
             self.output_extractor.extract_annotation_and_add_to_layer( \
                                 word, cleaned_analyses, new_layer, \
@@ -338,6 +335,7 @@ class RawAnalysesHfstMorphOutputExtractor(HfstMorphOutputExtractor):
     def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer, \
                                                   remove_guesses:bool ):
         records = self.extract_annotation_records( output_text, remove_guesses=remove_guesses )
+        # TODO: reorder records by their weights
         if len(records) == 0:
             # Empty analysis == unknown word
             record = {}
@@ -686,6 +684,7 @@ class MorphemesLemmasHfstOutputExtractor(HfstMorphOutputExtractor):
     def extract_annotation_and_add_to_layer(self, word:Span, output_text:str, layer:Layer, \
                                                   remove_guesses:bool ):
         records = self.extract_annotation_records( output_text, remove_guesses=remove_guesses )
+        # TODO: reorder records by their weights
         if len(records) == 0:
             # Empty analysis == unknown word
             record = self._create_unknown_word_record()

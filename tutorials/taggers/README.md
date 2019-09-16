@@ -16,6 +16,8 @@ Tagger is a class that creates a layer and attaches it to the text object.
 
 * [AddressTagger](address_tagging.ipynb) tags addresses on a text and extracts the street name, house number, zip code, town, and county from the text.
 * [AdjectivePhraseTagger](adjective_phrase_tagger.ipynb) tags simple adjective phrases on the text.
+* [VerbChainDetector](verb_chain_detector.ipynb) tags main verbs and their extensions (verb chains) in clauses.
+
 
 * [Atomizer](atomizer.ipynb) forgets the parent of the input layer.
 * [CombinedTagger](combined_tagger.ipynb) runs input taggers in parallel and resolves conflicts.

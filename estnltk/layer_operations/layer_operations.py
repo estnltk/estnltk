@@ -10,7 +10,6 @@ from pandas import DataFrame
 from collections import Counter, defaultdict
 
 from estnltk.layer.layer import Layer
-from estnltk.layer.span_operations import equal_support
 
 
 def apply_filter(layer: Layer, function: callable, preserve_spans: bool = False, drop_immediately: bool = False):
@@ -18,52 +17,52 @@ def apply_filter(layer: Layer, function: callable, preserve_spans: bool = False,
         i = 0
         while i < len(layer):
             j = 0
-            while j < len(layer[i]):
-                if preserve_spans and len(layer[i]) == 1:
+            while j < len(layer[i].annotations):
+                if preserve_spans and len(layer[i].annotations) == 1:
                     break
                 if function(layer, i, j):
                     j += 1
                     continue
-                if len(layer[i]) == 1:
-                    del layer[i][j]
+                if len(layer[i].annotations) == 1:
+                    del layer[i].annotations[j]
                     i -= 1
                     break
                 else:
-                    del layer[i][j]
+                    del layer[i].annotations[j]
             i += 1
     else:
         to_remove = []
         for i, span in enumerate(layer):
-            for j, annotation in enumerate(span):
+            for j, annotation in enumerate(span.annotations):
                 if not function(layer, i, j):
                     to_remove.append((i, j))
         for i, j in reversed(to_remove):
-            if not preserve_spans or len(layer[i]) > 1:
-                del layer[i][j]
+            if not preserve_spans or len(layer[i].annotations) > 1:
+                del layer[i].annotations[j]
 
 
 def drop_annotations(layer: Layer, attribute: str, values: Container, preserve_spans=False):
     to_remove = []
 
     for i, span in enumerate(layer):
-        for j, annotation in enumerate(span):
+        for j, annotation in enumerate(span.annotations):
             if getattr(annotation, attribute) in values:
                 to_remove.append((i, j))
     for i, j in reversed(to_remove):
-        if not preserve_spans or len(layer[i]) > 1:
-            del layer[i][j]
+        if not preserve_spans or len(layer[i].annotations) > 1:
+            del layer[i].annotations[j]
 
 
 def keep_annotations(layer: Layer, attribute: str, values: Container, preserve_spans=False):
     to_remove = []
 
     for i, span in enumerate(layer):
-        for j, annotation in enumerate(span):
+        for j, annotation in enumerate(span.annotations):
             if getattr(annotation, attribute) not in values:
                 to_remove.append((i, j))
     for i, j in reversed(to_remove):
-        if not preserve_spans or len(layer[i]) > 1:
-            del layer[i][j]
+        if not preserve_spans or len(layer[i].annotations) > 1:
+            del layer[i].annotations[j]
 
 
 def apply_to_annotations(layer: Layer, function: callable):
@@ -180,7 +179,7 @@ def diff_layer(a: Layer, b: Layer, comp=eq):
             except StopIteration:
                 a_end = True
             continue
-        if equal_support(x, y):
+        if x.base_span == y.base_span:
             if not comp(x, y):
                 yield (x, y)
             try:

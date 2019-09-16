@@ -1,13 +1,13 @@
 from collections import defaultdict
 
-from estnltk.layer.span import Span
 from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 
 
 class GapTagger(Tagger):
-    """ Tags all text regions that are not covered by any span of any input layer.
-        These regions can be trimmed by trim function and annotated by decorator function.
+    """Tags all text regions that are not covered by any span of any input layer.
+    These regions can be trimmed by trim function and annotated by decorator function.
+
     """
     conf_param = ['decorator','trim', 'ambiguous']
 
@@ -48,12 +48,10 @@ class GapTagger(Tagger):
                 start = start_new
                 end = start + len(t)
             if start < end:
-                span = Span(start, end)
+                decorations = {}
                 if self.decorator:
                     decorations = self.decorator(raw_text[start:end])
-                    for attr in self.output_attributes:
-                        setattr(span, attr, decorations[attr])
-                layer.add_span(span)
+                layer.add_annotation((start, end), **decorations)
         return layer
 
 
@@ -62,7 +60,7 @@ def find_gaps(layers, text_length):
         return
     cover_change = defaultdict(int)
     for layer in layers:
-        for span in layer.span_list:
+        for span in layer:
             cover_change[span.start] += 1
             cover_change[span.end] -= 1
     if not cover_change:

@@ -1,7 +1,8 @@
 from lxml import etree
-from estnltk.text import Span, SpanList, Layer, Text
-from estnltk import EnvelopingSpan
+from estnltk import ElementaryBaseSpan
+from estnltk.text import Layer, Text
 
+from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS
 
 def import_TCF(string:str=None, file:str=None):
     if file:
@@ -22,11 +23,11 @@ def import_TCF(string:str=None, file:str=None):
     element = text_corpus.find('{http://www.dspin.de/data/textcorpus}tokens')
     if element is not None:
         id_to_token = {}
-        layer = Layer(name='words', attributes=['normalized_form'])
+        layer = Layer(name='words', attributes=['normalized_form'], ambiguous=MAKE_AMBIGUOUS)
         for token in element:
-            annotation = layer.add_annotation(Span(start=int(token.get('start')), end=int(token.get('end'))))
+            annotation = layer.add_annotation(ElementaryBaseSpan(int(token.get('start')), int(token.get('end'))))
             id_to_token[token.get('ID')] = annotation.span
-        text['words'] = layer
+        text.add_layer(layer)
 
     # sentences layer
     element = text_corpus.find('{http://www.dspin.de/data/textcorpus}sentences')
@@ -34,11 +35,9 @@ def import_TCF(string:str=None, file:str=None):
         layer = Layer(enveloping='words',
                       name='sentences')
         for sentence in element:
-            spans = []
-            for token_id in sentence.get('tokenIDs').split():
-                spans.append(id_to_token[token_id])
-            layer.add_span(EnvelopingSpan(spans=spans))
-        text['sentences'] = layer
+            spans = [id_to_token[token_id] for token_id in sentence.get('tokenIDs').split()]
+            layer.add_annotation(spans)
+        text.add_layer(layer)
 
     # clauses layer
     element = text_corpus.find('{http://www.dspin.de/data/textcorpus}clauses')
@@ -46,11 +45,9 @@ def import_TCF(string:str=None, file:str=None):
         layer = Layer(enveloping='words',
                       name='clauses')
         for clause in element:
-            spans = []
-            for token_id in clause.get('tokenIDs').split():
-                spans.append(id_to_token[token_id])
-            layer.add_span(EnvelopingSpan(spans=spans))
-        text['clauses'] = layer
+            spans = [id_to_token[token_id] for token_id in clause.get('tokenIDs').split()]
+            layer.add_annotation(spans)
+        text.add_layer(layer)
 
     # chunk layers: verb_chains, time_phrases
     element = text_corpus.find('{http://www.dspin.de/data/textcorpus}chunks')
@@ -62,17 +59,13 @@ def import_TCF(string:str=None, file:str=None):
         for line in element:
             chunk_type = line.get('type')
             if chunk_type == 'VP':
-                spans = []
-                for token_id in line.get('tokenIDs').split():
-                    spans.append(id_to_token[token_id])
-                layer_vp.add_span(EnvelopingSpan(spans=spans))
+                spans = [id_to_token[token_id] for token_id in line.get('tokenIDs').split()]
+                layer_vp.add_annotation(spans)
             elif chunk_type == 'TMP':
-                spans = []
-                for token_id in line.get('tokenIDs').split():
-                    spans.append(id_to_token[token_id])
-                layer_tmp.add_span(EnvelopingSpan(spans=spans))
-        text['verb_chains'] = layer_vp
-        text['time_phrases'] = layer_tmp
+                spans = [id_to_token[token_id] for token_id in line.get('tokenIDs').split()]
+                layer_tmp.add_annotation(spans)
+        text.add_layer(layer_vp)
+        text.add_layer(layer_tmp)
 
     # morph_analysis layer
     morph_analysis_list = []
@@ -106,7 +99,7 @@ def import_TCF(string:str=None, file:str=None):
                 clitic = ''
             rec['form'] = form if form else ''
             rec['root'] = root if root else ''
-            rec['root_tokens'] = tuple(root_tokens)
+            rec['root_tokens'] = root_tokens
             rec['ending'] = ending if ending else ''
             rec['clitic'] = clitic if clitic else ''
 
@@ -128,11 +121,8 @@ def import_TCF(string:str=None, file:str=None):
                       )
         for word, analyses in zip(text.words, morph_analysis_records):
             for analysis in analyses:
-                span = Span(parent=word)
-                for attr in morph_attributes:
-                    setattr(span, attr, analysis[attr])
-                morph.add_span(span)
+                morph.add_annotation(word, **analysis)
 
-        text['morph_analysis'] = morph
+        text.add_layer(morph)
 
     return text

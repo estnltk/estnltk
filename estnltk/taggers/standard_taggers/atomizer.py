@@ -1,6 +1,8 @@
 from typing import Sequence
 from estnltk.taggers import Tagger
-from estnltk.text import Span, SpanList, Layer
+from estnltk.layer.span import Span
+from estnltk.layer.span_list import SpanList
+from estnltk.layer.layer import Layer
 
 
 class Atomizer(Tagger):
@@ -35,9 +37,8 @@ class Atomizer(Tagger):
                        ambiguous=layer.ambiguous)
         if layer.ambiguous:
             for span in layer:
-                base_span = Span(span.start, span.end)
-                for annotation in span:
-                    result.add_annotation(base_span, **annotation.attributes)
+                for annotation in span.annotations:
+                    result.add_annotation((span.start, span.end), **annotation)
         else:
             for sp in layer:
                 span = _rebase_span(span=sp, legal_attributes=output_attributes)

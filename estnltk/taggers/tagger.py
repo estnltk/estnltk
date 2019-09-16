@@ -35,22 +35,23 @@ class TaggerChecker(type):
 
 
 class Tagger(metaclass=TaggerChecker):
-    """
-    Base class for taggers. Proposed new version.
+    """Base class for taggers.
 
     The following needs to be implemented in a derived class:
     conf_param
-    input_layers
     output_layer
     output_attributes
+    input_layers
     __init__(...)
     _make_layer(...)
+
     """
-    _initialized = False
-    conf_param = None  # type: Sequence[str]
-    output_layer = None  # type: str
-    output_attributes = None  # type: Sequence[str]
-    input_layers = None  # type: Sequence[str]
+    __slots__ = ['_initialized', 'conf_param', 'output_layer', 'output_attributes', 'input_layers']
+
+    def __new__(cls, *args, **kwargs):
+        instance = super().__new__(cls)
+        object.__setattr__(instance, '_initialized', False)
+        return instance
 
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
@@ -78,7 +79,7 @@ class Tagger(metaclass=TaggerChecker):
             if layer in layers:
                 continue
             if layer in text.layers:
-                layers[layer] = text.layers[layer]
+                layers[layer] = text[layer]
             else:
                 raise ValueError('missing input layer: {!r}'.format(layer))
 
@@ -106,7 +107,7 @@ class Tagger(metaclass=TaggerChecker):
         status: dict, default {}
             This can be used to store layer creation metadata.
         """
-        text[self.output_layer] = self.make_layer(text=text, layers=text.layers, status=status)
+        text.add_layer(self.make_layer(text=text, layers=text.layers, status=status))
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:

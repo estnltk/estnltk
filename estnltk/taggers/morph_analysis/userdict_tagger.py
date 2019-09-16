@@ -8,14 +8,12 @@ import csv
 
 from typing import MutableMapping
 
-from estnltk.text import Layer
-from estnltk.layer.ambiguous_span import AmbiguousSpan
-
+from estnltk.layer.layer import Annotation, Span, Layer
 from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morph_analysis.morf_common import _get_word_text
+from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
 
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_POSTAGS
@@ -297,8 +295,6 @@ class UserDictTagger(Retagger):
         for word in collected_analyses.keys():
             self.add_word( word, collected_analyses[word] )
 
-
-
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
         """Retags the morphological analyses layer, providing dictionary-
            based corrections to it.
@@ -332,66 +328,58 @@ class UserDictTagger(Retagger):
         morph_span_id = 0
         morph_spans = layers[self.output_layer].spans
         word_spans  = layers[self._input_words_layer].spans
+        attribute_names = layers[self.output_layer].attributes
         assert len(morph_spans) == len(word_spans)
         while morph_span_id < len(morph_spans):
             # 1) Get corresponding word
             word_span = word_spans[morph_span_id]
-            word_text = _get_word_text(word_span)
-            # Check the dictionary
-            if self.ignore_case:
-                word_text = word_text.lower()
-
-            new_morph_spans_added = False
-            if word_text in self._dict:
-                # 2) If the word is inside user dictionary
-
+            merge_records = []
+            overwrite_records = []
+            for word_text in _get_word_texts(word_span):
+                # Check the dictionary
+                if self.ignore_case:
+                    word_text = word_text.lower()
+                if word_text in self._dict:
+                    # 2) If the word is inside user dictionary
+                    if self._dict[word_text]['merge']:
+                        merge_records.extend(self._dict[word_text]['analysis'])
+                    else:
+                        overwrite_records.extend(self._dict[word_text]['analysis'])
+            # 2) If there were any records that could be added
+            if len(overwrite_records) > 0 or len(merge_records) > 0:
                 # 2.1) Convert spans to records
                 records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
 
                 # 2.2) Process records:
-                if self._dict[word_text]['merge']:
-                    # 2.2.1) Merge existing records with new ones
-                    new_analysis = self._dict[word_text]['analysis'][0]
-                    for rec in records:
-                        # Overwrite keys in dict, keep all other
-                        # keys-values as they were before
-                        for key in new_analysis:
-                            rec[key] = new_analysis[key]
-                else:
-                    # 2.2.2) Overwrite existing records with new ones
+                if overwrite_records:
+                    # 2.2.1) Overwrite existing records with new ones
                     # NB! This assumes that records in the dict are
                     #     in the valid format;
-                    records = self._dict[word_text]['analysis']
+                    # NB! If there are any competing merge records,
+                    #     these will be overwritten completely ...
+                    records = overwrite_records
+                elif merge_records:
+                    # 2.2.2) Merge existing records with new ones
+                    #        NB! Order: first normalized words last,
+                    #        as they first normalized words are more
+                    #        important;
+                    for merge_rec in merge_records[::-1]:
+                        for rec in records:
+                            # Overwrite keys in dict, keep all other
+                            # keys-values as they were before
+                            for key in merge_rec:
+                                rec[key] = merge_rec[key]
 
-                # 2.3) Create new AmbiguousSpan
-                ambiguous_span = \
-                    AmbiguousSpan(layer=morph_spans[morph_span_id].layer, \
-                                  span=morph_spans[morph_span_id].span)
+                # 2.3) Create a new Span
+                span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
 
                 # 2.4) Populate it with new records
                 for rec in records:
-                    # Carry over attributes
-                    for attr in current_attributes:
-                        if attr in ['start', 'end', 'text', 'word_normal']:
-                            continue
-                        attr_value = rec[attr] if attr in rec else None
-                        if attr == 'root_tokens':
-                            # make it hashable for Span.__hash__
-                            rec[attr] = tuple(attr_value)
-                        else:
-                            rec[attr] = attr_value
-                    # Add record as an annotation
-                    ambiguous_span.add_annotation( **rec )
+                    attributes = {attr: rec.get(attr) for attr in attribute_names}
+                    span.add_annotation(Annotation(span, **attributes))
 
                 # 2.5) Overwrite the old span
-                morph_spans[morph_span_id] = ambiguous_span
-
-            # 3) If the word was not inside user dictionary
-            #       or a new analysis was not added,
-            #    then we do not have to do anything: the old analysis
-            #    span will be preserved in the layer
-            if not new_morph_spans_added:
-                pass
+                morph_spans[morph_span_id] = span
 
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1

@@ -1,5 +1,5 @@
-from typing import Union, Sequence
-from estnltk import Span, EnvelopingSpan, AmbiguousSpan
+from typing import Sequence
+from estnltk import Span
 
 
 #  Layer operations are ported from:
@@ -97,29 +97,12 @@ def equal(x: Span, y: Span) -> bool:
     return nested(x, y) and nested(y, x)
 
 
-span = Union[Span, EnvelopingSpan, AmbiguousSpan]
-
-
-def equal_support(x: span, y: span) -> bool:
-    if isinstance(x, AmbiguousSpan):
-        x = x.span
-        return equal_support(x, y)
-    if isinstance(y, AmbiguousSpan):
-        y = y.span
-        return equal_support(x, y)
-    if isinstance(x, EnvelopingSpan):
-        return isinstance(y, EnvelopingSpan) and x.spans == y.spans
-    if isinstance(x, Span):
-        return isinstance(y, Span) and x.start == y.start and x.end == y.end
-    raise TypeError('unexpected type of x: ' + str(type(x)))
-
-
-def symm_diff_ambiguous_spans(x: AmbiguousSpan, y: AmbiguousSpan, attributes: Sequence[str] = None):
-    assert isinstance(x, AmbiguousSpan)
-    assert isinstance(y, AmbiguousSpan)
+def symm_diff_ambiguous_spans(x: Span, y: Span, attributes: Sequence[str] = None):
+    # assert isinstance(x, AmbiguousSpan)
+    # assert isinstance(y, AmbiguousSpan)
     if attributes is None:
-        annot_x = [a for a in x if a not in y]
-        annot_y = [a for a in y if a not in x]
+        annot_x = [a for a in x.annotations if a not in y.annotations]
+        annot_y = [a for a in y.annotations if a not in x.annotations]
     else:
         values_x = [[getattr(annot, attr) for attr in attributes] for annot in x.annotations]
         values_y = [[getattr(annot, attr) for attr in attributes] for annot in y.annotations]

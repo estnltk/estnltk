@@ -10,7 +10,7 @@
 import regex as re
 from collections import OrderedDict
 
-from estnltk.text import Layer, Span, Text
+from estnltk.text import Layer, Text
 
 from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger
@@ -220,7 +220,7 @@ class GTMorphConverter( Tagger ):
     """Converts morphological analyses from Vabamorf's format to Giellatekno's (GT) format. 
        Stores results of the conversion on a new layer."""
     output_layer      = 'gt_morph_analysis'
-    output_attributes = VabamorfTagger.attributes
+    output_attributes = VabamorfTagger.output_attributes
     input_layers      = ['words', 'sentences', 'morph_analysis']
     conf_param = [ # Configuration flags
                    'disambiguate_neg', 'disambiguate_sid_ksid', \
@@ -367,7 +367,7 @@ class GTMorphConverter( Tagger ):
             # Find all Vabamorf's analyses corresponding to 
             # the current word
             while(morph_span_id < len(morph_analysis)):
-                vabamorf_span = morph_analysis.span_list[morph_span_id]
+                vabamorf_span = morph_analysis[morph_span_id]
                 vmstart = vabamorf_span.start
                 vmend   = vabamorf_span.end
                 if vmstart == wstart and vmend == wend:
@@ -665,17 +665,17 @@ class GTMorphConverter( Tagger ):
         assert word_group in layers
         # Collect (unique) word group indices over the whole text
         word_group_indices = []
-        word_spans  = layers[ self._input_words_layer ].span_list
-        group_spans = layers[ word_group ].span_list
+        word_layer = layers[self._input_words_layer]
+        word_group_layer = layers[word_group]
         word_span_id  = 0
         #  Collect all words inside the group
-        while word_span_id < len(word_spans):
+        while word_span_id < len(word_layer):
             # Get word span
-            word_span = word_spans[word_span_id]
+            word_span = word_layer[word_span_id]
             # Find group the word belongs to
             group_span_id = 0
-            while group_span_id < len(group_spans):
-                group_span = group_spans[group_span_id]
+            while group_span_id < len(word_group_layer):
+                group_span = word_group_layer[group_span_id]
                 if group_span.start <= word_span.start and \
                    word_span.end <= group_span.end:
                    # Record id of the group word belongs to
@@ -683,10 +683,9 @@ class GTMorphConverter( Tagger ):
                     break
                 group_span_id += 1
             word_span_id += 1
-        assert len(word_group_indices) == len(word_spans), \
+        assert len(word_group_indices) == len(word_layer), \
             '(!) Number of word group indices should match the number of words!'
         return word_group_indices
-
 
     # =========================================================================================
     #    Finalize: convert analyses from dicts to Spans
@@ -726,30 +725,16 @@ class GTMorphConverter( Tagger ):
                 if empty_attributes.count(True) > len(empty_attributes)/2:
                      # If most of the attributes have been set to '', 
                      # then we have an empty record (unknown word)
-                     record = \
-                         _create_empty_morph_record( morph_word, \
-                                                     layer_attributes = current_attributes )
+                     record = _create_empty_morph_record(morph_word,
+                                                         layer_attributes=current_attributes)
                 else:
-                     # The record corresponds to word with full analyses
-                     # Rewrite it: 
-                     #     leave out unnecessary attributes, and 
-                     #     fix format of root_tokens
-                     rewritten_record = {}
-                     for attr in current_attributes:
-                         if attr in ['start', 'end', 'text', 'word_normal']:
-                             continue
-                         attr_value = record[attr] if attr in record else None
-                         if attr == 'root_tokens':
-                             # make it hashable for Span.__hash__
-                             rewritten_record[attr] = tuple(attr_value)
-                         else:
-                             rewritten_record[attr] = attr_value
-                     record = rewritten_record
+                    # The record corresponds to word with full analyses
+                    #     fix format of root_tokens
+                    record['root_tokens'] = tuple(record['root_tokens'])
                 # Finally, add annotation to the layer
-                new_layer.add_annotation( morph_word.span, **record )
+                new_layer.add_annotation(morph_word, **record)
             record_groupings += 1
         # Sanity check: all morph_analysis words should have been converted
         assert record_groupings == len( layers[ self._input_morph_analysis_layer ].spans )
         # Return the layer augmented with spans
         return new_layer
-

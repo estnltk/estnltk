@@ -65,7 +65,6 @@ class WhereClause(Composed):
         collection_name = collection.name
         storage = collection.storage
 
-
         if query is not None:
             # build constraint on the main text table
             sql_parts.append(query.eval(storage, collection_name))

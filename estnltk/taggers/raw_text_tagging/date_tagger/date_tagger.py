@@ -1,65 +1,51 @@
-from estnltk.taggers.raw_text_tagging.date_tagger.regexes_v import regexes
-from estnltk.taggers import TaggerOld, RegexTagger
 import datetime
 
-regexes = regexes.reset_index().to_dict('records')
+from estnltk.taggers import RegexTagger
+from estnltk.taggers.raw_text_tagging.date_tagger.regexes_v import regexes
 
 
-class DateTagger(TaggerOld):
-    description = None
-    layer_name = None
-    attributes = []
-    depends_on = []
-    configuration = {}
+class DateTagger(RegexTagger):
+    """Tags date and time expressions.
 
-    def __init__(self, layer_name='dates', conflict_resolving_strategy='MAX', overlapped=False):
-        self.description = 'Tags date expressions.'
-        self.layer_name = layer_name
-        self.attributes = ['date_text','type', 'probability', 'groups', 'extracted_values']
+    """
 
-        vocabulary = self._create_vocabulary(regexes)
+    __slots__ = []
 
-        self._tagger = RegexTagger(vocabulary=vocabulary,
-                                   output_attributes=['date_text', 'type', 'probability', 'groups', 'extracted_values'],
-                                   conflict_resolving_strategy=conflict_resolving_strategy,
-                                   overlapped=overlapped,
-                                   output_layer=layer_name,
-                                   )
+    def __init__(self, output_layer='dates', conflict_resolving_strategy='MAX', overlapped=False):
+        regexes_dict = regexes.reset_index().to_dict('records')
+        vocabulary = self._create_vocabulary(regexes_dict)
 
-        #self.configuration = self._tagger.configuration
-
-  
-    def tag(self, text, return_layer=False):
-        """
-        Tags dates on text
-        """
-        return self._tagger.tag(text)#, return_layer=return_layer)
-
+        super().__init__(vocabulary=vocabulary,
+                         output_layer=output_layer,
+                         output_attributes=['date_text', 'type', 'probability', 'groups', 'extracted_values'],
+                         conflict_resolving_strategy=conflict_resolving_strategy,
+                         overlapped=overlapped,
+                         )
 
     def _create_vocabulary(self, regexes):
-        '''
-        Creates _vocabulary for regex_tagger
-        '''
+        """Creates _vocabulary for regex_tagger
+
+        """
         vocabulary = []
         for record in regexes:
             rec = {'_regex_pattern_': record['regex'],
                    '_group_': 0,
-                   '_priority_': (0,0),
-                   'groups': lambda m: str(m.groupdict()), 
+                   '_priority_': (0, 0),
+                   'groups': lambda m: m.groupdict(),
                    'date_text': lambda m: m.group(0),
                    'type': record['type'],
                    'probability': record['probability'],
                    'example': record['example'],
-                   'extracted_values' : lambda m: self._extract_values(m)
-                  }
+                   'extracted_values': lambda m: self._extract_values(m)
+                   }
             vocabulary.append(rec)
-        return vocabulary   
+        return vocabulary
 
+    @staticmethod
+    def _clean_year(yearstring):
+        """If year is two digits, adds 1900 or 2000
 
-    def _clean_year(self, yearstring):
-        '''
-        If year is two digits, adds 1900 or 2000
-        '''
+        """
         year = int(yearstring)
         if year < 100:
             if year < 30:
@@ -68,11 +54,10 @@ class DateTagger(TaggerOld):
                 year += 1900
         return year
 
-
     def _extract_values(self, match):
-        '''
-        Extracts datetime, date or time values from regex matches if possible
-        '''
+        """Extracts datetime, date or time values from regex matches if possible
+
+        """
         d = match.groupdict()
         if 'YEAR' in d or 'LONGYEAR' in d:
             if 'YEAR' in d:
@@ -82,43 +67,43 @@ class DateTagger(TaggerOld):
             if 'DAY' in d:
                 day = int(d['DAY'])
                 if 'hour' in d:
-                    if d['second'] == None:
+                    if d['second'] is None:
                         second = 0
                     else:
                         second = int(d['second'])
-                    try:    
-                        t = datetime.datetime(year = year,
-                                                month = int(d['MONTH']),
-                                                day = day,
-                                                hour = int(d['hour']),
-                                                minute = int(d['minute']),
-                                                second = second)
-                                        
+                    try:
+                        t = datetime.datetime(year=year,
+                                              month=int(d['MONTH']),
+                                              day=day,
+                                              hour=int(d['hour']),
+                                              minute=int(d['minute']),
+                                              second=second)
+
                         return t
                     except ValueError:
-                        return None       
-                
+                        return None
+
                 else:
                     try:
-                        t = datetime.date(year = year,
-                                            month = int(d['MONTH']),
-                                            day = day)
+                        t = datetime.date(year=year,
+                                          month=int(d['MONTH']),
+                                          day=day)
                         return t
                     except ValueError:
-                        return None 
+                        return None
             else:
                 return None
-        
+
         else:
             if 'hour' in d:
-                if d['second'] == None:
+                if d['second'] is None:
                     second = 0
                 else:
                     second = int(d['second'])
-                try:    
-                    t = datetime.time(hour = int(d['hour']),
-                                        minute = int(d['minute']),
-                                        second = second)
+                try:
+                    t = datetime.time(hour=int(d['hour']),
+                                      minute=int(d['minute']),
+                                      second=second)
                     return t
                 except ValueError:
-                    return None 
+                    return None

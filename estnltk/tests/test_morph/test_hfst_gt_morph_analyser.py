@@ -1,7 +1,9 @@
+import faulthandler
 import pytest
 import pkgutil
-import os, os.path
-import sys, faulthandler
+import sys
+
+
 faulthandler.enable(file=sys.stderr, all_threads=True)
 
 
@@ -9,18 +11,11 @@ def check_if_hfst_is_available():
     # Check that HFST is available
     return pkgutil.find_loader("hfst") is not None
 
-# Environment variable that enables testing HFST Tagger (to see if the import conflict has been resolved)
-TEST_HFST_TAGGER = os.environ.get('TEST_HFST_TAGGER', None)
-skip_reason_msg = "Skipped because of a potential import conflict between hfst and vabamorf. "+\
-                  "Set environment variable TEST_HFST_TAGGER=1 to enable the test. "
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(TEST_HFST_TAGGER is None,
-                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_raw_output():
-    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
-    
+
     from estnltk import Text
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
     
@@ -113,14 +108,84 @@ def test_hfst_gt_morph_analyser_raw_output():
     assert records == []
 
 
+@pytest.mark.skipif(not check_if_hfst_is_available(),
+                    reason="package hfst is required for this test")
+def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
+    from estnltk import Text, Annotation
+    from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
+    # Test HfstEstMorphAnalyser's raw output format
+    hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
+    # Case 1: word normalizations without unknown words
+    text = Text('''isaand kui juuuubbeee ...''')
+    text.tag_layer(['compound_tokens', 'words'])
+    # Add multiple normalized forms
+    for word in text.words:
+        if word.text == 'isaand':
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['isand', 'issand']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='isand') )
+                word.add_annotation( Annotation(word, normalized_form='issand') )
+        if word.text == 'juuuubbeee':
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['jube']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='jube') )
+    hfstAnalyser.tag(text)
+    results = text['hfst_gt_morph_analysis'].to_records()
+    #print(results)
+    expected_results = \
+    [
+      [{'start': 0, 'weight': 7.0, 'raw_analysis': 'isand+N+Sg+Nom', 'end': 6}, 
+       {'start': 0, 'weight': 7.0, 'raw_analysis': 'issand+N+Sg+Nom', 'end': 6}], 
+      [{'start': 7, 'weight': 2.0, 'raw_analysis': 'kui+CS', 'end': 10}, 
+       {'start': 7, 'weight': 2.0, 'raw_analysis': 'kui+Adv', 'end': 10}, 
+       {'start': 7, 'weight': 200.0, 'raw_analysis': 'kui+Guess+N+Sg+Nom', 'end': 10}, 
+       {'start': 7, 'weight': 201.0, 'raw_analysis': 'kui+Guess+N+Sg+Gen', 'end': 10}], 
+      [{'start': 11, 'weight': 7.0, 'raw_analysis': 'jube+A+Sg+Nom', 'end': 21}, 
+       {'start': 11, 'weight': 7.0, 'raw_analysis': 'jube+Adv', 'end': 21}], 
+      [{'start': 22, 'weight': 0.0, 'raw_analysis': '...+CLB', 'end': 25}]
+    ]
+    assert results == expected_results
+    
+    # Case 2: word normalizations with unknown words
+    text = Text('''päris hää !''')
+    text.tag_layer(['compound_tokens', 'words'])
+    # Add multiple normalized forms (include unknown words)
+    for word in text.words:
+        if word.text == 'hää':
+            if text.words.ambiguous == False:
+                word.annotations[0].normalized_form = ['hea', 'hääx0R', 'head']
+            else:
+                word.clear_annotations()
+                word.add_annotation( Annotation(word, normalized_form='hea') )
+                word.add_annotation( Annotation(word, normalized_form='hääx0R') )
+                word.add_annotation( Annotation(word, normalized_form='head') )
+    hfstAnalyser.tag(text)
+    results = text['hfst_gt_morph_analysis'].to_records()
+    #print(results)
+    expected_results = \
+    [
+        [{'weight': 5.0, 'end': 5, 'raw_analysis': 'päris+A', 'start': 0}, 
+         {'weight': 5.0, 'end': 5, 'raw_analysis': 'päris+Adv', 'start': 0}, 
+         {'weight': 7.0, 'end': 5, 'raw_analysis': 'pärima+V+Pers+Prt+Ind+Sg3+Aff', 'start': 0}], 
+        [{'weight': 4.0, 'end': 9, 'raw_analysis': 'hea+A+Sg+Nom', 'start': 6}, 
+         {'weight': 4.0, 'end': 9, 'raw_analysis': 'hea+N+Sg+Nom', 'start': 6}, 
+         {'weight': 5.0, 'end': 9, 'raw_analysis': 'hea+A+Sg+Gen', 'start': 6}, 
+         {'weight': 5.0, 'end': 9, 'raw_analysis': 'hea+N+Sg+Gen', 'start': 6}, 
+         {'weight': 5.0, 'end': 9, 'raw_analysis': 'hea+A+Pl+Nom', 'start': 6}, 
+         {'weight': 5.0, 'end': 9, 'raw_analysis': 'hea+N+Pl+Nom', 'start': 6}, 
+         {'weight': 6.0, 'end': 9, 'raw_analysis': 'hea+A+Sg+Par', 'start': 6}, 
+         {'weight': 6.0, 'end': 9, 'raw_analysis': 'hea+N+Sg+Par', 'start': 6}], 
+        [{'weight': 0.0, 'end': 11, 'raw_analysis': '!+CLB', 'start': 10}] ]
+    assert results == expected_results
+
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(TEST_HFST_TAGGER is None,
-                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
-    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
-    
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import split_into_morphemes
     
     test_data = [ {'word':'talv',\
@@ -168,11 +233,7 @@ def test_hfst_gt_morph_analyser_split_analyses_into_morphemes():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(TEST_HFST_TAGGER is None,
-                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_extract_morpheme_features():
-    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
-    
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import split_into_morphemes, extract_morpheme_features
     from collections import OrderedDict
     
@@ -254,11 +315,7 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(TEST_HFST_TAGGER is None,
-                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
-    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
-    
     from estnltk import Text
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
     
@@ -339,11 +396,7 @@ def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-@pytest.mark.skipif(TEST_HFST_TAGGER is None,
-                    reason=skip_reason_msg)
 def test_hfst_gt_morph_analyser_with_guessing_switched_on_and_off():
-    import hfst  # (!) Important: this import must come before importing estnltk's Vabamorf;
-    
     from estnltk import Text
     from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
     

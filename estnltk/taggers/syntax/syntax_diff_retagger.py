@@ -5,7 +5,9 @@ from estnltk.taggers.retagger import Retagger
 
 
 class SyntaxDiffRetagger(Retagger):
-    """Compares with reference syntax layer and adds 'arc_error', 'label_error' attributes to the syntax layer."""
+    """Compares with reference syntax layer and adds 'arc_error', 'label_error' attributes to the syntax layer.
+
+    """
     conf_param = ['reference_layer']
 
     def __init__(self, syntax_layer: str = 'syntax', reference_layer: str = 'syntax_gold'):
@@ -24,6 +26,6 @@ class SyntaxDiffRetagger(Retagger):
         layer.attributes = tuple(attributes)
 
         for span_a, span_b in zip(layer, reference_layer):
-            for annotation_a, annotation_b in zip(span_a, span_b):
+            for annotation_a, annotation_b in zip(span_a.annotations, span_b.annotations):
                 annotation_a.arc_error = (annotation_a.head != annotation_b.head)
                 annotation_a.label_error = (annotation_a.deprel != annotation_b.deprel)

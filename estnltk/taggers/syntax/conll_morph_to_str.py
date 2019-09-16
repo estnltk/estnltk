@@ -1,4 +1,4 @@
-'''
+"""
 
 Example:
 
@@ -17,17 +17,21 @@ Example:
     write_conll_to_file('conll_sentences.conll', text)
     print(conll_to_str(text))
 
-'''
+"""
+
 
 def conll_to_str(text):
     conll_str = ''
-    for sent in text.sentences.conll_morph:
+    text_conll_morph_get = text.conll_morph.get
+    for sent in text.sentences:
         for i, word in enumerate(sent.words):
+            annotation = text_conll_morph_get(word.base_span).annotations[0]
             conll_str += '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\n' % (
-                word.id[0], word.form[0], word.lemma[0], word.upostag[0], word.xpostag[0], word.feats[0], word.head[0],
-                word.deprel[0], word.deps[0], word.misc[0])
+                annotation.id, annotation.form, annotation.lemma, annotation.upostag, annotation.xpostag,
+                annotation.feats, annotation.head, annotation.deprel, annotation.deps, annotation.misc)
         conll_str += '\n'
     return conll_str
+
 
 def write_conll_to_file(filename, conll):
     with open(filename, 'w') as f:

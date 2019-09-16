@@ -17,10 +17,10 @@ from .merge import merge_layers
 from .combine import combine_layers
 from .conflict_resolver import iterate_conflicting_spans
 from .conflict_resolver import resolve_conflicts
+from .flatten import flatten
 from .splitting import extract_section
 from .splitting import extract_sections
 from .splitting import split_by
 from .splitting import split_by_sentences
 from .rebase import rebase
-from .flatten import flatten
 from .layer_indexing import create_ngram_fingerprint_index

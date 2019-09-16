@@ -1,8 +1,8 @@
-""""
-Test postgres storage functionality.
+"""Test postgres storage functionality.
 
 Requires ~/.pgpass file with database connection settings to `test_db` database.
 Schema/table creation and read/write rights are required.
+
 """
 import unittest
 import random
@@ -25,7 +25,6 @@ from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import PgCollectionException
-from estnltk.storage.postgres.pg_operations import build_sql_query
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage import postgres as pg
 
@@ -194,12 +193,12 @@ class TestPgCollection(unittest.TestCase):
     def test_select_by_key(self):
         collection = self.storage[get_random_collection_name()]
         collection.create()
-        self.assertRaises(PgCollectionException, lambda: collection.select_by_key(1))
+        self.assertRaises(PgCollectionException, lambda: collection._select_by_key(1))
 
         text = Text("Mingi tekst")
         with collection.insert() as collection_insert:
             collection_insert(text, 1)
-        res = collection.select_by_key(1)
+        res = collection._select_by_key(1)
         self.assertEqual(text, res)
         collection.delete()
 
@@ -222,8 +221,8 @@ class TestPgCollection(unittest.TestCase):
         id1 = 1
         id2 = 2
         # test select_by_id
-        self.assertEqual(collection.select_by_key(id1), text1)
-        self.assertEqual(collection.select_by_key(id2), text2)
+        self.assertEqual(collection._select_by_key(id1), text1)
+        self.assertEqual(collection._select_by_key(id2), text2)
 
         subcollection = collection.select()
         assert isinstance(subcollection, pg.PgSubCollection)
@@ -314,136 +313,6 @@ class TestPgCollection(unittest.TestCase):
 
         collection.delete()
 
-    def test_build_sql_query(self):
-        collection = self.storage['test_collection']
-
-        # defaults
-        sql = build_sql_query(collection)
-        result = sql.as_string(self.storage.conn)
-        expected = ('SELECT "test_schema"."test_collection"."id", '
-                           '"test_schema"."test_collection"."data" '
-                    'FROM "test_schema"."test_collection" ;')
-        self.assertEqual(expected, result)
-
-        # query
-        jsonb_text_query = Q('kiht', lemma='kass')
-        sql = build_sql_query(collection, query=jsonb_text_query)
-        result = sql.as_string(self.storage.conn)
-        expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
-            'FROM "test_schema"."test_collection" '
-            'WHERE "test_schema"."test_collection"."data"->\'layers\' @> \'[{"name": "kiht", "spans": [[{"lemma": "kass"}]]}]\' ;')
-        self.assertEqual(expected, result)
-
-        # layer_query
-        sql = build_sql_query(collection,
-                              layer_query={
-            'layer1': JsonbLayerQuery(layer_name='layer1_table', lemma='esimene') |
-                      JsonbLayerQuery(layer_name='layer1_table', lemma='teine')
-        })
-        result = sql.as_string(self.storage.conn)
-        expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
-            'FROM "test_schema"."test_collection", "test_schema"."test_collection__layer1__layer" '
-            'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer1__layer"."text_id" '
-            'AND ("test_schema"."test_collection__layer1_table__layer".data @> \'{"spans": [[{"lemma": "esimene"}]]}\' '
-            'OR "test_schema"."test_collection__layer1_table__layer".data @> \'{"spans": [[{"lemma": "teine"}]]}\') ;')
-        self.assertEqual(expected, result)
-
-        # layer_ngram_query
-        q = {'indexed_layer': {"lemma": [("see", "olema")]}}
-        sql = build_sql_query(collection, layer_ngram_query=q)
-        result = sql.as_string(self.storage.conn)
-        expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
-            'FROM "test_schema"."test_collection", "test_schema"."test_collection__indexed_layer__layer" '
-            'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__indexed_layer__layer"."text_id" '
-            'AND ("test_schema"."test_collection__indexed_layer__layer"."lemma" @> ARRAY[\'see-olema\']) ;')
-        self.assertEqual(expected, result)
-
-        # layers
-        sql = build_sql_query(collection, layers=['layer_1'])
-        result = sql.as_string(self.storage.conn)
-        expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data", '
-            '"test_schema"."test_collection__layer_1__layer"."id", '
-            '"test_schema"."test_collection__layer_1__layer"."data" '
-            'FROM "test_schema"."test_collection", "test_schema"."test_collection__layer_1__layer" '
-            'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_1__layer"."text_id" ;')
-        self.assertEqual(expected, result)
-
-        # keys
-        sql = build_sql_query(collection, keys=[2, 5, 9])
-        result = sql.as_string(self.storage.conn)
-        expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
-            'FROM "test_schema"."test_collection" WHERE "test_schema"."test_collection"."id" = ANY(ARRAY[2,5,9]) ;')
-        self.assertEqual(expected, result)
-
-        # order_by_id
-        sql = build_sql_query(collection, order_by_key=True)
-        result = sql.as_string(self.storage.conn)
-        expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
-            'FROM "test_schema"."test_collection" ORDER BY "id" ;')
-        self.assertEqual(expected, result)
-
-        # collection_meta
-        sql = build_sql_query(collection, collection_meta=['meta1', 'meta2'])
-        result = sql.as_string(self.storage.conn)
-        expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data", '
-                   '"test_schema"."test_collection"."meta1", "test_schema"."test_collection"."meta2" '
-            'FROM "test_schema"."test_collection" ;')
-        self.assertEqual(expected, result)
-
-        # missing_layer
-        sql = build_sql_query(collection, missing_layer='layer_1')
-        result = sql.as_string(self.storage.conn)
-        expected = (
-            'SELECT "test_schema"."test_collection"."id", "test_schema"."test_collection"."data" '
-            'FROM "test_schema"."test_collection" '
-            'WHERE "id" NOT IN (SELECT "text_id" FROM "test_schema"."test_collection__layer_1__layer") ;')
-        self.assertEqual(expected, result)
-
-        # all in one
-        layer_query = {'layer_2': JsonbLayerQuery(layer_name='layer1_table', lemma='esimene') |
-                                  JsonbLayerQuery(layer_name='layer1_table', lemma='teine')}
-        sql = build_sql_query(collection=collection,
-                              query=Q('layer_1', lemma='kass'),
-                              layer_query=layer_query,
-                              layer_ngram_query={'layer_3': {"lemma": [("see", "olema")]}},
-                              layers=['layer_4'],
-                              keys=[2, 5, 9],
-                              order_by_key=True,
-                              collection_meta=['meta1', 'meta2'],
-                              missing_layer='layer_5')
-
-        result = sql.as_string(self.storage.conn)
-        expected = (
-            'SELECT "test_schema"."test_collection"."id", '
-                   '"test_schema"."test_collection"."data", '
-                   '"test_schema"."test_collection"."meta1", '
-                   '"test_schema"."test_collection"."meta2", '
-                   '"test_schema"."test_collection__layer_4__layer"."id", '
-                   '"test_schema"."test_collection__layer_4__layer"."data" '
-            'FROM "test_schema"."test_collection", '
-                 '"test_schema"."test_collection__layer_2__layer", '
-                 '"test_schema"."test_collection__layer_3__layer", '
-                 '"test_schema"."test_collection__layer_4__layer" '
-            'WHERE "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_2__layer"."text_id" '
-              'AND "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_3__layer"."text_id" '
-              'AND "test_schema"."test_collection"."id" = "test_schema"."test_collection__layer_4__layer"."text_id" '
-              'AND "test_schema"."test_collection"."data"->\'layers\' @> \'[{"name": "layer_1", "spans": [[{"lemma": "kass"}]]}]\' '
-              'AND ("test_schema"."test_collection__layer1_table__layer".data @> \'{"spans": [[{"lemma": "esimene"}]]}\' '
-                'OR "test_schema"."test_collection__layer1_table__layer".data @> \'{"spans": [[{"lemma": "teine"}]]}\') '
-              'AND "test_schema"."test_collection"."id" = ANY(ARRAY[2,5,9]) '
-              'AND ("test_schema"."test_collection__layer_3__layer"."lemma" @> ARRAY[\'see-olema\']) '
-              'AND "id" NOT IN (SELECT "text_id" FROM "test_schema"."test_collection__layer_5__layer") '
-            'ORDER BY "id" ;')
-        self.assertEqual(expected, result)
-
-
 class TestLayerFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_layer_fragment"
@@ -466,37 +335,30 @@ class TestLayerFragment(unittest.TestCase):
             collection_insert(text2)
 
         layer_fragment_name = "layer_fragment_1"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer_fragment_name)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
 
-        def fragment_tagger(row):
-            text_id, text = row[0], row[1]
-            fragments = [RowMapperRecord(layer=tagger1.tag(text, return_layer=True), meta=None),
-                         RowMapperRecord(layer=tagger1.tag(text, return_layer=True), meta=None)]
-            return fragments
+        def fragmenter(layer):
+            # layer.serialisation_module = 'default_v1'
+            return [layer, layer]
 
-        collection.old_slow_create_layer(layer_fragment_name,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=fragment_tagger)
+        collection.create_fragmented_layer(tagger=tagger1, fragmenter=fragmenter)
 
         self.assertTrue(collection.has_layer(layer_fragment_name))
 
-        rows = [row for row in pg.select_raw(collection=collection,
-                                             detached_layers=[layer_fragment_name])]
-        self.assertEqual(len(rows), 4)
+        rows = list(collection.select().fragmented_layer(name=layer_fragment_name))
+
+        assert len(rows) == 4
 
         text_ids = [row[0] for row in rows]
         self.assertEqual(text_ids[0], text_ids[1])
         self.assertEqual(text_ids[2], text_ids[3])
         self.assertNotEqual(text_ids[1], text_ids[2])
 
-        layer_ids = [row[2] for row in rows]
-        #self.assertEqual(len(set(layer_ids)), 4)
-
-        texts = [row[1] for row in rows]
-        self.assertTrue(isinstance(texts[0], Text))
-
-        layers = [row[3] for row in rows]
-        #self.assertTrue(isinstance(layers[0], Layer))
+        for row in rows:
+            assert len(row) == 2, row
+            assert isinstance(row[0], int), row
+            assert isinstance(row[1], Layer), row
+            assert row[1].text_object is None
 
         self.assertTrue(layer_table_exists(self.storage, collection.name, layer_fragment_name))
 
@@ -527,26 +389,23 @@ class TestFragment(unittest.TestCase):
             collection_insert(text2)
 
         layer_fragment_name = "layer_fragment_1"
-        tagger = VabamorfTagger(disambiguate=False, layer_name=layer_fragment_name)
-        collection.old_slow_create_layer(layer_fragment_name,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=lambda row: [RowMapperRecord(
-                                                 layer=tagger.tag(row[1], return_layer=True), meta=None)])
+        tagger = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
+
+        collection.create_layer(tagger=tagger)
 
         self.assertTrue(collection.has_layer(layer_fragment_name))
 
         fragment_name = "fragment_1"
 
         def row_mapper(row):
-            text_id, text, meta, detached_layers = row
-            parent_layer = detached_layers[layer_fragment_name]['layer']
-            parent_id = detached_layers[layer_fragment_name]['layer_id']
-            return [{'fragment': parent_layer, 'parent_id': parent_id},
-                    {'fragment': parent_layer, 'parent_id': parent_id}]
+            parent_id, layer = row
+            # TODO: remove next line
+            # layer.serialisation_module = 'default_v1'
+            return [{'fragment': layer, 'parent_id': parent_id},
+                    {'fragment': layer, 'parent_id': parent_id}]
 
         collection.create_fragment(fragment_name,
-                            data_iterator=pg.select_raw(collection=collection,
-                                                        detached_layers=[layer_fragment_name]),
+                            data_iterator=collection.select().fragmented_layer(name=layer_fragment_name),
                             row_mapper=row_mapper,
                             create_index=False,
                             ngram_index=None)
@@ -590,30 +449,18 @@ class TestLayer(unittest.TestCase):
             collection_insert(text2)
 
         layer1 = "layer1"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
 
-        def row_mapper1(row):
-            text_id, text = row[0], row[1]
-            layer = tagger1.tag(text, return_layer=True)
-            return [RowMapperRecord(layer=layer, meta=None)]
+        collection.create_layer(tagger=tagger1)
 
-        collection.old_slow_create_layer(layer1,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=row_mapper1)
         tagger1.tag(text1)
         tagger1.tag(text2)
 
         layer2 = "layer2"
-        tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
+        tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
 
-        def row_mapper2(row):
-            text_id, text = row[0], row[1]
-            layer = tagger2.tag(text, return_layer=True)
-            return [RowMapperRecord(layer=layer, meta=None)]
+        collection.create_layer(tagger=tagger2)
 
-        collection.old_slow_create_layer(layer2,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=row_mapper2)
         tagger2.tag(text1)
         tagger2.tag(text2)
 
@@ -645,12 +492,12 @@ class TestLayer(unittest.TestCase):
             collection_insert(text2)
 
         layer1 = "layer1"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
 
         def row_mapper1(row):
             text_id, text = row[0], row[1]
-            layer = tagger1.tag(text, return_layer=True)
-            return [RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})]
+            layer = tagger1.make_layer(text)
+            return RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})
 
         collection.create_layer(layer1,
                                 data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
@@ -661,7 +508,7 @@ class TestLayer(unittest.TestCase):
 
         # get_layer_meta
         layer_meta = collection.get_layer_meta(layer_name=layer1)
-        assert layer_meta.to_dict() == {'id': {0: 1, 1: 2},
+        assert layer_meta.to_dict() == {'id': {0: 0, 1: 1},
                                         'meta_text_id': {0: 0, 1: 1},
                                         'sum': {0: 45.5, 1: 45.5},
                                         'text_id': {0: 0, 1: 1}}, layer_meta.to_dict()
@@ -687,16 +534,9 @@ class TestLayer(unittest.TestCase):
 
         # test ambiguous layer
         layer1_name = "layer1"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1_name)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1_name)
 
-        def row_mapper1(row):
-            text_id, text = row[0], row[1]
-            layer = tagger1.tag(text, return_layer=True)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        collection.old_slow_create_layer(layer1_name,
-                                  data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                  row_mapper=row_mapper1)
+        collection.create_layer(tagger=tagger1)
 
         q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik', form='sg n')
         self.assertEqual(len(list(collection.select(layer_query={layer1_name: q}))), 1)
@@ -719,14 +559,9 @@ class TestLayer(unittest.TestCase):
         # test with 2 layers
         layer2 = "layer2"
         layer2_table = layer2
-        tagger2 = VabamorfTagger(disambiguate=True, layer_name=layer2)
+        tagger2 = VabamorfTagger(disambiguate=True, output_layer=layer2)
 
-        def row_mapper2(row):
-            text_id, text = row[0], row[1]
-            layer = tagger2.tag(text, return_layer=True)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        collection.old_slow_create_layer(layer2, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper2)
+        collection.create_layer(tagger=tagger2)
 
         q = JsonbLayerQuery(layer_name=layer2_table, lemma='ööbik', form='sg n')
         self.assertEqual(len(list(collection.select(layer_query={layer2: q}))), 1)
@@ -749,25 +584,11 @@ class TestLayer(unittest.TestCase):
 
         layer1 = "layer1"
         layer2 = "layer2"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
-        tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
+        tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
 
-        def row_mapper1(row):
-            text_id, text = row[0], row[1]
-            layer = tagger1.tag(text, return_layer=True)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        def row_mapper2(row):
-            text_id, text = row[0], row[1]
-            layer = tagger2.tag(text, return_layer=True)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        collection.old_slow_create_layer(layer1,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=row_mapper1, create_index=True)
-        collection.old_slow_create_layer(layer2,
-                                         data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                         row_mapper=row_mapper2)
+        collection.create_layer(tagger=tagger1)
+        collection.create_layer(tagger=tagger2)
 
         # test one layer
         res = collection.find_fingerprint(layer_query={
@@ -777,14 +598,6 @@ class TestLayer(unittest.TestCase):
                 "ambiguous": True
             }})
         self.assertEqual(len(list(res)), 1)
-
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": ["ööbik"],
-                "ambiguous": False
-            }})
-        self.assertEqual(len(list(res)), 0)
 
         res = collection.find_fingerprint(layer_query={
             layer1: {
@@ -841,23 +654,11 @@ class TestLayer(unittest.TestCase):
 
         layer1 = "layer1"
         layer2 = "layer2"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
-        tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
+        tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
 
-        def row_mapper1(row):
-            text_id, text = row[0], row[1]
-            layer = tagger1.tag(text, return_layer=True)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        def row_mapper2(row):
-            text_id, text = row[0], row[1]
-            layer = tagger2.tag(text, return_layer=True)
-            return [RowMapperRecord(layer=layer, meta=None)]
-
-        collection.old_slow_create_layer(layer1, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper1,
-                                  ngram_index={"lemma": 2})
-        collection.old_slow_create_layer(layer2, data_iterator=collection.select(layers=['sentences', 'compound_tokens']), row_mapper=row_mapper2,
-                                  ngram_index={"partofspeech": 3})
+        collection.create_layer(tagger=tagger1, ngram_index={"lemma": 2})
+        collection.create_layer(tagger=tagger2, ngram_index={"partofspeech": 3})
 
         self.assertEqual(count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer1)), 2)
         self.assertEqual(count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer2)), 2)

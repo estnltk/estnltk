@@ -2,8 +2,8 @@ import pytest
 
 from estnltk import Text
 from estnltk import Layer
+from estnltk import ElementaryBaseSpan
 from estnltk import Span
-from estnltk import AmbiguousSpan
 from estnltk import Annotation
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.layer import AmbiguousAttributeList
@@ -12,65 +12,88 @@ from estnltk.layer import AttributeList
 from estnltk.tests import new_text
 
 
+def test_attributes_and_default_values():
+    layer = Layer('test')
+    assert () == layer.attributes
+    assert {} == layer.default_values
+
+    layer = Layer('test', attributes=['attr_1', 'attr_2'], default_values={'attr_2': 2})
+    assert ('attr_1', 'attr_2') == layer.attributes
+    assert {'attr_1': None, 'attr_2': 2} == layer.default_values
+    layer.attributes = ['attr_1']
+    assert {'attr_1': None} == layer.default_values
+    layer.attributes = ['attr_1', 'attr_2']
+    assert {'attr_1': None, 'attr_2': None} == layer.default_values
+    assert ('attr_1', 'attr_2') == layer.attributes
+
+    with pytest.raises(TypeError):
+        layer.attributes = 3
+
+    with pytest.raises(AssertionError):
+        layer.attributes = ['1attr', '2attr']
+
+    with pytest.raises(AssertionError):
+        layer.attributes = ['attr_1', 'attr_2', 'attr_1']
+
+    with pytest.raises(AssertionError):
+        layer.attributes = ['3attr']
+
+    assert ('attr_1', 'attr_2') == layer.attributes
+
+
 def test_add_span():
     text = Text('0123456789')
     layer = Layer(name='ambiguous', attributes=['a', 'b', 'c'], ambiguous=True)
 
-    span = Span(0, 1, layer=layer)
-    span.add_annotation(a='s1', b=True, c=None)
+    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+    span.add_annotation(Annotation(span, a='s1', b=True, c=None))
+    span.add_annotation(Annotation(span, a='s1', b=True, c=None))
     layer.add_span(span)
 
-    span = Span(1, 2, layer=layer)
-    span.add_annotation(a='s2', b=False, c=5)
+    span = Span(base_span=ElementaryBaseSpan(1, 2), layer=layer)
+    span.add_annotation(Annotation(span, a='s2', b=False, c=5))
+    span.add_annotation(Annotation(span, a='s4', b=False, c=5))
     layer.add_span(span)
 
-    span = Span(0, 2, layer=layer)
-    span.add_annotation(a='s3', b=True, c=None)
+    span = Span(base_span=ElementaryBaseSpan(0, 2), layer=layer)
+    span.add_annotation(Annotation(span, a='s3', b=True, c=None))
     layer.add_span(span)
 
-    text['ambiguous'] = layer
+    text.add_layer(layer)
 
-    span = Span(0, 1, layer=layer)
-    span.add_annotation(a='s1', b=True, c=None)
-    layer.add_span(span)
-
-    span = Span(1, 2, layer=layer)
-    span.add_annotation(a='s4', b=False, c=5)
-    layer.add_span(span)
-
-    assert len(layer.span_list) == 3
-    assert isinstance(layer[0], AmbiguousSpan)
-    assert isinstance(layer[1], AmbiguousSpan)
-    assert isinstance(layer[2], AmbiguousSpan)
-    assert len(layer[0]) == 1
-    assert len(layer[1]) == 1
-    assert len(layer[2]) == 2
+    assert len(layer) == 3
+    assert isinstance(layer[0], Span)
+    assert isinstance(layer[1], Span)
+    assert isinstance(layer[2], Span)
+    assert len(layer[0].annotations) == 1
+    assert len(layer[1].annotations) == 1
+    assert len(layer[2].annotations) == 2
 
     layer = Layer(name='ambiguous', attributes=['a', 'b', 'c'], ambiguous=False)
 
-    span = Span(0, 1, layer=layer)
-    span.add_annotation(a='s1', b=True, c=None)
+    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+    span.add_annotation(Annotation(span, a='s1', b=True, c=None))
     layer.add_span(span)
 
-    span = Span(1, 2, layer=layer)
-    span.add_annotation(a='s2', b=False, c=5)
+    span = Span(base_span=ElementaryBaseSpan(1, 2), layer=layer)
+    span.add_annotation(Annotation(span, a='s2', b=False, c=5))
     layer.add_span(span)
 
-    span = Span(0, 2, layer=layer)
-    span.add_annotation(a='s3', b=True, c=None)
+    span = Span(base_span=ElementaryBaseSpan(0, 2), layer=layer)
+    span.add_annotation(Annotation(span, a='s3', b=True, c=None))
     layer.add_span(span)
 
     with pytest.raises(ValueError):
-        span = Span(0, 1, layer=layer)
-        span.add_annotation(a='s1', b=True, c=None)
+        span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+        span.add_annotation(Annotation(span, a='s1', b=True, c=None))
         layer.add_span(span)
 
     with pytest.raises(ValueError):
-        span = Span(1, 2, layer=layer)
-        span.add_annotation(a='s4', b=False, c=5)
+        span = Span(base_span=ElementaryBaseSpan(1, 2), layer=layer)
+        span.add_annotation(Annotation(span, a='s4', b=False, c=5))
         layer.add_span(span)
 
-    assert len(layer.span_list) == 3
+    assert len(layer) == 3
     assert isinstance(layer[0], Span)
     assert isinstance(layer[1], Span)
     assert isinstance(layer[2], Span)
@@ -80,42 +103,42 @@ def test_add_annotation():
     # layer_0
     layer_0 = Layer('layer_0', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=False)
     assert len(layer_0) == 0
-    layer_0.add_annotation(Span(10, 11), attr_1=11)
+    layer_0.add_annotation(ElementaryBaseSpan(10, 11), attr_1=11)
     assert len(layer_0) == 1
-    assert layer_0[0].annotations == [Annotation(attr_1=11, attr_2=None)]
+    assert layer_0[0].annotations == [Annotation(None, attr_1=11, attr_2=None)]
     with pytest.raises(ValueError):
-        layer_0.add_annotation(Span(10, 11), attr_1=111)
+        layer_0.add_annotation(ElementaryBaseSpan(10, 11), attr_1=111)
 
-    layer_0.add_annotation(Span(0, 1))
+    layer_0.add_annotation(ElementaryBaseSpan(0, 1))
     assert len(layer_0) == 2
-    assert layer_0[0].annotations == [Annotation(attr_1=None, attr_2=None)]
+    assert layer_0[0].annotations == [Annotation(None, attr_1=None, attr_2=None)]
 
     # layer_1
     layer_1 = Layer('layer_1', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=True)
     assert len(layer_1) == 0
-    layer_1.add_annotation(Span(10, 11), attr_1=11)
+    layer_1.add_annotation(ElementaryBaseSpan(10, 11), attr_1=11)
     assert len(layer_1) == 1
-    assert layer_1[0].annotations == [Annotation(attr_1=11, attr_2=None)]
+    assert layer_1[0].annotations == [Annotation(None, attr_1=11, attr_2=None)]
 
-    layer_1.add_annotation(Span(10, 11), attr_1=111)
-    assert layer_1[0].annotations == [Annotation(attr_1=11, attr_2=None), Annotation(attr_1=111, attr_2=None)]
+    layer_1.add_annotation(ElementaryBaseSpan(10, 11), attr_1=111)
+    assert layer_1[0].annotations == [Annotation(None, attr_1=11, attr_2=None), Annotation(None, attr_1=111, attr_2=None)]
 
-    layer_1.add_annotation(Span(0, 1))
+    layer_1.add_annotation(ElementaryBaseSpan(0, 1))
     assert len(layer_1) == 2
-    assert layer_1[0].annotations == [Annotation(attr_1=None, attr_2=None)]
+    assert layer_1[0].annotations == [Annotation(None, attr_1=None, attr_2=None)]
 
     # layer_2
     layer_2 = Layer('layer_2', attributes=['attr_1', 'attr_2'], parent='layer_0', enveloping=None, ambiguous=False)
     assert len(layer_2) == 0
     layer_2.add_annotation(layer_0[1], attr_1=2)
     assert len(layer_2) == 1
-    assert layer_2[0].annotations == [Annotation(attr_1=2, attr_2=None)]
+    assert layer_2[0].annotations == [Annotation(None, attr_1=2, attr_2=None)]
     with pytest.raises(ValueError):
         layer_2.add_annotation(layer_0[1], attr_1=111)
 
-    layer_2.add_annotation(Span(0, 1))
+    layer_2.add_annotation(ElementaryBaseSpan(0, 1))
     assert len(layer_2) == 2
-    assert layer_2[0].annotations == [Annotation(attr_1=None, attr_2=None)]
+    assert layer_2[0].annotations == [Annotation(None, attr_1=None, attr_2=None)]
 
     # TODO: continue with all layer types
 
@@ -127,15 +150,15 @@ def test_layer_indexing():
                   default_values={'a': 'default a', 'b': 'default b', 'c': 'default c'},
                   ambiguous=False)
 
-    layer.add_annotation(Span(start=0, end=1), a=1, b=11, c=21)
-    layer.add_annotation(Span(start=1, end=2), a=2, b=12)
-    layer.add_annotation(Span(start=2, end=3), a=3)
-    layer.add_annotation(Span(start=3, end=4))
-    layer.add_annotation(Span(start=4, end=5), a=5, b=15, c=25)
-    layer.add_annotation(Span(start=5, end=6), a=6, b=16, c=None)
-    layer.add_annotation(Span(start=6, end=7), a=7, b=None, c=None)
-    layer.add_annotation(Span(start=7, end=8), a=None, b=None, c=None)
-    t['base'] = layer
+    layer.add_annotation((0, 1), a=1, b=11, c=21)
+    layer.add_annotation((1, 2), a=2, b=12)
+    layer.add_annotation((2, 3), a=3)
+    layer.add_annotation((3, 4))
+    layer.add_annotation((4, 5), a=5, b=15, c=25)
+    layer.add_annotation((5, 6), a=6, b=16, c=None)
+    layer.add_annotation((6, 7), a=7, b=None, c=None)
+    layer.add_annotation((7, 8), a=None, b=None, c=None)
+    t.add_layer(layer)
 
     span_2 = layer[2]
     assert isinstance(span_2, Span)
@@ -184,34 +207,35 @@ def test_ambiguous_layer_indexing():
     t = Text("0123456789")
     layer = Layer(name='base',
                   attributes=['a', 'b', 'c'],
+                  text_object=t,
                   default_values={'a': 'default a', 'b': 'default b'},
                   ambiguous=True)
-    layer.add_annotation(Span(start=0, end=1), a=1, b=11, c=21)
-    layer.add_annotation(Span(start=0, end=1), a=1, b=11, c=21)
-    layer.add_annotation(Span(start=1, end=2), a=2, b=12)
-    layer.add_annotation(Span(start=1, end=2), a=2, b=123)
-    layer.add_annotation(Span(start=2, end=3), a=3)
-    layer.add_annotation(Span(start=3, end=4))
-    layer.add_annotation(Span(start=3, end=4), a=4, b=None)
-    layer.add_annotation(Span(start=4, end=5), a=5, b=15, c=25)
-    layer.add_annotation(Span(start=5, end=6), a=6, b=16, c=None)
-    layer.add_annotation(Span(start=6, end=7), a=7, b=None, c=None)
-    layer.add_annotation(Span(start=7, end=8), a=None, b=None, c=None)
-    layer.add_annotation(Span(start=7, end=8), a=None, b=None, c=None)
-    t['base'] = layer
+    layer.add_annotation((0, 1), a=1, b=11, c=21)
+    layer.add_annotation((0, 1), a=1, b=11, c=21)
+    layer.add_annotation((1, 2), a=2, b=12)
+    layer.add_annotation((1, 2), a=2, b=123)
+    layer.add_annotation((2, 3), a=3)
+    layer.add_annotation((3, 4))
+    layer.add_annotation((3, 4), a=4, b=None)
+    layer.add_annotation((4, 5), a=5, b=15, c=25)
+    layer.add_annotation((5, 6), a=6, b=16, c=None)
+    layer.add_annotation((6, 7), a=7, b=None, c=None)
+    layer.add_annotation((7, 8), a=None, b=None, c=None)
+    layer.add_annotation((7, 8), a=None, b=None, c=None)
+    t.add_layer(layer)
 
     span_3 = layer[3]
-    assert isinstance(span_3, AmbiguousSpan)
-    assert len(span_3) == 2
-    assert isinstance(span_3[0], Annotation)
-    assert span_3[0].text == '3'
-    assert span_3[0].a == 'default a'
-    assert span_3[0].b == 'default b'
-    assert span_3[0].c is None
-    assert span_3[1].text == '3'
-    assert span_3[1].a == 4
-    assert span_3[1].b is None
-    assert span_3[1].c is None
+    assert isinstance(span_3, Span)
+    assert len(span_3.annotations) == 2
+    assert isinstance(span_3.annotations[0], Annotation)
+    assert span_3.annotations[0].text == '3'
+    assert span_3.annotations[0].a == 'default a'
+    assert span_3.annotations[0].b == 'default b'
+    assert span_3.annotations[0].c is None
+    assert span_3.annotations[1].text == '3'
+    assert span_3.annotations[1].a == 4
+    assert span_3.annotations[1].b is None
+    assert span_3.annotations[1].c is None
 
     assert isinstance(layer['a'], AmbiguousAttributeList)
     assert isinstance(layer.a, AmbiguousAttributeList)
@@ -243,14 +267,15 @@ def test_advanced_indexing():
     assert layer[:] == layer
     assert layer[2:10:2].text == ['Sinu', '?']
     assert layer[[True, False, True, False, True]].text == ['Mis', 'Sinu', '?']
-    assert layer[lambda span: len(span) > 1].text == ['Mis', 'on']
+    assert layer[lambda span: len(span.annotations) > 1].text == ['Mis', 'on']
     assert layer[[1, 3, 4]].text == ['on', 'nimi', '?']
 
     assert layer[:]['text', 'lemma'] == layer[['text', 'lemma']]
     assert layer[2:10:2, ['text', 'lemma']] == layer[2:10:2]['text', 'lemma']
     assert layer[[True, False, True, False, True], ['text', 'lemma']] == layer[True, False, True, False, True][
         'text', 'lemma']
-    assert layer[lambda span: len(span) > 1, ['text', 'lemma']] == layer[lambda span: len(span) > 1]['text', 'lemma']
+    assert layer[lambda span: len(span.annotations) > 1,
+                 ['text', 'lemma']] == layer[lambda span: len(span.annotations) > 1]['text', 'lemma']
     assert layer[[1, 3, 4], ['text', 'lemma']] == layer[[1, 3, 4]]['text', 'lemma']
     assert list(layer[0, 'lemma']) == ['mis', 'mis']
     assert list(layer[0, ['lemma', 'form']][0]) == ['mis', 'pl n']
@@ -267,9 +292,9 @@ def test_check_layer_consistency():
 
     # 1) Change first span, assign it to different layer
     old_first_span = morph_layer.spans[0]
-    morph_layer.spans[0] = AmbiguousSpan(layer=other_morph_layer, span=old_first_span.span)
+    morph_layer.spans[0] = Span(base_span=old_first_span.base_span, layer=other_morph_layer)
     with pytest.raises(AssertionError) as e1:
-        # Assertion error because the AmbiguousSpan is connected 
+        # Assertion error because the Span is connected
         # to different layer
         morph_layer.check_span_consistency()
     morph_layer.spans[0] = old_first_span
@@ -284,11 +309,10 @@ def test_check_layer_consistency():
     morph_layer.spans.pop()
     morph_layer.check_span_consistency()
 
-    # 3) Add Span instead of AmbiguousSpan
-    morph_layer.spans[0] = old_first_span.span
+    # 3) Set span without annotations
+    morph_layer.spans[0] = Span(old_first_span.base_span, old_first_span.layer)
     with pytest.raises(AssertionError) as e3:
-        # Assertion error because Span was used instead 
-        # of AmbiguousSpan
+        # Assertion error because the first span has no annotations
         morph_layer.check_span_consistency()
     morph_layer.spans[0] = old_first_span
     morph_layer.check_span_consistency()
@@ -297,12 +321,12 @@ def test_check_layer_consistency():
     layer1 = Layer(name='test_layer1',
                    attributes=['a', 'b', 'c'],
                    ambiguous=True)
-    layer1.add_annotation(Span(start=0, end=1))
-    assert layer1[0][0].a is None
-    assert layer1[0][0].b is None
-    assert layer1[0][0].c is None
+    layer1.add_annotation((0, 1))
+    assert layer1[0].annotations[0].a is None
+    assert layer1[0].annotations[0].b is None
+    assert layer1[0].annotations[0].c is None
     layer1.check_span_consistency()
-    del layer1[0][0].b
+    del layer1[0].annotations[0].b
     with pytest.raises(AssertionError) as e4:
         # Assertion error because layer's Annotation had missing attributes
         layer1.check_span_consistency()
@@ -315,8 +339,8 @@ def test_check_layer_consistency():
     layer2 = Layer(name='test_layer2',
                    attributes=['a', 'b'],
                    ambiguous=True)
-    amb_span1 = AmbiguousSpan(layer=layer1, span=Span(start=0, end=1))
-    amb_span2 = AmbiguousSpan(layer=layer2, span=Span(start=0, end=1))
+    amb_span1 = Span(ElementaryBaseSpan(0, 1), layer=layer1)
+    amb_span2 = Span(ElementaryBaseSpan(0, 1), layer=layer2)
     broken_annotation = Annotation(amb_span2)
     for attr in ['a', 'b', 'c']:
         setattr(broken_annotation, attr, '')
@@ -330,11 +354,13 @@ def test_check_layer_consistency():
     layer = Layer(name='test_layer',
                   attributes=['a', 'b', 'c'],
                   ambiguous=False)
-    span1 = Span(start=0, end=1, layer=layer)
-    span1.add_annotation(a=1, b=11)
+    span1 = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+    span1.add_annotation(Annotation(span1, a=1, b=11, c=None))
+    del span1.annotations[0].c
 
-    span2 = Span(start=1, end=2, layer=layer)
-    span2.add_annotation(b=11, c=21)
+    span2 = Span(base_span=ElementaryBaseSpan(1, 2), layer=layer)
+    span2.add_annotation(Annotation(span2, a=None, b=11, c=21))
+    del span2.annotations[0].a
 
     layer.spans.append(span1)
     layer.spans.append(span2)
@@ -346,12 +372,13 @@ def test_check_layer_consistency():
     # print(ex1)
 
     # B2) Check for redundant Span attributes
-    span3 = Span(start=0, end=1, legal_attributes=['a', 'b', 'c', 'd'])
-    span3.add_annotation(a=1, b=11, c=0, d=12)
+    span3 = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+    span3.add_annotation(Annotation(span3, a=1, b=11, c=0))
+    span3.annotations[0].d = 12
 
     layer.spans.append(span3)
     with pytest.raises(AssertionError) as ex2:
-        # Assertion error because Span has a redundant attribute
+        # assertion error because annotation of the span3 has a redundant attribute
         layer.check_span_consistency()
 
 
@@ -490,3 +517,128 @@ def test_groupby():
                       ('L0-7', '5'): ['viis'],
                       ('L0-8', '500'): ['viissada'],
                       ('L0-9', '100'): ['sada']}
+
+
+def test_copy():
+    layer = Layer('test')
+    layer_copy = layer.copy()
+    assert layer == layer_copy
+    assert layer is not layer_copy
+
+    text = new_text(5)
+
+    layer = text['layer_1']
+    layer_copy = layer.copy()
+
+    assert layer_copy == layer
+    assert layer_copy.attributes == layer.attributes
+    # the tuple of attribute names is not copied
+    assert layer_copy.attributes is layer.attributes
+    layer_copy.attributes = [*layer_copy.attributes, 'new_attribute']
+    assert layer_copy.attributes != layer.attributes
+    layer_copy.attributes = layer_copy.attributes[:-1]
+    assert layer_copy.attributes == layer.attributes
+    assert layer_copy.attributes is not layer.attributes
+
+    assert layer_copy == layer
+    assert layer_copy.default_values == layer.default_values
+    assert layer_copy.default_values is not layer.default_values
+    layer_copy.default_values['new_attribute'] = 13
+    assert layer_copy.default_values != layer.default_values
+    del layer_copy.default_values['new_attribute']
+    assert layer_copy.default_values == layer.default_values
+
+    # list of spans is copied
+    assert layer_copy == layer
+    span = layer_copy[0]
+    del layer_copy[0]
+    assert layer_copy != layer
+    layer_copy.add_span(span)
+
+    # list of annotations is copied
+    assert layer == layer_copy
+    layer_copy.add_annotation(layer_copy[0].base_span, attr='L1-2',  attr_1='kümme')
+    assert layer_copy != layer
+    del layer_copy[0].annotations[-1]
+
+    # annotations are copied
+    assert layer == layer_copy
+    layer_copy[0].annotations[0].attr_0 = '101'
+    assert layer_copy != layer
+    layer_copy[0].annotations[0].attr_0 = '100'
+
+
+def test_ancestor_layers():
+    text = Text('')
+
+    layer_1 = Layer('layer_1', text_object=text)
+    layer_2 = Layer('layer_2', text_object=text, parent='layer_1')
+    layer_3 = Layer('layer_3', text_object=text, parent='layer_2')
+    layer_4 = Layer('layer_4', text_object=text, enveloping='layer_2')
+    layer_5 = Layer('layer_5', text_object=text, enveloping='layer_2')
+    layer_6 = Layer('layer_6', text_object=text, parent='layer_5')
+
+    layer_7 = Layer('layer_7', text_object=text)
+
+    layer_8 = Layer('layer_8', text_object=text)
+    layer_9 = Layer('layer_9', text_object=text, enveloping='layer_8')
+
+    text.add_layer(layer_1)
+    text.add_layer(layer_2)
+    text.add_layer(layer_3)
+    text.add_layer(layer_4)
+    text.add_layer(layer_5)
+    text.add_layer(layer_6)
+    text.add_layer(layer_7)
+    text.add_layer(layer_8)
+    text.add_layer(layer_9)
+
+    assert layer_1.ancestor_layers() == ['layer_2', 'layer_3', 'layer_4', 'layer_5', 'layer_6']
+    assert layer_2.ancestor_layers() == ['layer_3', 'layer_4', 'layer_5', 'layer_6']
+    assert layer_3.ancestor_layers() == []
+    assert layer_4.ancestor_layers() == []
+    assert layer_5.ancestor_layers() == ['layer_6']
+    assert layer_6.ancestor_layers() == []
+
+    assert layer_7.ancestor_layers() == []
+
+    assert layer_8.ancestor_layers() == ['layer_9']
+    assert layer_9.ancestor_layers() == []
+
+
+def test_descendant_layers():
+    text = Text('')
+
+    layer_1 = Layer('layer_1', text_object=text)
+    layer_2 = Layer('layer_2', text_object=text, parent='layer_1')
+    layer_3 = Layer('layer_3', text_object=text, parent='layer_2')
+    layer_4 = Layer('layer_4', text_object=text, enveloping='layer_2')
+    layer_5 = Layer('layer_5', text_object=text, enveloping='layer_2')
+    layer_6 = Layer('layer_6', text_object=text, parent='layer_5')
+
+    layer_7 = Layer('layer_7', text_object=text)
+
+    layer_8 = Layer('layer_8', text_object=text)
+    layer_9 = Layer('layer_9', text_object=text, enveloping='layer_8')
+
+    text.add_layer(layer_1)
+    text.add_layer(layer_2)
+    text.add_layer(layer_3)
+    text.add_layer(layer_4)
+    text.add_layer(layer_5)
+    text.add_layer(layer_6)
+    text.add_layer(layer_7)
+    text.add_layer(layer_8)
+    text.add_layer(layer_9)
+
+    assert layer_1.descendant_layers() == []
+    assert layer_2.descendant_layers() == ['layer_1']
+    assert layer_3.descendant_layers() == ['layer_1', 'layer_2']
+    assert layer_4.descendant_layers() == ['layer_1', 'layer_2']
+    assert layer_5.descendant_layers() == ['layer_1', 'layer_2']
+    assert layer_6.descendant_layers() == ['layer_1', 'layer_2', 'layer_5']
+
+    assert layer_7.descendant_layers() == []
+
+    assert layer_8.descendant_layers() == []
+    assert layer_9.descendant_layers() == ['layer_8']

@@ -201,13 +201,13 @@ email_and_www_patterns = [
       '_group_': 2,
       '_priority_': (0, 0, 6),
       '_regex_pattern_':  re.compile(r'''
-                         (^|[^{ALPHANUM}])                 # beginning or non-alphanum
+                         (^|[^{ALPHANUM}])                               # beginning or non-alphanum
                          (
-                         [{ALPHANUM}_\-.]+                 # domain name
-                         (\s\.\s|\.)                       # period
-                         (ee|org|edu|com|uk|ru|fi|lv|lt)   # top-level domain
+                         [{ALPHANUM}_\-.]+                               # domain name
+                         (\s\.\s|\.)                                     # period
+                         (ee|org|edu|com|uk|ru|fi|lv|lt|eu|se|nl|de|dk)  # top-level domain
                          )
-                         ([^{ALPHANUM}]|$)                 # non-alphanum or ending
+                         ([^{ALPHANUM}]|$)                               # non-alphanum or ending
                          '''.format(**MACROS), re.X),
       'normalized': lambda m: re.sub(r'\s','', m.group(2) ) },
 
@@ -409,16 +409,27 @@ number_patterns = [
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub(r'[\s\.]' ,'' , m.group(0))"},
 
-    { 'comment': '*) A generic pattern for detecting long numbers (2 groups, point-separated).',
+    { 'comment': '*) A generic pattern for detecting long numbers (2 groups, point-separated, followed by comma-separated numbers).',
       'example': '67.123 , 456',
       'pattern_type': 'numeric',
       '_group_': 0,
-      '_priority_': (2, 1, 3),
+      '_priority_': (2, 1, 3, 1),
       '_regex_pattern_': re.compile(r'''
                          \d+\.+\d+           # 2 groups of numbers
-                         (\ ,\ \d+|,\d+)?    # + comma-separated numbers
+                         (\ ,\ \d+|,\d+)     # + comma-separated numbers
                          '''.format(**MACROS), re.X),
-      'normalized': _numeric_with_period_normalizer },
+      'normalized': r"lambda m: re.sub(r'[\s\.]' ,'' , m.group(0))" },
+    { 'comment': '*) A generic pattern for detecting long numbers (2 groups, point-separated, without following comma-separated numbers).',
+      'example': '67.123',
+      'pattern_type': 'numeric',
+      '_group_': 0,
+      '_priority_': (2, 1, 3, 2),
+      '_regex_pattern_': re.compile(r'''
+                         \d+\.+\d+           # 2 groups of numbers
+                         '''.format(**MACROS), re.X),
+      # Note: we do not delete '.' here, because that would harm 
+      #   date/time expressions (such as '03.2003' or '31.12') and price expressions (such as '4.50', '3.25')'
+      'normalized': 'lambda m: None' },
 
     { 'comment': '*) A generic pattern for detecting long numbers (2 groups, space-separated).',
       'example': '67 123 , 456',
