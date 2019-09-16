@@ -38,40 +38,40 @@ def export_TCF(t: Text, file:str=None, version='0.4'):
 
     token_ids = {}
     if 'words' in t.layers and version in {'0.4', '0.5'}:
-        token_ids = {word: 't'+str(i) for i, word in enumerate(t.words)}
+        token_ids = {word.base_span: 't'+str(i) for i, word in enumerate(t.words)}
         tokens = E('tokens')
         for word in t.words:
-            tokens.append(E('token', word.text, {'ID': token_ids[word], 'start': str(word.start), 'end': str(word.end)}))
+            tokens.append(E('token', word.text, {'ID': token_ids[word.base_span], 'start': str(word.start), 'end': str(word.end)}))
         text_tree[1].append(tokens)
 
     if 'sentences' in t.layers and version in {'0.4', '0.5'}:
         sentences = E('sentences')
         for i, sentence in enumerate(t.sentences):
-            token_IDs = ' '.join((token_ids[word] for word in sentence))
+            token_IDs = ' '.join((token_ids[word] for word in sentence.base_span))
             sentences.append(E('sentence', {'ID': 's'+str(i), 'tokenIDs': token_IDs}))
         text_tree[1].append(sentences)
 
     if 'morph_analysis' in t.layers and version in {'0.4', '0.5'}:
         lemmas = E('lemmas')
         for analysis in t.morph_analysis:
-            token_id = token_ids[analysis.words]
-            for a in analysis:
+            token_id = token_ids[analysis.base_span]
+            for a in analysis.annotations:
                 # kas nii on õige toimida mitmese märgendiga? (' '.join...)
                 lemmas.append(E('lemma', a.lemma, {'ID':token_id.replace('t', 'l'),'tokenIDs':token_id}))
         text_tree[1].append(lemmas)
         
         postags = E('POStags', {'tagset':''})
         for analysis in t.morph_analysis:
-            token_id = token_ids[analysis.words]
-            for a in analysis:
+            token_id = token_ids[analysis.base_span]
+            for a in analysis.annotations:
                 # kas nii on õige toimida mitmese märgendiga? (' '.join...)
                 postags.append(E('tag', a.partofspeech, {'tokenIDs':token_id}))
         text_tree[1].append(postags)
         
         morphology = E('morphology')
         for analysis in t.morph_analysis:
-            token_id = token_ids[analysis.words]
-            for a in analysis:
+            token_id = token_ids[analysis.base_span]
+            for a in analysis.annotations:
                 # kas nii on õige toimida mitmese märgendiga?
                 features = E('fs')
                 features.append(E('f', a.form, {'name':'form'}))
@@ -86,7 +86,7 @@ def export_TCF(t: Text, file:str=None, version='0.4'):
     if 'clauses' in t.layers and version in {'0.5'}:
         element_maker = E('clauses')
         for i, clause in enumerate(t.clauses):
-            token_IDs = ' '.join((token_ids[word] for word in clause))
+            token_IDs = ' '.join((token_ids[word] for word in clause.base_span))
             element_maker.append(E('clause',  {'tokenIDs':token_IDs}))
         text_tree[1].append(element_maker)
 
@@ -96,13 +96,13 @@ def export_TCF(t: Text, file:str=None, version='0.4'):
     if 'verb_chains' in t.layers and version in {'0.5'}:
         chunk = True
         for phrase in t.verb_chains:
-            token_IDs = ' '.join((token_ids[token] for token in phrase))
+            token_IDs = ' '.join((token_ids[token] for token in phrase.base_span))
             element_maker.append(E('chunk',  {'ID':'ch'+str(count), 'type':'VP', 'tokenIDs':token_IDs}))
             count += 1
     if 'time_phrases' in t.layers and version in {'0.5'}:
         chunk = True
         for phrase in t.time_phrases:
-            token_IDs = ' '.join((token_ids[token] for token in phrase))
+            token_IDs = ' '.join((token_ids[token] for token in phrase.base_span))
             element_maker.append(E('chunk',  {'ID':'ch'+str(count), 'type':'TMP', 'tokenIDs':token_IDs}))
             count += 1
     if chunk:

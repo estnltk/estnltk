@@ -1,132 +1,95 @@
-from typing import MutableMapping, Any, Sequence
-from html import escape
+from reprlib import recursive_repr
+from typing import Any, Sequence
 
+from estnltk.layer.base_span import BaseSpan, ElementaryBaseSpan
 from estnltk.layer.annotation import Annotation
+from estnltk.layer import AttributeList, AttributeTupleList
+
+from .to_html import html_table
 
 
 class Span:
+    """Basic element of an EstNLTK layer.
+
+    Span can exist without annotations. It is the responsibility of a programmer to remove such spans.
+
     """
-    Basic element of an EstNLTK layer.
-    """
+    __slots__ = ['_base_span', '_layer', '_annotations', '_parent']
 
-    # __slots__ = ['_annotations', '_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end',
-    #              '_base']
+    def __init__(self, base_span: BaseSpan, layer):
+        assert isinstance(base_span, BaseSpan), base_span
 
-    def __init__(self, start: int = None, end: int = None, parent=None, layer=None, legal_attributes=None):
-        # assert legal_attributes is None, legal_attributes
+        self._base_span = base_span
+        self._layer = layer  # type: Layer
 
-        # this is set up first, because attribute access depends on knowing attribute names as early as possible
-        self._legal_attribute_names = legal_attributes
-        if isinstance(self._legal_attribute_names, list):
-            # TODO: remove this if
-            self._legal_attribute_names = tuple(self._legal_attribute_names)
-        self.is_dependant = parent is None
+        self._annotations = []
 
-        # Placeholder, set when span added to spanlist
-        self.layer = layer  # type: Layer
-        self.parent = parent  # type: Span
+        self._parent = None  # type: Span
 
-        if isinstance(start, int) and isinstance(end, int):
-            assert start <= end, (start, end)
+    def add_annotation(self, annotation: Annotation) -> Annotation:
+        if not isinstance(annotation, Annotation):
+            raise TypeError('expected Annotation, got {}'.format(type(annotation)))
+        if annotation.span is not self:
+            raise ValueError('the annotation has a different span {}'.format(annotation.span))
+        if set(annotation) != set(self.layer.attributes):
+            raise ValueError('the annotation has unexpected or missing attributes {}!={}'.format(
+                    set(annotation), set(self.layer.attributes)))
 
-            self._start = start
-            self._end = end
-            self.is_dependant = False
+        if annotation not in self._annotations:
+            if self.layer.ambiguous or len(self._annotations) == 0:
+                self._annotations.append(annotation)
+                return annotation
 
-        # parent is a Span of dependant Layer
-        elif parent is not None:
-            assert start is None
-            assert end is None
-            self.is_dependant = True
+            raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
 
-            # The _base of a root-layer Span is the span itself.
-            # So, if the parent is a root-layer the following must hold (self._base == self.parent == self.parent._base)
-            # If the parent is not a root-layer Span, (self._base == self.parent._base)
-            self._base = parent._base  # type: Span
+    def del_annotation(self, idx):
+        del self._annotations[idx]
 
-        else:
-            assert 0, 'What?'
-
-        if not self.is_dependant:
-            self._base = self  # type:Span
-
-        self._annotations = [Annotation(span=self)]
-
-    def __len__(self):
-        return len(self._annotations)
-
-    def __getitem__(self, item):
-        return self.annotations[item]
-
-    def add_annotation(self, **attributes) -> Annotation:
-        # TODO: try and remove if-s
-
-        annotation = Annotation(self)
-        if self.layer:
-            for attr in self.layer.attributes:
-                if attr in attributes:
-                    setattr(annotation, attr, attributes[attr])
-        else:
-            for attr, value in attributes.items():
-                if attr == 'text':
-                    continue
-                setattr(annotation, attr, value)
-
-        self._annotations[0] = annotation
-
-        return annotation
+    def clear_annotations(self):
+        self._annotations.clear()
 
     @property
     def annotations(self):
         return self._annotations
 
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            if self._layer.ambiguous:
+                return AttributeList((annotation[item] for annotation in self._annotations), item)
+            return self._annotations[0][item]
+        if isinstance(item, tuple):
+            if self._layer.ambiguous:
+                return AttributeTupleList((annotation[item] for annotation in self._annotations), item)
+            return self._annotations[0][item]
+
+        raise KeyError(item)
+
+    @property
+    def parent(self):
+        if self._parent is None and self._layer.parent:
+            self._parent = self._layer.text_object[self._layer.parent].get(self.base_span)
+
+        return self._parent
+
+    @property
+    def layer(self):
+        return self._layer
+
     @property
     def legal_attribute_names(self) -> Sequence[str]:
-        if self.layer is not None:
-            return self.layer.attributes
-        if self.__getattribute__('_legal_attribute_names') is not None:
-            return self.__getattribute__('_legal_attribute_names')
-        return ()
-
-    def to_records(self, with_text=False) -> MutableMapping[str, Any]:
-        attributes = self.annotations[0].attributes
-        record = {k: attributes[k] for k in self.layer.attributes}
-        if with_text:
-            record['text'] = self.text
-        record['start'] = self.start
-        record['end'] = self.end
-        return record
-
-    # TODO: remove
-    def mark(self, mark_layer: str) -> 'Span':
-        base_layer = self.text_object.layers[mark_layer]  # type: Layer
-        base = base_layer._base
-
-        assert base == self.layer._base, "Expected '{self.layer._base}' got '{base}'".format(self=self, base=base)
-        res = base_layer.add_span(
-            Span(
-                parent=self._base  # this is the base span
-            )
-        )
-        return res
+        return self._layer.attributes
 
     @property
     def start(self) -> int:
-        if not self.is_dependant:
-            return self._start
-        else:
-            return self.parent.start
+        return self._base_span.start
 
     @property
     def end(self) -> int:
-        if not self.is_dependant:
-            return self._end
-        else:
-            return self.parent.end
+        return self._base_span.end
 
     @property
     def base_span(self):
-        return self.start, self.end
+        return self._base_span
 
     @property
     def base_spans(self):
@@ -134,111 +97,104 @@ class Span:
 
     @property
     def text(self):
-        if self.text_object:
-            return self.text_object.text[self.start:self.end]
+        if self.text_object is None:
+            return
+        text = self.text_object.text
+        base_span = self.base_span
+
+        if isinstance(base_span, ElementaryBaseSpan):
+            return text[base_span.start:base_span.end]
+
+        return [text[start:end] for start, end in base_span.flatten()]
+
+    @property
+    def enclosing_text(self):
+        return self._layer.text_object.text[self.start:self.end]
 
     @property
     def text_object(self):
-        if self.layer is not None:
-            return self.layer.text_object
-
-    def add_layer(self, layer):
-        if self.layer is None:
-            self.layer = layer
-        assert self.layer is layer
+        if self._layer is not None:
+            return self._layer.text_object
 
     @property
     def raw_text(self):
         return self.text_object.text
 
-    def html_text(self, margin: int = 0):
-        t = self.raw_text
-        s = self.start
-        e = self.end
-        left = escape(t[max(0, s - margin):s])
-        middle = escape(t[s:e])
-        right = escape(t[e:e + margin])
-        return ''.join(('<span style="font-family: monospace; white-space: pre-wrap;">',
-                        left,
-                        '<span style="text-decoration: underline;">', middle, '</span>',
-                        right, '</span>'))
+    def to_records(self, with_text=False):
+        if self._layer.ambiguous:
+            return [i.to_record(with_text) for i in self._annotations]
+        annotation = self.annotations[0]
+        record = {k: annotation[k] for k in self._layer.attributes}
+        if with_text:
+            record['text'] = self.text
+        record['start'] = self.start
+        record['end'] = self.end
+        return record
 
     def __setattr__(self, key, value):
-        if key not in {'_legal_attribute_names', 'is_dependant', 'layer', 'parent', '_start', '_end', '_base',
-                       '_annotations'}:
-            # assert 0, key
+        if key in {'_base_span', '_layer', '_annotations', '_parent'}:
+            super().__setattr__(key, value)
+        elif key in self.legal_attribute_names:
             for annotation in self._annotations:
                 setattr(annotation, key, value)
         else:
-            pass
-        super().__setattr__(key, value)
+            raise AttributeError(key)
+
+    def resolve_attribute(self, item):
+        target_layer = self.text_object.layers.get(item)
+        if target_layer is None:
+            attribute_mapping = self.text_object.attribute_mapping_for_elementary_layers
+            return self._layer.text_object[attribute_mapping[item]].get(self.base_span)[item]
+
+        return target_layer.get(self.base_span)
 
     def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__'}:
-            raise AttributeError
-
-        if item in self.legal_attribute_names:
-            return getattr(self.annotations[0], item)
-
-        elif self.layer is not None and self.layer.text_object is not None and self.layer.text_object._path_exists(
-                self.layer.name, item):
-            # there exists an unambiguous path from this span to the target (attribute)
-
-            looking_for_layer = False
-            if item in self.layer.text_object.layers.keys():
-                looking_for_layer = True
-                target_layer_name = self.text_object._get_path(self.layer.name, item)[-1]
-            else:
-                target_layer_name = self.text_object._get_path(self.layer.name, item)[-2]
-
-            for i in self.text_object.layers[target_layer_name].span_list:
-                if i.__getattribute__('parent') == self or self.__getattribute__('parent') == i:
-                    if looking_for_layer:
-                        return i
-                    else:
-                        return getattr(i, item)
-
-        else:
-            return self.__getattribute__('__class__').__getattribute__(self, item)
+        if item in self.__getattribute__('_layer').attributes:
+            return self[item]
+        try:
+            return self.resolve_attribute(item)
+        except KeyError as key_error:
+            raise AttributeError(key_error.args[0]) from key_error
 
     def __lt__(self, other: Any) -> bool:
-        return (self.start, self.end) < (other.start, other.end)
+        return self.base_span < other.base_span
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Span):
-            return False
-        if self.base_span != other.base_span:
-            return False
-        if self.legal_attribute_names != other.legal_attribute_names:
-            return False
-        return self.annotations == other.annotations
+        return isinstance(other, Span) \
+               and self.base_span == other.base_span \
+               and len(self.annotations) == len(other.annotations) \
+               and all(s in other.annotations for s in self.annotations)
 
-    def __hash__(self):
-        return hash((self.start, self.end))
-
+    @recursive_repr()
     def __str__(self):
-        if self.text_object is not None:
-            return 'Span(start={self.start}, end={self.end}, text={self.text!r})'.format(self=self)
-        if self.layer is None:
-            return 'Span(start={self.start}, end={self.end}, layer={self.layer})'.format(self=self)
-        if self.layer.text_object is None:
-            return 'Span(start={self.start}, end={self.end}, layer: {self.layer.name!r})'.format(self=self)
+        try:
+            text = self.text
+        except:
+            text = None
 
-        legal_attribute_names = self.layer.attributes
+        try:
+            attribute_names = self._layer.attributes
+            annotation_strings = []
+            for annotation in self._annotations:
+                key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
+                annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
+            annotations = '[{}]'.format(', '.join(annotation_strings))
+        except:
+            annotations = None
 
-        # Output key-value pairs in a sorted way
-        # (to assure a consistent output, e.g. for automated testing)
-        mapping_sorted = []
-
-        for k in sorted(legal_attribute_names):
-            key_value_str = "{key_val}".format(key_val = {k:self.__getattribute__(k)})
-            # Hack: Remove surrounding '{' and '}'
-            key_value_str = key_value_str[1:-1]
-            mapping_sorted.append(key_value_str)
-
-        # Hack: Put back surrounding '{' and '}' (mimic dict's representation)
-        mapping_sorted_str = '{'+ (', '.join(mapping_sorted)) + '}'
-        return 'Span({text}, {attributes})'.format(text=self.text, attributes=mapping_sorted_str)
+        return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
+                                                              annotations=annotations)
 
     def __repr__(self):
         return str(self)
+
+    def _to_html(self, margin=0) -> str:
+        try:
+            return '<b>{}</b>\n{}'.format(
+                    self.__class__.__name__,
+                    html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
+        except:
+            return str(self)
+
+    def _repr_html_(self):
+        return self._to_html()

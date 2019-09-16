@@ -6,18 +6,23 @@ from typing import MutableMapping
 
 import re
 
-from estnltk import EnvelopingSpan
-from estnltk.text import Layer, SpanList
+from estnltk.layer.span_list import SpanList
+from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 
 _hyphen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
 _lc_letter  = '[a-zöäüõžš]'
 _uc_letter  = '[A-ZÖÄÜÕŽŠ]'
 _not_letter = '[^A-ZÖÄÜÕŽŠa-zöäüõžš]'
-_start_quotes  = '"\u00AB\u02EE\u030B\u201C\u201D\u201E'
-_ending_quotes = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
+_start_quotes  = '"\u00AB\u02EE\u030B\u201C\u201E'
+_ending_quotes = '"\u00BB\u02EE\u030B\u201D\u201E'
 # regexp for matching a single token consisting only of sentence-ending punctuation
 _ending_punct_regexp = re.compile('^[.?!…]+$')
+
+# regexps for quotation mark counting corrections:
+_starting_quotes_regexp   = re.compile('^['+_start_quotes+']$')
+_ending_quotes_regexp     = re.compile('^['+_ending_quotes+']$')
+_indistinguishable_quotes = re.compile('^["\u02EE\u030B\u201E]$') # not clear, if start or end
 
 # Patterns describing how two mistakenly split 
 # adjacent sentences can be merged into one sentence
@@ -242,12 +247,12 @@ merge_patterns = [
    },
    #   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
    { 'comment'  : '{sentence_ending_punct} + {ending_quotes} {only_sentence_ending_punct}', \
-     'example'  : '\'\nNii ilus ! \' + \'" .\' + \'\nNõmmel elav pensioniealine Maret\'', \
+     'example'  : ''' '\nNii ilus ! ' + '" .' + '\nNõmmel elav pensioniealine Maret' ''', \
      'fix_type' : 'double_quotes', \
      'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), re.compile('^['+_ending_quotes+']\s*[?!.…]+$') ], \
    },
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}', \
-     'example'  : '\'\nNii ilus ! " \' + \' . \nNõmmel elav pensioniealine Maret\'', \
+     'example'  : ''' '\nNii ilus ! " ' + ' . \nNõmmel elav pensioniealine Maret' ''', \
      'fix_type' : 'double_quotes', \
      'regexes'  : [re.compile('.+[?!.…]\s*['+_ending_quotes+']$', re.DOTALL), _ending_punct_regexp ], \
    },
@@ -276,12 +281,11 @@ merge_patterns = [
 
 class SentenceTokenizer( Tagger ):
     """Tokenizes text into sentences, and makes sentence tokenization post-corrections where necessary."""
-    output_layer = 'sentences'
-    output_attributes = ()
     conf_param = ['base_sentence_tokenizer',
                   'fix_paragraph_endings', 'fix_compound_tokens',
                   'fix_numeric', 'fix_parentheses', 'fix_double_quotes',
                   'fix_inner_title_punct', 'fix_repeated_ending_punct',
+                  'fix_double_quotes_based_on_counts',
                   'use_emoticons_as_endings',
                   'record_fix_types',
                   # Inner parameters:
@@ -289,12 +293,9 @@ class SentenceTokenizer( Tagger ):
                   '_apply_sentences_from_tokens',
                   # Names of the specific input layers
                   '_input_words_layer', '_input_compound_tokens_layer',
-                  # For backward compatibility:
-                  'depends_on', 'layer_name', 'attributes'
                   ]
-    # For backward compatibility:
-    layer_name = 'sentences'
-    attributes = ()
+    output_layer = 'sentences'
+    output_attributes = ()
 
     def __init__(self, 
                  output_layer:str='sentences',
@@ -307,6 +308,7 @@ class SentenceTokenizer( Tagger ):
                  fix_double_quotes:bool = True,
                  fix_inner_title_punct:bool = True,
                  fix_repeated_ending_punct:bool = True,
+                 fix_double_quotes_based_on_counts:bool = False,
                  use_emoticons_as_endings:bool = True,
                  record_fix_types:bool = False,
                  base_sentence_tokenizer = None,
@@ -349,7 +351,8 @@ class SentenceTokenizer( Tagger ):
         
         fix_double_quotes: boolean (default: True)
             Removes sentence endings that are misplaced with respect to quotations 
-            / double quotes.
+            / double quotes.  Note: these are local fixes in adjacent sentences
+            that to not take account of the balance of quotes (in the whole text). 
         
         fix_inner_title_punct: boolean (default: True)
             Removes sentence endings that are mistakenly placed after titles inside 
@@ -361,6 +364,11 @@ class SentenceTokenizer( Tagger ):
             Adds sentence endings that are missed in places of prolonged ending 
             punctuation (including triple dots), and also fixes misplaced sentence 
             endings in such contexts.
+        
+        fix_double_quotes_based_on_counts: boolean (default: xxxx)
+            Provides sentence boundary corrections based on counting quotation 
+            marks in the whole text. Note: these are global fixes that consider 
+            the balance of quotes in the whole text. 
         
         use_emoticons_as_endings: boolean (default: True)
             If switched on, then emoticons are treated as sentence endings.
@@ -394,8 +402,6 @@ class SentenceTokenizer( Tagger ):
         self._input_words_layer = input_words_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
         self.input_layers = [input_words_layer, input_compound_tokens_layer]
-        self.layer_name = self.output_layer
-        self.depends_on = self.input_layers
         # Set flags
         self.fix_paragraph_endings = fix_paragraph_endings
         self.fix_compound_tokens = fix_compound_tokens
@@ -404,6 +410,7 @@ class SentenceTokenizer( Tagger ):
         self.fix_double_quotes = fix_double_quotes
         self.fix_inner_title_punct = fix_inner_title_punct
         self.fix_repeated_ending_punct = fix_repeated_ending_punct
+        self.fix_double_quotes_based_on_counts = fix_double_quotes_based_on_counts
         self.use_emoticons_as_endings = use_emoticons_as_endings
         self.record_fix_types = record_fix_types
 
@@ -415,6 +422,8 @@ class SentenceTokenizer( Tagger ):
         import nltk as nltk
         from nltk.tokenize.punkt import PunktSentenceTokenizer
         from nltk.tokenize.api import TokenizerI
+
+        self.base_sentence_tokenizer = None
         if not base_sentence_tokenizer:
             # If base tokenizer was not given by the user:
             #    Initialize NLTK's tokenizer
@@ -512,7 +521,7 @@ class SentenceTokenizer( Tagger ):
                 if 'non_ending_abbreviation' in ct.type:
                     sentence_ends -= {span.end for span in ct}
                 else:
-                    sentence_ends -= {span.end for span in ct[0:-1]}
+                    sentence_ends -= {span.end for span in ct.base_span[0:-1]}
         # B) Use repeated/prolonged sentence punctuation as sentence endings
         if self.fix_repeated_ending_punct:
             repeated_ending_punct = []
@@ -532,7 +541,7 @@ class SentenceTokenizer( Tagger ):
                         next_word = words[wid+1].text
                         if len(next_word) > 1 and \
                            next_word[0].isupper() and \
-                           next_word[1].islower():
+                           (next_word[1].islower() or next_word.isupper()):
                             # we have a likely sentence boundary:
                             # add it to the set of sentence ends
                             sentence_ends.add( word.end )
@@ -599,9 +608,14 @@ class SentenceTokenizer( Tagger ):
                 self._merge_mistakenly_split_sentences(raw_text,
                                                        sentences_list,
                                                        sentence_fixes_list)
-        # G) Create the layer and attach sentences
+        # G) Count double quotes and provide corrections based on counts 
+        #    (as far as the counts are in balance)
+        if self.fix_double_quotes_based_on_counts:
+            sentences_list, sentence_fixes_list = \
+                self._counting_corrections_to_double_quotes(raw_text, sentences_list, sentence_fixes_list)
+        # H) Create the layer and attach sentences
         layer = Layer(enveloping=self._input_words_layer,
-                      name=self.layer_name,
+                      name=self.output_layer,
                       attributes=self.output_attributes,
                       text_object=text,
                       ambiguous=False)
@@ -609,11 +623,12 @@ class SentenceTokenizer( Tagger ):
             if self.record_fix_types:
                 # Add information about which types of fixes 
                 # were applied to sentences
-                sentence_span_list.fix_types = sentence_fixes_list[sid]
-            layer.add_span(sentence_span_list)
+                layer.add_annotation(sentence_span_list, fix_types=sentence_fixes_list[sid])
+            else:
+                layer.add_annotation(sentence_span_list)
         return layer
 
-    def _merge_mistakenly_split_sentences(self, raw_text: str, sentences_list:list, sentence_fixes_list:list):
+    def _merge_mistakenly_split_sentences(self, raw_text: str, sentences_list: list, sentence_fixes_list: list):
         """ Uses regular expression patterns (defined in self._merge_rules) to
             discover adjacent sentences (in sentences_list) that should actually 
             form a single sentence. Merges those adjacent sentences.
@@ -637,27 +652,28 @@ class SentenceTokenizer( Tagger ):
             this_sentence_fixes = sentence_fixes_list[sid]
             # get text of the current sentence
             this_sent = \
-                raw_text[sentence_spl.start:sentence_spl.end].lstrip()
+                raw_text[sentence_spl[0].start:sentence_spl[-1].end].lstrip()
             current_fix_types = []
-            shiftEnding = None
-            mergeSpanLists = False
-            if sid-1 > -1:
+            shift_ending = None
+            merge_span_lists = False
+            if sid > 0:
                 # get text of the previous sentence
-                if not new_sentences_list:
-                    last_sentence_spl   = sentences_list[sid-1]
-                    last_sentence_fixes = sentence_fixes_list[sid-1]
-                else:
-                    last_sentence_spl   = new_sentences_list[-1]
+                if new_sentences_list:
+                    last_sentence_spl = new_sentences_list[-1]
                     last_sentence_fixes = new_sentence_fixes_list[-1]
-                prev_sent = \
-                    raw_text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
+                else:
+                    last_sentence_spl = sentences_list[sid - 1]
+                    last_sentence_fixes = sentence_fixes_list[sid - 1]
+
+                prev_sent = raw_text[last_sentence_spl[0].start:last_sentence_spl[-1].end].rstrip()
+
                 discard_merge = False
                 if self.fix_paragraph_endings:
                     # If fixing paragraph endings has been switched on, then 
                     # do not merge over paragraph endings!
                     # ( otherwise, it may ruin paragraph ending fixes )
-                    this_start = sentence_spl.start
-                    last_end   = last_sentence_spl.end
+                    this_start = sentence_spl[0].start
+                    last_end   = last_sentence_spl[-1].end
                     if '\n\n' in raw_text[last_end:this_start]:
                         discard_merge = True
                 if not discard_merge:
@@ -666,28 +682,27 @@ class SentenceTokenizer( Tagger ):
                     for pattern in self._merge_rules:
                         [beginPat, endPat] = pattern['regexes']
                         if endPat.match(this_sent) and beginPat.match(prev_sent):
-                            mergeSpanLists = True
+                            merge_span_lists = True
                             current_fix_types.append(pattern['fix_type'])
                             # Check if ending also needs to be shifted
                             if 'shift_end' in pattern:
                                 # Find new sentence ending position and validate it
-                                shiftEnding = self._find_new_sentence_ending(raw_text, \
-                                              pattern, sentence_spl, last_sentence_spl )
+                                shift_ending = self._find_new_sentence_ending(raw_text, pattern, sentence_spl,
+                                                                              last_sentence_spl)
                             break
-            if mergeSpanLists:
+            if merge_span_lists:
                 # -------------------------------------------
                 #   1) Split-and-merge: First merge two sentences, then split at some 
                 #      location (inside one of the old sentences)
                 # -------------------------------------------
-                if shiftEnding:
-                    prev_sent_spl = \
-                        new_sentences_list[-1] if new_sentences_list else last_sentence_spl
-                    merge_split_result = self._perform_merge_split(shiftEnding, sentence_spl, prev_sent_spl)
-                    if merge_split_result != None:
+                if shift_ending:
+                    prev_sent_spl = new_sentences_list[-1] if new_sentences_list else last_sentence_spl
+                    merge_split_result = self._perform_merge_split(shift_ending, sentence_spl, prev_sent_spl)
+                    if merge_split_result is not None:
                         if new_sentences_list:
                             # Update sentence spans
                             new_sentences_list[-1] = merge_split_result[0]
-                            new_sentences_list.append ( merge_split_result[1] )
+                            new_sentences_list.append ( merge_split_result[1])
                             # Update fix types list
                             new_sentence_fixes_list[-1] = \
                                 last_sentence_fixes + current_fix_types
@@ -695,21 +710,21 @@ class SentenceTokenizer( Tagger ):
                                 this_sentence_fixes + current_fix_types)
                         else:
                             # Update sentence spans
-                            new_sentences_list.append ( merge_split_result[0] )
-                            new_sentences_list.append ( merge_split_result[1] )
+                            new_sentences_list.extend(merge_split_result)
                             # Update fix types list
                             new_sentence_fixes_list.append(
                                 last_sentence_fixes + current_fix_types)
                             new_sentence_fixes_list.append(
                                 this_sentence_fixes + current_fix_types)
                     else:
+                        # TODO: test or remove
                         # if merge-and-split failed, then discard the rule
                         # (sentences will remain split as they were)
-                        new_spanlist = EnvelopingSpan()
-                        if self.record_fix_types:
-                            new_spanlist.fix_types = []
-                        new_spanlist.spans = sentence_spl.spans
-                        new_sentences_list.append( new_spanlist )
+                        # new_spanlist = EnvelopingSpan()
+                        # if self.record_fix_types:
+                        #     new_spanlist.fix_types = []
+                        # new_spanlist.spans = sentence_spl.spans
+                        new_sentences_list.append(sentence_spl)
                         # Update fix types list
                         new_sentence_fixes_list.append(this_sentence_fixes)
                 else:
@@ -719,9 +734,8 @@ class SentenceTokenizer( Tagger ):
                     # Perform the merging
                     if not new_sentences_list:
                         # No sentence has been added so far: add a new one
-                        spans = last_sentence_spl.spans+sentence_spl.spans
-                        merged_spanlist = EnvelopingSpan(spans=spans)
-                        new_sentences_list.append( merged_spanlist )
+                        spans = last_sentence_spl + sentence_spl
+                        new_sentences_list.append(spans)
                         # Update fix types list
                         all_fixes = \
                             last_sentence_fixes + \
@@ -731,9 +745,8 @@ class SentenceTokenizer( Tagger ):
                     else:
                         # At least one sentence has already been added:
                         # extend the last sentence
-                        spans = new_sentences_list[-1].spans + tuple(sentence_spl.spans)
-                        merged_spanlist = EnvelopingSpan(spans=spans)
-                        new_sentences_list[-1] = merged_spanlist
+                        spans = list(new_sentences_list[-1]) + list(sentence_spl)
+                        new_sentences_list[-1] = spans
                         # Update fix types list
                         all_fixes = \
                             last_sentence_fixes + \
@@ -744,9 +757,7 @@ class SentenceTokenizer( Tagger ):
                     #print('>>2',this_sent)
             else:
                 # Add sentence without merging
-                new_spanlist = EnvelopingSpan(spans=sentence_spl.spans)
-                # new_spanlist.spans = sentence_spl.spans
-                new_sentences_list.append( new_spanlist )
+                new_sentences_list.append(sentence_spl)
                 # Update fix types list
                 new_sentence_fixes_list.append(this_sentence_fixes)
                 #print('>>0',this_sent)
@@ -781,16 +792,16 @@ class SentenceTokenizer( Tagger ):
             if '?P<end>' in endPat.pattern:
                 # extract ending from the current sentence
                 this_sent_str = \
-                    raw_text[this_sent.start:this_sent.end].lstrip()
+                    raw_text[this_sent[0].start:this_sent[-1].end].lstrip()
                 m = endPat.match(this_sent_str)
                 if m and m.span('end') != (-1, -1):
                     end_span = m.span('end')
                     # span's position in the text
-                    start_in_text = this_sent.start + end_span[0]
-                    end_in_text   = this_sent.start + end_span[1]
+                    start_in_text = this_sent[0].start + end_span[0]
+                    end_in_text   = this_sent[0].start + end_span[1]
                     # validate that end_in_text overlaps with a word ending
                     matches_word_ending = False
-                    for span in this_sent.spans:
+                    for span in this_sent:
                         if span.end == end_in_text:
                             matches_word_ending = True
                         if span.end > end_in_text:
@@ -801,16 +812,16 @@ class SentenceTokenizer( Tagger ):
             if '?P<end>' in beginPat.pattern:
                 # extract ending from the previous sentence
                 prev_sent_str = \
-                    raw_text[prev_sent.start:prev_sent.end].lstrip()
+                    raw_text[prev_sent[0].start:prev_sent[-1].end].lstrip()
                 m = beginPat.match(prev_sent_str)
                 if m and m.span('end') != (-1, -1):
                     end_span = m.span('end')
                     # span's position in the text
-                    start_in_text = prev_sent.start + end_span[0]
-                    end_in_text   = prev_sent.start + end_span[1]
+                    start_in_text = prev_sent[0].start + end_span[0]
+                    end_in_text   = prev_sent[0].start + end_span[1]
                     # validate that end_in_text overlaps with a word ending
                     matches_word_ending = False
-                    for span in prev_sent.spans:
+                    for span in prev_sent:
                         if span.end == end_in_text:
                             matches_word_ending = True
                         if span.end > end_in_text:
@@ -840,12 +851,12 @@ class SentenceTokenizer( Tagger ):
         if end_span and end_span != (-1, -1):
             new_sentence1 = []
             new_sentence2 = []
-            for sid, span in enumerate( prev_sent.spans ):
+            for sid, span in enumerate(prev_sent):
                 if span.end <= end_span[1]:
                     new_sentence1.append( span )
                 elif span.start >= end_span[1]:
                     new_sentence2.append( span )
-            for sid, span in enumerate( this_sent.spans ):
+            for sid, span in enumerate(this_sent):
                 if span.end <= end_span[1]:
                     new_sentence1.append( span )
                 elif span.start >= end_span[1]:
@@ -853,8 +864,8 @@ class SentenceTokenizer( Tagger ):
             # Validity & sanity check
             # 1) The number of covered words/tokens should remain the same
             #    after the split/merge operation:
-            if len(prev_sent.spans) + len(this_sent.spans) !=\
-               len(new_sentence1)   + len(new_sentence2):
+            if len(prev_sent) + len(this_sent) !=\
+               len(new_sentence1) + len(new_sentence2):
                 # The numbers of covered tokens do no match: something 
                 # is wrong ...
                 return None
@@ -862,9 +873,7 @@ class SentenceTokenizer( Tagger ):
             if len(new_sentence1) < 1  or  len(new_sentence2) < 1:
                 # One of the sentence has 0 length: something is wrong
                 return None
-            merged_spanlist1 = EnvelopingSpan(spans=new_sentence1)
-            merged_spanlist2 = EnvelopingSpan(spans=new_sentence2)
-            return merged_spanlist1, merged_spanlist2
+            return new_sentence1, new_sentence2
         return None
 
     @staticmethod
@@ -899,16 +908,253 @@ class SentenceTokenizer( Tagger ):
                             raw_text[span.end:next_span.start]
                         if double_newline in space_between:
                             # Create a new split 
-                            split_spanlist = EnvelopingSpan(spans=current_words)
-                            new_sentences_list.append( split_spanlist )
+                            new_sentences_list.append(current_words)
                             sentence_fixes_list.append(['double_newline_ending'])
                             current_words = []
                 if current_words:
-                    new_spanlist = EnvelopingSpan(spans=current_words)
-                    new_sentences_list.append(new_spanlist)
+                    new_sentences_list.append(current_words)
                     sentence_fixes_list.append([])
             else:
-                new_sentences_list.append( sentence_spl )
+                new_sentences_list.append(sentence_spl.spans)
                 sentence_fixes_list.append( [] )
         assert len(new_sentences_list) == len(sentence_fixes_list)
         return new_sentences_list, sentence_fixes_list
+
+
+
+    @staticmethod
+    def _counting_corrections_to_double_quotes(raw_text: str, sentences_list: list, sentence_fixes_list: list):
+        """ Provides sentence boundary corrections based on counting quotation marks in the whole text.
+            First, counts quotation marks in the text, and tries to find out for each quotation mark,
+            whether it starts or ends a quotation. Keeps track that starts and ends are in balance.
+            Then fixes sentence boundaries based on the found information: 
+            * if a sentence starts with an ending quotation mark, then removes the ending quote and 
+              adds to the end of the previous sentence;
+            * if the movable ending quote is followed by the attribution part of the quote 
+              (describing "who uttered the quote"), then moves the  ending  quotation  mark 
+              along with the attribution part to the end of the previous sentence;
+            * if there is an ending quotation mark inside a sentence, followed instantly by a 
+              starting quotation mark, then split the sentence after the ending quotation mark;
+            Notes:
+            * if start and end quotes are indistinguishable, assumes a flat representation:
+              no quotes nested inside other quotes;
+            * fixes only in length where it is possible to maintain the balance;
+        """
+        # A) Find out all locations of starting and ending quotes
+        #    Try to guess if an indistinguishable quotation mark is a start or an end
+        #    Keep track of the quotes balance
+        balance = 0
+        starting_quotes_locs = {} 
+        ending_quotes_locs   = {} 
+        last_balance_location = 0
+        for cid, c in enumerate(raw_text):
+            # Detect whether we have potential starting or ending quotes
+            if _starting_quotes_regexp.match(c):
+                if _indistinguishable_quotes.match(c):
+                    # Find out if the next letter is uppercase letter
+                    nextIsUpper = False
+                    next_cid = cid + 1
+                    while next_cid < len(raw_text):
+                        if not raw_text[next_cid].isspace():
+                            if raw_text[next_cid].isupper():
+                                nextIsUpper = True
+                            break
+                        next_cid += 1
+                    if nextIsUpper and balance == 0:
+                        # For simplicity, assume the flat
+                        # representation (no nested quotes)
+                        starting_quotes_locs[cid] = 1
+                        balance += 1
+                else:
+                    starting_quotes_locs[cid] = 1
+                    balance += 1
+            if _ending_quotes_regexp.match(c):
+                if _indistinguishable_quotes.match(c):
+                    if balance > 0 and cid not in starting_quotes_locs:
+                        # For simplicity, assume the flat
+                        # representation (no nested quotes)
+                        ending_quotes_locs[cid] = 1
+                        balance -= 1
+                else:
+                    ending_quotes_locs[cid] = 1
+                    balance -= 1
+            if balance == 0:
+                last_balance_location = cid
+        #
+        # B) if we are out of balance, then roll back to the last location where the balance held
+        # 
+        if balance != 0 and last_balance_location > 0:
+            # Remove all the positions after the last balance location
+            start_locs = list(starting_quotes_locs.keys())
+            for s_loc in start_locs:
+                if s_loc > last_balance_location:
+                    del starting_quotes_locs[s_loc]
+            end_locs = list(ending_quotes_locs.keys())
+            for e_loc in end_locs:
+                if e_loc > last_balance_location:
+                    del ending_quotes_locs[e_loc]
+            balance = 0
+        
+        # C) If we are in the balance, then found locations are likely correct, and 
+        #    we can use these to post-correct misplaced sentence boundaries
+        if balance == 0 and len(starting_quotes_locs.keys()) > 0 and \
+           len(starting_quotes_locs.keys()) == len(ending_quotes_locs.keys()):
+            
+            sorted_ends = sorted(list(ending_quotes_locs.keys()))
+            end_i = 0
+            
+            # Iterate over all (adjacent) sentences
+            removable_sentence_ids = []
+            new_splits = {}
+            corrected_sid = 0 # <-- takes account of removed sentences
+            for sid, sentence_spl in enumerate(sentences_list):
+                this_sentence_fixes = sentence_fixes_list[sid]
+                this_sentence_start = sentence_spl[0].start
+                this_sentence_end   = sentence_spl[-1].end
+                if last_balance_location < this_sentence_start:
+                    # No more balance: break
+                    break
+                if sid > 0:
+                    # If the sentence starts with an quote ending, then the ending
+                    # is likely wrongly attributed from the last sentence
+                    if sentence_spl[0].start in ending_quotes_locs.keys():
+                        # Move the ending quotation mark to the previous sentence
+                        last = sentence_spl.pop(0)
+                        prev_sentence_spl = sentences_list[sid-1]
+                        prev_sentence_spl.append(last)
+                        this_sentence_fixes.append('double_quotes_counting')
+                        last_sentence_fixes = sentence_fixes_list[sid-1]
+                        last_sentence_fixes.append('double_quotes_counting')
+                        # Check the remaining sentence: if it is likely
+                        # the attribution part of the quote, describing "who 
+                        # uttered the quote", then the whole sentence should
+                        # be appended to the previous sentence ...
+                        if len(sentence_spl) > 0:
+                            # ... if the next token starts with a lowercase letter ...
+                            # ( so, it doesn't look like a start of a new sentence )
+                            nextTokenLower = raw_text[sentence_spl[0].start].islower()
+                            # ... and the previous sentence begins with a titlecase 
+                            #     word ...
+                            # ( so, this text likely follows the convention that 
+                            #   sentences start with titlecase words ) 
+                            prevSentBeginsUpper = False
+                            if raw_text[prev_sentence_spl[0].start].isupper() or \
+                               (not raw_text[prev_sentence_spl[0].start].isalpha() and \
+                                len(prev_sentence_spl) > 1 and \
+                                raw_text[prev_sentence_spl[1].start].isupper()):
+                                prevSentBeginsUpper = True
+                            # ... there are no more quotation marks inside the sentence ...
+                            noQuotationMarks = True
+                            for cur_sent_span in sentence_spl:
+                                if cur_sent_span.start in starting_quotes_locs.keys() or \
+                                   cur_sent_span.start in ending_quotes_locs.keys():
+                                    noQuotationMarks = False
+                                    break
+                            if nextTokenLower and prevSentBeginsUpper and noQuotationMarks:
+                                # ... then append the whole current sentence to the last 
+                                #     sentence:  this sentence is likely the attribution 
+                                #     part of the quote, describing "who uttered the quote"
+                                while len(sentence_spl) > 0:
+                                    last = sentence_spl.pop(0)
+                                    prev_sentence_spl.append(last)
+                        # If the modified sentence is empty, add it to removables
+                        if len(sentence_spl) == 0:
+                            removable_sentence_ids.append( sid )
+                            # Reduce corrected sentence index
+                            corrected_sid -= 1
+                # Check quotation ending marks inside the sentence: 
+                #   iff a quotation ends, and another starts instantly 
+                #   inside the sentence, then remember the location for 
+                #   splitting the sentence;
+                while end_i < len(sorted_ends) and len(sentence_spl) > 0:
+                    # Get the latest sentence boundaries:
+                    this_sentence_start = sentence_spl[0].start
+                    this_sentence_end   = sentence_spl[-1].end
+                    # Get the ending quote location:
+                    end_loc = sorted_ends[end_i]
+                    # If the ending quote falls into the sentence:
+                    if this_sentence_start <= end_loc and \
+                       end_loc < this_sentence_end:
+                        # Find out if we have a reason for splitting:
+                        # the next symbol is a quotation start,
+                        foundSplitLocation = False
+                        cur_loc = end_loc + 1
+                        while cur_loc < this_sentence_end:
+                            if not raw_text[cur_loc].isspace():
+                                if cur_loc in starting_quotes_locs:
+                                    foundSplitLocation = True
+                                #elif raw_text[cur_loc].isupper():
+                                #    foundSplitLocation = True
+                                #
+                                # A developer note: we could also split if the next symbol 
+                                # is an uppercase letter,  put  that  would  give incorrect 
+                                # splits in contexts like: 
+                                #     Ian " Thorpedo " Thorpe'i valmistusid kaasmaalased 
+                                #     kuningaks kroonima .
+                                #
+                                break
+                            cur_loc += 1
+                        if foundSplitLocation:
+                            # Remember the splitting location
+                            if corrected_sid not in new_splits:
+                                new_splits[corrected_sid] = []
+                            new_splits[corrected_sid].append( (end_loc, cur_loc) )
+                    if this_sentence_end < end_loc:
+                        break
+                    end_i += 1
+                # Advance corrected sentence index
+                corrected_sid += 1
+
+            if len(removable_sentence_ids) > 0:
+                # If a sentence became empty after corrections, remove it 
+                removable_sentence_ids.reverse()
+                for i in removable_sentence_ids:
+                    sentences_list.pop(i)
+                    sentence_fixes_list.pop(i)
+                assert len(sentence_fixes_list) == len(sentences_list)
+            
+            if len( new_splits ) > 0:
+                # We have detected some new locations for splitting 
+                new_sentences_list = []
+                new_sentence_fixes_list = []
+                for sid, sentence_spl in enumerate( sentences_list ):
+                    cur_sent_fixes = sentence_fixes_list[sid]
+                    if sid in new_splits:
+                        this_sent_splits = new_splits[sid]
+                        # Small sanity checks
+                        this_sentence_start = sentence_spl[0].start
+                        this_sentence_end   = sentence_spl[-1].end
+                        assert this_sentence_start < this_sent_splits[0][0]+1
+                        assert this_sentence_end   > this_sent_splits[-1][-1]
+                        # Iterate over words & splits
+                        cur_split_id = 0
+                        current_words = []
+                        for wid, span in enumerate( sentence_spl ):
+                            current_words.append( span )
+                            cur_split = this_sent_splits[cur_split_id]
+                            if wid+1 < len(sentence_spl):
+                                next_span = sentence_spl[wid+1]
+                                # check if we are at the break location
+                                if span.end == cur_split[0] + 1 and \
+                                   next_span.start == cur_split[1]:
+                                    # Create a new split 
+                                    new_sentences_list.append( current_words )
+                                    new_sentence_fixes_list.append( ['double_quotes_counting'] )
+                                    current_words = []
+                                    # Take the next split (if there is next one)
+                                    if cur_split_id + 1 < len(this_sent_splits):
+                                        cur_split_id += 1
+                        if current_words:
+                            # append remaining words
+                            new_sentences_list.append( current_words )
+                            new_sentence_fixes_list.append( ['double_quotes_counting'] )
+                    else:
+                        # Nothing to split here, move along
+                        new_sentences_list.append( sentence_spl )
+                        new_sentence_fixes_list.append( cur_sent_fixes )
+                sentences_list = new_sentences_list
+                sentence_fixes_list = new_sentence_fixes_list
+                assert len(sentences_list) == len(sentence_fixes_list)
+        return sentences_list, sentence_fixes_list
+
+

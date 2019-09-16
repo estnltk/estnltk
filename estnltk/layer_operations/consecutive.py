@@ -5,18 +5,18 @@
 from typing import Union, List, Callable
 
 from estnltk.layer.span import Span
-from estnltk.layer.layer import SpanList
+from estnltk.layer.layer import Layer
 
 
 def default_gap_validator(s: str) -> bool:
     return True
 
 
-def iterate_consecutive_spans(spanlist: Union[List[Span], SpanList],
+def iterate_consecutive_spans(spanlist: Union[List[Span], Layer],
                               raw_text: str,
                               max_gap: int = float('inf'),
                               gap_validator: Callable = None):
-    """  Given a SpanList or a List of Spans, yields pairs of Spans that are 
+    """  Given a Layer or a List of Spans, yields pairs of Spans that are
         positionally consecutive. Consecutive means that there can be a gap (in 
         size of max_gap) between the two spans, but none of the other spans may 
         fall entirely between the two consecutive spans.
@@ -68,18 +68,18 @@ def iterate_consecutive_spans(spanlist: Union[List[Span], SpanList],
                 spans_checked.append(following_span)
 
 
-def iterate_touching_spans(spanlist: Union[List[Span], SpanList], raw_text: str):
-    """ Given a SpanList or a List of Spans, yields pairs of Spans that are 
+def iterate_touching_spans(spanlist: Union[List[Span], Layer], raw_text: str):
+    """ Given a Layer or a List of Spans, yields pairs of Spans that are
         positionally touching (i.e. gap between the consecutive spans is 0).
     """
     yield from iterate_consecutive_spans(spanlist, raw_text, max_gap=0)
 
 
-def iterate_hovering_spans(spanlist: Union[List[Span], SpanList],
+def iterate_hovering_spans(spanlist: Union[List[Span], Layer],
                            raw_text: str,
                            min_gap: int = 1,
                            max_gap: int = float('inf')):
-    """ Given a SpanList or a List of Spans, yields pairs of Spans that are 
+    """ Given a Layer or a List of Spans, yields pairs of Spans that are
         positionally hovering, i.e. gap between the consecutive spans is at 
         least 1. 
         

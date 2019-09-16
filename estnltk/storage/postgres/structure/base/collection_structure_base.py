@@ -1,10 +1,11 @@
 class CollectionStructureBase:
-    def __init__(self, collection):
+    def __init__(self, collection, version):
         self.collection = collection
 
         self._structure = None
         self._modified = True
         self.load()
+        self.version = version
 
     def __bool__(self):
         return bool(self.structure)

@@ -1,13 +1,13 @@
 from estnltk.taggers import Tagger
 from estnltk.layer.layer import Layer
-from estnltk import EnvelopingSpan
 from estnltk.finite_grammar.layer_graph import GrammarNode, layer_to_graph, get_spans
 from estnltk.finite_grammar import parse_graph
 
 
 class GrammarParsingTagger(Tagger):
-    """Parses input layer using grammar. Output layer envelopes input."""
+    """Parses input layer using grammar. Output layer envelopes input.
 
+    """
     conf_param = ['grammar', 'name_attribute', 'output_nodes', 'resolve_support_conflicts',
                   'resolve_start_end_conflicts', 'resolve_terminals_conflicts', 'ambiguous', 'gap_validator', 'debug']
 
@@ -19,11 +19,11 @@ class GrammarParsingTagger(Tagger):
                  attributes=(),
                  output_nodes=None,
                  gap_validator=None,
-                 resolve_support_conflicts: bool=True,
-                 resolve_start_end_conflicts: bool=True,
-                 resolve_terminals_conflicts: bool=True,
+                 resolve_support_conflicts: bool = True,
+                 resolve_start_end_conflicts: bool = True,
+                 resolve_terminals_conflicts: bool = True,
                  debug=False,
-                 output_ambiguous: bool=False):
+                 output_ambiguous: bool = False):
         self.grammar = grammar
         self.input_layers = [layer_of_tokens]
         self.name_attribute = name_attribute
@@ -63,22 +63,23 @@ class GrammarParsingTagger(Tagger):
         try:
             for node in graph:
                 if isinstance(node, GrammarNode) and node.name in self.output_nodes:
-                    span = EnvelopingSpan(spans=get_spans(node))
+                    annotation = {}
                     for attr in attributes:
                         if attr == '_group_':
-                            span._group_ = node.group
+                            annotation['_group_'] = node.group
                         elif attr == 'name':
-                            span.name = node.name
+                            annotation['name'] = node.name
                         elif attr == '_priority_':
-                            span._priority_ = node.priority
+                            annotation['_priority_'] = node.priority
                         else:
-                            setattr(span, attr, node[attr])
-                    layer.add_span(span)
+                            annotation[attr] = node[attr]
+
+                    layer.add_annotation(get_spans(node), **annotation)
         except ValueError as e:
-            if e.args[0] == 'this layer is not ambiguous and the span is already in the spanlist':
+            if e.args[0] == 'The layer is not ambiguous and this span already has a different annotation.':
                 raise ValueError('there exists an ambiguous span among output nodes of the grammar, '
                                  'make the output layer ambiguous by setting output_ambiguous=True '
                                  'or adjust grammar by changing priority, scoring and lhs parameters of rules',
-                                 e.args[1])
+                                 e.args[0])
             raise
         return layer

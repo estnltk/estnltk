@@ -1,3 +1,4 @@
+import bisect
 import pandas
 
 import psycopg2
@@ -91,19 +92,33 @@ class PostgresStorage:
                 return collection
             return collection
 
-        collection = PgCollection(name, self, version='1.0')
+        collection = PgCollection(name, self, version='2.0')
         self._collections[name] = collection
         return collection
+
+    def delete(self, collection_name: str, cascade=False):
+        if collection_name not in self.collections:
+            raise KeyError('collection not found: {!r}'.format(collection_name))
+
+        for layer, v in self[collection_name].structure.structure.items():
+            if v['layer_type'] == 'detached':
+                drop_layer_table(self, collection_name, layer, cascade=cascade)
+                # TODO: delete layer from structure immediately
+        pg.drop_collection_table(self, collection_name, cascade=cascade)
+        pg.drop_structure_table(self, collection_name)
+
+        del self._collections[collection_name]
 
     def __delitem__(self, collection_name: str):
         if collection_name not in self.collections:
             raise KeyError('collection not found: {!r}'.format(collection_name))
 
         for layer, v in self[collection_name].structure.structure.items():
-            if v['layer_type'] == 'detached':
+            if v['layer_type'] in {'detached', 'fragmented'}:
                 drop_layer_table(self, collection_name, layer)
-        pg.drop_structure_table(self, collection_name)
+                # TODO: delete layer from structure immediately
         pg.drop_collection_table(self, collection_name)
+        pg.drop_structure_table(self, collection_name)
 
         del self._collections[collection_name]
 
@@ -113,29 +128,45 @@ class PostgresStorage:
 
     def _repr_html_(self):
         self._load()
+        self._collections.load()
+
+        bisect_left = bisect.bisect_left
+
         tables = pg.get_all_tables(self)
-
+        table_names = sorted(tables)
         structure = {}
+        missing_collections = []
+        for collection in self.collections:
+            index = bisect_left(table_names, collection)
 
-        collection_tables = ''
-        if tables is not None:
-            for t, v in tables.items():
-                t_split = t.split('__')
-                if len(t_split) == 1 and t_split[0] + '__structure' in tables:
-                    structure[(t_split[0], '')] = v
-                elif len(t_split) == 3 and t_split[2] == 'layer' and t_split[0] in tables:
-                    structure[(t_split[0], t_split[1])] = v
+            if table_names[index] != collection:
+                missing_collections.append(collection)
 
-            if structure:
-                df = pandas.DataFrame.from_dict(structure, orient='index', columns=['total_size', 'comment'])
-                df.index.names = ('collection', 'layers')
-                collection_tables = df.to_html()
-            else:
-                collection_tables = '<br/>This storage has no collections.'
+            version = self._collections.collections[collection]['version']
+            for i in range(index, len(table_names)):
+                table = table_names[i]
+                if table.startswith(collection):
+                    structure[(collection, version, table[len(collection):].lstrip('_'))] = tables[table]
+                else:
+                    break
+
+        if structure:
+            df = pandas.DataFrame.from_dict(structure, orient='index', columns=['rows', 'total_size', 'comment'])
+            df.index.names = ('collection', 'version', 'relations')
+            collection_tables = df.to_html()
+        else:
+            collection_tables = '<br/>This storage has no collections.'
+
+        missing = ''
+        if missing_collections:
+            missing = ('\n There are collections listed in the __collections table '
+                       'without tables in the database: {}').format(missing_collections)
         return ('<b>{self.__class__.__name__}</b><br/>\n{self.conn.dsn} schema={self.schema}<br/>'
                 'temporary={self.temporary}<br/>\n'
                 'collection count: {count}\n'
-                '{collections}').format(
+                '{collections}'
+                '{missing}').format(
                 self=self,
-                count=len([coll for coll, layer in structure if layer == '']),
-                collections=collection_tables)
+                count=len([coll for coll, version, layer in structure if layer == '']),
+                collections=collection_tables,
+                missing=missing)

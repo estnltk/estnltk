@@ -1,7 +1,9 @@
 def _esc_double_quotes(str1):
-    ''' Escapes double quotes.
-    '''
+    """Escapes double quotes (").
+
+    """
     return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
+
 
 def _insert_pers(pronoun_type):
     pronoun_type = list(pronoun_type)
@@ -11,29 +13,30 @@ def _insert_pers(pronoun_type):
             break
     return tuple(pronoun_type)
 
+
 def _is_partic_suffix(suffix):
     return suffix in {'tud', 'nud', 'v', 'tav', 'mata'}
 
 
 def export_CG3(text):
-    '''
-    Converts text with morph_extended layer to cg3 input format.
+    """Converts text with morph_extended layer to cg3 input format.
 
         Returns
         -------
             A list of strings in the VISL CG3 input format.
-    '''
+
+    """
     assert 'sentences' in text.layers, 'sentences layer required'
     assert 'morph_extended' in text.layers, 'morph_extended layer required'
-    
+
     morph_lines = []
     word_index = -1
     for sentence in text.sentences:
         morph_lines.append('"<s>"')
         for word in sentence.words:
             word_index += 1
-            morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
-            for morph_extended in text.morph_extended[word_index]:
+            morph_lines.append('"<' + _esc_double_quotes(word.text) + '>"')
+            for morph_extended in text.morph_extended[word_index].annotations:
                 form_list = [morph_extended.partofspeech]
                 if morph_extended.pronoun_type:
                     form_list.extend(_insert_pers(morph_extended.pronoun_type))
@@ -53,20 +56,18 @@ def export_CG3(text):
                     subcat = morph_extended.subcat
                     subcat = [''.join(('<', s, '>')) for s in subcat]
                     form_list.extend(subcat)
-                
+
                 form_list = ' '.join(form_list)
-        
+
                 if morph_extended.ending or morph_extended.clitic:
-                    line = ''.join(('    "',morph_extended.root,
+                    line = ''.join(('    "', _esc_double_quotes(morph_extended.root),
                                     '" L', morph_extended.ending, morph_extended.clitic,
                                     ' ', form_list))
                 else:
                     if morph_extended.partofspeech == 'Z':
-                        line = ''.join(('    "',morph_extended.root,'" ', 
-                                        form_list))
+                        line = ''.join(('    "', _esc_double_quotes(morph_extended.root), '" ', form_list))
                     else:
-                        line = ''.join(('    "',morph_extended.root,'+" ', 
-                                        form_list))
+                        line = ''.join(('    "', _esc_double_quotes(morph_extended.root), '+" ', form_list))
                 morph_lines.append(line)
         morph_lines.append('"</s>"')
     return morph_lines

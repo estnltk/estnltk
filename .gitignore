@@ -7,3 +7,4 @@ estnltk.egg-info/
 /estnltk/vabamorf/vabamorf.py
 
 .cache
+.DS_Store

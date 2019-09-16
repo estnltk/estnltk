@@ -1,8 +1,10 @@
-from estnltk import Text, Layer, Span
+from estnltk import Text, Layer, ElementaryBaseSpan
 
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.tests import new_text
+from estnltk.converters.layer_dict_converter import dict_to_layer
 
+from estnltk.layer_operations import apply_filter
 from estnltk.layer_operations import drop_annotations
 from estnltk.layer_operations import keep_annotations
 from estnltk.layer_operations import unique_texts
@@ -13,6 +15,45 @@ from estnltk.layer_operations import conflicts
 from estnltk.layer_operations import count_by_document
 from estnltk.layer_operations import dict_to_df
 from estnltk.layer_operations import group_by_spans
+
+
+def test_apply_filter():
+    def filter_function(layer, i, j):
+        return layer[i].annotations[j].attr_1 in {'B', 'C', 'E', 'F'}
+
+    text_3 = Text('Tere, maailm!')
+
+    layer_1 = Layer('layer_1', attributes=['attr', 'attr_1'], text_object=text_3, ambiguous=True)
+    layer_1.add_annotation(ElementaryBaseSpan(0, 4), attr='L1-0', attr_1='A')
+    layer_1.add_annotation(ElementaryBaseSpan(0, 4), attr='L1-0', attr_1='B')
+    layer_1.add_annotation(ElementaryBaseSpan(4, 5), attr='L1-1', attr_1='C')
+    layer_1.add_annotation(ElementaryBaseSpan(6, 12), attr='L1-2', attr_1='D')
+    layer_1.add_annotation(ElementaryBaseSpan(6, 12), attr='L1-2', attr_1='E')
+    layer_1.add_annotation(ElementaryBaseSpan(12, 13), attr='L1-3', attr_1='F')
+    text_3.add_layer(layer_1)
+
+    layer = text_3.layer_1
+
+    apply_filter(layer=layer,
+                 function=filter_function,
+                 preserve_spans=False,
+                 drop_immediately=False
+                 )
+    expected = {
+        'name': 'layer_1',
+        'attributes': ('attr', 'attr_1'),
+        'parent': None,
+        'enveloping': None,
+        'ambiguous': True,
+        'serialisation_module': None,
+        'meta': {},
+        'spans': [{'base_span': (0, 4),
+                   'annotations': [{'attr_1': 'B', 'attr': 'L1-0'}]},
+                  {'base_span': (4, 5), 'annotations': [{'attr_1': 'C', 'attr': 'L1-1'}]},
+                  {'base_span': (6, 12), 'annotations': [{'attr_1': 'E', 'attr': 'L1-2'}]},
+                  {'base_span': (12, 13), 'annotations': [{'attr_1': 'F', 'attr': 'L1-3'}]}]}
+    expected = dict_to_layer(expected)
+    assert expected == layer
 
 
 def test_drop_annotations():
@@ -195,7 +236,7 @@ class TestLayerOperation():
         assert ('named_entities' in text)
         assert ('text' in text)
         processed_text = apply_simple_filter(text, 'named_entities', {'end': 44, 'label': 'LOC'}, 'OR')
-        assert  text_apply_layer_filter_or() == processed_text
+        assert text_apply_layer_filter_or() == processed_text
 
     # TODO: fix
     def broken_test_apply_simple_filter_and(self):
@@ -297,7 +338,7 @@ class TestLayerOperation():
     # broken in python 3.6
     def broken_test_dict_to_df(self):
         counter = {(2, 3): 4, (5, 6): 7}
-        result = dict_to_df(counter, table_type='keyvalue', attributes=[0,1]).to_dict()
+        result = dict_to_df(counter, table_type='keyvalue', attributes=[0, 1]).to_dict()
         expected = {0: {0: 5, 1: 2}, 1: {0: 6, 1: 3}, 'count': {0: 7, 1: 4}}
         assert result == expected
 
@@ -313,33 +354,33 @@ class TestLayerOperation():
         assert result == expected
 
         layer_1 = Layer('layer_1')
-        layer_1.add_span(Span(0, 3))
+        layer_1.add_annotation(ElementaryBaseSpan(0, 3))
         layer_2 = Layer('layer_2')
         result = list(diff_layer(layer_1, layer_2))
-        expected = [(Span(0, 3), None)]
+        expected = [(layer_1[0], None)]
         assert result == expected
 
         layer_1 = Layer('layer_1')
-        layer_1.add_span(Span(0, 3))
-        layer_1.add_span(Span(6, 9))
-        layer_1.add_span(Span(12, 15))
-        layer_1.add_span(Span(18, 21))
+        layer_1.add_annotation((0, 3))
+        layer_1.add_annotation((6, 9))
+        layer_1.add_annotation((12, 15))
+        layer_1.add_annotation((18, 21))
         layer_2 = Layer('layer_2')
-        layer_2.add_span(Span(1, 3))
-        layer_2.add_span(Span(6, 9))
-        layer_2.add_span(Span(12, 15))
-        layer_2.add_span(Span(18, 20))
+        layer_2.add_annotation((1, 3))
+        layer_2.add_annotation((6, 9))
+        layer_2.add_annotation((12, 15))
+        layer_2.add_annotation((18, 20))
         result = list(diff_layer(layer_1, layer_2))
-        expected = [(Span(start=0, end=3), None),
-                    (None, Span(start=1, end=3)),
-                    (None, Span(start=18, end=20)),
-                    (Span(start=18, end=21), None)]
+        expected = [(layer_1[0], None),
+                    (None, layer_2[0]),
+                    (None, layer_2[3]),
+                    (layer_1[3], None)]
         assert result == expected
 
         layer_1 = Layer('layer_1', attributes=['label'])
-        layer_1.add_annotation(Span(0, 3), label=1)
+        layer_1.add_annotation((0, 3), label=1)
         layer_2 = Layer('layer_2', attributes=['label'])
-        layer_2.add_annotation(Span(0, 3), label=2)
+        layer_2.add_annotation((0, 3), label=2)
         result = list(diff_layer(layer_1, layer_2))
         expected = [(layer_1[0], layer_2[0])]
         assert result == expected
@@ -348,11 +389,11 @@ class TestLayerOperation():
             return True
 
         layer_1 = Layer('layer_1', attributes=['label'])
-        layer_1.add_annotation(Span(0, 3), label=1)
-        layer_1.add_annotation(Span(5, 7), label=1)
+        layer_1.add_annotation((0, 3), label=1)
+        layer_1.add_annotation((5, 7), label=1)
         layer_2 = Layer('layer_2', attributes=['label'])
-        layer_2.add_annotation(Span(0, 3), label=2)
-        layer_2.add_annotation(Span(6, 7), label=1)
+        layer_2.add_annotation((0, 3), label=2)
+        layer_2.add_annotation((6, 7), label=1)
         result = list(diff_layer(layer_1, layer_2, fun))
         expected = [(layer_1[1], None),
                     (None, layer_2[1])]
@@ -411,7 +452,7 @@ class TestLayerOperation():
                     {'start': [25, 29], 'end': [33, 35], 'syndrome': 'SEOM'}, 
                     {'start': [29, 25], 'end': [35, 33], 'syndrome': 'O'}]
         assert result == expected
- 
+
         text = Text('Üks kaks')
                     #01234567
         a = [{'start':  0, 'end':  2},  # E O
@@ -425,7 +466,7 @@ class TestLayerOperation():
                     {'start': [5, 4], 'end': [8, 6], 'syndrome': 'SO'}]
         assert result == expected
 
-        a = [{'start':  1, 'end':  6}]  # S E M
+        a = [{'start': 1, 'end': 6}]  # S E M
         result = list(conflicts(text, a, multilayer=False))
         expected = [{'start': 1, 'end': 6, 'syndrome': 'SEM'}]
         assert result == expected

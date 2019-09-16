@@ -13,9 +13,9 @@ We depend on the _conda-forge_ project for most of our dependencies and publish 
 All developments and fixes should be made on the [`devel_1.6`](https://github.com/estnltk/estnltk/tree/devel_1.6)  branch.
 Before making the build, make sure that:
  
- 1. all the files required by EstNLTK (especially files without the `py` extension) are included `package_data` in [`setup.py`](https://github.com/estnltk/estnltk/blob/devel_1.6/setup.py); 
- 2. package requirements in [`linux_and_osx/meta.yaml`](
-https://github.com/estnltk/estnltk/blob/devel_1.6/conda-recipe/linux_and_osx/meta.yaml) and [`windows/meta.yaml`](
+ 1. all source code directories (packages) that should be distributed with EstNLTK have [`__init__.py`](https://python-packaging-tutorial.readthedocs.io/en/latest/setup_py.html#packages) files;
+ 2. all the resource files (files without the `py` extension) required by EstNLTK are included `package_data` in [`setup.py`](https://github.com/estnltk/estnltk/blob/devel_1.6/setup.py); 
+ 3. package requirements in [`linux_and_osx/meta.yaml`](https://github.com/estnltk/estnltk/blob/devel_1.6/conda-recipe/linux_and_osx/meta.yaml) and [`windows/meta.yaml`](
 https://github.com/estnltk/estnltk/blob/devel_1.6/conda-recipe/windows/meta.yaml) are up to date;
  
 After you have updated `setup.py` and `meta.yaml` files in the `devel_1.6` branch, merge the `devel_1.6` branch into the `version_1.6` breach. 
@@ -50,7 +50,11 @@ Notes:
 
 #### Building in a local machine
 
+<<<<<<< HEAD
 This instruction assumes that you have already completed a Travis CI build for Linux and MacOSX, and the source of required for the build is in the branch  `version_1.6_travis`.
+=======
+This instruction assumes that you have already completed a Travis CI build for Linux and MacOSX, and the source required for the build is in the branch  `version_1.6_travis`.
+>>>>>>> origin/version_1.6
 
 1. Download the source from github: 
 
@@ -64,7 +68,11 @@ This instruction assumes that you have already completed a Travis CI build for L
 
     Note: If you are using win-64, and you want to build for win-32, you can call `set CONDA_FORCE_32BIT=1` before creating the new environment. This will force conda to use 32-bit Python in the new environment. 
 
+<<<<<<< HEAD
 3. In order to compile estnltk's _Vabamorf_ extension, you'll need to have [Microsoft Visual Studio](https://visualstudio.microsoft.com) installed in the system. In the following instructions, _Microsoft Visual Studio Community Edition 2017_ was used, but you can also try out a newer version.
+=======
+3. In order to compile estnltk's _Vabamorf_ extension, you'll need to have [Microsoft Visual Studio](https://visualstudio.microsoft.com) installed in the system. Note: which Visual C++ compiler you need depends on the specific Python version (see [this document](https://wiki.python.org/moin/WindowsCompilers) for details). In the following, _Microsoft Visual Studio Community Edition 2017_ (Visual C++ 14.0) was used.
+>>>>>>> origin/version_1.6
 
 	3.1. Locate `vcvarsall.bat` in the Visual Studio installation directory, and use it to initialize compiling environment for `x64` (win-64) or `x86` (win-32). For instance:
 

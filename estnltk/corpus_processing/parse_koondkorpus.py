@@ -17,10 +17,12 @@
 # 
 
 from estnltk.text import Text
-from estnltk.text import Layer, EnvelopingSpan
+from estnltk.layer.layer import Layer
 from estnltk.converters import json_to_text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
+
+from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
 
 from estnltk.taggers import Tagger
 
@@ -599,11 +601,13 @@ def _reconstruct_enveloping_tokenization_layers( text_object, \
                  text_object=text_object,\
                  ambiguous=False)
        # Create words layer from the token records
+       if _MAKE_WORDS_AMBIGUOUS:
+           token_locations = [ [tl] for tl in token_locations ]
        orig_words = \
            Layer(name=layer_name_prefix+WordTagger.output_layer, \
                  attributes=WordTagger.output_attributes, \
                  text_object=text_object,\
-                 ambiguous=False).from_records(token_locations)
+                 ambiguous=_MAKE_WORDS_AMBIGUOUS).from_records(token_locations)
        # Envelop sentences around words
        orig_sentences = Layer(name=layer_name_prefix+SentenceTokenizer.output_layer, \
                               enveloping=orig_words.name, \
@@ -620,8 +624,7 @@ def _reconstruct_enveloping_tokenization_layers( text_object, \
            if word.end == sentence['end']:
               s_end = wid
            if s_start != -1 and s_end != -1:
-              span = EnvelopingSpan(spans=orig_words[s_start:s_end+1].spans)
-              orig_sentences.add_span(span)
+              orig_sentences.add_annotation(orig_words[s_start:s_end+1])
               sid += 1; s_start = -1; s_end = -1
     else:
        # If the words layer was not provided, create a detached 
@@ -644,8 +647,7 @@ def _reconstruct_enveloping_tokenization_layers( text_object, \
        if sentence.end == paragraph['end']:
           p_end = sid
        if p_start != -1 and p_end != -1:
-          span = EnvelopingSpan(spans=orig_sentences[p_start:p_end+1].spans)
-          orig_paragraphs.add_span(span)
+          orig_paragraphs.add_annotation(orig_sentences[p_start:p_end+1])
           pid += 1; p_start = -1; p_end = -1
     # Assemble created layers and return as a list
     if orig_words is not None:
@@ -788,10 +790,6 @@ def reconstruct_text( doc, \
                  text_object=text).from_records(para_locations)
         created_layers = [orig_sentences, orig_paragraphs]
         if tokens_tagger:
-           orig_words = \
-              Layer(name=layer_name_prefix+'words',\
-                    text_object=text).from_records(token_locations)
-           created_layers.insert(0, orig_words)
            orig_compound_tokens = Layer(name='compound_tokens',\
                                         text_object=text)
            created_layers.insert(0, orig_compound_tokens)
@@ -799,6 +797,13 @@ def reconstruct_text( doc, \
               Layer(name=layer_name_prefix+'tokens',\
                     text_object=text).from_records(token_locations)
            created_layers.insert(0, orig_tokens)
+           if _MAKE_WORDS_AMBIGUOUS:
+              token_locations = [ [tl] for tl in token_locations ]
+           orig_words = \
+              Layer(name=layer_name_prefix+'words',\
+                    text_object=text, 
+                    ambiguous=_MAKE_WORDS_AMBIGUOUS).from_records(token_locations)
+           created_layers.insert(0, orig_words)
     else:
         # 4.2) Make connected layers
         created_layers = _reconstruct_enveloping_tokenization_layers( 
@@ -906,11 +911,11 @@ def create_estnltk_texts( docs,
                     [layer for layer in created_layers if layer.name==prefix+'sentences'][0]
                 paragraphs = \
                     [layer for layer in created_layers if layer.name==prefix+'paragraphs'][0]
-                text[tokens.name]          = tokens
-                text[compound_tokens.name] = compound_tokens
-                text[words.name]           = words
-                text[sentences.name]       = sentences
-                text[paragraphs.name]      = paragraphs
+                text.add_layer(tokens)
+                text.add_layer(compound_tokens)
+                text.add_layer(words)
+                text.add_layer(sentences)
+                text.add_layer(paragraphs)
            else:
                 # Add tokenization with EstNLTK
                 # ( overwrites the original tokenization )

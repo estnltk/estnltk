@@ -1,37 +1,30 @@
 import pandas
 import requests
 import json
-import os
 from regex import sub
 from contextlib import contextmanager
 
 
 class TextaExporter:
-    def __init__(self, index, doc_type, fact_mapping=None, textaurl='http://localhost:8000',
-                 textapass='~/.textapass', sessionpass=None):
-        # index is like a schema
+    def __init__(self, texta_url, texta_username, texta_password, index, doc_type,
+                 fact_mapping=None, session_username=None, session_password=None):
+        """
+        :param texta_url: str
+            e.g. 'http://localhost:8000'
+        :param index: str
+            something like schema in a database
+        :param doc_type: str
+            something like a table name in a database
+        :param fact_mapping: str (default: None)
+           name of a csv file that contains fact mapping instructions
 
-        # doc_type is like a table name
-
-        # fact_mapping: str (default: None)
-        #   name of a csv file that contains fact mapping instructions
-
-        # format of the .textapass file and sessionpass file:
-        # <username>
-        # <password>
-
+        """
         self.session = requests.Session()
-        if sessionpass is not None:
-            with open(os.path.expanduser(sessionpass)) as in_f:
-                session_username = in_f.readline().rstrip()
-                session_password = in_f.readline().rstrip()
-                self.session.auth = (session_username, session_password)
 
-        self.textaurl = textaurl.rstrip('/')
+        if session_username is not None and session_password is not None:
+            self.session.auth = (session_username, session_password)
 
-        with open(os.path.expanduser(textapass)) as in_f:
-            texta_username = in_f.readline().rstrip()
-            texta_password = in_f.readline().rstrip()
+        self.textaurl = texta_url.rstrip('/')
 
         login = {
             'username': texta_username,

@@ -1,6 +1,6 @@
 from psycopg2.sql import SQL, Literal
 
-from estnltk.logger import logger
+from estnltk import logger
 from estnltk.storage import postgres as pg
 
 
@@ -9,10 +9,14 @@ __version__ = '1.0'
 
 class CollectionStructure(pg.CollectionStructureBase):
 
+    def __init__(self, collection):
+        super().__init__(collection, __version__)
+
     def create_table(self):
         storage = self.collection.storage
         table = pg.table_identifier(storage, pg.structure_table_name(self.collection.name))
         temporary = SQL('TEMPORARY') if storage.temporary else SQL('')
+        storage.conn.commit()
         with storage.conn.cursor() as c:
             c.execute(SQL('CREATE {temporary} TABLE {table} ('
                           'layer_name text primary key, '
@@ -40,10 +44,12 @@ class CollectionStructure(pg.CollectionStructureBase):
                 Literal(layer.ambiguous),
                 Literal(layer.parent),
                 Literal(layer.enveloping),
-                Literal(layer._base),
+                Literal(None),
                 Literal(meta)
             )
             )
+            logger.debug(c.query.decode())
+        self.collection.storage.conn.commit()
 
     def load(self):
         if not self.collection.exists():

@@ -1,6 +1,5 @@
-from estnltk import Span, Layer, Text
+from estnltk import Span, Layer, Text, ElementaryBaseSpan
 from estnltk.converters import export_CG3
-from estnltk.converters import text_to_dict, dict_to_text
 from estnltk.converters import text_to_json, json_to_text
 from estnltk.converters import export_TCF, import_TCF
 from estnltk.converters import annotation_to_json, json_to_annotation
@@ -43,27 +42,6 @@ T_2 = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
 Teine lõik.'''
 
 
-def test_dict_export_import():
-    text = Text('')
-    dict_text = text_to_dict(text)
-    text_import = dict_to_text(dict_text)
-    assert text_import == text
-    assert dict_text == text_to_dict(text_import)
-    
-    text = Text(T_2).tag_layer(['morph_analysis', 'paragraphs'])
-    text.meta['year'] = 2017
-    dict_text = text_to_dict(text)
-    text_import = dict_to_text(dict_text)
-    assert text_import == text
-    assert text_to_dict(text) == text_to_dict(dict_to_text(text_to_dict(text)))
-
-    text = new_text(5)
-    assert text == dict_to_text(text_to_dict(text))
-
-    text_list = [Text(''), Text(T_1), Text(T_2)]
-    assert text_list == dict_to_text(text_to_dict(text_list))
-
-
 def test_json_export_import():
     text = Text('')
     json_text = text_to_json(text)
@@ -75,8 +53,9 @@ def test_json_export_import():
     text.meta['year'] = 2017
     json_text = text_to_json(text)
     text_import = json_to_text(json_text)
-    assert text_import == text  
-    assert json_text == text_to_json(text_import)
+    assert text_import == text, text.diff(text_import)
+    # the following line randomly breaks in Python 3.5
+    # assert json_text == text_to_json(text_import)
 
     text = Text(T_2)
 
@@ -104,15 +83,12 @@ def test_json_export_import():
     text = json_to_text(text_to_json(text))
     assert text == Text(T_2).tag_layer(['morph_extended', 'paragraphs'])
 
-    text_list = [text, Text(''), Text(T_1), Text(T_2)]
-    assert text_list == json_to_text(text_to_json(text_list))
-
 
 def test_annotation_json_export_import():
     layer = Layer('my_layer', attributes=['attr', 'attr_0'])
-    span = Span(0, 1, layer=layer)
+    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
 
-    annotation = new_text(5).layer_0[0][0]
+    annotation = new_text(5).layer_0[0].annotations[0]
 
     a = json_to_annotation(span, annotation_to_json(annotation))
     assert a == annotation
@@ -138,24 +114,24 @@ def test_TCF_export_import():
     text.analyse('morphology')
     # clauses layer
     layer = Layer(name='clauses', enveloping='words')
-    layer.add_span(text.words[2:6])
+    layer.add_annotation(text.words[2:6])
     spl = text.words[0:1]
     spl.spans.extend(text.words.spans[7:11])
-    layer.add_span(spl)
-    layer.add_span(text.words[12:17])
-    text['clauses'] = layer
+    layer.add_annotation(spl)
+    layer.add_annotation(text.words[12:17])
+    text.add_layer(layer)
 
     # verb_chains layer
     layer = Layer(name='verb_chains', enveloping='words')
-    layer.add_span(text.words[3:4])
-    layer.add_span(text.words[7:10:2])
-    layer.add_span(text.words[13:17:3])
-    text['verb_chains'] = layer
+    layer.add_annotation(text.words[3:4])
+    layer.add_annotation(text.words[7:10:2])
+    layer.add_annotation(text.words[13:17:3])
+    text.add_layer(layer)
 
     # time_phrases layer
     layer = Layer(name='time_phrases', enveloping='words')
-    layer.add_span(text.words[14:16])
-    text['time_phrases'] = layer
+    layer.add_annotation(text.words[14:16])
+    text.add_layer(layer)
 
     # version 0.4
     assert export_TCF(import_TCF(export_TCF(text))) == export_TCF(text)

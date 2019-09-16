@@ -42,13 +42,11 @@ class VislTagger(Tagger):
              # Use default annotation_parser
              self._parser = CG3AnnotationParser().parse
 
-
-
     def _make_layer(self, text, layers, status):
         morph_extended_layer = layers[self.input_layers[0]]
 
         layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
-                      parent=morph_extended_layer._base, ambiguous=True)
+                      parent=morph_extended_layer.name, ambiguous=True)
 
         visl_output = self._visl_line_processor(export_CG3(text))
 

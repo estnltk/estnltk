@@ -1,6 +1,6 @@
 from psycopg2.sql import SQL, Literal
 
-from estnltk.logger import logger
+from estnltk import logger
 from estnltk.storage import postgres as pg
 
 
@@ -8,6 +8,9 @@ __version__ = '2.0'
 
 
 class CollectionStructure(pg.CollectionStructureBase):
+
+    def __init__(self, collection):
+        super().__init__(collection, __version__)
 
     def create_table(self):
         storage = self.collection.storage
@@ -20,10 +23,9 @@ class CollectionStructure(pg.CollectionStructureBase):
                           'ambiguous bool not null, '
                           'parent text, '
                           'enveloping text, '
-                          '_base text, '
                           'meta text[], '
                           'layer_type text not null, '
-                          'loader text);').format(temporary=temporary,
+                          'serialisation_module text);').format(temporary=temporary,
                                                   table=table))
             logger.debug(c.query.decode())
 
@@ -32,27 +34,28 @@ class CollectionStructure(pg.CollectionStructureBase):
 
         meta = list(meta or [])
         with self.collection.storage.conn.cursor() as c:
-            c.execute(SQL("INSERT INTO {} (layer_name, attributes, ambiguous, parent, enveloping, _base, meta, layer_type, loader) "
-                          "VALUES ({}, {}, {}, {}, {}, {}, {}, {}, {});").format(
+            c.execute(SQL("INSERT INTO {} (layer_name, attributes, ambiguous, parent, enveloping, meta, layer_type, serialisation_module) "
+                          "VALUES ({}, {}, {}, {}, {}, {}, {}, {});").format(
                 pg.structure_table_identifier(self.collection.storage, self.collection.name),
                 Literal(layer.name),
                 Literal(list(layer.attributes)),
                 Literal(layer.ambiguous),
                 Literal(layer.parent),
                 Literal(layer.enveloping),
-                Literal(layer._base),
                 Literal(meta),
                 Literal(layer_type),
-                Literal('')
+                Literal(layer.serialisation_module)
             )
             )
+            logger.debug(c.query.decode())
+        self.collection.storage.conn.commit()
 
     def load(self):
         if not self.collection.exists():
             return None
         structure = {}
         with self.collection.storage.conn.cursor() as c:
-            c.execute(SQL("SELECT layer_name, attributes, ambiguous, parent, enveloping, _base, meta, layer_type, loader "
+            c.execute(SQL("SELECT layer_name, attributes, ambiguous, parent, enveloping, meta, layer_type, serialisation_module "
                           "FROM {};").
                       format(pg.structure_table_identifier(self.collection.storage, self.collection.name)))
 
@@ -61,9 +64,8 @@ class CollectionStructure(pg.CollectionStructureBase):
                                      'ambiguous': row[2],
                                      'parent': row[3],
                                      'enveloping': row[4],
-                                     '_base': row[5],
-                                     'meta': row[6],
-                                     'layer_type': row[7],
-                                     'loader': row[8]
+                                     'meta': row[5],
+                                     'layer_type': row[6],
+                                     'serialisation_module': row[7]
                                      }
         return structure

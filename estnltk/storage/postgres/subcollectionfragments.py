@@ -1,6 +1,6 @@
 from psycopg2.sql import SQL
 
-from estnltk import logger
+from estnltk import logger, Progressbar
 from estnltk.converters import dict_to_layer
 from estnltk.storage import postgres as pg
 
@@ -53,9 +53,8 @@ class PgSubCollectionFragments:
 
         structure = collection._structure
         assert fragmented_layer in structure
-        assert structure[fragmented_layer]['layer_type'] == 'detached'
-        assert structure[fragmented_layer]['parent'] is None
-        assert structure[fragmented_layer]['enveloping'] is None
+        assert structure[fragmented_layer]['layer_type'] in {'fragmented', 'detached'}, \
+            structure[fragmented_layer]['layer_type']
 
     @property
     def sql_query(self):
@@ -157,7 +156,7 @@ class PgSubCollectionFragments:
         with self.collection.storage.conn.cursor('read', withhold=True) as c:
             c.execute(self.sql_query)
             logger.debug(c.query.decode())
-            data_iterator = pg.Progressbar(iterable=c, total=total, initial=0, progressbar_type=self.progressbar)
+            data_iterator = Progressbar(iterable=c, total=total, initial=0, progressbar_type=self.progressbar)
 
             # Cash configuration attributes to protect against unexpected changes during iteration
             return_index = self.return_index

@@ -27,7 +27,7 @@ def annotation_to_json(annotation: Union['Annotation', Sequence['Annotation']], 
         json.dump(d, fp=out_f, ensure_ascii=False)
 
 
-def text_to_json(text: Union['Text', Sequence['Text']], file: str = None, file_encoding: str = 'utf-8'):
+def text_to_json(text: 'Text', file: str = None, file_encoding: str = 'utf-8'):
     """Exports Text object to json.
     If file is None, returns json string,
     otherwise dumps json string to file and returns None.
@@ -47,15 +47,16 @@ def text_to_json(text: Union['Text', Sequence['Text']], file: str = None, file_e
         json.dump(text_dict, fp=out_f, ensure_ascii=False)
 
 
-def layer_to_json(layer: Union['Layer', Sequence['Layer']],
-                  text: Union['Text', Sequence['Text']],
+def layer_to_json(layer: 'Layer',
                   file: str = None,
                   file_encoding: str = 'utf-8'):
-    """Exports list of Layer objects to json.
+    """Exports a Layer object to json.
+
     If file is None, returns json string,
     otherwise dumps json string to file and returns None.
+
     """
-    layer_dict = layer_to_dict(layer, text)
+    layer_dict = layer_to_dict(layer)
     if file is None:
         return json.dumps(layer_dict, ensure_ascii=False)
 

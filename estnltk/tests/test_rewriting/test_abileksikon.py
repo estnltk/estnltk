@@ -1,7 +1,7 @@
 import regex
 from os.path import dirname, join
 
-import estnltk.rewriting.syntax_preprocessing as syntax_pp
+import estnltk.taggers.syntax_preprocessing as syntax_pp
 
 def test_abileksikon():
     nonSpacePattern = regex.compile('^\S+$')

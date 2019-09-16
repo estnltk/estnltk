@@ -1,10 +1,11 @@
 from typing import Sequence, List
 from psycopg2.sql import SQL
 
-from estnltk import logger
+from estnltk import logger, Progressbar
 from estnltk import Text
-from estnltk.converters import dict_to_text, dict_to_layer
+from estnltk.converters import serialisation_modules
 from estnltk.storage import postgres as pg
+from estnltk.converters.layer_dict_converter import layer_converter_collection
 
 
 class PgSubCollection:
@@ -96,7 +97,7 @@ class PgSubCollection:
 
     @property
     def fragmented_layers(self):
-        #TODO: Complete this
+        # TODO: Complete this
         raise NotImplementedError()
 
     @property
@@ -107,8 +108,8 @@ class PgSubCollection:
         We need nested sql queries to combine fragments into single object per text_id
         This must be solved by defining a view during creation of fragmented layers
         or some dark magic query composition.
-        """
 
+        """
         selected_columns = pg.SelectedColumns(collection=self.collection,
                                               layers=self._detached_layers,
                                               collection_meta=self.meta_attributes,
@@ -118,32 +119,35 @@ class PgSubCollection:
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
         # Required layers are part of the main collection
-        if not required_layers:
+        if required_layers:
+            # Build a join clauses to merge required detached layers by text_id
+            required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
+                                     for layer in required_layers]
+            join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
+                                                                                    layer_table_identifier)
+                                               for layer_table_identifier in required_layer_tables)
+
+            required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
             if self._selection_criterion:
-                return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                                collection_identifier,
-                                                                self._selection_criterion)
+                query = SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
+                                                                        required_tables,
+                                                                        join_condition,
+                                                                        self._selection_criterion)
 
-            return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
+            else:
+                query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                                 required_tables,
+                                                                 join_condition)
+        else:
+            if self._selection_criterion:
+                query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                                 collection_identifier,
+                                                                 self._selection_criterion)
 
-        # Build a join clauses to merge required detached layers by text_id
-        required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
-                                 for layer in required_layers]
-        join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
-                                                                                layer_table_identifier)
-                                           for layer_table_identifier in required_layer_tables)
+            else:
+                query = SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
 
-
-        required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
-        if self._selection_criterion:
-            return SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
-                                                                   required_tables,
-                                                                   join_condition,
-                                                                   self._selection_criterion)
-
-        return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                        required_tables,
-                                                        join_condition)
+        return SQL('{} ORDER BY {}."id"').format(query, collection_identifier)
 
     @property
     def sql_query_text(self):
@@ -151,7 +155,7 @@ class PgSubCollection:
 
     @property
     def sql_count_query(self):
-        #TODO: Do not stress SQL analyzer write a flat query for it
+        # TODO: Do not stress SQL analyzer write a flat query for it
         return SQL('SELECT count(*) FROM ({}) AS a').format(self.sql_query)
 
     @property
@@ -182,6 +186,30 @@ class PgSubCollection:
 
     __read_cursor_counter = 0
 
+    def _dict_to_layer(self, layer_dict: dict, text_object=None):
+        # collections with structure versions <2.0 are used same old serialisation module for all layers
+        if self.collection.structure.version in {'0.0', '1.0'}:
+            return serialisation_modules.legacy_v0.dict_to_layer(layer_dict, text_object)
+
+        serialisation_module = self.collection.structure[layer_dict['name']]['serialisation_module']
+        # use default serialisation if specification is missing
+        if serialisation_module is None:
+            return serialisation_modules.default.dict_to_layer(layer_dict, text_object)
+
+        if serialisation_module in layer_converter_collection:
+            return layer_converter_collection[serialisation_module].dict_to_layer(layer_dict, text_object)
+
+        raise ValueError('serialisation module not registered in serialisation map: ' + layer_converter_collection)
+
+    def _dict_to_text(self, text_dict: dict, attached_layers) -> Text:
+        text = Text(text_dict['text'])
+        text.meta = text_dict['meta']
+        for layer_dict in text_dict['layers']:
+            if layer_dict['name'] in attached_layers:
+                layer = self._dict_to_layer(layer_dict, text)
+                text.add_layer(layer)
+        return text
+
     def __iter__(self):
         """
         Yields all subcollection elements ordered by the text_id 
@@ -210,7 +238,7 @@ class PgSubCollection:
                                                  withhold=True) as c:
             c.execute(self.sql_query)
             logger.debug(c.query.decode())
-            data_iterator = pg.Progressbar(iterable=c, total=total, initial=0, progressbar_type=self.progressbar)
+            data_iterator = Progressbar(iterable=c, total=total, initial=0, progressbar_type=self.progressbar)
 
             # Cash configuration attributes to protect against unexpected changes during iteration
             return_index = self.return_index
@@ -220,11 +248,11 @@ class PgSubCollection:
                     data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
 
                     text_dict = row[1]
-                    text = dict_to_text(text_dict, self._attached_layers)
+                    text = self._dict_to_text(text_dict, self._attached_layers)
 
                     for layer_dict in row[2 + len(self.meta_attributes):]:
-                        layer = dict_to_layer(layer_dict, text)
-                        text[layer.name] = layer
+                        layer = self._dict_to_layer(layer_dict, text)
+                        text.add_layer(layer)
 
                     meta_values = row[2:2 + len(self.meta_attributes)]
                     meta = {attr: value for attr, value in zip(self.meta_attributes, meta_values)}
@@ -238,11 +266,11 @@ class PgSubCollection:
                     data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
 
                     text_dict = row[1]
-                    text = dict_to_text(text_dict, self._attached_layers)
+                    text = self._dict_to_text(text_dict, self._attached_layers)
 
                     for layer_dict in row[2:]:
-                        layer = dict_to_layer(layer_dict, text)
-                        text[layer.name] = layer
+                        layer = self._dict_to_layer(layer_dict, text)
+                        text.add_layer(layer)
 
                     if return_index:
                         yield text_id, text

@@ -52,7 +52,7 @@ def test_reconstruct_text_detached_layers():
     
     # Attach layers
     for layer in tokenization_layers:
-        text[layer.name] = layer
+        text.add_layer(layer)
     tokens     = [layer for layer in tokenization_layers if layer.name=='tokens'][0]
     words      = [layer for layer in tokenization_layers if layer.name=='words'][0]
     sentences  = [layer for layer in tokenization_layers if layer.name=='sentences'][0]
@@ -123,7 +123,7 @@ def test_reconstruct_text_enveloping_layers():
     
     # Attach layers
     for layer in tokenization_layers:
-        text[layer.name] = layer
+        text.add_layer(layer)
     tokens     = [layer for layer in tokenization_layers if layer.name=='tokens'][0]
     words      = [layer for layer in tokenization_layers if layer.name=='words'][0]
     sentences  = [layer for layer in tokenization_layers if layer.name=='sentences'][0]
@@ -190,7 +190,7 @@ def test_split_reconstructed_text():
                                                  use_enveloping_layers=True )
     # Attach layers
     for layer in tokenization_layers:
-        text[layer.name] = layer
+        text.add_layer(layer)
    # Split by paragraphs
     paragraph_count = 0
     for paragraph in split_by(text, layer='paragraphs', layers_to_keep=['tokens', 'compound_tokens', 'words', 'sentences']):
