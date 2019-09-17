@@ -149,7 +149,7 @@ class MorphAnalyzedToken():
         '''
         Returns True if the token has an analysis where the part of speech is
         'P' and the lemma is listed in
-        estnltk/estnltk/rewriting/syntax_preprocessing/rules_files/pronouns.csv,
+        estnltk/taggers/syntax_preprocessing/rules_files/pronouns.csv,
         False otherwise.
         '''
         return bool(self._pronoun_lemmas & self._lemmas('P'))

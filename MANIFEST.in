@@ -1,6 +1,5 @@
 graft include
 graft estnltk/vabamorf/dct
 graft estnltk/converters
-graft estnltk/rewriting/syntax_preprocessing/rules_files
-graft estnltk/rewriting/postmorph/rules_files
-graft estnltk/rewriting/premorph/rules_files
+graft estnltk/taggers/syntax_preprocessing/rules_files
+graft estnltk/taggers/morph_analysis/number_fixes
