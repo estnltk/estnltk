@@ -63,7 +63,11 @@ This instruction assumes that you have already completed a Travis CI build for L
         conda activate py3.5_conda_build
         conda install conda-build conda-verify swig cython
 
-    Note: If you are using win-64, and you want to build for win-32, you can call `set CONDA_FORCE_32BIT=1` before creating the new environment. This will force conda to use 32-bit Python in the new environment. 
+    Notes:
+ 
+	* If you are using win-64, and you want to build for win-32, you can call `set CONDA_FORCE_32BIT=1` before creating the new environment. This will force conda to use 32-bit Python in the new environment;
+	* If building with the latest `conda-build` fails, you may try installing the last successfully used version of `conda-build`. In creating the last EstNLTK beta version, we used `conda-build=3.15.1` for Python 3.5 (for both x86 and x64), `conda-build=3.17.8` for Python 3.6 (x64), and `conda-build=3.17.7` for Python 3.6 (x86);
+
 
 3. In order to compile estnltk's _Vabamorf_ extension, you'll need to have [Microsoft Visual Studio](https://visualstudio.microsoft.com) installed in the system. Note: which Visual C++ compiler you need depends on the specific Python version (see [this document](https://wiki.python.org/moin/WindowsCompilers) for details). In the following, _Microsoft Visual Studio Community Edition 2017_ (Visual C++ 14.0) was used.
 
