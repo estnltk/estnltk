@@ -113,7 +113,7 @@ let visible_index = 0;
 function visibility() {
     //let tableColumns = document.getElementsByTagName("table");
     let tableColumns = document.getElementsByClassName('iterable-table');
-    console.log(tableColumns);
+    //console.log(tableColumns);
     //let visible_table = document.getElementById(visible_index);
     //visible_table.style.display = 'block';
     for (let i = 0; i < tableColumns.length; i++) {
@@ -135,8 +135,29 @@ document.getElementById('previous').onclick = function () {
 document.getElementById('next').onclick = function () {
     visible_index++;
     visibility();
+};
+
+
+function select_values() {
+    let selectElements = document.getElementsByClassName('syntax_choice');
+    //let selectValues = selectElements.options[selectElements.selectedIndex].text;
+    let selectValues = [];
+    for (let i = 0, j = selectElements.length; i < j; i++) {
+        let element = selectElements[i].options[selectElements[i].selectedIndex].text;
+        selectValues.push(element);
+    }
+    console.log(selectElements);
+    console.log(selectValues);
+    return selectValues;
 }
 
-function export_data() {
-    //TODO
-}
+document.getElementById('save').onclick = function () {
+    let export_values = select_values();
+    let command = "dropdown_values = '" + export_values + "'";
+    console.log("Executing Command: " + command);
+    var kernel = IPython.notebook.kernel;
+    // the corresponding commands are executed in the kernel
+    kernel.execute(command);
+    // enable jupyter keyboard shortcuts again
+    Jupyter.keyboard_manager.enable()
+};

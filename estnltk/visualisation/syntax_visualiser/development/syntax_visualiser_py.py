@@ -36,7 +36,7 @@ def table_column(layers, attribute, deprel, text, index = None, sentence = None)
         for element in getattr(layers, attribute):
             table_elements.extend(["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">"])
             cellid += 1
-            table_elements.extend(["<select id = \"deprel", str(sentence), ";", str(index), ";", str(cellid), "\"><option value=\"", str(cellid), ";original\">", html.escape(element), "</option>"])
+            table_elements.extend(["<select class = \"syntax_choice\" id = \"deprel", str(sentence), ";", str(index), ";", str(cellid), "\"><option value=\"", str(cellid), ";original\">", html.escape(element), "</option>"])
             for deprel_element in deprel:
                 if element != deprel_element:
                     table_elements.extend(["<option value=", str(sentence), ";", str(cellid), ";", deprel_element, ">", str(deprel_element), "</option>"])
@@ -49,9 +49,9 @@ def table_column(layers, attribute, deprel, text, index = None, sentence = None)
             table_elements.extend(["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">"])
             cellid += 1
             if element != 0:
-                table_elements.extend(["<select id=\"head", str(sentence), ";", str(index), ";", str(cellid)," onchange=\"get_select_value();\"><option value=\"", str(cellid), ";original\">", str(element), ": ", str(text.sentences[sentence].text[element - 1]),  "</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
+                table_elements.extend(["<select class = \"syntax_choice\" id=\"head", str(sentence), ";", str(index), ";", str(cellid)," onchange=\"get_select_value();\"><option value=\"", str(cellid), ";original\">", str(element), ": ", str(text.sentences[sentence].text[element - 1]),  "</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
             else:
-                table_elements.extend(["<select id=\"head", str(sentence), ";", str(index), ";", str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid), ";original\">", str(element), "</option>"])
+                table_elements.extend(["<select class = \"syntax_choice\" id=\"head", str(sentence), ";", str(index), ";", str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid), ";original\">", str(element), "</option>"])
             for i in range(len(text.sentences[sentence])):
                 table_elements.extend(["<option value=", str(sentence), ";", str(cellid), ";", str(i + 1), ">", str(i + 1), ": ", str(text.sentences[sentence].text[i]), "</option>"])
             word += 1
@@ -105,3 +105,17 @@ def tables(layers, attributes, deprel, text, sentence = None):
         tables.extend(table_elements)
     tables.append("<button type=\"button\" id=\"save\">save</button><button type=\"button\" id=\"previous\">previous</button><button type=\"button\" id=\"next\">next</button>")
     return "".join(tables)
+
+def saving(saved_info, text, layer_count):
+    info = saved_info.split(",")
+    separated_info = []
+    start = 0
+    end = 0
+    for sentence in text.sentences:
+        sentence_info = []
+        start = end
+        end = start + len(sentence) * layer_count * 2
+        for i in range(start, end):
+            sentence_info.append(info[i])
+        separated_info.append(sentence_info)
+    return separated_info
