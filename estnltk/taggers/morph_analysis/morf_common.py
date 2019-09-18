@@ -26,7 +26,7 @@ DEFAULT_PARAM_COMPOUND     = True
 # Morphological analysis attributes used by Vabamorf
 VABAMORF_ATTRIBUTES = ('root', 'ending', 'clitic', 'form', 'partofspeech')
 
-# Morphological analysis attributes used by ESTNLTK
+# Morphological analysis attributes used by ESTNLTK's Vabamorf
 ESTNLTK_MORPH_ATTRIBUTES = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
 
 # Name of the normalized text attribute. This refers to 
