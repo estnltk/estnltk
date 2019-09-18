@@ -3,6 +3,7 @@ from estnltk import ElementaryBaseSpan
 from estnltk.text import Layer, Text
 
 from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS
+from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT, ESTNLTK_MORPH_ATTRIBUTES
 
 def import_TCF(string:str=None, file:str=None):
     if file:
@@ -112,8 +113,8 @@ def import_TCF(string:str=None, file:str=None):
             else:
                 morph_analysis_records[-1].append(rec)
     
-        morph_attributes = ['lemma', 'root', 'root_tokens', 'ending',
-                            'clitic', 'form', 'partofspeech']
+        morph_attributes = list( ESTNLTK_MORPH_ATTRIBUTES )
+        #morph_attributes = [NORMALIZED_TEXT] + list(ESTNLTK_MORPH_ATTRIBUTES)
         morph = Layer(name='morph_analysis',
                       parent='words',
                       ambiguous=True,
@@ -121,6 +122,8 @@ def import_TCF(string:str=None, file:str=None):
                       )
         for word, analyses in zip(text.words, morph_analysis_records):
             for analysis in analyses:
+                if NORMALIZED_TEXT in morph.attributes:
+                    analysis[NORMALIZED_TEXT] = word.text
                 morph.add_annotation(word, **analysis)
 
         text.add_layer(morph)
