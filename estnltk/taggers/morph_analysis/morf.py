@@ -333,7 +333,7 @@ class VabamorfAnalyzer(Tagger):
                  propername = DEFAULT_PARAM_PROPERNAME,
                  compound = DEFAULT_PARAM_COMPOUND,
                  phonetic = DEFAULT_PARAM_PHONETIC,
-                 add_normalized_text=False):
+                 add_normalized_text=NORMALIZED_TEXT in VabamorfTagger.output_attributes):
         """Initialize VabamorfAnalyzer class.
 
         Parameters
