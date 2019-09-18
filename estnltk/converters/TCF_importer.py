@@ -113,8 +113,8 @@ def import_TCF(string:str=None, file:str=None):
             else:
                 morph_analysis_records[-1].append(rec)
     
-        morph_attributes = list( ESTNLTK_MORPH_ATTRIBUTES )
-        #morph_attributes = [NORMALIZED_TEXT] + list(ESTNLTK_MORPH_ATTRIBUTES)
+        #morph_attributes = list( ESTNLTK_MORPH_ATTRIBUTES )
+        morph_attributes = [NORMALIZED_TEXT] + list(ESTNLTK_MORPH_ATTRIBUTES)
         morph = Layer(name='morph_analysis',
                       parent='words',
                       ambiguous=True,

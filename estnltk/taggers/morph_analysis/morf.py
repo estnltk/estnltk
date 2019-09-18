@@ -35,8 +35,8 @@ class VabamorfTagger(Tagger):
     """Tags morphological analysis on words. Uses Vabamorf's analyzer and disambiguator.
 
     """
-    #output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
-    output_attributes = ESTNLTK_MORPH_ATTRIBUTES
+    output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
+    #output_attributes = ESTNLTK_MORPH_ATTRIBUTES
 
     conf_param = [# VM configuration flags:
                   "guess",

@@ -45,14 +45,14 @@ def test_pick_first_analysis_with_record_retagger():
     simple_disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     expected_records = [
-       [{'root': 'mina', 'ending': '0', 'form': 'sg n', 'lemma': 'mina', 'clitic': '', 'end': 2, 'start': 0, 'partofspeech': 'P', 'root_tokens': ('mina',)}],
-       [{'root': 'ei', 'ending': '0', 'form': '', 'lemma': 'ei', 'clitic': '', 'end': 5, 'start': 3, 'partofspeech': 'D', 'root_tokens': ('ei',)}], 
-       [{'root': 'ol=nud', 'ending': '0', 'form': '', 'lemma': 'olnud', 'clitic': '', 'end': 11, 'start': 6, 'partofspeech': 'A', 'root_tokens': ('olnud',)}],
-       [{'root': 'selline', 'ending': 'st', 'form': 'sg el', 'lemma': 'selline', 'clitic': '', 'end': 21, 'start': 12, 'partofspeech': 'P', 'root_tokens': ('selline',)}], 
-       [{'root': 'masina_värk', 'ending': 'st', 'form': 'sg el', 'lemma': 'masinavärk', 'clitic': '', 'end': 35, 'start': 22, 'partofspeech': 'S', 'root_tokens': ('masina', 'värk')}], 
-       [{'root': 'veel', 'ending': '0', 'form': '', 'lemma': 'veel', 'clitic': '', 'end': 40, 'start': 36, 'partofspeech': 'D', 'root_tokens': ('veel',)}], 
-       [{'root': 'kuulnu', 'ending': 'd', 'form': 'pl n', 'lemma': 'kuulnu', 'clitic': 'ki', 'end': 50, 'start': 41, 'partofspeech': 'S', 'root_tokens': ('kuulnu',)}], 
-       [{'root': '.', 'ending': '', 'form': '', 'lemma': '.', 'clitic': '', 'end': 51, 'start': 50, 'partofspeech': 'Z', 'root_tokens': ('.',)}]]
+       [{'normalized_text': 'Ma', 'root': 'mina', 'ending': '0', 'form': 'sg n', 'lemma': 'mina', 'clitic': '', 'end': 2, 'start': 0, 'partofspeech': 'P', 'root_tokens': ('mina',)}],
+       [{'normalized_text': 'ei', 'root': 'ei', 'ending': '0', 'form': '', 'lemma': 'ei', 'clitic': '', 'end': 5, 'start': 3, 'partofspeech': 'D', 'root_tokens': ('ei',)}], 
+       [{'normalized_text': 'olnud', 'root': 'ol=nud', 'ending': '0', 'form': '', 'lemma': 'olnud', 'clitic': '', 'end': 11, 'start': 6, 'partofspeech': 'A', 'root_tokens': ('olnud',)}],
+       [{'normalized_text': 'sellisest', 'root': 'selline', 'ending': 'st', 'form': 'sg el', 'lemma': 'selline', 'clitic': '', 'end': 21, 'start': 12, 'partofspeech': 'P', 'root_tokens': ('selline',)}], 
+       [{'normalized_text': 'masinavärgist', 'root': 'masina_värk', 'ending': 'st', 'form': 'sg el', 'lemma': 'masinavärk', 'clitic': '', 'end': 35, 'start': 22, 'partofspeech': 'S', 'root_tokens': ('masina', 'värk')}], 
+       [{'normalized_text': 'veel', 'root': 'veel', 'ending': '0', 'form': '', 'lemma': 'veel', 'clitic': '', 'end': 40, 'start': 36, 'partofspeech': 'D', 'root_tokens': ('veel',)}], 
+       [{'normalized_text': 'kuulnudki', 'root': 'kuulnu', 'ending': 'd', 'form': 'pl n', 'lemma': 'kuulnu', 'clitic': 'ki', 'end': 50, 'start': 41, 'partofspeech': 'S', 'root_tokens': ('kuulnu',)}], 
+       [{'normalized_text': '.', 'root': '.', 'ending': '', 'form': '', 'lemma': '.', 'clitic': '', 'end': 51, 'start': 50, 'partofspeech': 'Z', 'root_tokens': ('.',)}]]
     # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()
     _sort_morph_analysis_records( results_dict )
@@ -98,14 +98,14 @@ def test_pick_verb_for_nud_with_record_retagger():
     simple_disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     expected_records = [
-         [{'end': 3, 'ending': 'd', 'start': 0, 'root': 'tema', 'clitic': '', 'root_tokens': ['tema'], 'partofspeech': 'P', 'lemma': 'tema', 'form': 'pl n'}], \
-         [{'end': 6, 'ending': '0', 'start': 4, 'root': 'ei', 'clitic': '', 'root_tokens': ['ei',], 'partofspeech': 'D', 'lemma': 'ei', 'form': ''}, \
-          {'end': 6, 'ending': '0', 'start': 4, 'root': 'ei', 'clitic': '', 'root_tokens': ['ei',], 'partofspeech': 'V', 'lemma': 'ei', 'form': 'neg'}], \
-         [{'end': 12, 'ending': 'nud', 'start': 7, 'root': 'ole', 'clitic': '', 'root_tokens': ('ole',), 'partofspeech': 'V', 'lemma': 'olema', 'form': 'nud'}], \
-         [{'end': 19, 'ending': 'nud', 'start': 13, 'root': 'loo', 'clitic': '', 'root_tokens': ('loo',), 'partofspeech': 'V', 'lemma': 'looma', 'form': 'nud'}], \
-         [{'end': 28, 'ending': 'nud', 'start': 20, 'root': 'arene', 'clitic': '', 'root_tokens': ('arene',), 'partofspeech': 'V', 'lemma': 'arenema', 'form': 'nud'}], \
-         [{'end': 49, 'ending': 't', 'start': 29, 'root': 'erakonna_demo_kraatia', 'clitic': '', 'root_tokens': ['erakonna', 'demo', 'kraatia'], 'partofspeech': 'S', 'lemma': 'erakonnademokraatia', 'form': 'sg p'}], \
-         [{'end': 50, 'ending': '', 'start': 49, 'root': '.', 'clitic': '', 'root_tokens': ['.',], 'partofspeech': 'Z', 'lemma': '.', 'form': ''}]
+         [{'normalized_text': 'Nad', 'end': 3, 'ending': 'd', 'start': 0, 'root': 'tema', 'clitic': '', 'root_tokens': ['tema'], 'partofspeech': 'P', 'lemma': 'tema', 'form': 'pl n'}], \
+         [{'normalized_text': 'ei', 'end': 6, 'ending': '0', 'start': 4, 'root': 'ei', 'clitic': '', 'root_tokens': ['ei',], 'partofspeech': 'D', 'lemma': 'ei', 'form': ''}, \
+          {'normalized_text': 'ei', 'end': 6, 'ending': '0', 'start': 4, 'root': 'ei', 'clitic': '', 'root_tokens': ['ei',], 'partofspeech': 'V', 'lemma': 'ei', 'form': 'neg'}], \
+         [{'normalized_text': 'olnud', 'end': 12, 'ending': 'nud', 'start': 7, 'root': 'ole', 'clitic': '', 'root_tokens': ('ole',), 'partofspeech': 'V', 'lemma': 'olema', 'form': 'nud'}], \
+         [{'normalized_text': 'loonud', 'end': 19, 'ending': 'nud', 'start': 13, 'root': 'loo', 'clitic': '', 'root_tokens': ('loo',), 'partofspeech': 'V', 'lemma': 'looma', 'form': 'nud'}], \
+         [{'normalized_text': 'arenenud', 'end': 28, 'ending': 'nud', 'start': 20, 'root': 'arene', 'clitic': '', 'root_tokens': ('arene',), 'partofspeech': 'V', 'lemma': 'arenema', 'form': 'nud'}], \
+         [{'normalized_text': 'erakonnademokraatiat', 'end': 49, 'ending': 't', 'start': 29, 'root': 'erakonna_demo_kraatia', 'clitic': '', 'root_tokens': ['erakonna', 'demo', 'kraatia'], 'partofspeech': 'S', 'lemma': 'erakonnademokraatia', 'form': 'sg p'}], \
+         [{'normalized_text': '.', 'end': 50, 'ending': '', 'start': 49, 'root': '.', 'clitic': '', 'root_tokens': ['.',], 'partofspeech': 'Z', 'lemma': '.', 'form': ''}]
     ]
     # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()
@@ -161,18 +161,18 @@ def test_record_retagger_that_requires_normalized_word_forms():
     simple_disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     expected_records = [
-        [{'end': 3, 'start': 0, 'partofspeech': 'D', 'root': 'kas', 'clitic': '', 'root_tokens': ['kas',], 'ending': '0', 'form': '', 'lemma': 'kas'}], \
-        [{'end': 8, 'start': 4, 'partofspeech': 'Emo', 'root': ':-)', 'clitic': '', 'root_tokens': (':-)',), 'ending': '', 'form': '', 'lemma': ':-)'}], \
-        [{'end': 12, 'start': 9, 'partofspeech': 'D', 'root': 'või', 'clitic': '', 'root_tokens': ['või',], 'ending': '0', 'form': '', 'lemma': 'või'}, \
-         {'end': 12, 'start': 9, 'partofspeech': 'J', 'root': 'või', 'clitic': '', 'root_tokens': ['või',], 'ending': '0', 'form': '', 'lemma': 'või'}, \
-         {'end': 12, 'start': 9, 'partofspeech': 'S', 'root': 'või', 'clitic': '', 'root_tokens': ['või',], 'ending': '0', 'form': 'sg g', 'lemma': 'või'}, \
-         {'end': 12, 'start': 9, 'partofspeech': 'S', 'root': 'või', 'clitic': '', 'root_tokens': ['või',], 'ending': '0', 'form': 'sg n', 'lemma': 'või'}, \
-         {'end': 12, 'start': 9, 'partofspeech': 'V', 'root': 'või', 'clitic': '', 'root_tokens': ['või',], 'ending': '0', 'form': 'o', 'lemma': 'võima'}], \
-        [{'end': 19, 'start': 13, 'partofspeech': 'D', 'root': 'hoopis', 'clitic': '', 'root_tokens': ['hoopis',], 'ending': '0', 'form': '', 'lemma': 'hoopis'}], \
-        [{'end': 22, 'start': 20, 'partofspeech': 'Emo', 'root': ':)', 'clitic': '', 'root_tokens': (':)',), 'ending': '', 'form': '', 'lemma': ':)'}], \
-        [{'end': 24, 'start': 23, 'partofspeech': 'Z', 'root': '?', 'clitic': '', 'root_tokens': ['?',], 'ending': '', 'form': '', 'lemma': '?'}], \
-        [{'end': 30, 'start': 25, 'partofspeech': 'D', 'root': 'pigem', 'clitic': '', 'root_tokens': ['pigem',], 'ending': '0', 'form': '', 'lemma': 'pigem'}], \
-        [{'end': 33, 'start': 31, 'partofspeech': 'Emo', 'root': ':D', 'clitic': '', 'root_tokens': (':D',), 'ending': '0', 'form': '?', 'lemma': 'D'}]
+        [{'normalized_text': 'Kas', 'end': 3, 'start': 0, 'partofspeech': 'D', 'root': 'kas', 'clitic': '', 'root_tokens': ['kas',], 'ending': '0', 'form': '', 'lemma': 'kas'}], \
+        [{'normalized_text': ':-)', 'end': 8, 'start': 4, 'partofspeech': 'Emo', 'root': ':-)', 'clitic': '', 'root_tokens': (':-)',), 'ending': '', 'form': '', 'lemma': ':-)'}], \
+        [{'normalized_text': 'või', 'end': 12, 'start': 9, 'partofspeech': 'D', 'root': 'või', 'clitic': '', 'root_tokens': ['või',], 'ending': '0', 'form': '', 'lemma': 'või'}, \
+         {'normalized_text': 'või', 'end': 12, 'start': 9, 'partofspeech': 'J', 'root': 'või', 'clitic': '', 'root_tokens': ['või',], 'ending': '0', 'form': '', 'lemma': 'või'}, \
+         {'normalized_text': 'või', 'end': 12, 'start': 9, 'partofspeech': 'S', 'root': 'või', 'clitic': '', 'root_tokens': ['või',], 'ending': '0', 'form': 'sg g', 'lemma': 'või'}, \
+         {'normalized_text': 'või', 'end': 12, 'start': 9, 'partofspeech': 'S', 'root': 'või', 'clitic': '', 'root_tokens': ['või',], 'ending': '0', 'form': 'sg n', 'lemma': 'või'}, \
+         {'normalized_text': 'või', 'end': 12, 'start': 9, 'partofspeech': 'V', 'root': 'või', 'clitic': '', 'root_tokens': ['või',], 'ending': '0', 'form': 'o', 'lemma': 'võima'}], \
+        [{'normalized_text': 'hoopis', 'end': 19, 'start': 13, 'partofspeech': 'D', 'root': 'hoopis', 'clitic': '', 'root_tokens': ['hoopis',], 'ending': '0', 'form': '', 'lemma': 'hoopis'}], \
+        [{'normalized_text': ':)', 'end': 22, 'start': 20, 'partofspeech': 'Emo', 'root': ':)', 'clitic': '', 'root_tokens': (':)',), 'ending': '', 'form': '', 'lemma': ':)'}], \
+        [{'normalized_text': '?', 'end': 24, 'start': 23, 'partofspeech': 'Z', 'root': '?', 'clitic': '', 'root_tokens': ['?',], 'ending': '', 'form': '', 'lemma': '?'}], \
+        [{'normalized_text': 'Pigem', 'end': 30, 'start': 25, 'partofspeech': 'D', 'root': 'pigem', 'clitic': '', 'root_tokens': ['pigem',], 'ending': '0', 'form': '', 'lemma': 'pigem'}], \
+        [{'normalized_text': ':D', 'end': 33, 'start': 31, 'partofspeech': 'Emo', 'root': ':D', 'clitic': '', 'root_tokens': (':D',), 'ending': '0', 'form': '?', 'lemma': 'D'}]
     ]
     # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()
@@ -225,18 +225,18 @@ def test_record_retagger_that_requires_sentence_ids():
     simple_disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     expected_records = [
-        [{'clitic': '', 'lemma': 'jänes', 'root_tokens': ('jänes',), 'partofspeech': 'S', 'root': 'jänes', 'form': 'sg g', 'start': 0, 'ending': '0', 'end': 6}], \
-        [{'clitic': '', 'lemma': 'Haak', 'root_tokens': ['Haak',], 'partofspeech': 'H', 'root': 'Haak', 'form': 'sg n', 'start': 7, 'ending': '0', 'end': 11}, \
-         {'clitic': '', 'lemma': 'haak', 'root_tokens': ['haak',], 'partofspeech': 'S', 'root': 'haak', 'form': 'sg n', 'start': 7, 'ending': '0', 'end': 11}], \
-        [{'clitic': '', 'lemma': '?', 'root_tokens': ['?',], 'partofspeech': 'Z', 'root': '?', 'form': '', 'start': 11, 'ending': '', 'end': 12}], \
-        [{'clitic': '', 'lemma': 'kapsama', 'root_tokens': ('kapsa',), 'partofspeech': 'V', 'root': 'kapsa', 'form': 'o', 'start': 13, 'ending': '0', 'end': 18}, \
-         {'clitic': '', 'lemma': 'kapsas', 'root_tokens': ('kapsas',), 'partofspeech': 'S', 'root': 'kapsas', 'form': 'sg g', 'start': 13, 'ending': '0', 'end': 18}], \
-        [{'clitic': '', 'lemma': 'Mari', 'root_tokens': ['Mari',], 'partofspeech': 'H', 'root': 'Mari', 'form': 'sg g', 'start': 19, 'ending': '0', 'end': 23}, \
-         {'clitic': '', 'lemma': 'Mari', 'root_tokens': ['Mari',], 'partofspeech': 'H', 'root': 'Mari', 'form': 'sg n', 'start': 19, 'ending': '0', 'end': 23}, \
-         {'clitic': '', 'lemma': 'mari', 'root_tokens': ['mari',], 'partofspeech': 'S', 'root': 'mari', 'form': 'sg g', 'start': 19, 'ending': '0', 'end': 23}, \
-         {'clitic': '', 'lemma': 'mari', 'root_tokens': ['mari',], 'partofspeech': 'S', 'root': 'mari', 'form': 'sg n', 'start': 19, 'ending': '0', 'end': 23}, \
-         {'clitic': '', 'lemma': 'mari', 'root_tokens': ['mari',], 'partofspeech': 'S', 'root': 'mari', 'form': 'sg p', 'start': 19, 'ending': '0', 'end': 23}], \
-        [{'clitic': '', 'lemma': '!', 'root_tokens': ['!',], 'partofspeech': 'Z', 'root': '!', 'form': '', 'start': 23, 'ending': '', 'end': 24}]
+        [{'normalized_text': 'Jänese', 'clitic': '', 'lemma': 'jänes', 'root_tokens': ('jänes',), 'partofspeech': 'S', 'root': 'jänes', 'form': 'sg g', 'start': 0, 'ending': '0', 'end': 6}], \
+        [{'normalized_text': 'Haak', 'clitic': '', 'lemma': 'Haak', 'root_tokens': ['Haak',], 'partofspeech': 'H', 'root': 'Haak', 'form': 'sg n', 'start': 7, 'ending': '0', 'end': 11}, \
+         {'normalized_text': 'Haak', 'clitic': '', 'lemma': 'haak', 'root_tokens': ['haak',], 'partofspeech': 'S', 'root': 'haak', 'form': 'sg n', 'start': 7, 'ending': '0', 'end': 11}], \
+        [{'normalized_text': '?', 'clitic': '', 'lemma': '?', 'root_tokens': ['?',], 'partofspeech': 'Z', 'root': '?', 'form': '', 'start': 11, 'ending': '', 'end': 12}], \
+        [{'normalized_text': 'Kapsa', 'clitic': '', 'lemma': 'kapsama', 'root_tokens': ('kapsa',), 'partofspeech': 'V', 'root': 'kapsa', 'form': 'o', 'start': 13, 'ending': '0', 'end': 18}, \
+         {'normalized_text': 'Kapsa', 'clitic': '', 'lemma': 'kapsas', 'root_tokens': ('kapsas',), 'partofspeech': 'S', 'root': 'kapsas', 'form': 'sg g', 'start': 13, 'ending': '0', 'end': 18}], \
+        [{'normalized_text': 'Mari', 'clitic': '', 'lemma': 'Mari', 'root_tokens': ['Mari',], 'partofspeech': 'H', 'root': 'Mari', 'form': 'sg g', 'start': 19, 'ending': '0', 'end': 23}, \
+         {'normalized_text': 'Mari', 'clitic': '', 'lemma': 'Mari', 'root_tokens': ['Mari',], 'partofspeech': 'H', 'root': 'Mari', 'form': 'sg n', 'start': 19, 'ending': '0', 'end': 23}, \
+         {'normalized_text': 'Mari', 'clitic': '', 'lemma': 'mari', 'root_tokens': ['mari',], 'partofspeech': 'S', 'root': 'mari', 'form': 'sg g', 'start': 19, 'ending': '0', 'end': 23}, \
+         {'normalized_text': 'Mari', 'clitic': '', 'lemma': 'mari', 'root_tokens': ['mari',], 'partofspeech': 'S', 'root': 'mari', 'form': 'sg n', 'start': 19, 'ending': '0', 'end': 23}, \
+         {'normalized_text': 'Mari', 'clitic': '', 'lemma': 'mari', 'root_tokens': ['mari',], 'partofspeech': 'S', 'root': 'mari', 'form': 'sg p', 'start': 19, 'ending': '0', 'end': 23}], \
+        [{'normalized_text': '!', 'clitic': '', 'lemma': '!', 'root_tokens': ['!',], 'partofspeech': 'Z', 'root': '!', 'form': '', 'start': 23, 'ending': '', 'end': 24}]
     ]
     # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()

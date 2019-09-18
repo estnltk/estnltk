@@ -113,7 +113,8 @@ def test_to_record():
 
     # teine tundub veidi loogilisem, aga piisavalt harv vajadus ja piisavalt tülikas implementeerida, et valida esimene
     # alati saab teha lihtsalt
-    assert t.morph_analysis.to_records() == [[{'lemma': 'mina',
+    assert t.morph_analysis.to_records() == [[{'normalized_text': 'Minu',
+                                               'lemma': 'mina',
                                                'root': 'mina',
                                                'root_tokens': ['mina'],
                                                'ending': '0',
@@ -122,7 +123,8 @@ def test_to_record():
                                                'partofspeech': 'P',
                                                'start': 0,
                                                'end': 4}],
-                                             [{'lemma': 'nimi',
+                                             [{'normalized_text': 'nimi',
+                                               'lemma': 'nimi',
                                                'root': 'nimi',
                                                'root_tokens': ['nimi'],
                                                'ending': '0',
@@ -131,7 +133,8 @@ def test_to_record():
                                                'partofspeech': 'S',
                                                'start': 5,
                                                'end': 9}],
-                                             [{'lemma': 'olema',
+                                             [{'normalized_text': 'on',
+                                               'lemma': 'olema',
                                                'root': 'ole',
                                                'root_tokens': ['ole'],
                                                'ending': '0',
@@ -140,7 +143,8 @@ def test_to_record():
                                                'partofspeech': 'V',
                                                'start': 10,
                                                'end': 12},
-                                              {'lemma': 'olema',
+                                              {'normalized_text': 'on',
+                                               'lemma': 'olema',
                                                'root': 'ole',
                                                'root_tokens': ['ole'],
                                                'ending': '0',
@@ -149,7 +153,8 @@ def test_to_record():
                                                'partofspeech': 'V',
                                                'start': 10,
                                                'end': 12}],
-                                             [{'lemma': 'Uku',
+                                             [{'normalized_text': 'Uku',
+                                               'lemma': 'Uku',
                                                'root': 'Uku',
                                                'root_tokens': ['Uku'],
                                                'ending': '0',
@@ -158,7 +163,8 @@ def test_to_record():
                                                'partofspeech': 'H',
                                                'start': 13,
                                                'end': 16}],
-                                             [{'lemma': '.',
+                                             [{'normalized_text': '.',
+                                               'lemma': '.',
                                                'root': '.',
                                                'root_tokens': ['.'],
                                                'ending': '',
@@ -626,17 +632,17 @@ def test_to_records():
 
     # ambiguous
     assert (text['morph_analysis'].to_records()) == [
-        [{'root': 'ol=nud', 'lemma': 'olnud', 'form': '', 'ending': '0', 'root_tokens': ['olnud'], 'partofspeech': 'A',
+        [{'normalized_text': 'Olnud', 'root': 'ol=nud', 'lemma': 'olnud', 'form': '', 'ending': '0', 'root_tokens': ['olnud'], 'partofspeech': 'A',
           'start': 0, 'end': 5, 'clitic': ''},
-         {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'sg n', 'ending': '0', 'root_tokens': ['olnud'],
+         {'normalized_text': 'Olnud', 'root': 'ol=nud', 'lemma': 'olnud', 'form': 'sg n', 'ending': '0', 'root_tokens': ['olnud'],
           'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
-         {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'pl n', 'ending': 'd', 'root_tokens': ['olnud'],
+         {'normalized_text': 'Olnud', 'root': 'ol=nud', 'lemma': 'olnud', 'form': 'pl n', 'ending': 'd', 'root_tokens': ['olnud'],
           'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
-         {'root': 'ole', 'lemma': 'olema', 'form': 'nud', 'ending': 'nud', 'root_tokens': ['ole'], 'partofspeech': 'V',
+         {'normalized_text': 'Olnud', 'root': 'ole', 'lemma': 'olema', 'form': 'nud', 'ending': 'nud', 'root_tokens': ['ole'], 'partofspeech': 'V',
           'start': 0, 'end': 5, 'clitic': ''}],
-        [{'root': 'aeg', 'lemma': 'aeg', 'form': 'sg n', 'ending': '0', 'root_tokens': ['aeg'], 'partofspeech': 'S',
+        [{'normalized_text': 'aeg', 'root': 'aeg', 'lemma': 'aeg', 'form': 'sg n', 'ending': '0', 'root_tokens': ['aeg'], 'partofspeech': 'S',
           'start': 6, 'end': 9, 'clitic': ''}],
-        [{'root': '.', 'lemma': '.', 'form': '', 'ending': '', 'root_tokens': ['.'], 'partofspeech': 'Z', 'start': 9,
+        [{'normalized_text': '.', 'root': '.', 'lemma': '.', 'form': '', 'ending': '', 'root_tokens': ['.'], 'partofspeech': 'Z', 'start': 9,
           'end': 10, 'clitic': ''}]]
 
 
