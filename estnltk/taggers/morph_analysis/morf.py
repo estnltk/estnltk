@@ -35,6 +35,7 @@ class VabamorfTagger(Tagger):
     """Tags morphological analysis on words. Uses Vabamorf's analyzer and disambiguator.
 
     """
+    #output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES
 
     conf_param = [# VM configuration flags:
@@ -631,6 +632,8 @@ class VabamorfDisambiguator(Retagger):
         for cur_attr in current_attributes:
             if cur_attr not in self.output_attributes and cur_attr != IGNORE_ATTR:
                 extra_attributes.append(cur_attr)
+        if NORMALIZED_TEXT in self.output_attributes:
+            extra_attributes.append( NORMALIZED_TEXT )
         # Check that len(word_spans) >= len(morph_spans)
         morph_layer = layers[self.output_layer]
         word_spans  = layers[self._input_words_layer]
@@ -684,7 +687,8 @@ class VabamorfDisambiguator(Retagger):
                                 #   then quality of the disambiguation suffers;
                                 normalized_texts = set()
                                 for analysis in word_morph_dict['analysis']:
-                                    if NORMALIZED_TEXT in analysis:
+                                    if NORMALIZED_TEXT in analysis and \
+                                       analysis[NORMALIZED_TEXT] is not None:
                                         normalized_texts.add( analysis[NORMALIZED_TEXT] )
                                 if len(normalized_texts) == 1:
                                     # PLAN A: if an unambiguous normalized word form 
