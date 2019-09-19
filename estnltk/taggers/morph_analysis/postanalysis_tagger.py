@@ -37,7 +37,7 @@ class PostMorphAnalysisTagger(Retagger):
        layer before the disambiguation process.
        This tagger should be applied before VabamorfDisambiguator."""
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
-    conf_param = ['depends_on', 'ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials',
+    conf_param = ['ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials',
                   'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses',
                   'fix_abbreviations', 'fix_number_postags', 'remove_duplicates',
                   'fix_number_analyses_using_rules',
@@ -48,9 +48,6 @@ class PostMorphAnalysisTagger(Retagger):
                   '_number_correction_rules',
                   # Names of input layers
                   '_input_cp_tokens_layer',
-                  '_input_words_layer',
-                  '_input_sentences_layer',
-                  '_input_morph_analysis_layer',
                   # Regep patterns
                   '_pat_name_needs_underscore1',
                   '_pat_name_needs_underscore2',
@@ -60,8 +57,6 @@ class PostMorphAnalysisTagger(Retagger):
     def __init__(self,
                  output_layer='morph_analysis',
                  input_compound_tokens_layer='compound_tokens',
-                 input_words_layer='words',
-                 input_sentences_layer='sentences',
                  ignore_emoticons:bool=True,
                  ignore_xml_tags:bool=True,
                  fix_names_with_initials:bool=True,
@@ -85,13 +80,7 @@ class PostMorphAnalysisTagger(Retagger):
             will be corrected;
         
         input_compound_tokens_layer: str (default: 'compound_tokens')
-            Name of the input words layer;
-        
-        input_words_layer: str (default: 'words')
-            Name of the input words layer;
-        
-        input_sentences_layer: str (default: 'sentences')
-            Name of the input sentences layer;
+            Name of the input compound_tokens layer;
         
         ignore_emoticons: bool (default: True)
             If True, then emoticons will be marked as to 
@@ -176,14 +165,8 @@ class PostMorphAnalysisTagger(Retagger):
         self.output_layer = output_layer
         # Names of the input layers
         self.input_layers = [input_compound_tokens_layer,
-                             input_words_layer,
-                             input_sentences_layer,
                              output_layer]
-        self._input_cp_tokens_layer      = self.input_layers[0]
-        self._input_words_layer          = self.input_layers[1]
-        self._input_sentences_layer      = self.input_layers[2]
-        self._input_morph_analysis_layer = self.input_layers[3]
-        self.depends_on   = self.input_layers
+        self._input_cp_tokens_layer = input_compound_tokens_layer
         
         # Correction of number analyses
         # (formerly in VabamorfCorrectionRewriter)
@@ -241,8 +224,6 @@ class PostMorphAnalysisTagger(Retagger):
         """
         assert self.output_layer in layers
         assert self._input_cp_tokens_layer in layers
-        assert self._input_sentences_layer in layers
-        assert self._input_words_layer in layers
         # --------------------------------------------
         #   Provide fixes that involve rewriting
         #   attributes of existing spans 

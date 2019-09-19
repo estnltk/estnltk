@@ -126,9 +126,7 @@ class VabamorfTagger(Tagger):
         if not postanalysis_tagger:
             # Initialize default postanalysis_tagger
             postanalysis_tagger = PostMorphAnalysisTagger(output_layer=output_layer,\
-                                                          input_compound_tokens_layer=input_compound_tokens_layer, \
-                                                          input_words_layer=input_words_layer, \
-                                                          input_sentences_layer=input_sentences_layer)
+                                                          input_compound_tokens_layer=input_compound_tokens_layer)
         # Initialize postanalysis_tagger;
         if postanalysis_tagger:
             # Check for Retagger
