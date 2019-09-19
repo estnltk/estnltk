@@ -418,3 +418,13 @@ class UserDictTagger(Retagger):
                                               "Proper values should be from the following list: "+\
                                               str( VABAMORF_NOUN_FORMS + VABAMORF_VERB_FORMS ) )
 
+
+    def as_dict(self):
+        """Returns a copy of the user dictionary as a dict.
+           Note: a deep copy of the user dictionary will be 
+           made and returned, so that changing values in the 
+           returned object does not alter this 
+           UserDictTagger.
+        """
+        import copy
+        return copy.deepcopy( self._dict )

@@ -231,3 +231,25 @@ def test_userdict_tagger_post_analysis():
     # Check results
     assert expected_records == results_dict
 
+
+
+def test_userdict_tagger_as_dict_method():
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    userdict.add_word('abieluettepanek', \
+        { 'root': 'abielu_ettepanek', 'partofspeech': 'S' } )
+    userdict.add_word('kopsujoonis', \
+        [{'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S', 'clitic':''}] )
+    userdict.add_word('tahax', \
+        [{'normalized_text':'tahaks', 'root_tokens': ['taht',], 'ending': 'ks', 'clitic': '', 'partofspeech': 'V', 'root': 'taht', 'form': 'ks', 'lemma': 'tahtma'}] )
+    #print(userdict.as_dict())
+    expected_dict = { \
+      'tahax': 
+         {'analysis': [{'root_tokens': ['taht'], 'partofspeech': 'V', 'form': 'ks', 'clitic': '', 'normalized_text': 'tahaks', 'lemma': 'tahtma', 'ending': 'ks', 'root': 'taht'}], 'merge': False}, 
+      'abieluettepanek': 
+         {'analysis': [{'root_tokens': ['abielu', 'ettepanek'], 'partofspeech': 'S', 'lemma': 'abieluettepanek', 'root': 'abielu_ettepanek'}], 'merge': True}, 
+      'kopsujoonis': 
+         {'analysis': [{'root_tokens': ['kopsu', 'joonis'], 'partofspeech': 'S', 'clitic': '', 'form': 'sg n', 'lemma': 'kopsujoonis', 'ending': '0', 'root': 'kopsu_joonis'}], 'merge': False}
+    }
+    assert expected_dict == userdict.as_dict()
+
+
