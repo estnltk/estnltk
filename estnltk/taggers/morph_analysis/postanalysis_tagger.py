@@ -594,7 +594,7 @@ class PostMorphAnalysisTagger(Retagger):
                         for rec_attr in to_delete:
                             del rec[rec_attr]
              
-            # C.2) If no records were added (all were deleted),
+            # C.1) If no records were added (all were deleted),
             #      then add an empty record (unknown word)
             if len(rewritten_recs) == 0:
                 empty_morph_record = \
