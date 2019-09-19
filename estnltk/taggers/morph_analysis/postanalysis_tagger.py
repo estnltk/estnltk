@@ -474,11 +474,11 @@ class PostMorphAnalysisTagger(Retagger):
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s
             morph_annotations = morph_spans[morph_span_id].annotations
-
+            
             # A) Remove duplicate analyses (if required)
             if self.remove_duplicates:
                 morph_annotations = _remove_duplicate_morph_spans(morph_annotations)
-
+            
             # A.2) Check for empty spans
             word = morph_annotations[0].span.parent
             is_empty = _is_empty_annotation(morph_annotations[0])
@@ -506,11 +506,11 @@ class PostMorphAnalysisTagger(Retagger):
                 # Advance in the old morph_analysis layer
                 morph_span_id += 1
                 continue
-
+            
             # B) Convert spans to records
             records = [_span_to_records_excl(annotation, [IGNORE_ATTR]) for annotation in morph_annotations]
             rewritten_recs = records
-
+            
             # B.1) Fix pronouns
             if self.remove_broken_pronoun_analyses and len(rewritten_recs) > 0:
                 # B.1.1) Filter pronoun analyses: remove analyses in which the
@@ -534,7 +534,7 @@ class PostMorphAnalysisTagger(Retagger):
                     if not has_conflict:
                         rewritten_recs_new.append(rec)
                 rewritten_recs = rewritten_recs_new
-
+            
             # B.2) Used rules (from CSV file) to fix number analyses
             if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
                 # Find analyses of numeric tokens and attempt to make fixes
@@ -543,7 +543,7 @@ class PostMorphAnalysisTagger(Retagger):
                     assert NORMALIZED_TEXT in rec, \
                        '(!) Record {!r} is missing the attribute {!r}'.format(rec, NORMALIZED_TEXT)
                     normalized_word = rec[NORMALIZED_TEXT]
-                    if normalized_word is None or normalized_word.isalpha():
+                    if normalized_word is None or not any([c.isnumeric() for c in normalized_word]):
                         continue
                     found_analyses = \
                             self.find_analyses_for_numeric_token( normalized_word )
@@ -567,39 +567,36 @@ class PostMorphAnalysisTagger(Retagger):
                                     rec not in rewritten_recs_new:
                                      rewritten_recs_new.append(rec)
                      rewritten_recs = rewritten_recs_new
-
-            # B.3) Carry over extra attributes
-            if extra_attributes and len(rewritten_recs) > 0 and len(records) > 0:
+            
+            # B.3) Carry over extra attributes and add IGNORE_ATTR
+            if len(rewritten_recs) > 0:
+                layer_attributes = layers[self.output_layer].attributes
                 # Assume that extra attributes are same for each record (of the word):
                 # therefore, carry over attribute values from the first record
-                first_old_rec = records[0]
+                first_old_rec = records[0] if len(records) > 0 else {}
                 for rec in rewritten_recs:
+                    # Carry over extra attributes
                     for extra_attr in extra_attributes:
                         # Note: carry over the extra attribute value only when 
                         # the record was changed (so that the attribute is missing 
                         # from the record)
-                        if extra_attr not in rec:
+                        if extra_attr not in rec and \
+                           extra_attr in first_old_rec:
                             rec[extra_attr] = first_old_rec[extra_attr]
-            
-            # C) Convert records back to spans
-            #    Add IGNORE_ATTR
-            records = []
-
-            record_added = False
-            attributes = layers[self.output_layer].attributes
-            for rec in rewritten_recs:
-                if not rec:
-                    # Skip if a record was deleted
-                    continue
-                rec[IGNORE_ATTR] = False
-                # Add record as an annotation
-                rec = {attr: rec.get(attr) for attr in attributes}
-                records.append(rec)
-                record_added = True
-
+                    # Add IGNORE_ATTR
+                    rec[IGNORE_ATTR] = False
+                    # Just in case there is garbage, remove it
+                    to_delete = []
+                    for rec_attr in rec.keys():
+                        if rec_attr not in layer_attributes:
+                            to_delete.append(rec_attr)
+                    if to_delete:
+                        for rec_attr in to_delete:
+                            del rec[rec_attr]
+             
             # C.2) If no records were added (all were deleted),
             #      then add an empty record (unknown word)
-            if not record_added:
+            if len(rewritten_recs) == 0:
                 empty_morph_record = \
                     _create_empty_morph_record(word=word, layer_attributes = current_attributes)
                 # Add ignore attribute
@@ -615,14 +612,14 @@ class PostMorphAnalysisTagger(Retagger):
                 empty_morph_record = \
                     {attr: empty_morph_record[attr] for attr in layers[self.output_layer].attributes}
                 # Add the new annotation
-                records.append(empty_morph_record)
+                rewritten_recs.append(empty_morph_record)
             
             # D) Rewrite the old span with new one
             span = morph_spans[morph_span_id]
             span.clear_annotations()
-            for record in records:
+            for record in rewritten_recs:
                 span.add_annotation(Annotation(span, **record))
-
+            
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
 
