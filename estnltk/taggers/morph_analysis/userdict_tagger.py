@@ -14,7 +14,6 @@ from estnltk.taggers import Retagger
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
-from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
 
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_POSTAGS

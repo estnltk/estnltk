@@ -32,7 +32,7 @@ def test_userdict_tagger_partial_corrections():
     text = Text('Patsiendi kopsujoonis on loetamatu.')
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Add analysis of a single word
     userdict.add_word('kopsujoonis', {'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S'} )
     # Tag corrections
@@ -56,7 +56,7 @@ def test_userdict_tagger_partial_corrections():
     text = Text("Jah, femorises.")
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Add analysis of a single word
     userdict.add_word('femorises', {'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S'} )
     # Tag corrections
@@ -78,7 +78,7 @@ def test_userdict_tagger_partial_corrections():
     text = Text("Pneumofibroosi unkovertebraalartroosist duodenumisse?")
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = False)
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
     # Add partial corrections for words
     userdict.add_word('pneumofibroosi', \
         {'form': 'sg g', 'root': 'pneumofibroos', 'ending':'0', 'partofspeech': 'S'} )
@@ -111,7 +111,7 @@ def test_userdict_tagger_complete_overwriting():
     text = Text('Patsiendi kopsujoonis on loetamatu.')
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Add completely new analyses for a single word
     userdict.add_word('kopsujoonis', \
         [{'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S', 'clitic':''},\
@@ -138,7 +138,7 @@ def test_userdict_tagger_complete_overwriting():
     text = Text("Või jämesoolelingud femorises?")
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Add completely new analyses that should overwrite old analyses
     userdict.add_word('jämesoolelingud', \
         [{'form': 'pl n', 'root': 'jämesoole_ling', 'ending':'d', 'partofspeech': 'S', 'clitic':''}] )
@@ -167,7 +167,7 @@ def test_userdict_tagger_dict_from_csv_file():
     # Construct path to testing csv file
     csv_dict_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_userdict.csv')
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = False)
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
     # Load completely new analyses (from csv file )
     userdict.add_words_from_csv_file( csv_dict_path , delimiter=',')
     
@@ -206,7 +206,7 @@ def test_userdict_tagger_post_analysis():
     # Analyse morphology (without guessing, propernames and disambiguation)
     morph_analyser.tag(text)
     # Create user dict tagger
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = False)
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
     csv_dict_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_userdict.csv')
     # Load completely new analyses (from csv file)
