@@ -140,7 +140,7 @@ def test_morph_analyzer_without_guessing():
 
 def test_morph_analyzer_with_multiple_normalized_forms():
     # Tests that morphological analyser can analyse words with multiple normalized forms
-    analyzer2a = VabamorfAnalyzer(add_normalized_text=True)
+    analyzer2a = VabamorfAnalyzer()
     # Case 1: analyse with guessing
     text = Text('''isaand kui juuuubbeee ...''')
     text.tag_layer(['words', 'sentences'])
@@ -180,7 +180,7 @@ def test_morph_analyzer_with_multiple_normalized_forms():
     assert expected_records == results_dict
 
     # Case 2: analyse without guessing
-    analyzer2b = VabamorfAnalyzer(guess=False, propername=False, add_normalized_text=True)
+    analyzer2b = VabamorfAnalyzer(guess=False, propername=False)
     text = Text('''päris hää !''')
     text.tag_layer(['words', 'sentences'])
     # Add multiple normalized forms (and one of them will remain an unknown word)
@@ -328,7 +328,7 @@ from estnltk.converters import dict_to_layer
 def test_morph_disambiguation_if_analysis_has_normalized_text_attribute():
     # Tests that morphological disambiguator works if morphological_analysis 
     # layer has 'normalized_text' attribute
-    analyzer2a = VabamorfAnalyzer( add_normalized_text=True )
+    analyzer2a = VabamorfAnalyzer()
     # Case 1
     text = Text('''Mjees ppeeti knni.''')
     text.tag_layer(['words', 'sentences'])
