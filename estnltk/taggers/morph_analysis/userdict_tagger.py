@@ -26,12 +26,10 @@ class UserDictTagger(Retagger):
        This tagger can be applied after text has been morphologically analysed."""
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES
     conf_param = ['depends_on', 'ignore_case', 'validate_vm_categories',
-                  'autocorrect_root', '_dict', '_input_words_layer',
-                  'replace_missing_normalized_text_with_text']
+                  'autocorrect_root', '_dict', 'replace_missing_normalized_text_with_text']
 
     def __init__(self,
                  output_layer: str = 'morph_analysis',
-                 input_words_layer: str = 'words',
                  ignore_case: bool = False,
                  validate_vm_categories: bool = True,
                  autocorrect_root: bool = True,
@@ -42,9 +40,6 @@ class UserDictTagger(Retagger):
         ----------
         output_layer: str (default: 'morph_analysis')
             Name of the morphological analysis layer that is to be changed;
-        
-        input_words_layer: str (default: 'words')
-            Name of the input words layer;
         
         ignore_case: bool (default: False)
             If True, then case will be ignored when matching words in the text
@@ -73,8 +68,7 @@ class UserDictTagger(Retagger):
             overwriting.
         """
         self.output_layer = output_layer
-        self.input_layers = [input_words_layer, output_layer]
-        self._input_words_layer = self.input_layers[0]
+        self.input_layers = [output_layer]
         self.depends_on   = self.input_layers
         
         self.ignore_case  = ignore_case
@@ -333,7 +327,6 @@ class UserDictTagger(Retagger):
               This can be used to store metadata on layer retagging.
         """
         assert self.output_layer in layers
-        assert self._input_words_layer in layers
         # Take attributes from the input layer
         current_attributes = layers[self.output_layer].attributes
         # --------------------------------------------
@@ -341,9 +334,7 @@ class UserDictTagger(Retagger):
         # --------------------------------------------
         morph_span_id = 0
         morph_spans = layers[self.output_layer].spans
-        word_spans  = layers[self._input_words_layer].spans
         attribute_names = layers[self.output_layer].attributes
-        assert len(morph_spans) == len(word_spans)
         while morph_span_id < len(morph_spans):
             # 1) Get morph records
             records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
@@ -355,8 +346,8 @@ class UserDictTagger(Retagger):
                        '(!) Record {!r} is missing the attribute {!r}'.format(rec, NORMALIZED_TEXT)
                 word_text = rec[NORMALIZED_TEXT]
                 if word_text is None:
-                    # If normalized_text is None, fall back to the word.text
-                    word_text = word_spans[morph_span_id].text
+                    # If normalized_text is None, fall back to the morph_span.text
+                    word_text = morph_spans[morph_span_id].text
                 # Check the dictionary
                 if self.ignore_case:
                     word_text = word_text.lower()
