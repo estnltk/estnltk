@@ -78,7 +78,7 @@ def test_userdict_tagger_partial_corrections():
     text = Text("Pneumofibroosi unkovertebraalartroosist duodenumisse?")
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = False)
     # Add partial corrections for words
     userdict.add_word('pneumofibroosi', \
         {'form': 'sg g', 'root': 'pneumofibroos', 'ending':'0', 'partofspeech': 'S'} )
@@ -120,8 +120,8 @@ def test_userdict_tagger_complete_overwriting():
     userdict.retag(text)
     expected_records = [ \
         [{'normalized_text': 'Patsiendi', 'root_tokens': ['patsient',], 'lemma': 'patsient', 'end': 9, 'start': 0, 'form': 'sg g', 'root': 'patsient', 'ending': '0', 'clitic': '', 'partofspeech': 'S'}], \
-        [{'normalized_text': None, 'ending': '0', 'partofspeech': 'S', 'form': 'sg n', 'start': 10, 'root': 'kopsu_joonis', 'end': 21, 'clitic': '', 'lemma': 'kopsujoonis', 'root_tokens': ['kopsu', 'joonis']}, \
-         {'normalized_text': None, 'ending': 'is', 'partofspeech': 'S', 'form': 'pl in', 'start': 10, 'root': 'kopsu_joon', 'end': 21, 'clitic': '', 'lemma': 'kopsujoon', 'root_tokens': ['kopsu', 'joon']}],\
+        [{'normalized_text': 'kopsujoonis', 'ending': '0', 'partofspeech': 'S', 'form': 'sg n', 'start': 10, 'root': 'kopsu_joonis', 'end': 21, 'clitic': '', 'lemma': 'kopsujoonis', 'root_tokens': ['kopsu', 'joonis']}, \
+         {'normalized_text': 'kopsujoonis', 'ending': 'is', 'partofspeech': 'S', 'form': 'pl in', 'start': 10, 'root': 'kopsu_joon', 'end': 21, 'clitic': '', 'lemma': 'kopsujoon', 'root_tokens': ['kopsu', 'joon']}],\
         [{'normalized_text': 'on', 'root_tokens': ['ole',], 'lemma': 'olema', 'end': 24, 'start': 22, 'form': 'b', 'root': 'ole', 'ending': '0', 'clitic': '', 'partofspeech': 'V'}, {'normalized_text': 'on', 'root_tokens': ['ole',], 'lemma': 'olema', 'end': 24, 'start': 22, 'form': 'vad', 'root': 'ole', 'ending': '0', 'clitic': '', 'partofspeech': 'V'}], \
         [{'normalized_text': 'loetamatu', 'root_tokens': ['loetamatu',], 'lemma': 'loetamatu', 'end': 34, 'start': 25, 'form': 'sg n', 'root': 'loetamatu', 'ending': '0', 'clitic': '', 'partofspeech': 'A'}], \
         [{'normalized_text': '.', 'root_tokens': ['.',], 'lemma': '.', 'end': 35, 'start': 34, 'form': '', 'root': '.', 'ending': '', 'clitic': '', 'partofspeech': 'Z'}]
@@ -149,8 +149,8 @@ def test_userdict_tagger_complete_overwriting():
     #print(text['morph_analysis'].to_records())
     expected_records = [ \
         [{'normalized_text': 'Või', 'ending': '0', 'form': '', 'partofspeech': 'J', 'root_tokens': ['või',], 'end': 3, 'lemma': 'või', 'start': 0, 'clitic': '', 'root': 'või'}], \
-        [{'normalized_text': None, 'end': 19, 'root_tokens': ['jämesoole', 'ling'], 'form': 'pl n', 'lemma': 'jämesooleling', 'root': 'jämesoole_ling', 'partofspeech': 'S', 'clitic': '', 'start': 4, 'ending': 'd'}], \
-        [{'normalized_text': None, 'ending': 's', 'form': 'sg in', 'partofspeech': 'S', 'root_tokens': ['femoris',], 'end': 29, 'lemma': 'femoris', 'start': 20, 'clitic': '', 'root': 'femoris'}], \
+        [{'normalized_text': 'jämesoolelingud', 'end': 19, 'root_tokens': ['jämesoole', 'ling'], 'form': 'pl n', 'lemma': 'jämesooleling', 'root': 'jämesoole_ling', 'partofspeech': 'S', 'clitic': '', 'start': 4, 'ending': 'd'}], \
+        [{'normalized_text': 'femorises', 'ending': 's', 'form': 'sg in', 'partofspeech': 'S', 'root_tokens': ['femoris',], 'end': 29, 'lemma': 'femoris', 'start': 20, 'clitic': '', 'root': 'femoris'}], \
         [{'normalized_text': '?', 'ending': '', 'form': '', 'partofspeech': 'Z', 'root_tokens': ['?',], 'end': 30, 'lemma': '?', 'start': 29, 'clitic': '', 'root': '?'}] \
     ]
     #print(text['morph_analysis'].to_records())
@@ -167,7 +167,7 @@ def test_userdict_tagger_dict_from_csv_file():
     # Construct path to testing csv file
     csv_dict_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_userdict.csv')
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = False)
     # Load completely new analyses (from csv file )
     userdict.add_words_from_csv_file( csv_dict_path , delimiter=',')
     
@@ -206,7 +206,7 @@ def test_userdict_tagger_post_analysis():
     # Analyse morphology (without guessing, propernames and disambiguation)
     morph_analyser.tag(text)
     # Create user dict tagger
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = False)
     csv_dict_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_userdict.csv')
     # Load completely new analyses (from csv file)

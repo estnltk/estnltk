@@ -21,7 +21,7 @@ from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
-from estnltk.taggers.morph_analysis.morf_common import _get_word_texts, _create_empty_morph_record
+from estnltk.taggers.morph_analysis.morf_common import _create_empty_morph_record
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
