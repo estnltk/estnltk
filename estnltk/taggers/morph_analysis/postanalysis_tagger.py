@@ -518,7 +518,8 @@ class PostMorphAnalysisTagger(Retagger):
                 rewritten_recs_new = []
                 morph_analysed_tokens = {}
                 for rec in rewritten_recs:
-                    assert NORMALIZED_TEXT in rec
+                    assert NORMALIZED_TEXT in rec, \
+                       '(!) Record {!r} is missing the attribute {!r}'.format(rec, NORMALIZED_TEXT)
                     normalized_word = rec[NORMALIZED_TEXT]
                     if normalized_word is None:
                         rewritten_recs_new.append(rec)
@@ -539,7 +540,8 @@ class PostMorphAnalysisTagger(Retagger):
                 # Find analyses of numeric tokens and attempt to make fixes
                 all_found_analyses = {}
                 for rid, rec in enumerate(rewritten_recs):
-                    assert NORMALIZED_TEXT in rec
+                    assert NORMALIZED_TEXT in rec, \
+                       '(!) Record {!r} is missing the attribute {!r}'.format(rec, NORMALIZED_TEXT)
                     normalized_word = rec[NORMALIZED_TEXT]
                     if normalized_word is None or normalized_word.isalpha():
                         continue

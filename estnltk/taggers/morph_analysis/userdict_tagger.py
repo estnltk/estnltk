@@ -13,6 +13,7 @@ from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
 from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
 
@@ -26,14 +27,16 @@ class UserDictTagger(Retagger):
        This tagger can be applied after text has been morphologically analysed."""
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES
     conf_param = ['depends_on', 'ignore_case', 'validate_vm_categories',
-                  'autocorrect_root', '_dict', '_input_words_layer']
+                  'autocorrect_root', '_dict', '_input_words_layer',
+                  'replace_missing_normalized_text_with_text']
 
     def __init__(self,
                  output_layer: str = 'morph_analysis',
                  input_words_layer: str = 'words',
                  ignore_case: bool = False,
                  validate_vm_categories: bool = True,
-                 autocorrect_root: bool = True):
+                 autocorrect_root: bool = True,
+                 replace_missing_normalized_text_with_text: bool = False):
         """ Initialize UserDictTagger class.
 
         Parameters
@@ -63,7 +66,12 @@ class UserDictTagger(Retagger):
             'partofspeech' are given by the user. Note: this requires that when-
             ever 'root' has been specified by the user, 'partofspeech' must also 
             be specified (otherwise 'lemma' cannot be generated);
-
+        
+        replace_missing_normalized_text_with_text: bool (default: False)
+            If True and the NORMALIZED_TEXT is missing from dictionary's record,
+            then replace it by text. Otherwise, if the NORMALIZED_TEXT is missing
+            from a record, then the value of NORMALIZED_TEXT will be None after
+            overwriting.
         """
         self.output_layer = output_layer
         self.input_layers = [input_words_layer, output_layer]
@@ -73,7 +81,9 @@ class UserDictTagger(Retagger):
         self.ignore_case  = ignore_case
         self.validate_vm_categories = validate_vm_categories
         self.autocorrect_root       = autocorrect_root
-        self._dict                  = {}
+        self.replace_missing_normalized_text_with_text = \
+             replace_missing_normalized_text_with_text
+        self._dict = {}
 
 
 
@@ -135,6 +145,7 @@ class UserDictTagger(Retagger):
         assert isinstance(word, str)
         assert isinstance(analysis_struct, (dict, list))
         # Ignore case (if required)
+        originalcase_word = word
         if self.ignore_case:
             word = word.lower()
         if isinstance(analysis_struct, dict):
@@ -164,6 +175,9 @@ class UserDictTagger(Retagger):
                     self._dict[word]['analysis'][0]['lemma'] = lemma
                     self._dict[word]['analysis'][0]['root_tokens'] = root_tokens
                     self._dict[word]['analysis'][0]['root']  = root
+            if self.replace_missing_normalized_text_with_text:
+                if NORMALIZED_TEXT not in self._dict[word]['analysis'][0]:
+                    self._dict[word]['analysis'][0][NORMALIZED_TEXT] = originalcase_word
             # Merge analyses: overwrite analysis fields that
             # are present in the dict, but preserve all other
             # fields
@@ -197,6 +211,9 @@ class UserDictTagger(Retagger):
                         record['lemma']       = lemma
                         record['root_tokens'] = root_tokens
                         record['root']        = root
+                if self.replace_missing_normalized_text_with_text:
+                    if NORMALIZED_TEXT not in record:
+                        record[NORMALIZED_TEXT] = originalcase_word
             self._dict[word] = {}
             self._dict[word]['analysis'] = \
                 copy.deepcopy(analysis_struct)
@@ -283,9 +300,6 @@ class UserDictTagger(Retagger):
                         word_text = row[kid]
                 assert word_text, \
                     "'(!) Key 'text' not specified in line: "+str(row)
-                # Ignore case (if required)
-                if self.ignore_case:
-                    word_text = word_text.lower()
                 # Add new analysis to the dict
                 if word_text not in collected_analyses:
                     collected_analyses[word_text] = []
@@ -300,10 +314,11 @@ class UserDictTagger(Retagger):
            based corrections to it.
            More technically: replaces existing analyses of the layer 
            'morph_analysis' with analyses from the user dictionary. 
-           Dictionary lookup is made via word texts: word which text 
-           matches a word in dictionary will have its analyses 
-           overwritten. If ignore_case is switched on, then the lookup 
-           is also case-insensitive.
+           Dictionary lookup is made for a normalized_texts: if word's 
+           analysis has a normalized_text which matches a word in 
+           user dictionary, then word's analyses will be overwritten. 
+           If ignore_case is switched on, then the lookup is also 
+           case-insensitive.
 
            Parameters
            ----------
@@ -331,52 +346,46 @@ class UserDictTagger(Retagger):
         attribute_names = layers[self.output_layer].attributes
         assert len(morph_spans) == len(word_spans)
         while morph_span_id < len(morph_spans):
-            # 1) Get corresponding word
-            word_span = word_spans[morph_span_id]
-            merge_records = []
+            # 1) Get morph records
+            records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
             overwrite_records = []
-            for word_text in _get_word_texts(word_span):
+            records_merged = False
+            # 2) Check morph records
+            for rid, rec in enumerate( records ):
+                assert NORMALIZED_TEXT in rec, \
+                       '(!) Record {!r} is missing the attribute {!r}'.format(rec, NORMALIZED_TEXT)
+                word_text = rec[NORMALIZED_TEXT]
+                if word_text is None:
+                    # If normalized_text is None, fall back to the word.text
+                    word_text = word_spans[morph_span_id].text
                 # Check the dictionary
                 if self.ignore_case:
                     word_text = word_text.lower()
                 if word_text in self._dict:
                     # 2) If the word is inside user dictionary
                     if self._dict[word_text]['merge']:
-                        merge_records.extend(self._dict[word_text]['analysis'])
+                        # Overwrite keys in dict, keep all other
+                        # keys-values as they were before
+                        merge_rec = self._dict[word_text]['analysis']
+                        assert isinstance(merge_rec, list) and len(merge_rec) == 1
+                        for key in merge_rec[0].keys():
+                            rec[key] = merge_rec[0][key]
+                        records_merged = True
                     else:
-                        overwrite_records.extend(self._dict[word_text]['analysis'])
-            # 2) If there were any records that could be added
-            if len(overwrite_records) > 0 or len(merge_records) > 0:
-                # 2.1) Convert spans to records
-                records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
+                        assert isinstance(self._dict[word_text]['analysis'], list)
+                        overwrite_records = self._dict[word_text]['analysis']
 
-                # 2.2) Process records:
-                if overwrite_records:
-                    # 2.2.1) Overwrite existing records with new ones
-                    # NB! This assumes that records in the dict are
-                    #     in the valid format;
-                    # NB! If there are any competing merge records,
-                    #     these will be overwritten completely ...
-                    records = overwrite_records
-                elif merge_records:
-                    # 2.2.2) Merge existing records with new ones
-                    #        NB! Order: first normalized words last,
-                    #        as they first normalized words are more
-                    #        important;
-                    for merge_rec in merge_records[::-1]:
-                        for rec in records:
-                            # Overwrite keys in dict, keep all other
-                            # keys-values as they were before
-                            for key in merge_rec:
-                                rec[key] = merge_rec[key]
-
+            # If there are overwrite records, then overwrite the old records completely
+            if records_merged or overwrite_records:
+                records = overwrite_records if overwrite_records else records
+                
                 # 2.3) Create a new Span
                 span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
 
                 # 2.4) Populate it with new records
                 for rec in records:
                     attributes = {attr: rec.get(attr) for attr in attribute_names}
-                    span.add_annotation(Annotation(span, **attributes))
+                    span.add_annotation( Annotation(span, **attributes) )
 
                 # 2.5) Overwrite the old span
                 morph_spans[morph_span_id] = span
@@ -395,8 +404,8 @@ class UserDictTagger(Retagger):
         But the validation does not check that the category values are 
         also correctly combined (e.g. partofspeech and form have been 
         correctly combined).
-        Validation is made via assertions, so an AssertionError will 
-        be thrown if one of the validations fails.
+        If one of the validations fails, then a ValueError will be 
+        risen.
         
         Parameters
         ----------
@@ -407,15 +416,15 @@ class UserDictTagger(Retagger):
         assert isinstance(morph_dict, dict)
         for key, val in morph_dict.items():
             if key == 'partofspeech':
-                assert val in VABAMORF_POSTAGS, \
-                    "(!) Unexpected 'partofspeech':'"+str(val)+"'. "+\
-                    "Proper value should be one of the following: "+str(VABAMORF_POSTAGS)
+                if val not in VABAMORF_POSTAGS:
+                    raise ValueError( "(!) Unexpected 'partofspeech':'"+str(val)+"'. "+\
+                                      "Proper value should be one of the following: "+str(VABAMORF_POSTAGS) )
             if key == 'form':
                 if len(val) > 0:
                     vals = val.split()
                     for v in vals:
-                        assert v in VABAMORF_NOUN_FORMS or v in VABAMORF_VERB_FORMS, \
-                        "(!) Unexpected 'form':'"+str(val)+"'. "+\
-                        "Proper values should be from the following: "+\
-                             str( VABAMORF_NOUN_FORMS + VABAMORF_VERB_FORMS )
+                        if v not in VABAMORF_NOUN_FORMS and v not in VABAMORF_VERB_FORMS:
+                            raise ValueError( "(!) Unexpected 'form':'"+str(val)+"'. "+\
+                                              "Proper values should be from the following list: "+\
+                                              str( VABAMORF_NOUN_FORMS + VABAMORF_VERB_FORMS ) )
 
