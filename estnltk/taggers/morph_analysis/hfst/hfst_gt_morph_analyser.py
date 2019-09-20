@@ -362,9 +362,9 @@ class RawAnalysesHfstMorphOutputExtractor(HfstMorphOutputExtractor):
 # part-of-speech_tags 
 est_hfst_postags = [
     # DeclinablePOS 
-    "+N", "+N+Prop", "+A", "+A+Comp", "+A+Superl", "+Num+Card", "+Num+Ord", "+Pron", "+ACR",\
+    "+N", "+N+Prop", "+A", "+A+Comp", "+A+Superl", "+Num+Card", "+Num+Ord", "+Pron", "+ACR", "+ABBR",\
     # NonInflectingPOS 
-    "+Adv", "+Interj", "+CC", "+CS", "+Adp", "+Pref", "+CLB",\
+    "+Adv", "+Interj", "+CC", "+CS", "+Adp", "+Pref", "+CLB", "+PUNCT",\
     # VPOS 
     "+V" ]
 
