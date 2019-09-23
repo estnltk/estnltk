@@ -1,6 +1,6 @@
 from os import linesep as OS_NEWLINE
 
-from estnltk.core import rel_path
+from estnltk.core import abs_path
 from estnltk.taggers import Tagger
 from estnltk.layer.layer import Layer
 from estnltk.converters.CG3_exporter import export_CG3
@@ -30,7 +30,7 @@ class VislTagger(Tagger):
                   raise TypeError('(!) vislcg3_pipeline must be an instance of VISLCG3Pipeline')
         else:
              # Use default vislcg3_pipeline 
-             vislcgRulesDir = rel_path('taggers/syntax/files')
+             vislcgRulesDir = abs_path('taggers/syntax/files')
              self._visl_line_processor = VISLCG3Pipeline(rules_dir=vislcgRulesDir).process_lines
         if annotation_parser is not None:
              # Use a custom annotation_parser

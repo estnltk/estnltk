@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from estnltk.core import rel_path
+from estnltk.core import abs_path
 from estnltk.converters import text_to_dict
 from estnltk.converters.conll_importer import conll_to_text
 from estnltk.converters.conll_importer import add_layer_from_conll
@@ -268,7 +268,7 @@ text_dict = {
 
 
 def test_conll_importers():
-    file = rel_path('tests/test_converters/test_conll.conll')
+    file = abs_path('tests/test_converters/test_conll.conll')
     text = conll_to_text(file, syntax_layer='syntax')
 
     assert text_to_dict(text) == text_dict
