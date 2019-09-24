@@ -109,6 +109,8 @@ function checkKey(e) {
 }
 
 let visible_index = 0;
+//let tableColumns = document.getElementsByClassName('iterable-table');
+//tableColumns.item(visible_index).style.display = "block";
 
 function visibility() {
     //let tableColumns = document.getElementsByTagName("table");
@@ -128,12 +130,16 @@ function visibility() {
 visibility();
 
 document.getElementById('previous').onclick = function () {
+    //tableColumns.item(visible_index).style.display = "none";
     visible_index--;
+    //tableColumns.item(visible_index).style.display = "block";
     visibility();
 };
 
 document.getElementById('next').onclick = function () {
+    //tableColumns.item(visible_index).style.display = "none";
     visible_index++;
+    //tableColumns.item(visible_index).style.display = "block";
     visibility();
 };
 

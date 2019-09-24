@@ -42,7 +42,7 @@ class SyntaxVisualiser:
                 else:
                     table_elements.append(str(element))
                 table_elements.append("</td></tr>")
-        elif attribute == "deprel":
+        elif attribute == "deprel" and index == 1:
             for element in getattr(layers, attribute):
                 table_elements.extend(
                     ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">"])
@@ -62,24 +62,35 @@ class SyntaxVisualiser:
                 if word == len(text.sentences[sentence]):
                     word = 0
                     sentence += 1
-                table_elements.extend(
-                    ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">"])
-                cellid += 1
-                if element != 0:
+                if index == 1:
                     table_elements.extend(
-                        ["<select class = \"syntax_choice\" id=\"head", str(sentence), ";", str(index), ";",
-                         str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid), ";original\">",
-                         str(element), ": ", str(text.sentences[sentence].text[element - 1]),
-                         "</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
+                        ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">"])
+                    cellid += 1
+                    if element != 0:
+                        table_elements.extend(
+                            ["<select class = \"syntax_choice\" id=\"head", str(sentence), ";", str(index), ";",
+                             str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid), ";original\">",
+                             str(element), ": ", str(text.sentences[sentence].text[element - 1]),
+                             "</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
+                    else:
+                        table_elements.extend(
+                            ["<select class = \"syntax_choice\" id=\"head", str(sentence), ";", str(index), ";",
+                             str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid), ";original\">",
+                             str(element), "</option>"])
+                    for i in range(len(text.sentences[sentence])):
+                        table_elements.extend(
+                            ["<option value=", str(sentence), ";", str(cellid), ";", str(i + 1), ">", str(i + 1), ": ",
+                             str(text.sentences[sentence].text[i]), "</option>"])
                 else:
-                    table_elements.extend(
-                        ["<select class = \"syntax_choice\" id=\"head", str(sentence), ";", str(index), ";",
-                         str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid), ";original\">",
-                         str(element), "</option>"])
-                for i in range(len(text.sentences[sentence])):
-                    table_elements.extend(
-                        ["<option value=", str(sentence), ";", str(cellid), ";", str(i + 1), ">", str(i + 1), ": ",
-                         str(text.sentences[sentence].text[i]), "</option>"])
+                    if element != 0:
+                        table_elements.extend(
+                            ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">",
+                             str(element), ": ", str(text.sentences[sentence].text[element - 1])])
+                    else:
+                        table_elements.extend(
+                            ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">",
+                             str(element)])
+                    cellid += 1
                 word += 1
                 table_elements.append("</select></td></tr>")
         else:
@@ -118,11 +129,11 @@ class SyntaxVisualiser:
     def tables(self, layers, attributes, deprel, text, sentence=None):
         start = 0
         end = 0
-        tables = []
+        tables = [self.css(), self.event_handler_code()]
         for index, sentence in enumerate(text.sentences):
             start = end
             end = start + len(sentence)
-            table_elements = [self.css(), self.event_handler_code(), "<table class=\"iterable-table\"><tr>"]
+            table_elements = ["<table class=\"iterable-table\"><tr>"]
             for attribute in attributes:
                 for i, layer in enumerate(layers):
                     if attribute == "head" or attribute == "deprel":
@@ -144,7 +155,7 @@ class SyntaxVisualiser:
         for sentence in text.sentences:
             sentence_info = []
             start = end
-            end = start + len(sentence) * layer_count * 2
+            end = start + len(sentence) * layer_count
             for i in range(start, end):
                 sentence_info.append(info[i])
             separated_info.append(sentence_info)
