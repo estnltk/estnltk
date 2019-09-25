@@ -1,3 +1,6 @@
+
+
+
 function get_select_value(element) {
     let selectedValueId = document.getElementById(element).value;
     //let selectedValue = selectedValueId.options[selectedValueId.selectedIndex].text;
@@ -15,7 +18,9 @@ function selecting_value(event, column) {
     }
 }
 
-let start;
+if (typeof start === 'undefined') {
+    var start;
+}
 document.addEventListener('click', function (e) {
     Jupyter.keyboard_manager.disable();
     if (start != undefined) {
@@ -108,7 +113,24 @@ function checkKey(e) {
     }
 }
 
-let visible_index = 0;
+if (typeof visible_index === 'undefined') {
+    var visible_index = 0;
+}
+else {
+    visible_index = 0;
+}
+
+if (typeof current_element === 'undefined') {
+    var current_element = all_tables[visible_index];
+}
+else {
+    current_element = all_tables[visible_index];
+}
+
+var table_holder = document.createElement('table');
+table_holder.classList.add("iterable-table");
+table_holder.innerHTML = current_element;
+document.getElementById("previous").parentElement.appendChild(table_holder);
 //let tableColumns = document.getElementsByClassName('iterable-table');
 //tableColumns.item(visible_index).style.display = "block";
 
@@ -125,6 +147,11 @@ function visibility() {
             tableColumns.item(i).style.display = "block";
         }
     }
+    var new_table = document.createElement('table');
+    new_table.classList.add("iterable-table");
+    new_table.innerHTML = all_tables[visible_index];
+    table_holder.parentNode.replaceChild(new_table, table_holder);
+    table_holder = new_table;
 }
 
 visibility();

@@ -3,7 +3,7 @@ select {
 }
 
 td, th {
-    font-size: 0.9vw;
+    font-size: 0.8vw;
 }
 
 /*button {
@@ -11,8 +11,9 @@ td, th {
 }*/
 
 .iterable-table {
-    width: 100%;
+    width: max-content;
+    width: -moz-max-content;
     table-layout: fixed;
-    /*display: none;*/
+    display: block;
 }
 

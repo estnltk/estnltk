@@ -18,9 +18,8 @@ class SyntaxVisualiser:
     def event_handler_code(self):
         with open("syntax_visualiser_js.js") as js_file:
             contents = js_file.read()
-            output = ''.join(["<script>\n", contents, "</script>"])
             # output = ''.join(["<script>\n var text_id=", str(self._text_id),"\n", contents, "</script>"])
-        return output
+        return contents
 
     def table_column(self, layers, attribute, deprel, text, index=None, sentence=None):
         cellid = 0
@@ -129,11 +128,12 @@ class SyntaxVisualiser:
     def tables(self, layers, attributes, deprel, text, sentence=None):
         start = 0
         end = 0
-        tables = [self.css(), self.event_handler_code()]
+        tables = [self.css(), "<script>"]
+        tables.append("console.log(typeof all_tables); \n if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n")
         for index, sentence in enumerate(text.sentences):
             start = end
             end = start + len(sentence)
-            table_elements = ["<table class=\"iterable-table\"><tr>"]
+            table_elements = ["all_tables.push('<table class=\"iterable-table\"><tr>"]
             for attribute in attributes:
                 for i, layer in enumerate(layers):
                     if attribute == "head" or attribute == "deprel":
@@ -141,8 +141,10 @@ class SyntaxVisualiser:
                             self.table_column(layer[start:end], attribute, deprel, text, i + 1, index))
                     elif i == 0:
                         table_elements.extend(self.table_column(layer[start:end], attribute, deprel, text, None, index))
-            table_elements.append("</tr></table>")
+            table_elements.append("</tr></table>'); \n")
             tables.extend(table_elements)
+        tables.append(self.event_handler_code())
+        tables.append("</script>")
         tables.append(
             "<button type=\"button\" id=\"save\">save</button><button type=\"button\" id=\"previous\">previous</button><button type=\"button\" id=\"next\">next</button>")
         return "".join(tables)
