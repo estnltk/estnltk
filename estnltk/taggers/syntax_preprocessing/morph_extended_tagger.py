@@ -2,7 +2,7 @@ import os
 
 from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger
-from estnltk import PACKAGE_PATH
+from estnltk.core import abs_path
 from .punctuation_type_retagger import PunctuationTypeRetagger
 from .morph_to_syntax_morph_retagger import MorphToSyntaxMorphRetagger
 from .pronoun_type_retagger import PronounTypeRetagger
@@ -61,11 +61,9 @@ class MorphExtendedTagger(Tagger):
 
         """
         if fs_to_synt_rules_file is None:
-            fs_to_synt_rules_file = os.path.relpath(os.path.join(
-                    PACKAGE_PATH, 'taggers/syntax_preprocessing/rules_files/tmorftrtabel.txt'))
+            fs_to_synt_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/tmorftrtabel.txt')
         if subcat_rules_file is None:
-            subcat_rules_file = os.path.relpath(os.path.join(
-                    PACKAGE_PATH, 'taggers/syntax_preprocessing/rules_files/abileksikon06utf.lx'))
+            subcat_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/abileksikon06utf.lx')
 
         self.punctuation_type_retagger = PunctuationTypeRetagger()
         self.morph_to_syntax_morph_retagger = MorphToSyntaxMorphRetagger(input_layer='morph_analysis',
