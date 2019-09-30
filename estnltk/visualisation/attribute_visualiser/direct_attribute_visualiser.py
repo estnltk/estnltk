@@ -33,7 +33,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
             # copy to make it readable for mappers
             mapping_segment = copy.deepcopy(segment)
             if len(segment[1]) == 1:
-                mapping_segment[1] = spans[mapping_segment[1][0]]
+                mapping_segment[1] = spans[mapping_segment[1][0]].annotations
             for key, value in self.mapping_dict.items():
                 if key == "class" or key == "id":
                     pass
