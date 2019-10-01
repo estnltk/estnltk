@@ -3,6 +3,7 @@ import unittest
 from unittest import TestCase
 
 from estnltk import Text
+from estnltk.core import abs_path
 from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
 
@@ -35,7 +36,7 @@ class TestDummyTagger(TestCase):
 
 
 def get_test_sentences(filename):
-    file = open(filename)
+    file = open(filename, 'r', encoding='utf-8')
     words, tags, analyses = [], [], []
     line = file.readline()
     
@@ -74,7 +75,7 @@ if NEURAL_MORPH_TAGGER_CONFIG is not None:
 class TestNeuralModel(TestCase):
     def test(self):
         model = tagger.model
-        sentences = get_test_sentences("neural_test_sentences.txt")
+        sentences = get_test_sentences(abs_path("tests/test_taggers/neural_test_sentences.txt"))
         word_count = 0
         correct_count = 0
         
@@ -92,7 +93,7 @@ class TestNeuralModel(TestCase):
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
 class TestNeuralTagger(TestCase):  
     def test(self):
-        sentences = get_test_sentences("neural_test_sentences.txt")
+        sentences = get_test_sentences(abs_path("tests/test_taggers/neural_test_sentences.txt"))
         word_count = 0
         correct_count = 0
         
