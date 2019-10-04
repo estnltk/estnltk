@@ -3,8 +3,48 @@
 /* Opening section: find all elements from the document with the corresponding class names and
 attach listeners to them so that an appropriate table would be opened whenever one of them is opened
  */
-function add_initial_listeners() {
-    let elements = document.getElementsByClassName("overlapping-span"+text_id);
+
+//disable all keyboard shortcuts in the notebook
+
+
+
+Jupyter.keyboard_manager.disable();
+//all_cells[all_cells.length-1].cell_id = Jupyter.notebook.get_selected_cell().cell_id;
+
+
+/*
+if (typeof cell_mapping === 'undefined') {
+    var cell_mapping = {};
+}
+
+if (typeof current_cell === 'undefined') {
+    var current_cell = 0;
+}
+
+all_cells[current_cell].accepted_array = [];
+for (let i = 0; i < document.getElementsByClassName("span"+all_cells[current_cell].text_id).length; i++) {
+    all_cells[current_cell].accepted_array.push([]); //populate the list with "empty" values
+}
+
+document.addEventListener("keydown", function (event) {
+    for (let i = 0; i < all_cells.length; i++) {
+        if (all_cells[i].cell_id === Jupyter.notebook.get_selected_cell().cell_id) {
+            current_cell = i;
+        }
+    }
+    let all_annotations = document.getElementsByClassName("iterable-annotation-table"+all_cells[current_cell].text_id);
+    //if cell is selected and a key pressed, disable notebook shortcuts
+    if (all_annotations.item(0).parentElement.parentElement.parentElement.parentElement.parentElement.classList.contains("selected")) {
+        Jupyter.keyboard_manager.disable();
+        toggle_annotation_visibility();
+        Jupyter.notebook.get_selected_cell().element[0].style.height= "300px";
+    }
+});
+*/
+
+
+/*function add_initial_listeners() {
+    let elements = document.getElementsByClassName("overlapping-span"+all_cells[current_cell].text_id);
     for (let i = 0; i < elements.length; i++) {
         //check if a listener is already attached, if not then add it
         if (typeof elements.item(i).onclick != "function") {
@@ -14,7 +54,7 @@ function add_initial_listeners() {
         }
     }
 
-    let plain_elements = document.getElementsByClassName("plain-span"+text_id);
+    let plain_elements = document.getElementsByClassName("plain-span"+all_cells[current_cell].text_id);
     for (let i = 0; i < plain_elements.length; i++) {
         //check if a listener is already attached, if not then add it
         if (typeof plain_elements.item(i).onclick != "function") {
@@ -23,10 +63,11 @@ function add_initial_listeners() {
             })
         }
     }
-}
+}*/
 
 
 
+/*
 function show_conflicting_spans(span_element) {
     //function for displaying overlapping spans
 
@@ -57,7 +98,7 @@ function show_conflicting_spans(span_element) {
     annotation_table(spantable, span_element);
 
     //this deletes the original "span" table and the annotation table with multiple columns
-    let table_elements = document.getElementsByClassName("tables"+text_id);
+    let table_elements = document.getElementsByClassName("tables");
     for (let i = 0; i < table_elements.length; i++) {
         table_elements.item(i).addEventListener("click", function () {
             this.parentElement.removeChild(this)
@@ -65,9 +106,10 @@ function show_conflicting_spans(span_element) {
     }
     return spantable;
 }
+*/
 
 
-function table_builder(contents) {
+/*function table_builder(contents) {
     //helper function to build a table with two columns
     var table = '<table>';
     for (let i = 0; i < contents.length; i++) {
@@ -84,9 +126,9 @@ function table_builder(contents) {
     table += '</table>';
 
     return table
-}
+}*/
 
-function attribute_table(span_element) {
+/*function attribute_table(span_element) {
     //function for non-overlapping spans
 
     //extract the attributes from the span info string
@@ -114,9 +156,9 @@ function attribute_table(span_element) {
         let element = this.parentElement;
         element.removeChild(this)
     })
-}
+}*/
 
-function annotation_table(spantable, span_element) {
+/*function annotation_table(spantable, span_element) {
     for (let i = 0; i < spantable.getElementsByTagName("tr").length; i++) {
         spantable.getElementsByTagName("tr").item(i).addEventListener('click', function () {
             let data = [];
@@ -217,23 +259,21 @@ function annotation_table(spantable, span_element) {
                 annotationtable.innerHTML = spancontent;
                 span_element.parentElement.appendChild(annotationtable);
             }
-
-
         })
     }
-}
+}*/
 
 
 /*
  Helpers for annotationtable function
  */
-try {
+/*try {
     var chosenSpans = [];
 } catch (ex) {
     // if chosenSpans already has a value then we should do nothing
-}
+}*/
 
-function assignValue(spanNumber, value) {
+/*function assignValue(spanNumber, value) {
     // function is used by annotationtable function tables to give values to chosenSpans list
     while (chosenSpans.length < spanNumber) {
         chosenSpans.push(-1)
@@ -241,9 +281,9 @@ function assignValue(spanNumber, value) {
     chosenSpans[spanNumber] = value
     console.log(chosenSpans)
 
-}
+}*/
 
-function assignValueToIterTable(spanNumber, value, table) {
+/*function assignValueToIterTable(spanNumber, value, table) {
     // function is used by annotationtable function tables to give values to chosenSpans list
     while (chosenSpans.length < spanNumber) {
         chosenSpans.push(-1)
@@ -254,23 +294,17 @@ function assignValueToIterTable(spanNumber, value, table) {
     }
     table.style.border = "2px solid red"
 
-}
+}*/
 
-var accepted_array = [];
-for (let i = 0; i < document.getElementsByClassName("span"+text_id).length; i++) {
-    accepted_array.push([]); //populate the list with "empty" values
-}
-
-function export_data(name) {
+/*function export_data(name) {
     // exporting data, this function is triggered by clicking the "Export data" button"
-    // saada JSON-is andmed
     if (name==="") {
         name = "display";
     }
     let var_name = name+".accepted_array";
-    let var_value = JSON.stringify(accepted_array);
-    let command = var_name + " = '" + var_value + "'";
-    let annotationCommand = name+".chosen_annotations" + " = '" + JSON.stringify(chosenSpans) + "'";
+    let var_value = JSON.stringify(all_cells[current_cell].accepted_array);
+    let command = var_name + " = " + var_value;
+    let annotationCommand = name+".chosen_annotations" + " = " + JSON.stringify(chosenSpans);
     console.log("Executing Command: " + command);
     var kernel = IPython.notebook.kernel;
     // the corresponding commands are executed in the kernel
@@ -278,172 +312,134 @@ function export_data(name) {
     kernel.execute(annotationCommand);
     // enable jupyter keyboard shortcuts again
     Jupyter.keyboard_manager.enable()
-}
+}*/
 
-//not in use right now, used to be for iterable spans but that was replaced by annotations
-function transform_array(array) {
-    // helper function to make the exportable array more foolproof
-    let new_array = []
-    for (let i = 0; i < array.length; i++) {
-        let number = array[i] - 1
-        new_array[i] = elements.item(i).getAttribute("span_index" + number)
-    }
-    return new_array
-}
-
-
+/*
 try {
-    var visible_index = -1;
+    text_id.visible_index = -1;
 } catch (ex) {
     // if visible index already has a value then we should do nothing
 }
 
 try {
-    var annotation_index = 0;
+    text_id.annotation_index = 0;
 } catch (e) {
 }
 
 try {
-    var specific_annotation = 0;
+    text_id.specific_annotation = 0;
 } catch (e) {
 }
+*/
 
 //since this script might be loaded on the page many times but we don't want the script
 //to increase the indexes multiple times per one click, this will make sure that there
 //is exactly one keydown listener per notebook
-if (typeof keydownListener === 'undefined') {
+/*if (typeof keydownListener === 'undefined') {
     var keydownListener = false;
-}
-
-if (typeof a_or_d_listener === 'undefined') {
-    var a_or_d_listener = false;
-}
-
-//move with j and k keys (on hold till we find an application for it)
-/*if (!keydownListener) {
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "j") {
-            visible_index--;
-            toggle_visibility();
-        }
-        if (event.key === "k") {
-            visible_index++;
-            toggle_visibility();
-        }
-    });
-    keydownListener = true;
 }*/
 
-if (!keydownListener) {
+/*if (!keydownListener) {
 //move with arrow keys
     document.addEventListener("keydown", function (event) {
+        selected_cell = all_cells[current_cell].text_id;
         if (event.key === "ArrowLeft") {
-            let annotationColumns = document.getElementsByClassName("iterable-annotation-table"+text_id)
+            let annotationColumns = document.getElementsByClassName("iterable-annotation-table"+selected_cell)
             try {
-                if (annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation + 1).style.border === '2px solid yellow') {
-                    annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation + 1).style.border = 'none'
+                if (annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation + 1).style.border === '2px solid yellow') {
+                    annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation + 1).style.border = 'none'
                 }
             } catch (e) {
 
             }
-            if (specific_annotation===0) {
+            if (all_cells[current_cell].specific_annotation===0) {
                 // check if it's the first annotation of the span and move to the previous span
-                annotation_index--;
+                all_cells[current_cell].annotation_index--;
                 toggle_annotation_visibility();
                 try {
-                    specific_annotation = annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.length - 2;
+                    all_cells[current_cell].specific_annotation = annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.length - 2;
                 } catch (e) {
-                    specific_annotation = 0;
+                    all_cells[current_cell].specific_annotation = 0;
                 }
             } else {
-                specific_annotation--
+                all_cells[current_cell].specific_annotation--
             }
-            if (annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border === 'none'){
-                annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border = '2px solid yellow'
+            if (annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border === 'none'){
+                annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border = '2px solid yellow'
             }
         }
         if (event.key === "ArrowRight") {
-            let annotationColumns = document.getElementsByClassName("iterable-annotation-table"+text_id)
-            if (annotation_index<0){
-                annotation_index = 0;
+            let annotationColumns = document.getElementsByClassName("iterable-annotation-table"+selected_cell)
+            if (all_cells[current_cell].annotation_index<0){
+                all_cells[current_cell].annotation_index = 0;
                 toggle_annotation_visibility();
-                specific_annotation = 0;
-            } else if (annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.length-2===specific_annotation) {
+                all_cells[current_cell].specific_annotation = 0;
+            } else if (annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.length-2===all_cells[current_cell].specific_annotation) {
                 // check if it's the last annotation of the span and move to the next span
-                if (annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border === '2px solid yellow'){
-                    annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border = 'none'
+                if (annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border === '2px solid yellow'){
+                    annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border = 'none'
                 }
-                annotation_index++;
+                all_cells[current_cell].annotation_index++;
                 toggle_annotation_visibility();
-                specific_annotation = 0;
+                all_cells[current_cell].specific_annotation = 0;
             } else {
-                if (annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border === '2px solid yellow'){
-                    annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border = 'none'
+                if (annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border === '2px solid yellow'){
+                    annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border = 'none'
                 }
                 //if it isn't the last annotation then focus the next annotation
-                specific_annotation++
+                all_cells[current_cell].specific_annotation++
             }
-            if (annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border === 'none' || annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border === ''){
-                annotationColumns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border = '2px solid yellow'
+            if (annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border === 'none' || annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border === ''){
+                annotationColumns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border = '2px solid yellow'
             }
         }
-        if (event.key === "1"){
-            accepted_array[annotation_index][specific_annotation] = 1;
-            let annotation_columns = document.getElementsByClassName("iterable-annotation-table"+text_id);
-            annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border = '2px solid green';
-            if (annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.length-2===specific_annotation) {
+        else if (event.key === "1" || event.key === "2"){
+            all_cells[current_cell].accepted_array[all_cells[current_cell].annotation_index][all_cells[current_cell].specific_annotation] = event.key;
+            console.log(all_cells[current_cell].accepted_array);
+            let annotation_columns = document.getElementsByClassName("iterable-annotation-table"+selected_cell);
+            if (event.key === "1") {
+                annotation_columns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation + 1).style.border = '2px solid green';
+            } else{
+                annotation_columns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation + 1).style.border = '2px solid red';
+            }
+            if (annotation_columns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.length-2===all_cells[current_cell].specific_annotation) {
                 // check if it's the last annotation of the span and move to the next span
-                annotation_index++;
+                all_cells[current_cell].annotation_index++;
                 toggle_annotation_visibility();
-                specific_annotation = 0;
+                all_cells[current_cell].specific_annotation = 0;
             } else {
                 //if it isn't the last annotation then focus the next annotation
-                specific_annotation++
+                all_cells[current_cell].specific_annotation++
             }
-            if (annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border === 'none' || annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border === ''){
-                annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border = '2px solid yellow'
-            }
-        } if (event.key === "2"){
-            accepted_array[annotation_index][specific_annotation] = 2;
-            let annotation_columns = document.getElementsByClassName("iterable-annotation-table"+text_id);
-            annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border = '2px solid red';
-            if (annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.length-2===specific_annotation) {
-                // check if it's the last annotation of the span and move to the next span
-                annotation_index++;
-                toggle_annotation_visibility();
-                specific_annotation = 0;
-            } else {
-                //if it isn't the last annotation then focus the next annotation
-                specific_annotation++
-            }
-            if (annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border === 'none' || annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border === ''){
-                annotation_columns.item(annotation_index).firstChild.firstChild.firstChild.childNodes.item(specific_annotation+1).style.border = '2px solid yellow'
+            if (annotation_columns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border === 'none' || annotation_columns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border === ''){
+                annotation_columns.item(all_cells[current_cell].annotation_index).firstChild.firstChild.firstChild.childNodes.item(all_cells[current_cell].specific_annotation+1).style.border = '2px solid yellow'
             }
         }
     });
 
     //prevent the creation of other listeners
     keydownListener = true
-}
+}*/
 
-function toggle_visibility() {
-    let tableColumns = document.getElementsByClassName("iterable-table"+text_id)
+/*function toggle_visibility() {
+    let tableColumns = document.getElementsByClassName("iterable-table"+all_cells[current_cell].text_id)
     for (let i = 0; i < tableColumns.length; i++) {
-        if (i !== visible_index) {
-            tableColumns.item(i).style.display = "none"
-        } else {
+        if (i === all_cells[current_cell].visible_index) {
             tableColumns.item(i).style.display = "block"
+        } else {
+            tableColumns.item(i).style.display = "none"
         }
     }
-}
+}*/
 
-function toggle_annotation_visibility() {
-    let annotationColumns = document.getElementsByClassName("iterable-annotation-table"+text_id)
+/*function toggle_annotation_visibility() {
+    selected_cell = all_cells[current_cell].text_id;
+    let annotationColumns = document.getElementsByClassName("iterable-annotation-table"+selected_cell)
     for (let i = 0; i < annotationColumns.length; i++) {
-        if (i !== annotation_index) {
-            annotationColumns.item(i).style.display = "none"
-        } else {
+        if (i === all_cells[current_cell].annotation_index) {
             annotationColumns.item(i).style.display = "block"
+        } else {
+            annotationColumns.item(i).style.display = "none"
         }
     }
 }
@@ -451,7 +447,7 @@ function toggle_annotation_visibility() {
 function open_spans() {
     // this creates all the spans that the user can navigate using left and right arrow keys
     // all the possible span tables are created and then their visibility is changed with toggle_visibility()
-    let overlapped = document.getElementsByClassName("overlapping-span"+text_id);
+    let overlapped = document.getElementsByClassName("overlapping-span"+all_cells[current_cell].text_id);
     for (let i = 0; i < overlapped.length; i++) {
         let span_element = overlapped.item(i)
         let spantable = document.createElement('div');
@@ -469,7 +465,7 @@ function open_spans() {
 
         spantable.innerHTML = spancontent;
         span_element.parentElement.appendChild(spantable);
-        spantable.classList.add('iterable-table'+text_id)
+        spantable.classList.add('iterable-table'+all_cells[current_cell].text_id)
 
         // Increase the size of the cell so the tables would fit
         spantable.parentElement.style.height = Math.max(Number(spantable.parentElement.style.height.substring(0, spantable.parentElement.style.height.length - 2)), span_element.offsetTop + 90) + 'px';
@@ -483,7 +479,7 @@ function open_spans() {
 function create_all_annotation_tables() {
     // this creates all the annotations that the user can navigate using left and right keys
     // all the possible annotation tables are created and then their visibility is changed with toggle_annotation_visibility()
-    let all_spans = document.getElementsByClassName("span"+text_id);
+    let all_spans = document.getElementsByClassName("span"+all_cells[current_cell].text_id);
     let viewed_annotations = new Set();
     for (let i = 0; i < all_spans.length; i++) {
         let span_element = all_spans.item(i)
@@ -514,7 +510,8 @@ function create_all_annotation_tables() {
                     let annotationtable = document.createElement('div');
                     span_element.parentElement.appendChild(annotationtable);
                     annotationtable.classList.add('alt-tables');
-                    annotationtable.classList.add('iterable-annotation-table'+text_id);
+                    annotationtable.classList.add('iterable-annotation-table'+all_cells[current_cell].text_id);
+
                     //position the table
                     annotationtable.style.left = span_element.getBoundingClientRect().left - annotationtable.parentElement.parentElement.getBoundingClientRect().left + 'px';
                     annotationtable.style.top = span_element.getBoundingClientRect().top - annotationtable.parentElement.parentElement.getBoundingClientRect().top + 20 + 'px';
@@ -559,20 +556,7 @@ function create_all_annotation_tables() {
         }
 
     }
-    let created_tables = document.getElementsByClassName("iterable-annotation-table"+text_id);
+    let created_tables = document.getElementsByClassName("iterable-annotation-table"+all_cells[current_cell].text_id);
     created_tables.item(0).firstChild.firstChild.firstChild.childNodes.item(1).style.border = '2px solid yellow'
-}
+}*/
 
-document.addEventListener("keydown", function (event) {
-    let all_annotations = document.getElementsByClassName("iterable-annotation-table"+text_id);
-    //if cell is selected, listen to number keys
-    if (all_annotations.item(0).parentElement.parentElement.parentElement.parentElement.parentElement.classList.contains("selected")) {
-        Jupyter.keyboard_manager.disable()
-    }
-});
-
-add_initial_listeners();
-open_spans();
-toggle_visibility();
-create_all_annotation_tables();
-toggle_annotation_visibility();
