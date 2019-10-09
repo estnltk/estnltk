@@ -6,17 +6,20 @@ class SyntaxVisualiser:
     attributes = ["text", "id", "lemma", "upostag", "xpostag", "feats", "head", "deprel", "deps", "misc"]
     deprel = ["@ADVL", "@FCV", "ROOT", "@SUBJ"]
 
-    def __call__(self, layers,text):
-        display_html(self.tables(layers, self.attributes, self.deprel, text), raw=True)
+    #def __call__(self, layers,text):
+    #    display_html(self.tables(layers, self.attributes, self.deprel, text), raw=True)
+
+    def __call__(self, layers, text):
+        display_html(self.test(layers, self.attributes, self.deprel, text), raw=True)
 
     def css(self):
-        with open("syntax_visualiser_css.css") as css_file:
+        with open("syntax_visualiser.css") as css_file:
             contents = css_file.read()
             output = ''.join(["<style>\n", contents, "</style>"])
         return output
 
     def event_handler_code(self):
-        with open("syntax_visualiser_js.js") as js_file:
+        with open("syntax_visualiser.js") as js_file:
             contents = js_file.read()
             # output = ''.join(["<script>\n var text_id=", str(self._text_id),"\n", contents, "</script>"])
         return contents
@@ -65,17 +68,21 @@ class SyntaxVisualiser:
                     table_elements.extend(
                         ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">"])
                     cellid += 1
-                    if element != 0:
+                    #muuda seda
+                    if element == 0:
                         table_elements.extend(
                             ["<select class = \"syntax_choice\" id=\"head", str(sentence), ";", str(index), ";",
-                             str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid), ";original\">",
-                             str(element), ": ", str(text.sentences[sentence].text[element - 1]),
-                             "</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
+                             str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid),
+                             ";original\">",
+                             str(element), "</option>"])
                     else:
                         table_elements.extend(
                             ["<select class = \"syntax_choice\" id=\"head", str(sentence), ";", str(index), ";",
-                             str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid), ";original\">",
-                             str(element), "</option>"])
+                             str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid),
+                             ";original\">",
+                             str(element), ": ", str(text.sentences[sentence].text[element - 1]),
+                             "</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
+
                     for i in range(len(text.sentences[sentence])):
                         table_elements.extend(
                             ["<option value=", str(sentence), ";", str(cellid), ";", str(i + 1), ">", str(i + 1), ": ",
@@ -162,3 +169,77 @@ class SyntaxVisualiser:
                 sentence_info.append(info[i])
             separated_info.append(sentence_info)
         return separated_info
+
+    def test(self, layers, attributes, deprel, text):
+        cellid = 0
+        start = 0
+        end = 0
+        #tables = [self.css()]
+        tables = [self.css(), "<script>"]
+        tables.append("console.log(typeof all_tables); \n if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n")
+        for index, sentence in enumerate(text.sentences):
+            start = end
+            end = start + len(sentence)
+            #tables.append("<table><tr>")
+            tables.append("all_tables.push('<table class=\"iterable-table\"><tr>")
+            for attribute in attributes:
+                tables.extend(["<th>", attribute, "</th>"])
+            tables.append("</tr>")
+            for i in range(len(sentence)):
+                tables.append("<tr>")
+                for attribute in attributes:
+                    if attribute == "feats":
+                        tables.append("<td>")
+                        element = layers[0][start:end][str(attribute)][i]
+                        if element is None:
+                            tables.append(str(element))
+                        else:
+                            for key in element:
+                                tables.extend([str(key), " "])
+                        tables.append("</td>")
+
+
+                    elif attribute == "deprel":
+                        tables.append("<td>")
+                        element = layers[0][start:end][str(attribute)][i]
+                        tables.extend(
+                            ["<select class = \"syntax_choice\" id = \"deprel", str(i), ";",
+                             str(cellid), "\"><option value=\"", str(cellid), ";original\">", html.escape(element),
+                             "</option>"])
+                        for deprel_element in deprel:
+                            if element != deprel_element:
+                                tables.extend(
+                                    ["<option value=", str(cellid), ";", deprel_element, ">",
+                                     str(deprel_element), "</option>"])
+                        tables.extend(["</select>", "</td>"])
+
+
+                    elif attribute == "head":
+                        tables.append("<td>")
+                        element = layers[0][start:end][str(attribute)][i]
+                        tables.extend(["<select class = \"syntax_choice\" id=\"head", str(i), ";",
+                             str(cellid), "\"><option value=\"", str(cellid),
+                             ";original\">"])
+                        if element == 0:
+                            tables.append(str(element))
+                        else:
+                            tables.extend([str(element), ": ", str(sentence.text[element - 1])])
+                        tables.extend(["</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
+
+                        for j in range(len(sentence)):
+                            tables.extend(
+                                ["<option value=", str(cellid), ";", str(j + 1), ">", str(j + 1),
+                                 ": ",
+                                 str(sentence.text[j]), "</option>"])
+
+
+                    else:
+                        tables.extend(["<td>", str(layers[0][start:end][str(attribute)][i]), "</td>"])
+                tables.append("</tr>")
+            tables.append("</table>'); \n")
+            #tables.append("</table>")
+        tables.append(self.event_handler_code())
+        tables.append("</script>")
+        tables.append(
+            "<button type=\"button\" id=\"save\">save</button><button type=\"button\" id=\"previous\">previous</button><button type=\"button\" id=\"next\">next</button>")
+        return "".join(tables)

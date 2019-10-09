@@ -26,6 +26,7 @@ document.addEventListener('click', function (e) {
     if (start != undefined) {
         start.style.backgroundColor = null;
         start.style.color = null;
+        start.style.color = null;
     }
     let startid = e.target.id;
     start = document.getElementById(startid);
