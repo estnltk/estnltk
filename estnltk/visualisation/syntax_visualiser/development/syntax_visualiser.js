@@ -1,4 +1,7 @@
+//uus js fail ülevalt
+//uus javascript fail currentelement
 
+//tabel divi klass estnltk-syntax-editor
 
 
 function get_select_value(element) {
@@ -18,6 +21,8 @@ function selecting_value(event, column) {
     }
 }
 
+//Jupyter.notebook.get_selected_cell().element[0].style.height = '400px';
+
 if (typeof start === 'undefined') {
     var start;
 }
@@ -25,29 +30,30 @@ document.addEventListener('click', function (e) {
     Jupyter.keyboard_manager.disable();
     if (start != undefined) {
         start.style.backgroundColor = null;
-        start.style.color = null;
-        start.style.color = null;
+        //start.style.color = null;
+        //start.style.color = null;
     }
     let startid = e.target.id;
     start = document.getElementById(startid);
     start.focus();
     start.style.backgroundColor = 'pink';
-    start.style.color = 'white';
+    //start.style.color = 'white';
     document.onkeydown = checkKey;
 }, false);
 
 function move(sibling) {
     if (sibling != null) {
-        start.focus();
+        //start.focus();
         start.style.backgroundColor = '';
-        start.style.color = '';
+        //start.style.color = '';
         sibling.focus();
         sibling.style.backgroundColor = 'pink';
-        sibling.style.color = 'white';
+        //sibling.style.color = 'white';
         start = sibling;
     }
 }
 
+//onkeydown uus js fail
 function checkKey(e) {
     e = e || window.event;
     if (e.keyCode == '38') {
@@ -71,17 +77,21 @@ function checkKey(e) {
     } else if (e.keyCode == '37') {
         // left arrow
         e.preventDefault();
+        //let index = start.cellIndex;
         let index = Array.from(start.parentElement.parentElement.children).indexOf(start.parentElement);
         //console.log(start);
         //console.log(start.parentElement.parentElement.children);
         //console.log(index);
-        let sibling = start.parentElement.parentElement.parentElement.parentElement.previousElementSibling.firstElementChild.firstElementChild.children.item(index).firstElementChild;
+        //let sibling = start.parentElement.previousElementSibling;
+        //let sibling = start.parentElement.parentElement.parentElement.parentElement.previousElementSibling.firstElementChild.firstElementChild.children.item(index).firstElementChild;
+        let sibling = start.previousElementSibling;
         move(sibling);
     } else if (e.keyCode == '39') {
         // right arrow
         e.preventDefault();
-        let index = Array.from(start.parentElement.parentElement.children).indexOf(start.parentElement);
-        let sibling = start.parentElement.parentElement.parentElement.parentElement.nextElementSibling.firstElementChild.firstElementChild.children.item(index).firstElementChild;
+        //let index = Array.from(start.parentElement.parentElement.children).indexOf(start.parentElement);
+        //let sibling = start.parentElement.parentElement.parentElement.parentElement.nextElementSibling.firstElementChild.firstElementChild.children.item(index).firstElementChild;
+        let sibling = start.nextElementSibling;
         move(sibling);
     } else if (e.keyCode == '32') {
         // Space key for opening dropdown
@@ -89,20 +99,20 @@ function checkKey(e) {
         move(sibling);
     } else if (e.keyCode == '16') {
         //Shift for going back (for leaving dropdown)
-        console.log(start);
+        //console.log(start);
         let sibling = start.parentElement;
         move(sibling);
         e.preventDefault();
         //e.preventDefault();
     } else if (e.keyCode == '13') {
         // Enter key for dropdown choices
-        console.log(start.tagName);
-        console.log(start.id);
+        //console.log(start.tagName);
+        //console.log(start.id);
         //console.log(start.options[start.selectedIndex]);
         //console.log(start.id.innerHTML);
         //let optionid = start.id;
         let sibling = start.firstElementChild;
-        get_select_value(start.id);
+        //get_select_value(start.id);
         move(sibling);
         //console.log(optionid.options[optionid.selectedIndex].text);
         //e.preventDefault();
@@ -171,27 +181,48 @@ document.getElementById('next').onclick = function () {
     visibility();
 };
 
-
 function select_values() {
     let selectElements = document.getElementsByClassName('syntax_choice');
     //let selectValues = selectElements.options[selectElements.selectedIndex].text;
     let selectValues = [];
-    for (let i = 0, j = selectElements.length; i < j; i++) {
-        let element = selectElements[i].options[selectElements[i].selectedIndex].text;
-        selectValues.push(element);
+    for (let i = 0; i < selectElements.length; i=i+2) {
+        let thing = {};
+        thing['id'] = i/2 + 1;
+        if (isNaN(parseInt(selectElements[i].options[selectElements[i].selectedIndex].text[0]))) {
+            thing['head'] = selectElements[i + 1].options[selectElements[i + 1].selectedIndex].text[0];
+            thing['deprel'] = selectElements[i].options[selectElements[i].selectedIndex].text;
+        } else {
+            thing['head'] = selectElements[i].options[selectElements[i].selectedIndex].text[0];
+            thing['deprel'] = selectElements[i + 1].options[selectElements[i + 1].selectedIndex].text;
+        }
+        console.log(thing);
+        selectValues.push(JSON.stringify(thing));
     }
     console.log(selectElements);
     console.log(selectValues);
     return selectValues;
 }
 
+let saved_list = {};
+
 document.getElementById('save').onclick = function () {
     let export_values = select_values();
+    console.log(export_values);
     let command = "dropdown_values = '" + export_values + "'";
-    console.log("Executing Command: " + command);
+    /*if (saved_list.length > visible_index) {
+        saved_list[visible_index] = export_values;
+    } else {
+        saved_list.push(export_values);
+    }*/
+    saved_list[visible_index] = export_values;
+    console.log(saved_list);
+    //console.log("Executing Command: " + command);
+    let commandtest = "all_values = " + JSON.stringify(saved_list);
     var kernel = IPython.notebook.kernel;
     // the corresponding commands are executed in the kernel
-    kernel.execute(command);
+    //kernel.execute(command);
+    kernel.execute(commandtest);
+    console.log(commandtest);
     // enable jupyter keyboard shortcuts again
     Jupyter.keyboard_manager.enable()
 };

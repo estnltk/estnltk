@@ -3,8 +3,10 @@ from IPython.display import display_html
 
 
 class SyntaxVisualiser:
-    attributes = ["text", "id", "lemma", "upostag", "xpostag", "feats", "head", "deprel", "deps", "misc"]
+    #neid oleks ikkagi vaja täpsustada, attributes listi järjekord ja deprel elemendid
+    attributes = ["id", "text", "lemma", "head", "deprel", "upostag", "xpostag", "feats", "deps", "misc"]
     deprel = ["@ADVL", "@FCV", "ROOT", "@SUBJ"]
+    saved_list = []
 
     #def __call__(self, layers,text):
     #    display_html(self.tables(layers, self.attributes, self.deprel, text), raw=True)
@@ -156,7 +158,7 @@ class SyntaxVisualiser:
             "<button type=\"button\" id=\"save\">save</button><button type=\"button\" id=\"previous\">previous</button><button type=\"button\" id=\"next\">next</button>")
         return "".join(tables)
 
-    def saving(self, saved_info, text, layer_count):
+    '''def saving(self, saved_info, text, layer_count):
         info = saved_info.split(",")
         separated_info = []
         start = 0
@@ -168,7 +170,7 @@ class SyntaxVisualiser:
             for i in range(start, end):
                 sentence_info.append(info[i])
             separated_info.append(sentence_info)
-        return separated_info
+        return separated_info'''
 
     def test(self, layers, attributes, deprel, text):
         cellid = 0
@@ -183,7 +185,12 @@ class SyntaxVisualiser:
             #tables.append("<table><tr>")
             tables.append("all_tables.push('<table class=\"iterable-table\"><tr>")
             for attribute in attributes:
-                tables.extend(["<th>", attribute, "</th>"])
+                if attribute == "head" or attribute == "deprel":
+                    tables.extend(["<th>", attribute, "</th>"])
+                    for i in range(len(layers)):
+                        tables.extend(["<th>", attribute, str(i + 1), "</th>"])
+                else:
+                    tables.extend(["<th>", attribute, "</th>"])
             tables.append("</tr>")
             for i in range(len(sentence)):
                 tables.append("<tr>")
@@ -198,40 +205,64 @@ class SyntaxVisualiser:
                                 tables.extend([str(key), " "])
                         tables.append("</td>")
 
-
                     elif attribute == "deprel":
+                        deprel_elements = []
+                        for layer in layers:
+                            deprel_el = layer[start:end][str(attribute)][i]
+                            if deprel_el not in deprel_elements:
+                                deprel_elements.append(deprel_el)
                         tables.append("<td>")
-                        element = layers[0][start:end][str(attribute)][i]
+                        #element = layer[start:end][str(attribute)][i]
                         tables.extend(
                             ["<select class = \"syntax_choice\" id = \"deprel", str(i), ";",
-                             str(cellid), "\"><option value=\"", str(cellid), ";original\">", html.escape(element),
-                             "</option>"])
+                             str(cellid), "\"><option value=\"", str(cellid), ";original\">"])
+                        if len(deprel_elements) == 1:
+                            tables.append(html.escape(deprel_elements[0]))
+                        tables.append("</option>")
                         for deprel_element in deprel:
-                            if element != deprel_element:
-                                tables.extend(
-                                    ["<option value=", str(cellid), ";", deprel_element, ">",
-                                     str(deprel_element), "</option>"])
+                            #if element != deprel_element:
+                            tables.extend(
+                                ["<option value=", str(cellid), ";", deprel_element, ">",
+                                str(deprel_element), "</option>"])
                         tables.extend(["</select>", "</td>"])
+                        for layer in layers:
+                            tables.extend(["<td>", html.escape(str(layer[start:end][str(attribute)][i])), "</td>"])
 
 
                     elif attribute == "head":
-                        tables.append("<td>")
-                        element = layers[0][start:end][str(attribute)][i]
-                        tables.extend(["<select class = \"syntax_choice\" id=\"head", str(i), ";",
-                             str(cellid), "\"><option value=\"", str(cellid),
-                             ";original\">"])
-                        if element == 0:
-                            tables.append(str(element))
-                        else:
-                            tables.extend([str(element), ": ", str(sentence.text[element - 1])])
-                        tables.extend(["</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
+                        #sentence_index = 0
+                        for head_index in range(len(layers) + 1):
+                            if head_index == 0:
+                                head_elements = []
+                                for layer in layers:
+                                    head_element = layer[start:end][str(attribute)][i]
+                                    if head_element not in head_elements:
+                                        head_elements.append(head_element)
+                                tables.append("<td>")
+                                #element = layer[start:end][str(attribute)][i]
+                                tables.extend(["<select class = \"syntax_choice\" id=\"head", str(i), ";",
+                                     str(cellid), "\"><option value=\"", str(cellid),
+                                     ";original\">"])
+                                if len(head_elements) == 1:
+                                    tables.append(str(head_elements[0]))
+                                    if head_elements[0] != 0:
+                                        tables.extend([": ", str(sentence.text[head_elements[0] - 1])])
+                                tables.extend(["</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
 
-                        for j in range(len(sentence)):
-                            tables.extend(
-                                ["<option value=", str(cellid), ";", str(j + 1), ">", str(j + 1),
-                                 ": ",
-                                 str(sentence.text[j]), "</option>"])
+                                for j in range(len(sentence)):
+                                    tables.extend(
+                                        ["<option value=", str(cellid), ";", str(j + 1), ">", str(j + 1),
+                                         ": ",
+                                         str(sentence.text[j]), "</option>"])
 
+                                tables.append("</select></td>")
+                                    #sentence_index += 1
+                            else:
+                                td_text = layers[head_index - 1][start:end][str(attribute)][i]
+                                if td_text == 0:
+                                    tables.extend(["<td>", str(td_text), "</td>"])
+                                else:
+                                    tables.extend(["<td>", str(td_text), ": ", sentence.text[td_text - 1], "</td>"])
 
                     else:
                         tables.extend(["<td>", str(layers[0][start:end][str(attribute)][i]), "</td>"])
@@ -243,3 +274,9 @@ class SyntaxVisualiser:
         tables.append(
             "<button type=\"button\" id=\"save\">save</button><button type=\"button\" id=\"previous\">previous</button><button type=\"button\" id=\"next\">next</button>")
         return "".join(tables)
+
+    def saved_to_list(self, index, saved):
+        if len(SyntaxVisualiser.saved_list) > index:
+            SyntaxVisualiser.saved_list[index] = saved
+        else:
+            SyntaxVisualiser.saved_list.append(saved)
