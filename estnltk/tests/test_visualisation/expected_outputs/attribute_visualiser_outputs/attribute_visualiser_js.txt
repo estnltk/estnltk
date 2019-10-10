@@ -1,3 +1,4 @@
+<script>
 var cell_mapping = {};
 
 function DisplayCell (text_id,visible_index,annotation_index,specific_annotation) {
@@ -269,7 +270,7 @@ function DisplayCell (text_id,visible_index,annotation_index,specific_annotation
     };
     let object = this;
 
-    //TODO proovi panna keydown parentelement divi külge
+    //TODO proovi panna keydown parentelement divi kÃ¼lge
         if (!keydownListener) {
                 //move with arrow keys
                 document.addEventListener("keydown", function (event) {
@@ -498,3 +499,4 @@ function DisplayCell (text_id,visible_index,annotation_index,specific_annotation
     this.toggle_annotation_visibility();
 
 }
+</script>

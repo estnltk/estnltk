@@ -11,13 +11,13 @@ class DirectAttributeVisualiser(SpanVisualiser):
     direct_span_visualiser"""
 
     def __init__(self, text_id, fill_empty_spans=False, event_attacher=None, js_added=False, css_added=False,
-                 css_file=abs_path("visualisation/attribute_visualiser/prettyprinter.css")):
+                 css_file=abs_path("visualisation/attribute_visualiser_outputs/prettyprinter.css")):
         self.fill_empty_spans = fill_empty_spans
         self.event_attacher = event_attacher
         self.js_added = js_added
         self.css_added = css_added
         self.css_file = css_file
-        self.js_file = abs_path("visualisation/attribute_visualiser/prettyprinter.js")
+        self.js_file = abs_path("visualisation/attribute_visualiser_outputs/prettyprinter.js")
         self.class_mapping = self.default_class_mapper
         self.mapping_dict = {"class": self.default_class_mapper}
         self.text_id = text_id
