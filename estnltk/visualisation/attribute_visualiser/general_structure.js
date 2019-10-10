@@ -269,7 +269,7 @@ function DisplayCell (text_id,visible_index,annotation_index,specific_annotation
     };
     let object = this;
 
-    //TODO proovi panna keydown parentelement divi külge
+    //TODO proovi panna keydown parentelement divi kulge
         if (!keydownListener) {
                 //move with arrow keys
                 document.addEventListener("keydown", function (event) {
