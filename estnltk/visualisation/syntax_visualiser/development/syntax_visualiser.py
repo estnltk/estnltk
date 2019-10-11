@@ -1,18 +1,15 @@
 import html
 from IPython.display import display_html
+import json
+from estnltk.converters import layer_to_dict, dict_to_layer
 
 
 class SyntaxVisualiser:
-    #neid oleks ikkagi vaja täpsustada, attributes listi järjekord ja deprel elemendid
     attributes = ["id", "text", "lemma", "head", "deprel", "upostag", "xpostag", "feats", "deps", "misc"]
-    deprel = ["@ADVL", "@FCV", "ROOT", "@SUBJ"]
-    saved_list = []
-
-    #def __call__(self, layers,text):
-    #    display_html(self.tables(layers, self.attributes, self.deprel, text), raw=True)
+    changeable_attributes = {'deprel': ["@ADVL", "@FCV", "ROOT", "@SUBJ"]}
 
     def __call__(self, layers, text):
-        display_html(self.test(layers, self.attributes, self.deprel, text), raw=True)
+        display_html(self.table_creation(layers, self.attributes, text), raw=True)
 
     def css(self):
         with open("syntax_visualiser.css") as css_file:
@@ -23,260 +20,124 @@ class SyntaxVisualiser:
     def event_handler_code(self):
         with open("syntax_visualiser.js") as js_file:
             contents = js_file.read()
-            # output = ''.join(["<script>\n var text_id=", str(self._text_id),"\n", contents, "</script>"])
         return contents
 
-    def table_column(self, layers, attribute, deprel, text, index=None, sentence=None):
-        cellid = 0
-        if sentence is None:
-            sentence = 0
-        word = 0
-        if index is not None:
-            table_elements = ["<td><table><tr><th>", attribute, str(index), "</th></tr>"]
-        else:
-            table_elements = ["<td><table><tr><th>", attribute, "</th></tr>"]
+
+    def header(self, attributes, layers):
+        row = ["<tr>"]
+        for attribute in attributes:
+            if attribute == "head" or attribute in self.changeable_attributes:
+                row.extend(["<th>", attribute, "</th>"])
+                for i in range(len(layers)):
+                    row.extend(["<th>", attribute, str(i + 1), "</th>"])
+            else:
+                row.extend(["<th>", attribute, "</th>"])
+        row.append("</tr>")
+        return row
+
+    def table_row(self, attribute, layers, start, end, i):
+        row = []
         if attribute == "feats":
-            for element in getattr(layers, attribute):
-                table_elements.extend(
-                    ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">"])
-                cellid += 1
-                if element is not None:
-                    for key in element:
-                        table_elements.extend([str(key), " "])
-                else:
-                    table_elements.append(str(element))
-                table_elements.append("</td></tr>")
-        elif attribute == "deprel" and index == 1:
-            for element in getattr(layers, attribute):
-                table_elements.extend(
-                    ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">"])
-                cellid += 1
-                table_elements.extend(
-                    ["<select class = \"syntax_choice\" id = \"deprel", str(sentence), ";", str(index), ";",
-                     str(cellid), "\"><option value=\"", str(cellid), ";original\">", html.escape(element),
-                     "</option>"])
-                for deprel_element in deprel:
-                    if element != deprel_element:
-                        table_elements.extend(
-                            ["<option value=", str(sentence), ";", str(cellid), ";", deprel_element, ">",
-                             str(deprel_element), "</option>"])
-                table_elements.extend(["</select>", "</td></tr>"])
-        elif attribute == "head":
-            for element in getattr(layers, attribute):
-                if word == len(text.sentences[sentence]):
-                    word = 0
-                    sentence += 1
-                if index == 1:
-                    table_elements.extend(
-                        ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">"])
-                    cellid += 1
-                    #muuda seda
-                    if element == 0:
-                        table_elements.extend(
-                            ["<select class = \"syntax_choice\" id=\"head", str(sentence), ";", str(index), ";",
-                             str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid),
-                             ";original\">",
-                             str(element), "</option>"])
-                    else:
-                        table_elements.extend(
-                            ["<select class = \"syntax_choice\" id=\"head", str(sentence), ";", str(index), ";",
-                             str(cellid), " onchange=\"get_select_value();\"><option value=\"", str(cellid),
-                             ";original\">",
-                             str(element), ": ", str(text.sentences[sentence].text[element - 1]),
-                             "</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
-
-                    for i in range(len(text.sentences[sentence])):
-                        table_elements.extend(
-                            ["<option value=", str(sentence), ";", str(cellid), ";", str(i + 1), ">", str(i + 1), ": ",
-                             str(text.sentences[sentence].text[i]), "</option>"])
-                else:
-                    if element != 0:
-                        table_elements.extend(
-                            ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">",
-                             str(element), ": ", str(text.sentences[sentence].text[element - 1])])
-                    else:
-                        table_elements.extend(
-                            ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">",
-                             str(element)])
-                    cellid += 1
-                word += 1
-                table_elements.append("</select></td></tr>")
+            row.append("<td>")
+            element = layers[0][start:end][str(attribute)][i]
+            if element is None:
+                row.append(str(element))
+            else:
+                for key in element:
+                    row.extend([str(key), " "])
+            row.append("</td>")
+        elif attribute in self.changeable_attributes:
+            dropdown_elements = []
+            for layer in layers:
+                dropdown_value = layer[start:end][str(attribute)][i]
+                if dropdown_value not in dropdown_elements:
+                    dropdown_elements.append(dropdown_value)
+            row.append("<td>")
+            row.extend(
+                ["<select class = \"syntax_choice\" id = \"", attribute, str(i), "\"><option value=\"original", str(attribute), "\">"])
+            if len(dropdown_elements) == 1:
+                row.append(html.escape(dropdown_elements[0]))
+            row.append("</option>")
+            for value in self.changeable_attributes[attribute]:
+                # if element != deprel_element:
+                row.extend(
+                    ["<option value=\"", attribute, str(value), "\">",
+                     str(value), "</option>"])
+            row.extend(["</select>", "</td>"])
+            for layer in layers:
+                row.extend(["<td>", html.escape(str(layer[start:end][str(attribute)][i])), "</td>"])
         else:
-            for element in getattr(layers, attribute):
-                table_elements.extend(
-                    ["<tr><td id = \"", str(attribute), str(sentence), ";", str(index), ";", str(cellid), "\">",
-                     str(element), "</td></tr>"])
-                cellid += 1
-        table_elements.append("</table></td>")
-        return table_elements
+            row.extend(["<td>", str(layers[0][start:end][str(attribute)][i]), "</td>"])
+        return row
 
-    def table(self, layer, attributes, deprel, text):
-        table_elements = [self.css(), "<table class=\"iterable-table\"><tr>"]
-        for attribute in attributes:
-            table_elements.extend(self.table_column(layer, attribute, deprel, text))
-        table_elements.append("</tr></table>")
-        return "".join(table_elements)
+    def table_head(self, sentence, layers, start, end, i):
+        row = []
+        head_elements = []
+        for layer in layers:
+            head_element = layer[start:end]["head"][i]
+            if head_element not in head_elements:
+                head_elements.append(head_element)
+        row.append("<td>")
+        row.extend(["<select class = \"syntax_choice\" id=\"head", str(i), "\"><option value=\"head\">"])
+        if len(head_elements) == 1:
+            row.append(str(head_elements[0]))
+            if head_elements[0] != 0:
+                row.extend([": ", str(sentence.text[head_elements[0] - 1])])
+        row.extend(["</option><option value=\"head", str(i), "\">", "0", "</option>"])
 
-    def joint_table(self, layers, attributes, deprel, text, sentence=None):
-        table_elements = [self.css(), self.event_handler_code(), "<table class=\"iterable-table\"><tr>"]
-        for attribute in attributes:
-            for i, layer in enumerate(layers):
-                if attribute == "head" or attribute == "deprel":
-                    table_elements.extend(self.table_column(layer, attribute, deprel, text, i + 1, sentence))
-                elif i == 0:
-                    table_elements.extend(self.table_column(layer, attribute, deprel, text, None, sentence))
-        table_elements.append("</tr></table><button type=\"button\">save</button>")
-        return "".join(table_elements)
+        for j in range(len(sentence)):
+            row.extend(
+                ["<option value=\"head", str(j + 1), "\">", str(j + 1),
+                 ": ",
+                 str(sentence.text[j]), "</option>"])
 
-    # def one_table(layers, attributes, deprel, text):
-    #    tables = []
-    #    for i in range(len(text.sentences)):
-    #        tables.append(joint_table(layers, attributes, deprel, text, i))
-    #    return "".join(tables)
+        row.append("</select></td>")
 
-    def tables(self, layers, attributes, deprel, text, sentence=None):
+        for layer in layers:
+            td_text = layer[start:end]["head"][i]
+            if td_text == 0:
+                row.extend(["<td>", str(td_text), "</td>"])
+            else:
+                row.extend(["<td>", str(td_text), ": ", sentence.text[td_text - 1], "</td>"])
+        return row
+
+    def table_creation(self, layers, attributes, text):
         start = 0
         end = 0
         tables = [self.css(), "<script>"]
-        tables.append("console.log(typeof all_tables); \n if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n")
+        tables.append("if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n")
         for index, sentence in enumerate(text.sentences):
             start = end
             end = start + len(sentence)
-            table_elements = ["all_tables.push('<table class=\"iterable-table\"><tr>"]
-            for attribute in attributes:
-                for i, layer in enumerate(layers):
-                    if attribute == "head" or attribute == "deprel":
-                        table_elements.extend(
-                            self.table_column(layer[start:end], attribute, deprel, text, i + 1, index))
-                    elif i == 0:
-                        table_elements.extend(self.table_column(layer[start:end], attribute, deprel, text, None, index))
-            table_elements.append("</tr></table>'); \n")
-            tables.extend(table_elements)
-        tables.append(self.event_handler_code())
-        tables.append("</script>")
-        tables.append(
-            "<button type=\"button\" id=\"save\">save</button><button type=\"button\" id=\"previous\">previous</button><button type=\"button\" id=\"next\">next</button>")
-        return "".join(tables)
-
-    '''def saving(self, saved_info, text, layer_count):
-        info = saved_info.split(",")
-        separated_info = []
-        start = 0
-        end = 0
-        for sentence in text.sentences:
-            sentence_info = []
-            start = end
-            end = start + len(sentence) * layer_count
-            for i in range(start, end):
-                sentence_info.append(info[i])
-            separated_info.append(sentence_info)
-        return separated_info'''
-
-    def test(self, layers, attributes, deprel, text):
-        cellid = 0
-        start = 0
-        end = 0
-        #tables = [self.css()]
-        tables = [self.css(), "<script>"]
-        tables.append("console.log(typeof all_tables); \n if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n")
-        for index, sentence in enumerate(text.sentences):
-            start = end
-            end = start + len(sentence)
-            #tables.append("<table><tr>")
-            tables.append("all_tables.push('<table class=\"iterable-table\"><tr>")
-            for attribute in attributes:
-                if attribute == "head" or attribute == "deprel":
-                    tables.extend(["<th>", attribute, "</th>"])
-                    for i in range(len(layers)):
-                        tables.extend(["<th>", attribute, str(i + 1), "</th>"])
-                else:
-                    tables.extend(["<th>", attribute, "</th>"])
-            tables.append("</tr>")
+            tables.append("all_tables.push('<table class=\"iterable-table\">")
+            table_header = self.header(attributes, layers)
+            tables.extend(table_header)
             for i in range(len(sentence)):
                 tables.append("<tr>")
                 for attribute in attributes:
-                    if attribute == "feats":
-                        tables.append("<td>")
-                        element = layers[0][start:end][str(attribute)][i]
-                        if element is None:
-                            tables.append(str(element))
-                        else:
-                            for key in element:
-                                tables.extend([str(key), " "])
-                        tables.append("</td>")
-
-                    elif attribute == "deprel":
-                        deprel_elements = []
-                        for layer in layers:
-                            deprel_el = layer[start:end][str(attribute)][i]
-                            if deprel_el not in deprel_elements:
-                                deprel_elements.append(deprel_el)
-                        tables.append("<td>")
-                        #element = layer[start:end][str(attribute)][i]
-                        tables.extend(
-                            ["<select class = \"syntax_choice\" id = \"deprel", str(i), ";",
-                             str(cellid), "\"><option value=\"", str(cellid), ";original\">"])
-                        if len(deprel_elements) == 1:
-                            tables.append(html.escape(deprel_elements[0]))
-                        tables.append("</option>")
-                        for deprel_element in deprel:
-                            #if element != deprel_element:
-                            tables.extend(
-                                ["<option value=", str(cellid), ";", deprel_element, ">",
-                                str(deprel_element), "</option>"])
-                        tables.extend(["</select>", "</td>"])
-                        for layer in layers:
-                            tables.extend(["<td>", html.escape(str(layer[start:end][str(attribute)][i])), "</td>"])
-
-
-                    elif attribute == "head":
-                        #sentence_index = 0
-                        for head_index in range(len(layers) + 1):
-                            if head_index == 0:
-                                head_elements = []
-                                for layer in layers:
-                                    head_element = layer[start:end][str(attribute)][i]
-                                    if head_element not in head_elements:
-                                        head_elements.append(head_element)
-                                tables.append("<td>")
-                                #element = layer[start:end][str(attribute)][i]
-                                tables.extend(["<select class = \"syntax_choice\" id=\"head", str(i), ";",
-                                     str(cellid), "\"><option value=\"", str(cellid),
-                                     ";original\">"])
-                                if len(head_elements) == 1:
-                                    tables.append(str(head_elements[0]))
-                                    if head_elements[0] != 0:
-                                        tables.extend([": ", str(sentence.text[head_elements[0] - 1])])
-                                tables.extend(["</option><option value=\"", str(cellid), ";0\">", "0", "</option>"])
-
-                                for j in range(len(sentence)):
-                                    tables.extend(
-                                        ["<option value=", str(cellid), ";", str(j + 1), ">", str(j + 1),
-                                         ": ",
-                                         str(sentence.text[j]), "</option>"])
-
-                                tables.append("</select></td>")
-                                    #sentence_index += 1
-                            else:
-                                td_text = layers[head_index - 1][start:end][str(attribute)][i]
-                                if td_text == 0:
-                                    tables.extend(["<td>", str(td_text), "</td>"])
-                                else:
-                                    tables.extend(["<td>", str(td_text), ": ", sentence.text[td_text - 1], "</td>"])
-
+                    if attribute == "head":
+                        tables.extend(self.table_head(sentence, layers, start, end, i))
                     else:
-                        tables.extend(["<td>", str(layers[0][start:end][str(attribute)][i]), "</td>"])
+                        tables.extend(self.table_row(attribute, layers, start, end, i))
                 tables.append("</tr>")
             tables.append("</table>'); \n")
-            #tables.append("</table>")
         tables.append(self.event_handler_code())
         tables.append("</script>")
         tables.append(
             "<button type=\"button\" id=\"save\">save</button><button type=\"button\" id=\"previous\">previous</button><button type=\"button\" id=\"next\">next</button>")
         return "".join(tables)
 
-    def saved_to_list(self, index, saved):
-        if len(SyntaxVisualiser.saved_list) > index:
-            SyntaxVisualiser.saved_list[index] = saved
-        else:
-            SyntaxVisualiser.saved_list.append(saved)
+    def create_layer_from_choices(self, all_values, original_layer):
+        converted_all_values = []
+        for value in all_values:
+            for element in all_values[value]:
+                converted_all_values.append(json.loads(element))
+
+        new_layer_dict = layer_to_dict(original_layer)
+        for index, annotation in enumerate(new_layer_dict['spans']):
+            if index < len(converted_all_values):
+                for key in converted_all_values[index]:
+                    if key != 'id':
+                        annotation['annotations'][0][key] = converted_all_values[index][key]
+
+        return dict_to_layer(new_layer_dict)

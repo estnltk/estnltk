@@ -4,6 +4,7 @@ select {
 
 td, th {
     font-size: 0.9vw;
+    /*background-color: lightpink;*/
 }
 
 /*button {
