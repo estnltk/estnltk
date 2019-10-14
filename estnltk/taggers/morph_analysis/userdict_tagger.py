@@ -5,6 +5,7 @@
 # 
 import copy
 import csv
+import io
 
 from typing import MutableMapping
 
@@ -19,6 +20,9 @@ from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_POSTAGS
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_NOUN_FORMS
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_VERB_FORMS
+
+# Value indicating unspecified field/value in the csv file
+CSV_UNSPECIFIED_FIELD = '----------'
 
 
 class UserDictTagger(Retagger):
@@ -217,7 +221,9 @@ class UserDictTagger(Retagger):
 
 
     def add_words_from_csv_file(self, filename, encoding='utf-8', \
-                                dialect='excel-tab', **fmtparams):
+                                dialect='excel-tab', 
+                                allow_unspecified_fields=True, 
+                                **fmtparams):
         ''' Loads words with their morphological analyses from the given 
             csv file, and inserts to the user dictionary.
             
@@ -263,6 +269,15 @@ class UserDictTagger(Retagger):
             See https://docs.python.org/3/library/csv.html#csv.reader
             for details.
 
+        allow_unspecified_fields: bool (default: True)
+            If True (default), then some of the fileds/values can be left
+            unspecified in the csv file, which enables defining entries of 
+            partial overwriting. An unspecified field/value is marked with 
+            the constant CSV_UNSPECIFIED_FIELD. If an entry has at least 
+            one unspecified field/value, then it is considered as a partial 
+            overwriting entry, otherwise, it is considered as a complete 
+            overwriting entry.
+
         fmtparams: 
             Optional keyword arguments to be passed to the function 
             csv.reader().
@@ -293,14 +308,158 @@ class UserDictTagger(Retagger):
                         word_text = row[kid]
                 assert word_text, \
                     "'(!) Key 'text' not specified in line: "+str(row)
-                # Add new analysis to the dict
-                if word_text not in collected_analyses:
-                    collected_analyses[word_text] = []
-                collected_analyses[word_text].append(analysis_dict)
-                #print(', '.join(row))
+                # Manage unspecified fields (if required):
+                if allow_unspecified_fields:
+                    has_unspecified_fields = []
+                    for k in analysis_dict.keys():
+                        if analysis_dict[k] == CSV_UNSPECIFIED_FIELD:
+                            has_unspecified_fields.append(k)
+                    if len(has_unspecified_fields) > 0:
+                        # Remove unspecified fields
+                        for k in has_unspecified_fields:
+                            del analysis_dict[k]
+                        # Add partial overwriting entry
+                        if word_text not in collected_analyses:
+                            collected_analyses[word_text] = {}
+                        # Check for conflicts:
+                        if isinstance(collected_analyses[word_text], list):
+                            raise Exception('(!) Conflicting partial and complete overwriting entries for word {!r}'.format(word_text))
+                        collected_analyses[word_text] = analysis_dict
+                    else:
+                        # No unspecified fields
+                        # Add complete overwriting entry
+                        if word_text not in collected_analyses:
+                            collected_analyses[word_text] = []
+                        # Check for conflicts:
+                        if isinstance(collected_analyses[word_text], dict):
+                            raise Exception('(!) Conflicting partial and complete overwriting entries for word {!r}'.format(word_text))
+                        collected_analyses[word_text].append(analysis_dict)
+                else:
+                    # Add complete overwriting entry
+                    if word_text not in collected_analyses:
+                        collected_analyses[word_text] = []
+                    collected_analyses[word_text].append(analysis_dict)
+                    #print(', '.join(row))
         # Rewrite all analyses into the user dict
         for word in collected_analyses.keys():
             self.add_word( word, collected_analyses[word] )
+
+
+    def save_as_csv(self, filename, encoding='utf-8', \
+                          dialect='excel-tab', 
+                          allow_unspecified_fields=True, 
+                          **fmtparams):
+        ''' Saves entries of the current dictionary as a csv format file.
+            Optionally, if the input filename is None, constructs and 
+            returns a csv string.
+            
+            By default, assumes that csv file is in tab-separated-values 
+            format (dialect='excel-tab') and in the encoding 'utf-8'.
+            You can change the encoding via parameter encoding. And you
+            can also provide other custom parameters ( from the parameters 
+            listed in: 
+            https://docs.python.org/3/library/csv.html#csv-fmt-params )
+            if your input csv file has some other format.
+            
+            The first line of the csv file will be the header with the 
+            heading names 'root', 'ending', 'clitic', 'form', 'partofspeech', 
+            'text'. Each line following the heading specifies a single 
+            analysis for a word. The word itself can be under the column 
+            'text'. Note that there can also be multiple lines for a single 
+            word: these are considered as different analysis variants of an 
+            ambiguous word.
+            If an entry contains value equal to CSV_UNSPECIFIED_FIELD, then
+            it is considered as a partial overwriting entry.
+            
+        Parameters
+        ----------
+        filename: str
+            Path to the csv file which needs to be written. 
+            If None, then instead of writing entries into a file, entries
+            will be formatted as a csv format string and returned by the
+            method.
+        
+        encoding: str (Default: 'utf-8')
+            Encoding of the csv file.
+        
+        dialect: str (Default: 'excel-tab')
+            Parameter dialect to be passed to the function csv.reader().
+            See https://docs.python.org/3/library/csv.html#csv.reader
+            for details.
+
+        allow_unspecified_fields: bool (default: True)
+            If True (default), then some of the fileds/values can be left
+            unspecified in the csv file, which enables defining entries of 
+            partial overwriting. An unspecified field/value is marked with 
+            the constant CSV_UNSPECIFIED_FIELD. If an entry has at least 
+            one unspecified field/value, then it is considered as a partial 
+            overwriting entry, otherwise, it is considered as a complete 
+            overwriting entry.
+
+        fmtparams: 
+            Optional keyword arguments to be passed to the function 
+            csv.reader().
+            See https://docs.python.org/3/library/csv.html#csv.reader
+            for details.
+        '''
+        # Analyse the dictionary
+        has_normalized_text = False
+        has_partial_overwriting_entry = False
+        for word_text in self._dict.keys():
+            recs = []
+            if self._dict[word_text]['merge']:
+                recs = [self._dict[word_text]['analysis']]
+                has_partial_overwriting_entry = True
+            else:
+                assert isinstance(self._dict[word_text]['analysis'], list)
+                recs = self._dict[word_text]['analysis']
+            for rec in recs:
+                if NORMALIZED_TEXT in rec:
+                    has_normalized_text = True
+        # Sanity check
+        if has_partial_overwriting_entry and not allow_unspecified_fields:
+            raise Exception('(!) Conflicting settings: allow_unspecified_fields==False, '+\
+                            'but the user dictionary contains at least one partial overwriting entry.')
+        header_fields = VABAMORF_ATTRIBUTES 
+        if has_normalized_text:
+            header_fields = (NORMALIZED_TEXT,) + header_fields
+        header_fields = ('text',) + header_fields
+        # Construct/write the output
+        if filename != None:
+            output_csv = open(filename, 'w', encoding=encoding, newline='')
+        else:
+            output_csv = io.StringIO()
+        csv_writer = csv.writer(output_csv, dialect=dialect, **fmtparams)
+        csv_writer.writerow( header_fields )
+        for word_text in sorted(self._dict.keys()):
+            recs = []
+            if self._dict[word_text]['merge']:
+                recs = [self._dict[word_text]['analysis']]
+            else:
+                assert isinstance(self._dict[word_text]['analysis'], list)
+                recs = self._dict[word_text]['analysis']
+            for rec in recs:
+                values = []
+                for h in header_fields:
+                    if h == 'text':
+                        values.append( word_text )
+                    elif h == NORMALIZED_TEXT:
+                        if h not in rec:
+                            values.append( '' )
+                        else:
+                            values.append( rec[h] )
+                    elif h not in rec:
+                        values.append( CSV_UNSPECIFIED_FIELD )
+                    else:
+                        values.append( rec[h] )
+                assert len(values) == len(header_fields)
+                csv_writer.writerow( values )
+        if filename != None:
+            output_csv.close()
+        else:
+            return output_csv.getvalue()
+        return None
+
 
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
         """Retags the morphological analyses layer, providing dictionary-
