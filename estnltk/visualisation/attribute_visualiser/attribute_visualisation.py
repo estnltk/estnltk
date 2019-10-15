@@ -1,7 +1,7 @@
 from IPython.display import display_html
 from estnltk.visualisation.attribute_visualiser.direct_attribute_visualiser import DirectAttributeVisualiser
 from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
-from estnltk.core import rel_path
+from estnltk.core import abs_path
 from estnltk.layer_operations import merge_layers
 import warnings
 
@@ -9,9 +9,9 @@ import warnings
 class DisplayAttributes:
     """Superclass for attribute visualisers"""
 
-    js_file = rel_path("visualisation/attribute_visualiser/prettyprinter.js")
-    general_js_file = rel_path("visualisation/attribute_visualiser/general_structure.js")
-    css_file = rel_path("visualisation/attribute_visualiser/prettyprinter.css")
+    js_file = abs_path("visualisation/attribute_visualiser/prettyprinter.js")
+    general_js_file = abs_path("visualisation/attribute_visualiser/general_structure.js")
+    css_file = abs_path("visualisation/attribute_visualiser/prettyprinter.css")
     html_displayed = False
     original_layer = None
     accepted_array = None
