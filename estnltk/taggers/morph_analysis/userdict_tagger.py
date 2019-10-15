@@ -298,7 +298,7 @@ class UserDictTagger(Retagger):
             # Parse csv file
             # Collect and aggregate analyses
             for row in fle_reader:
-                assert len(row) == len(header)
+                assert len(row) == len(header), '(!) Unexpected number of elements in a row: {!r}'.format(row)
                 analysis_dict = {}
                 word_text = None
                 for kid, key in enumerate(header):
@@ -351,7 +351,7 @@ class UserDictTagger(Retagger):
                           **fmtparams):
         ''' Saves entries of the current dictionary as a csv format file.
             Optionally, if the input filename is None, constructs and 
-            returns a csv string.
+            returns a csv string that contains the entries.
             
             By default, assumes that csv file is in tab-separated-values 
             format (dialect='excel-tab') and in the encoding 'utf-8'.
@@ -406,20 +406,19 @@ class UserDictTagger(Retagger):
         has_normalized_text = False
         has_partial_overwriting_entry = False
         for word_text in self._dict.keys():
-            recs = []
             if self._dict[word_text]['merge']:
-                recs = [self._dict[word_text]['analysis']]
                 has_partial_overwriting_entry = True
-            else:
-                assert isinstance(self._dict[word_text]['analysis'], list)
-                recs = self._dict[word_text]['analysis']
+            assert isinstance(self._dict[word_text]['analysis'], list)
+            recs = self._dict[word_text]['analysis']
             for rec in recs:
                 if NORMALIZED_TEXT in rec:
                     has_normalized_text = True
         # Sanity check
         if has_partial_overwriting_entry and not allow_unspecified_fields:
             raise Exception('(!) Conflicting settings: allow_unspecified_fields==False, '+\
-                            'but the user dictionary contains at least one partial overwriting entry.')
+                            'but the user dictionary contains at least one partial overwriting '+\
+                            'entry. Unspecified fields must be allowed for writing partial '+\
+                            'overwriting entries.' )
         header_fields = VABAMORF_ATTRIBUTES 
         if has_normalized_text:
             header_fields = (NORMALIZED_TEXT,) + header_fields
@@ -432,12 +431,8 @@ class UserDictTagger(Retagger):
         csv_writer = csv.writer(output_csv, dialect=dialect, **fmtparams)
         csv_writer.writerow( header_fields )
         for word_text in sorted(self._dict.keys()):
-            recs = []
-            if self._dict[word_text]['merge']:
-                recs = [self._dict[word_text]['analysis']]
-            else:
-                assert isinstance(self._dict[word_text]['analysis'], list)
-                recs = self._dict[word_text]['analysis']
+            assert isinstance(self._dict[word_text]['analysis'], list)
+            recs = self._dict[word_text]['analysis']
             for rec in recs:
                 values = []
                 for h in header_fields:

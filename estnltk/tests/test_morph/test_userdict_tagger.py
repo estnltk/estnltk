@@ -5,7 +5,7 @@ from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import UserDictTagger
 
 
-import os.path
+import os, os.path, tempfile
 
 # ----------------------------------
 #   Helper functions
@@ -232,8 +232,10 @@ def test_userdict_tagger_post_analysis():
     assert expected_records == results_dict
 
 
+from estnltk.taggers.morph_analysis.userdict_tagger import CSV_UNSPECIFIED_FIELD
 
-def test_userdict_tagger_as_dict_method():
+def test_userdict_tagger_save_as_csv():
+    # Case 1: save as csv 
     userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
     userdict.add_word('abieluettepanek', \
         { 'root': 'abielu_ettepanek', 'partofspeech': 'S' } )
@@ -241,15 +243,27 @@ def test_userdict_tagger_as_dict_method():
         [{'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S', 'clitic':''}] )
     userdict.add_word('tahax', \
         [{'normalized_text':'tahaks', 'root_tokens': ['taht',], 'ending': 'ks', 'clitic': '', 'partofspeech': 'V', 'root': 'taht', 'form': 'ks', 'lemma': 'tahtma'}] )
-    #print(userdict.as_dict())
-    expected_dict = { \
-      'tahax': 
-         {'analysis': [{'root_tokens': ['taht'], 'partofspeech': 'V', 'form': 'ks', 'clitic': '', 'normalized_text': 'tahaks', 'lemma': 'tahtma', 'ending': 'ks', 'root': 'taht'}], 'merge': False}, 
-      'abieluettepanek': 
-         {'analysis': [{'root_tokens': ['abielu', 'ettepanek'], 'partofspeech': 'S', 'lemma': 'abieluettepanek', 'root': 'abielu_ettepanek'}], 'merge': True}, 
-      'kopsujoonis': 
-         {'analysis': [{'root_tokens': ['kopsu', 'joonis'], 'partofspeech': 'S', 'clitic': '', 'form': 'sg n', 'lemma': 'kopsujoonis', 'ending': '0', 'root': 'kopsu_joonis'}], 'merge': False}
-    }
-    assert expected_dict == userdict.as_dict()
+    result_string = userdict.save_as_csv(None, delimiter=',')
+    expected_string = 'text,normalized_text,root,ending,clitic,form,partofspeech\n'+\
+        'abieluettepanek,,abielu_ettepanek,'+CSV_UNSPECIFIED_FIELD+','+CSV_UNSPECIFIED_FIELD+','+CSV_UNSPECIFIED_FIELD+',S\n'+\
+        'kopsujoonis,,kopsu_joonis,0,,sg n,S\n'+\
+        'tahax,tahaks,taht,ks,,ks,V\n'
+    result_string_fixed = result_string.replace(os.linesep, '\n') # a fix for Windows ( to avoid \r\n )
+    assert result_string_fixed == expected_string
+
+    # Case 2: restore from saved csv
+    fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', suffix='.csv', delete=False)
+    # Write output of the save_as_csv 
+    fp.write( result_string_fixed )
+    fp.close()
+    result_string2 = ''
+    try:
+        userdict2 = UserDictTagger()
+        userdict2.add_words_from_csv_file(fp.name, encoding='utf-8', delimiter=',')
+        result_string2 = userdict2.save_as_csv(None, delimiter=',')
+    finally:
+        # clean up: remove temporary file
+        os.remove(fp.name)
+    assert result_string2 == result_string
 
 
