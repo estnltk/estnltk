@@ -248,7 +248,7 @@ def test_userdict_tagger_save_as_csv():
         'abieluettepanek,,abielu_ettepanek,'+CSV_UNSPECIFIED_FIELD+','+CSV_UNSPECIFIED_FIELD+','+CSV_UNSPECIFIED_FIELD+',S\n'+\
         'kopsujoonis,,kopsu_joonis,0,,sg n,S\n'+\
         'tahax,tahaks,taht,ks,,ks,V\n'
-    result_string_fixed = result_string.replace(os.linesep, '\n') # a fix for Windows ( to avoid \r\n )
+    result_string_fixed = result_string.replace('\r\n', '\n') # a fix for Windows ( to avoid \r\n )
     assert result_string_fixed == expected_string
 
     # Case 2: restore from saved csv
