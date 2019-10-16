@@ -449,11 +449,13 @@ class UserDictTagger(Retagger):
                         values.append( rec[h] )
                 assert len(values) == len(header_fields)
                 csv_writer.writerow( values )
-        if filename != None:
-            output_csv.close()
-        else:
-            return output_csv.getvalue()
-        return None
+        returnable = None
+        if isinstance(output_csv, io.StringIO):
+            returnable = output_csv.getvalue()
+        # Close ( either file or StringIO )
+        output_csv.close()
+        assert output_csv.closed
+        return returnable
 
 
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
