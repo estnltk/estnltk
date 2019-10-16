@@ -303,11 +303,17 @@ class UserDictTagger(Retagger):
                 word_text = None
                 for kid, key in enumerate(header):
                     if key != 'text':
+                        if key == NORMALIZED_TEXT and len(row[kid]) == 0:
+                            #  if NORMALIZED_TEXT is empty, consider it as 
+                            #  a value left unspecified and ignore it.
+                            pass
                         analysis_dict[key] = row[kid]
                     else:
                         word_text = row[kid]
                 assert word_text, \
-                    "'(!) Key 'text' not specified in line: "+str(row)
+                    "'(!) Value for 'text' not specified in line: "+str(row)
+                assert len(word_text) > 0, \
+                    "'(!) 'text' is empty string in line: "+str(row)
                 # Manage unspecified fields (if required):
                 if allow_unspecified_fields:
                     has_unspecified_fields = []
@@ -383,8 +389,8 @@ class UserDictTagger(Retagger):
             Encoding of the csv file.
         
         dialect: str (Default: 'excel-tab')
-            Parameter dialect to be passed to the function csv.reader().
-            See https://docs.python.org/3/library/csv.html#csv.reader
+            Parameter dialect to be passed to the function csv.writer().
+            See https://docs.python.org/3/library/csv.html#csv.writer
             for details.
 
         allow_unspecified_fields: bool (default: True)
@@ -398,8 +404,8 @@ class UserDictTagger(Retagger):
 
         fmtparams: 
             Optional keyword arguments to be passed to the function 
-            csv.reader().
-            See https://docs.python.org/3/library/csv.html#csv.reader
+            csv.writer().
+            See https://docs.python.org/3/library/csv.html#csv.writer
             for details.
         '''
         # Analyse the dictionary
