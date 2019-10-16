@@ -306,7 +306,7 @@ class UserDictTagger(Retagger):
                         if key == NORMALIZED_TEXT and len(row[kid]) == 0:
                             #  if NORMALIZED_TEXT is empty, consider it as 
                             #  a value left unspecified and ignore it.
-                            pass
+                            continue
                         analysis_dict[key] = row[kid]
                     else:
                         word_text = row[kid]
