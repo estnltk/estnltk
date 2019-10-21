@@ -1,20 +1,20 @@
-if(typeof estnltk === 'undefined'){
-  estnltk = {}
-}
-if(typeof estnltk['syntax_editor' === 'undefined']){
-  estnltk['syntax_editor'] = {
-    root_div: null,
-    edit_mode: 'inactive',
-    default_active_cell: null
-  }
-}
+var estnltk = estnltk || {};
+estnltk['syntax_editor'] = estnltk['syntax_editor'] || {
+  root_div: null,
+  edit_mode: 'inactive',
+  active_cell: null
+};
+
 
 estnltk.syntax_editor['selectTableCell'] = function(cell){
   alert(cell);
   cell.style.backgroundColor = 'pink';
   cell.style.color = 'white';
   if(cell.children[0] != null) cell.children[0].focus();
-  else cell.focus();
+  else {
+    estnltk.syntax_editor.active_cell = cell;
+    cell.focus();
+  }
 }
 
 estnltk.syntax_editor['deselectTableCell'] = function(cell){
@@ -30,7 +30,7 @@ estnltk.syntax_editor['onKeyDown'] = function(event){
   const arrowKeys = new Set([38, 40, 37, 39]);
   const editor = estnltk.syntax_editor;
 
-  let active_cell = document.activeElement.parentElement || estnltk.syntax_editor.default_active_cell;
+  let active_cell = document.activeElement.parentElement || estnltk.syntax_editor.active_cell;
 
   if(arrowKeys.has(event.keyCode))
   {

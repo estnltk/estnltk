@@ -1,7 +1,12 @@
-import html
-from IPython.display import display_html
 import json
+from typing import List
+from IPython.display import display_html
+
+from estnltk.layer.span import Span
 from estnltk.converters import layer_to_dict, dict_to_layer
+from estnltk.visualisation.core import format_tag_attributes
+from estnltk.visualisation.core import header_cell, value_cell, dropdown_cell
+
 
 
 class SyntaxVisualiser:
@@ -11,120 +16,159 @@ class SyntaxVisualiser:
     def __call__(self, layers, text):
         display_html(self.table_creation(layers, self.attributes, text), raw=True)
 
-    def css(self):
+    @property
+    def css_style_tag(self):
+        """
+        Represents css file through <style> tag
+        """
         with open("syntax_visualiser.css") as css_file:
-            contents = css_file.read()
-            output = ''.join(["<style>\n", contents, "</style>"])
+            output = ''.join(["<style>\n", css_file.read(), "</style>"])
         return output
 
-    def event_handler_code(self):
+    @property
+    def event_handler_script_tag(self):
+        """
+        Imports event handling code as a <script> tag
+
+        TODO: Add script tag
+        """
         with open("syntax_visualiser.js") as js_file:
             contents = js_file.read()
         return contents
 
 
-    def header(self, attributes, layers):
+    def header(self, attributes: List[str], layers) -> List[str]:
+        """
+        # TODO: There is only one layer. All indications should be done with attribute names
+        """
         row = ["<tr>"]
         for attribute in attributes:
             if attribute == "head" or attribute in self.changeable_attributes:
                 row.extend(["<th>", attribute, "</th>"])
                 for i in range(len(layers)):
-                    row.extend(["<th>", attribute, str(i + 1), "</th>"])
+                    row.append(header_cell(attribute + str(i + 1)))
             else:
-                row.extend(["<th>", attribute, "</th>"])
+                row.append(header_cell(attribute))
         row.append("</tr>")
         return row
 
-    def table_row(self, attribute, layers, start, end, i):
+
+    def table_row(self, span: Span, attribute: str) -> List[str]:
+        """
+        This is a temporary function that should be inlined to the code
+        """
         row = []
-        if attribute == "feats":
-            row.append("<td>")
-            element = layers[0][start:end][str(attribute)][i]
-            if element is None:
-                row.append(str(element))
-            else:
-                for key in element:
-                    row.extend([str(key), " "])
-            row.append("</td>")
-        elif attribute in self.changeable_attributes:
-            dropdown_elements = []
-            for layer in layers:
-                dropdown_value = layer[start:end][str(attribute)][i]
-                if dropdown_value not in dropdown_elements:
-                    dropdown_elements.append(dropdown_value)
-            row.append("<td>")
-            row.extend(
-                ["<select class = \"syntax_choice\" id = \"", attribute, str(i), "\"><option value=\"original", str(attribute), "\">"])
-            if len(dropdown_elements) == 1:
-                row.append(html.escape(dropdown_elements[0]))
-            row.append("</option>")
-            for value in self.changeable_attributes[attribute]:
-                # if element != deprel_element:
-                row.extend(
-                    ["<option value=\"", attribute, str(value), "\">",
-                     str(value), "</option>"])
-            row.extend(["</select>", "</td>"])
-            for layer in layers:
-                row.extend(["<td>", html.escape(str(layer[start:end][str(attribute)][i])), "</td>"])
+        if attribute in self.changeable_attributes:
+
+            # As I have no imagination I will use integer keys for values
+            values = list(enumerate(self.changeable_attributes[attribute]))
+
+            try:
+                default_value = self.changeable_attributes[attribute].index(span[attribute])
+            except ValueError:
+                default_value = 0
+
+            row.extend(dropdown_cell(values, default_value, format_tag_attributes({'class': 'syntax_choice', 'id': 'missing'})))
+
+        elif attribute == "text":
+            # This is a funky exception. Text is not an attribute! but a property
+            # TODO: Correct this. How is jet unknown
+            row.append(value_cell(span.text))
         else:
-            row.extend(["<td>", str(layers[0][start:end][str(attribute)][i]), "</td>"])
+            row.append(value_cell(span[attribute]))
         return row
 
-    def table_head(self, sentence, layers, start, end, i):
-        row = []
-        head_elements = []
-        for layer in layers:
-            head_element = layer[start:end]["head"][i]
-            if head_element not in head_elements:
-                head_elements.append(head_element)
-        row.append("<td>")
-        row.extend(["<select class = \"syntax_choice\" id=\"head", str(i), "\"><option value=\"head\">"])
-        if len(head_elements) == 1:
-            row.append(str(head_elements[0]))
-            if head_elements[0] != 0:
-                row.extend([": ", str(sentence.text[head_elements[0] - 1])])
-        row.extend(["</option><option value=\"head", str(i), "\">", "0", "</option>"])
+    def table_head(self, span, sentence):
+        """
+        Inline this code
+        """
+        # I use base spans as keys for values. I hope None is good for root
+        values = [(None, '0: ')]
+        values.extend([(span.base_span, "{}: {}".format(i + 1, span.text)) for i, span in enumerate(sentence)])
 
-        for j in range(len(sentence)):
-            row.extend(
-                ["<option value=\"head", str(j + 1), "\">", str(j + 1),
-                 ": ",
-                 str(sentence.text[j]), "</option>"])
+        # Head encoding is compartible with value list
+        default_value = span["head"]
 
-        row.append("</select></td>")
+        return dropdown_cell(values, default_value, format_tag_attributes({'class': 'syntax_choice', 'id': 'missing'}))
 
-        for layer in layers:
-            td_text = layer[start:end]["head"][i]
-            if td_text == 0:
-                row.extend(["<td>", str(td_text), "</td>"])
-            else:
-                row.extend(["<td>", str(td_text), ": ", sentence.text[td_text - 1], "</td>"])
-        return row
 
-    def table_creation(self, layers, attributes, text):
-        start = 0
-        end = 0
-        tables = [self.css(), "<script>"]
-        tables.append("if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n")
+    def data_import_script_tag(self, layers, attributes, text):
+
+        tables = ["<script>",
+                  "if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n"]
+
+        # TODO: Use proper namespacing to get rid of this if statement
+
         for index, sentence in enumerate(text.sentences):
-            start = end
-            end = start + len(sentence)
+
+            # TODO: Encapsulate this as a function table_for_sentence
+            # Does this function have a wrong output type?
             tables.append("all_tables.push('<table class=\"iterable-table\">")
-            table_header = self.header(attributes, layers)
-            tables.extend(table_header)
-            for i in range(len(sentence)):
-                tables.append("<tr>")
+            tables.extend(self.header(attributes, layers))
+
+            # TODO: This is wrong way of getting spans of syntax layer
+            # Paul, tell us how this should be done correctly!
+            tables.append("<tr>")
+            for span in sentence:
+                syntax_span = layers[0].get(span)
+
+                # TODO: Inline these functions to get simple code
                 for attribute in attributes:
                     if attribute == "head":
-                        tables.extend(self.table_head(sentence, layers, start, end, i))
+                        tables.extend(self.table_head(syntax_span, sentence))
                     else:
-                        tables.extend(self.table_row(attribute, layers, start, end, i))
-                tables.append("</tr>")
+                        tables.extend(self.table_row(syntax_span, attribute))
+            tables.append("</tr>")
             tables.append("</table>'); \n")
-        tables.append(self.event_handler_code())
+
         tables.append("</script>")
+
+        return "".join(tables)
+
+    def table_creation(self, layers, attributes, text):
+        """
+        TODO: Separate
+        * data injection script
+        * DOM modification script
+        * event handling script
+
+        """
+        # Data injection starts here!
+        tables = [self.css_style_tag, "<script>",
+                  "if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n"]
+        for index, sentence in enumerate(text.sentences):
+
+            # TODO: Encapsulate this as a function table_for_sentence
+            # Does this function have a wrong output type?
+            tables.append("all_tables.push('<table class=\"iterable-table\">")
+            tables.extend(self.header(attributes, layers))
+
+            # TODO: This is wrong way of getting spans of syntax layer
+            # Paul, tell us how this should be done correctly!
+            tables.append("<tr>")
+            for span in sentence:
+                syntax_span = layers[0].get(span)
+
+                # TODO: Inline these functions to get simple code
+                for attribute in attributes:
+                    if attribute == "head":
+                        tables.extend(self.table_head(syntax_span, sentence))
+                    else:
+                        tables.extend(self.table_row(syntax_span, attribute))
+            tables.append("</tr>")
+            tables.append("</table>'); \n")
+        # Data injection ends here!
+
+        # Event handling starts here!
+        tables.append(self.event_handler_script_tag)
+        tables.append("</script>")
+        # Event handling ends here!
+
+        # Here we add buttons
         tables.append(
             "<button type=\"button\" id=\"save\">save</button><button type=\"button\" id=\"previous\">previous</button><button type=\"button\" id=\"next\">next</button>")
+        # end buttons
+
         return "".join(tables)
 
     def create_layer_from_choices(self, all_values, original_layer):
