@@ -140,7 +140,7 @@ class SyntaxVisualiser:
 
             # TODO: Encapsulate this as a function table_for_sentence
             # Does this function have a wrong output type?
-            tables.append("all_tables.push('<table class=\"iterable-table\">")
+            tables.append("all_tables.push(`<table class=\"iterable-table\">")
             tables.extend(self.header(attributes, layers))
 
             # TODO: This is wrong way of getting spans of syntax layer
@@ -156,7 +156,7 @@ class SyntaxVisualiser:
                     else:
                         tables.extend(self.table_row(syntax_span, attribute))
             tables.append("</tr>")
-            tables.append("</table>'); \n")
+            tables.append("</table>`); \n")
         # Data injection ends here!
 
         # Event handling starts here!
