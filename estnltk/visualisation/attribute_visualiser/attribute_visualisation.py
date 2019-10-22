@@ -56,8 +56,10 @@ class DisplayAttributes:
     def insert_event_handler_script(self):
         with open(self.js_file) as js_file:
             contents = js_file.read()
-            output = ''.join(["<script>var ", str(self.name), "= new DisplayCell('", str(self.name), "',-1,0,0); \n",
-                              contents, "\n</script>"])
+            output = ''.join(
+                ["<script>var ", str(self.name), "= new estnltk.attribute_visualiser.DisplayCell('", str(self.name),
+                 "',-1,0,0); \n",
+                 contents, "\n</script>"])
         return output
 
     def delete_chosen_spans(self):

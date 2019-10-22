@@ -10,6 +10,9 @@ def test_html():
         "tests/test_visualisation/expected_outputs/attribute_visualiser_outputs/attribute_visualiser_html.txt")
     with open(file, encoding="UTF-8") as expected_file:
         expected = expected_file.read()
+    print(result)
+    print("-----")
+    print(expected)
     assert result == expected
 
 

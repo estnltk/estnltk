@@ -18,7 +18,6 @@ class DirectAttributeVisualiser(SpanVisualiser):
         self.css_added = css_added
         self.css_file = css_file
         self.js_file = abs_path("visualisation/attribute_visualiser_outputs/prettyprinter.js")
-        self.class_mapping = self.default_class_mapper
         self.mapping_dict = {"class": self.default_class_mapper}
         self.text_id = text_id
 

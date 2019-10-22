@@ -5,7 +5,7 @@ class PlainSpanVisualiser(SpanVisualiser):
 
     def __init__(self,text_id,fill_empty_spans=False,mapping_dict=None):
         self.fill_empty_spans = fill_empty_spans
-        self.mapping_dict = mapping_dict
+        self.mapping_dict = mapping_dict or {"background":self.default_bg_mapping}
         self.text_id = text_id
 
     def __call__(self, segment, spans):
@@ -21,7 +21,7 @@ class PlainSpanVisualiser(SpanVisualiser):
         # copy to make it readable for mappers
         mapping_segment = copy.deepcopy(segment)
         if len(segment[1]) == 1:
-            mapping_segment[1] = spans[mapping_segment[1][0]]
+            mapping_segment[1] = spans[mapping_segment[1][0]].annotations
         for key, value in self.mapping_dict.items():
             if key == "class" or key == "id":
                 pass
