@@ -108,17 +108,17 @@ class SyntaxVisualiser:
 
             # TODO: This is wrong way of getting spans of syntax layer
             # Paul, tell us how this should be done correctly!
-            tables.append("<tr>")
             for span in sentence:
                 syntax_span = layers[0].get(span)
 
+                tables.append("<tr>")
                 # TODO: Inline these functions to get simple code
                 for attribute in attributes:
                     if attribute == "head":
                         tables.extend(self.table_head(syntax_span, sentence))
                     else:
                         tables.extend(self.table_row(syntax_span, attribute))
-            tables.append("</tr>")
+                tables.append("</tr>\n")
             tables.append("</table>'); \n")
 
         tables.append("</script>")
@@ -140,22 +140,22 @@ class SyntaxVisualiser:
 
             # TODO: Encapsulate this as a function table_for_sentence
             # Does this function have a wrong output type?
-            tables.append("all_tables.push(`<table class=\"iterable-table\">")
+            tables.append("all_tables.push(`<table class=\"iterable-table\">\n")
             tables.extend(self.header(attributes, layers))
 
             # TODO: This is wrong way of getting spans of syntax layer
             # Paul, tell us how this should be done correctly!
-            tables.append("<tr>")
             for span in sentence:
                 syntax_span = layers[0].get(span)
 
+                tables.append("<tr>")
                 # TODO: Inline these functions to get simple code
                 for attribute in attributes:
                     if attribute == "head":
                         tables.extend(self.table_head(syntax_span, sentence))
                     else:
                         tables.extend(self.table_row(syntax_span, attribute))
-            tables.append("</tr>")
+                tables.append("</tr>\n")
             tables.append("</table>`); \n")
         # Data injection ends here!
 

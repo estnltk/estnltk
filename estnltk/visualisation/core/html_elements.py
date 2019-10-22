@@ -58,10 +58,10 @@ def dropdown_cell(values: List[Tuple], default_choice: int = 0, select_tag_attri
 
     row.append('<option value="{}">{}</option>\n'
                .format(escape(str(values[default_choice][0])), escape(str(values[default_choice][1]))))
-    row.extend(['<option value="{}">{}</option>\n'
-               .format(escape(str(value[0])), escape(str(value[1]))) for value in values[:default_choice]])
-    row.extend(['<option value="{}">{}</option>\n'
-               .format(escape(str(value[0])), escape(str(value[1]))) for value in values[default_choice + 1:]])
+    row.extend('<option value="{}">{}</option>\n'
+               .format(escape(str(value[0])), escape(str(value[1]))) for value in values[:default_choice])
+    row.extend('<option value="{}">{}</option>\n'
+               .format(escape(str(value[0])), escape(str(value[1]))) for value in values[default_choice + 1:])
 
     row.append("</select>\n</td>")
     return row
