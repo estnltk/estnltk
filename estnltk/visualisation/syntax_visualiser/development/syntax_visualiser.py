@@ -6,7 +6,7 @@ from estnltk.layer.span import Span
 from estnltk.converters import layer_to_dict, dict_to_layer
 from estnltk.visualisation.core import format_tag_attributes
 from estnltk.visualisation.core import header_cell, value_cell, dropdown_cell
-
+from estnltk import Text
 
 
 class SyntaxVisualiser:
@@ -36,24 +36,54 @@ class SyntaxVisualiser:
             contents = js_file.read()
         return contents
 
+    def new_layer(self, layers):
+        new_layer_dict = layer_to_dict(layers[0])
+        new_layer_attributes = list(new_layer_dict['attributes'])
+        new_layer_attributes.insert(0, 'text')
+        if len(layers) == 1:
+            new_layer_dict['attributes'] = tuple(new_layer_attributes)
 
-    def header(self, attributes: List[str], layers) -> List[str]:
-        """
-        # TODO: There is only one layer. All indications should be done with attribute names
-        """
+        if len(layers) > 1:
+            layers_as_dict = []
+            for i, layer in enumerate(layers):
+                new_layer_attributes.insert(new_layer_attributes.index('head') + i + 1, 'head' + str(i + 1))
+                for attribute in self.changeable_attributes:
+                    new_layer_attributes.insert(new_layer_attributes.index(attribute) + i + 1, attribute + str(i + 1))
+                new_layer_dict['attributes'] = tuple(new_layer_attributes)
+                #new_layer_dict['attributes'] += ('head' + str(i + 1), 'deprel' + str(i + 1))
+                layers_as_dict.append(layer_to_dict(layer))
+
+            # This isn't the best and it currently only works if just head and deprel are changeable
+            for index, annotation in enumerate(new_layer_dict['spans']):
+                deprel_attributes = set()
+                head_attributes = set()
+                for i, layer in enumerate(layers_as_dict):
+                    head = layer['spans'][index]['annotations'][0]['head']
+                    deprel = layer['spans'][index]['annotations'][0]['deprel']
+                    deprel_attributes.add(deprel)
+                    head_attributes.add(head)
+                    annotation['annotations'][0]['head' + str(i + 1)] = head
+                    annotation['annotations'][0]['deprel' + str(i + 1)] = deprel
+
+                if len(head_attributes) > 1:
+                    annotation['annotations'][0]['head'] = None
+
+                if len(deprel_attributes) > 1:
+                    annotation['annotations'][0]['deprel'] = None
+
+        #return dict_to_layer(new_layer_dict)
+        return dict_to_layer(new_layer_dict, text_object=Text(" ".join(layers[0].text)))
+
+
+    def header(self, attributes: List[str], layer) -> List[str]:
         row = ["<tr>"]
         for attribute in attributes:
-            if attribute == "head" or attribute in self.changeable_attributes:
-                row.extend(["<th>", attribute, "</th>"])
-                for i in range(len(layers)):
-                    row.append(header_cell(attribute + str(i + 1)))
-            else:
-                row.append(header_cell(attribute))
+            row.append(header_cell(attribute))
         row.append("</tr>")
         return row
 
 
-    def table_row(self, span: Span, attribute: str) -> List[str]:
+    def table_cell(self, span: Span, attribute: str, i) -> List[str]:
         """
         This is a temporary function that should be inlined to the code
         """
@@ -68,17 +98,21 @@ class SyntaxVisualiser:
             except ValueError:
                 default_value = 0
 
-            row.extend(dropdown_cell(values, default_value, format_tag_attributes({'class': 'syntax_choice', 'id': 'missing'})))
+            row.extend(dropdown_cell(values, default_value, format_tag_attributes({'class': 'syntax_choice', 'id': attribute + str(i)})))
 
         elif attribute == "text":
             # This is a funky exception. Text is not an attribute! but a property
             # TODO: Correct this. How is jet unknown
             row.append(value_cell(span.text))
         else:
-            row.append(value_cell(span[attribute]))
+            # value_cell(span[attribute]) leaves cell blank when span[attribute] is 0
+            if span[attribute] == 0:
+                row.append(value_cell(str(span[attribute])))
+            else:
+                row.append(value_cell(span[attribute]))
         return row
 
-    def table_head(self, span, sentence):
+    def table_head_attribute(self, span, sentence, i):
         """
         Inline this code
         """
@@ -87,9 +121,15 @@ class SyntaxVisualiser:
         values.extend([(span.base_span, "{}: {}".format(i + 1, span.text)) for i, span in enumerate(sentence)])
 
         # Head encoding is compartible with value list
+        # This doesn't work when head attribute is None
         default_value = span["head"]
 
-        return dropdown_cell(values, default_value, format_tag_attributes({'class': 'syntax_choice', 'id': 'missing'}))
+        # This should be removed in the future, for now I added it to check the rest of the table's functionality
+        if default_value == None:
+            default_value = 0
+
+
+        return dropdown_cell(values, default_value, format_tag_attributes({'class': 'syntax_choice', 'id': 'head' + str(i)}))
 
 
     def data_import_script_tag(self, layers, attributes, text):
@@ -108,16 +148,16 @@ class SyntaxVisualiser:
 
             # TODO: This is wrong way of getting spans of syntax layer
             # Paul, tell us how this should be done correctly!
-            for span in sentence:
+            for i, span in enumerate(sentence):
                 syntax_span = layers[0].get(span)
 
                 tables.append("<tr>")
                 # TODO: Inline these functions to get simple code
                 for attribute in attributes:
                     if attribute == "head":
-                        tables.extend(self.table_head(syntax_span, sentence))
+                        tables.extend(self.table_head_attribute(syntax_span, sentence, i))
                     else:
-                        tables.extend(self.table_row(syntax_span, attribute))
+                        tables.extend(self.table_cell(syntax_span, attribute))
                 tables.append("</tr>\n")
             tables.append("</table>'); \n")
 
@@ -136,25 +176,31 @@ class SyntaxVisualiser:
         # Data injection starts here!
         tables = [self.css_style_tag, "<script>",
                   "if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n"]
+
+        new_layer = self.new_layer(layers)
+        new_layer_attributes = list(new_layer.attributes)
+        # This removes deps, misc, parent_span and children from attributes
+        new_layer_attributes = new_layer_attributes[0:len(new_layer_attributes) - 4]
+
         for index, sentence in enumerate(text.sentences):
 
             # TODO: Encapsulate this as a function table_for_sentence
             # Does this function have a wrong output type?
             tables.append("all_tables.push(`<table class=\"iterable-table\">\n")
-            tables.extend(self.header(attributes, layers))
+            tables.extend(self.header(new_layer_attributes, new_layer))
 
             # TODO: This is wrong way of getting spans of syntax layer
             # Paul, tell us how this should be done correctly!
-            for span in sentence:
-                syntax_span = layers[0].get(span)
+            for i, span in enumerate(sentence):
+                syntax_span = new_layer.get(span)
 
                 tables.append("<tr>")
                 # TODO: Inline these functions to get simple code
-                for attribute in attributes:
+                for attribute in new_layer_attributes:
                     if attribute == "head":
-                        tables.extend(self.table_head(syntax_span, sentence))
+                        tables.extend(self.table_head_attribute(syntax_span, sentence, i))
                     else:
-                        tables.extend(self.table_row(syntax_span, attribute))
+                        tables.extend(self.table_cell(syntax_span, attribute, i))
                 tables.append("</tr>\n")
             tables.append("</table>`); \n")
         # Data injection ends here!
