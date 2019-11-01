@@ -122,19 +122,16 @@ document.getElementById('next').onclick = function () {
 
 function select_values() {
     let selectElements = document.getElementsByClassName('syntax_choice');
+    console.log("CHANGEABLE ATTRIBUTE COUNT " + changeable_attribute_count)
     let selectValues = [];
-    for (let i = 0; i < selectElements.length; i=i+2) {
-        let value_list = {};
-        value_list['id'] = i/2 + 1;
-        if (isNaN(parseInt(selectElements[i].options[selectElements[i].selectedIndex].text[0]))) {
-            value_list['head'] = parseInt(selectElements[i + 1].options[selectElements[i + 1].selectedIndex].text[0]);
-            value_list['deprel'] = selectElements[i].options[selectElements[i].selectedIndex].text;
-        } else {
-            value_list['head'] = parseInt(selectElements[i].options[selectElements[i].selectedIndex].text[0]);
-            value_list['deprel'] = selectElements[i + 1].options[selectElements[i + 1].selectedIndex].text;
+    let value_list = {};
+    for (let i = 0; i < selectElements.length; i++) {
+        value_list[selectElements[i].classList.item(1)] = selectElements[i].options[selectElements[i].selectedIndex].value;
+        if (Object.keys(value_list).length === changeable_attribute_count) {
+            value_list['id'] = (i + 1)/changeable_attribute_count;
+            selectValues.push(JSON.stringify(value_list));
+            value_list = {};
         }
-        console.log(value_list);
-        selectValues.push(JSON.stringify(value_list));
     }
     console.log(selectElements);
     console.log(selectValues);

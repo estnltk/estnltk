@@ -6,12 +6,13 @@ from estnltk.layer.span import Span
 from estnltk.converters import layer_to_dict, dict_to_layer
 from estnltk.visualisation.core import format_tag_attributes
 from estnltk.visualisation.core import header_cell, value_cell, dropdown_cell
-from estnltk import Text
+from estnltk import Layer
 
 
 class SyntaxVisualiser:
-    attributes = ["id", "text", "lemma", "head", "deprel", "upostag", "xpostag", "feats", "deps", "misc"]
-    changeable_attributes = {'deprel': ["@ADVL", "@FCV", "ROOT", "@SUBJ"]}
+    #attributes = ["id", "text", "lemma", "head", "deprel", "upostag", "xpostag", "feats", "deps", "misc"]
+    attributes = []
+    changeable_attributes = {'deprel': ['@<KN', '@<NN', '@<P', '@<Q', '@ADVL', '@AN>', '@DN>', '@FCV', '@FMV', '@J', '@NN>', '@OBJ', '@P>', '@PRD', '@Punc', '@SUBJ', '@Vpart', 'ROOT']}
 
     def __call__(self, layers, text):
         display_html(self.table_creation(layers, self.attributes, text), raw=True)
@@ -36,43 +37,39 @@ class SyntaxVisualiser:
             contents = js_file.read()
         return contents
 
-    def new_layer(self, layers):
-        new_layer_dict = layer_to_dict(layers[0])
-        new_layer_attributes = list(new_layer_dict['attributes'])
-        new_layer_attributes.insert(0, 'text')
-        if len(layers) == 1:
-            new_layer_dict['attributes'] = tuple(new_layer_attributes)
+    def new_layer(self, layers, name):
+        layer = Layer(name=name, text_object=layers[0].text_object,
+                      attributes=['text'])
 
-        if len(layers) > 1:
-            layers_as_dict = []
-            for i, layer in enumerate(layers):
-                new_layer_attributes.insert(new_layer_attributes.index('head') + i + 1, 'head' + str(i + 1))
-                for attribute in self.changeable_attributes:
-                    new_layer_attributes.insert(new_layer_attributes.index(attribute) + i + 1, attribute + str(i + 1))
-                new_layer_dict['attributes'] = tuple(new_layer_attributes)
-                #new_layer_dict['attributes'] += ('head' + str(i + 1), 'deprel' + str(i + 1))
-                layers_as_dict.append(layer_to_dict(layer))
+        map_attribute_names = {}
 
-            # This isn't the best and it currently only works if just head and deprel are changeable
-            for index, annotation in enumerate(new_layer_dict['spans']):
-                deprel_attributes = set()
-                head_attributes = set()
-                for i, layer in enumerate(layers_as_dict):
-                    head = layer['spans'][index]['annotations'][0]['head']
-                    deprel = layer['spans'][index]['annotations'][0]['deprel']
-                    deprel_attributes.add(deprel)
-                    head_attributes.add(head)
-                    annotation['annotations'][0]['head' + str(i + 1)] = head
-                    annotation['annotations'][0]['deprel' + str(i + 1)] = deprel
+        # doesn't add parent_span, children, deps and misc to the new layer's attributes
+        for attribute in layers[0].attributes[0:len(layers[0].attributes) - 4]:
+            if attribute == 'head' or attribute in self.changeable_attributes:
+                map_attribute_names[(None, attribute)] = attribute
+                layer.attributes += (attribute,)
+                for i in range(len(layers)):
+                    map_attribute_names[(i, attribute)] = attribute + str(i + 1)
+                    layer.attributes += (attribute + str(i + 1),)
+                #map_attribute_names[attribute] = [(i, attribute + str(i + 1)) for i in range(len(layers))]
+                #map_attribute_names[attribute].insert(0, (-1, attribute))
+            else:
+                layer.attributes += (attribute, )
+                map_attribute_names[(0, attribute)] = attribute
 
-                if len(head_attributes) > 1:
-                    annotation['annotations'][0]['head'] = None
+        for spans in zip(*layers):
+            base_span = spans[0].base_span
+            assert all(base_span == span.base_span for span in spans)
 
-                if len(deprel_attributes) > 1:
-                    annotation['annotations'][0]['deprel'] = None
+            annotation = { attribute: spans[i].annotations[0][attr] if i is not None
+                        else spans[0][attr] if len(set([span[attr] for span in spans])) == 1 else None
+                        for (i, attr), attribute in map_attribute_names.items()}
 
-        #return dict_to_layer(new_layer_dict)
-        return dict_to_layer(new_layer_dict, text_object=Text(" ".join(layers[0].text)))
+            layer.add_annotation(base_span, **annotation)
+
+        #self.attributes = list(layer.attributes)
+
+        return layer
 
 
     def header(self, attributes: List[str], layer) -> List[str]:
@@ -89,16 +86,10 @@ class SyntaxVisualiser:
         """
         row = []
         if attribute in self.changeable_attributes:
+            values = [(attr, attr) for attr in self.changeable_attributes[attribute]]
+            values.insert(0, (span[attribute], span[attribute]) if span[attribute] is not None else ('', ''))
 
-            # As I have no imagination I will use integer keys for values
-            values = list(enumerate(self.changeable_attributes[attribute]))
-
-            try:
-                default_value = self.changeable_attributes[attribute].index(span[attribute])
-            except ValueError:
-                default_value = 0
-
-            row.extend(dropdown_cell(values, default_value, format_tag_attributes({'class': 'syntax_choice', 'id': attribute + str(i)})))
+            row.extend(dropdown_cell(values, select_tag_attributes=format_tag_attributes({'class': 'syntax_choice ' + attribute, 'id': attribute + str(i)})))
 
         elif attribute == "text":
             # This is a funky exception. Text is not an attribute! but a property
@@ -116,21 +107,17 @@ class SyntaxVisualiser:
         """
         Inline this code
         """
-        # I use base spans as keys for values. I hope None is good for root
-        values = [(None, '0: ')]
-        values.extend([(span.base_span, "{}: {}".format(i + 1, span.text)) for i, span in enumerate(sentence)])
+        default_value = span['head']
+        if default_value is None:
+            default_choice = (default_value, '')
+        elif default_value == 0:
+            default_choice = (default_value, '0: ')
+        else:
+            default_choice = (default_value, str(default_value) + ': ' + sentence[default_value - 1].text)
 
-        # Head encoding is compartible with value list
-        # This doesn't work when head attribute is None
-        default_value = span["head"]
+        values = [default_choice, (None, '0: '), *[(i + 1, "{}: {}".format(i + 1, span.text)) for i, span in enumerate(sentence)]]
 
-        # This should be removed in the future, for now I added it to check the rest of the table's functionality
-        if default_value == None:
-            default_value = 0
-
-
-        return dropdown_cell(values, default_value, format_tag_attributes({'class': 'syntax_choice', 'id': 'head' + str(i)}))
-
+        return dropdown_cell(values, select_tag_attributes=format_tag_attributes({'class': 'syntax_choice head', 'id': 'head' + str(i)}))
 
     def data_import_script_tag(self, layers, attributes, text):
 
@@ -174,13 +161,17 @@ class SyntaxVisualiser:
 
         """
         # Data injection starts here!
-        tables = [self.css_style_tag, "<script>",
+        tables = [self.css_style_tag, "<script>", "var changeable_attribute_count = " + str(len(self.changeable_attributes) + 1) + "\n",
                   "if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n"]
 
-        new_layer = self.new_layer(layers)
-        new_layer_attributes = list(new_layer.attributes)
-        # This removes deps, misc, parent_span and children from attributes
-        new_layer_attributes = new_layer_attributes[0:len(new_layer_attributes) - 4]
+        new_layer = self.new_layer(layers, "new")
+
+        # this is so attributes would get a working default value, but could also be changed
+        if len(self.attributes) == 0:
+            self.attributes = list(new_layer.attributes)
+            new_layer_attributes = self.attributes
+        else:
+            new_layer_attributes = self.attributes
 
         for index, sentence in enumerate(text.sentences):
 
@@ -219,8 +210,8 @@ class SyntaxVisualiser:
 
     def create_layer_from_choices(self, all_values, original_layer):
         converted_all_values = []
-        for value in all_values:
-            for element in all_values[value]:
+        for i in range(len(all_values)):
+            for element in all_values[str(i)]:
                 converted_all_values.append(json.loads(element))
 
         new_layer_dict = layer_to_dict(original_layer)
@@ -230,4 +221,4 @@ class SyntaxVisualiser:
                     if key != 'id':
                         annotation['annotations'][0][key] = converted_all_values[index][key]
 
-        return dict_to_layer(new_layer_dict)
+        return dict_to_layer(new_layer_dict, text_object=original_layer.text_object)
