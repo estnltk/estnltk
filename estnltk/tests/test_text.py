@@ -3,6 +3,7 @@ import pytest
 import itertools
 from estnltk import Layer
 from estnltk import Text
+from estnltk import Annotation
 from estnltk.layer import AmbiguousAttributeList, AttributeTupleList
 from estnltk.layer import AttributeList
 from estnltk.tests import new_text
@@ -668,6 +669,7 @@ def test_to_records():
 
 
 def test_morph2():
+    sort_analyses = True
     text = Text('''
     Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.
     Seni vaid soome keelde tõlgitud teos ilmus äsja ka itaalia keeles
@@ -677,6 +679,20 @@ def test_morph2():
     ust seetõttu, et eelmisel nädalal avaldas kirjastus Gangemi "Hõbevalge"
     itaalia keeles, vahendas "Aktuaalne kaamera".''').tag_layer()
 
+    if sort_analyses:
+        # Sort morph analysis annotations
+        # ( so the order will be independent of the ordering used by 
+        #   VabamorfAnalyzer & VabamorfDisambiguator )
+        for morph_word in text['morph_analysis']:
+            annotations = morph_word.annotations
+            if len(annotations) > 1:
+                sorted_annotations = sorted( annotations, key = lambda x : \
+                       str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+                       str(x['partofspeech'])+str(x['form']) )
+                morph_word.clear_annotations()
+                for annotation in sorted_annotations:
+                    morph_word.add_annotation( Annotation(morph_word, **annotation) )
+    
     assert len(text.morph_analysis[5].annotations) == 2
     print(text.morph_analysis[5])
     print(text.morph_analysis[5].lemma)
