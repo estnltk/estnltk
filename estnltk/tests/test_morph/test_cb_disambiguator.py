@@ -32,6 +32,9 @@ def collect_analyses( docs, sort_analyses=True ):
         for wid, word in enumerate(doc['words']):
             morph_annotations = word.morph_analysis.annotations
             if sort_analyses:
+                # Sort analyses
+                # ( so the order will be independent of the ordering used by 
+                #   VabamorfAnalyzer & VabamorfDisambiguator )
                 morph_annotations = _sort_morph_annotations( morph_annotations )
             analyses = [(a.root, a.partofspeech, a.form) for a in morph_annotations]
             all_analyses[(doc_id,wid)] = analyses

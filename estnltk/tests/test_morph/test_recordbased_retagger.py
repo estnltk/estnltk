@@ -1,4 +1,4 @@
-from estnltk import Text
+from estnltk import Text, Annotation
 
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.recordbased_retagger import MorphAnalysisRecordBasedRetagger
@@ -42,6 +42,16 @@ def test_pick_first_analysis_with_record_retagger():
     text=Text('Ma ei olnud sellisest masinavärgist veel kuulnudki.')
     text.tag_layer(['words','sentences'])
     morf_analyzer.tag(text)
+    # Sort morph analysis annotations
+    # ( so the order will be independent of the ordering used by VabamorfAnalyzer & VabamorfDisambiguator )
+    for morph_word in text['morph_analysis']:
+        annotations = morph_word.annotations
+        sorted_annotations = sorted( annotations, key = lambda x : \
+               str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+               str(x['partofspeech'])+str(x['form']) )
+        morph_word.clear_annotations()
+        for annotation in sorted_annotations:
+            morph_word.add_annotation( Annotation(morph_word, **annotation) )
     simple_disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     expected_records = [
@@ -53,10 +63,10 @@ def test_pick_first_analysis_with_record_retagger():
        [{'normalized_text': 'veel', 'root': 'veel', 'ending': '0', 'form': '', 'lemma': 'veel', 'clitic': '', 'end': 40, 'start': 36, 'partofspeech': 'D', 'root_tokens': ('veel',)}], 
        [{'normalized_text': 'kuulnudki', 'root': 'kuulnu', 'ending': 'd', 'form': 'pl n', 'lemma': 'kuulnu', 'clitic': 'ki', 'end': 50, 'start': 41, 'partofspeech': 'S', 'root_tokens': ('kuulnu',)}], 
        [{'normalized_text': '.', 'root': '.', 'ending': '', 'form': '', 'lemma': '.', 'clitic': '', 'end': 51, 'start': 50, 'partofspeech': 'Z', 'root_tokens': ('.',)}]]
-    # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
+    # Sort analyses (so that the order within a word is always the same)
+    #_sort_morph_analysis_records( results_dict )
+    #_sort_morph_analysis_records( expected_records )
     # Check results
     assert expected_records == results_dict
     
