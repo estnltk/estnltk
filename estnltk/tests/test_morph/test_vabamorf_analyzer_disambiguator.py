@@ -288,14 +288,20 @@ def test_morph_disambiguation_preserves_extra_attributes():
     analyzer.tag(text)
     # Add extra attributes
     for sp_id, spanlist in enumerate(text.morph_analysis):
-        for s_id, span in enumerate(spanlist.annotations):
-            setattr(span, 'analysis_id', str(sp_id)+'_'+str(s_id))
+        sorted_annotations = sorted( spanlist.annotations, key = lambda x : \
+               str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+               str(x['partofspeech'])+str(x['form']) )
+        for s_id, annotation in enumerate(sorted_annotations):
+            setattr(annotation, 'analysis_id', str(sp_id)+'_'+str(s_id))
     for sent_id, sentence in enumerate(text.sentences):
         for sp_id, spanlist in enumerate(text.morph_analysis):
             if sentence.start <= spanlist.start and \
                spanlist.end <= sentence.end:
-                for s_id, span in enumerate(spanlist.annotations):
-                    setattr(span, 'sentence_id', str(sent_id))
+                sorted_annotations = sorted( spanlist.annotations, key = lambda x : \
+                       str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+                       str(x['partofspeech'])+str(x['form']) )
+                for s_id, annotation in enumerate( sorted_annotations ):
+                    setattr(annotation, 'sentence_id', str(sent_id))
     # Disambiguate text
     disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
