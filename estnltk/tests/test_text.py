@@ -191,13 +191,14 @@ def test_delete_layer():
     t = Text('Minu nimi on Uku.')
     assert t.layers == {}
 
-    layer_names = 'words sentences morph_analysis'.split()
+    layer_names = ['words', 'sentences', 'morph_analysis']
     t.tag_layer(layer_names)
     assert set(layer_names) <= set(t.layers)
     assert set(layer_names) <= set(t.__dict__)
 
-    # Should not raise NotImplementedError
-    # deleting a root lalyer should also delete all its dependants
+    # Test the first way to delete
+    # Deleting a root layer should also delete all its dependants
+
     del t.tokens
 
     assert 'tokens' not in t.__dict__
@@ -211,6 +212,24 @@ def test_delete_layer():
 
     assert t.layers == {}
 
+    # Test the second way to delete
+    # Deleting a root layer should also delete all its dependants
+    t.tag_layer(layer_names)
+
+    del t['tokens']
+
+    assert 'tokens' not in t.__dict__
+    assert 'compound_tokens' not in t.__dict__
+
+    del t['words']
+
+    assert 'words' not in t.__dict__
+    assert 'sentences' not in t.__dict__
+    assert 'morph_analysis' not in t.__dict__
+
+    assert t.layers == {}
+
+    # Test that deleted layers are indeed missing
     with pytest.raises(AttributeError):
         t.words
 
