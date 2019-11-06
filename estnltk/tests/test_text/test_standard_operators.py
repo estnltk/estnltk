@@ -102,7 +102,7 @@ def test_layer_access():
     with pytest.raises(AttributeError):
         _ = text.test
     with pytest.raises(KeyError):
-         _ = text['test']
+        _ = text['test']
 
     # Accessing empty layer
     layer = Layer(name='empty_layer', attributes=['attr1'])
@@ -110,14 +110,12 @@ def test_layer_access():
 
     assert text.empty_layer is layer
     assert text['empty_layer'] is layer
-    assert text.empty_layer is layer
-    assert text['empty_layer'] is layer
     assert text.empty_layer is text['empty_layer']
 
     with pytest.raises(IndexError):
-        text.empty_layer[0]
+        _ = text.empty_layer[0]
     with pytest.raises(IndexError):
-        text['empty_layer'][0]
+        _ = text['empty_layer'][0]
 
     # Accessing non-empty layer
     layer = Layer(name='nonempty_layer', attributes=['attr_0', 'attr_1'])
@@ -126,9 +124,43 @@ def test_layer_access():
 
     assert text.nonempty_layer is layer
     assert text['nonempty_layer'] is layer
-    assert text.nonempty_layer is layer
-    assert text['nonempty_layer'] is layer
 
     assert text.nonempty_layer[0].attr_0 == 'L0-0'
     assert text['nonempty_layer'][0].attr_0 == 'L0-0'
     assert text.nonempty_layer[0] is text['nonempty_layer'][0]
+
+
+def test_text_attribute_access():
+    text = Text('test')
+    assert text.text == 'test'
+
+    # Layer text is not present
+    with pytest.raises(KeyError):
+        text['text']
+
+    # Attribute text is readonly
+    with pytest.raises(AttributeError):
+        text.text = 'asd'
+
+    # Layer 'text' is accessible
+    layer = Layer(name='text', attributes=['attr1'])
+    text.add_layer(layer)
+
+    assert text['text'] is layer
+    with pytest.raises(IndexError):
+        _ = text['empty_layer'][0]
+
+    layer = Layer(name='text', attributes=['attr_0', 'attr_1'])
+    layer.add_annotation(ElementaryBaseSpan(0, 4), attr_0='L0-0', attr_1='100')
+    text.add_layer(layer)
+
+    assert text['text'] is layer
+    assert text['text'][0].attr_0 == 'L0-0'
+    assert text['text'][0] == layer[0]
+
+
+def test_add_layer():
+    '''
+    #TODO: test varius equivalent ways to add a layer!
+    :return:
+    '''
