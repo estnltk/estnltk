@@ -68,28 +68,6 @@ def test_equivalences():
     assert t.morph_analysis.text == t.words.text
 
 
-def test_equal():
-    t_1 = Text('Tekst algab. Tekst lõpeb.')
-    t_2 = Text('Tekst algab.')
-    assert t_1 != t_2
-    t_2 = Text('Tekst algab. Tekst lõpeb.')
-    assert t_1 == t_2
-    t_1.meta['year'] = 2017
-    assert t_1 != t_2
-    t_2.meta['year'] = 2017
-    assert t_1 == t_2
-    t_1.tag_layer(['morph_extended', 'paragraphs'])
-    assert t_1 != t_2
-    t_2.tag_layer(['morph_extended', 'paragraphs'])
-    assert t_1 == t_2
-    t_1['morph_analysis'][0].annotations[0].form = 'x'
-    assert t_1 != t_2
-
-    t_1 = new_text(5)
-    t_2 = new_text(5)
-    assert t_1 == t_2
-    t_1.layer_5[1].annotations[1].attr_5 = 'bla'
-    assert t_1 != t_2
 
 
 def test_pickle():
@@ -187,57 +165,6 @@ Mis sinu nimi on?
     assert t.paragraphs.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?', 'Mis', 'sinu', 'nimi', 'on', '?']
 
 
-def test_delete_layer():
-    t = Text('Minu nimi on Uku.')
-    assert t.layers == {}
-
-    layer_names = ['words', 'sentences', 'morph_analysis']
-    t.tag_layer(layer_names)
-    assert set(layer_names) <= set(t.layers)
-    assert set(layer_names) <= set(t.__dict__)
-
-    # Test the first way to delete
-    # Deleting a root layer should also delete all its dependants
-
-    del t.tokens
-
-    assert 'tokens' not in t.__dict__
-    assert 'compound_tokens' not in t.__dict__
-
-    del t.words
-
-    assert 'words' not in t.__dict__
-    assert 'sentences' not in t.__dict__
-    assert 'morph_analysis' not in t.__dict__
-
-    assert t.layers == {}
-
-    # Test the second way to delete
-    # Deleting a root layer should also delete all its dependants
-    t.tag_layer(layer_names)
-
-    del t['tokens']
-
-    assert 'tokens' not in t.__dict__
-    assert 'compound_tokens' not in t.__dict__
-
-    del t['words']
-
-    assert 'words' not in t.__dict__
-    assert 'sentences' not in t.__dict__
-    assert 'morph_analysis' not in t.__dict__
-
-    assert t.layers == {}
-
-    # Test that deleted layers are indeed missing
-    with pytest.raises(AttributeError):
-        t.words
-
-    with pytest.raises(AttributeError):
-        t.sentences
-
-    with pytest.raises(AttributeError):
-        t.morph_analysis
 
 
 def test_new_span_hierarchy():
@@ -734,16 +661,6 @@ def test_morph2():
             'lemma')
 
 
-def test_text_setitem():
-    text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
-    l = Layer(name='test', attributes=['test1'])
-    text.add_layer(l)
-
-    assert text['test'] is l
-
-    # getting something that is not in the dict
-    with pytest.raises(KeyError):
-        text['nothing']
 
 
 def test_delete_annotation_in_ambiguous_span():

@@ -177,4 +177,9 @@ texts = {0: text_0,  # empty text, no layers
 
 
 def new_text(n):
+    '''
+    # TODO: Rename the function and write help text
+    :param n:
+    :return:
+    '''
     return deepcopy(texts[n])
