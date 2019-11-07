@@ -9,16 +9,14 @@ from estnltk.tests import new_text
 
 
 def test_object_teardown():
-    # Deleting a text object should delete its references from layers?
-    # pro: memory is reclaimed and the layer can be attached
-    # con: deleting text object may create unexpected None objects
 
-    text = Text('test')
+    # One cannot delete text object when layers are referenced!
+    # This is a sad truth caused by reference counting memory model
+    text = Text('Surematu Kašei')
     layer = Layer(name='empty_layer')
     text.add_layer(layer)
     del text
-    assert layer.text_object is None
-
+    assert layer.text_object.text == 'Surematu Kašei'
 
 def test_equal():
     t_1 = Text('Tekst algab. Tekst lõpeb.')
