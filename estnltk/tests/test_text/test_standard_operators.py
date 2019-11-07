@@ -8,6 +8,18 @@ from estnltk.tests import inspect_class_members
 from estnltk.tests import new_text
 
 
+def test_object_teardown():
+    # Deleting a text object should delete its references from layers?
+    # pro: memory is reclaimed and the layer can be attached
+    # con: deleting text object may create unexpected None objects
+
+    text = Text('test')
+    layer = Layer(name='empty_layer')
+    text.add_layer(layer)
+    del text
+    assert layer.text_object is None
+
+
 def test_equal():
     t_1 = Text('Tekst algab. Tekst lõpeb.')
     t_2 = Text('Tekst algab.')
@@ -138,7 +150,7 @@ def test_text_attribute_access():
 
     # Layer text is not present
     with pytest.raises(KeyError):
-        text['text']
+        _ = text['text']
 
     # Attribute text is readonly
     with pytest.raises(AttributeError):
@@ -176,11 +188,10 @@ def test_access_of_other_shadowed_layers():
     # Shadowed layers are not present
     for layer_name in shadowed_layers:
         with pytest.raises(KeyError):
-            text[layer_name]
+            _ = text[layer_name]
 
     # Shadowed layers are accessible
     for layer_name in shadowed_layers:
-
         # Test access for empty layers
         layer = Layer(name=layer_name, attributes=['attr'])
         text.add_layer(layer)
@@ -200,9 +211,66 @@ def test_access_of_other_shadowed_layers():
 
 
 def test_add_layer():
-    '''
-    #TODO: test varius equivalent ways to add a layer!
-    :return:
+    # Canonical way to add a layer
+    text = Text('test')
+    layer = Layer(name='empty_layer', attributes=['attr'])
+    text.add_layer(layer)
+    assert text['empty_layer'] is layer
+    with pytest.raises(IndexError):
+        _ = text['empty_layer'][0]
 
-    double adding!
-    '''
+    text = Text('test')
+    layer = Layer(name='nonempty_layer', attributes=['attr_0', 'attr_1'])
+    layer.add_annotation(ElementaryBaseSpan(0, 4), attr_0='L0-0', attr_1='100')
+    text.add_layer(layer)
+    assert text['nonempty_layer'] is layer
+    assert text['nonempty_layer'][0].attr_0 == 'L0-0'
+    assert text['nonempty_layer'][0] == layer[0]
+
+    # Safety against double invocation
+    text = Text('test')
+    layer = Layer(name='empty_layer', attributes=['attr'])
+    text.add_layer(layer)
+    with pytest.raises(AssertionError, match="this Text object already has a layer with name 'empty_layer'"):
+        text.add_layer(layer)
+
+    # Safety against double linking
+    text1 = Text('test1')
+    layer = Layer(name='empty_layer', attributes=['attr'])
+    text1.add_layer(layer)
+
+    text2 = Text('test2')
+    with pytest.raises(AssertionError,
+                       match="can't add layer 'empty_layer', this layer is already bound to another Text object"):
+        text2.add_layer(layer)
+
+    # Possible alternatives for Text.add_layer()
+    text = Text('test')
+    layer = Layer(name='empty_layer', attributes=['attr'])
+    text['empty_layer'] = layer
+    assert text['empty_layer'] is layer
+    with pytest.raises(IndexError):
+        _ = text['empty_layer'][0]
+
+    text = Text('test')
+    layer = Layer(name='empty_layer', attributes=['attr'])
+    text.empty_layer = layer
+    assert text['empty_layer'] is layer
+    with pytest.raises(IndexError):
+        _ = text['empty_layer'][0]
+
+    text = Text('test')
+    layer = Layer(name='nonempty_layer', attributes=['attr_0', 'attr_1'])
+    layer.add_annotation(ElementaryBaseSpan(0, 4), attr_0='L0-0', attr_1='100')
+    text['nonempty_layer'] = layer
+    assert text['nonempty_layer'] is layer
+    assert text['nonempty_layer'][0].attr_0 == 'L0-0'
+    assert text['nonempty_layer'][0] == layer[0]
+
+    text = Text('test')
+    layer = Layer(name='nonempty_layer', attributes=['attr_0', 'attr_1'])
+    layer.add_annotation(ElementaryBaseSpan(0, 4), attr_0='L0-0', attr_1='100')
+    text.nonempty_layer = layer
+    assert text['nonempty_layer'] is layer
+    assert text['nonempty_layer'][0].attr_0 == 'L0-0'
+    assert text['nonempty_layer'][0] == layer[0]
