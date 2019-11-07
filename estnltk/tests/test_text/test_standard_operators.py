@@ -3,6 +3,8 @@ import pytest
 from estnltk import Text
 from estnltk import Layer
 from estnltk import ElementaryBaseSpan
+
+from estnltk.tests import inspect_class_members
 from estnltk.tests import new_text
 
 
@@ -148,7 +150,7 @@ def test_text_attribute_access():
 
     assert text['text'] is layer
     with pytest.raises(IndexError):
-        _ = text['empty_layer'][0]
+        _ = text['text'][0]
 
     layer = Layer(name='text', attributes=['attr_0', 'attr_1'])
     layer.add_annotation(ElementaryBaseSpan(0, 4), attr_0='L0-0', attr_1='100')
@@ -159,8 +161,48 @@ def test_text_attribute_access():
     assert text['text'][0] == layer[0]
 
 
+def test_access_of_other_shadowed_layers():
+    properties = ['attributes', 'layers', 'text']
+    public_methods = ['add_layer', 'analyse', 'diff', 'list_layers', 'set_text', 'tag_layer']
+    public_variables = ['attribute_mapping_for_elementary_layers', 'attribute_mapping_for_enveloping_layers', 'meta']
+    shadowed_layers = properties + public_methods + public_variables
+
+    text = Text('Test text.')
+    members = inspect_class_members(text)
+    assert properties == members['properties']
+    assert public_variables == members['public_variables']
+    assert public_methods == members['public_methods']
+
+    # Shadowed layers are not present
+    for layer_name in shadowed_layers:
+        with pytest.raises(KeyError):
+            text[layer_name]
+
+    # Shadowed layers are accessible
+    for layer_name in shadowed_layers:
+
+        # Test access for empty layers
+        layer = Layer(name=layer_name, attributes=['attr'])
+        text.add_layer(layer)
+
+        assert text[layer_name] is layer
+        with pytest.raises(IndexError):
+            _ = text[layer_name][0]
+
+        # Test access for non-empty layers
+        layer = Layer(name=layer_name, attributes=['attr_0', 'attr_1'])
+        layer.add_annotation(ElementaryBaseSpan(0, 4), attr_0='L0-0', attr_1='100')
+        text.add_layer(layer)
+
+        assert text[layer_name] is layer
+        assert text[layer_name][0].attr_0 == 'L0-0'
+        assert text[layer_name][0] == layer[0]
+
+
 def test_add_layer():
     '''
     #TODO: test varius equivalent ways to add a layer!
     :return:
+
+    double adding!
     '''
