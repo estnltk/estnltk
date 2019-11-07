@@ -136,8 +136,8 @@ class Text:
         # always returns layer
         return self.__dict__[item]
 
-    def __delattr__(self, item):
-        assert item in self.__dict__, '{item} is not a valid layer in this Text object'.format(item=item)
+    def _delete_layer(self, name):
+        assert name in self.__dict__, '{item} is not a valid layer in this Text object'.format(item=name)
 
         # find all dependencies between layers
         relations = set()
@@ -151,11 +151,17 @@ class Text:
         g.add_edges_from(relations)
         g.add_nodes_from(self.__dict__.keys())
 
-        to_delete = nx.descendants(g, item)
-        to_delete.add(item)
+        to_delete = nx.descendants(g, name)
+        to_delete.add(name)
 
-        for item in to_delete:
-            self.__dict__.pop(item)
+        for name in to_delete:
+            self.__dict__.pop(name)
+
+    def __delattr__(self, item):
+        self._delete_layer(item)
+
+    def __delitem__(self, key):
+        self._delete_layer(key)
 
     def diff(self, other):
         if self is other:
