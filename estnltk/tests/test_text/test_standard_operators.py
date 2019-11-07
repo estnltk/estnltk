@@ -9,7 +9,6 @@ from estnltk.tests import new_text
 
 
 def test_object_teardown():
-
     # One cannot delete text object when layers are referenced!
     # This is a sad truth caused by reference counting memory model
     text = Text('Surematu Kašei')
@@ -17,6 +16,7 @@ def test_object_teardown():
     text.add_layer(layer)
     del text
     assert layer.text_object.text == 'Surematu Kašei'
+
 
 def test_equal():
     t_1 = Text('Tekst algab. Tekst lõpeb.')
@@ -224,6 +224,18 @@ def test_add_layer():
     assert text['nonempty_layer'] is layer
     assert text['nonempty_layer'][0].attr_0 == 'L0-0'
     assert text['nonempty_layer'][0] == layer[0]
+
+    # Safety against recursive references in layers
+    text = Text('Rekursioon, rekursioon. Sind vaid loon')
+    layer = Layer(name='recursive_layer', attributes=['recursive_ref_1','recursive_ref_2', 'recursive_ref_3'])
+    layer.add_annotation(ElementaryBaseSpan(0, 4), recursive_ref_1=text, recursive_ref_2=layer, recursive_ref_3=None)
+    annotation = layer[0].annotations[0]
+    layer[0].recursive_ref_3 = annotation
+    text.add_layer(layer)
+    assert text['recursive_layer'] is layer
+    assert text['recursive_layer'][0].annotations[0].recursive_ref_1 is text
+    assert text['recursive_layer'][0].annotations[0].recursive_ref_2 is layer
+    assert text['recursive_layer'][0].annotations[0].recursive_ref_3 is annotation
 
     # Safety against double invocation
     text = Text('test')
