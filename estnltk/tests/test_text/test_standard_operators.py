@@ -162,6 +162,7 @@ def test_text_attribute_access():
     with pytest.raises(IndexError):
         _ = text['text'][0]
 
+    text = Text('test')
     layer = Layer(name='text', attributes=['attr_0', 'attr_1'])
     layer.add_annotation(ElementaryBaseSpan(0, 4), attr_0='L0-0', attr_1='100')
     text.add_layer(layer)
