@@ -68,7 +68,7 @@ class Layer:
         # name of the layer
         assert name.isidentifier() and not \
             keyword.iskeyword(name), 'layer name must be a valid python identifier, {!r}'.format(name)
-        assert name != 'text'
+
         self.name = name
 
         # the name of the parent layer.
