@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
+from estnltk import Layer
+from estnltk import EnvelopingBaseSpan
+from estnltk import EnvelopingSpan
+from estnltk import Annotation
 
 """
 Module containing functionality for training and using NER models.
@@ -209,11 +213,22 @@ class NerTagger(object):
         # add the labels
         for nerdoc, jsondoc in zip(nerdocs, documents):
             snt_labels = self.tagger.tag(nerdoc)
-            doc_labels = [label for labels in snt_labels for label in labels]
-            words = jsondoc.words
-            assert len(words) == len(doc_labels)
-            for word, label in zip(words[0].annotations, doc_labels):
-                word[LABEL] = label
+            nerlayer = Layer(name="ner", attributes=("nertag","name"), text_object=jsondoc, enveloping="words")
+            entity_spans = []
+            for span,label in zip(jsondoc.words,snt_labels[0]):
+                if label == "O":
+                    if entity_spans:
+                        ebs = EnvelopingBaseSpan(entity_spans)
+                        envspan = EnvelopingSpan(ebs,nerlayer)
+                        annotation = Annotation(span=envspan,nertag = entity_type, name="po")
+                        envspan.add_annotation(annotation)
+                        nerlayer.add_span(envspan)
+                        entity_spans = []
+                    continue
+                entity_type = label[2:]
+                entity_spans.append(span.base_span)
+
+            jsondoc.add_layer(nerlayer)
         return documents
 
     def tag_document(self, document):
