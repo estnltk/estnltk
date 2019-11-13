@@ -15,8 +15,11 @@ def inspect_class_members(obj: object):
     public_variables = []
     protected_variables = []
     private_variables = []
+    slots = obj.__slots__
     for attr in dir(obj):
-        if isinstance(getattr(type(obj), attr, None), property):
+        if attr in slots:
+            pass
+        elif isinstance(getattr(type(obj), attr, None), property):
             properties.append(attr)
         elif callable(getattr(obj, attr, None)):
             if attr[:2] == '__':
@@ -36,4 +39,4 @@ def inspect_class_members(obj: object):
     return {'properties': properties, 'private_methods': private_methods,
             'protected_methods': protected_methods, 'public_methods': public_methods,
             'private_variables': private_variables, 'protected_variables': protected_variables,
-            'public_variables': public_variables}
+            'public_variables': public_variables, 'slots': slots}
