@@ -5,6 +5,7 @@ from unittest import TestCase
 from estnltk import Text
 from estnltk.core import abs_path
 from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
+from estnltk.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 from estnltk.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
 
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
@@ -33,6 +34,13 @@ class TestDummyTagger(TestCase):
         for word, morf_pred in zip(text.words, text.neural_morph_analysis):
             morf_true = neural_model_tags(word.text, word.morph_analysis['partofspeech'][0], word.morph_analysis['form'][0])[0]
             self.assertEqual(morf_pred.morphtag, morf_true)
+
+
+class TestNeural2VabamorfPostfixes(TestCase):
+    def test(self):
+        # Test postfixes applied to neural -> vabamorf tag conversion
+        assert vabamorf_tags('POS=S|NOUN_TYPE=prop|NUMBER=sg|CASE=nom') == ('H', 'sg n')
+        assert vabamorf_tags('POS=A|DEGREE=pos|NUMBER=sg|CASE=adit')    == ('A', 'adt')
 
 
 def get_test_sentences(filename):
