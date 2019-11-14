@@ -7,7 +7,7 @@ from estnltk.converters import layer_to_dict, dict_to_layer
 from estnltk.visualisation.core import format_tag_attributes
 from estnltk.visualisation.core import header_cell, value_cell, dropdown_cell
 from estnltk import Layer
-
+from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
 
 class SyntaxVisualiser:
     #attributes = ["id", "text", "lemma", "head", "deprel", "upostag", "xpostag", "feats", "deps", "misc"]
@@ -37,25 +37,28 @@ class SyntaxVisualiser:
             contents = js_file.read()
         return contents
 
+    # attribute_comparison_tagger
+    # estnltk taggers standard_taggers
     def new_layer(self, layers, name):
         layer = Layer(name=name, text_object=layers[0].text_object,
                       attributes=['text'])
 
         map_attribute_names = {}
 
-        # doesn't add parent_span, children, deps and misc to the new layer's attributes
-        for attribute in layers[0].attributes[0:len(layers[0].attributes) - 4]:
+        attributes = []
+
+        for attribute in layers[0].attributes:
             if attribute == 'head' or attribute in self.changeable_attributes:
                 map_attribute_names[(None, attribute)] = attribute
-                layer.attributes += (attribute,)
+                attributes.append(attribute)
                 for i in range(len(layers)):
                     map_attribute_names[(i, attribute)] = attribute + str(i + 1)
-                    layer.attributes += (attribute + str(i + 1),)
-                #map_attribute_names[attribute] = [(i, attribute + str(i + 1)) for i in range(len(layers))]
-                #map_attribute_names[attribute].insert(0, (-1, attribute))
+                    attributes.append(attribute + str(i + 1))
             else:
-                layer.attributes += (attribute, )
+                attributes.append(attribute)
                 map_attribute_names[(0, attribute)] = attribute
+
+        layer.attributes += tuple(attributes)
 
         for spans in zip(*layers):
             base_span = spans[0].base_span
@@ -66,8 +69,6 @@ class SyntaxVisualiser:
                         for (i, attr), attribute in map_attribute_names.items()}
 
             layer.add_annotation(base_span, **annotation)
-
-        #self.attributes = list(layer.attributes)
 
         return layer
 
@@ -119,39 +120,6 @@ class SyntaxVisualiser:
 
         return dropdown_cell(values, select_tag_attributes=format_tag_attributes({'class': 'syntax_choice head', 'id': 'head' + str(i)}))
 
-    def data_import_script_tag(self, layers, attributes, text):
-
-        tables = ["<script>",
-                  "if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n"]
-
-        # TODO: Use proper namespacing to get rid of this if statement
-
-        for index, sentence in enumerate(text.sentences):
-
-            # TODO: Encapsulate this as a function table_for_sentence
-            # Does this function have a wrong output type?
-            tables.append("all_tables.push('<table class=\"iterable-table\">")
-            tables.extend(self.header(attributes, layers))
-
-            # TODO: This is wrong way of getting spans of syntax layer
-            # Paul, tell us how this should be done correctly!
-            for i, span in enumerate(sentence):
-                syntax_span = layers[0].get(span)
-
-                tables.append("<tr>")
-                # TODO: Inline these functions to get simple code
-                for attribute in attributes:
-                    if attribute == "head":
-                        tables.extend(self.table_head_attribute(syntax_span, sentence, i))
-                    else:
-                        tables.extend(self.table_cell(syntax_span, attribute))
-                tables.append("</tr>\n")
-            tables.append("</table>'); \n")
-
-        tables.append("</script>")
-
-        return "".join(tables)
-
     def table_creation(self, layers, attributes, text):
         """
         TODO: Separate
@@ -164,11 +132,12 @@ class SyntaxVisualiser:
         tables = [self.css_style_tag, "<script>", "var changeable_attribute_count = " + str(len(self.changeable_attributes) + 1) + "\n",
                   "if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n"]
 
-        new_layer = self.new_layer(layers, "new")
+        #new_layer = self.new_layer(layers, "new")
+        new_layer = AttributeComparisonTagger("new", [layer.name for layer in layers], changeable_attributes=self.changeable_attributes, layers=layers).make_layer(layers[0].text_object, {layer.name : layer for layer in layers})
 
         # this is so attributes would get a working default value, but could also be changed
         if len(self.attributes) == 0:
-            self.attributes = list(new_layer.attributes)
+            self.attributes = list(new_layer.attributes)[:-4]
             new_layer_attributes = self.attributes
         else:
             new_layer_attributes = self.attributes
