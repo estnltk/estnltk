@@ -14,26 +14,44 @@ from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 #   Helper functions
 # ----------------------------------
 
-def collect_analyses( docs ):
+def _sort_morph_annotations( morph_annotations:list ):
+    """Sorts morph_annotations. Sorting is required for comparing
+       morph analyses of a word without setting any constraints 
+       on their specific order."""
+    sorted_records = sorted( morph_annotations, key = lambda x : \
+        str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+        str(x['partofspeech'])+str(x['form']) )
+    return sorted_records
+
+
+def collect_analyses( docs, sort_analyses=True ):
     # Collect and index all morphological analyses from 
     # the given document collection
     all_analyses = dict()
     for doc_id, doc in enumerate(docs):
         for wid, word in enumerate(doc['words']):
-            analyses = [(a.root, a.partofspeech, a.form) for a in word.morph_analysis.annotations]
+            morph_annotations = word.morph_analysis.annotations
+            if sort_analyses:
+                # Sort analyses
+                # ( so the order will be independent of the ordering used by 
+                #   VabamorfAnalyzer & VabamorfDisambiguator )
+                morph_annotations = _sort_morph_annotations( morph_annotations )
+            analyses = [(a.root, a.partofspeech, a.form) for a in morph_annotations]
             all_analyses[(doc_id,wid)] = analyses
     return all_analyses
 
-def collect_2nd_level_analyses( corpus ):
+
+def collect_2nd_level_analyses( corpus, sort_analyses=True ):
     # Collect 2nd level analyses
     all_analyses = dict()
     for corp_id, docs in enumerate( corpus ):
-        collected = collect_analyses( docs )
+        collected = collect_analyses( docs, sort_analyses=sort_analyses )
         for (k, v) in collected.items():
             k = (corp_id,) + k
             assert k not in all_analyses
             all_analyses[k] = v
     return all_analyses
+
 
 def find_ambiguities_diff( analyses_a, analyses_b ):
     # Finds a difference between analyses_a and analyses_b:
@@ -249,6 +267,13 @@ def test_mark_ambiguities_to_be_ignored():
          {'normalized_text': 'ega', 'lemma': 'ega', 'form': '', 'partofspeech': 'J', 'root': 'ega', 'root_tokens': ['ega',], 'end': 54, 'ending': '0', 'start': 51, 'clitic': ''}],
         [{'normalized_text': 'teine', 'lemma': 'teine', 'form': 'sg n', 'partofspeech': 'O', 'root': 'teine', 'root_tokens': ['teine',], 'end': 60, 'ending': '0', 'start': 55, 'clitic': ''}, 
          {'normalized_text': 'teine', 'lemma': 'teine', 'form': 'sg n', 'partofspeech': 'P', 'root': 'teine', 'root_tokens': ['teine',], 'end': 60, 'ending': '0', 'start': 55, 'clitic': ''}] ]
+    # sort analyses of each and every word
+    assert len(hidden_words_records) == len(expected_hidden_words_records)
+    for wid in range(len(hidden_words_records)):
+        hidden_words_rec = hidden_words_records[wid]
+        expected_hidden_words_rec = expected_hidden_words_records[wid]
+        hidden_words_records[wid] = _sort_morph_annotations( hidden_words_rec )
+        expected_hidden_words_records[wid] = _sort_morph_annotations( expected_hidden_words_rec )
     assert hidden_words_records == expected_hidden_words_records
 
 

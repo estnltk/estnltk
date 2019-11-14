@@ -1,4 +1,4 @@
-from estnltk import Text
+from estnltk import Text, Annotation
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import PostMorphAnalysisTagger
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
@@ -9,7 +9,6 @@ from estnltk.layer import AmbiguousAttributeTupleList
 # ----------------------------------
 #   Helper functions
 # ----------------------------------
-
 
 def _sort_morph_analysis_records( morph_analysis_records:list ):
     '''Sorts sublists (lists of analyses of a single word) of 
@@ -305,15 +304,26 @@ def test_postanalysis_preserves_extra_attributes():
     text.tag_layer(['words','sentences'])
     analyzer = VabamorfAnalyzer(extra_attributes=['analysis_id', 'sentence_id'])
     analyzer.tag(text)
+    # Sort morph analysis annotations
+    # ( so the order will be independent of the ordering used by 
+    #   VabamorfAnalyzer & VabamorfDisambiguator )
+    for morph_word in text['morph_analysis']:
+        annotations = morph_word.annotations
+        sorted_annotations = sorted( annotations, key = lambda x : \
+               str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+               str(x['partofspeech'])+str(x['form']) )
+        morph_word.clear_annotations()
+        for annotation in sorted_annotations:
+            morph_word.add_annotation( Annotation(morph_word, **annotation) )
     # Add extra attributes
     for sp_id, span in enumerate(text.morph_analysis):
-        for a_id, annotation in enumerate(span.annotations):
+        for a_id, annotation in enumerate( span.annotations ):
             setattr(annotation, 'analysis_id', str(sp_id)+'_'+str(a_id))
     for sent_id, sentence in enumerate(text.sentences):
         for sp_id, span in enumerate(text.morph_analysis):
             if sentence.start <= span.start and \
                span.end <= sentence.end:
-                for a_id, annotation in enumerate(span.annotations):
+                for a_id, annotation in enumerate( span.annotations ):
                     setattr(annotation, 'sentence_id', str(sent_id))
     postanalysis_tagger = PostMorphAnalysisTagger()
     # make post analysis corrections

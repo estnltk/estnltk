@@ -152,7 +152,10 @@ def test_gt_conversion_3_sid_ksid():
          {'normalized_text': 'läinud', 'partofspeech': 'V', 'end': 50, 'root_tokens': ('mine',), 'root': 'mine', 'clitic': '', 'start': 44, 'lemma': 'minema', 'form': 'Pers Prt Prc', 'ending': 'nud'}], \
         [{'normalized_text': '.', 'partofspeech': 'Z', 'end': 51, 'root_tokens': ('.',), 'root': '.', 'clitic': '', 'start': 50, 'lemma': '.', 'form': '', 'ending': ''}]
     ]
-    assert expected_records == text['gt_morph_analysis'].to_records()
+    results = text['gt_morph_analysis'].to_records()
+    _sort_morph_analysis_records( results )
+    _sort_morph_analysis_records( expected_records )
+    assert expected_records == results
     
     # Case 2 : -sid
     text = Text('Sa läksid ära. Aga nemad tõttasid edasi, sind nad ei näinud.')
@@ -181,7 +184,11 @@ def test_gt_conversion_3_sid_ksid():
           {'normalized_text': 'näinud', 'lemma': 'näima', 'root_tokens': ('näi',), 'clitic': '', 'start': 53, 'root': 'näi', 'partofspeech': 'V', 'end': 59, 'ending': 'nud', 'form': 'Pers Prt Ind Neg'}], \
          [{'normalized_text': '.', 'lemma': '.', 'root_tokens': ('.',), 'clitic': '', 'start': 59, 'root': '.', 'partofspeech': 'Z', 'end': 60, 'ending': '', 'form': ''}]
     ]
-    assert expected_records == text['gt_morph_analysis'].to_records()
+    results = text['gt_morph_analysis'].to_records()
+    _sort_morph_analysis_records( results )
+    _sort_morph_analysis_records( expected_records )
+    assert expected_records == results
+
 
 
 def test_gt_conversion_4_empty():

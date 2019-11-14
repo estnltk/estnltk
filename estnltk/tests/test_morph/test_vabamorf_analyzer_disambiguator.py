@@ -4,6 +4,7 @@ from estnltk import Text
 from estnltk import Annotation
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.morf import IGNORE_ATTR
+from estnltk.taggers.morph_analysis.morf import SORT_VM_MORPH_ANALYSES
 from estnltk.layer import AmbiguousAttributeList
 
 
@@ -288,14 +289,20 @@ def test_morph_disambiguation_preserves_extra_attributes():
     analyzer.tag(text)
     # Add extra attributes
     for sp_id, spanlist in enumerate(text.morph_analysis):
-        for s_id, span in enumerate(spanlist.annotations):
-            setattr(span, 'analysis_id', str(sp_id)+'_'+str(s_id))
+        sorted_annotations = sorted( spanlist.annotations, key = lambda x : \
+               str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+               str(x['partofspeech'])+str(x['form']) )
+        for s_id, annotation in enumerate(sorted_annotations):
+            setattr(annotation, 'analysis_id', str(sp_id)+'_'+str(s_id))
     for sent_id, sentence in enumerate(text.sentences):
         for sp_id, spanlist in enumerate(text.morph_analysis):
             if sentence.start <= spanlist.start and \
                spanlist.end <= sentence.end:
-                for s_id, span in enumerate(spanlist.annotations):
-                    setattr(span, 'sentence_id', str(sent_id))
+                sorted_annotations = sorted( spanlist.annotations, key = lambda x : \
+                       str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+                       str(x['partofspeech'])+str(x['form']) )
+                for s_id, annotation in enumerate( sorted_annotations ):
+                    setattr(annotation, 'sentence_id', str(sent_id))
     # Disambiguate text
     disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
@@ -501,3 +508,66 @@ def test_morph_disambiguation_with_ignore_xml_tags():
         # assert that all words have been disambiguated
         assert len(span.annotations) == 1
         assert IGNORE_ATTR not in span.annotations[0]
+
+
+
+# ----------------------------------------------------------------
+#   Test 
+#      morphological analyser and disambiguator will output 
+#      ambiguous word's analyses in specific order
+# ----------------------------------------------------------------
+
+def test_ordering_of_ambiguous_morph_analyses():
+    # Test the default ordering of ambiguous morph analyses
+    text_str = '''
+    Need olid ühed levinuimad rattad omal ajastul.
+    Ma kusjuures ei olegi varem sinna kordagi sattunud.
+    Hästi jutustatud ja korraliku ideega.
+    Kuna peamine põhjus vähendada suitsugaaside kardinaid osatähtsus on vähenenud läbipääsu toru kogunenud tahm seintel.
+    '''
+    text=Text(text_str)
+    text.tag_layer(['words','sentences'])
+    analyzer2.tag(text)
+    disambiguator.retag( text )
+    # Collect ambiguous analyses
+    ambiguous_analyses = []
+    for morph_word in text.morph_analysis:
+        annotations = morph_word.annotations
+        #ambiguous_analyses.append( [morph_word.text]+[(a['root'], a['partofspeech'], a['form'] ) for a in annotations] )
+        if len( annotations ) > 1:
+            ambiguous_analyses.append( [morph_word.text]+[(a['root'], a['partofspeech'], a['form'] ) for a in annotations] )
+    # ==============
+    #print()
+    #for a in ambiguous_analyses:
+    #    print(a)
+    # ==============
+    #  ordering A: when VabamorfAnalyzer & VabamorfDisambiguator do not sort ambiguous analyses
+    # ==============
+    ordering_a = [ \
+       ['ühed', ('üks', 'N', 'pl n'), ('üks', 'P', 'pl n')],
+       ['sattunud', ('sattu', 'V', 'nud'), ('sattu=nud', 'A', ''), ('sattu=nud', 'A', 'sg n'), ('sattu=nud', 'A', 'pl n')],
+       ['jutustatud', ('jutusta', 'V', 'tud'), ('jutusta=tud', 'A', ''), ('jutusta=tud', 'A', 'sg n'), ('jutusta=tud', 'A', 'pl n')],
+       ['on', ('ole', 'V', 'b'), ('ole', 'V', 'vad')],
+       ['vähenenud', ('vähene', 'V', 'nud'), ('vähene=nud', 'A', ''), ('vähene=nud', 'A', 'sg n'), ('vähene=nud', 'A', 'pl n')],
+       ['kogunenud', ('kogune', 'V', 'nud'), ('kogune=nud', 'A', ''), ('kogune=nud', 'A', 'sg n'), ('kogune=nud', 'A', 'pl n')]
+    ]
+    # ==============
+    #  ordering B: when VabamorfAnalyzer & VabamorfDisambiguator are sorting ambiguous analyses
+    # ==============
+    ordering_b = [ \
+        ['ühed', ('üks', 'N', 'pl n'), ('üks', 'P', 'pl n')],
+        ['sattunud', ('sattu=nud', 'A', ''), ('sattu=nud', 'A', 'sg n'), ('sattu=nud', 'A', 'pl n'), ('sattu', 'V', 'nud')],
+        ['jutustatud', ('jutusta=tud', 'A', ''), ('jutusta=tud', 'A', 'sg n'), ('jutusta=tud', 'A', 'pl n'), ('jutusta', 'V', 'tud')],
+        ['on', ('ole', 'V', 'b'), ('ole', 'V', 'vad')],
+        ['vähenenud', ('vähene=nud', 'A', ''), ('vähene=nud', 'A', 'sg n'), ('vähene=nud', 'A', 'pl n'), ('vähene', 'V', 'nud')],
+        ['kogunenud', ('kogune=nud', 'A', ''), ('kogune=nud', 'A', 'sg n'), ('kogune=nud', 'A', 'pl n'), ('kogune', 'V', 'nud')]
+    ]
+    # ==============
+    #  validate the current ordering
+    # ==============
+    if not SORT_VM_MORPH_ANALYSES:
+        assert ordering_a == ambiguous_analyses
+    else:
+        assert ordering_b == ambiguous_analyses
+
+
