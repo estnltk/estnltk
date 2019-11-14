@@ -45,6 +45,8 @@ IGNORE_ATTR = '_ignore'
 # SORT_VM_MORPH_ANALYSES=False -- VM analyses ordering used in EstNLTK versions 
 #                                 prior 1.6.0, and the ordering that will likely 
 #                                 be used in future versions (after v1.6.4b);
+# Note: regardless which ordering is used, Vabamorf's ambiguous analyses are 
+#       **not** ordered by likelihood/probability;
 SORT_VM_MORPH_ANALYSES = True
 
 # =================================

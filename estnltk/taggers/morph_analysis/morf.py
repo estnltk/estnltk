@@ -53,10 +53,11 @@ class VabamorfTagger(Tagger):
                   '_input_words_layer',
                   '_input_sentences_layer',
                   # Internal stuff: taggers
-                  '_re_sort_analyses',
                   '_vabamorf_analyser',
                   '_corpusbased_disambiguator',
                   '_vabamorf_disambiguator',
+                  # Internal stuff:
+                  '_re_sort_analyses',
     ]
 
     def __init__(self,
@@ -119,6 +120,8 @@ class VabamorfTagger(Tagger):
             in case of ambiguity. 
             In future versions, we'll likely stick with the default ordering
             produced by Vabamorf and no longer use re-sorting.
+            Note: regardless which ordering is used, Vabamorf's ambiguous 
+            analyses are **not** ordered by likelihood/probability;
         """
         # Set VM analysis parameters:
         self.guess        = guess
@@ -376,6 +379,8 @@ class VabamorfAnalyzer(Tagger):
             in case of ambiguity. 
             In future versions, we'll likely stick with the default ordering
             produced by Vabamorf and no longer use re-sorting.
+            Note: regardless which ordering is used, Vabamorf's ambiguous 
+            analyses are **not** ordered by likelihood/probability;
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -592,6 +597,8 @@ class VabamorfDisambiguator(Retagger):
             in case of ambiguity. 
             In future versions, we'll likely stick with the default ordering
             produced by Vabamorf and no longer use re-sorting.
+            Note: regardless which ordering is used, Vabamorf's ambiguous 
+            analyses are **not** ordered by likelihood/probability;
         """
         # Set attributes & configuration
         self.output_layer = output_layer
