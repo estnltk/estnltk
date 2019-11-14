@@ -70,6 +70,28 @@ class Text:
             result.add_layer(layer)
         return result
 
+    def __getstate__(self):
+        # Shallow copy of layers is enough for serialisation
+        # But layers must be detached from text otherwise assembly fails
+        state = {
+            'text': self.text,
+            'meta': self.meta,
+            'layers': [copy(self[layer]) for layer in self.layers]
+        }
+        for layer in state['layers']:
+            layer.text_object = None
+        return state
+
+    def __setstate__(self, state):
+        # Initialisation is not guaranteed!
+        # Bypass the text protection mechanism
+        assert type(state['text']) == str, "'field 'text' must be of type str"
+        super().__setattr__('text', state['text'])
+        super().__setattr__('_shadowed_layers', {})
+        self.meta = state['meta']
+        for layer in state['layers']:
+            self.add_layer(layer)
+
     def __setattr__(self, name, value):
 
         # Resolve meta attribute
