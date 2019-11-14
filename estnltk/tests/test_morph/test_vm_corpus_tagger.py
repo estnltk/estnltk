@@ -1,6 +1,6 @@
 from estnltk.text import Text
+from estnltk.taggers.morph_analysis.morf import SORT_VM_MORPH_ANALYSES
 from estnltk.taggers.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
-
 from estnltk.tests.test_morph.test_cb_disambiguator import count_analyses
 
 
@@ -231,5 +231,8 @@ def test_ordering_of_ambiguous_morph_analyses():
     # ==============
     #  validate the current ordering
     # ==============
-    assert ordering_b == ambiguous_analyses
+    if not SORT_VM_MORPH_ANALYSES:
+        assert ordering_a == ambiguous_analyses
+    else:
+        assert ordering_b == ambiguous_analyses
 
