@@ -6,7 +6,6 @@ from estnltk import Text
 from estnltk import Annotation
 from estnltk.layer import AmbiguousAttributeList, AttributeTupleList
 from estnltk.layer import AttributeList
-from estnltk.tests import new_text
 
 
 def test_general():
@@ -146,41 +145,48 @@ def test_layer_1():
 
 
 def test_layer():
-    text = 'Öösel on kõik kassid hallid.'
-    t = Text(text)
-    l = Layer(name='test')
-    t.add_layer(l)
+    # TODO: Merge this with test_add_layer function
+    string = 'Öösel on kõik kassid hallid.'
+
+    text = Text(string)
+    layer = Layer(name='test')
+    text.add_layer(layer)
+
+    # 'text' can be a layer name
+    text.add_layer(Layer(name='text'))
+
+    # TODO: There is no reason why these cannot be layer names
+    # TODO: Drop the corresponding checks from the code
+    with pytest.raises(AssertionError):
+        text.add_layer(Layer(name='test'))
 
     with pytest.raises(AssertionError):
-        t.add_layer(Layer(name='text'))
+        text.add_layer(Layer(name=' '))
 
     with pytest.raises(AssertionError):
-        t.add_layer(Layer(name='test'))
+        text.add_layer(Layer(name='3'))
 
     with pytest.raises(AssertionError):
-        t.add_layer(Layer(name=' '))
+        text.add_layer(Layer(name='assert'))
 
     with pytest.raises(AssertionError):
-        t.add_layer(Layer(name='3'))
+        text.add_layer(Layer(name='is'))
 
-    with pytest.raises(AssertionError):
-        t.add_layer(Layer(name='assert'))
+    assert text.layers['test'] is layer
 
-    with pytest.raises(AssertionError):
-        t.add_layer(Layer(name='is'))
-
-    assert t.layers['test'] is l
-
+    # TODO: This should be covered by other tests
     with pytest.raises(AttributeError):
-        t.notexisting
+        text.notexisting
 
-    assert t.text == text
+    # TODO: This should be covered by other tests
+    assert text.text == string
 
-    layer = t.test  # type: Layer
+    # TODO: This is a part of layer testing
+    layer = text.test  # type: Layer
     layer.add_annotation((0, 2))
-    assert t.test.text == [text[:2]]
+    assert text.test.text == [string[:2]]
 
-    t.test.add_annotation((2, 4))
+    text.test.add_annotation((2, 4))
 
 
 def test_annotated_layer():
