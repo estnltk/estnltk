@@ -94,6 +94,24 @@ class Layer:
 
         self.meta = {}
 
+    def __copy__(self):
+        """
+        Creates a new layer object with the same content.
+
+        New object is needed as a same layer object cannot be part of another text object.
+        """
+        result = Layer(
+            name=self.name,
+            attributes=self.attributes,
+            text_object=self.text_object,
+            parent=self.parent,
+            enveloping=self.enveloping,
+            ambiguous=self.ambiguous,
+            default_values=self.default_values,
+            serialisation_module=self.serialisation_module)
+        result._span_list = self._span_list
+        return result
+
     @property
     def layer(self):
         return self
