@@ -22,8 +22,7 @@ class Text:
         'layers',
         'list_layers',
         'set_text',
-        'tag_layer',
-        'text'
+        'tag_layer'
     } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
     attribute_mapping_for_elementary_layers: Mapping[str, str] = {
@@ -39,11 +38,11 @@ class Text:
     attribute_mapping_for_enveloping_layers = attribute_mapping_for_elementary_layers
 
 
-    __slots__ = ['_text', '__dict__', 'meta', '_shadowed_layers']
+    __slots__ = ['text', '__dict__', 'meta', '_shadowed_layers']
 
     def __init__(self, text: str = None) -> None:
-        self._text: str
-        super().__setattr__('_text', text)
+        self.text: str
+        super().__setattr__('text', text)
         self._shadowed_layers: Mapping[str, Layer]
         super().__setattr__('_shadowed_layers', {})
         self.meta: MutableMapping
@@ -83,11 +82,11 @@ class Text:
 
         # Resolve text attribute
         if name == 'text':
-            if self.__getattribute__('_text') is not None:
+            if self.__getattribute__('text') is not None:
                 raise AttributeError('raw text has already been set')
             if not isinstance(value, str):
                 raise TypeError('expecting a string as rvalue')
-            return super().__setattr__('_text', value)
+            return super().__setattr__('text', value)
 
         # Deny access to all other attributes (layer names)
         raise AttributeError('layers cannot be assigned directly, use add_layer(...) function instead')
@@ -131,16 +130,12 @@ class Text:
         return self.diff(other) is None
 
     def __str__(self):
-        if self._text is None:
+        if self.text is None:
             return 'Text()'
         return 'Text(text={self.text!r})'.format(self=self)
 
     def __repr__(self):
         return str(self)
-
-    @property
-    def text(self) -> str:
-        return self._text
 
     @property
     def layers(self):
@@ -241,8 +236,8 @@ class Text:
         Deprecated duplicated functionality. Use text property!
         # TODO: To be removed
         """
-        assert self._text is None, "raw text has already been set"
-        self._text = text
+        assert self.text is None, "raw text has already been set"
+        self.text = text
 
     def tag_layer(self, layer_names: Sequence[str] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
         if resolver is None:
@@ -310,7 +305,7 @@ class Text:
     def _repr_html_(self):
         pandas.set_option('display.max_colwidth', -1)
 
-        if self._text is None:
+        if self.text is None:
             table = '<h4>Empty Text object</h4>'
         else:
             text = self.text

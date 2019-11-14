@@ -195,7 +195,7 @@ def test_abnormal_attribute_access():
     text = Text('Poola zloti devalveerimine')
     text.add_layer(Layer(name='innocent_bystander', attributes=['meta', '_text', '__dict__', '_shadowed_layers']))
     assert type(text.meta) == dict, "Attribute resolver cannot shadow slots"
-    assert type(text._text) == str, "Attribute resolver cannot shadow slots"
+    assert type(text.text) == str, "Attribute resolver cannot shadow slots"
     assert type(text.__dict__) == dict, "Attribute resolver cannot shadow slots"
     assert type(text._shadowed_layers) == dict, "Attribute resolver cannot shadow slots"
 
@@ -237,12 +237,12 @@ def test_normal_layer_access():
 
 def test_access_of_shadowed_layers():
     # List of all attributes that can be potentially shadowed
-    properties = ['attributes', 'layers', 'text']
+    properties = ['attributes', 'layers']
     private_methods = {method for method in dir(object) if callable(getattr(object, method, None))}
     public_methods = ['add_layer', 'analyse', 'delete_layer', 'diff', 'list_layers', 'set_text', 'tag_layer']
     protected_methods = ['_repr_html_']
     public_variables = ['attribute_mapping_for_elementary_layers', 'attribute_mapping_for_enveloping_layers', 'methods']
-    slots = ['_text', '__dict__', 'meta', '_shadowed_layers']
+    slots = ['text', '__dict__', 'meta', '_shadowed_layers']
     shadowed_layers = properties + public_methods + protected_methods + public_variables + slots
 
     # Check that lists are correct
