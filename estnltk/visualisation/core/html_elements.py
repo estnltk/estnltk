@@ -50,18 +50,18 @@ def dropdown_cell(values: List[Tuple], default_choice: int = 0, select_tag_attri
         raise ValueError('values list cannot be empty')
 
     if select_tag_attributes:
-        row = ["<td>\n<select ", select_tag_attributes, ">\n"]
+        row = ["<td><select ", select_tag_attributes, ">"]
     else:
-        row = ["<td>\n<select>\n"]
+        row = ["<td><select>"]
 
     default_choice = max(0, default_choice) if default_choice < len(values) else 0
 
-    row.append('<option value="{}">{}</option>\n'
+    row.append('<option value="{}">{}</option>'
                .format(escape(str(values[default_choice][0])), escape(str(values[default_choice][1]))))
-    row.extend('<option value="{}">{}</option>\n'
+    row.extend('<option value="{}">{}</option>'
                .format(escape(str(value[0])), escape(str(value[1]))) for value in values[:default_choice])
-    row.extend('<option value="{}">{}</option>\n'
+    row.extend('<option value="{}">{}</option>'
                .format(escape(str(value[0])), escape(str(value[1]))) for value in values[default_choice + 1:])
 
-    row.append("</select>\n</td>")
+    row.append("</select></td>")
     return row
