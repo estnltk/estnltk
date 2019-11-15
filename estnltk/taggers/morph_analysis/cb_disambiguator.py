@@ -393,7 +393,7 @@ class CorpusBasedMorphDisambiguator( object ):
         for doc in docs:
             if hidden_words_layer in doc.layers:
                 # Delete existing layer
-                delattr(doc, hidden_words_layer)
+                doc.pop_layer(hidden_words_layer)
 
     def _supplement_lemma_frequency_lexicon(self, docs, lexicon, amb_lexicon,
                                                   hidden_words_layer:str='_hidden_morph_analysis' ):

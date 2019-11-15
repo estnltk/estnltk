@@ -292,7 +292,7 @@ class Text:
             raise ValueError("invalid argument: '" + str(t) +
                              "', use 'segmentation', 'morphology' or 'syntax' instead")
         if 'tokens' in self.__dict__ and t != 'all':
-            del self.tokens
+            self.pop_layer('tokens')
         return self
 
     def list_layers(self) -> List[Layer]:

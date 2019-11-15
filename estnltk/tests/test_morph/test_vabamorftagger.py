@@ -82,7 +82,7 @@ def test_default_morph_analysis_without_disambiguation():
     # Create text and tag all
     text = Text("Kärbes hulbib mees ja naeris puhub sädelevaid mulle.").tag_layer()
     # Remove old morph layer
-    delattr(text, 'morph_analysis')
+    text.pop_layer('morph_analysis')
     # Create a new layer without disambiguation
     text.tag_layer(resolver=resolver)['morph_analysis']
     #print( text['morph_analysis'].to_records() )
@@ -151,7 +151,7 @@ def test_default_morph_analysis_without_guessing():
     # Create text and tag all
     text = Text("Sa ajad sássi inimmeste erinevad käsitlusviisid ja lóodusnähhtuste kinndla vahekorra.").tag_layer()
     # Remove old morph layer
-    delattr(text, 'morph_analysis')
+    text.pop_layer('morph_analysis')
     # Create a new layer without guessing
     text.tag_layer(resolver=resolver)['morph_analysis']
     #print( text['morph_analysis'].to_records() )
@@ -181,7 +181,7 @@ def test_default_morph_analysis_without_guessing():
     # Create text and tag all
     text = Text("Tüdrukud läksid poodelungile.").tag_layer()  
     # Remove old morph layer
-    delattr(text, 'morph_analysis')
+    text.pop_layer('morph_analysis')
     # Create a new layer without guessing
     text.tag_layer(resolver=resolver)['morph_analysis']
     assert AmbiguousAttributeList([['tüdruk'], ['mine'], [None], [None]], 'root') == text.root

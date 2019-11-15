@@ -191,7 +191,7 @@ def test_layer_indexing():
     assert len(layer[['a']]) == 8
 
     atl = t.base['a', 'b']
-    del t.base
+    t.pop_layer('base')
     assert atl == AttributeTupleList([[1, 11],
                                       [2, 12],
                                       [3, 'default b'],
