@@ -239,7 +239,7 @@ def test_access_of_shadowed_layers():
     # List of all attributes that can be potentially shadowed
     properties = ['attributes', 'layers']
     private_methods = {method for method in dir(object) if callable(getattr(object, method, None))}
-    public_methods = ['add_layer', 'analyse', 'delete_layer', 'diff', 'list_layers', 'set_text', 'tag_layer']
+    public_methods = ['add_layer', 'analyse', 'diff', 'list_layers', 'pop_layer', 'set_text', 'tag_layer']
     protected_methods = ['_repr_html_']
     public_variables = ['attribute_mapping_for_elementary_layers', 'attribute_mapping_for_enveloping_layers', 'methods']
     slots = ['text', '__dict__', 'meta', '_shadowed_layers']
@@ -358,7 +358,7 @@ def test_add_layer():
         text.empty_layer = layer
 
 
-def test_delete_layer():
+def test_pop_layer():
     text = Text('Minu nimi on Uku.')
     assert text.layers == {}
 
@@ -370,12 +370,12 @@ def test_delete_layer():
 
     # Test del text.layer_name
     # Deleting a root layer should also delete all its dependants
-    text.delete_layer('tokens')
+    text.pop_layer('tokens')
 
     assert 'tokens' not in text.__dict__
     assert 'compound_tokens' not in text.__dict__
 
-    text.delete_layer('words')
+    text.pop_layer('words')
 
     assert 'words' not in text.__dict__
     assert 'sentences' not in text.__dict__
@@ -397,12 +397,12 @@ def test_delete_layer():
     # Deleting a root layer should also delete all its dependants
     text.tag_layer(layer_names)
 
-    text.delete_layer('tokens')
+    text.pop_layer('tokens')
 
     assert 'tokens' not in text.__dict__
     assert 'compound_tokens' not in text.__dict__
 
-    text.delete_layer('words')
+    text.pop_layer('words')
 
     assert 'words' not in text.__dict__
     assert 'sentences' not in text.__dict__
@@ -419,6 +419,8 @@ def test_delete_layer():
 
     with pytest.raises(AttributeError):
         _ = text.morph_analysis
+
+    # Test more obscure configurations
 
 
 def test_equal():

@@ -1,7 +1,7 @@
 import html
 from copy import copy, deepcopy
 from collections import defaultdict
-from typing import MutableMapping, List, Sequence, Mapping, Set
+from typing import MutableMapping, List, Sequence, Mapping, Set, Union, Any
 from typing import DefaultDict
 import pandas
 import networkx as nx
@@ -10,20 +10,19 @@ from estnltk.layer.layer import Layer
 
 
 class Text:
-
     # List of all methods for Text object
     methods: Set[str] = {
-        '_repr_html_',
-        'add_layer',
-        'analyse',
-        'attributes',
-        'delete_layer',
-        'diff',
-        'layers',
-        'list_layers',
-        'set_text',
-        'tag_layer'
-    } | {method for method in dir(object) if callable(getattr(object, method, None))}
+                            '_repr_html_',
+                            'add_layer',
+                            'analyse',
+                            'attributes',
+                            'pop_layer',
+                            'diff',
+                            'layers',
+                            'list_layers',
+                            'set_text',
+                            'tag_layer'
+                        } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
     attribute_mapping_for_elementary_layers: Mapping[str, str] = {
         'lemma': 'morph_analysis',
@@ -36,7 +35,6 @@ class Text:
     }
 
     attribute_mapping_for_enveloping_layers = attribute_mapping_for_elementary_layers
-
 
     __slots__ = ['text', '__dict__', 'meta', '_shadowed_layers']
 
@@ -143,10 +141,10 @@ class Text:
             return self._shadowed_layers[item]
 
     def __delattr__(self, item):
-        raise TypeError("'Text' object does not support attribute deletion, use delete_layer(...) function instead")
+        raise TypeError("'Text' object does not support attribute deletion, use pop_layer(...) function instead")
 
     def __delitem__(self, key):
-        raise TypeError("'Text' object does not support item deletion, use delete_layer(...) function instead")
+        raise TypeError("'Text' object does not support item deletion, use pop_layer(...) function instead")
 
     def __eq__(self, other):
         return self.diff(other) is None
@@ -223,18 +221,26 @@ class Text:
         else:
             self.__dict__[name] = layer
 
-    def delete_layer(self, name):
+    def pop_layer(self, name: str,  cascading: bool = True, default=Ellipsis) -> Union[Layer, Any]:
         """
-        Removes a layer from the text object
+        Removes a layer from the text object together with the layers that are computed from it by default.
 
-        # TODO: Make it work with shadowed layers
-        # TODO: write down restrictions to layer
+        If the flag cascading is set all descendant layers are computed first and removed together with the layer.
+        If the flag is false only the layer is removed. This does not corrupt derivative layers, as spans of each
+        layer are independent form other layers.
 
-
+        Returns popped layer if the layer is present in the text object. If the layer is not found default is
+        returned if given, otherwise KeyError is raised.
         """
-        assert name in self.__dict__, '{item} is not a valid layer in this Text object'.format(item=name)
+        if name not in self.layers and default is Ellipsis:
+            raise KeyError('{layer!r} is not a valid layer in this Text object'.format(layer=name))
 
-        # find all dependencies between layers
+        if not cascading:
+            result = self.__dict__.pop(name, None)
+            return result if result else self._shadowed_layers.pop(name, None)
+
+        # Find all dependencies between layers. The implementations is complete overkill.
+        # However, further optimisation is not worth the time.
         relations = set()
         for layer_name, layer in self.__dict__.items():
             relations.update((b, a) for a, b in [
@@ -247,11 +253,14 @@ class Text:
         g.add_nodes_from(self.__dict__.keys())
 
         to_delete = nx.descendants(g, name)
-        to_delete.add(name)
 
+        result = self.__dict__.pop(name, None)
+        result = result if result else self._shadowed_layers.pop(name, None)
         for name in to_delete:
-            self.__dict__.pop(name)
+            if not self.__dict__.pop(name):
+                self._shadowed_layers.pop(name, None)
 
+        return result
 
     def set_text(self, text: str):
         """
@@ -303,9 +312,6 @@ class Text:
                     layer_list.remove(layer)
                     break
         return sorted_layers
-
-
-
 
     def diff(self, other):
         if self is other:
