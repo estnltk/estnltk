@@ -106,9 +106,14 @@ def iterate(tag_dict, morphtags):
         
     return None
 
-def vabamorf_tags(morphtag):
+def vabamorf_tags(morphtag, postfix=True):
     """
     Converts a morphtag from neural model into vabamorf format.
+    
+    Parameters:
+    
+    postfix: boolean
+        Applies postfixes to ensure correct Vabamorf tags.
     """
     morphtags = morphtag.split('|')
     pos = morphtags[0].split('=')[1]
@@ -143,6 +148,13 @@ def vabamorf_tags(morphtag):
         if degree_numtype[pos_tag] in morphtags:
             pos = pos_tag
     
+    if postfix:
+        # Correct postag for proper names
+        if pos == 'S' and 'NOUN_TYPE=prop' in morphtags:
+            pos = 'H'
+        # Correct 'adt' form
+        if form == 'sg adt':
+            form = 'adt'
     return pos, form
     
     
