@@ -36,7 +36,7 @@ class Text:
 
     attribute_mapping_for_enveloping_layers = attribute_mapping_for_elementary_layers
 
-    __slots__ = ['text', '__dict__', 'meta', '_shadowed_layers']
+    __slots__ = ['text', 'meta', '__dict__', '_shadowed_layers']
 
     def __init__(self, text: str = None) -> None:
         self.text: str

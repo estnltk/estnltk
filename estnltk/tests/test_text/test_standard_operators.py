@@ -242,7 +242,7 @@ def test_access_of_shadowed_layers():
     public_methods = ['add_layer', 'analyse', 'diff', 'list_layers', 'pop_layer', 'set_text', 'tag_layer']
     protected_methods = ['_repr_html_']
     public_variables = ['attribute_mapping_for_elementary_layers', 'attribute_mapping_for_enveloping_layers', 'methods']
-    slots = ['text', '__dict__', 'meta', '_shadowed_layers']
+    slots = ['text', 'meta', '__dict__', '_shadowed_layers']
     shadowed_layers = properties + public_methods + protected_methods + public_variables + slots
 
     # Check that lists are correct
