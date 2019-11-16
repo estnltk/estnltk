@@ -161,11 +161,11 @@ class Layer:
     def descendant_layers(self):
         descendants = set()
         if self.parent is not None:
-            descendant = self.text_object.layers[self.parent]
+            descendant = self.text_object[self.parent]
             descendants.add(descendant.name)
             descendants.update(descendant.descendant_layers())
         if self.enveloping is not None:
-            descendant = self.text_object.layers[self.enveloping]
+            descendant = self.text_object[self.enveloping]
             descendants.add(descendant.name)
             descendants.update(descendant.descendant_layers())
         return sorted(descendants)

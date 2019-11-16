@@ -325,7 +325,7 @@ class Text:
         if self.meta != other.meta:
             return 'Different metadata.'
         for layer_name in self.__dict__:
-            difference = self.__dict__[layer_name].diff(other.layers[layer_name])
+            difference = self.__dict__[layer_name].diff(other[layer_name])
             if difference:
                 return difference
         return None

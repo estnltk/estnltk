@@ -70,6 +70,7 @@ class Tagger(metaclass=TaggerChecker):
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
     # TODO: rename layers -> detached_layers ?
+    # TODO: change argument type layers: Set[str]
     def make_layer(self, text: Text, layers: MutableMapping[str, Layer] = None, status: dict = None) -> Layer:
         assert status is None or isinstance(status, dict), 'status should be None or dict, not {!r}'.format(type(status))
         if status is None:

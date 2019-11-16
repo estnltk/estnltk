@@ -37,7 +37,7 @@ class Rolling:
                     yield self.layer[start:end]
         else:
             if self.inside in self.layer.text_object.layers:
-                enveloping_layer = self.layer.text_object.layers[self.inside]
+                enveloping_layer = self.layer.text_object[self.inside]
                 for span in enveloping_layer:
                     spans = getattr(span, self.layer.name)
                     len_s = len(spans)

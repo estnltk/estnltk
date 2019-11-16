@@ -172,7 +172,7 @@ def test_layer():
     with pytest.raises(AssertionError):
         text.add_layer(Layer(name='is'))
 
-    assert text.layers['test'] is layer
+    assert text['test'] is layer
 
     # TODO: This should be covered by other tests
     with pytest.raises(AttributeError):

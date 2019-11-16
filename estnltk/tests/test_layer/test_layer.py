@@ -286,9 +286,9 @@ def test_advanced_indexing():
 
 def test_check_layer_consistency():
     other_morph_layer = \
-        Text('Kas?').analyse('morphology').layers['morph_analysis']
+        Text('Kas?').analyse('morphology')['morph_analysis']
     text = Text('Kes ja kus?').analyse('morphology')
-    morph_layer = text.layers['morph_analysis']
+    morph_layer = text['morph_analysis']
 
     # 1) Change first span, assign it to different layer
     old_first_span = morph_layer.spans[0]

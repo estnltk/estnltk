@@ -20,7 +20,7 @@ class SentenceFleschScoreRetagger(Retagger):
             text.tag_layer(['sentences'])
         if 'morph_analysis' not in text.layers:
             text.tag_layer(['morph_analysis'])
-        layer = text.layers[self.output_layer]
+        layer = text[self.output_layer]
         layer.attributes = layer.attributes + self.output_attributes
         
         total_sentences = len(text[self.output_layer])

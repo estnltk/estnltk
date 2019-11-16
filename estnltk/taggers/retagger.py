@@ -17,6 +17,8 @@ class Retagger(Tagger):
     output_attributes
     __init__(...)
     _change_layer(...)
+
+    # TODO: text.layers will be Set[str]. Make sure that this does not cause problems
     """
     # check_output_consistency:
     #    If set, then applies layer's method check_span_consistency()
