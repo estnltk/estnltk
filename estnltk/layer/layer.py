@@ -143,9 +143,11 @@ class Layer:
         return self.text_object.text[self.start:self.end]
 
     def ancestor_layers(self):
+        text = self.text_object
         layers = self.text_object.layers
         map_ancestors = collections.defaultdict(set)
-        for layer_name, layer in layers.items():
+        for layer_name in layers:
+            layer = text[layer_name]
             if layer.parent is not None:
                 map_ancestors[layer.parent].add(layer_name)
             if layer.enveloping is not None:
