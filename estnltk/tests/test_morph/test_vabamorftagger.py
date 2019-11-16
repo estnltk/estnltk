@@ -278,5 +278,5 @@ def test_default_morph_analysis_with_different_input_layer_names():
     morph_analyser.tag(text)
     # Check results
     for layer in ['my_compounds', 'my_words', 'my_sentences', 'my_morph']:
-        assert layer in text.layers.keys()
+        assert layer in text.layers
 

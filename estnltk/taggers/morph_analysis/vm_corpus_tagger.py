@@ -312,7 +312,7 @@ class VabamorfCorpusTagger( object ):
             assert isinstance(doc, Text)
             missing = []
             for layer in required_layers:
-                if layer not in doc.layers.keys():
+                if layer not in doc.layers:
                     missing.append( layer )
             if missing:
                 raise Exception('(!) {!r} is missing layers: {!r}'.format(doc, missing))

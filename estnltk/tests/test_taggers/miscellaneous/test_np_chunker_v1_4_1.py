@@ -33,7 +33,7 @@ def test_np_chunker_based_on_visl_syntax():
         # Tag NP chunks
         np_chunker.tag( text )
         # Check results
-        assert np_chunker.output_layer in text.layers.keys()
+        assert np_chunker.output_layer in text.layers
         output_phrases = [ np_chunk.enclosing_text for np_chunk in text[np_chunker.output_layer] ]
         #print( output_phrases )
         assert test_item['expected_phrases'] == output_phrases

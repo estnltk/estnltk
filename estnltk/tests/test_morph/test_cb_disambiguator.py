@@ -238,7 +238,7 @@ def test_mark_ambiguities_to_be_ignored():
     morf_analyzer.tag( doc )
     disamb_ignore_tagger = IgnoredByPostDisambiguationTagger()
     disamb_ignore_tagger.tag( doc )
-    assert disamb_ignore_tagger.output_layer in doc.layers.keys()
+    assert disamb_ignore_tagger.output_layer in doc.layers
     #
     # 2) Collect results and make assertions
     #

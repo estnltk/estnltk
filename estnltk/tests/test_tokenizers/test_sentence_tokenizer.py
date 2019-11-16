@@ -931,8 +931,8 @@ def test_layer_names_can_be_changed():
         cp_tagger.tag(text)
         word_tagger.tag(text)
         sentence_tokenizer.tag(text)
-        assert 'my_sentences' in text.layers.keys()
-        assert 'sentences' not in text.layers.keys()
+        assert 'my_sentences' in text.layers
+        assert 'sentences' not in text.layers
         # Collect results 
         sentence_texts = \
             [sentence.enclosing_text for sentence in text['my_sentences']]

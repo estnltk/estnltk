@@ -136,12 +136,12 @@ class WordTaggerTest(unittest.TestCase):
             tokens_tagger.tag(text)
             cp_tagger.tag(text)
             word_tagger.tag(text)
-            self.assertTrue( 'my_tokens' in text.layers.keys() )
-            self.assertTrue( 'my_compounds' in text.layers.keys() )
-            self.assertTrue( 'my_words' in text.layers.keys() )
-            self.assertFalse( 'tokens' in text.layers.keys() )
-            self.assertFalse( 'compound_tokens' in text.layers.keys() )
-            self.assertFalse( 'words' in text.layers.keys() )
+            self.assertTrue( 'my_tokens' in text.layers)
+            self.assertTrue( 'my_compounds' in text.layers)
+            self.assertTrue( 'my_words' in text.layers)
+            self.assertFalse( 'tokens' in text.layers)
+            self.assertFalse( 'compound_tokens' in text.layers)
+            self.assertFalse( 'words' in text.layers)
             words_layer = text['my_words']
             # Fetch result
             word_segmentation = [] 

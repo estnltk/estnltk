@@ -409,7 +409,7 @@ class CorpusBasedMorphDisambiguator( object ):
         """
         for d in range( len(docs) ):
             morph_analysis = docs[d][ self.output_layer ]
-            assert hidden_words_layer in docs[d].layers.keys(), \
+            assert hidden_words_layer in docs[d].layers, \
                    '(!) Text is missing layer {!r}'.format( hidden_words_layer )
             hidden_words = docs[d][ hidden_words_layer ]
             hidden_words_id = 0
@@ -606,7 +606,7 @@ class CorpusBasedMorphDisambiguator( object ):
             assert isinstance(doc, Text)
             missing = []
             for layer in required_layers:
-                if layer not in doc.layers.keys():
+                if layer not in doc.layers:
                     missing.append( layer )
             if missing:
                 raise Exception('(!) {!r} is missing layers: {!r}'.format(doc, missing))

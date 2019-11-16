@@ -644,10 +644,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             # Perform analysis
             tokens_tagger.tag(text)
             cp_tagger.tag(text)
-            self.assertTrue( 'my_tokens' in text.layers.keys() )
-            self.assertTrue( 'my_compounds' in text.layers.keys() )
-            self.assertFalse( 'tokens' in text.layers.keys() )
-            self.assertFalse( 'compound_tokens' in text.layers.keys() )
+            self.assertTrue( 'my_tokens' in text.layers)
+            self.assertTrue( 'my_compounds' in text.layers)
+            self.assertFalse( 'tokens' in text.layers)
+            self.assertFalse( 'compound_tokens' in text.layers)
             word_tagger.tag(text)
             words_layer = text['words']
             # Fetch result
@@ -674,10 +674,10 @@ class PretokenizedTextCompoundTokenTaggerTest(unittest.TestCase):
         tokens_tagger.tag(text)
         compound_tokens_tagger.tag(text)
         # assert layers
-        self.assertTrue( 'ws_tokens' in text.layers.keys() )
-        self.assertTrue( 'ws_compound_tokens' in text.layers.keys() )
-        self.assertFalse( 'tokens' in text.layers.keys() )
-        self.assertFalse( 'compound_tokens' in text.layers.keys() )
+        self.assertTrue( 'ws_tokens' in text.layers)
+        self.assertTrue( 'ws_compound_tokens' in text.layers)
+        self.assertFalse( 'tokens' in text.layers)
+        self.assertFalse( 'compound_tokens' in text.layers)
         # assert compound tokens
         self.assertListEqual(text['ws_compound_tokens'].text, ['New', 'York']) 
         

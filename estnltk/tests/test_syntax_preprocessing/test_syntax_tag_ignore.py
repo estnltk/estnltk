@@ -472,8 +472,8 @@ def test_change_input_output_layer_names_of_syntax_ignore_tagger():
         sentence_tokenizer.tag(text)
         syntax_ignore_tagger.tag(text)
         # Assertion for layer existence
-        assert 'my_syntax_ignore' in text.layers.keys()
-        assert 'syntax_ignore' not in text.layers.keys()
+        assert 'my_syntax_ignore' in text.layers
+        assert 'syntax_ignore' not in text.layers
         # Collect results 
         ignored_texts = \
             [span.enclosing_text for span in text['my_syntax_ignore']]

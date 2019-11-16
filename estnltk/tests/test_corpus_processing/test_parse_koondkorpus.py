@@ -146,7 +146,7 @@ def test_parse_koondkorpus_xml_file_content_and_preserve_original_tokenization_w
     assert len(texts) == 2
     # Assert layer names
     for text in texts:
-        for layer_name in text.layers.keys():
+        for layer_name in text.layers:
             assert layer_name.startswith('original_tokenization_')
     # Assert layer access
     doc1 = texts[0]
