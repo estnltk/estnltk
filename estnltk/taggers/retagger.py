@@ -1,7 +1,7 @@
 from estnltk.text import Layer, Text
 from estnltk.taggers import Tagger
 
-from typing import MutableMapping
+from typing import MutableMapping, Union, Set
 
 
 class Retagger(Tagger):
@@ -31,12 +31,34 @@ class Retagger(Tagger):
     def _change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> None:
         raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
 
-    def change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict = None) -> None:
+    def change_layer(self, text: Text, layers: Union[MutableMapping[str, Layer], Set[str]], status: dict = None) -> None:
+        """
+        # QUICK FIXES:
+        layers should be a dictionary of layers but due to the changes in the Text object signature, it is actually a
+        list of layer names which will cause a lot of problems in refactoring. Hence, we convert list of layer names
+        to dictionary of layers.
+
+        # REFLECTION:
+        Adding layers as a separate argument is justified only if the layer is not present in the text object but
+        then these layers become undocumented input which make the dependency graph useless.
+
+        The only useful place where layers as separate argument is useful is in text collectons where we cn work with
+        detached layers directly.
+
+        Hence, it makes sense to rename layers parameter as detached_layers and check that these are indeed detached
+        Also fix some resolving order for the case text[layer] != layers[layer]
+        """
+        # Quick fix for refactoring problem (does not propagate changes out of the function)
+        if type(layers) == set and (not layers or set(map(type, layers)) == {str}):
+            layers = {layer: text[layer] for layer in layers}
+        # End of fix
+
         # In order to change the layer, the layer must already exist
         assert self.output_layer in layers, \
           "output_layer {!r} missing from layers {}".format(
                                                  self.output_layer,
                                                  list(layers.keys()))
+
         target_layers = {name: layers[name] for name in self.input_layers}
         # TODO: check that layer is not frozen
 
