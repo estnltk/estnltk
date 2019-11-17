@@ -29,14 +29,14 @@ def test_copy_constructors():
     assert s_copy is not text
     assert s_copy.text is text.text
     assert s_copy.meta is text.meta
-    assert s_copy.layers.keys() == text.layers.keys()
+    assert s_copy.layers == text.layers
 
     d_copy = deepcopy(text)
     assert d_copy is not text
     assert d_copy.text == text.text
     assert d_copy.meta is not text.meta
     assert d_copy.meta == text.meta
-    assert d_copy.layers.keys() == text.layers.keys()
+    assert d_copy.layers == text.layers
 
     # Check that deepcopy indeed uses the memo list
     # noinspection PyArgumentList
@@ -56,7 +56,7 @@ def test_copy_constructors():
     assert s_copy is not text
     assert s_copy.meta is text.meta
     assert s_copy.text is text.text
-    assert s_copy.layers.keys() == text.layers.keys()
+    assert s_copy.layers == text.layers
     for layer in s_copy.layers:
         assert s_copy[layer] is not text[layer]
         assert s_copy[layer] == text[layer]
@@ -66,7 +66,7 @@ def test_copy_constructors():
     assert d_copy.text == text.text
     assert d_copy.meta is not text.meta
     assert d_copy.meta == text.meta
-    assert d_copy.layers.keys() == text.layers.keys()
+    assert d_copy.layers == text.layers
     for layer in d_copy.layers:
         assert d_copy[layer] is not text[layer]
         assert d_copy[layer] == text[layer]
@@ -78,7 +78,7 @@ def test_copy_constructors():
     assert s_copy is not text
     assert s_copy.text is text.text
     assert s_copy.meta is text.meta
-    assert s_copy.layers.keys() == text.layers.keys()
+    assert s_copy.layers == text.layers
 
     d_copy = deepcopy(text)
     assert d_copy is not text
@@ -86,7 +86,7 @@ def test_copy_constructors():
     assert d_copy.meta is not text.meta
     assert d_copy.meta.keys() == text.meta.keys()
     assert d_copy.meta['text'] is d_copy
-    assert d_copy.layers.keys() == text.layers.keys()
+    assert d_copy.layers == text.layers
 
     text = Text("Rekursiivsete kihtidega teksti kopeerimine")
     text.add_layer(Layer('empty_layer', attributes=[]))
@@ -110,7 +110,7 @@ def test_copy_constructors():
     assert d_copy.text == text.text
     assert d_copy.meta is not text.meta
     assert d_copy.meta == text.meta
-    assert d_copy.layers.keys() == text.layers.keys()
+    assert d_copy.layers == text.layers
     for layer in d_copy.layers:
         assert d_copy[layer] is not text[layer]
     assert d_copy.empty_layer == text.empty_layer
@@ -257,7 +257,7 @@ def test_access_of_shadowed_layers():
     assert text.text == 'See on kihtideta tekst'
     assert text.meta == {}
     assert text.attributes == {}
-    assert text.layers == {}
+    assert text.layers == set()
     assert text.attribute_mapping_for_elementary_layers == Text.attribute_mapping_for_elementary_layers
     assert text.attribute_mapping_for_enveloping_layers == Text.attribute_mapping_for_enveloping_layers
     assert text.methods == set(public_methods) | set(properties) | set(protected_methods) | private_methods
@@ -360,7 +360,7 @@ def test_add_layer():
 
 def test_pop_layer():
     text = Text('Minu nimi on Uku.')
-    assert text.layers == {}
+    assert text.layers == set()
 
     layer_names = ['words', 'sentences', 'morph_analysis']
 
@@ -381,7 +381,7 @@ def test_pop_layer():
     assert 'sentences' not in text.__dict__
     assert 'morph_analysis' not in text.__dict__
 
-    assert text.layers == {}
+    assert text.layers == set()
 
     # Test that deleted layers are indeed missing
     with pytest.raises(AttributeError):
@@ -408,7 +408,7 @@ def test_pop_layer():
     assert 'sentences' not in text.__dict__
     assert 'morph_analysis' not in text.__dict__
 
-    assert text.layers == {}
+    assert text.layers == set()
 
     # Test that deleted layers are indeed missing
     with pytest.raises(AttributeError):
