@@ -162,15 +162,11 @@ class Text:
         return str(self)
 
     @property
-    def layers(self):
+    def layers(self) -> Set[str]:
         """
-        Returns the names of all layers of the text object
-
-        # TODO: Currently, it returns a dict for backward compatibility
-                Make it to the list of strings instead
+        Returns the names of all layers in the text object in alphabetical order.
         """
         return self.__dict__.keys() | self._shadowed_layers.keys()
-        # return {**self.__dict__, **self._shadowed_layers}
 
     @property
     def attributes(self) -> DefaultDict[str, List[str]]:
