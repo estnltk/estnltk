@@ -62,8 +62,10 @@ class Text:
         memo[id(self)] = result
         memo[id(text)] = text
         result.meta = deepcopy(self.meta, memo)
-        for layer_name in self.layers:
-            layer = deepcopy(self[layer_name], memo)
+        # Layers must be created in the topological order
+        # TODO: test this in tests
+        for original_layer in self.list_layers():
+            layer = deepcopy(original_layer, memo)
             memo[id(layer)] = layer
             result.add_layer(layer)
         return result
@@ -74,7 +76,9 @@ class Text:
         state = {
             'text': self.text,
             'meta': self.meta,
-            'layers': [copy(self[layer]) for layer in self.layers]
+            # Layers must be created in the topological order
+            # TODO: test this in tests
+            'layers': [copy(layer) for layer in self.list_layers()]
         }
         for layer in state['layers']:
             layer.text_object = None
@@ -165,7 +169,8 @@ class Text:
         # TODO: Currently, it returns a dict for backward compatibility
                 Make it to the list of strings instead
         """
-        return {**self.__dict__, **self._shadowed_layers}
+        return self.__dict__.keys() | self._shadowed_layers.keys()
+        # return {**self.__dict__, **self._shadowed_layers}
 
     @property
     def attributes(self) -> DefaultDict[str, List[str]]:
