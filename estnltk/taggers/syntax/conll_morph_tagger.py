@@ -49,8 +49,7 @@ def get_values(id, text):
     text.analyse('syntax_preprocessing')
     res1 = export_CG3(text)
     vislcgRulesDir = abs_path('taggers/syntax/files')
-    vislcg_path = '/usr/bin/vislcg3'
-    pipeline2 = VISLCG3Pipeline(rules_dir=vislcgRulesDir, vislcg_cmd=vislcg_path)
+    pipeline2 = VISLCG3Pipeline(rules_dir=vislcgRulesDir)
     results2 = pipeline2.process_lines(res1)
     for j, word in enumerate(list(filter(None, convert_cg3_to_conll(results2.split('\n'))))):
         if word != '':
