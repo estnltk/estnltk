@@ -21,7 +21,6 @@ def test_object_teardown():
     assert layer.text_object.text == 'Surematu Kašei'
 
 
-# noinspection PyArgumentList,SpellCheckingInspection
 def test_copy_constructors():
     text = Text("Kihtideta teksti kopeerimine")
 
@@ -126,7 +125,6 @@ def test_copy_constructors():
     # assert text['text'][0].espan is d_copy.nonempty_layer[0], "Fails as layers deep copy is incorrect"
 
 
-# noinspection PyPropertyAccess,PyPropertyAccess
 def test_attribute_assignment():
     # Attribute text is assignable under certain conditions
     with pytest.raises(AttributeError, match='raw text has already been set'):

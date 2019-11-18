@@ -3,15 +3,86 @@ import pytest
 from estnltk import Layer
 from estnltk import Text
 from estnltk.layer import AttributeList
+from estnltk.layer.base_span import ElementaryBaseSpan
 
 
 def test_pickle():
-    # Text object can be pickled
     import pickle
-    t_1 = Text('Tekst algab. Tekst lõpeb.').tag_layer()
-    b = pickle.dumps(t_1)
-    t_2 = pickle.loads(b)
-    assert t_1 == t_2
+
+    def save_restore(text: Text) -> Text:
+        bytes = pickle.dumps(text)
+        return pickle.loads(bytes)
+
+    text = Text("Kihtideta teksti serialiseerimine")
+    result = save_restore(text)
+    assert result.text == text.text
+    assert result.meta == text.meta
+    assert result.layers == text.layers
+
+    text = Text("Lihtsate kihtidega teksti kopeerimine")
+    text.meta = {'a': 55, 'b': 53}
+    text.add_layer(Layer('empty_layer', attributes=[]))
+    text.add_layer(Layer('nonempty_layer', attributes=['a', 'b']))
+    text.nonempty_layer.add_annotation(ElementaryBaseSpan(0, 4), a=1, b=2)
+    text.nonempty_layer.add_annotation(ElementaryBaseSpan(5, 8), a=3, b=4)
+    result = save_restore(text)
+    assert result.text == text.text
+    assert result.meta == text.meta
+    assert result.layers == text.layers
+    for layer in result.layers:
+        assert result[layer] == text[layer]
+
+    text = Text('Tavaline analüüsitud teksti serialiseerimine.').analyse('all')
+    result = save_restore(text)
+    assert result.text == text.text
+    assert result.meta == text.meta
+    assert result.layers == text.layers
+    for layer in result.layers:
+        assert result[layer] == text[layer]
+
+    text = Text("Rekursiivse metaga teksti kopeerimine")
+    text.meta = {'text': text}
+    result = save_restore(text)
+    assert result.text == text.text
+    assert set(result.meta.keys()) == {'text'}
+    assert result.meta['text'] is result
+    assert result.layers == text.layers
+    for layer in result.layers:
+        assert result[layer] == text[layer]
+
+    text = Text("Rekursiivsete kihtidega teksti kopeerimine")
+    text.add_layer(Layer('empty_layer', attributes=[]))
+    text.add_layer(Layer('nonempty_layer', attributes=['text', 'layer', 'espan']))
+    text.nonempty_layer.add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text.nonempty_layer)
+    text.nonempty_layer[0].espan = text.nonempty_layer[0]
+    text.add_layer(Layer('text', attributes=['text', 'layer', 'espan']))
+    text['text'].add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text['text'], espan=None)
+    text['text'][0].espan = text['text'][0]
+    text['text'].add_annotation(ElementaryBaseSpan(5, 8), text=text, layer=text.nonempty_layer, espan=None)
+    text['text'][1].espan = text.nonempty_layer[0]
+    result = save_restore(text)
+    assert result.text == text.text
+    assert result.meta == text.meta
+    assert result.layers == text.layers
+    assert len(result.empty_layer) == 0
+    assert len(result.nonempty_layer) == len(text.nonempty_layer)
+    for i in range(len(result.nonempty_layer)):
+        assert result.nonempty_layer[i].base_span == text.nonempty_layer[i].base_span
+    assert result.nonempty_layer[0]['text'] is result
+    # This fails for some reason
+    # assert result.nonempty_layer[0]['layer'] is result.nonempty_layer
+    assert result.nonempty_layer[0]['espan'] is result.nonempty_layer[0]
+    assert len(result['text']) == len(text['text'])
+    for i in range(len(result['text'])):
+        assert result['text'][i].base_span == text['text'][i].base_span
+    assert result['text'][0]['text'] is result
+    # This fails for some reason
+    # assert result['text'][0]['layer'] is result['text']
+    assert result['text'][0]['espan'] is result['text'][0]
+    assert result['text'][1]['text'] is result
+    # This fails for some reason
+    # assert result['text'][1]['layer'] is result['nonempty_layer']
+    assert result['text'][1]['espan'] is result['nonempty_layer'][0]
 
 
 def test_to_records():
