@@ -115,7 +115,7 @@ class VabamorfTagger(Tagger):
             Add phonetic information to root forms.
         re_sort_analyses: boolean (default: morf_common.SORT_VM_MORPH_ANALYSES)
             Re-sort ambiguous morphological analyses. 
-            Re-sorting was used in historical purposes in EstNLTK's 
+            Re-sorting was used in historical reasons in EstNLTK's 
             versions 1.6.0 - 1.6.4 in order to assure consistent ordering 
             in case of ambiguity. 
             In future versions, we'll likely stick with the default ordering
@@ -374,7 +374,7 @@ class VabamorfAnalyzer(Tagger):
             Add phonetic information to root forms.
         re_sort_analyses: boolean (default: morf_common.SORT_VM_MORPH_ANALYSES)
             Re-sort ambiguous morphological analyses. 
-            Re-sorting was used in historical purposes in EstNLTK's 
+            Re-sorting was used in historical reasons in EstNLTK's 
             versions 1.6.0 - 1.6.4 in order to assure consistent ordering 
             in case of ambiguity. 
             In future versions, we'll likely stick with the default ordering
@@ -592,7 +592,7 @@ class VabamorfDisambiguator(Retagger):
             disambiguating text morphologically;
         re_sort_analyses: boolean (default: morf_common.SORT_VM_MORPH_ANALYSES)
             Re-sort ambiguous morphological analyses. 
-            Re-sorting was used in historical purposes in EstNLTK's 
+            Re-sorting was used in historical reasons in EstNLTK's 
             versions 1.6.0 - 1.6.4 in order to assure consistent ordering 
             in case of ambiguity. 
             In future versions, we'll likely stick with the default ordering
