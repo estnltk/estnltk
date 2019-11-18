@@ -119,7 +119,7 @@ def test_morph_analyzer_without_guessing():
     # Check for unknown word placeholders
     assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
     assert AmbiguousAttributeList([[None],
-                                   ['ole', 'ole'], [None], [None],
+                                   ['ole', 'ole'], [None], ['rõlge', 'rõlge=lt'],
                                    ['hea', 'hea', 'hea', 'hea'],
                                    ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
 
@@ -128,7 +128,7 @@ def test_morph_analyzer_without_guessing():
     for word, partofspeech in zip(text.words.text, text.partofspeech):
         if partofspeech[0] is None:
             unknown_words.append(word)
-    assert ['Mulll', 'yks', 'rõlgelt'] == unknown_words
+    assert ['Mulll', 'yks'] == unknown_words
 
 
 
@@ -264,7 +264,7 @@ def test_morph_disambiguation_exception_on_unknown_words():
     # Check for unknown word placeholders
     assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
     assert AmbiguousAttributeList([[None],
-                                   ['ole', 'ole'], [None], [None],
+                                   ['ole', 'ole'], [None], ['rõlge', 'rõlge=lt'],
                                    ['hea', 'hea', 'hea', 'hea'],
                                    ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
 

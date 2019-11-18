@@ -11,9 +11,10 @@ DICT_ROOT_PATH: str
     The path to the root directory containing subdirectories for different versions of 
     Vabamorf's lexicons.
 VM_LEXICONS: str
-    List containing subdirectories of DICT_ROOT_PATH (sorted by names). Subdirectory names 
-    are ISO format dates, indicating dates in which corresponding lexicons were created 
-    or introduced into EstNLTK. 
+    List of Vabamorf's lexicons available in EstNLTK. Basically, the list contains 
+    subdirectories of DICT_ROOT_PATH (sorted by names). Subdirectory names are ISO 
+    format dates, indicating dates in which corresponding lexicons were created or 
+    introduced into EstNLTK. 
     As directory names are sorted, the last name is always the latest one, and this is 
     also the lexicon used by default.
 phonetic_markers: str

@@ -630,8 +630,8 @@ def test_cb_disambiguator_on_unknown_words():
             for analysis in word_analyses.annotations:
                 if _is_empty_annotation(analysis):
                     unknowns.append(word_analyses.text)
-    assert unknowns == ['Mulll', 'yks', 'Davai', ',', 'yks']
+    assert unknowns == ['Mulll', 'yks', ',', 'yks']
     # Assert analysis count
     [countTotal, countH, countNonH] = count_analyses( docs )
-    assert [countTotal, countH, countNonH] == [12, 0, 12]
+    assert [countTotal, countH, countNonH] == [13, 0, 13]
 
