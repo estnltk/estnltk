@@ -69,19 +69,16 @@ def test_pickle():
     for i in range(len(result.nonempty_layer)):
         assert result.nonempty_layer[i].base_span == text.nonempty_layer[i].base_span
     assert result.nonempty_layer[0]['text'] is result
-    # This fails for some reason
-    # assert result.nonempty_layer[0]['layer'] is result.nonempty_layer
+    assert result.nonempty_layer[0]['layer'] is result.nonempty_layer
     assert result.nonempty_layer[0]['espan'] is result.nonempty_layer[0]
     assert len(result['text']) == len(text['text'])
     for i in range(len(result['text'])):
         assert result['text'][i].base_span == text['text'][i].base_span
     assert result['text'][0]['text'] is result
-    # This fails for some reason
-    # assert result['text'][0]['layer'] is result['text']
+    assert result['text'][0]['layer'] is result['text']
     assert result['text'][0]['espan'] is result['text'][0]
     assert result['text'][1]['text'] is result
-    # This fails for some reason
-    # assert result['text'][1]['layer'] is result['nonempty_layer']
+    assert result['text'][1]['layer'] is result['nonempty_layer']
     assert result['text'][1]['espan'] is result['nonempty_layer'][0]
 
 

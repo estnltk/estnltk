@@ -71,27 +71,20 @@ class Text:
         return result
 
     def __getstate__(self):
-        # Shallow copy of layers is enough for serialisation
-        # But layers must be detached from text otherwise assembly fails
-        state = {
-            'text': self.text,
-            'meta': self.meta,
-            # Layers must be created in the topological order
-            # TODO: test this in tests
-            'layers': [copy(layer) for layer in self.list_layers()]
-        }
-        for layer in state['layers']:
-            layer.text_object = None
-        return state
+        # No copying is allowed or we cannot properly restore text object with recursive references.
+        return dict(text=self.text, meta=self.meta, layers=[layer for layer in self.list_layers()])
 
     def __setstate__(self, state):
-        # Initialisation is not guaranteed!
-        # Bypass the text protection mechanism
-        assert type(state['text']) == str, "'field 'text' must be of type str"
+        # Initialisation is not guaranteed! Bypass the text protection mechanism
+        assert type(state['text']) == str, '\'field \'text\' must be of type str'
         super().__setattr__('text', state['text'])
         super().__setattr__('_shadowed_layers', {})
         self.meta = state['meta']
+        # Layer.text_object is set! Bypass the add_layer protection mechanism
+        # By wonders of pickling this resolves all recursive references including references to the text object itself
         for layer in state['layers']:
+            assert id(layer.text_object) == id(self), '\'layer.text_object\' must reference caller'
+            layer.text_object = None
             self.add_layer(layer)
 
     def __setattr__(self, name, value):
