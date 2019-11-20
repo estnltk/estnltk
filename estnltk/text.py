@@ -1,10 +1,11 @@
 import html
+import pandas
+import networkx as nx
+
 from copy import copy, deepcopy
 from collections import defaultdict
 from typing import MutableMapping, List, Sequence, Mapping, Set, Union, Any
 from typing import DefaultDict
-import pandas
-import networkx as nx
 
 from estnltk.layer.layer import Layer
 
@@ -79,7 +80,7 @@ class Text:
         super().__setattr__('text', state['text'])
         super().__setattr__('_shadowed_layers', {})
         self.meta = state['meta']
-        # Layer.text_object is set! Bypass the add_layer protection mechanism
+        # Layer.text_object is already set! Bypass the add_layer protection mechanism
         # By wonders of pickling this resolves all recursive references including references to the text object itself
         for layer in state['layers']:
             assert id(layer.text_object) == id(self), '\'layer.text_object\' must reference caller'
@@ -263,6 +264,11 @@ class Text:
         return self
 
     def analyse(self, t: str, resolver=None) -> 'Text':
+        """
+        Analyses text by adding standard NLP layers. Analysis level specifies what layers must be present.
+
+        # TODO: Complete documentation by explicilty stating what levels are present for which level
+        """
         if resolver is None:
             resolver = DEFAULT_RESOLVER
         if t == 'segmentation':
@@ -299,6 +305,17 @@ class Text:
         return sorted_layers
 
     def diff(self, other):
+        """
+        Returns a brief diagnostic message that explains why two Text objects are different.
+
+        # TODO: Make it nicer for the Jupyter environment
+        # TODO: Use memo dict to break infinite loops
+        # TODO: Think what is the right reasoning to give out for various occasions
+
+        # BUGS:
+          - Loops with recursive self-references.
+          - Layer comparison ignores shadowed layers.
+        """
         if self is other:
             return None
         if not isinstance(other, Text):
