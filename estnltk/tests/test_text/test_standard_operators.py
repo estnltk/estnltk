@@ -237,7 +237,7 @@ def test_access_of_shadowed_layers():
     # List of all attributes that can be potentially shadowed
     properties = ['attributes', 'layers']
     private_methods = {method for method in dir(object) if callable(getattr(object, method, None))}
-    public_methods = ['add_layer', 'analyse', 'diff', 'list_layers', 'pop_layer', 'set_text', 'tag_layer']
+    public_methods = ['add_layer', 'analyse', 'diff', 'list_layers', 'pop_layer', 'tag_layer']
     protected_methods = ['_repr_html_']
     public_variables = ['attribute_mapping_for_elementary_layers', 'attribute_mapping_for_enveloping_layers', 'methods']
     slots = ['text', 'meta', '__dict__', '_shadowed_layers']

@@ -20,7 +20,6 @@ class Text:
                             'diff',
                             'layers',
                             'list_layers',
-                            'set_text',
                             'tag_layer'
                         } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
@@ -255,14 +254,6 @@ class Text:
                 self._shadowed_layers.pop(name, None)
 
         return result
-
-    def set_text(self, text: str):
-        """
-        Deprecated duplicated functionality. Use text property!
-        # TODO: To be removed
-        """
-        assert self.text is None, "raw text has already been set"
-        self.text = text
 
     def tag_layer(self, layer_names: Sequence[str] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
         if resolver is None:
