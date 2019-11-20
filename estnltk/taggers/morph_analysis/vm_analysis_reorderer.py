@@ -1,6 +1,8 @@
 import csv
 import os, os.path
 
+from collections import OrderedDict
+
 from estnltk import Annotation
 from estnltk.text import Layer, Text
 from estnltk.taggers import Retagger
@@ -11,7 +13,7 @@ from estnltk.taggers.morph_analysis.morf import VabamorfTagger
 
 # Default dict of analysis reorderings 
 DEFAULT_REORDERING_DICT = os.path.join(os.path.dirname(__file__),
-                          'reorderings/et_edt-ud-train_sorted_analyses_full.csv')
+                          'reorderings/et_edt-ud-train_amb_analyses_all.csv')
 
 class MorphAnalysisReorderer(Retagger):
     """ Retagger for reordering ambiguous morphological analyses.
@@ -283,7 +285,7 @@ class MorphAnalysisReorderer(Retagger):
                 continue
             # We have an ambiguous analysis
             # 1) Group annotations by their NORMALIZED_TEXT
-            annotations_by_norm_text = {}
+            annotations_by_norm_text = OrderedDict()
             for anno in morph_word.annotations:
                 norm_text = anno[NORMALIZED_TEXT]
                 if norm_text is None:
