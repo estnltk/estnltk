@@ -46,7 +46,7 @@ class MorphAnalysisReorderer(Retagger):
                  ]
 
     def __init__(self, output_layer:str='morph_analysis',
-                       word_to_ordering_csv_file:str=DEFAULT_REORDERING_DICT ):
+                       reorderings_csv_file:str=DEFAULT_REORDERING_DICT ):
         """ Initialize MorphAnalysisReorderer class.
 
         Parameters
@@ -54,8 +54,8 @@ class MorphAnalysisReorderer(Retagger):
         output_layer: str (default: 'morph_analysis')
             Name of the morphological analysis layer that is to be changed;
             
-        word_to_ordering_csv_file: str (default: DEFAULT_REORDERING_DICT)
-            Path to the CSV file containing word reorderings. 
+        reorderings_csv_file: str (default: DEFAULT_REORDERING_DICT)
+            Path to the CSV file containing morph analysis reorderings. 
             By default, assumes that csv file is in tab-separated-values 
             format (dialect='excel-tab') and in the encoding 'utf-8'.
             The first line must be a header specifying (at minimum)
@@ -75,11 +75,11 @@ class MorphAnalysisReorderer(Retagger):
         # Set input/output layer names
         self.output_layer = output_layer
         self.input_layers = [self.output_layer]
-        assert os.path.isfile( word_to_ordering_csv_file ), \
-            '(!) Invalid input CSV file location: {!r}'.format( word_to_ordering_csv_file )
-        self.reorderings_file = word_to_ordering_csv_file
+        assert os.path.isfile( reorderings_csv_file ), \
+            '(!) Invalid input CSV file location: {!r}'.format( reorderings_csv_file )
+        self.reorderings_file = reorderings_csv_file
         self._word_to_ordering, self._word_to_ordering_header = \
-             self._load_reorderings( word_to_ordering_csv_file )
+             self._load_reorderings( reorderings_csv_file )
         self._word_to_ordering_header_minimum = \
             [ i for i in self._word_to_ordering_header if i not in ['freq', 'prob', 'text']]
 
