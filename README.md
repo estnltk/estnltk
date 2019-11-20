@@ -8,7 +8,7 @@ The project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](https://
 
 Currently, there are two branches of EstNLTK:
 
-* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.3beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk) and PyPI. It contains analysis tools up to the level of morphological analysis, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions: 3.5+;
+* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.4beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk) and PyPI. It contains analysis tools up to the level of morphological analysis, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions: 3.5+;
   
 * version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4+ and 2.7. Python 3.6 and 3.7 are not supported;
 
@@ -23,7 +23,7 @@ As some of the EstNLTK's dependencies are not yet compatible with the newest ver
 
 1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.6, for instance:
 ```
-conda create -n py36 python=3.6 anaconda
+conda create -n py36 python=3.6
 ```
 
 2. [activate the environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment), for instance:
