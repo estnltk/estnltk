@@ -4,27 +4,29 @@ import networkx as nx
 
 from copy import copy, deepcopy
 from collections import defaultdict
-from typing import MutableMapping, List, Sequence, Mapping, Set, Union, Any
+from typing import List, Sequence, Set, Union, Any
 from typing import DefaultDict
 
 from estnltk.layer.layer import Layer
 
 
 class Text:
-    # List of all methods for Text object
-    methods: Set[str] = {
-                            '_repr_html_',
-                            'add_layer',
-                            'analyse',
-                            'attributes',
-                            'pop_layer',
-                            'diff',
-                            'layers',
-                            'list_layers',
-                            'tag_layer'
-                        } | {method for method in dir(object) if callable(getattr(object, method, None))}
+    # All methods for Text object
+    # methods: Set[str]
+    methods = {
+        '_repr_html_',
+        'add_layer',
+        'analyse',
+        'attributes',
+        'pop_layer',
+        'diff',
+        'layers',
+        'list_layers',
+        'tag_layer'
+    } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
-    attribute_mapping_for_elementary_layers: Mapping[str, str] = {
+    # attribute_mapping_for_elementary_layers: Mapping[str, str]
+    attribute_mapping_for_elementary_layers = {
         'lemma': 'morph_analysis',
         'root': 'morph_analysis',
         'root_tokens': 'morph_analysis',
@@ -39,11 +41,11 @@ class Text:
     __slots__ = ['text', 'meta', '__dict__', '_shadowed_layers']
 
     def __init__(self, text: str = None) -> None:
-        self.text: str
+        # self.text: str
         super().__setattr__('text', text)
-        self._shadowed_layers: Mapping[str, Layer]
+        # self._shadowed_layers: Mapping[str, Layer]
         super().__setattr__('_shadowed_layers', {})
-        self.meta: MutableMapping
+        # self.meta: MutableMapping
         super().__setattr__('meta', {})
 
     def __copy__(self):
@@ -267,7 +269,7 @@ class Text:
         """
         Analyses text by adding standard NLP layers. Analysis level specifies what layers must be present.
 
-        # TODO: Complete documentation by explicilty stating what levels are present for which level
+        # TODO: Complete documentation by explicitly stating what levels are present for which level
         """
         if resolver is None:
             resolver = DEFAULT_RESOLVER
