@@ -29,7 +29,7 @@ The last step is hardest as you might get random C++ compiling and linking error
 4. Copy the dynamic library to the cloned repo in the path `estnltk/vabamorph`      
  
 
-## Additonal suppot files files
+## Additonal suppot files
 
 * `estnltk-3.5.sh`: creates `estnltk-3.5` environment for Pyhton 3.5
 * `estnltk-3.6.sh`: creates `estnltk-3.6` environment for Pyhton 3.6
