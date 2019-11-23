@@ -35,3 +35,15 @@ The last step is hardest as you might get random C++ compiling and linking error
 * `estnltk-3.6.sh`: creates `estnltk-3.6` environment for Pyhton 3.6
 * `jupyter-notebook-3.5.sh`: activates `estnltk-3.5` and launces Jupyter shell
 * `jupyter-notebook-3.6.sh`: activates `estnltk-3.6` and launces Jupyter shell
+
+## Make PyCharm to use these environments
+
+* Preferences > Project: [project_name] > Project Interpreter
+  * Add Python Interpreter > Conda environment > Existing environment
+  * Locate `conda` enviromnet directory and the environment
+  * Locate set `bin/pyhton` as the interpreter  
+
+* Preferences > Project: [project_name] > Editor > Inspections > Code compatibility inspection 
+  * Flag supported Pyhton versions: 3.5, 3.6, 3.7, 3.8   
+
+
