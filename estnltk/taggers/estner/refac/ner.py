@@ -15,7 +15,6 @@ tagger: NerTagger
 
 """
 import os
-from pprint import pprint
 import shutil
 import errno
 import inspect
