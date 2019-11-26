@@ -555,7 +555,7 @@ class Layer:
         raise ValueError(item)
 
     def __len__(self):
-        return len(self._span_list)
+        return len(self.__getattribute__('_span_list'))
 
     def __str__(self):
         return 'Layer(name={self.name!r}, attributes={self.attributes}, spans={self._span_list})'.format(self=self)
