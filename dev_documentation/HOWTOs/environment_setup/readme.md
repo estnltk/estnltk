@@ -26,8 +26,7 @@ The last step is hardest as you might get random C++ compiling and linking error
    * `/opt/anaconda3` for Linux and macOS
 2. Go to the package directory `pkgs/estnltk-1.6xxx-3.y/lib/pyhton3.y/site-packages/estnltk/vabamorf`
 3. Locate the dynamic library `_vabamorf.cpyhton-3yzz.zz`
-4. Copy the dynamic library to the cloned repo in the path `estnltk/vabamorph`      
- 
+4. Copy the dynamic library to the cloned repo in the path `estnltk/vabamorph`  
 
 ## Additonal suppot files
 
