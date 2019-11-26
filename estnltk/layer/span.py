@@ -91,6 +91,7 @@ class Span:
     def base_span(self):
         return self._base_span
 
+    # TODO: Legacy. To be removed!
     @property
     def base_spans(self):
         return [(self.start, self.end)]

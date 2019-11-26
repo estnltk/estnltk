@@ -36,6 +36,7 @@ class Text:
         'partofspeech': 'morph_analysis'
     }
 
+    # attribute_mapping_for_enveloping_layers: Mapping[str, str]
     attribute_mapping_for_enveloping_layers = attribute_mapping_for_elementary_layers
 
     __slots__ = ['text', 'meta', '__dict__', '_shadowed_layers']
@@ -45,7 +46,7 @@ class Text:
         super().__setattr__('text', text)
         # self._shadowed_layers: Mapping[str, Layer]
         super().__setattr__('_shadowed_layers', {})
-        # self.meta: MutableMapping
+        # self.meta: MutableMapping[str, Any]
         super().__setattr__('meta', {})
 
     def __copy__(self):
@@ -58,7 +59,6 @@ class Text:
         return result
 
     def __deepcopy__(self, memo={}):
-        print(memo)
         text = copy(self.text)
         result = Text(text)
         memo[id(self)] = result
@@ -90,7 +90,6 @@ class Text:
             self.add_layer(layer)
 
     def __setattr__(self, name, value):
-
         # Resolve meta attribute
         if name == 'meta':
             if not isinstance(value, dict):

@@ -1,8 +1,11 @@
 import keyword
 from typing import Union, List, Sequence
+from typing import Mapping, MutableMapping, Any
 import pandas
 import collections
 import warnings
+
+from copy import copy, deepcopy
 
 from estnltk import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
 from estnltk import Span, EnvelopingSpan, Annotation, SpanList
@@ -57,6 +60,18 @@ class Layer:
                  default_values: dict = None,
                  serialisation_module=None
                  ) -> None:
+
+        # self.name: str
+        # self.parent: str
+        # self.enveloping: str
+        # self.ambiguous: bool
+        # self.attributes: List[str]
+        # self.default_values: Mapping[str, Any]
+        # self._span_list: SpanList
+        # self.serialisation_module: module
+        # self.meta: MutableMapping[str, Any]
+        # self.text_object: 'Text'
+
         assert parent is None or enveloping is None, "can't be derived AND enveloping"
 
         self.default_values = default_values or {}
@@ -99,6 +114,11 @@ class Layer:
         Creates a new layer object with the same content.
 
         New object is needed as a same layer object cannot be part of another text object.
+
+        TODO: Current version is ultashallow (copyconstructor in C++ terms)
+        - Think how to define copy that more deep but not ultra deep
+        - consider the behaviour of lists as an example
+
         """
         result = Layer(
             name=self.name,
@@ -112,14 +132,43 @@ class Layer:
         result._span_list = self._span_list
         return result
 
+    def __deepcopy__(self, memo=None):
+        # We must put instance to memo before deepcopy operations
+        memo = memo or {}
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        # All assignments are safe as self is consistent
+        result.name = self.name                                      # Immutable
+        result.attributes = copy(self.attributes)                    # List[Immutable]
+        memo[id(self.attributes)] = result.attributes
+        result.text_object = deepcopy(self.text_object, memo)        # Mutable
+        result.parent = self.parent                                  # Immutable
+        result.enveloping = self.enveloping                          # Immutable
+        result.ambiguous = self.ambiguous                            # Immutable
+        result.default_values = deepcopy(self.default_values, memo)  # Mutable
+        result.serialisation_module = self.serialisation_module      # Immutable
+        result.meta = deepcopy(self.meta, memo)                      # Mutable
+
+        result._span_list = SpanList()                               # Mutable
+        for span in self:
+            for annotation in span.annotations:
+                result.add_annotation(
+                    span.base_span,                                  # Immutable
+                    **deepcopy(annotation, memo))                    # Mutable
+        return result
+
+
+    # TODO: Seem braindead attibute. To be deleted
     @property
     def layer(self):
         return self
-
+    # TODO: is not meaningful. To be deleted
     @property
     def start(self):
         return self._span_list.spans[0].start
 
+    # TODO: is incorrect. To be corrected
     @property
     def end(self):
         return self._span_list.spans[-1].end
@@ -138,10 +187,12 @@ class Layer:
                 result.append(span.text)
         return result
 
+    # TODO: this is probably incorrect as the end property is incorrect
     @property
     def enclosing_text(self):
         return self.text_object.text[self.start:self.end]
 
+    # TODO: Does this need to be part of the class?
     def ancestor_layers(self):
         text = self.text_object
         layers = self.text_object.layers
@@ -160,6 +211,7 @@ class Layer:
 
         return sorted(yield_ancestors(self.name))
 
+    # TODO: Does this need to be part of the class?
     def descendant_layers(self):
         descendants = set()
         if self.parent is not None:
@@ -209,6 +261,9 @@ class Layer:
                 result = AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
         return result
 
+    # TODO: There can be only one copy function and should be __copy__
+    # Why there are two styles of copying copy vs __copy__?
+    # This seems to be a deepcopy
     def copy(self):
         layer = Layer(name=self.name,
                       attributes=self.attributes,
@@ -556,6 +611,7 @@ class Layer:
     def __repr__(self):
         return str(self)
 
+    # TODO: not secure against recursion
     def diff(self, other):
         if self is other:
             return None
