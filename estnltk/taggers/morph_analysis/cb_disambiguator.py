@@ -177,12 +177,12 @@ class CorpusBasedMorphDisambiguator( object ):
                     nextSentenceInitialPosition = wid
                 # 2) punctuation that is not comma neither semicolon, 
                 #    is before a sentence-initial position
-                elif all([a.partofspeech == 'Z' for a in word_morph.annotations]) \
+                if all([a.partofspeech == 'Z' for a in word_morph.annotations]) \
                      and not re.match('^[,;]+$', word_morph.text):
                     nextSentenceInitialPosition = wid + 1
                 # 3) beginning of an enumeration (a number that does not look 
                 #    like a date, and is followed by a period or a parenthesis),
-                elif not re.match('^[1234567890]*$', word_morph.text ) and \
+                if not re.match('^[1234567890]*$', word_morph.text ) and \
                    not re.match('^[1234567890]{1,2}.[1234567890]{1,2}.[1234567890]{4}$', word_morph.text ) and \
                    re.match("^[1234567890.()]*$", word_morph.text ):
                     nextSentenceInitialPosition = wid + 1
@@ -224,12 +224,12 @@ class CorpusBasedMorphDisambiguator( object ):
                     nextSentenceInitialPosition = wid
                 # 2) punctuation that is not comma neither semicolon, 
                 #    is before a sentence-initial position
-                elif all([a.partofspeech == 'Z' for a in word_morph.annotations]) and \
+                if all([a.partofspeech == 'Z' for a in word_morph.annotations]) and \
                    not re.match('^[,;]+$', word_morph.text):
                     nextSentenceInitialPosition = wid + 1
                 # 3) beginning of an enumeration (a number that does not look 
                 #    like a date, and is followed by a period or a parenthesis),
-                elif not re.match('^[1234567890]*$', word_morph.text ) and \
+                if not re.match('^[1234567890]*$', word_morph.text ) and \
                    not re.match('^[1234567890]{1,2}.[1234567890]{1,2}.[1234567890]{4}$', word_morph.text ) and \
                    re.match("^[1234567890.()]*$", word_morph.text ):
                     nextSentenceInitialPosition = wid + 1
