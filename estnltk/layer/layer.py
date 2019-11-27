@@ -562,6 +562,7 @@ class Layer:
         raise ValueError(item)
 
     def __len__(self):
+        # Works also on invalid class instances
         return len(self.__getattribute__('_span_list'))
 
     def __str__(self):

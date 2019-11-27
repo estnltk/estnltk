@@ -1,33 +1,32 @@
+import pytest
 from copy import copy, deepcopy
 
-import estnltk.converters.serialisation_modules as smodules
-
+import estnltk
 from estnltk import Text
 from estnltk import Layer
 from estnltk import ElementaryBaseSpan
 
 
 def test_len():
-    layer = Layer(
-        name='empty_layer',
-        attributes=['a', 'b'],
-        text_object=None,
-        parent=None,
-        enveloping=None,
-        ambiguous=True,
-        default_values=dict(a=5, b='str'),
-        serialisation_module=smodules.syntax_v0
-    )
-    layer.meta = {'count': 5}
+    # Invalid layer object does not create infinite recursion
+    layer = Layer.__new__(Layer)
+    with pytest.raises(AttributeError):
+        _ = len(layer)
+
+    # Length of an empty layer
+    layer = Layer(name='layer', attributes=['a', 'b'], default_values=dict(a=5, b='str'), ambiguous=True)
     assert len(layer) == 0
 
-    text = Text("Test that layer attributes are correctly copied")
-    text.add_layer(layer)
-
-    len(layer)
-    d_copy = deepcopy(layer)
-
-
+    # Length of a nonempty layer
+    layer.add_annotation(ElementaryBaseSpan(0, 4), a=1, b='*')
+    assert len(layer) == 1
+    layer.add_annotation(ElementaryBaseSpan(5, 7), a=2, b='*')
+    assert len(layer) == 2
+    base_span = ElementaryBaseSpan(8, 10)
+    layer.add_annotation(base_span, a=3, b='*')
+    assert len(layer) == 3
+    layer.add_annotation(base_span, a=4, b='*')
+    assert len(layer) == 3
 
 
 def test_copy_constructors():
@@ -40,7 +39,7 @@ def test_copy_constructors():
         enveloping=None,
         ambiguous=True,
         default_values=dict(a=5, b='str'),
-        serialisation_module=smodules.syntax_v0
+        serialisation_module=estnltk.converters.serialisation_modules.syntax_v0
     )
     layer.meta = {'count': 5}
 
