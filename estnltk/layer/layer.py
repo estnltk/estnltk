@@ -133,31 +133,38 @@ class Layer:
         return result
 
     def __deepcopy__(self, memo=None):
-        # We must put instance to memo before deepcopy operations
         memo = memo or {}
+        # Create invalid instance
         cls = self.__class__
         result = cls.__new__(cls)
-        memo[id(self)] = result
+        # Add all fields to the instance to make it valid
         # All assignments are safe as self is consistent
         result.name = self.name                                      # Immutable
         result.attributes = copy(self.attributes)                    # List[Immutable]
-        memo[id(self.attributes)] = result.attributes
-        result.text_object = deepcopy(self.text_object, memo)        # Mutable
+        result.text_object = None                                    # Mutable
         result.parent = self.parent                                  # Immutable
         result.enveloping = self.enveloping                          # Immutable
         result.ambiguous = self.ambiguous                            # Immutable
-        result.default_values = deepcopy(self.default_values, memo)  # Mutable
+        result.default_values = None                                 # Mutable
         result.serialisation_module = self.serialisation_module      # Immutable
+        result.meta = dict()                                         # Mutable
+        result._span_list = SpanList()                               # Mutable
+        # Add newly created valid mutable objects to memo
+        memo[id(self)] = result
+        memo[id(self.attributes)] = result.attributes
+
+        # Perform deep copy with a valid memo dict
+        result.text_object = deepcopy(self.text_object, memo)        # Mutable
+        result.default_values = deepcopy(self.default_values, memo)  # Mutable
         result.meta = deepcopy(self.meta, memo)                      # Mutable
 
-        result._span_list = SpanList()                               # Mutable
+        # Copy all annotations. Note that base_span objects are immutable
         for span in self:
             for annotation in span.annotations:
                 result.add_annotation(
                     span.base_span,                                  # Immutable
                     **deepcopy(annotation, memo))                    # Mutable
         return result
-
 
     # TODO: Seem braindead attibute. To be deleted
     @property

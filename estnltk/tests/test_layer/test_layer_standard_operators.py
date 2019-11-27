@@ -7,6 +7,28 @@ from estnltk import Layer
 from estnltk import ElementaryBaseSpan
 
 
+def test_len():
+    layer = Layer(
+        name='empty_layer',
+        attributes=['a', 'b'],
+        text_object=None,
+        parent=None,
+        enveloping=None,
+        ambiguous=True,
+        default_values=dict(a=5, b='str'),
+        serialisation_module=smodules.syntax_v0
+    )
+    layer.meta = {'count': 5}
+    assert len(layer) == 0
+
+    text = Text("Test that layer attributes are correctly copied")
+    text.add_layer(layer)
+
+    len(layer)
+    d_copy = deepcopy(layer)
+
+
+
 
 def test_copy_constructors():
     # Copying of detached layers

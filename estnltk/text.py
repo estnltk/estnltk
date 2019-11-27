@@ -69,6 +69,7 @@ class Text:
         for original_layer in self.list_layers():
             layer = deepcopy(original_layer, memo)
             memo[id(layer)] = layer
+            # This function may not work as layers may be invalid, halfway complete
             result.add_layer(layer)
         return result
 
