@@ -158,13 +158,17 @@ class Layer:
         result.default_values = deepcopy(self.default_values, memo)  # Mutable
         result.meta = deepcopy(self.meta, memo)                      # Mutable
 
-        # Copy all annotations. Note that base_span objects are immutable
+        # Copy all spans. All insertions are valid as self is consistent
         for span in self:
-            for annotation in span.annotations:
-                result.add_annotation(
-                    span.base_span,                                  # Immutable
-                    **deepcopy(annotation, memo))                    # Mutable
+            result._span_list.add_span(deepcopy(span, memo))         # Mutable
         return result
+        #             # deepcopy span
+        #             #self._span_list.add_span(span)
+        #             for annotation in span.annotations:
+        #                 # TODO: we must register spans as these are newly created
+        #                 result.add_annotation(
+        #                     span.base_span,                                  # Immutable
+        #                     **deepcopy(annotation, memo))                    # Mutable
 
     # TODO: Seem braindead attibute. To be deleted
     @property
