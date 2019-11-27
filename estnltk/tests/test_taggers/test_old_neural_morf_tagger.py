@@ -1,12 +1,15 @@
 import unittest
+import pkgutil
 import os
 from unittest import TestCase
 
 from estnltk import Text
-from estnltk.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger
 from estnltk.neural_morph.old_neural_morph.data_utils import ConfigHolder
 from estnltk.neural_morph.old_neural_morph.general_utils import load_config_from_file
-from estnltk.neural_morph.old_neural_morph.model import Model
+
+def check_if_tensorflow_is_available():
+    # Check if tensorflow is available
+    return pkgutil.find_loader("tensorflow") is not None
 
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
 
@@ -23,8 +26,10 @@ class DummyTagger:
         return tags
 
 
+@unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow is required for this test")
 class TestDummyTagger(TestCase):
     def test(self):
+        from estnltk.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger
         dummy_tagger = DummyTagger()
         tagger = NeuralMorphTagger(base_tagger=dummy_tagger)
         text = Text("Ära mine sinna.")
@@ -57,8 +62,10 @@ kvalifikatsiooninorme	_S_|com|pl|part	S pl p
 
 
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
+@unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow is required for this test")
 class TestNeuralModel(TestCase):
     def setUp(self):
+        from estnltk.neural_morph.old_neural_morph.model import Model
         config = load_config_from_file(NEURAL_MORPH_TAGGER_CONFIG)
         model = Model(ConfigHolder(config))
         model.build()
@@ -78,8 +85,10 @@ class TestNeuralModel(TestCase):
 
 
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
+@unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow is required for this test")
 class TestNeuralTagger(TestCase):
     def setUp(self):
+        from estnltk.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger
         self.tagger = NeuralMorphTagger()
 
     def tearDown(self):
