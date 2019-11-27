@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 * Ambiguous analyses in the `morph_analysis` layer are no longer re-sorted. As a result, the ordering of ambiguous analyses should be the same as the ordering used in EstNLTK's versions prior 1.6.0_beta (e.g. ordering used in version 1.4.1). If required, `VabamorfTagger`'s the parameter `re_sort_analyses` can be used to switch re-sorting back on. **Note:** Regardless whether re-sorting is used or not, Vabamorf's ambiguous analyses **are not** ordered by likelihood / probability.
 
 * Relocated tutorials `date_tagger.ipynb` and `MorphAnalyzedToken.ipynb`;
+* Removed `MorphAnalysisRecordBasedRetagger` (this was a redundant branch of development, please use `AnnotationRewriter` or `SpanRewriter` instead);
 
 ## Added
 
@@ -39,6 +40,8 @@ All notable changes to this project will be documented in this file.
  * `estnltk.core.abs_path` is now used instead of `estnltk.core.rel_path` for defining paths to EstNLTK's resources. This should fix problems on the Windows platform where relative paths do not exist if the EstNLTK is installed on one drive, and the code using EstNLTK is executed from another drive; 
  * `ConllMorphTagger`: A Linux-specific hardcoded `vislcg_path` was removed so that `ConllMorphTagger` can also be used on Windows;
  * `CorpusBasedMorphDisambiguator`: the `predisambiguate` method should now be able to distinguish between sentence-initial and sentence-central proper name candidates even iff there is a quotation mark or an ordinal number before the proper name candidate at the beginning of the sentence;
+ * `test_old_neural_morf_tagger.py` and `test_conll_exporter/importer.py` will skip gracefully if their requirement packages are not installed;
+
 
 
 # [1.6.4-beta] - 2019-09-16
