@@ -38,6 +38,7 @@ All notable changes to this project will be documented in this file.
  * `HfstEstMorphAnalyser`'s 'morphemes_lemmas' output format: fixed part-of-speech parsing for punctuation and abbreviations;
  * `estnltk.core.abs_path` is now used instead of `estnltk.core.rel_path` for defining paths to EstNLTK's resources. This should fix problems on the Windows platform where relative paths do not exist if the EstNLTK is installed on one drive, and the code using EstNLTK is executed from another drive; 
  * `ConllMorphTagger`: A Linux-specific hardcoded `vislcg_path` was removed so that `ConllMorphTagger` can also be used on Windows;
+ * `CorpusBasedMorphDisambiguator`: the `predisambiguate` method should now be able to distinguish between sentence-initial and sentence-central proper name candidates even iff there is a quotation mark or an ordinal number before the proper name candidate at the beginning of the sentence;
 
 
 # [1.6.4-beta] - 2019-09-16
