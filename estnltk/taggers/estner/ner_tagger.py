@@ -46,16 +46,20 @@ class NerTagger(Tagger):
         # add the labels
         nerlayer = Layer(name="ner", attributes=("nertag", "name"), text_object=text, enveloping="words")
         entity_spans = []
+        print(snt_labels)
+        entity_type = None
         for span, label in zip(text.words, snt_labels[0]):
+            if entity_type is None:
+                entity_type = label[2:]
             if label == "O":
                 if entity_spans:
-                    ebs = EnvelopingBaseSpan(entity_spans)
-                    envspan = EnvelopingSpan(ebs, nerlayer)
-                    annotation = Annotation(span=envspan, nertag=entity_type, name="po")
-                    envspan.add_annotation(annotation)
-                    nerlayer.add_span(envspan)
+                    nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans), nertag=entity_type, name="po")
                     entity_spans = []
                 continue
+            if label[0] == "B" or entity_type != label[2:]:
+                if entity_spans:
+                    nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans), nertag=entity_type, name="po")
+                    entity_spans = []
             entity_type = label[2:]
             entity_spans.append(span.base_span)
         return nerlayer
