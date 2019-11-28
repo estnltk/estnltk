@@ -158,7 +158,7 @@ class Layer:
         result.default_values = deepcopy(self.default_values, memo)  # Mutable
         result.meta = deepcopy(self.meta, memo)                      # Mutable
 
-        # Copy all spans.
+        # Copy all spans in a layer
         for span in self:
             # Bypass all protections as self is consistent
             result._span_list.add_span(deepcopy(span, memo))         # Mutable

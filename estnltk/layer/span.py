@@ -1,3 +1,4 @@
+from copy import deepcopy
 from reprlib import recursive_repr
 from typing import Any, Sequence
 
@@ -25,6 +26,27 @@ class Span:
         self._annotations = []
 
         self._parent = None  # type: Span
+
+    def __deepcopy__(self, memo=None):
+        memo = memo or {}
+        # Create invalid instance
+        cls = self.__class__
+        result = cls.__new__(cls)
+        # Add all fields to the instance to make it valid
+        # All assignments are safe as self is consistent
+        result._base_span = self._base_span                    # Immutable
+        result._layer = None                                   # Mutable
+        result._annotations = []                               # List[Mutable]
+        result._parent = None                                  # Mutable
+        # Add newly created valid mutable objects to memo
+        memo[id(self)] = result
+        memo[id(self._annotations)] = result._annotations
+
+        # Perform deep copy with a valid memo dict
+        result._layer = deepcopy(self.layer, memo)
+        result._parent = deepcopy(self.parent, memo)
+        result._annotations.append(deepcopy(anno, memo) for anno in self._annotations)
+        return result
 
     def add_annotation(self, annotation: Annotation) -> Annotation:
         if not isinstance(annotation, Annotation):
