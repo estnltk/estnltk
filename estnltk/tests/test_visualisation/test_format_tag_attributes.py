@@ -15,6 +15,6 @@ def test_format_tag_attributes_id_given():
 
 def test_format_tag_attributes_class_given():
     result = format_tag_attributes({'id': 6, 'class': 'syntax_choice'})
-    expected = 'id="6" class="syntax_choice"'
-
-    assert result == expected
+    #expected = 'id="6" class="syntax_choice"'
+    #assert result == expected
+    assert result in {'id="6" class="syntax_choice"', 'class="syntax_choice" id="6"'}

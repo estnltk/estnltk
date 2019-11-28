@@ -7,7 +7,8 @@ from estnltk.converters import layer_to_dict, dict_to_layer
 from estnltk.visualisation.core import format_tag_attributes
 from estnltk.visualisation.core import header_cell, value_cell, dropdown_cell
 from estnltk import Layer
-from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
+#from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
+from estnltk.taggers.standard_taggers.attribute_comparison_tagger_new import AttributeComparisonTagger
 
 class SyntaxVisualiser:
     #attributes = ["id", "text", "lemma", "head", "deprel", "upostag", "xpostag", "feats", "deps", "misc"]
@@ -37,40 +38,24 @@ class SyntaxVisualiser:
             contents = js_file.read()
         return contents
 
-    # attribute_comparison_tagger
-    # estnltk taggers standard_taggers
-    def new_layer(self, layers, name):
-        layer = Layer(name=name, text_object=layers[0].text_object,
-                      attributes=['text'])
 
-        map_attribute_names = {}
-
+    def new_layer_attributes(self, layers, attributes_to_compare, attributes_to_keep):
+        #map_attribute_names = {}
         attributes = []
 
-        for attribute in layers[0].attributes:
-            if attribute == 'head' or attribute in self.changeable_attributes:
-                map_attribute_names[(None, attribute)] = attribute
+        for attribute in attributes_to_keep:
+            if attribute == 'head' or attribute in attributes_to_compare:
+                #map_attribute_names[(None, attribute)] = attribute
                 attributes.append(attribute)
                 for i in range(len(layers)):
-                    map_attribute_names[(i, attribute)] = attribute + str(i + 1)
-                    attributes.append(attribute + str(i + 1))
+                    #map_attribute_names[(i, attribute)] = attribute + str(i + 1)
+                    attributes.append(attribute + "_" + str(i + 1))
             else:
                 attributes.append(attribute)
-                map_attribute_names[(0, attribute)] = attribute
+                #map_attribute_names[(0, attribute)] = attribute
 
-        layer.attributes += tuple(attributes)
-
-        for spans in zip(*layers):
-            base_span = spans[0].base_span
-            assert all(base_span == span.base_span for span in spans)
-
-            annotation = { attribute: spans[i].annotations[0][attr] if i is not None
-                        else spans[0][attr] if len(set([span[attr] for span in spans])) == 1 else None
-                        for (i, attr), attribute in map_attribute_names.items()}
-
-            layer.add_annotation(base_span, **annotation)
-
-        return layer
+        #return map_attribute_names, attributes
+        return attributes
 
 
     def header(self, attributes: List[str], layer) -> List[str]:
@@ -133,12 +118,19 @@ class SyntaxVisualiser:
                   "if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n"]
 
         #new_layer = self.new_layer(layers, "new")
-        new_layer = AttributeComparisonTagger("new", [layer.name for layer in layers], changeable_attributes=self.changeable_attributes, layers=layers).make_layer(layers[0].text_object, {layer.name : layer for layer in layers})
+        #map_attr, attr = self.new_layer_attributes(layers, self.changeable_attributes, layers[0].attributes)
+
+        #attr = self.new_layer_attributes(layers, self.changeable_attributes, layers[0].attributes)
+        attributes_to_compare = [a for a in self.changeable_attributes]
+        attributes_to_compare.insert(0, 'head')
+        new_layer = AttributeComparisonTagger("new", [layer.name for layer in layers], layers[0].attributes[:-4], attributes_to_compare)\
+            .make_layer(layers[0].text_object, {layer.name: layer for layer in layers})
 
         # this is so attributes would get a working default value, but could also be changed
         if len(self.attributes) == 0:
-            self.attributes = list(new_layer.attributes)[:-4]
+            self.attributes = list(new_layer.attributes)
             new_layer_attributes = self.attributes
+            new_layer_attributes.insert(0, 'text')
         else:
             new_layer_attributes = self.attributes
 
