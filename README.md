@@ -8,9 +8,9 @@ The project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](https://
 
 Currently, there are two branches of EstNLTK:
 
-* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.4beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk) and PyPI. It contains analysis tools up to the level of morphological analysis, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions: 3.5+;
+* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.4beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk) and PyPI. It contains basic analysis tools up to morphological analysis and syntactic parsing, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions are 3.5 and 3.6. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
   
-* version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4+ and 2.7. Python 3.6 and 3.7 are not supported;
+* version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4, 3.5 and 2.7. Python 3.6 and 3.7 are not supported;
 
 ## Version 1.6
 
