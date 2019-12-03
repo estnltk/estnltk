@@ -8,7 +8,7 @@ The project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](https://
 
 Currently, there are two branches of EstNLTK:
 
-* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.4beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk) and PyPI. It contains basic analysis tools up to morphological analysis and syntactic parsing, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions are 3.5 and 3.6. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
+* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.4beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). It contains basic analysis tools up to morphological analysis and syntactic parsing, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions are 3.5 and 3.6. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
   
 * version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4, 3.5 and 2.7. Python 3.6 and 3.7 are not supported;
 
@@ -50,6 +50,11 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 Documentation for 1.6 currently comes in the form of [jupyter notebooks](http://jupyter.org), which are available here: https://github.com/estnltk/estnltk/tree/version_1.6/tutorials
 
 Note: if you have trouble viewing jupyter notebooks in github (you get an error message _Sorry, something went wrong. Reload?_ at loading a notebook), then try to open notebooks with the help of [https://nbviewer.jupyter.org](https://nbviewer.jupyter.org)
+
+### Source
+
+The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
+
 ## Version 1.4.1
 
 ### Installation
@@ -102,6 +107,10 @@ Additional educational materials on EstNLTK version 1.4 are available on web pag
 
   * https://github.com/d009/EstNLP
   * https://courses.cs.ut.ee/2015/pynlp/fall
+
+### Source
+
+The source of the latest v1.4 release is available at the [master branch](https://github.com/estnltk/estnltk/tree/master).
 
 ## Citation
 
