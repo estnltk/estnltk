@@ -54,7 +54,7 @@ setup(
     name="estnltk",
     version="1.6.4beta",
 
-    packages=find_packages(),
+    packages=find_packages(exclude=["preinstall"]),
     include_package_data=True,
     package_data={
         'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java/res/*.*'],
