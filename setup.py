@@ -44,6 +44,12 @@ if sys.version_info[0] == 3:
     swig_opts.append('-py3')
 swig_opts.append('-c++')
 
+
+# Create necessary cached files
+from preinstall import create_caches
+create_caches()
+
+
 setup(
     name="estnltk",
     version="1.6.4beta",
