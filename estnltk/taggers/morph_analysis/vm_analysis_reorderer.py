@@ -23,7 +23,7 @@ class MorphAnalysisReorderer(Retagger):
 
         Analyses will be reordered in two steps: 
         * first, based on the word-to-analysis-reordering 
-          information;
+          information (if available);
         * second, based on the part of speech and form frequency 
           information (if available);
         
@@ -69,8 +69,12 @@ class MorphAnalysisReorderer(Retagger):
             Name of the morphological analysis layer that is to be changed;
             
         reorderings_csv_file: str (default: DEFAULT_REORDERING_DICT)
-            Path to the CSV file containing morph analysis reorderings. 
-            By default, assumes that csv file is in tab-separated-values 
+            Path to the CSV file containing a mapping from words to their 
+            morph analysis reorderings. 
+            If provided, then loads the words-to-analysis-reorderings from 
+            the given file and uses as a first step in reordering ambiguous 
+            words.
+            By default, assumes that the csv file is in tab-separated-values 
             format (dialect='excel-tab') and in the encoding 'utf-8'.
             The first line must be a header specifying (at minimum)
             the following attributes:
@@ -112,14 +116,18 @@ class MorphAnalysisReorderer(Retagger):
         # Set input/output layer names
         self.output_layer = output_layer
         self.input_layers = [self.output_layer]
-        assert os.path.isfile( reorderings_csv_file ), \
-            '(!) Invalid input CSV file location: {!r}'.format( reorderings_csv_file )
         # 1) word to sorted analyses mapping
         self.word_reorderings_file = reorderings_csv_file
-        self._word_to_ordering, self._word_to_ordering_header = \
-             self._load_word_specific_reorderings( reorderings_csv_file )
-        self._word_to_ordering_header_minimum = \
-            [ i for i in self._word_to_ordering_header if i not in ['freq', 'prob', 'text']]
+        self._word_to_ordering = {}
+        self._word_to_ordering_header = None
+        self._word_to_ordering_header_minimum = None
+        if reorderings_csv_file is not None:
+            assert os.path.isfile( reorderings_csv_file ), \
+                '(!) Invalid input CSV file location: {!r}'.format( reorderings_csv_file )
+            self._word_to_ordering, self._word_to_ordering_header = \
+                 self._load_word_specific_reorderings( reorderings_csv_file )
+            self._word_to_ordering_header_minimum = \
+                [ i for i in self._word_to_ordering_header if i not in ['freq', 'prob', 'text']]
         # 2) postags to frequencies mapping
         self._postag_to_freq = defaultdict(int)
         self.postag_freq_file = postag_freq_csv_file
