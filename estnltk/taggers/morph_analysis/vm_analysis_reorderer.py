@@ -2,6 +2,7 @@ import csv
 import os, os.path
 
 from collections import OrderedDict
+from collections import defaultdict
 
 from estnltk import Annotation
 from estnltk.text import Layer, Text
@@ -20,12 +21,17 @@ class MorphAnalysisReorderer(Retagger):
         Use this tagger as a post-corrector after VabamorfTagger or 
         VabamorfCorpusTagger.
 
-        Analyses will be reordered based on the reordering information
-        read from an input CSV file.
+        Analyses will be reordered in two steps: 
+        * first, based on the word-to-analysis-reordering 
+          information;
+        * second, based on the part of speech and form frequency 
+          information (if available);
         
-        By default, the reordering information is loaded from the 
-        file:
-          'reorderings/et_edt-ud-train_sorted_analyses_full.csv'
+        Reorderings and frequencies are loaded from CSV files.
+        
+        By default, the word-to-analysis-reordering is loaded from 
+        the file:
+          'reorderings/et_edt-ud-train_amb_analyses_all.csv'
         It contains reorderings of Vabamorf's analyses based on 
         frequency counts obtained from the training part of the 
         Estonian Dependency Treebank:
@@ -37,16 +43,24 @@ class MorphAnalysisReorderer(Retagger):
     """
     
     output_attributes = VabamorfTagger.output_attributes
-    conf_param = [ # reorderings file
-                   'reorderings_file',
+    conf_param = [ # reorderings & statistics files
+                   'word_reorderings_file',
+                   'postag_freq_file',
+                   'form_freq_file',
                    # internal stuff
                    '_word_to_ordering',
                    '_word_to_ordering_header',
                    '_word_to_ordering_header_minimum',
+                   '_postag_to_freq',
+                   '_postag_freq_total',
+                   '_form_to_freq',
+                   '_form_freq_total',
                  ]
 
     def __init__(self, output_layer:str='morph_analysis',
-                       reorderings_csv_file:str=DEFAULT_REORDERING_DICT ):
+                       reorderings_csv_file:str=DEFAULT_REORDERING_DICT,
+                       postag_freq_csv_file:str=None,
+                       form_freq_csv_file:str=None):
         """ Initialize MorphAnalysisReorderer class.
 
         Parameters
@@ -71,28 +85,67 @@ class MorphAnalysisReorderer(Retagger):
             Important: we assume that word's analyses in the CSV file are 
             already in the correct order -- from most probable to least 
             probable.
+        
+        postag_freq_csv_file: str (default: None)
+            Path to the CSV file containing part of speech tag corpus 
+            frequencies. 
+            If provided, then loads the postag frequency information from 
+            the given file and uses for reordering these ambiguous words,
+            which are not in the reorderings_csv_file;
+            By default, assumes that the csv file is in tab-separated-values 
+            format (dialect='excel-tab') and in the encoding 'utf-8'.
+            The first line must be a header specifying column ordering 
+            ('partofspeech' and 'freq').
+        
+        form_freq_csv_file: str (default: None)
+            Path to the CSV file containing (grammatical) form corpus 
+            frequencies. 
+            If provided, then loads the form frequency information from 
+            the given file and uses for reordering these ambiguous words,
+            which are not in the reorderings_csv_file;
+            By default, assumes that the csv file is in tab-separated-values 
+            format (dialect='excel-tab') and in the encoding 'utf-8'.
+            The first line must be a header specifying column ordering 
+            ('partofspeech' and 'freq').
+        
         """
         # Set input/output layer names
         self.output_layer = output_layer
         self.input_layers = [self.output_layer]
         assert os.path.isfile( reorderings_csv_file ), \
             '(!) Invalid input CSV file location: {!r}'.format( reorderings_csv_file )
-        self.reorderings_file = reorderings_csv_file
+        # 1) word to sorted analyses mapping
+        self.word_reorderings_file = reorderings_csv_file
         self._word_to_ordering, self._word_to_ordering_header = \
-             self._load_reorderings( reorderings_csv_file )
+             self._load_word_specific_reorderings( reorderings_csv_file )
         self._word_to_ordering_header_minimum = \
             [ i for i in self._word_to_ordering_header if i not in ['freq', 'prob', 'text']]
+        # 2) postags to frequencies mapping
+        self._postag_to_freq = defaultdict(int)
+        self.postag_freq_file = postag_freq_csv_file
+        self._postag_freq_total = 0
+        if postag_freq_csv_file is not None:
+            assert os.path.isfile( postag_freq_csv_file ), \
+                '(!) Invalid input CSV file location: {!r}'.format( postag_freq_csv_file )
+            self._postag_to_freq = self._load_cat_frequencies( postag_freq_csv_file )
+            self._postag_freq_total = sum([self._postag_to_freq[k] for k in self._postag_to_freq.keys()])
+        # 3) grammatical forms to frequencies mapping
+        self._form_to_freq = defaultdict(int)
+        self.form_freq_file = form_freq_csv_file
+        self._form_freq_total = 0
+        if form_freq_csv_file is not None:
+            assert os.path.isfile( form_freq_csv_file ), \
+                '(!) Invalid input CSV file location: {!r}'.format( form_freq_csv_file )
+            self._form_to_freq = self._load_cat_frequencies( form_freq_csv_file )
+            self._form_freq_total = sum([self._form_to_freq[k] for k in self._form_to_freq.keys()])
 
 
-
-    def _load_reorderings( self, input_csv_file, encoding='utf-8', \
-                                dialect='excel-tab', **fmtparams ):
-        ''' Loads keywords with their corresponding reordered morphological 
+    def _load_word_specific_reorderings( self, input_csv_file, encoding='utf-8', \
+                                         dialect='excel-tab', **fmtparams ):
+        ''' Loads words with their corresponding reordered morphological 
             analyses from the given csv file.
-            Keywords are either surface word forms or abstract patterns 
-            representing words.
             Returns two items:
-               1) a mapping from keywords to analyses lists;
+               1) a mapping from words to analyses lists;
                2) a list containing attribute names used in analyses;
                
             By default, assumes that csv file is in tab-separated-values 
@@ -119,8 +172,7 @@ class MorphAnalysisReorderer(Retagger):
             described on multiple successive lines.
             Important: we assume that analyses in CSV file are already in 
             the correct order -- from most probable to least probable.
-            The surface word form (or an abstract pattern representing
-            the word) must be under the column 'text'.
+            The surface word form must be under the column 'text'.
             
         Parameters
         ----------
@@ -203,6 +255,81 @@ class MorphAnalysisReorderer(Retagger):
         return word_to_reorderings, header
 
 
+
+    def _load_cat_frequencies( self, input_csv_file, encoding='utf-8', \
+                                     dialect='excel-tab', **fmtparams ):
+        ''' Loads Vabamorf's morphological categories with their corpus 
+            frequency information from the given csv file.
+            Returns a mapping (defaultdict) from categories to their
+            respective frequencies;
+            
+            By default, assumes that csv file is in tab-separated-values 
+            format (dialect='excel-tab') and in the encoding 'utf-8'.
+            You can change the encoding via parameter encoding. And you
+            can also provide other custom parameters ( from the parameters 
+            listed in: 
+            https://docs.python.org/3/library/csv.html#csv-fmt-params )
+            if your input csv file has some other format.
+            
+            The first line must be a header specifying the following 
+            attributes:
+             * 'partofspeech' or 'form' -- 
+                'partofspeech' or 'form' attribute from 'morph_analysis';
+             * 'freq' -- frequency of the category;
+            The header is required to determine in which order the data 
+            needs to be loaded from the file.
+            
+        Parameters
+        ----------
+        filename: str
+            Path to the CSV file which contains entries.
+        
+        encoding: str (Default: 'utf-8')
+            Encoding of the csv file.
+        
+        dialect: str (Default: 'excel-tab')
+            Parameter dialect to be passed to the function csv.reader().
+            See https://docs.python.org/3/library/csv.html#csv.reader
+            for details.
+
+        fmtparams: 
+            Optional keyword arguments to be passed to the function 
+            csv.reader().
+            See https://docs.python.org/3/library/csv.html#csv.reader
+            for details.
+        '''
+        category_stats = defaultdict(int)
+        header = []
+        with open(input_csv_file, 'r', newline='', encoding=encoding) as csvfile:
+            fle_reader = csv.reader(csvfile, dialect=dialect, **fmtparams)
+            header = next(fle_reader)
+            # Validate that header specifies the minimum set of required attribute names
+            missing = []
+            if 'partofspeech' not in header and 'form' not in header:
+                missing.append('partofspeech')
+                missing.append('form' )
+            if 'freq' not in header:
+                missing.append('freq' )
+            assert not missing, \
+                '(!) CSV file header misses the following key(s): '+str(missing)
+            for row in fle_reader:
+                assert len(row) == len(header), '(!) Unexpected number of elements in a row: {!r}'.format(row)
+                cat = None; freq = None
+                for kid, key in enumerate(header):
+                    attr  = header[kid]
+                    value = row[kid]
+                    # Convert numerics to ints
+                    if attr == 'freq':
+                        assert value.isdecimal(), \
+                            '(!) Decimal value expected for {!r}, but got: {!r} in row {!r}'.format(attr,value,row)
+                        freq = int(value)
+                    elif attr in ['partofspeech', 'form']:
+                        cat = value
+                assert cat is not None and freq is not None
+                category_stats[cat] = freq
+        return category_stats
+
+
     def _reorder_analyses( self, current_annotations, reordering, add_probs=False ):
         ''' Reorders current_annotations based on the list of ordered annotations (reordering).
             By default, returns reordered list of Annotations objects.
@@ -262,6 +389,60 @@ class MorphAnalysisReorderer(Retagger):
         return reordered_annotations
 
 
+    def _reorder_analyses_by_categories( self, current_annotations, add_probs=False ):
+        ''' Reorders current_annotations based on the part of speech and form frequency
+            information available in self._postag_to_freq and self._form_to_freq;
+            
+            The list current_annotations contains fully specified morphologial annotations
+            from the layer 'morph_analysis' (Annotation objects).
+            
+            By default, returns a tuple, where the first item is a boolean indicating whether
+               the order was changed and the second item is the reordered list of Annotation 
+               objects.
+            
+            If add_probs == True, then a probability will be assigned to each annotation. 
+            Then, the second returnable will be a list of tuples, where each tuple contains:
+                ( Annotation, probability )
+        '''
+        if len(self._postag_to_freq.keys()) == 0 and len(self._form_to_freq.keys()) == 0:
+            #
+            # If both postag and form info is not available, then 
+            # simply return input annotations
+            #
+            if add_probs:
+                annotations_with_probs = []
+                for anno in current_annotations:
+                    annotations_with_probs.append( (anno, 0.0) )
+                return False, annotations_with_probs
+            return False, current_annotations
+        # If category counts are available, try to use them for reordering
+        annotation_freq = []
+        for cid, cur_annotation in enumerate(current_annotations):
+            postag = cur_annotation['partofspeech']
+            form = cur_annotation['form']
+            postag_freq = self._postag_to_freq[postag] # If missing, then 0
+            form_freq   = self._form_to_freq[form]     # If missing, then 0
+            if len(form) == 0 and form_freq == 0:
+                # Try to find a part-of-speech specific freq from the empty form
+                form2 = '_'+postag
+                form_freq = self._form_to_freq[form2]
+            annotation_freq.append( (cur_annotation, postag_freq+form_freq, cid) )
+        # Sort by frequency
+        annotation_freq = sorted(annotation_freq, key = lambda x: x[1], reverse=True)
+        # Check if the order has changed
+        order_changed = not (list(range(len(annotation_freq))) == [item[2] for item in annotation_freq])
+        if not add_probs:
+            return order_changed, [ item[0] for item in annotation_freq ]
+        else:
+            # Try to normalize counts
+            normalized_annotations = []
+            total_count = self._postag_freq_total + self._form_freq_total
+            assert total_count > 0
+            for (anno, freq, cid) in annotation_freq:
+                normalized_annotations.append( (anno, freq / total_count) )
+            return order_changed, normalized_annotations
+
+
     def _change_layer(self, text, layers, status: dict):
         """Reorders ambiguous analyses on the morph_analysis layer.
         
@@ -311,9 +492,12 @@ class MorphAnalysisReorderer(Retagger):
                     resortable_annotations.extend( reordered_annotations )
                     reordering_was_applied = True
                 else:
-                    # No match: simply add all annotations with probability/frequency 0.0
-                    for anno in annotations_by_norm_text[keyword]:
-                        resortable_annotations.append( (anno, 0.0) )
+                    # No match: (if available) try to use part of speech and form information for reordering 
+                    order_changed, reordered_annotations = \
+                        self._reorder_analyses_by_categories(annotations_by_norm_text[keyword], add_probs=True)
+                    resortable_annotations.extend( reordered_annotations )
+                    if order_changed:
+                        reordering_was_applied = True
             # 3) If at least one keyword got a reordering, then reorder all analyses
             if reordering_was_applied:
                 assert len(resortable_annotations) == len(morph_word.annotations)
