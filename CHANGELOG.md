@@ -20,6 +20,8 @@ All notable changes to this project will be documented in this file.
 * Relocated tutorials `date_tagger.ipynb` and `MorphAnalyzedToken.ipynb`;
 * Removed `MorphAnalysisRecordBasedRetagger` (this was a redundant branch of development, please use `AnnotationRewriter` or `SpanRewriter` instead);
 
+* `PostMorphAnalysisTagger` no longer creates a pickle file (with number analysis fixes) on the run. Instead, the pickle file will be created during a newly introduced preinstall phase in `setup.py`;
+
 ## Added
 
 * Attribute `normalized_text` to the `morph_analysis` layer. The attribute holds a string: the normalized word form or the surface word form that was used as a basis on generating the analysis. So, if there were  multiple normalized forms for a word in the `words` layer, you can examine, which of the normalized forms gave rise to which of the analysis. Related changes:
