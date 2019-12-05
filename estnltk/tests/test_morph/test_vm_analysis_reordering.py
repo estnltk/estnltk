@@ -5,6 +5,37 @@ from estnltk.taggers import MorphAnalysisReorderer
 
 # ----------------------------------
 
+def test_default_reorderer_empty_run():
+    # Tests that morph analysis reorderer runs without errors even if lexicon files are not provided
+    analysis_reorderer = MorphAnalysisReorderer(reorderings_csv_file=None,
+                                                postag_freq_csv_file=None,
+                                                form_freq_csv_file=None)
+    # Create text and retag it
+    text=Text('Üks ütles, et 1. mail näidatakse palju maid.')
+    text.tag_layer(['words','sentences', 'morph_analysis'])
+    analysis_reorderer.retag(text)
+    # Collect ambiguous analyses
+    ambiguous_analyses = []
+    for morph_word in text.morph_analysis:
+        annotations = morph_word.annotations
+        if len( annotations ) > 1:
+            ambiguous_analyses.append( [morph_word.text]+[(a['root'], a['partofspeech'], a['form'] ) for a in annotations] )
+    # ==============
+    #print()
+    #for a in ambiguous_analyses:
+    #    print(a)
+    # ==============
+    expected_orderings = [ \
+        ['Üks', ('üks', 'N', 'sg n'), ('üks', 'P', 'sg n')],
+        ['mail', ('maa', 'S', 'pl ad'), ('mai', 'S', 'sg ad') ],
+        ['maid', ('maa', 'S', 'pl p'), ('mai', 'S', 'sg p')],
+    ]
+    # Make assertion
+    assert ambiguous_analyses == expected_orderings
+
+
+# ----------------------------------
+
 def test_default_morph_analysis_reorderer():
     # Case 1
     # Create text with default morph analysis
@@ -105,4 +136,56 @@ def test_default_morph_analysis_reorderer_on_normalized_words():
     ]
     # Make assertion
     assert ambiguous_analyses == expected_orderings
+
+
+
+def test_reorderer_with_customized_postag_freq_info():
+    # Tests that morph analysis reorderer runs with customized postag freq lexicon
+    # Create a CSV file with frequencies
+    import tempfile
+    fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', suffix='.csv', delete=False)
+    # Add header
+    fp.write( ('\t'.join(['partofspeech','freq'])) + '\n' )
+    # Add frequencies
+    fp.write( ('\t'.join(['S','80000'])) + '\n' )
+    fp.write( ('\t'.join(['V','50000'])) + '\n' )
+    fp.write( ('\t'.join(['D','30000'])) + '\n' )
+    fp.write( ('\t'.join(['P','20000'])) + '\n' )
+    fp.write( ('\t'.join(['A','20000'])) + '\n' )
+    fp.write( ('\t'.join(['J','19000'])) + '\n' )
+    fp.close()
+    try:
+        # Create new reorderer that loads postag freq info from the CSV file
+        morph_reorderer = MorphAnalysisReorderer( reorderings_csv_file=None,
+                                                  postag_freq_csv_file=fp.name,
+                                                  form_freq_csv_file=None )
+        # Create text with default morph analysis
+        text=Text('Vaatan ja mõtlen, miks ühed pole kuidagi teistega seotud.')
+        text.tag_layer(['words','sentences', 'morph_analysis'])
+        # Fix ordering of analyses
+        morph_reorderer.retag( text )
+        # Collect ambiguous analyses
+        ambiguous_analyses = []
+        for morph_word in text.morph_analysis:
+            annotations = morph_word.annotations
+            if len( annotations ) > 1:
+                ambiguous_analyses.append( [morph_word.text]+[(a['root'], a['partofspeech'], a['form'] ) for a in annotations] )
+        # ==============
+        #print()
+        #for a in ambiguous_analyses:
+        #    print(a)
+        # ==============
+        expected_orderings = [ \
+            ['miks', ('miks', 'S', 'sg n'), ('miks', 'D', '')],
+            ['ühed', ('üks', 'P', 'pl n'), ('üks', 'N', 'pl n')],
+            ['teistega', ('teine', 'P', 'pl kom'), ('teine', 'O', 'pl kom')],
+            ['seotud', ('sidu', 'V', 'tud'), ('seotud', 'A', ''), ('seotud', 'A', 'sg n'), ('seotud', 'A', 'pl n')],
+        ]
+        # Make assertion
+        assert ambiguous_analyses == expected_orderings
+    finally:
+        # Clean-up: remove temporary file
+        import os, os.path
+        os.remove(fp.name)
+        assert not os.path.exists(fp.name)
 
