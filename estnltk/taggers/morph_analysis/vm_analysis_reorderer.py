@@ -12,9 +12,14 @@ from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
 from estnltk.taggers.morph_analysis.morf import VabamorfTagger
 
 
-# Default dict of analysis reorderings 
+# Default dict of word-to-analysis reorderings 
 DEFAULT_REORDERING_DICT = os.path.join(os.path.dirname(__file__),
-                          'reorderings/et_edt-ud-train_amb_analyses_all.csv')
+                          'reorderings','et_edt-ud-train_amb_word_analyses_all.csv')
+
+# Default postag frequencies file
+DEFAULT_POSTAG_FREQ_DICT = os.path.join(os.path.dirname(__file__),
+                          'reorderings','et_edt-ud-train_cat_postag_freq_all.csv')
+
 
 class MorphAnalysisReorderer(Retagger):
     """ Retagger for reordering ambiguous morphological analyses.
@@ -26,12 +31,15 @@ class MorphAnalysisReorderer(Retagger):
           information (if available);
         * second, based on the part of speech and form frequency 
           information (if available);
+          Note: the second step is only applied for a word if 
+                there was no information for performing the 
+                first step;
         
         Reorderings and frequencies are loaded from CSV files.
         
         By default, the word-to-analysis-reordering is loaded from 
         the file:
-          'reorderings/et_edt-ud-train_amb_analyses_all.csv'
+          'reorderings/et_edt-ud-train_amb_word_analyses_all.csv'
         It contains reorderings of Vabamorf's analyses based on 
         frequency counts obtained from the training part of the 
         Estonian Dependency Treebank:
@@ -59,7 +67,7 @@ class MorphAnalysisReorderer(Retagger):
 
     def __init__(self, output_layer:str='morph_analysis',
                        reorderings_csv_file:str=DEFAULT_REORDERING_DICT,
-                       postag_freq_csv_file:str=None,
+                       postag_freq_csv_file:str=DEFAULT_POSTAG_FREQ_DICT,
                        form_freq_csv_file:str=None):
         """ Initialize MorphAnalysisReorderer class.
 
@@ -90,7 +98,7 @@ class MorphAnalysisReorderer(Retagger):
             already in the correct order -- from most probable to least 
             probable.
         
-        postag_freq_csv_file: str (default: None)
+        postag_freq_csv_file: str (default: DEFAULT_POSTAG_FREQ_DICT)
             Path to the CSV file containing part of speech tag corpus 
             frequencies. 
             If provided, then loads the postag frequency information from 
