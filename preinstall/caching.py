@@ -80,7 +80,7 @@ def create_number_analysis_rules_cache( csv_file:str=DEFAULT_NUMBER_ANALYSIS_RUL
 # ========================================================================
 
 def create_caches():
-    create_number_analysis_rules_cache( force=False, verbose=True )
+    create_number_analysis_rules_cache( force=False, verbose=False )
 
 
 #rules1 = load_number_analysis_rules_csv( DEFAULT_NUMBER_ANALYSIS_RULES )
