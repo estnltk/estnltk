@@ -3,7 +3,9 @@ import unittest
 from unittest import TestCase
 
 from estnltk import Text
+from estnltk.core import abs_path
 from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
+from estnltk.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 from estnltk.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
 
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
@@ -34,8 +36,15 @@ class TestDummyTagger(TestCase):
             self.assertEqual(morf_pred.morphtag, morf_true)
 
 
+class TestNeural2VabamorfPostfixes(TestCase):
+    def test(self):
+        # Test postfixes applied to neural -> vabamorf tag conversion
+        assert vabamorf_tags('POS=S|NOUN_TYPE=prop|NUMBER=sg|CASE=nom') == ('H', 'sg n')
+        assert vabamorf_tags('POS=A|DEGREE=pos|NUMBER=sg|CASE=adit')    == ('A', 'adt')
+
+
 def get_test_sentences(filename):
-    file = open(filename)
+    file = open(filename, 'r', encoding='utf-8')
     words, tags, analyses = [], [], []
     line = file.readline()
     
@@ -74,7 +83,7 @@ if NEURAL_MORPH_TAGGER_CONFIG is not None:
 class TestNeuralModel(TestCase):
     def test(self):
         model = tagger.model
-        sentences = get_test_sentences("neural_test_sentences.txt")
+        sentences = get_test_sentences(abs_path("tests/test_taggers/neural_test_sentences.txt"))
         word_count = 0
         correct_count = 0
         
@@ -92,7 +101,7 @@ class TestNeuralModel(TestCase):
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
 class TestNeuralTagger(TestCase):  
     def test(self):
-        sentences = get_test_sentences("neural_test_sentences.txt")
+        sentences = get_test_sentences(abs_path("tests/test_taggers/neural_test_sentences.txt"))
         word_count = 0
         correct_count = 0
         

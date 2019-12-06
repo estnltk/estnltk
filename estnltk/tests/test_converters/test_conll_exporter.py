@@ -1,10 +1,20 @@
-from estnltk.converters.conll_importer import conll_to_text
-from estnltk.converters.conll_exporter import sentence_to_conll
-from estnltk.core import rel_path
+import pkgutil
+import pytest
+
+from estnltk.core import abs_path
+
+def check_if_conllu_is_available():
+    # Check if conllu is available
+    return pkgutil.find_loader("conllu") is not None
 
 
+@pytest.mark.skipif(not check_if_conllu_is_available(),
+                    reason="package conllu is required for this test")
 def test_sentence_to_conll():
-    file = rel_path('tests/test_converters/test_conll.conll')
+    from estnltk.converters.conll_importer import conll_to_text
+    from estnltk.converters.conll_exporter import sentence_to_conll
+    
+    file = abs_path('tests/test_converters/test_conll.conll')
 
     text = conll_to_text(file, 'conll')
 

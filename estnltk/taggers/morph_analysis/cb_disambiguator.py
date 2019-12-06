@@ -15,6 +15,7 @@ from estnltk.text import Text, Layer
 from estnltk.taggers import Tagger, Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
@@ -97,7 +98,7 @@ class CorpusBasedMorphDisambiguator( object ):
         self._count_inside_compounds = \
               count_inside_compounds
         self._validate_inputs  = validate_inputs
-        self.output_attributes = ESTNLTK_MORPH_ATTRIBUTES
+        self.output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
 
 
     # =========================================================
@@ -176,12 +177,12 @@ class CorpusBasedMorphDisambiguator( object ):
                     nextSentenceInitialPosition = wid
                 # 2) punctuation that is not comma neither semicolon, 
                 #    is before a sentence-initial position
-                elif all([a.partofspeech == 'Z' for a in word_morph.annotations]) \
+                if all([a.partofspeech == 'Z' for a in word_morph.annotations]) \
                      and not re.match('^[,;]+$', word_morph.text):
                     nextSentenceInitialPosition = wid + 1
                 # 3) beginning of an enumeration (a number that does not look 
                 #    like a date, and is followed by a period or a parenthesis),
-                elif not re.match('^[1234567890]*$', word_morph.text ) and \
+                if not re.match('^[1234567890]*$', word_morph.text ) and \
                    not re.match('^[1234567890]{1,2}.[1234567890]{1,2}.[1234567890]{4}$', word_morph.text ) and \
                    re.match("^[1234567890.()]*$", word_morph.text ):
                     nextSentenceInitialPosition = wid + 1
@@ -223,12 +224,12 @@ class CorpusBasedMorphDisambiguator( object ):
                     nextSentenceInitialPosition = wid
                 # 2) punctuation that is not comma neither semicolon, 
                 #    is before a sentence-initial position
-                elif all([a.partofspeech == 'Z' for a in word_morph.annotations]) and \
+                if all([a.partofspeech == 'Z' for a in word_morph.annotations]) and \
                    not re.match('^[,;]+$', word_morph.text):
                     nextSentenceInitialPosition = wid + 1
                 # 3) beginning of an enumeration (a number that does not look 
                 #    like a date, and is followed by a period or a parenthesis),
-                elif not re.match('^[1234567890]*$', word_morph.text ) and \
+                if not re.match('^[1234567890]*$', word_morph.text ) and \
                    not re.match('^[1234567890]{1,2}.[1234567890]{1,2}.[1234567890]{4}$', word_morph.text ) and \
                    re.match("^[1234567890.()]*$", word_morph.text ):
                     nextSentenceInitialPosition = wid + 1
@@ -703,14 +704,11 @@ class CorpusBasedMorphDisambiguationSubstepRetagger(Retagger):
         the method:
             change_layer(...)
     """
-    output_attributes = ESTNLTK_MORPH_ATTRIBUTES
+    output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
     conf_param = [ # input layers
                    '_input_morph_analysis_layer',\
                    '_input_words_layer',\
-                   '_input_sentences_layer',\
-                   # For backward compatibility:
-                   'depends_on', 'layer_name', 'attributes' ]
-    attributes = output_attributes  # <- For backward compatibility ...
+                   '_input_sentences_layer' ]
     
     def __init__(self, morph_analysis_layer:str='morph_analysis', \
                        requires_words_layer: bool = False, \
@@ -748,8 +746,7 @@ class CorpusBasedMorphDisambiguationSubstepRetagger(Retagger):
             self.input_layers.append( self._input_words_layer )
         if requires_sentences_layer:
             self.input_layers.append( self._input_sentences_layer )
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
+
 
 # ----------------------------------------
 # ----------------------------------------
@@ -991,9 +988,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
         layer;
     """
     conf_param = [ # input layers
-                   '_input_morph_analysis_layer',\
-                   # For backward compatibility:
-                   'depends_on', 'layer_name', 'attributes' ]
+                   '_input_morph_analysis_layer' ]
 
     def __init__(self, output_layer:str='_hidden_morph_analysis',\
                        input_morph_analysis_layer:str='morph_analysis' ):
@@ -1001,9 +996,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
         self._input_morph_analysis_layer = input_morph_analysis_layer
         self.input_layers = [ input_morph_analysis_layer ]
         self.output_attributes = ()
-        self.attributes = self.output_attributes  # <- For backward compatibility ...
-        self.layer_name = self.output_layer       # <- For backward compatibility ...
-        self.depends_on = self.input_layers       # <- For backward compatibility ...
+
 
     def _make_layer(self, text: Text, layers, status):
         hidden_words = Layer(name=self.output_layer,

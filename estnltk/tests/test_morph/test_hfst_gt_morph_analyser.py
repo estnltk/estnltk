@@ -303,6 +303,24 @@ def test_hfst_gt_morph_analyser_extract_morpheme_features():
                    'raw_analysis':'Inglismaa+Guess+N+Prop+Sg+Ade' , \
                    'expected_features': OrderedDict([('morphemes', ['Inglismaa']), ('postags', ['N+Prop']), ('forms', ['Sg+Ade']), \
                                                      ('has_clitic', [False]), ('is_guessed', [True]), ('usage', [''])])}, \
+                  # Punctuation
+                  {'word':'--',\
+                   'raw_analysis':'--+PUNCT' , \
+                   'expected_features': OrderedDict([('morphemes', ['--']), ('postags', ['PUNCT']), ('forms', ['']), \
+                                                     ('has_clitic', [False]), ('is_guessed', [False]), ('usage', [''])]) }, \
+                  {'word':'"',\
+                   'raw_analysis':'"+PUNCT' , \
+                   'expected_features': OrderedDict([('morphemes', ['"']), ('postags', ['PUNCT']), ('forms', ['']), \
+                                                     ('has_clitic', [False]), ('is_guessed', [False]), ('usage', [''])]) }, \
+                  {'word':')',\
+                   'raw_analysis':')+PUNCT+RIGHT' , \
+                   'expected_features': OrderedDict([('morphemes', [')']), ('postags', ['PUNCT']), ('forms', ['RIGHT']), \
+                                                     ('has_clitic', [False]), ('is_guessed', [False]), ('usage', [''])]) }, \
+                  # Abbreviations
+                  {'word':'vrd',\
+                   'raw_analysis':'vrd+ABBR' , \
+                   'expected_features': OrderedDict([('morphemes', ['vrd']), ('postags', ['ABBR']), ('forms', ['']), \
+                                                     ('has_clitic', [False]), ('is_guessed', [False]), ('usage', [''])]) }, \
                 ]
     for test_item in test_data:
         input_raw_analysis = test_item['raw_analysis']

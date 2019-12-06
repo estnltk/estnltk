@@ -77,7 +77,7 @@ class NeuralMorphTagger(Tagger):
 
         self.output_layer = output_layer
         self.output_attributes = ('morphtag', 'pos', 'form')
-        self.input_layers = ('morph_analysis',)
+        self.input_layers = ('morph_analysis', 'sentences', 'words')
 
     def _make_layer(self, text, layers, status=None):
         layer = Layer(name=self.output_layer,

@@ -4,6 +4,7 @@ from estnltk import Text
 from estnltk import Annotation
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.morf import IGNORE_ATTR
+from estnltk.taggers.morph_analysis.morf import SORT_VM_MORPH_ANALYSES
 from estnltk.layer import AmbiguousAttributeList
 
 
@@ -73,26 +74,26 @@ def test_morph_analyzer_1():
     text.tag_layer(['words','sentences'])
     analyzer2.tag(text)
     expected_records = [
-        [{'partofspeech': 'P', 'start': 0, 'ending': '0', 'form': 'sg g', 'root': 'mitmes', 'end': 8, 'clitic': '', 'root_tokens': ['mitmes',], 'lemma': 'mitmes'}],
-        [{'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ['koha',], 'lemma': 'koha'},
-         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg n', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ['koha',], 'lemma': 'koha'},
-         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg p', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ['koha',], 'lemma': 'koha'},
-         {'partofspeech': 'V', 'start': 9, 'ending': '0', 'form': 'o', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ['koha',], 'lemma': 'kohama'},
-         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koht', 'end': 13, 'clitic': '', 'root_tokens': ['koht',], 'lemma': 'koht'}],
-        [{'partofspeech': 'S', 'start': 14, 'ending': '0', 'form': 'sg n', 'root': 'sai', 'end': 17, 'clitic': '', 'root_tokens': ['sai',], 'lemma': 'sai'},
-         {'partofspeech': 'V', 'start': 14, 'ending': 'i', 'form': 's', 'root': 'saa', 'end': 17, 'clitic': '', 'root_tokens': ['saa',], 'lemma': 'saama'}],
-        [{'partofspeech': 'D', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ['kohale',], 'lemma': 'kohale'},
-         {'partofspeech': 'K', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ['kohale',], 'lemma': 'kohale'},
-         {'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koha', 'end': 24, 'clitic': '', 'root_tokens': ['koha',], 'lemma': 'koha'},
-         {'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koht', 'end': 24, 'clitic': '', 'root_tokens': ['koht',], 'lemma': 'koht'}],
-        [{'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': '', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ['jõudnud',], 'lemma': 'jõudnud'},
-         {'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': 'sg n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ['jõudnud',], 'lemma': 'jõudnud'},
-         {'partofspeech': 'S', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nu', 'end': 32, 'clitic': '', 'root_tokens': ['jõudnu',], 'lemma': 'jõudnu'},
-         {'partofspeech': 'A', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ['jõudnud',], 'lemma': 'jõudnud'},
-         {'partofspeech': 'V', 'start': 25, 'ending': 'nud', 'form': 'nud', 'root': 'jõud', 'end': 32, 'clitic': '', 'root_tokens': ['jõud',], 'lemma': 'jõudma'}],
-        [{'partofspeech': 'S', 'start': 33, 'ending': '0', 'form': 'sg n', 'root': 'mees', 'end': 37, 'clitic': '', 'root_tokens': ['mees',], 'lemma': 'mees'},
-         {'partofspeech': 'S', 'start': 33, 'ending': 's', 'form': 'sg in', 'root': 'mesi', 'end': 37, 'clitic': '', 'root_tokens': ['mesi',], 'lemma': 'mesi'}],
-        [{'partofspeech': 'Z', 'start': 38, 'ending': '', 'form': '', 'root': '?', 'end': 39, 'clitic': '', 'root_tokens': ['?',], 'lemma': '?'}]]
+        [{'normalized_text': 'Mitmenda', 'partofspeech': 'P', 'start': 0, 'ending': '0', 'form': 'sg g', 'root': 'mitmes', 'end': 8, 'clitic': '', 'root_tokens': ['mitmes',], 'lemma': 'mitmes'}],
+        [{'normalized_text': 'koha', 'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ['koha',], 'lemma': 'koha'},
+         {'normalized_text': 'koha', 'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg n', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ['koha',], 'lemma': 'koha'},
+         {'normalized_text': 'koha', 'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg p', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ['koha',], 'lemma': 'koha'},
+         {'normalized_text': 'koha', 'partofspeech': 'V', 'start': 9, 'ending': '0', 'form': 'o', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ['koha',], 'lemma': 'kohama'},
+         {'normalized_text': 'koha', 'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koht', 'end': 13, 'clitic': '', 'root_tokens': ['koht',], 'lemma': 'koht'}],
+        [{'normalized_text': 'sai', 'partofspeech': 'S', 'start': 14, 'ending': '0', 'form': 'sg n', 'root': 'sai', 'end': 17, 'clitic': '', 'root_tokens': ['sai',], 'lemma': 'sai'},
+         {'normalized_text': 'sai', 'partofspeech': 'V', 'start': 14, 'ending': 'i', 'form': 's', 'root': 'saa', 'end': 17, 'clitic': '', 'root_tokens': ['saa',], 'lemma': 'saama'}],
+        [{'normalized_text': 'kohale', 'partofspeech': 'D', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ['kohale',], 'lemma': 'kohale'},
+         {'normalized_text': 'kohale', 'partofspeech': 'K', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ['kohale',], 'lemma': 'kohale'},
+         {'normalized_text': 'kohale', 'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koha', 'end': 24, 'clitic': '', 'root_tokens': ['koha',], 'lemma': 'koha'},
+         {'normalized_text': 'kohale', 'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koht', 'end': 24, 'clitic': '', 'root_tokens': ['koht',], 'lemma': 'koht'}],
+        [{'normalized_text': 'jõudnud', 'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': '', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ['jõudnud',], 'lemma': 'jõudnud'},
+         {'normalized_text': 'jõudnud', 'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': 'sg n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ['jõudnud',], 'lemma': 'jõudnud'},
+         {'normalized_text': 'jõudnud', 'partofspeech': 'S', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nu', 'end': 32, 'clitic': '', 'root_tokens': ['jõudnu',], 'lemma': 'jõudnu'},
+         {'normalized_text': 'jõudnud', 'partofspeech': 'A', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ['jõudnud',], 'lemma': 'jõudnud'},
+         {'normalized_text': 'jõudnud', 'partofspeech': 'V', 'start': 25, 'ending': 'nud', 'form': 'nud', 'root': 'jõud', 'end': 32, 'clitic': '', 'root_tokens': ['jõud',], 'lemma': 'jõudma'}],
+        [{'normalized_text': 'mees', 'partofspeech': 'S', 'start': 33, 'ending': '0', 'form': 'sg n', 'root': 'mees', 'end': 37, 'clitic': '', 'root_tokens': ['mees',], 'lemma': 'mees'},
+         {'normalized_text': 'mees', 'partofspeech': 'S', 'start': 33, 'ending': 's', 'form': 'sg in', 'root': 'mesi', 'end': 37, 'clitic': '', 'root_tokens': ['mesi',], 'lemma': 'mesi'}],
+        [{'normalized_text': '?', 'partofspeech': 'Z', 'start': 38, 'ending': '', 'form': '', 'root': '?', 'end': 39, 'clitic': '', 'root_tokens': ['?',], 'lemma': '?'}]]
     #print(text['morph_analysis'].to_records())
     # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()
@@ -118,7 +119,7 @@ def test_morph_analyzer_without_guessing():
     # Check for unknown word placeholders
     assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
     assert AmbiguousAttributeList([[None],
-                                   ['ole', 'ole'], [None], [None],
+                                   ['ole', 'ole'], [None], ['rõlge', 'rõlge=lt'],
                                    ['hea', 'hea', 'hea', 'hea'],
                                    ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
 
@@ -127,7 +128,7 @@ def test_morph_analyzer_without_guessing():
     for word, partofspeech in zip(text.words.text, text.partofspeech):
         if partofspeech[0] is None:
             unknown_words.append(word)
-    assert ['Mulll', 'yks', 'rõlgelt'] == unknown_words
+    assert ['Mulll', 'yks'] == unknown_words
 
 
 
@@ -140,7 +141,7 @@ def test_morph_analyzer_without_guessing():
 
 def test_morph_analyzer_with_multiple_normalized_forms():
     # Tests that morphological analyser can analyse words with multiple normalized forms
-    analyzer2a = VabamorfAnalyzer(add_normalized_text=True)
+    analyzer2a = VabamorfAnalyzer()
     # Case 1: analyse with guessing
     text = Text('''isaand kui juuuubbeee ...''')
     text.tag_layer(['words', 'sentences'])
@@ -180,7 +181,7 @@ def test_morph_analyzer_with_multiple_normalized_forms():
     assert expected_records == results_dict
 
     # Case 2: analyse without guessing
-    analyzer2b = VabamorfAnalyzer(guess=False, propername=False, add_normalized_text=True)
+    analyzer2b = VabamorfAnalyzer(guess=False, propername=False)
     text = Text('''päris hää !''')
     text.tag_layer(['words', 'sentences'])
     # Add multiple normalized forms (and one of them will remain an unknown word)
@@ -228,17 +229,17 @@ def test_morph_disambiguator_1():
     analyzer2.tag(text)
     disambiguator.retag(text)
     expected_records = [ \
-        [{'ending': '0', 'root': 'mitmes', 'root_tokens': ['mitmes',], 'start': 0, 'end': 8, 'clitic': '', 'partofspeech': 'P', 'lemma': 'mitmes', 'form': 'sg g'}], \
-        [{'ending': '0', 'root': 'koha', 'root_tokens': ['koha',], 'start': 9, 'end': 13, 'clitic': '', 'partofspeech': 'S', 'lemma': 'koha', 'form': 'sg g'}, \
-         {'ending': '0', 'root': 'koht', 'root_tokens': ['koht',], 'start': 9, 'end': 13, 'clitic': '', 'partofspeech': 'S', 'lemma': 'koht', 'form': 'sg g'}], \
-        [{'ending': 'i', 'root': 'saa', 'root_tokens': ['saa',], 'start': 14, 'end': 17, 'clitic': '', 'partofspeech': 'V', 'lemma': 'saama', 'form': 's'}], \
-        [{'ending': '0', 'root': 'kohale', 'root_tokens': ['kohale',], 'start': 18, 'end': 24, 'clitic': '', 'partofspeech': 'D', 'lemma': 'kohale', 'form': ''}], \
-        [{'ending': 'nud', 'root': 'jõud', 'root_tokens': ['jõud',], 'start': 25, 'end': 32, 'clitic': '', 'partofspeech': 'V', 'lemma': 'jõudma', 'form': 'nud'}, \
-         {'ending': '0', 'root': 'jõud=nud', 'root_tokens': ['jõudnud',], 'start': 25, 'end': 32, 'clitic': '', 'partofspeech': 'A', 'lemma': 'jõudnud', 'form': ''}, \
-         {'ending': '0', 'root': 'jõud=nud', 'root_tokens': ['jõudnud',], 'start': 25, 'end': 32, 'clitic': '', 'partofspeech': 'A', 'lemma': 'jõudnud', 'form': 'sg n'}, \
-         {'ending': 'd', 'root': 'jõud=nud', 'root_tokens': ['jõudnud',], 'start': 25, 'end': 32, 'clitic': '', 'partofspeech': 'A', 'lemma': 'jõudnud', 'form': 'pl n'}], \
-        [{'ending': '0', 'root': 'mees', 'root_tokens': ['mees',], 'start': 33, 'end': 37, 'clitic': '', 'partofspeech': 'S', 'lemma': 'mees', 'form': 'sg n'}], \
-        [{'ending': '', 'root': '?', 'root_tokens': ['?',], 'start': 38, 'end': 39, 'clitic': '', 'partofspeech': 'Z', 'lemma': '?', 'form': ''}]]
+        [{'normalized_text': 'Mitmenda', 'ending': '0', 'root': 'mitmes', 'root_tokens': ['mitmes',], 'start': 0, 'end': 8, 'clitic': '', 'partofspeech': 'P', 'lemma': 'mitmes', 'form': 'sg g'}], \
+        [{'normalized_text': 'koha', 'ending': '0', 'root': 'koha', 'root_tokens': ['koha',], 'start': 9, 'end': 13, 'clitic': '', 'partofspeech': 'S', 'lemma': 'koha', 'form': 'sg g'}, \
+         {'normalized_text': 'koha', 'ending': '0', 'root': 'koht', 'root_tokens': ['koht',], 'start': 9, 'end': 13, 'clitic': '', 'partofspeech': 'S', 'lemma': 'koht', 'form': 'sg g'}], \
+        [{'normalized_text': 'sai', 'ending': 'i', 'root': 'saa', 'root_tokens': ['saa',], 'start': 14, 'end': 17, 'clitic': '', 'partofspeech': 'V', 'lemma': 'saama', 'form': 's'}], \
+        [{'normalized_text': 'kohale', 'ending': '0', 'root': 'kohale', 'root_tokens': ['kohale',], 'start': 18, 'end': 24, 'clitic': '', 'partofspeech': 'D', 'lemma': 'kohale', 'form': ''}], \
+        [{'normalized_text': 'jõudnud', 'ending': 'nud', 'root': 'jõud', 'root_tokens': ['jõud',], 'start': 25, 'end': 32, 'clitic': '', 'partofspeech': 'V', 'lemma': 'jõudma', 'form': 'nud'}, \
+         {'normalized_text': 'jõudnud', 'ending': '0', 'root': 'jõud=nud', 'root_tokens': ['jõudnud',], 'start': 25, 'end': 32, 'clitic': '', 'partofspeech': 'A', 'lemma': 'jõudnud', 'form': ''}, \
+         {'normalized_text': 'jõudnud', 'ending': '0', 'root': 'jõud=nud', 'root_tokens': ['jõudnud',], 'start': 25, 'end': 32, 'clitic': '', 'partofspeech': 'A', 'lemma': 'jõudnud', 'form': 'sg n'}, \
+         {'normalized_text': 'jõudnud', 'ending': 'd', 'root': 'jõud=nud', 'root_tokens': ['jõudnud',], 'start': 25, 'end': 32, 'clitic': '', 'partofspeech': 'A', 'lemma': 'jõudnud', 'form': 'pl n'}], \
+        [{'normalized_text': 'mees', 'ending': '0', 'root': 'mees', 'root_tokens': ['mees',], 'start': 33, 'end': 37, 'clitic': '', 'partofspeech': 'S', 'lemma': 'mees', 'form': 'sg n'}], \
+        [{'normalized_text': '?', 'ending': '', 'root': '?', 'root_tokens': ['?',], 'start': 38, 'end': 39, 'clitic': '', 'partofspeech': 'Z', 'lemma': '?', 'form': ''}]]
     #print(text['morph_analysis'].to_records())
     # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()
@@ -263,7 +264,7 @@ def test_morph_disambiguation_exception_on_unknown_words():
     # Check for unknown word placeholders
     assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
     assert AmbiguousAttributeList([[None],
-                                   ['ole', 'ole'], [None], [None],
+                                   ['ole', 'ole'], [None], ['rõlge', 'rõlge=lt'],
                                    ['hea', 'hea', 'hea', 'hea'],
                                    ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
 
@@ -288,26 +289,32 @@ def test_morph_disambiguation_preserves_extra_attributes():
     analyzer.tag(text)
     # Add extra attributes
     for sp_id, spanlist in enumerate(text.morph_analysis):
-        for s_id, span in enumerate(spanlist.annotations):
-            setattr(span, 'analysis_id', str(sp_id)+'_'+str(s_id))
+        sorted_annotations = sorted( spanlist.annotations, key = lambda x : \
+               str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+               str(x['partofspeech'])+str(x['form']) )
+        for s_id, annotation in enumerate(sorted_annotations):
+            setattr(annotation, 'analysis_id', str(sp_id)+'_'+str(s_id))
     for sent_id, sentence in enumerate(text.sentences):
         for sp_id, spanlist in enumerate(text.morph_analysis):
             if sentence.start <= spanlist.start and \
                spanlist.end <= sentence.end:
-                for s_id, span in enumerate(spanlist.annotations):
-                    setattr(span, 'sentence_id', str(sent_id))
+                sorted_annotations = sorted( spanlist.annotations, key = lambda x : \
+                       str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+                       str(x['partofspeech'])+str(x['form']) )
+                for s_id, annotation in enumerate( sorted_annotations ):
+                    setattr(annotation, 'sentence_id', str(sent_id))
     # Disambiguate text
     disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     # Check that extra attributes are preserved
     expected_records = [
-        [{'analysis_id': '0_3', 'clitic': '', 'root': 'mees', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '0', 'start': 0, 'root_tokens': ['mees',], 'end': 4, 'form': 'sg n', 'lemma': 'mees'}],
-        [{'analysis_id': '1_1', 'clitic': '', 'root': 'kee', 'ending': 's', 'partofspeech': 'V', 'sentence_id': '0', 'start': 5, 'root_tokens': ['kee',], 'end': 9, 'form': 's', 'lemma': 'keema'}],
-        [{'analysis_id': '2_0', 'clitic': '', 'root': 'üle', 'ending': '0', 'partofspeech': 'D', 'sentence_id': '0', 'start': 10, 'root_tokens': ['üle',], 'end': 13, 'form': '', 'lemma': 'üle'}],
-        [{'analysis_id': '3_0', 'clitic': '', 'root': '.', 'ending': '', 'partofspeech': 'Z', 'sentence_id': '0', 'start': 13, 'root_tokens': ['.',], 'end': 14, 'form': '', 'lemma': '.'}],
-        [{'analysis_id': '4_4', 'clitic': '', 'root': 'naeris', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '1', 'start': 15, 'root_tokens': ['naeris',], 'end': 21, 'form': 'sg n', 'lemma': 'naeris'}],
-        [{'analysis_id': '5_1', 'clitic': '', 'root': 'naer', 'ending': 'is', 'partofspeech': 'V', 'sentence_id': '1', 'start': 22, 'root_tokens': ['naer',], 'end': 28, 'form': 's', 'lemma': 'naerma'}],
-        [{'analysis_id': '6_0', 'clitic': '', 'root': '.', 'ending': '', 'partofspeech': 'Z', 'sentence_id': '1', 'start': 28, 'root_tokens': ['.',], 'end': 29, 'form': '', 'lemma': '.'}] ]
+        [{'normalized_text': 'Mees', 'analysis_id': '0_3', 'clitic': '', 'root': 'mees', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '0', 'start': 0, 'root_tokens': ['mees',], 'end': 4, 'form': 'sg n', 'lemma': 'mees'}],
+        [{'normalized_text': 'kees', 'analysis_id': '1_1', 'clitic': '', 'root': 'kee', 'ending': 's', 'partofspeech': 'V', 'sentence_id': '0', 'start': 5, 'root_tokens': ['kee',], 'end': 9, 'form': 's', 'lemma': 'keema'}],
+        [{'normalized_text': 'üle', 'analysis_id': '2_0', 'clitic': '', 'root': 'üle', 'ending': '0', 'partofspeech': 'D', 'sentence_id': '0', 'start': 10, 'root_tokens': ['üle',], 'end': 13, 'form': '', 'lemma': 'üle'}],
+        [{'normalized_text': '.', 'analysis_id': '3_0', 'clitic': '', 'root': '.', 'ending': '', 'partofspeech': 'Z', 'sentence_id': '0', 'start': 13, 'root_tokens': ['.',], 'end': 14, 'form': '', 'lemma': '.'}],
+        [{'normalized_text': 'Naeris', 'analysis_id': '4_4', 'clitic': '', 'root': 'naeris', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '1', 'start': 15, 'root_tokens': ['naeris',], 'end': 21, 'form': 'sg n', 'lemma': 'naeris'}],
+        [{'normalized_text': 'naeris', 'analysis_id': '5_1', 'clitic': '', 'root': 'naer', 'ending': 'is', 'partofspeech': 'V', 'sentence_id': '1', 'start': 22, 'root_tokens': ['naer',], 'end': 28, 'form': 's', 'lemma': 'naerma'}],
+        [{'normalized_text': '.', 'analysis_id': '6_0', 'clitic': '', 'root': '.', 'ending': '', 'partofspeech': 'Z', 'sentence_id': '1', 'start': 28, 'root_tokens': ['.',], 'end': 29, 'form': '', 'lemma': '.'}] ]
     # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()
     _sort_morph_analysis_records( results_dict )
@@ -328,7 +335,7 @@ from estnltk.converters import dict_to_layer
 def test_morph_disambiguation_if_analysis_has_normalized_text_attribute():
     # Tests that morphological disambiguator works if morphological_analysis 
     # layer has 'normalized_text' attribute
-    analyzer2a = VabamorfAnalyzer( add_normalized_text=True )
+    analyzer2a = VabamorfAnalyzer()
     # Case 1
     text = Text('''Mjees ppeeti knni.''')
     text.tag_layer(['words', 'sentences'])
@@ -501,3 +508,66 @@ def test_morph_disambiguation_with_ignore_xml_tags():
         # assert that all words have been disambiguated
         assert len(span.annotations) == 1
         assert IGNORE_ATTR not in span.annotations[0]
+
+
+
+# ----------------------------------------------------------------
+#   Test 
+#      morphological analyser and disambiguator will output 
+#      ambiguous word's analyses in specific order
+# ----------------------------------------------------------------
+
+def test_ordering_of_ambiguous_morph_analyses():
+    # Test the default ordering of ambiguous morph analyses
+    text_str = '''
+    Need olid ühed levinuimad rattad omal ajastul.
+    Ma kusjuures ei olegi varem sinna kordagi sattunud.
+    Hästi jutustatud ja korraliku ideega.
+    Kuna peamine põhjus vähendada suitsugaaside kardinaid osatähtsus on vähenenud läbipääsu toru kogunenud tahm seintel.
+    '''
+    text=Text(text_str)
+    text.tag_layer(['words','sentences'])
+    analyzer2.tag(text)
+    disambiguator.retag( text )
+    # Collect ambiguous analyses
+    ambiguous_analyses = []
+    for morph_word in text.morph_analysis:
+        annotations = morph_word.annotations
+        #ambiguous_analyses.append( [morph_word.text]+[(a['root'], a['partofspeech'], a['form'] ) for a in annotations] )
+        if len( annotations ) > 1:
+            ambiguous_analyses.append( [morph_word.text]+[(a['root'], a['partofspeech'], a['form'] ) for a in annotations] )
+    # ==============
+    #print()
+    #for a in ambiguous_analyses:
+    #    print(a)
+    # ==============
+    #  ordering A: when VabamorfAnalyzer & VabamorfDisambiguator do not sort ambiguous analyses
+    # ==============
+    ordering_a = [ \
+       ['ühed', ('üks', 'N', 'pl n'), ('üks', 'P', 'pl n')],
+       ['sattunud', ('sattu', 'V', 'nud'), ('sattu=nud', 'A', ''), ('sattu=nud', 'A', 'sg n'), ('sattu=nud', 'A', 'pl n')],
+       ['jutustatud', ('jutusta', 'V', 'tud'), ('jutusta=tud', 'A', ''), ('jutusta=tud', 'A', 'sg n'), ('jutusta=tud', 'A', 'pl n')],
+       ['on', ('ole', 'V', 'b'), ('ole', 'V', 'vad')],
+       ['vähenenud', ('vähene', 'V', 'nud'), ('vähene=nud', 'A', ''), ('vähene=nud', 'A', 'sg n'), ('vähene=nud', 'A', 'pl n')],
+       ['kogunenud', ('kogune', 'V', 'nud'), ('kogune=nud', 'A', ''), ('kogune=nud', 'A', 'sg n'), ('kogune=nud', 'A', 'pl n')]
+    ]
+    # ==============
+    #  ordering B: when VabamorfAnalyzer & VabamorfDisambiguator are sorting ambiguous analyses
+    # ==============
+    ordering_b = [ \
+        ['ühed', ('üks', 'N', 'pl n'), ('üks', 'P', 'pl n')],
+        ['sattunud', ('sattu=nud', 'A', ''), ('sattu=nud', 'A', 'sg n'), ('sattu=nud', 'A', 'pl n'), ('sattu', 'V', 'nud')],
+        ['jutustatud', ('jutusta=tud', 'A', ''), ('jutusta=tud', 'A', 'sg n'), ('jutusta=tud', 'A', 'pl n'), ('jutusta', 'V', 'tud')],
+        ['on', ('ole', 'V', 'b'), ('ole', 'V', 'vad')],
+        ['vähenenud', ('vähene=nud', 'A', ''), ('vähene=nud', 'A', 'sg n'), ('vähene=nud', 'A', 'pl n'), ('vähene', 'V', 'nud')],
+        ['kogunenud', ('kogune=nud', 'A', ''), ('kogune=nud', 'A', 'sg n'), ('kogune=nud', 'A', 'pl n'), ('kogune', 'V', 'nud')]
+    ]
+    # ==============
+    #  validate the current ordering
+    # ==============
+    if not SORT_VM_MORPH_ANALYSES:
+        assert ordering_a == ambiguous_analyses
+    else:
+        assert ordering_b == ambiguous_analyses
+
+

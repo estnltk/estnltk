@@ -26,7 +26,7 @@ DEFAULT_PARAM_COMPOUND     = True
 # Morphological analysis attributes used by Vabamorf
 VABAMORF_ATTRIBUTES = ('root', 'ending', 'clitic', 'form', 'partofspeech')
 
-# Morphological analysis attributes used by ESTNLTK
+# Morphological analysis attributes used by ESTNLTK's Vabamorf
 ESTNLTK_MORPH_ATTRIBUTES = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
 
 # Name of the normalized text attribute. This refers to 
@@ -38,6 +38,16 @@ NORMALIZED_TEXT = 'normalized_text'
 # disambiguation, all spans of "morph_analysis" that have 
 # ignore attribute set to True will be skipped;
 IGNORE_ATTR = '_ignore'
+
+# In brief:
+# SORT_VM_MORPH_ANALYSES=True  -- VM analyses ordering used in EstNLTK versions 
+#                                 1.6.0 - 1.6.4 beta;
+# SORT_VM_MORPH_ANALYSES=False -- VM analyses ordering used in EstNLTK versions 
+#                                 prior 1.6.0, and the ordering that will likely 
+#                                 be used in future versions (after v1.6.4b);
+# Note: regardless which ordering is used, Vabamorf's ambiguous analyses are 
+#       **not** ordered by likelihood/probability;
+SORT_VM_MORPH_ANALYSES = False
 
 # =================================
 #    Helper functions

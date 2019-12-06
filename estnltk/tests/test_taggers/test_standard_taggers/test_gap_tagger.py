@@ -3,7 +3,7 @@ import pytest
 from estnltk import Text
 from estnltk import Layer
 from estnltk.taggers import GapTagger
-from estnltk.core import rel_path
+from estnltk.core import abs_path
 from estnltk.taggers import TaggerTester
 
 text = Text('Üks kaks kolm neli viis kuus seitse.')
@@ -58,8 +58,8 @@ def test_bad_trim():
 
 def test_tagger():
     tagger = GapTagger(input_layers=['test_1', 'test_2', 'test_3'], output_layer='gaps')
-    input_file = rel_path('tests/test_taggers/test_standard_taggers/gap_tagger_input.json')
-    target_file = rel_path('tests/test_taggers/test_standard_taggers/gap_tagger_target.json')
+    input_file = abs_path('tests/test_taggers/test_standard_taggers/gap_tagger_input.json')
+    target_file = abs_path('tests/test_taggers/test_standard_taggers/gap_tagger_target.json')
 
     tester = TaggerTester(tagger, input_file, target_file)
     tester.load()
