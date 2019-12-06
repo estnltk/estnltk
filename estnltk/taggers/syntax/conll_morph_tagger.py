@@ -2,7 +2,7 @@ from estnltk.taggers import Tagger
 from estnltk.layer.layer import Layer
 from estnltk.converters.CG3_exporter import export_CG3
 from estnltk.taggers.syntax.vislcg3_syntax import VISLCG3Pipeline, convert_cg3_to_conll
-from estnltk import PACKAGE_PATH
+from estnltk.core import abs_path
 import os
 import re
 
@@ -48,9 +48,8 @@ class ConllMorphTagger(Tagger):
 def get_values(id, text):
     text.analyse('syntax_preprocessing')
     res1 = export_CG3(text)
-    vislcgRulesDir = os.path.relpath(os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'files'))
-    vislcg_path = '/usr/bin/vislcg3'
-    pipeline2 = VISLCG3Pipeline(rules_dir=vislcgRulesDir, vislcg_cmd=vislcg_path)
+    vislcgRulesDir = abs_path('taggers/syntax/files')
+    pipeline2 = VISLCG3Pipeline(rules_dir=vislcgRulesDir)
     results2 = pipeline2.process_lines(res1)
     for j, word in enumerate(list(filter(None, convert_cg3_to_conll(results2.split('\n'))))):
         if word != '':

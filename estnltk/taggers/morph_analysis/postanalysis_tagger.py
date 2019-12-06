@@ -20,7 +20,8 @@ from estnltk.taggers import Retagger
 from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morph_analysis.morf_common import _get_word_texts, _create_empty_morph_record
+from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
+from estnltk.taggers.morph_analysis.morf_common import _create_empty_morph_record
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
@@ -36,7 +37,7 @@ class PostMorphAnalysisTagger(Retagger):
        layer before the disambiguation process.
        This tagger should be applied before VabamorfDisambiguator."""
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
-    conf_param = ['depends_on', 'ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials',
+    conf_param = ['ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials',
                   'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses',
                   'fix_abbreviations', 'fix_number_postags', 'remove_duplicates',
                   'fix_number_analyses_using_rules',
@@ -47,9 +48,6 @@ class PostMorphAnalysisTagger(Retagger):
                   '_number_correction_rules',
                   # Names of input layers
                   '_input_cp_tokens_layer',
-                  '_input_words_layer',
-                  '_input_sentences_layer',
-                  '_input_morph_analysis_layer',
                   # Regep patterns
                   '_pat_name_needs_underscore1',
                   '_pat_name_needs_underscore2',
@@ -59,8 +57,6 @@ class PostMorphAnalysisTagger(Retagger):
     def __init__(self,
                  output_layer='morph_analysis',
                  input_compound_tokens_layer='compound_tokens',
-                 input_words_layer='words',
-                 input_sentences_layer='sentences',
                  ignore_emoticons:bool=True,
                  ignore_xml_tags:bool=True,
                  fix_names_with_initials:bool=True,
@@ -84,13 +80,7 @@ class PostMorphAnalysisTagger(Retagger):
             will be corrected;
         
         input_compound_tokens_layer: str (default: 'compound_tokens')
-            Name of the input words layer;
-        
-        input_words_layer: str (default: 'words')
-            Name of the input words layer;
-        
-        input_sentences_layer: str (default: 'sentences')
-            Name of the input sentences layer;
+            Name of the input compound_tokens layer;
         
         ignore_emoticons: bool (default: True)
             If True, then emoticons will be marked as to 
@@ -175,14 +165,8 @@ class PostMorphAnalysisTagger(Retagger):
         self.output_layer = output_layer
         # Names of the input layers
         self.input_layers = [input_compound_tokens_layer,
-                             input_words_layer,
-                             input_sentences_layer,
                              output_layer]
-        self._input_cp_tokens_layer      = self.input_layers[0]
-        self._input_words_layer          = self.input_layers[1]
-        self._input_sentences_layer      = self.input_layers[2]
-        self._input_morph_analysis_layer = self.input_layers[3]
-        self.depends_on   = self.input_layers
+        self._input_cp_tokens_layer = input_compound_tokens_layer
         
         # Correction of number analyses
         # (formerly in VabamorfCorrectionRewriter)
@@ -240,8 +224,6 @@ class PostMorphAnalysisTagger(Retagger):
         """
         assert self.output_layer in layers
         assert self._input_cp_tokens_layer in layers
-        assert self._input_sentences_layer in layers
-        assert self._input_words_layer in layers
         # --------------------------------------------
         #   Provide fixes that involve rewriting
         #   attributes of existing spans 
@@ -473,11 +455,11 @@ class PostMorphAnalysisTagger(Retagger):
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s
             morph_annotations = morph_spans[morph_span_id].annotations
-
+            
             # A) Remove duplicate analyses (if required)
             if self.remove_duplicates:
                 morph_annotations = _remove_duplicate_morph_spans(morph_annotations)
-
+            
             # A.2) Check for empty spans
             word = morph_annotations[0].span.parent
             is_empty = _is_empty_annotation(morph_annotations[0])
@@ -505,86 +487,97 @@ class PostMorphAnalysisTagger(Retagger):
                 # Advance in the old morph_analysis layer
                 morph_span_id += 1
                 continue
-
+            
             # B) Convert spans to records
             records = [_span_to_records_excl(annotation, [IGNORE_ATTR]) for annotation in morph_annotations]
             rewritten_recs = records
-            # B.0) First, determine if we have correct conditions for fixing
-            pronoun_tokens = []
-            numeric_tokens = []
-            normalized_words = _get_word_texts( word )
-            for normalized_word_str in normalized_words:
-                if self.remove_broken_pronoun_analyses and len(rewritten_recs) > 0:
-                    token = MorphAnalyzedToken( normalized_word_str )
-                    pronoun_tokens.append( token.is_pronoun )
-                if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
-                    is_numeric = False
-                    for c in normalized_word_str:
-                        if c.isnumeric():
-                            is_numeric = True
-                            break
-                    numeric_tokens.append( is_numeric )
-
+            
             # B.1) Fix pronouns
             if self.remove_broken_pronoun_analyses and len(rewritten_recs) > 0:
                 # B.1.1) Filter pronoun analyses: remove analyses in which the
                 #        normalized word is actually not a pronoun;
-                if pronoun_tokens and not any(pronoun_tokens):
-                    # Only fire if there are no pronoun tokens in normalized words
-                    rewritten_recs_new = []
-                    for rec in rewritten_recs:
-                        if not rec['partofspeech'] == 'P': # Only add non-pronouns
-                            rewritten_recs_new.append(rec)
-                    rewritten_recs = rewritten_recs_new
-
+                rewritten_recs_new = []
+                morph_analysed_tokens = {}
+                for rec in rewritten_recs:
+                    assert NORMALIZED_TEXT in rec, \
+                       '(!) Record {!r} is missing the attribute {!r}'.format(rec, NORMALIZED_TEXT)
+                    normalized_word = rec[NORMALIZED_TEXT]
+                    if normalized_word is None:
+                        rewritten_recs_new.append(rec)
+                        continue
+                    if normalized_word not in morph_analysed_tokens:
+                        # Obtain morphological analysis for the token
+                        morph_analysed_tokens[normalized_word] = \
+                              MorphAnalyzedToken( normalized_word )
+                    # Conflict: a non-pronoun has been marked as a pronoun 
+                    has_conflict = (rec['partofspeech'] == 'P') and \
+                                   (not morph_analysed_tokens[normalized_word].is_pronoun)
+                    if not has_conflict:
+                        rewritten_recs_new.append(rec)
+                rewritten_recs = rewritten_recs_new
+            
             # B.2) Used rules (from CSV file) to fix number analyses
             if self.fix_number_analyses_using_rules and len(rewritten_recs) > 0:
-                # Only fire if all normalized words represent numeric tokens
-                if numeric_tokens and all(numeric_tokens):
-                    all_found_analyses = []
-                    for normalized_word_str in normalized_words:
-                        found_analyses = \
-                            self.find_analyses_for_numeric_token( normalized_word_str )
-                        all_found_analyses.extend( found_analyses )
-                    if all_found_analyses:
-                        # Replace the old ones or take the intersection
-                        if self.fix_number_analyses_by_replacing:
-                            rewritten_recs = all_found_analyses
-                        else:
-                            rewritten_recs = [rec for rec in rewritten_recs if rec in all_found_analyses]
-
-            # B.3) Carry over extra attributes
-            if extra_attributes and len(rewritten_recs) > 0 and len(records) > 0:
+                # Find analyses of numeric tokens and attempt to make fixes
+                all_found_analyses = {}
+                for rid, rec in enumerate(rewritten_recs):
+                    assert NORMALIZED_TEXT in rec, \
+                       '(!) Record {!r} is missing the attribute {!r}'.format(rec, NORMALIZED_TEXT)
+                    normalized_word = rec[NORMALIZED_TEXT]
+                    if normalized_word is None or not any([c.isnumeric() for c in normalized_word]):
+                        continue
+                    found_analyses = \
+                            self.find_analyses_for_numeric_token( normalized_word )
+                    if found_analyses and len(found_analyses) > 0:
+                        all_found_analyses[rid] = found_analyses
+                if len( all_found_analyses.keys() ) > 0:
+                     # Replace the old ones or take the intersection
+                     rewritten_recs_new = []
+                     if self.fix_number_analyses_by_replacing:
+                         # Replace the old ones completely
+                         for i in range(len(rewritten_recs)):
+                             current_recs = [rewritten_recs[i]]
+                             if i in all_found_analyses:
+                                 current_recs = all_found_analyses[i]
+                             rewritten_recs_new.extend(current_recs)
+                     else:
+                         # Take the intersection of new ones and old ones
+                         for k in all_found_analyses.keys():
+                             for rec in all_found_analyses[k]:
+                                 if rec in rewritten_recs and \
+                                    rec not in rewritten_recs_new:
+                                     rewritten_recs_new.append(rec)
+                     rewritten_recs = rewritten_recs_new
+            
+            # B.3) Carry over extra attributes and add IGNORE_ATTR
+            if len(rewritten_recs) > 0:
+                layer_attributes = layers[self.output_layer].attributes
                 # Assume that extra attributes are same for each record (of the word):
                 # therefore, carry over attribute values from the first record
-                first_old_rec = records[0]
+                first_old_rec = records[0] if len(records) > 0 else {}
                 for rec in rewritten_recs:
+                    # Carry over extra attributes
                     for extra_attr in extra_attributes:
                         # Note: carry over the extra attribute value only when 
                         # the record was changed (so that the attribute is missing 
                         # from the record)
-                        if extra_attr not in rec:
+                        if extra_attr not in rec and \
+                           extra_attr in first_old_rec:
                             rec[extra_attr] = first_old_rec[extra_attr]
-            
-            # C) Convert records back to spans
-            #    Add IGNORE_ATTR
-            records = []
-
-            record_added = False
-            attributes = layers[self.output_layer].attributes
-            for rec in rewritten_recs:
-                if not rec:
-                    # Skip if a record was deleted
-                    continue
-                rec[IGNORE_ATTR] = False
-                # Add record as an annotation
-                rec = {attr: rec.get(attr) for attr in attributes}
-                records.append(rec)
-                record_added = True
-
-            # C.2) If no records were added (all were deleted),
+                    # Add IGNORE_ATTR
+                    rec[IGNORE_ATTR] = False
+                    # Just in case there is garbage, remove it
+                    to_delete = []
+                    for rec_attr in rec.keys():
+                        if rec_attr not in layer_attributes:
+                            to_delete.append(rec_attr)
+                    if to_delete:
+                        for rec_attr in to_delete:
+                            del rec[rec_attr]
+             
+            # C.1) If no records were added (all were deleted),
             #      then add an empty record (unknown word)
-            if not record_added:
+            if len(rewritten_recs) == 0:
                 empty_morph_record = \
                     _create_empty_morph_record(word=word, layer_attributes = current_attributes)
                 # Add ignore attribute
@@ -600,14 +593,14 @@ class PostMorphAnalysisTagger(Retagger):
                 empty_morph_record = \
                     {attr: empty_morph_record[attr] for attr in layers[self.output_layer].attributes}
                 # Add the new annotation
-                records.append(empty_morph_record)
+                rewritten_recs.append(empty_morph_record)
             
             # D) Rewrite the old span with new one
             span = morph_spans[morph_span_id]
             span.clear_annotations()
-            for record in records:
+            for record in rewritten_recs:
                 span.add_annotation(Annotation(span, **record))
-
+            
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
 
@@ -616,26 +609,47 @@ class PostMorphAnalysisTagger(Retagger):
     # ========================================================================
 
     @staticmethod
-    def load_number_analysis_rules( csv_file:str ):
-        '''Loads number analysis corrections from an input CSV file.
-           Note: if a cached version of the file exists (a .pickle file) and 
-           it is up to date, then loads the cached version, otherwise, loads 
-           the csv file, and creates the cached version for the next loading.
+    def create_number_analysis_rules_cache( csv_file:str=DEFAULT_NUMBER_ANALYSIS_RULES, force=False ):
+        '''Creates a pickled version of the number analysis corrections CSV file.
+           Note: the new pickled version is only created iff: 1) the pickle file 
+           does not exist, 2) the pickle file is outdated, or 3) force==True;
         '''
+        if not os.path.exists(csv_file):
+            raise FileNotFoundError('(!) Missing number analysis corrections csv file: {!r}'.format(csv_file))
         cache = csv_file + '.pickle'
-        if not os.path.exists(cache) or os.stat(cache).st_mtime < os.stat(csv_file).st_mtime:
-            df = pandas.read_csv(csv_file, na_filter=False, index_col=False)
-            rules = defaultdict(dict)
-            for _, r in df.iterrows():
-                if r.suffix not in rules[r.number]:
-                    rules[r.number][r.suffix] = []
-                rules[r.number][r.suffix].append({'partofspeech': r.pos, 'form': r.form, 'ending':r.ending})
+        if not os.path.exists(cache) or os.stat(cache).st_mtime < os.stat(csv_file).st_mtime or force==True:
+            rules = PostMorphAnalysisTagger.load_number_analysis_rules_csv( csv_file )
             with open(cache, 'wb') as out_file:
                 pickle.dump(rules, out_file)
-            return rules
-        with open(cache, 'rb') as in_file:
-            rules = pickle.load(in_file)
+
+
+    @staticmethod
+    def load_number_analysis_rules_csv( csv_file:str ):
+        '''Loads number analysis corrections from an input CSV file.'''
+        df = pandas.read_csv(csv_file, na_filter=False, index_col=False)
+        rules = defaultdict(dict)
+        for _, r in df.iterrows():
+            if r.suffix not in rules[r.number]:
+                rules[r.number][r.suffix] = []
+            rules[r.number][r.suffix].append({'partofspeech': r.pos, 'form': r.form, 'ending':r.ending})
         return rules
+
+
+    @staticmethod
+    def load_number_analysis_rules( csv_file:str ):
+        '''Loads number analysis corrections from an input CSV or pickle file.
+           If a cached version of the file exists (a .pickle file), then loads 
+           the cached version, otherwise, loads from the CSV file.
+        '''
+        cache = csv_file + '.pickle'
+        if not os.path.exists(cache):
+            # Read number analysis rules from CSV file (can be slow)
+            return PostMorphAnalysisTagger.load_number_analysis_rules_csv(csv_file)
+        else:
+            # Read rules from the pickle file
+            with open(cache, 'rb') as in_file:
+                rules = pickle.load(in_file)
+            return rules
 
 
     def find_analyses_for_numeric_token( self, token_str ):

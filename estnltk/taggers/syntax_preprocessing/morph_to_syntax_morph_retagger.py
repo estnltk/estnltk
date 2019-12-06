@@ -5,7 +5,7 @@ from collections import defaultdict
 
 from estnltk.layer.annotation import Annotation
 from estnltk.taggers import Retagger
-
+from estnltk.taggers import VabamorfTagger
 
 class MorphToSyntaxMorphRetagger(Retagger):
     """ Converts given analysis from Filosoft's mrf format to syntactic analyzer's
@@ -25,7 +25,7 @@ class MorphToSyntaxMorphRetagger(Retagger):
     def __init__(self, input_layer='morph_analysis', output_layer='morph_extended', fs_to_synt_rules_file=None):
         self.input_layers = [input_layer]
         self.output_layer = output_layer
-        self.output_attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
+        self.output_attributes = VabamorfTagger.output_attributes
         self.check_output_consistency = False
 
         if fs_to_synt_rules_file:

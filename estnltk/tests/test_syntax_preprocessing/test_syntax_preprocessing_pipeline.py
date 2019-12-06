@@ -12,8 +12,10 @@ from estnltk.core import abs_path
 from estnltk.text import Text
 from estnltk.text import Layer
 from estnltk.taggers import MorphExtendedTagger
+from estnltk.taggers import VabamorfTagger
 from estnltk.converters.CG3_exporter import export_CG3
 
+from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
 
 def create_single_token_text(token, analyses):
     """Construct a Text object containing one word, words layer, sentences layer and morph_analysis layer.
@@ -29,7 +31,7 @@ def create_single_token_text(token, analyses):
     sentences.add_annotation([base_span])
     text.add_layer(sentences)
 
-    morph_attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
+    morph_attributes = list( VabamorfTagger.output_attributes )
     morph = Layer('morph_analysis', attributes=morph_attributes, text_object=text, parent='words', ambiguous=True)
     for analysis in analyses:
         morph.add_annotation(base_span, **analysis)
@@ -52,6 +54,9 @@ def yield_tokens_analysis(file):
                          'clitic': t[4],
                          'partofspeech': t[5],
                          'form': t[6]} for t in analysis_tuples]
+            if NORMALIZED_TEXT in VabamorfTagger.output_attributes:
+                for a in analysis:
+                    a[NORMALIZED_TEXT] = token
             yield token, analysis
 
 

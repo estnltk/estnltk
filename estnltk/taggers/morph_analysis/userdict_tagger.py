@@ -5,6 +5,7 @@
 # 
 import copy
 import csv
+import io
 
 from typing import MutableMapping
 
@@ -13,12 +14,15 @@ from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
+from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
 from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
 
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_POSTAGS
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_NOUN_FORMS
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_VERB_FORMS
+
+# Value indicating unspecified field/value in the csv file
+CSV_UNSPECIFIED_FIELD = '----------'
 
 
 class UserDictTagger(Retagger):
@@ -26,23 +30,20 @@ class UserDictTagger(Retagger):
        This tagger can be applied after text has been morphologically analysed."""
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES
     conf_param = ['depends_on', 'ignore_case', 'validate_vm_categories',
-                  'autocorrect_root', '_dict', '_input_words_layer']
+                  'autocorrect_root', '_dict', 'replace_missing_normalized_text_with_text']
 
     def __init__(self,
                  output_layer: str = 'morph_analysis',
-                 input_words_layer: str = 'words',
                  ignore_case: bool = False,
                  validate_vm_categories: bool = True,
-                 autocorrect_root: bool = True):
+                 autocorrect_root: bool = True,
+                 replace_missing_normalized_text_with_text: bool = False):
         """ Initialize UserDictTagger class.
 
         Parameters
         ----------
         output_layer: str (default: 'morph_analysis')
             Name of the morphological analysis layer that is to be changed;
-        
-        input_words_layer: str (default: 'words')
-            Name of the input words layer;
         
         ignore_case: bool (default: False)
             If True, then case will be ignored when matching words in the text
@@ -63,17 +64,23 @@ class UserDictTagger(Retagger):
             'partofspeech' are given by the user. Note: this requires that when-
             ever 'root' has been specified by the user, 'partofspeech' must also 
             be specified (otherwise 'lemma' cannot be generated);
-
+        
+        replace_missing_normalized_text_with_text: bool (default: False)
+            If True and the NORMALIZED_TEXT is missing from dictionary's record,
+            then replace it by text. Otherwise, if the NORMALIZED_TEXT is missing
+            from a record, then the value of NORMALIZED_TEXT will be None after
+            overwriting.
         """
         self.output_layer = output_layer
-        self.input_layers = [input_words_layer, output_layer]
-        self._input_words_layer = self.input_layers[0]
+        self.input_layers = [output_layer]
         self.depends_on   = self.input_layers
         
         self.ignore_case  = ignore_case
         self.validate_vm_categories = validate_vm_categories
         self.autocorrect_root       = autocorrect_root
-        self._dict                  = {}
+        self.replace_missing_normalized_text_with_text = \
+             replace_missing_normalized_text_with_text
+        self._dict = {}
 
 
 
@@ -135,6 +142,7 @@ class UserDictTagger(Retagger):
         assert isinstance(word, str)
         assert isinstance(analysis_struct, (dict, list))
         # Ignore case (if required)
+        originalcase_word = word
         if self.ignore_case:
             word = word.lower()
         if isinstance(analysis_struct, dict):
@@ -164,6 +172,9 @@ class UserDictTagger(Retagger):
                     self._dict[word]['analysis'][0]['lemma'] = lemma
                     self._dict[word]['analysis'][0]['root_tokens'] = root_tokens
                     self._dict[word]['analysis'][0]['root']  = root
+            if self.replace_missing_normalized_text_with_text:
+                if NORMALIZED_TEXT not in self._dict[word]['analysis'][0]:
+                    self._dict[word]['analysis'][0][NORMALIZED_TEXT] = originalcase_word
             # Merge analyses: overwrite analysis fields that
             # are present in the dict, but preserve all other
             # fields
@@ -197,6 +208,9 @@ class UserDictTagger(Retagger):
                         record['lemma']       = lemma
                         record['root_tokens'] = root_tokens
                         record['root']        = root
+                if self.replace_missing_normalized_text_with_text:
+                    if NORMALIZED_TEXT not in record:
+                        record[NORMALIZED_TEXT] = originalcase_word
             self._dict[word] = {}
             self._dict[word]['analysis'] = \
                 copy.deepcopy(analysis_struct)
@@ -207,7 +221,9 @@ class UserDictTagger(Retagger):
 
 
     def add_words_from_csv_file(self, filename, encoding='utf-8', \
-                                dialect='excel-tab', **fmtparams):
+                                dialect='excel-tab', 
+                                allow_unspecified_fields=True, 
+                                **fmtparams):
         ''' Loads words with their morphological analyses from the given 
             csv file, and inserts to the user dictionary.
             
@@ -253,6 +269,15 @@ class UserDictTagger(Retagger):
             See https://docs.python.org/3/library/csv.html#csv.reader
             for details.
 
+        allow_unspecified_fields: bool (default: True)
+            If True (default), then some of the fileds/values can be left
+            unspecified in the csv file, which enables defining entries of 
+            partial overwriting. An unspecified field/value is marked with 
+            the constant CSV_UNSPECIFIED_FIELD. If an entry has at least 
+            one unspecified field/value, then it is considered as a partial 
+            overwriting entry, otherwise, it is considered as a complete 
+            overwriting entry.
+
         fmtparams: 
             Optional keyword arguments to be passed to the function 
             csv.reader().
@@ -273,37 +298,182 @@ class UserDictTagger(Retagger):
             # Parse csv file
             # Collect and aggregate analyses
             for row in fle_reader:
-                assert len(row) == len(header)
+                assert len(row) == len(header), '(!) Unexpected number of elements in a row: {!r}'.format(row)
                 analysis_dict = {}
                 word_text = None
                 for kid, key in enumerate(header):
                     if key != 'text':
+                        if key == NORMALIZED_TEXT and len(row[kid]) == 0:
+                            #  if NORMALIZED_TEXT is empty, consider it as 
+                            #  a value left unspecified and ignore it.
+                            continue
                         analysis_dict[key] = row[kid]
                     else:
                         word_text = row[kid]
                 assert word_text, \
-                    "'(!) Key 'text' not specified in line: "+str(row)
-                # Ignore case (if required)
-                if self.ignore_case:
-                    word_text = word_text.lower()
-                # Add new analysis to the dict
-                if word_text not in collected_analyses:
-                    collected_analyses[word_text] = []
-                collected_analyses[word_text].append(analysis_dict)
-                #print(', '.join(row))
+                    "'(!) Value for 'text' not specified in line: "+str(row)
+                assert len(word_text) > 0, \
+                    "'(!) 'text' is empty string in line: "+str(row)
+                # Manage unspecified fields (if required):
+                if allow_unspecified_fields:
+                    has_unspecified_fields = []
+                    for k in analysis_dict.keys():
+                        if analysis_dict[k] == CSV_UNSPECIFIED_FIELD:
+                            has_unspecified_fields.append(k)
+                    if len(has_unspecified_fields) > 0:
+                        # Remove unspecified fields
+                        for k in has_unspecified_fields:
+                            del analysis_dict[k]
+                        # Add partial overwriting entry
+                        if word_text not in collected_analyses:
+                            collected_analyses[word_text] = {}
+                        # Check for conflicts:
+                        if isinstance(collected_analyses[word_text], list):
+                            raise Exception('(!) Conflicting partial and complete overwriting entries for word {!r}'.format(word_text))
+                        collected_analyses[word_text] = analysis_dict
+                    else:
+                        # No unspecified fields
+                        # Add complete overwriting entry
+                        if word_text not in collected_analyses:
+                            collected_analyses[word_text] = []
+                        # Check for conflicts:
+                        if isinstance(collected_analyses[word_text], dict):
+                            raise Exception('(!) Conflicting partial and complete overwriting entries for word {!r}'.format(word_text))
+                        collected_analyses[word_text].append(analysis_dict)
+                else:
+                    # Add complete overwriting entry
+                    if word_text not in collected_analyses:
+                        collected_analyses[word_text] = []
+                    collected_analyses[word_text].append(analysis_dict)
+                    #print(', '.join(row))
         # Rewrite all analyses into the user dict
         for word in collected_analyses.keys():
             self.add_word( word, collected_analyses[word] )
+
+
+    def save_as_csv(self, filename, encoding='utf-8', \
+                          dialect='excel-tab', 
+                          allow_unspecified_fields=True, 
+                          **fmtparams):
+        ''' Saves entries of the current dictionary as a csv format file.
+            Optionally, if the input filename is None, constructs and 
+            returns a csv string that contains the entries.
+            
+            By default, assumes that csv file is in tab-separated-values 
+            format (dialect='excel-tab') and in the encoding 'utf-8'.
+            You can change the encoding via parameter encoding. And you
+            can also provide other custom parameters ( from the parameters 
+            listed in: 
+            https://docs.python.org/3/library/csv.html#csv-fmt-params )
+            if your input csv file has some other format.
+            
+            The first line of the csv file will be the header with the 
+            heading names 'root', 'ending', 'clitic', 'form', 'partofspeech', 
+            'text'. Each line following the heading specifies a single 
+            analysis for a word. The word itself can be under the column 
+            'text'. Note that there can also be multiple lines for a single 
+            word: these are considered as different analysis variants of an 
+            ambiguous word.
+            If an entry contains value equal to CSV_UNSPECIFIED_FIELD, then
+            it is considered as a partial overwriting entry.
+            
+        Parameters
+        ----------
+        filename: str
+            Path to the csv file which needs to be written. 
+            If None, then instead of writing entries into a file, entries
+            will be formatted as a csv format string and returned by the
+            method.
+        
+        encoding: str (Default: 'utf-8')
+            Encoding of the csv file.
+        
+        dialect: str (Default: 'excel-tab')
+            Parameter dialect to be passed to the function csv.writer().
+            See https://docs.python.org/3/library/csv.html#csv.writer
+            for details.
+
+        allow_unspecified_fields: bool (default: True)
+            If True (default), then some of the fileds/values can be left
+            unspecified in the csv file, which enables defining entries of 
+            partial overwriting. An unspecified field/value is marked with 
+            the constant CSV_UNSPECIFIED_FIELD. If an entry has at least 
+            one unspecified field/value, then it is considered as a partial 
+            overwriting entry, otherwise, it is considered as a complete 
+            overwriting entry.
+
+        fmtparams: 
+            Optional keyword arguments to be passed to the function 
+            csv.writer().
+            See https://docs.python.org/3/library/csv.html#csv.writer
+            for details.
+        '''
+        # Analyse the dictionary
+        has_normalized_text = False
+        has_partial_overwriting_entry = False
+        for word_text in self._dict.keys():
+            if self._dict[word_text]['merge']:
+                has_partial_overwriting_entry = True
+            assert isinstance(self._dict[word_text]['analysis'], list)
+            recs = self._dict[word_text]['analysis']
+            for rec in recs:
+                if NORMALIZED_TEXT in rec:
+                    has_normalized_text = True
+        # Sanity check
+        if has_partial_overwriting_entry and not allow_unspecified_fields:
+            raise Exception('(!) Conflicting settings: allow_unspecified_fields==False, '+\
+                            'but the user dictionary contains at least one partial overwriting '+\
+                            'entry. Unspecified fields must be allowed for writing partial '+\
+                            'overwriting entries.' )
+        header_fields = VABAMORF_ATTRIBUTES 
+        if has_normalized_text:
+            header_fields = (NORMALIZED_TEXT,) + header_fields
+        header_fields = ('text',) + header_fields
+        # Construct/write the output
+        if filename != None:
+            output_csv = open(filename, 'w', encoding=encoding, newline='')
+        else:
+            output_csv = io.StringIO()
+        csv_writer = csv.writer(output_csv, dialect=dialect, **fmtparams)
+        csv_writer.writerow( header_fields )
+        for word_text in sorted(self._dict.keys()):
+            assert isinstance(self._dict[word_text]['analysis'], list)
+            recs = self._dict[word_text]['analysis']
+            for rec in recs:
+                values = []
+                for h in header_fields:
+                    if h == 'text':
+                        values.append( word_text )
+                    elif h == NORMALIZED_TEXT:
+                        if h not in rec:
+                            values.append( '' )
+                        else:
+                            values.append( rec[h] )
+                    elif h not in rec:
+                        values.append( CSV_UNSPECIFIED_FIELD )
+                    else:
+                        values.append( rec[h] )
+                assert len(values) == len(header_fields)
+                csv_writer.writerow( values )
+        returnable = None
+        if isinstance(output_csv, io.StringIO):
+            returnable = output_csv.getvalue()
+        # Close ( either file or StringIO )
+        output_csv.close()
+        assert output_csv.closed
+        return returnable
+
 
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
         """Retags the morphological analyses layer, providing dictionary-
            based corrections to it.
            More technically: replaces existing analyses of the layer 
            'morph_analysis' with analyses from the user dictionary. 
-           Dictionary lookup is made via word texts: word which text 
-           matches a word in dictionary will have its analyses 
-           overwritten. If ignore_case is switched on, then the lookup 
-           is also case-insensitive.
+           Dictionary lookup is made for a normalized_texts: if word's 
+           analysis has a normalized_text which matches a word in 
+           user dictionary, then word's analyses will be overwritten. 
+           If ignore_case is switched on, then the lookup is also 
+           case-insensitive.
 
            Parameters
            ----------
@@ -319,7 +489,6 @@ class UserDictTagger(Retagger):
               This can be used to store metadata on layer retagging.
         """
         assert self.output_layer in layers
-        assert self._input_words_layer in layers
         # Take attributes from the input layer
         current_attributes = layers[self.output_layer].attributes
         # --------------------------------------------
@@ -327,56 +496,48 @@ class UserDictTagger(Retagger):
         # --------------------------------------------
         morph_span_id = 0
         morph_spans = layers[self.output_layer].spans
-        word_spans  = layers[self._input_words_layer].spans
         attribute_names = layers[self.output_layer].attributes
-        assert len(morph_spans) == len(word_spans)
         while morph_span_id < len(morph_spans):
-            # 1) Get corresponding word
-            word_span = word_spans[morph_span_id]
-            merge_records = []
+            # 1) Get morph records
+            records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
             overwrite_records = []
-            for word_text in _get_word_texts(word_span):
+            records_merged = False
+            # 2) Check morph records
+            for rid, rec in enumerate( records ):
+                assert NORMALIZED_TEXT in rec, \
+                       '(!) Record {!r} is missing the attribute {!r}'.format(rec, NORMALIZED_TEXT)
+                word_text = rec[NORMALIZED_TEXT]
+                if word_text is None:
+                    # If normalized_text is None, fall back to the morph_span.text
+                    word_text = morph_spans[morph_span_id].text
                 # Check the dictionary
                 if self.ignore_case:
                     word_text = word_text.lower()
                 if word_text in self._dict:
                     # 2) If the word is inside user dictionary
                     if self._dict[word_text]['merge']:
-                        merge_records.extend(self._dict[word_text]['analysis'])
+                        # Overwrite keys in dict, keep all other
+                        # keys-values as they were before
+                        merge_rec = self._dict[word_text]['analysis']
+                        assert isinstance(merge_rec, list) and len(merge_rec) == 1
+                        for key in merge_rec[0].keys():
+                            rec[key] = merge_rec[0][key]
+                        records_merged = True
                     else:
-                        overwrite_records.extend(self._dict[word_text]['analysis'])
-            # 2) If there were any records that could be added
-            if len(overwrite_records) > 0 or len(merge_records) > 0:
-                # 2.1) Convert spans to records
-                records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
+                        assert isinstance(self._dict[word_text]['analysis'], list)
+                        overwrite_records = self._dict[word_text]['analysis']
 
-                # 2.2) Process records:
-                if overwrite_records:
-                    # 2.2.1) Overwrite existing records with new ones
-                    # NB! This assumes that records in the dict are
-                    #     in the valid format;
-                    # NB! If there are any competing merge records,
-                    #     these will be overwritten completely ...
-                    records = overwrite_records
-                elif merge_records:
-                    # 2.2.2) Merge existing records with new ones
-                    #        NB! Order: first normalized words last,
-                    #        as they first normalized words are more
-                    #        important;
-                    for merge_rec in merge_records[::-1]:
-                        for rec in records:
-                            # Overwrite keys in dict, keep all other
-                            # keys-values as they were before
-                            for key in merge_rec:
-                                rec[key] = merge_rec[key]
-
+            # If there are overwrite records, then overwrite the old records completely
+            if records_merged or overwrite_records:
+                records = overwrite_records if overwrite_records else records
+                
                 # 2.3) Create a new Span
                 span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
 
                 # 2.4) Populate it with new records
                 for rec in records:
                     attributes = {attr: rec.get(attr) for attr in attribute_names}
-                    span.add_annotation(Annotation(span, **attributes))
+                    span.add_annotation( Annotation(span, **attributes) )
 
                 # 2.5) Overwrite the old span
                 morph_spans[morph_span_id] = span
@@ -395,8 +556,8 @@ class UserDictTagger(Retagger):
         But the validation does not check that the category values are 
         also correctly combined (e.g. partofspeech and form have been 
         correctly combined).
-        Validation is made via assertions, so an AssertionError will 
-        be thrown if one of the validations fails.
+        If one of the validations fails, then a ValueError will be 
+        risen.
         
         Parameters
         ----------
@@ -407,15 +568,15 @@ class UserDictTagger(Retagger):
         assert isinstance(morph_dict, dict)
         for key, val in morph_dict.items():
             if key == 'partofspeech':
-                assert val in VABAMORF_POSTAGS, \
-                    "(!) Unexpected 'partofspeech':'"+str(val)+"'. "+\
-                    "Proper value should be one of the following: "+str(VABAMORF_POSTAGS)
+                if val not in VABAMORF_POSTAGS:
+                    raise ValueError( "(!) Unexpected 'partofspeech':'"+str(val)+"'. "+\
+                                      "Proper value should be one of the following: "+str(VABAMORF_POSTAGS) )
             if key == 'form':
                 if len(val) > 0:
                     vals = val.split()
                     for v in vals:
-                        assert v in VABAMORF_NOUN_FORMS or v in VABAMORF_VERB_FORMS, \
-                        "(!) Unexpected 'form':'"+str(val)+"'. "+\
-                        "Proper values should be from the following: "+\
-                             str( VABAMORF_NOUN_FORMS + VABAMORF_VERB_FORMS )
+                        if v not in VABAMORF_NOUN_FORMS and v not in VABAMORF_VERB_FORMS:
+                            raise ValueError( "(!) Unexpected 'form':'"+str(val)+"'. "+\
+                                              "Proper values should be from the following list: "+\
+                                              str( VABAMORF_NOUN_FORMS + VABAMORF_VERB_FORMS ) )
 

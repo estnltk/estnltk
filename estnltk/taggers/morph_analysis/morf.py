@@ -23,6 +23,8 @@ from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
 
+from estnltk.taggers.morph_analysis.morf_common import SORT_VM_MORPH_ANALYSES
+
 from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
@@ -35,7 +37,8 @@ class VabamorfTagger(Tagger):
     """Tags morphological analysis on words. Uses Vabamorf's analyzer and disambiguator.
 
     """
-    output_attributes = ESTNLTK_MORPH_ATTRIBUTES
+    output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
+    #output_attributes = ESTNLTK_MORPH_ATTRIBUTES
 
     conf_param = [# VM configuration flags:
                   "guess",
@@ -53,6 +56,8 @@ class VabamorfTagger(Tagger):
                   '_vabamorf_analyser',
                   '_corpusbased_disambiguator',
                   '_vabamorf_disambiguator',
+                  # Internal stuff:
+                  '_re_sort_analyses',
     ]
 
     def __init__(self,
@@ -66,7 +71,8 @@ class VabamorfTagger(Tagger):
                  propername=DEFAULT_PARAM_PROPERNAME,
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
                  compound=DEFAULT_PARAM_COMPOUND,
-                 phonetic=DEFAULT_PARAM_PHONETIC):
+                 phonetic=DEFAULT_PARAM_PHONETIC,
+                 re_sort_analyses = SORT_VM_MORPH_ANALYSES ):
         """Initialize VabamorfTagger class.
 
         Note: Keyword arguments 'disambiguate', 'guess', 'propername',
@@ -107,7 +113,15 @@ class VabamorfTagger(Tagger):
             Add compound word markers to root forms.
         phonetic: boolean (default: False)
             Add phonetic information to root forms.
-
+        re_sort_analyses: boolean (default: morf_common.SORT_VM_MORPH_ANALYSES)
+            Re-sort ambiguous morphological analyses. 
+            Re-sorting was used in historical reasons in EstNLTK's 
+            versions 1.6.0 - 1.6.4 in order to assure consistent ordering 
+            in case of ambiguity. 
+            In future versions, we'll likely stick with the default ordering
+            produced by Vabamorf and no longer use re-sorting.
+            Note: regardless which ordering is used, Vabamorf's ambiguous 
+            analyses are **not** ordered by likelihood/probability;
         """
         # Set VM analysis parameters:
         self.guess        = guess
@@ -121,13 +135,12 @@ class VabamorfTagger(Tagger):
         self._input_words_layer = input_words_layer
         self._input_sentences_layer = input_sentences_layer
         self.input_layers = [self._input_words_layer, self._input_sentences_layer]
+        self._re_sort_analyses = re_sort_analyses
         # Check if the user has provided a custom postanalysis_tagger
         if not postanalysis_tagger:
             # Initialize default postanalysis_tagger
             postanalysis_tagger = PostMorphAnalysisTagger(output_layer=output_layer,\
-                                                          input_compound_tokens_layer=input_compound_tokens_layer, \
-                                                          input_words_layer=input_words_layer, \
-                                                          input_sentences_layer=input_sentences_layer)
+                                                          input_compound_tokens_layer=input_compound_tokens_layer)
         # Initialize postanalysis_tagger;
         if postanalysis_tagger:
             # Check for Retagger
@@ -153,17 +166,19 @@ class VabamorfTagger(Tagger):
         else:
             _vm_instance = Vabamorf.instance()
         self._vabamorf_analyser      = VabamorfAnalyzer( vm_instance=_vm_instance,
-                                                        output_layer=output_layer,
-                                                        input_words_layer=self._input_words_layer,
-                                                        input_sentences_layer=self._input_sentences_layer,
-                                                        guess=self.guess,
-                                                        propername=self.propername,
-                                                        compound=self.compound,
-                                                        phonetic=self.phonetic)
+                                                         output_layer=output_layer,
+                                                         input_words_layer=self._input_words_layer,
+                                                         input_sentences_layer=self._input_sentences_layer,
+                                                         guess=self.guess,
+                                                         propername=self.propername,
+                                                         compound=self.compound,
+                                                         phonetic=self.phonetic,
+                                                         re_sort_analyses=self._re_sort_analyses)
         self._vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=_vm_instance,
                                                              output_layer=output_layer,
                                                              input_words_layer=self._input_words_layer,
-                                                             input_sentences_layer=self._input_sentences_layer )
+                                                             input_sentences_layer=self._input_sentences_layer,
+                                                             re_sort_analyses=self._re_sort_analyses)
         # Update dependencies: add dependencies specific to postanalysis_tagger
         if postanalysis_tagger and postanalysis_tagger.input_layers:
             for postanalysis_dependency in postanalysis_tagger.input_layers:
@@ -178,9 +193,6 @@ class VabamorfTagger(Tagger):
                 for extra_attribute in postanalysis_tagger.output_attributes:
                     if extra_attribute not in self.output_attributes:
                         self.output_attributes += (extra_attribute, )
-        if NORMALIZED_TEXT in self._vabamorf_analyser.output_attributes:
-            if NORMALIZED_TEXT not in self.output_attributes:
-                self.output_attributes = (NORMALIZED_TEXT,) + self.output_attributes
 
 
     def _make_layer(self, text: Text, layers, status: dict):
@@ -312,7 +324,6 @@ class VabamorfAnalyzer(Tagger):
                   "propername",
                   "compound",
                   "phonetic",
-                  'add_normalized_text',
                   # Internal stuff:
                   '_vm_instance',
                   # Names of the specific input layers:
@@ -320,6 +331,7 @@ class VabamorfAnalyzer(Tagger):
                   '_input_sentences_layer',
                   # Extra configuration flags:
                   'extra_attributes',
+                  're_sort_analyses',
                  ]
 
     def __init__(self,
@@ -332,7 +344,7 @@ class VabamorfAnalyzer(Tagger):
                  propername = DEFAULT_PARAM_PROPERNAME,
                  compound = DEFAULT_PARAM_COMPOUND,
                  phonetic = DEFAULT_PARAM_PHONETIC,
-                 add_normalized_text=False):
+                 re_sort_analyses = SORT_VM_MORPH_ANALYSES):
         """Initialize VabamorfAnalyzer class.
 
         Parameters
@@ -360,13 +372,15 @@ class VabamorfAnalyzer(Tagger):
             Add compound word markers to root forms.
         phonetic: boolean (default: False)
             Add phonetic information to root forms.
-        add_normalized_text: boolean (default: False)
-            Add the attribute NORMALIZED_TEXT to each analysis.
-            ( refers to the original normalized word that was 
-              used as a basis for this analysis )
-            Note: adding this attribute is currently work-in-
-            progress, and there is no guarantee that it fully 
-            works.
+        re_sort_analyses: boolean (default: morf_common.SORT_VM_MORPH_ANALYSES)
+            Re-sort ambiguous morphological analyses. 
+            Re-sorting was used in historical reasons in EstNLTK's 
+            versions 1.6.0 - 1.6.4 in order to assure consistent ordering 
+            in case of ambiguity. 
+            In future versions, we'll likely stick with the default ordering
+            produced by Vabamorf and no longer use re-sorting.
+            Note: regardless which ordering is used, Vabamorf's ambiguous 
+            analyses are **not** ordered by likelihood/probability;
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -389,10 +403,7 @@ class VabamorfAnalyzer(Tagger):
         self.propername = propername
         self.compound = compound
         self.phonetic = phonetic
-        self.add_normalized_text = add_normalized_text
-        if self.add_normalized_text and NORMALIZED_TEXT not in self.output_attributes:
-            self.output_attributes = (NORMALIZED_TEXT,) + self.output_attributes
-
+        self.re_sort_analyses = re_sort_analyses
 
     def _make_layer(self, text: Text, layers, status: dict):
         """Analyses given Text object morphologically. 
@@ -451,7 +462,8 @@ class VabamorfAnalyzer(Tagger):
                         # then self.instance.analyze(words=wordlist, **self.current_kwargs) raises
                         # RuntimeError: CFSException: internal error with vabamorf
                         res = self._perform_vm_analysis(sentence_words, current_kwargs)
-                        packed_res = self._pack_expanded_analysis_results(res, sentence_words)
+                        packed_res = self._pack_expanded_analysis_results(res, sentence_words,
+                                                         sort_analyses = self.re_sort_analyses )
                         analysis_results.extend(packed_res)
                         sentence_words = []
                         sentence_words_count = 0
@@ -462,7 +474,8 @@ class VabamorfAnalyzer(Tagger):
                 assert sentence_words_count < 15000, \
                     '(!) Unexpected amount of unanalysed words left: {}'.format(len(sentence_words_count))
                 res = self._perform_vm_analysis( sentence_words, current_kwargs )
-                packed_res = self._pack_expanded_analysis_results( res, sentence_words )
+                packed_res = self._pack_expanded_analysis_results( res, sentence_words,
+                                                  sort_analyses = self.re_sort_analyses )
                 analysis_results.extend( packed_res )
 
         # Assert that all words obtained an analysis 
@@ -533,10 +546,9 @@ class VabamorfAnalyzer(Tagger):
                     current_analysis_dict['analysis'] = sorted(current_analysis_dict['analysis'],
                                            key=lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'],
                                            reverse=False )
-                if self.add_normalized_text:
-                    # Add the normalized word text that was used as a basis for this analysis
-                    for analysis in current_analysis_dict['analysis']:
-                        analysis[NORMALIZED_TEXT] = current_analysis_dict['text']
+                # Add the normalized word text that was used as a basis for this analysis
+                for analysis in current_analysis_dict['analysis']:
+                    analysis[NORMALIZED_TEXT] = current_analysis_dict['text']
                 merged_morph_record['analysis'].extend( current_analysis_dict['analysis'] )
                 analysis_index += 1
             merged_analysis_results.append( merged_morph_record )
@@ -552,7 +564,8 @@ class VabamorfDisambiguator(Retagger):
     """Disambiguates morphologically analysed texts. 
        Uses Vabamorf for disambiguating.
     """
-    conf_param = ['_vm_instance',
+    conf_param = ['re_sort_analyses',
+                  '_vm_instance',
                   '_input_words_layer',
                   '_input_sentences_layer' ]
 
@@ -560,6 +573,7 @@ class VabamorfDisambiguator(Retagger):
                  output_layer='morph_analysis',
                  input_words_layer='words',
                  input_sentences_layer='sentences',
+                 re_sort_analyses=SORT_VM_MORPH_ANALYSES,
                  vm_instance=None):
         """Initialize VabamorfDisambiguator class.
 
@@ -576,6 +590,15 @@ class VabamorfDisambiguator(Retagger):
         vm_instance: estnltk.vabamorf.morf.Vabamorf
             An instance of Vabamorf that is to be used for 
             disambiguating text morphologically;
+        re_sort_analyses: boolean (default: morf_common.SORT_VM_MORPH_ANALYSES)
+            Re-sort ambiguous morphological analyses. 
+            Re-sorting was used in historical reasons in EstNLTK's 
+            versions 1.6.0 - 1.6.4 in order to assure consistent ordering 
+            in case of ambiguity. 
+            In future versions, we'll likely stick with the default ordering
+            produced by Vabamorf and no longer use re-sorting.
+            Note: regardless which ordering is used, Vabamorf's ambiguous 
+            analyses are **not** ordered by likelihood/probability;
         """
         # Set attributes & configuration
         self.output_layer = output_layer
@@ -585,6 +608,7 @@ class VabamorfDisambiguator(Retagger):
                              output_layer]
         self._input_words_layer     = self.input_layers[0]
         self._input_sentences_layer = self.input_layers[1]
+        self.re_sort_analyses       = re_sort_analyses
         if vm_instance:
             # Check Vabamorf Instance
             if not isinstance(vm_instance, Vabamorf):
@@ -631,6 +655,8 @@ class VabamorfDisambiguator(Retagger):
         for cur_attr in current_attributes:
             if cur_attr not in self.output_attributes and cur_attr != IGNORE_ATTR:
                 extra_attributes.append(cur_attr)
+        if NORMALIZED_TEXT in self.output_attributes:
+            extra_attributes.append( NORMALIZED_TEXT )
         # Check that len(word_spans) >= len(morph_spans)
         morph_layer = layers[self.output_layer]
         word_spans  = layers[self._input_words_layer]
@@ -684,7 +710,8 @@ class VabamorfDisambiguator(Retagger):
                                 #   then quality of the disambiguation suffers;
                                 normalized_texts = set()
                                 for analysis in word_morph_dict['analysis']:
-                                    if NORMALIZED_TEXT in analysis:
+                                    if NORMALIZED_TEXT in analysis and \
+                                       analysis[NORMALIZED_TEXT] is not None:
                                         normalized_texts.add( analysis[NORMALIZED_TEXT] )
                                 if len(normalized_texts) == 1:
                                     # PLAN A: if an unambiguous normalized word form 
@@ -757,11 +784,11 @@ class VabamorfDisambiguator(Retagger):
                 
                 # D.1) Rewrite records into a proper format, and 
                 #      add to the span
-                
-                # Sort analyses ( to assure a fixed order, e.g. for testing purpose )
-                disambiguated_records = sorted( disambiguated_records, key = \
-                         lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'], 
-                         reverse=False )
+                if self.re_sort_analyses:
+                    # Sort analyses ( to assure a fixed order, e.g. for testing purpose )
+                    disambiguated_records = sorted( disambiguated_records, key = \
+                             lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'], 
+                             reverse=False )
                 for analysis_record in disambiguated_records:
                     # Fill in attributes of the record
                     new_record = {attr: analysis_record.get(attr) for attr in current_attributes}

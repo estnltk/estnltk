@@ -21,6 +21,7 @@ from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
 
 from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 from estnltk.taggers.morph_analysis.cb_disambiguator import is_list_of_texts
@@ -129,7 +130,7 @@ class VabamorfCorpusTagger( object ):
         self._use_predisambiguation  = use_predisambiguation
         self._use_postdisambiguation = use_postdisambiguation
         self._validate_inputs        = validate_inputs
-        self.output_attributes       = ESTNLTK_MORPH_ATTRIBUTES
+        self.output_attributes       = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
         # Extra arguments that can be passed to VabamorfAnalyzer:
         self._kwargs = kwargs if isinstance(kwargs, dict) else {}
         # Initialize required taggers
@@ -172,9 +173,7 @@ class VabamorfCorpusTagger( object ):
         if use_postanalysis and not postanalysis_tagger:
             # Initialize default postanalysis_tagger
             self._postanalysis_tagger = PostMorphAnalysisTagger(output_layer=self.output_layer,\
-                                                 input_compound_tokens_layer=input_compound_tokens_layer, \
-                                                 input_words_layer=input_words_layer, \
-                                                 input_sentences_layer=input_sentences_layer )
+                                                 input_compound_tokens_layer=input_compound_tokens_layer )
         elif use_postanalysis and postanalysis_tagger:
             # Use a custom PostMorphAnalysisTagger
             # Check for Retagger

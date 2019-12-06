@@ -1,5 +1,5 @@
 from estnltk.visualisation.core.span_visualiser import SpanVisualiser
-from estnltk.core import rel_path
+from estnltk.core import abs_path
 import html
 from estnltk.converters import to_json
 import copy
@@ -11,14 +11,13 @@ class DirectAttributeVisualiser(SpanVisualiser):
     direct_span_visualiser"""
 
     def __init__(self, text_id, fill_empty_spans=False, event_attacher=None, js_added=False, css_added=False,
-                 css_file=rel_path("visualisation/attribute_visualiser/prettyprinter.css")):
+                 css_file=abs_path("visualisation/attribute_visualiser_outputs/prettyprinter.css")):
         self.fill_empty_spans = fill_empty_spans
         self.event_attacher = event_attacher
         self.js_added = js_added
         self.css_added = css_added
         self.css_file = css_file
-        self.js_file = rel_path("visualisation/attribute_visualiser/prettyprinter.js")
-        self.class_mapping = self.default_class_mapper
+        self.js_file = abs_path("visualisation/attribute_visualiser_outputs/prettyprinter.js")
         self.mapping_dict = {"class": self.default_class_mapper}
         self.text_id = text_id
 
@@ -33,7 +32,7 @@ class DirectAttributeVisualiser(SpanVisualiser):
             # copy to make it readable for mappers
             mapping_segment = copy.deepcopy(segment)
             if len(segment[1]) == 1:
-                mapping_segment[1] = spans[mapping_segment[1][0]]
+                mapping_segment[1] = spans[mapping_segment[1][0]].annotations
             for key, value in self.mapping_dict.items():
                 if key == "class" or key == "id":
                     pass

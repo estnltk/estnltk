@@ -1,0 +1,20 @@
+select {
+    margin: -10px;
+}
+
+td, th {
+    font-size: 0.9vw;
+    /*background-color: lightpink;*/
+}
+
+/*button {
+    margin-left: 877px;
+}*/
+
+.iterable-table {
+    width: max-content;
+    width: -moz-max-content;
+    table-layout: fixed;
+    display: block;
+}
+

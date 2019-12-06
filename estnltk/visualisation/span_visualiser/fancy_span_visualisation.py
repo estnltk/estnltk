@@ -3,7 +3,7 @@ from estnltk.visualisation.span_visualiser.direct_plain_span_visualiser import D
 from estnltk.visualisation.span_visualiser.indirect_plain_span_visualiser import IndirectPlainSpanVisualiser
 from estnltk.visualisation.span_visualiser.plain_span_visualiser import PlainSpanVisualiser
 from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
-from estnltk.core import rel_path
+from estnltk.core import abs_path
 
 
 class DisplaySpans:
@@ -11,8 +11,8 @@ class DisplaySpans:
     To change the behaviour, redefine ..._mapping. Arguments that can be changed are bg_mapping, colour_mapping,
     font_mapping, weight_mapping, italics_mapping, underline_mapping, size_mapping and tracking_mapping."""
 
-    js_file = rel_path("visualisation/span_visualiser/span_visualiser.js")
-    css_file = rel_path("visualisation/span_visualiser/prettyprinter.css")
+    js_file = abs_path("visualisation/span_visualiser/span_visualiser.js")
+    css_file = abs_path("visualisation/span_visualiser/prettyprinter.css")
     _text_id = 0
 
     def __init__(self, styling="both", **kwargs):

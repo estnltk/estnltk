@@ -14,26 +14,44 @@ from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 #   Helper functions
 # ----------------------------------
 
-def collect_analyses( docs ):
+def _sort_morph_annotations( morph_annotations:list ):
+    """Sorts morph_annotations. Sorting is required for comparing
+       morph analyses of a word without setting any constraints 
+       on their specific order."""
+    sorted_records = sorted( morph_annotations, key = lambda x : \
+        str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+        str(x['partofspeech'])+str(x['form']) )
+    return sorted_records
+
+
+def collect_analyses( docs, sort_analyses=True ):
     # Collect and index all morphological analyses from 
     # the given document collection
     all_analyses = dict()
     for doc_id, doc in enumerate(docs):
         for wid, word in enumerate(doc['words']):
-            analyses = [(a.root, a.partofspeech, a.form) for a in word.morph_analysis.annotations]
+            morph_annotations = word.morph_analysis.annotations
+            if sort_analyses:
+                # Sort analyses
+                # ( so the order will be independent of the ordering used by 
+                #   VabamorfAnalyzer & VabamorfDisambiguator )
+                morph_annotations = _sort_morph_annotations( morph_annotations )
+            analyses = [(a.root, a.partofspeech, a.form) for a in morph_annotations]
             all_analyses[(doc_id,wid)] = analyses
     return all_analyses
 
-def collect_2nd_level_analyses( corpus ):
+
+def collect_2nd_level_analyses( corpus, sort_analyses=True ):
     # Collect 2nd level analyses
     all_analyses = dict()
     for corp_id, docs in enumerate( corpus ):
-        collected = collect_analyses( docs )
+        collected = collect_analyses( docs, sort_analyses=sort_analyses )
         for (k, v) in collected.items():
             k = (corp_id,) + k
             assert k not in all_analyses
             all_analyses[k] = v
     return all_analyses
+
 
 def find_ambiguities_diff( analyses_a, analyses_b ):
     # Finds a difference between analyses_a and analyses_b:
@@ -160,6 +178,48 @@ def test_pre_disambiguation_ver_1_4():
     assert [countTotal, countH, countNonH] == [85, 5, 80]
 
 
+
+def test_pre_disambiguation_quoted_and_enumrated_texts():
+    # Pre-disambiguator should distinguish between sentence initial and sentence central proper names
+    # even if the potential proper name is:
+    #         1) after the sentence-initial quotation mark
+    #         2) after the sentence-initial enumeration mark
+    #
+    # Case 1: Erroneous proper name analyses of 'Veel' and 'Eks' should 
+    #         be deleted in the following corpus:
+    #
+    docs = [Text('" Veel üks Jänes pani jooksu!", ütles Hunt.'),\
+            Text('1. Veel teinegi Jänes jooksu pani.'), \
+            Text('Veel üks tekst. Jänesele ja Hundile on asi selge.'), \
+            Text('Eks neid tekste siin vaikselt koguneb.'), \
+            Text('" Eks jah, " ütles Hunt.') ]
+    for doc in docs:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+        morf_analyzer.tag(doc)
+    analyses_a = collect_analyses( docs )
+    cb_disambiguator = CorpusBasedMorphDisambiguator()
+    cb_disambiguator.predisambiguate(docs)
+    # Find difference in ambiguities
+    analyses_b = collect_analyses( docs )
+    removed, added = find_ambiguities_diff( analyses_a, analyses_b )
+    #print( sorted(list(removed.items())) )
+    assert sorted(list(removed.items())) == [ ((0, 1), [('Veel', 'H', 'sg n'), ('Vee', 'H', 'sg ad'), ('Vesi', 'H', 'sg ad')]), 
+                                              ((0, 3), [('Jäne', 'H', 'sg in'), ('jänes', 'S', 'sg n')]), 
+                                              ((0, 10), [('hunt', 'S', 'sg n')]), 
+                                              ((1, 1), [('Veel', 'H', 'sg n'), ('Vee', 'H', 'sg ad'), ('Vesi', 'H', 'sg ad')]), 
+                                              ((1, 3), [('Jäne', 'H', 'sg in'), ('jänes', 'S', 'sg n')]), 
+                                              ((2, 0), [('Veel', 'H', 'sg n'), ('Vee', 'H', 'sg ad'), ('Vesi', 'H', 'sg ad')]), 
+                                              ((2, 4), [('Jänese', 'H', 'sg all'), ('jänes', 'S', 'sg all')]), 
+                                              ((2, 6), [('Hundile', 'H', 'sg g'), ('Hundile', 'H', 'sg n'), \
+                                                        ('Hundi', 'H', 'sg all'), ('Hund', 'H', 'sg all'), ('hunt', 'S', 'sg all')]), 
+                                              ((3, 0), [('Eks', 'H', 'sg n')]), 
+                                              ((4, 1), [('Eks', 'H', 'sg n')]), 
+                                              ((4, 6), [('hunt', 'S', 'sg n')]) 
+    ]
+    assert list(added.items()) == []
+
+
+
 # -------------------------------------------------------
 #     Corpus-based post-disambiguation
 # -------------------------------------------------------
@@ -186,7 +246,7 @@ def test_remove_duplicate_and_problematic_analyses():
             for rec in records:
                 del rec['start']
                 del rec['end']
-            assert records == [{'root': 'palk', 'partofspeech': 'S', 'ending': '0', 'form': 'sg n', 'lemma': 'palk', 'clitic': '', 'root_tokens': ['palk']}]
+            assert records == [{'normalized_text': 'palk', 'root': 'palk', 'partofspeech': 'S', 'ending': '0', 'form': 'sg n', 'lemma': 'palk', 'clitic': '', 'root_tokens': ['palk']}]
     # 
     #  Case 2: removing 'tama' if verb contains both 'tama' and 'ma'
     #  
@@ -201,11 +261,11 @@ def test_remove_duplicate_and_problematic_analyses():
                 del rec['start']
                 del rec['end']
             if word.text == 'kuulutama':
-                assert records == [{'root': 'kuuluta', 'lemma': 'kuulutama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ['kuuluta'], 'clitic': '', 'form': 'ma'}]
+                assert records == [{'normalized_text': 'kuulutama', 'root': 'kuuluta', 'lemma': 'kuulutama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ['kuuluta'], 'clitic': '', 'form': 'ma'}]
             if word.text == 'kuulatama':
-                assert records == [{'root': 'kuulata', 'lemma': 'kuulatama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ['kuulata'], 'clitic': '', 'form': 'ma'}]
+                assert records == [{'normalized_text': 'kuulatama', 'root': 'kuulata', 'lemma': 'kuulatama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ['kuulata'], 'clitic': '', 'form': 'ma'}]
             if word.text == 'kajastama':
-                assert records == [{'root': 'kajasta', 'lemma': 'kajastama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ['kajasta'], 'clitic': '', 'form': 'ma'}]
+                assert records == [{'normalized_text': 'kajastama', 'root': 'kajasta', 'lemma': 'kajastama', 'ending': 'ma', 'partofspeech': 'V', 'root_tokens': ['kajasta'], 'clitic': '', 'form': 'ma'}]
 
 
 
@@ -232,21 +292,30 @@ def test_mark_ambiguities_to_be_ignored():
         hidden_words.append( hidden_word.text[0] )
     assert hidden_words == ['kõlanud', 'nagu', 'Mis', 'on', 'üks', 'ega', 'teine']
     expected_hidden_words_records = [
-        [ {'lemma': 'kõlanud', 'form': '', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ['kõlanud',], 'end': 18, 'ending': '0', 'start': 11, 'clitic': ''},
-          {'lemma': 'kõlanud', 'form': 'sg n', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ['kõlanud',], 'end': 18, 'ending': '0', 'start': 11, 'clitic': ''},
-          {'lemma': 'kõlanu', 'form': 'pl n', 'partofspeech': 'S', 'root': 'kõla=nu', 'root_tokens': ['kõlanu',], 'end': 18, 'ending': 'd', 'start': 11, 'clitic': ''},
-          {'lemma': 'kõlanud', 'form': 'pl n', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ['kõlanud',], 'end': 18, 'ending': 'd', 'start': 11, 'clitic': ''},
-          {'lemma': 'kõlama', 'form': 'nud', 'partofspeech': 'V', 'root': 'kõla', 'root_tokens': ['kõla',], 'end': 18, 'ending': 'nud', 'start': 11, 'clitic': ''} ], \
-        [ {'lemma': 'nagu', 'form': '', 'partofspeech': 'D', 'root': 'nagu', 'root_tokens': ['nagu',], 'end': 23, 'ending': '0', 'start': 19, 'clitic': ''},
-          {'lemma': 'nagu', 'form': '', 'partofspeech': 'J', 'root': 'nagu', 'root_tokens': ['nagu',], 'end': 23, 'ending': '0', 'start': 19, 'clitic': ''} ], \
-        [ {'lemma': 'mis', 'form': 'pl n', 'partofspeech': 'P', 'root': 'mis', 'root_tokens': ['mis',], 'end': 33, 'ending': '0', 'start': 30, 'clitic': ''},
-          {'lemma': 'mis', 'form': 'sg n', 'partofspeech': 'P', 'root': 'mis', 'root_tokens': ['mis',], 'end': 33, 'ending': '0', 'start': 30, 'clitic': ''} ], \
-        [ {'lemma': 'olema', 'form': 'b', 'partofspeech': 'V', 'root': 'ole', 'root_tokens': ['ole',], 'end': 36, 'ending': '0', 'start': 34, 'clitic': ''},
-          {'lemma': 'olema', 'form': 'vad', 'partofspeech': 'V', 'root': 'ole', 'root_tokens': ['ole',], 'end': 36, 'ending': '0', 'start': 34, 'clitic': ''} ],
-        [ {'lemma': 'üks', 'form': 'sg n', 'partofspeech': 'N', 'root': 'üks', 'root_tokens': ['üks',], 'end': 50, 'ending': '0', 'start': 47, 'clitic': ''},
-          {'lemma': 'üks', 'form': 'sg n', 'partofspeech': 'P', 'root': 'üks', 'root_tokens': ['üks',], 'end': 50, 'ending': '0', 'start': 47, 'clitic': ''} ],
-        [{'lemma': 'ega', 'form': '', 'partofspeech': 'D', 'root': 'ega', 'root_tokens': ['ega',], 'end': 54, 'ending': '0', 'start': 51, 'clitic': ''}, {'lemma': 'ega', 'form': '', 'partofspeech': 'J', 'root': 'ega', 'root_tokens': ['ega',], 'end': 54, 'ending': '0', 'start': 51, 'clitic': ''}],
-        [{'lemma': 'teine', 'form': 'sg n', 'partofspeech': 'O', 'root': 'teine', 'root_tokens': ['teine',], 'end': 60, 'ending': '0', 'start': 55, 'clitic': ''}, {'lemma': 'teine', 'form': 'sg n', 'partofspeech': 'P', 'root': 'teine', 'root_tokens': ['teine',], 'end': 60, 'ending': '0', 'start': 55, 'clitic': ''}] ]
+        [ {'normalized_text': 'kõlanud', 'lemma': 'kõlanud', 'form': '', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ['kõlanud',], 'end': 18, 'ending': '0', 'start': 11, 'clitic': ''},
+          {'normalized_text': 'kõlanud', 'lemma': 'kõlanud', 'form': 'sg n', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ['kõlanud',], 'end': 18, 'ending': '0', 'start': 11, 'clitic': ''},
+          {'normalized_text': 'kõlanud', 'lemma': 'kõlanu', 'form': 'pl n', 'partofspeech': 'S', 'root': 'kõla=nu', 'root_tokens': ['kõlanu',], 'end': 18, 'ending': 'd', 'start': 11, 'clitic': ''},
+          {'normalized_text': 'kõlanud', 'lemma': 'kõlanud', 'form': 'pl n', 'partofspeech': 'A', 'root': 'kõla=nud', 'root_tokens': ['kõlanud',], 'end': 18, 'ending': 'd', 'start': 11, 'clitic': ''},
+          {'normalized_text': 'kõlanud', 'lemma': 'kõlama', 'form': 'nud', 'partofspeech': 'V', 'root': 'kõla', 'root_tokens': ['kõla',], 'end': 18, 'ending': 'nud', 'start': 11, 'clitic': ''} ], \
+        [ {'normalized_text': 'nagu', 'lemma': 'nagu', 'form': '', 'partofspeech': 'D', 'root': 'nagu', 'root_tokens': ['nagu',], 'end': 23, 'ending': '0', 'start': 19, 'clitic': ''},
+          {'normalized_text': 'nagu', 'lemma': 'nagu', 'form': '', 'partofspeech': 'J', 'root': 'nagu', 'root_tokens': ['nagu',], 'end': 23, 'ending': '0', 'start': 19, 'clitic': ''} ], \
+        [ {'normalized_text': 'Mis', 'lemma': 'mis', 'form': 'pl n', 'partofspeech': 'P', 'root': 'mis', 'root_tokens': ['mis',], 'end': 33, 'ending': '0', 'start': 30, 'clitic': ''},
+          {'normalized_text': 'Mis', 'lemma': 'mis', 'form': 'sg n', 'partofspeech': 'P', 'root': 'mis', 'root_tokens': ['mis',], 'end': 33, 'ending': '0', 'start': 30, 'clitic': ''} ], \
+        [ {'normalized_text': 'on', 'lemma': 'olema', 'form': 'b', 'partofspeech': 'V', 'root': 'ole', 'root_tokens': ['ole',], 'end': 36, 'ending': '0', 'start': 34, 'clitic': ''},
+          {'normalized_text': 'on', 'lemma': 'olema', 'form': 'vad', 'partofspeech': 'V', 'root': 'ole', 'root_tokens': ['ole',], 'end': 36, 'ending': '0', 'start': 34, 'clitic': ''} ],
+        [ {'normalized_text': 'üks', 'lemma': 'üks', 'form': 'sg n', 'partofspeech': 'N', 'root': 'üks', 'root_tokens': ['üks',], 'end': 50, 'ending': '0', 'start': 47, 'clitic': ''},
+          {'normalized_text': 'üks', 'lemma': 'üks', 'form': 'sg n', 'partofspeech': 'P', 'root': 'üks', 'root_tokens': ['üks',], 'end': 50, 'ending': '0', 'start': 47, 'clitic': ''} ],
+        [{'normalized_text': 'ega', 'lemma': 'ega', 'form': '', 'partofspeech': 'D', 'root': 'ega', 'root_tokens': ['ega',], 'end': 54, 'ending': '0', 'start': 51, 'clitic': ''}, 
+         {'normalized_text': 'ega', 'lemma': 'ega', 'form': '', 'partofspeech': 'J', 'root': 'ega', 'root_tokens': ['ega',], 'end': 54, 'ending': '0', 'start': 51, 'clitic': ''}],
+        [{'normalized_text': 'teine', 'lemma': 'teine', 'form': 'sg n', 'partofspeech': 'O', 'root': 'teine', 'root_tokens': ['teine',], 'end': 60, 'ending': '0', 'start': 55, 'clitic': ''}, 
+         {'normalized_text': 'teine', 'lemma': 'teine', 'form': 'sg n', 'partofspeech': 'P', 'root': 'teine', 'root_tokens': ['teine',], 'end': 60, 'ending': '0', 'start': 55, 'clitic': ''}] ]
+    # sort analyses of each and every word
+    assert len(hidden_words_records) == len(expected_hidden_words_records)
+    for wid in range(len(hidden_words_records)):
+        hidden_words_rec = hidden_words_records[wid]
+        expected_hidden_words_rec = expected_hidden_words_records[wid]
+        hidden_words_records[wid] = _sort_morph_annotations( hidden_words_rec )
+        expected_hidden_words_records[wid] = _sort_morph_annotations( expected_hidden_words_rec )
     assert hidden_words_records == expected_hidden_words_records
 
 
@@ -603,8 +672,8 @@ def test_cb_disambiguator_on_unknown_words():
             for analysis in word_analyses.annotations:
                 if _is_empty_annotation(analysis):
                     unknowns.append(word_analyses.text)
-    assert unknowns == ['Mulll', 'yks', 'Davai', ',', 'yks']
+    assert unknowns == ['Mulll', 'yks', ',', 'yks']
     # Assert analysis count
     [countTotal, countH, countNonH] = count_analyses( docs )
-    assert [countTotal, countH, countNonH] == [12, 0, 12]
+    assert [countTotal, countH, countNonH] == [13, 0, 13]
 

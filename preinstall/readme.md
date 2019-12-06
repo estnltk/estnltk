@@ -1,0 +1,1 @@
+This folder contains additional pre-installation scripts required by `setup.py`.
