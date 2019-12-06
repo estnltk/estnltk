@@ -71,7 +71,8 @@ def create_number_analysis_rules_cache( csv_file:str=DEFAULT_NUMBER_ANALYSIS_RUL
         rules = load_number_analysis_rules_csv( csv_file )
         with open(cache, 'wb') as out_file:
             pickle.dump(rules, out_file)
-        print('> cache file {!r} created.'.format(os.path.split(cache)[1]) )
+        if verbose:
+            print('> cache file {!r} created.'.format(os.path.split(cache)[1]) )
 
 
 # ========================================================================
@@ -79,7 +80,7 @@ def create_number_analysis_rules_cache( csv_file:str=DEFAULT_NUMBER_ANALYSIS_RUL
 # ========================================================================
 
 def create_caches():
-    create_number_analysis_rules_cache( force=True, verbose=True )
+    create_number_analysis_rules_cache( force=False, verbose=True )
 
 
 #rules1 = load_number_analysis_rules_csv( DEFAULT_NUMBER_ANALYSIS_RULES )
