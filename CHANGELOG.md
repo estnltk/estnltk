@@ -3,19 +3,19 @@
 
 All notable changes to this project will be documented in this file.
 
-# [1.6.5-beta] - 2019-XX-XX - TODO
+# [1.6.5-beta] - 2019-12-06
 ## Changed
 
 * Updated `Vabamorf`'s **binary lexicon** files: binary lexicons from Vabamorf's commit [7bed3f7
 ](https://github.com/Filosoft/vabamorf/tree/7bed3f743e3b505227e1413535d4d3407bee2bb5/dct/binary) (2019-10-15) are now used by default. The change improves lexical coverage of Vabamorf's analyser, and also adds proper analyses for some spoken language and slang words. However, the upgrade is not complete, as `Vabamorf` C++ source code in EstNLTK also needs to be updated. This remains a future work.
 
-    * Because `Vabamorf`'s source code was not upgraded along with  lexicons, there is a possibility that morphological analysis has a reduced quality in some situations. 
+    * As `Vabamorf`'s source code was not upgraded along with  lexicons, there is a possibility that morphological analysis has a reduced quality in some situations. 
     If this hinders your work, you can also roll back to `Vabamorf`'s binary lexicons used in the previous version.
     Previous version's lexicons are also included inside EstNLTK's package and [this tutorial](https://github.com/estnltk/estnltk/blob/e0f5723e00017b8d964041c6fa01988f93fb08d4/tutorials/nlp_pipeline/B_06_morphological_analysis.ipynb) shows how to switch back to them (see the section _"Changing Vabamorf's binary lexicons"_);
 
     * Under the hood, the location and the loading logic of `Vabamorf`'s binary lexicons was also changed;
 
-* Ambiguous analyses in the `morph_analysis` layer are no longer re-sorted. As a result, the ordering of ambiguous analyses should be the same as the ordering used in EstNLTK's versions prior 1.6.0_beta (e.g. ordering used in version 1.4.1). If required, `VabamorfTagger`'s the parameter `re_sort_analyses` can be used to switch re-sorting back on. **Note:** Regardless whether re-sorting is used or not, Vabamorf's ambiguous analyses **are not** ordered by likelihood / probability.
+* Ambiguous analyses in the `morph_analysis` layer are no longer re-sorted. As a result, the ordering of ambiguous analyses should be the same as the ordering used in EstNLTK's versions prior 1.6.0_beta (e.g. ordering used in version 1.4.1). If required, `VabamorfTagger`'s the parameter `re_sort_analyses` can be used to switch re-sorting back on. **Note:** Regardless whether the re-sorting parameter is switched on or off, the ambiguous analyses in `VabamorfTagger`'s output **are not** ordered by likelihood / probability;
 
 * Relocated tutorials `date_tagger.ipynb` and `MorphAnalyzedToken.ipynb`;
 * Removed `MorphAnalysisRecordBasedRetagger` (this was a redundant branch of development, please use `AnnotationRewriter` or `SpanRewriter` instead);
@@ -35,6 +35,8 @@ All notable changes to this project will be documented in this file.
 * `MorphAnalysisReorderer` -- a tool which can be used for re-ordering ambiguous analyses in `morph_analysis` layer in a way that the first analysis is more likely the correct one. The tool can be applied as a post-processer after applying `VabamorfTagger` or `VabamorfCorpusTagger`. See [this tutorial](https://github.com/estnltk/estnltk/blob/327bb7c06975df97f6362ca01d5768be40bc794b/tutorials/nlp_pipeline/B_07c_morph_analysis_reordering.ipynb) for details.
 
 * Method `save_as_csv()` to `UserDictTagger` -- can be used for saving the content of the dictionary as a csv format file.
+
+* `SubstringQuery`
 
 ## Fixed
 
