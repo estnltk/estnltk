@@ -52,7 +52,7 @@ create_caches()
 
 setup(
     name="estnltk",
-    version="1.6.4beta",
+    version="1.6.5beta",
 
     packages=find_packages(exclude=["preinstall"]),
     include_package_data=True,
