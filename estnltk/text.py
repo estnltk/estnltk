@@ -11,8 +11,7 @@ from estnltk.layer.layer import Layer
 
 
 class Text:
-    # All methods for Text object
-    # methods: Set[str]
+    # methods: Set[str]  # List of all methods
     methods = {
         '_repr_html_',
         'add_layer',
