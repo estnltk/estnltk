@@ -2,13 +2,12 @@ import json
 from typing import List
 from IPython.display import display_html
 
+from estnltk import Layer
 from estnltk.layer.span import Span
 from estnltk.converters import layer_to_dict, dict_to_layer
 from estnltk.visualisation.core import format_tag_attributes
 from estnltk.visualisation.core import header_cell, value_cell, dropdown_cell
-from estnltk import Layer
-#from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
-from estnltk.taggers.standard_taggers.attribute_comparison_tagger_new import AttributeComparisonTagger
+from estnltk.taggers import AttributeComparisonTagger
 
 class SyntaxVisualiser:
     #attributes = ["id", "text", "lemma", "head", "deprel", "upostag", "xpostag", "feats", "deps", "misc"]
