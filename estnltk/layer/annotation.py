@@ -1,3 +1,4 @@
+from copy import deepcopy
 from reprlib import recursive_repr
 from typing import Any, Mapping, Sequence
 
@@ -5,12 +6,42 @@ from typing import Any, Mapping, Sequence
 class Annotation(Mapping):
     """Mapping for Span attribute values.
 
+    TODO: Find out whether it should derive from Mapping or from MutableMapping
+
+    TODO: Resolve the problem with shadowed annotation keys. It is irrelevant but still necessary
+    TODO: Get rid of _span slot. Use span slot instead and protect memory with __getattr__
+
     """
-    __slots__ = ['__dict__', '_span']
+    __slots__ = ['__dict__', '_span', 'mapping']
 
     def __init__(self, span, **attributes):
         self._span = span
         self.__dict__ = attributes
+
+    def __copy__(self):
+        """
+        Makes a copy of all annotation attributes but detaches span from annotation.
+        RATIONALE: One copies an annotation only to attach the copy to a different span.
+        """
+        return Annotation(span=None, **self.__dict__)
+
+    def __deepcopy__(self, memo=None):
+        """
+        Makes a deep copy of all annotation attributes but detaches span from annotation.
+        RATIONALE: One copies an annotation only to attach the copy to a different span.
+        """
+        memo = memo or {}
+        # Create invalid instance
+        cls = self.__class__
+        result = cls.__new__(cls)
+        # Add all fields to the instance to make it valid
+        result._span = None
+        # Add newly created valid mutable objects to memo
+        memo[id(self)] = result
+        print('boo', id(result))
+        # Perform deep copy with a valid memo dict
+        result.__dict__ = deepcopy(self.__dict__, memo)
+        return result
 
     @property
     def span(self):
