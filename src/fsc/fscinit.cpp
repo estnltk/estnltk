@@ -149,6 +149,7 @@ void FSCTerminate() {
 }
 
 bool FSCThreadInit() {
+	if (pthread_getspecific(g_TlsKey) != 0) return true;
 	CStringMemoryPool *pPool=new CStringMemoryPool();
 #if defined (WINRT)
 	if (!g_FSStringMemoryPool) {
@@ -218,6 +219,8 @@ static inline CStringMemoryPool *GetStringMemoryPool() {
 		return 0;
 	}
 #elif defined (UNIX)
+	if (g_TlsKey==TLS_OUT_OF_INDEXES)
+		FSCInit();
 	if (g_TlsKey!=TLS_OUT_OF_INDEXES) {
 		CStringMemoryPool *pPool=(CStringMemoryPool *)pthread_getspecific(g_TlsKey);
 		if (!pPool) {
