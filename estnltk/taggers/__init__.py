@@ -67,3 +67,5 @@ from estnltk.taggers.syntax.conll_morph_tagger import ConllMorphTagger
 from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
 from estnltk.taggers.syntax.syntax_diff_retagger import SyntaxDiffRetagger
 from estnltk.taggers.syntax.syntax_las_tagger import SyntaxLasTagger
+
+from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
