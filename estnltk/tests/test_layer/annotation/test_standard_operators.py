@@ -4,6 +4,7 @@ from copy import copy, deepcopy
 from estnltk import Annotation
 from estnltk import ElementaryBaseSpan
 
+
 def test_len():
     # Empty annotation
     base_span = ElementaryBaseSpan(0, 1)
@@ -15,6 +16,9 @@ def test_len():
     assert len(annotation) == 3
 
     # Annotation with shadowed attributes
+    annotation = Annotation(base_span, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+                            end=['a', 'b'], __deepcopy__='its gonna fail without arrangements')
+    assert len(annotation) == 5
 
 
 def test_copy_constructors():
@@ -63,16 +67,16 @@ def test_copy_constructors():
     assert s_copy.dict is annotation.dict
     assert s_copy['end'] is annotation['end']
     assert s_copy['__deepcopy__'] is annotation['__deepcopy__']
-    # d_copy = deepcopy(annotation)
-    # assert d_copy is not annotation
-    # assert d_copy.span is None
-    # assert d_copy.number is annotation.number                     # Immutable
-    # assert d_copy.string is annotation.string                     # Immutable
-    # assert d_copy.dict is not annotation.dict                     # Mutable
-    # assert d_copy.dict == annotation.dict
-    # assert d_copy['end'] is not annotation['end']                 # Mutable
-    # assert d_copy['end'] == annotation['end']
-    # assert d_copy['__deepcopy__'] is annotation['__deepcopy__']   # Immutable
+    d_copy = deepcopy(annotation)
+    assert d_copy is not annotation
+    assert d_copy.span is None
+    assert d_copy.number is annotation.number                     # Immutable
+    assert d_copy.string is annotation.string                     # Immutable
+    assert d_copy.dict is not annotation.dict                     # Mutable
+    assert d_copy.dict == annotation.dict
+    assert d_copy['end'] is not annotation['end']                 # Mutable
+    assert d_copy['end'] == annotation['end']
+    assert d_copy['__deepcopy__'] is annotation['__deepcopy__']   # Immutable
 
     # Copying of recursive annotations
     annotation = Annotation(base_span, number=42, string='twelve', dict={'a': 15, 'b': 'one'})

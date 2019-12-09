@@ -68,9 +68,6 @@ def test_annotation_without_span():
     with pytest.raises(AttributeError):
         annotation.__setstate__
 
-    with pytest.raises(AttributeError):
-        annotation.__deepcopy__
-
 
 def test_annotation_with_text_object():
     text = Text('Tere!')
