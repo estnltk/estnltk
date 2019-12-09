@@ -7,12 +7,16 @@ Attributes
 
 PACKAGE_PATH: str
     The path where the vabamorf package is located.
-DICT_PATH: str
-    The path of the default vabamorf dictionary embedded with vabamorf.
-DEFAULT_ET_PATH: str
-    The path to the default morphoanalyzer lexicon that comes with the vabamorf library.
-DEFAULT_ET3_PATH: str
-    The path to the default disambiguator lexicon that comes with the vabamorf library.
+DICT_ROOT_PATH: str
+    The path to the root directory containing subdirectories for different versions of 
+    Vabamorf's lexicons.
+VM_LEXICONS: str
+    List of Vabamorf's lexicons available in EstNLTK. Basically, the list contains 
+    subdirectories of DICT_ROOT_PATH (sorted by names). Subdirectory names are ISO 
+    format dates, indicating dates in which corresponding lexicons were created or 
+    introduced into EstNLTK. 
+    As directory names are sorted, the last name is always the latest one, and this is 
+    also the lexicon used by default.
 phonetic_markers: str
     List of characters that make up phonetic markup.
 compound_markers: str
@@ -32,10 +36,12 @@ import operator
 from functools import reduce
 
 # path listings
-PACKAGE_PATH = os.path.dirname(__file__)
-DICT_PATH = os.path.join(PACKAGE_PATH, 'dct')
-DEFAULT_ET_PATH = os.path.join(DICT_PATH, 'et.dct')
-DEFAULT_ET3_PATH = os.path.join(DICT_PATH, 'et3.dct')
+PACKAGE_PATH   = os.path.dirname(__file__)
+DICT_ROOT_PATH = os.path.join(PACKAGE_PATH, 'dct')
+
+# =============================================================================
+#   Utils
+# =============================================================================
 
 # various markers
 phonetic_markers = frozenset('~?]<')
@@ -87,6 +93,38 @@ def deconvert(word):
         return word
 
 
+# =============================================================================
+#   Handling Vabamorf's lexicons
+# =============================================================================
+
+# All Vabamorf's lexicons available in EstNLTK
+VM_LEXICONS = [item for item in sorted(os.listdir(DICT_ROOT_PATH),reverse=False) if os.path.isdir(os.path.join(DICT_ROOT_PATH,item))]
+
+def get_vm_lexicon_files( vm_lexicon_dir, dict_path=DICT_ROOT_PATH ):
+    '''Given EstNLTK's directory that contains Vabamorf\'s lexicons, 
+       creates names of the lexicon files, checks for their existence 
+       and returns a tuple of lexicon file paths:
+          ( path to analyser's lexicon, 
+            path to disambiguator's lexicon ).
+       If vm_lexicon_dir is a directory name without path, and 
+       dict_path is provided, then first constructs the full path 
+       to Vabamorf\'s lexicon directory by joining dict_path and 
+       vm_lexicon_dir;
+    '''
+    if not os.path.isdir(vm_lexicon_dir) and dict_path is not None:
+        vm_lexicon_dir = os.path.join(dict_path, vm_lexicon_dir)
+    assert os.path.isdir(vm_lexicon_dir), '(!) Unexpected Vabamorf\'s lexicon directory {!r}'.format(vm_lexicon_dir)
+    et_file  = os.path.join(vm_lexicon_dir, 'et.dct')
+    et3_file = os.path.join(vm_lexicon_dir, 'et3.dct')
+    assert os.path.isfile(et_file), '(!) Unable to find Vabamorf analyser\'s lexicon file: {!r}'.format(et_file)
+    assert os.path.isfile(et3_file), '(!) Unable to find Vabamorf disambiguator\'s lexicon file: {!r}'.format(et3_file)
+    return (et_file, et3_file)
+
+
+# =============================================================================
+#   Vabamorf class
+# =============================================================================
+
 class Vabamorf(object):
     """Class for performing main tasks of morphological analysis.
 
@@ -113,20 +151,36 @@ class Vabamorf(object):
             Vabamorf.morf = Vabamorf()
         return Vabamorf.morf
 
-    def __init__(self, lex_path=DEFAULT_ET_PATH, disamb_lex_path=DEFAULT_ET3_PATH):
+    def __init__(self, lexicon_dir=VM_LEXICONS[-1], lex_path=None, disamb_lex_path=None):
         """Initialize Vabamorf class.
 
         NB! Do not use this class directly. Instead use Vabamorf.instance() to obtain access to one.
-        Use this only when you want to define custom paths to dictionaries.
+        Use this only when you want to define custom paths to lexicons / dictionaries.
 
         Parameters
         ----------
+        lexicon_dir: str
+            The path to a directory containing both morphological analyzer's and disambiguator's 
+            lexicons (files 'et.dct' and 'et3.dct');
+            Defaults to the last directory name in the list VM_LEXICONS.
         lex_path: str
-            The path to morphoanalyzer lexicon (default path points to the default dictionary).
-        ambig_lex_path: str
-            The path to disambiguator lexicon (default path points to the default dictionary).
-
+            The path to morphological analyzer's lexicon (defaults to None).
+            If you use this along with lexicon_dir, then the lexicon_dir's specification 
+            will be overwritten by this specification.
+        disamb_lex_path: str
+            The path to morphological disambiguator's lexicon (defaults to None).
+            If you use this along with lexicon_dir, then the lexicon_dir's specification 
+            will be overwritten by this specification.
         """
+        latest_lex_path, latest_disamb_lex_path = (None, None)
+        if lexicon_dir is not None:
+            # Get full paths to the latest VM lexicons
+            (latest_lex_path, latest_disamb_lex_path) = get_vm_lexicon_files(lexicon_dir, dict_path=DICT_ROOT_PATH)
+        lex_path = latest_lex_path if lex_path is None else lex_path
+        disamb_lex_path = latest_disamb_lex_path if disamb_lex_path is None else disamb_lex_path
+        # Sanity check: at the end of day, all lexicons should be specified
+        assert lex_path is not None, '(!) lex_path unspecified. Please use the parameter lex_path to specify Vabamorf analyser\'s lexicon file.'
+        assert disamb_lex_path is not None, '(!) disamb_lex_path unspecified. Please use the parameter disamb_lex_path to specify Vabamorf disambiguator\'s lexicon file.'
         self._morf = vm.Vabamorf(convert(lex_path), convert(disamb_lex_path))
 
     def analyze(self, words, **kwargs):

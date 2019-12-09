@@ -178,6 +178,48 @@ def test_pre_disambiguation_ver_1_4():
     assert [countTotal, countH, countNonH] == [85, 5, 80]
 
 
+
+def test_pre_disambiguation_quoted_and_enumrated_texts():
+    # Pre-disambiguator should distinguish between sentence initial and sentence central proper names
+    # even if the potential proper name is:
+    #         1) after the sentence-initial quotation mark
+    #         2) after the sentence-initial enumeration mark
+    #
+    # Case 1: Erroneous proper name analyses of 'Veel' and 'Eks' should 
+    #         be deleted in the following corpus:
+    #
+    docs = [Text('" Veel üks Jänes pani jooksu!", ütles Hunt.'),\
+            Text('1. Veel teinegi Jänes jooksu pani.'), \
+            Text('Veel üks tekst. Jänesele ja Hundile on asi selge.'), \
+            Text('Eks neid tekste siin vaikselt koguneb.'), \
+            Text('" Eks jah, " ütles Hunt.') ]
+    for doc in docs:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+        morf_analyzer.tag(doc)
+    analyses_a = collect_analyses( docs )
+    cb_disambiguator = CorpusBasedMorphDisambiguator()
+    cb_disambiguator.predisambiguate(docs)
+    # Find difference in ambiguities
+    analyses_b = collect_analyses( docs )
+    removed, added = find_ambiguities_diff( analyses_a, analyses_b )
+    #print( sorted(list(removed.items())) )
+    assert sorted(list(removed.items())) == [ ((0, 1), [('Veel', 'H', 'sg n'), ('Vee', 'H', 'sg ad'), ('Vesi', 'H', 'sg ad')]), 
+                                              ((0, 3), [('Jäne', 'H', 'sg in'), ('jänes', 'S', 'sg n')]), 
+                                              ((0, 10), [('hunt', 'S', 'sg n')]), 
+                                              ((1, 1), [('Veel', 'H', 'sg n'), ('Vee', 'H', 'sg ad'), ('Vesi', 'H', 'sg ad')]), 
+                                              ((1, 3), [('Jäne', 'H', 'sg in'), ('jänes', 'S', 'sg n')]), 
+                                              ((2, 0), [('Veel', 'H', 'sg n'), ('Vee', 'H', 'sg ad'), ('Vesi', 'H', 'sg ad')]), 
+                                              ((2, 4), [('Jänese', 'H', 'sg all'), ('jänes', 'S', 'sg all')]), 
+                                              ((2, 6), [('Hundile', 'H', 'sg g'), ('Hundile', 'H', 'sg n'), \
+                                                        ('Hundi', 'H', 'sg all'), ('Hund', 'H', 'sg all'), ('hunt', 'S', 'sg all')]), 
+                                              ((3, 0), [('Eks', 'H', 'sg n')]), 
+                                              ((4, 1), [('Eks', 'H', 'sg n')]), 
+                                              ((4, 6), [('hunt', 'S', 'sg n')]) 
+    ]
+    assert list(added.items()) == []
+
+
+
 # -------------------------------------------------------
 #     Corpus-based post-disambiguation
 # -------------------------------------------------------
@@ -630,8 +672,8 @@ def test_cb_disambiguator_on_unknown_words():
             for analysis in word_analyses.annotations:
                 if _is_empty_annotation(analysis):
                     unknowns.append(word_analyses.text)
-    assert unknowns == ['Mulll', 'yks', 'Davai', ',', 'yks']
+    assert unknowns == ['Mulll', 'yks', ',', 'yks']
     # Assert analysis count
     [countTotal, countH, countNonH] = count_analyses( docs )
-    assert [countTotal, countH, countNonH] == [12, 0, 12]
+    assert [countTotal, countH, countNonH] == [13, 0, 13]
 

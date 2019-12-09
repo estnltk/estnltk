@@ -12,7 +12,8 @@ Tagger is a class that creates a layer and attaches it to the text object.
 * [SpanTagger](span_tagger.ipynb) tags spans on a pre-annotated layer of the Text object
 
 * [RobustDateNumberTagger](measurement_tagging.ipynb) wraps RegexTagger to tag dates and numbers.
-* [TimexTagger](temporal_expression_tagger.ipynb) tags temporal expressions referring to dates, times, durations and recurrences, based on the TIMEX3 tag from [TimeML](http://www.timeml.org/).
+* [DateTagger](date_tagger.ipynb) yet another tagger for dates. 
+* [TimexTagger](temporal_expression_tagger.ipynb) provides most complete tagging for dates and other temporal expressions (such as times, durations and recurrences). Its analysis output is based on the TIMEX3 tag from [TimeML](http://www.timeml.org/).
 
 * [AddressTagger](address_tagging.ipynb) tags addresses on a text and extracts the street name, house number, zip code, town, and county from the text.
 * [AdjectivePhraseTagger](adjective_phrase_tagger.ipynb) tags simple adjective phrases on the text.

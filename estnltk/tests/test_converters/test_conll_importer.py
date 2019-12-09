@@ -1,10 +1,15 @@
 from collections import OrderedDict
+import pkgutil
+import pytest
+
 from estnltk.core import abs_path
 from estnltk.converters import text_to_dict
-from estnltk.converters.conll_importer import conll_to_text
-from estnltk.converters.conll_importer import add_layer_from_conll
-
 from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
+
+def check_if_conllu_is_available():
+    # Check if conllu is available
+    return pkgutil.find_loader("conllu") is not None
+
 
 text_dict = {
     'text': 'Iga üheksas kroon tuli salapärastelt isikutelt . '
@@ -266,8 +271,12 @@ text_dict = {
                                          (115, 116)),
                            'annotations': [{}]}]}]}
 
-
+@pytest.mark.skipif(not check_if_conllu_is_available(),
+                    reason="package conllu is required for this test")
 def test_conll_importers():
+    from estnltk.converters.conll_importer import conll_to_text
+    from estnltk.converters.conll_importer import add_layer_from_conll
+    
     file = abs_path('tests/test_converters/test_conll.conll')
     text = conll_to_text(file, syntax_layer='syntax')
 

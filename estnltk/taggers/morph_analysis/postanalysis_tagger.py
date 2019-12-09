@@ -609,26 +609,47 @@ class PostMorphAnalysisTagger(Retagger):
     # ========================================================================
 
     @staticmethod
-    def load_number_analysis_rules( csv_file:str ):
-        '''Loads number analysis corrections from an input CSV file.
-           Note: if a cached version of the file exists (a .pickle file) and 
-           it is up to date, then loads the cached version, otherwise, loads 
-           the csv file, and creates the cached version for the next loading.
+    def create_number_analysis_rules_cache( csv_file:str=DEFAULT_NUMBER_ANALYSIS_RULES, force=False ):
+        '''Creates a pickled version of the number analysis corrections CSV file.
+           Note: the new pickled version is only created iff: 1) the pickle file 
+           does not exist, 2) the pickle file is outdated, or 3) force==True;
         '''
+        if not os.path.exists(csv_file):
+            raise FileNotFoundError('(!) Missing number analysis corrections csv file: {!r}'.format(csv_file))
         cache = csv_file + '.pickle'
-        if not os.path.exists(cache) or os.stat(cache).st_mtime < os.stat(csv_file).st_mtime:
-            df = pandas.read_csv(csv_file, na_filter=False, index_col=False)
-            rules = defaultdict(dict)
-            for _, r in df.iterrows():
-                if r.suffix not in rules[r.number]:
-                    rules[r.number][r.suffix] = []
-                rules[r.number][r.suffix].append({'partofspeech': r.pos, 'form': r.form, 'ending':r.ending})
+        if not os.path.exists(cache) or os.stat(cache).st_mtime < os.stat(csv_file).st_mtime or force==True:
+            rules = PostMorphAnalysisTagger.load_number_analysis_rules_csv( csv_file )
             with open(cache, 'wb') as out_file:
                 pickle.dump(rules, out_file)
-            return rules
-        with open(cache, 'rb') as in_file:
-            rules = pickle.load(in_file)
+
+
+    @staticmethod
+    def load_number_analysis_rules_csv( csv_file:str ):
+        '''Loads number analysis corrections from an input CSV file.'''
+        df = pandas.read_csv(csv_file, na_filter=False, index_col=False)
+        rules = defaultdict(dict)
+        for _, r in df.iterrows():
+            if r.suffix not in rules[r.number]:
+                rules[r.number][r.suffix] = []
+            rules[r.number][r.suffix].append({'partofspeech': r.pos, 'form': r.form, 'ending':r.ending})
         return rules
+
+
+    @staticmethod
+    def load_number_analysis_rules( csv_file:str ):
+        '''Loads number analysis corrections from an input CSV or pickle file.
+           If a cached version of the file exists (a .pickle file), then loads 
+           the cached version, otherwise, loads from the CSV file.
+        '''
+        cache = csv_file + '.pickle'
+        if not os.path.exists(cache):
+            # Read number analysis rules from CSV file (can be slow)
+            return PostMorphAnalysisTagger.load_number_analysis_rules_csv(csv_file)
+        else:
+            # Read rules from the pickle file
+            with open(cache, 'rb') as in_file:
+                rules = pickle.load(in_file)
+            return rules
 
 
     def find_analyses_for_numeric_token( self, token_str ):

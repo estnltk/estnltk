@@ -29,7 +29,7 @@ def test_general():
     # assert len(t.sentences.words.text) == len(t.sentences.text)
     assert t.morph_analysis.lemma == AmbiguousAttributeList([['mina'], ['nimi'], ['olema', 'olema'], ['Uku'],
                                                              ['.'], ['mis', 'mis'], ['sina'], ['nimi'],
-                                                             ['olema', 'olema'], ['?'], ['miks'], ['mina'],
+                                                             ['olema', 'olema'], ['?'], ['miks', 'miks'], ['mina'],
                                                              ['see'], ['arutama'], ['?']],
                                                             'lemma')
 
