@@ -15,7 +15,7 @@ def inspect_class_members(obj: object):
     public_variables = []
     protected_variables = []
     private_variables = []
-    slots = obj.__slots__
+    slots = obj.__slots__ if hasattr(obj, '__slots__') else [] 
     for attr in dir(obj):
         if attr in slots:
             pass
