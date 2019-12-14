@@ -1,26 +1,32 @@
 class AttrDict:
     """
-    Base class for Python dictionary where elements can be safely accessed as attributes
+    Base class for a Python dictionary where elements can be safely accessed as attributes
 
+    The implementation has the same methods as an abstract container Mapping.
+    The attribute access is implemented so that one can specify a set of attributes that cannot be defined.
+    By default all methods of AttrDict class are protected.
 
-    __getitem__,
-    __iter__,
-    __len__
-    __contains__,
+    For a subclass, the set of protected attributes should be defined through a class variable methods.
+    The set should contain all methods and variable methods for safety.
 
-    keys,
-    items,
-    values,
-    get,
-
-    __eq__,
-    __ne__
-    __repr__
-
-    TODO: Explain rules
+    The class does not implement separate copy, deepcopy and pickling methods as it is an abstract base class.
+    All subclasses should contain corresponding methods for safety and correctness.
     """
     __slots__ = ['mapping', '__dict__']
-    methods = frozenset(['methods'])
+    methods = frozenset([
+        '__setitem__',
+        '__getitem__',
+        '__delitem__',
+        '__iter__',
+        '__len__',
+        '__contains__',
+        '__repr__',
+        'keys',
+        'items',
+        'values',
+        'get',
+        'methods'
+        ] + __slots__ + [method for method in dir(object) if callable(getattr(object, method, None))])
 
     def __init__(self, **attributes):
         super().__setattr__('mapping', attributes)
