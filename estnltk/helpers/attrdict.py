@@ -8,25 +8,17 @@ class AttrDict:
 
     For a subclass, the set of protected attributes should be defined through a class variable methods.
     The set should contain all methods and variable methods for safety.
+    The best way to define them is an idiom  methods = {...} | AttrDict.methods
 
     The class does not implement separate copy, deepcopy and pickling methods as it is an abstract base class.
     All subclasses should contain corresponding methods for safety and correctness.
     """
     __slots__ = ['mapping', '__dict__']
-    methods = frozenset([
-        '__setitem__',
-        '__getitem__',
-        '__delitem__',
-        '__iter__',
-        '__len__',
-        '__contains__',
-        '__repr__',
-        'keys',
-        'items',
-        'values',
-        'get',
-        'methods'
-        ] + __slots__ + [method for method in dir(object) if callable(getattr(object, method, None))])
+    methods = frozenset(['__doc__', '__hash__', '__module__', '__slots__',
+                         '__setitem__', '__getitem__', '__delitem__',
+                         '__iter__', '__len__', '__contains__', '__repr__',
+                         'keys', 'items', 'values', 'get', 'methods']
+                        + __slots__ + [method for method in dir(object) if callable(getattr(object, method, None))])
 
     def __init__(self, **attributes):
         super().__setattr__('mapping', attributes)
