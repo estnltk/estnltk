@@ -8,6 +8,8 @@
 #  Python's implementation:   Siim Orasmaa
 #
 
+from typing import Set
+
 import re
 from collections import defaultdict
 
@@ -42,6 +44,7 @@ class CorpusBasedMorphDisambiguator( object ):
                  input_sentences_layer:str='sentences',
                  count_position_duplicates_once:bool=False,
                  count_inside_compounds:bool=False,
+                 ignore_lemmas_in_compounds:Set=set(['alus','alune','mai','maa']),
                  validate_inputs:bool=True ):
         """Initialize CorpusBasedMorphDisambiguator class.
 
@@ -80,6 +83,11 @@ class CorpusBasedMorphDisambiguator( object ):
             'pääs' and 'pääsu'.
             Note: this is an experimental feature, needs further
             testing;
+        ignore_lemmas_in_compounds: Set (default:{'alus','alune','mai','maa'})
+            Set of lemmas, which should not be counted as the last 
+            words of compound words (if count_inside_compounds is True),
+            because adding to their counts likely leads to unreliable / 
+            erroneous disambiguation choices.
         validate_inputs : bool (default: True)
             If set (default), then input document collection will 
             be validated for having the appropriate structure, and 
@@ -97,6 +105,11 @@ class CorpusBasedMorphDisambiguator( object ):
               count_position_duplicates_once
         self._count_inside_compounds = \
               count_inside_compounds
+        self._ignore_lemmas_in_compounds = set()
+        if ignore_lemmas_in_compounds is not None:
+            if not isinstance(ignore_lemmas_in_compounds, set):
+                raise TypeError('(!) ignore_lemmas_in_compounds should be a set of strings (word lemmas).')
+            self._ignore_lemmas_in_compounds = ignore_lemmas_in_compounds
         self._validate_inputs  = validate_inputs
         self.output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
 
@@ -463,7 +476,8 @@ class CorpusBasedMorphDisambiguator( object ):
                     if self._count_inside_compounds and '_' in lemma:
                         lemma_parts = lemma.split('_')
                         last_word   = lemma_parts[-1]
-                        if len(last_word) > 0:
+                        if len(last_word) > 0 and \
+                           last_word not in self._ignore_lemmas_in_compounds:
                             encounteredLemmas.add( last_word )
                             if last_word not in lexicon:
                                 lexicon[last_word] = 1
@@ -487,7 +501,9 @@ class CorpusBasedMorphDisambiguator( object ):
         lemma_based_disambiguator = \
               LemmaBasedPostDisambiguationRetagger(lexicon=lexicon,
                             morph_analysis_layer=self.output_layer,\
-                            input_hidden_morph_analysis_layer=hidden_words_layer )
+                            input_hidden_morph_analysis_layer=hidden_words_layer, \
+                            disambiguate_last_words_of_compounds=self._count_inside_compounds, \
+                            ignore_last_words=self._ignore_lemmas_in_compounds )
         for doc in docs:
             lemma_based_disambiguator.retag( doc )
 
@@ -639,6 +655,8 @@ class CorpusBasedMorphDisambiguator( object ):
         table = ['<h4>'+self.__class__.__name__+'</h4>', description, table]
         # Add configuration parameters
         public_param = ['_count_position_duplicates_once', '_count_inside_compounds', '_validate_inputs']
+        if self._count_inside_compounds:
+            public_param.append('_ignore_lemmas_in_compounds')
         conf_values  = []
         for attr in public_param:
             conf_values.append( str(getattr(self, attr)) )
@@ -1065,12 +1083,23 @@ class LemmaBasedPostDisambiguationRetagger(CorpusBasedMorphDisambiguationSubstep
 
     def __init__(self, lexicon:dict, 
                        morph_analysis_layer:str='morph_analysis',
-                       input_hidden_morph_analysis_layer:str='_hidden_morph_analysis' ):
+                       input_hidden_morph_analysis_layer:str='_hidden_morph_analysis',
+                       disambiguate_last_words_of_compounds:bool=False,
+                       ignore_last_words:Set=None ):
         super().__init__( morph_analysis_layer=morph_analysis_layer )
         self.conf_param.append('_lexicon')
         self.conf_param.append('_hidden_morph_analysis_layer')
+        self.conf_param.append('_disambiguate_last_words_of_compounds')
+        self.conf_param.append('_ignore_last_words')
         self._lexicon = lexicon
         self._hidden_morph_analysis_layer = input_hidden_morph_analysis_layer
+        self._disambiguate_last_words_of_compounds = disambiguate_last_words_of_compounds
+        if ignore_last_words is None:
+            ignore_last_words = set()
+        else:
+            if not isinstance(ignore_last_words, set):
+                raise TypeError('(!) ignore_last_words should be a set of strings (word lemmas).')
+        self._ignore_last_words = ignore_last_words
         self.input_layers.append( input_hidden_morph_analysis_layer )
 
 
@@ -1091,20 +1120,39 @@ class LemmaBasedPostDisambiguationRetagger(CorpusBasedMorphDisambiguationSubstep
                 continue
             # Consider only ambiguous words
             if len(word_morph.annotations) > 1:
+                # 0) Pre-analysis: find out if all words are compound words
+                all_compounds = False
+                if self._disambiguate_last_words_of_compounds:
+                    all_compounds = \
+                        all(['_' in analysis.root for analysis in word_morph.annotations])
                 # 1) Find highest among the lemma frequencies
                 highestFreq = 0
+                lemma_frequencies = []
                 for analysis in word_morph.annotations:
                     # Use -ma ending to distinguish verb lemmas from other lemmas
                     lemma = analysis.root+'ma' if analysis.partofspeech=='V' else analysis.root
-                    if lemma in self._lexicon and self._lexicon[lemma] > highestFreq:
-                        highestFreq = self._lexicon[lemma]
+                    lemma_freq = self._lexicon.get(lemma, 0)
+                    lemma_frequencies.append( lemma_freq )
+                    # A heuristic for compounds: if the last lemma of a compound has even 
+                    # higher frequency, then use it instead 
+                    if all_compounds and self._disambiguate_last_words_of_compounds:
+                        last_lemma = lemma.split('_')[-1]
+                        lemma = last_lemma if len(last_lemma) > 0 else lemma
+                        lemma_freq_2 = self._lexicon.get(lemma, 0)
+                        if lemma_freq_2 > lemma_freq and \
+                           lemma not in self._ignore_last_words:
+                            lemma_freq = lemma_freq_2
+                            lemma_frequencies[-1] = lemma_freq
+                    # Finally, try to update the highest frequency
+                    if lemma_freq > highestFreq:
+                        highestFreq = lemma_freq
                 # 2) Remove all analyses that have (the lemma) frequency lower than 
                 #    the highest frequency
                 if highestFreq > 0:
+                    assert len(lemma_frequencies) == len(word_morph.annotations)
                     toDelete = []
-                    for analysis in word_morph.annotations:
-                        lemma = analysis.root+'ma' if analysis.partofspeech=='V' else analysis.root
-                        freq = self._lexicon[lemma] if lemma in self._lexicon else 0
+                    for aid, analysis in enumerate(word_morph.annotations):
+                        freq = lemma_frequencies[aid]
                         if freq < highestFreq:
                             toDelete.append( analysis )
                     for analysis in toDelete:

@@ -534,8 +534,10 @@ def test_postdisambiguation_two_phase_count_position_duplicates_once():
 def test_postdisambiguation_count_inside_compounds():
     #
     #  Tests the post-disambiguation can 'count_inside_compounds':
-    #        use the lemmas acquired from inside compounds to 
-    #        reduce  ambiguities  inside  non-compound  words;
+    #        1) use the lemmas acquired from inside compounds to 
+    #           reduce  ambiguities  inside  non-compound  words;
+    #        2) use the lemmas acquired from non-compounds to 
+    #           reduce  ambiguities  of last words of compounds;
     #
     cb_disambiguator = CorpusBasedMorphDisambiguator(count_inside_compounds=True)
     #
@@ -559,12 +561,42 @@ def test_postdisambiguation_count_inside_compounds():
     #    print( a )
     #print()
     assert sorted(list(removed.items())) == [ 
+                    ((0, 3), [('katse_raja', 'S', 'sg ad')]),
                     ((1, 1), [('pääsu', 'S', 'sg g'), ('pääsu', 'S', 'sg n')]),
                     ((1, 2), [('kord', 'S', 'sg ad')]),
                     ((2, 3), [('raja', 'S', 'sg ad')]),
                     ((2, 6), [('saa', 'V', 'vad')]),
                     ((2, 8), [('mink', 'S', 'sg g'), ('minki', 'V', 'o')]),
                     ((3, 5), [('soo', 'S', 'sg all')])
+    ]
+    assert list(added.items()) == []
+    #
+    #   Test Case 2
+    #
+    docs = [Text('Mõisnikesoost mees sõitis juurviljalao juurde.'),\
+            Text('Ladu langes. Mõisnikesugu irvitas. Ei, ma ei võta seda laest!'), \
+            Text('Ta pärines tuntud kirjandusmehe soost ehk vahmiililst.'), \
+            Text('Toalagi oli must -- alates saunalae kõrguselt.'),]
+    for doc in docs:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+        morf_analyzer2.tag( doc )  # Analyse without proper name guessing
+    analyses_a = collect_analyses( docs )
+    # Use corpus-based disambiguation:
+    cb_disambiguator.postdisambiguate( docs )
+    # Find difference in ambiguities
+    analyses_b = collect_analyses( docs )
+    removed, added = find_ambiguities_diff( analyses_a, analyses_b )
+    #for a in sorted(list(removed.items())):
+    #    print( a )
+    #print()
+    assert sorted(list(removed.items())) == [ 
+                    ((0, 0), [('mõisnik+e_soo', 'S', 'sg el')]),
+                    ((0, 1), [('mesi', 'S', 'sg in')]),
+                    ((0, 3), [('juur_vilja_lagu', 'S', 'sg g')]),
+                    ((0, 4), [('juur', 'S', 'adt')]),
+                    ((1, 12), [('laad', 'S', 'sg el')]),
+                    ((2, 4), [('soo', 'S', 'sg el')]),
+                    ((3, 5), [('sauna_laad', 'S', 'sg g')])
     ]
     assert list(added.items()) == []
 
