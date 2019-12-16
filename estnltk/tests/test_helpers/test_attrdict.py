@@ -201,3 +201,31 @@ def test_inheritance():
     assert subdict.mapping == dict(number=42, string='twelve', dict={'a': 15, 'b': 'one'},
                                    methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
     assert subdict.__dict__ == dict(number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+
+    # Test that adding slots works out of box
+    class SubClassWithSlots(AttrDict):
+        __slots__ = ['new_slot']
+        methods = AttrDict.methods
+        pass
+
+    subdict = SubClassWithSlots()
+    assert len(subdict) == 0
+    assert subdict.mapping == {}
+    subdict.new_slot = 42
+    assert len(subdict) == 0
+    assert subdict.mapping == {}
+    subdict['new_slot'] = 55
+    assert len(subdict) == 1
+    assert subdict.mapping == {'new_slot': 55}
+    assert subdict.new_slot == 42
+
+    subdict = SubClassWithSlots(new_slot=55, attr=44)
+    assert len(subdict) == 2
+    assert subdict.mapping == {'new_slot': 55, 'attr': 44}
+    with pytest.raises(AttributeError):
+        assert subdict.new_slot is None
+
+
+
+
+
