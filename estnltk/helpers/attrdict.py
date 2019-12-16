@@ -30,7 +30,8 @@ class AttrDict:
         if key in super().__getattribute__('methods'):
             raise AttributeError('attempt to set an attribute that shadows a method {!r}'.format(key))
         super().__setattr__(key, value)
-        super().__getattribute__('mapping')[key] = value
+        if key not in super().__getattribute__('__slots__'):
+            super().__getattribute__('mapping')[key] = value
 
     def __delattr__(self, item):
         if item not in super().__getattribute__('__dict__'):
@@ -39,7 +40,7 @@ class AttrDict:
         del super().__getattribute__('mapping')[item]
 
     def __setitem__(self, key, value):
-        if key not in super().__getattribute__('methods'):
+        if key not in super().__getattribute__('methods') and key not in super().__getattribute__('__slots__'):
             super().__setattr__(key, value)
         super().__getattribute__('mapping')[key] = value
 
