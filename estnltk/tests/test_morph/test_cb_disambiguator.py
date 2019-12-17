@@ -533,13 +533,13 @@ def test_postdisambiguation_two_phase_count_position_duplicates_once():
 
 def test_postdisambiguation_count_inside_compounds():
     #
-    #  Tests the post-disambiguation can 'count_inside_compounds':
+    #  Tests the post-disambiguation can use the heuristic 'disamb_compound_words':
     #        1) use the lemmas acquired from inside compounds to 
     #           reduce  ambiguities  inside  non-compound  words;
-    #        2) use the lemmas acquired from non-compounds to 
-    #           reduce  ambiguities  of last words of compounds;
+    #        2) use the lemmas acquired from non-compound words to 
+    #           reduce  ambiguities  of  compound  words;
     #
-    cb_disambiguator = CorpusBasedMorphDisambiguator(count_inside_compounds=True)
+    cb_disambiguator = CorpusBasedMorphDisambiguator(disamb_compound_words=True)
     #
     #   Test Case 1
     #
@@ -575,7 +575,7 @@ def test_postdisambiguation_count_inside_compounds():
     #
     docs = [Text('Mõisnikesoost mees sõitis juurviljalao juurde.'),\
             Text('Ladu langes. Mõisnikesugu irvitas. Ei, ma ei võta seda laest!'), \
-            Text('Ta pärines tuntud kirjandusmehe soost ehk vahmiililst.'), \
+            Text('Ta pärines tuntud kirjandusmehe soost ehk vahmiilist.'), \
             Text('Toalagi oli must -- alates saunalae kõrguselt.'),]
     for doc in docs:
         doc.tag_layer(['compound_tokens', 'words', 'sentences'])

@@ -43,7 +43,7 @@ class CorpusBasedMorphDisambiguator( object ):
                  input_words_layer:str='words',
                  input_sentences_layer:str='sentences',
                  count_position_duplicates_once:bool=False,
-                 count_inside_compounds:bool=False,
+                 disamb_compound_words:bool=False,
                  ignore_lemmas_in_compounds:Set=set(['alus','alune','mai','maa']),
                  validate_inputs:bool=True ):
         """Initialize CorpusBasedMorphDisambiguator class.
@@ -71,23 +71,31 @@ class CorpusBasedMorphDisambiguator( object ):
             counts will be: {'põhi':1, 'põhja':1}.
             Note: this is an experimental feature, needs further
             testing;
-        count_inside_compounds: bool (default: False)
-            If set, then additional lemma counts will be obtained
-            from the last words of compound words during the 
-            post-disambiguation. 
-            For example: the word 'edasipääsu' is a compound 
+        disamb_compound_words: bool (default: False)
+            If set, then during the post-disambiguation, an 
+            additional attempt is made to disambiguate compound 
+            words solely based on their last words. 
+            This includes getting additional lemma counts from the 
+            last words of compound words , and using this information
+            for disambiguating both the regular words and compound
+            words.
+            Example #1: the word 'edasipääsu' is a compound 
             word ('edasi_pääs') and it can also add to the 
             count of it's last word ('pääs'). This extra 
             information can help to disambiguate the non-compound 
             word 'pääsu', which lemma is ambiguous between 
             'pääs' and 'pääsu'.
+            Example #2: the word 'lagi' is unambiguous, and can be 
+            used to disambiguate the compound word 'saunalaest', 
+            which is ambiguous between lemmas 'sauna_lagi' and 
+            'sauna_laad'.
             Note: this is an experimental feature, needs further
             testing;
         ignore_lemmas_in_compounds: Set (default:{'alus','alune','mai','maa'})
-            Set of lemmas, which should not be counted as the last 
-            words of compound words (if count_inside_compounds is True),
-            because adding to their counts likely leads to unreliable / 
-            erroneous disambiguation choices.
+            Set of lemmas, which should not be counted (nor disambiguated) 
+            as the last words of compound words (if disamb_compound_words is 
+            True), because their disambiguation is likely unreliable / 
+            erroneous.
         validate_inputs : bool (default: True)
             If set (default), then input document collection will 
             be validated for having the appropriate structure, and 
@@ -103,8 +111,8 @@ class CorpusBasedMorphDisambiguator( object ):
         self._input_sentences_layer = input_sentences_layer
         self._count_position_duplicates_once = \
               count_position_duplicates_once
-        self._count_inside_compounds = \
-              count_inside_compounds
+        self._disamb_compound_words = \
+              disamb_compound_words
         self._ignore_lemmas_in_compounds = set()
         if ignore_lemmas_in_compounds is not None:
             if not isinstance(ignore_lemmas_in_compounds, set):
@@ -473,7 +481,7 @@ class CorpusBasedMorphDisambiguator( object ):
                     # word like 'pääsu', which is ambiguous between lemmas 
                     # 'pääs' and 'pääsu';
                     # [ an experimental feature ]
-                    if self._count_inside_compounds and '_' in lemma:
+                    if self._disamb_compound_words and '_' in lemma:
                         lemma_parts = lemma.split('_')
                         last_word   = lemma_parts[-1]
                         if len(last_word) > 0 and \
@@ -502,7 +510,7 @@ class CorpusBasedMorphDisambiguator( object ):
               LemmaBasedPostDisambiguationRetagger(lexicon=lexicon,
                             morph_analysis_layer=self.output_layer,\
                             input_hidden_morph_analysis_layer=hidden_words_layer, \
-                            disambiguate_last_words_of_compounds=self._count_inside_compounds, \
+                            disambiguate_last_words_of_compounds=self._disamb_compound_words, \
                             ignore_last_words=self._ignore_lemmas_in_compounds )
         for doc in docs:
             lemma_based_disambiguator.retag( doc )
@@ -654,8 +662,8 @@ class CorpusBasedMorphDisambiguator( object ):
         description = self.__class__.__doc__.strip().split('\n')[0]
         table = ['<h4>'+self.__class__.__name__+'</h4>', description, table]
         # Add configuration parameters
-        public_param = ['_count_position_duplicates_once', '_count_inside_compounds', '_validate_inputs']
-        if self._count_inside_compounds:
+        public_param = ['_count_position_duplicates_once', '_disamb_compound_words', '_validate_inputs']
+        if self._disamb_compound_words:
             public_param.append('_ignore_lemmas_in_compounds')
         conf_values  = []
         for attr in public_param:
