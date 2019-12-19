@@ -1,3 +1,6 @@
+from collections import Mapping
+
+
 class AttrDict:
     """
     Base class for a Python dictionary where elements can be safely accessed as attributes
@@ -17,7 +20,7 @@ class AttrDict:
     methods = frozenset(['__doc__', '__hash__', '__module__', '__slots__',
                          '__setitem__', '__getitem__', '__delitem__',
                          '__iter__', '__len__', '__contains__', '__repr__',
-                         'keys', 'items', 'values', 'get', 'methods']
+                         'keys', 'items', 'values', 'get', 'update', 'methods']
                         + __slots__ + [method for method in dir(object) if callable(getattr(object, method, None))])
 
     def __init__(self, **attributes):
@@ -88,3 +91,16 @@ class AttrDict:
 
     def get(self, key, default=None):
         return super().__getattribute__('mapping').get(key, default)
+
+    def update(self, other_dict):
+        if isinstance(other_dict, AttrDict):
+            super().__getattribute__('mapping').update(super(AttrDict, other_dict).__getattribute__('mapping'))
+            super().__getattribute__('__dict__').update(super(AttrDict, other_dict).__getattribute__('__dict__'))
+        elif isinstance(other_dict, Mapping):
+            methods = super().__getattribute__('methods')
+            super().__getattribute__('mapping').update(other_dict)
+            super().__getattribute__('__dict__').update(
+                (key, value) for key, value in other_dict.items() if key not in methods)
+        else:
+            raise TypeError("Argument 'other_dict' must be of type AttrDict or Mapping but not {!r}"
+                            .format(type(other_dict)))
