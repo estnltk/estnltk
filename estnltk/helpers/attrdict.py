@@ -11,7 +11,9 @@ class AttrDict:
 
     For a subclass, the set of protected attributes should be defined through a class variable methods.
     The set should contain all methods and variable methods for safety.
-    The best way to define them is an idiom  methods = {...} | AttrDict.methods
+    The best way to define them is an idiom  methods = AttrDict.methods | {...}
+
+    A safe way to add keys of one AttrDict to another is through update function.
 
     The class does not implement separate copy, deepcopy and pickling methods as it is an abstract base class.
     All subclasses should contain corresponding methods for safety and correctness.
