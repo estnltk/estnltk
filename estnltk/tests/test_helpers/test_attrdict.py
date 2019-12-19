@@ -68,6 +68,8 @@ def test_attribute_assignment_and_access():
     with pytest.raises(AttributeError, match='attempt to set an attribute that shadows a method'):
         attrdict.values = 42
     with pytest.raises(AttributeError, match='attempt to set an attribute that shadows a method'):
+        attrdict.update = 42
+    with pytest.raises(AttributeError, match='attempt to set an attribute that shadows a method'):
         attrdict.get = 42
 
 
@@ -107,6 +109,8 @@ def test_attribute_deletion():
         del attrdict.items
     with pytest.raises(AttributeError, match="'AttrDict' object has no attribute"):
         del attrdict.values
+    with pytest.raises(AttributeError, match="'AttrDict' object has no attribute"):
+        del attrdict.update
     with pytest.raises(AttributeError, match="'AttrDict' object has no attribute"):
         del attrdict.get
 
@@ -170,6 +174,56 @@ def test_other_dict_functions():
     assert attrdict.get('missing') is None
     assert attrdict.get('missing', None) is None
     assert attrdict.get('missing', 42) == 42
+
+    attrdict.update({'a': 7, 'b': 8})
+    assert attrdict.a == 7
+    assert attrdict['a'] == 7
+    assert attrdict.b == 8
+    assert attrdict['b'] == 8
+    assert len(attrdict) == 8
+    assert attrdict.__dict__ == {'number': 1, 'string': 2, 'dict': 3, 'a': 7, 'b': 8}
+    assert attrdict.mapping == {'number': 1, 'string': 2, 'dict': 3, 'methods': 4,
+                                'keys': 5, '__len__': 6, 'a': 7 , 'b': 8}
+
+
+    attrdict.update({'number': 0, '__len__': 0, 'a': 0, 'c': 9})
+    assert attrdict.number == 0
+    assert attrdict['number'] == 0
+    assert callable(attrdict.__len__)
+    assert attrdict.a == 0
+    assert attrdict['a'] == 0
+    assert attrdict.c == 9
+    assert attrdict['c'] == 9
+    assert len(attrdict) == 9
+    assert attrdict.__dict__ == {'number': 0, 'string': 2, 'dict': 3, 'a': 0, 'b': 8, 'c': 9}
+    assert attrdict.mapping == {'number': 0, 'string': 2, 'dict': 3, 'methods': 4,
+                                'keys': 5, '__len__': 0, 'a': 0, 'b': 8, 'c': 9}
+
+    attrdict = AttrDict(number=1, string=2, dict=3, methods=4, keys=5, __len__=6)
+    other = AttrDict(a=7, b=8)
+    attrdict.update(other)
+    assert attrdict.a == 7
+    assert attrdict['a'] == 7
+    assert attrdict.b == 8
+    assert attrdict['b'] == 8
+    assert len(attrdict) == 8
+    assert attrdict.__dict__ == {'number': 1, 'string': 2, 'dict': 3, 'a': 7, 'b': 8}
+    assert attrdict.mapping == {'number': 1, 'string': 2, 'dict': 3, 'methods': 4,
+                                'keys': 5, '__len__': 6, 'a': 7 , 'b': 8}
+
+    other = AttrDict(number=0, __len__=0, a=0, c=9)
+    attrdict.update(other)
+    assert attrdict.number == 0
+    assert attrdict['number'] == 0
+    assert callable(attrdict.__len__)
+    assert attrdict.a == 0
+    assert attrdict['a'] == 0
+    assert attrdict.c == 9
+    assert attrdict['c'] == 9
+    assert len(attrdict) == 9
+    assert attrdict.__dict__ == {'number': 0, 'string': 2, 'dict': 3, 'a': 0, 'b': 8, 'c': 9}
+    assert attrdict.mapping == {'number': 0, 'string': 2, 'dict': 3, 'methods': 4,
+                                'keys': 5, '__len__': 0, 'a': 0, 'b': 8, 'c': 9}
 
 
 def test_inheritance():
