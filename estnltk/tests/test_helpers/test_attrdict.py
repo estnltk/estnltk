@@ -30,6 +30,7 @@ def test_methods_list():
     assert set(members['protected_variables']) <= AttrDict.methods
     assert set(members['public_variables']) <= AttrDict.methods
     assert set(members['slots']) <= AttrDict.methods
+    assert isinstance(AttrDict.methods, frozenset)
 
 
 def test_attribute_assignment_and_access():
