@@ -367,6 +367,7 @@ class SentenceFeatureExtractor(BaseFeatureExtractor):
     """Generates features for the first and last tokens in a sentence."""
 
     def process(self, doc):
+        print(doc)
         FSNT = "fsnt"
         LSNT = "lsnt"
         for snt in doc.sentences:
@@ -379,6 +380,8 @@ class LocalFeatureExtractor(BaseFeatureExtractor):
     """Generates features for a token based on its character makeup."""
 
     def _process(self, t):
+        print("Token:")
+        print(t.word)
         W = "w"  # token
         WL = "wl"  # Lowercased token.
         SHAPE = "shape"

@@ -26,7 +26,7 @@ from estnltk.taggers.estner.refac.names import *
 from estnltk.taggers.estner import Document, Sentence, Token
 from estnltk.taggers.estner import CrfsuiteTrainer, CrfsuiteTagger
 
-from estnltk.taggers.estner.featureextraction import FeatureExtractor
+from estnltk.taggers.estner.fex import FeatureExtractor
 
 # Use different NER models depending on Python version
 DEFAULT_NER_MODEL_DIR = DEFAULT_PY3_NER_MODEL_DIR if six.PY3 else DEFAULT_PY2_NER_MODEL_DIR

@@ -2,7 +2,7 @@ from estnltk.taggers import Tagger
 from estnltk.core import DEFAULT_PY2_NER_MODEL_DIR, DEFAULT_PY3_NER_MODEL_DIR
 import six
 from estnltk.taggers.estner.refac.ner import ModelStorageUtil
-from estnltk.taggers.estner.featureextraction import FeatureExtractor
+from estnltk.taggers.estner.fex import FeatureExtractor
 from estnltk.taggers.estner import CrfsuiteTagger
 from estnltk.taggers.estner.refac.ner import json_document_to_estner_document
 from estnltk import Layer
@@ -32,25 +32,24 @@ class NerTagger(Tagger):
         self.output_attributes = output_attributes
         modelUtil = ModelStorageUtil(model_dir)
         nersettings = modelUtil.load_settings()
-
         self.fex = FeatureExtractor(nersettings)
         self.tagger = CrfsuiteTagger(settings=nersettings,
                                      model_filename=modelUtil.model_filename)
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         # prepare input for nertagger
-        nerdoc = json_document_to_estner_document(text)
-        self.fex.process([nerdoc])
-        snt_labels = self.tagger.tag(nerdoc)
+        #nerdoc = json_document_to_estner_document(text)
+        self.fex.process([text])
+        snt_labels = self.tagger.tag(text)
 
         # add the labels
-        nerlayer = Layer(name="ner", attributes=("nertag", "name"), text_object=text, enveloping="words")
+        nerlayer = Layer(name="ner", attributes=self.output_attributes, text_object=text, enveloping="words")
         entity_spans = []
-        print(snt_labels)
         entity_type = None
         for span, label in zip(text.words, snt_labels[0]):
             if entity_type is None:
                 entity_type = label[2:]
+            #TODO: pane kaks if-i kokku
             if label == "O":
                 if entity_spans:
                     nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans), nertag=entity_type, name="po")
