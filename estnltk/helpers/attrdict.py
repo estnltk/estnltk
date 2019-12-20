@@ -12,8 +12,11 @@ class AttrDict:
     For a subclass, the set of protected attributes should be defined through a class variable methods.
     The set should contain all methods and variable methods for safety.
     The best way to define them is an idiom  methods = AttrDict.methods | {...}
+    All methods should work for sub-classes.
+    Equality testing is exceptional as it assumes that the instance is non-recursive and loops recursive cases.
 
     A safe way to add keys of one AttrDict to another is through update function.
+
 
     The class does not implement separate copy, deepcopy and pickling methods as it is an abstract base class.
     All subclasses should contain corresponding methods for safety and correctness.
@@ -71,7 +74,12 @@ class AttrDict:
         return super().__getattribute__('mapping').__contains__(item)
 
     def __eq__(self, other):
-        return super().__getattribute__('mapping').__eq__(other)
+        if type(self) != type(other):
+            return False
+        for slot in super().__getattribute__('__slots__'):
+            if super().__getattribute__(slot) != super(AttrDict, other).__getattribute__(slot):
+                return False
+        return super().__getattribute__('mapping').__eq__(super(AttrDict, other).__getattribute__('mapping'))
 
     def __ne__(self, other):
         return super().__getattribute__('mapping').__ne__(other)
