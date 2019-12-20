@@ -159,6 +159,24 @@ def test_item_assignment_and_access():
     assert attrdict.__dict__ == dict(number=42, string='twelve', dict={'a': 15, 'b': 'one'})
 
 
+def test_equality():
+    attrdict_1 = AttrDict()
+    attrdict_2 = AttrDict(number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    attrdict_3 = AttrDict(number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+                          methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
+
+    assert attrdict_1 == attrdict_1
+    assert attrdict_2 == attrdict_2
+    assert attrdict_3 == attrdict_3
+
+    assert attrdict_1 != attrdict_2
+    assert attrdict_1 != attrdict_3
+    assert attrdict_2 != attrdict_1
+    assert attrdict_2 != attrdict_3
+    assert attrdict_3 != attrdict_1
+    assert attrdict_3 != attrdict_2
+
+
 def test_other_dict_functions():
     # Dict with shadowed attributes
     attrdict = AttrDict(number=1, string=2, dict=3, methods=4, keys=5, __len__=6)
@@ -280,7 +298,53 @@ def test_inheritance():
     with pytest.raises(AttributeError):
         assert subdict.new_slot is None
 
+    # Test equality for subclasses without new slots
+    attrdict  = AttrDict()
+    subdict_1 = SubClass()
+    subdict_2 = SubClass(number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    subdict_3 = SubClass(number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+                          methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
 
+    assert attrdict != subdict_1
+    assert attrdict != subdict_2
+    assert attrdict != subdict_3
 
+    assert subdict_1 == subdict_1
+    assert subdict_2 == subdict_2
+    assert subdict_3 == subdict_3
 
+    assert subdict_1 != subdict_2
+    assert subdict_1 != subdict_3
+    assert subdict_2 != subdict_1
+    assert subdict_2 != subdict_3
+    assert subdict_3 != subdict_1
+    assert subdict_3 != subdict_2
 
+    # Test equality for subclasses with new slots
+    subdict_1 = SubClassWithSlots()
+    subdict_1.new_slot = 1
+    subdict_2 = SubClassWithSlots()
+    subdict_2.new_slot = 2
+    subdict_3 = SubClassWithSlots(number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    subdict_3.new_slot = 2
+    subdict_4 = SubClassWithSlots(number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+                          methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
+    subdict_4.new_slot = 2
+
+    assert subdict_1 == subdict_1
+    assert subdict_2 == subdict_2
+    assert subdict_3 == subdict_3
+    assert subdict_4 == subdict_4
+
+    assert subdict_1 != subdict_2
+    assert subdict_1 != subdict_3
+    assert subdict_1 != subdict_4
+    assert subdict_2 != subdict_1
+    assert subdict_2 != subdict_3
+    assert subdict_2 != subdict_4
+    assert subdict_3 != subdict_1
+    assert subdict_3 != subdict_2
+    assert subdict_3 != subdict_4
+    assert subdict_4 != subdict_1
+    assert subdict_4 != subdict_2
+    assert subdict_4 != subdict_3
