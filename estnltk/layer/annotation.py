@@ -2,8 +2,10 @@ from copy import deepcopy
 from reprlib import recursive_repr
 from typing import Any, Mapping, Sequence, Iterable
 
+from estnltk.helpers.attrdict import AttrDict
 
-class Annotation(Mapping):
+
+class Annotation(AttrDict):
     """Mapping for Span attribute values.
 
     TODO: Find out whether it should derive from Mapping or from MutableMapping
@@ -14,18 +16,25 @@ class Annotation(Mapping):
     TODO: Get rid of _span slot. Use span slot instead and protect memory with __getattr__
 
     """
-    __slots__ = ['__dict__', '_span', 'mapping']
+    __slots__ = ['span']
+
+    # List of prohibited attribute names
+    methods = AttrDict.methods | {
+        'end', 'layer', 'legal_attribute_names', 'start', 'text', 'text_object', 'to_record',
+        '_repr_html_', '__copy__', '__deepcopy__', '__getattr__'}
 
     def __init__(self, span, **attributes):
-        self._span = span
-        self.mapping = attributes
+        super().__init__(**attributes)
+        super().__setattr__('span', span)
 
     def __copy__(self):
         """
         Makes a copy of all annotation attributes but detaches span from annotation.
         RATIONALE: One copies an annotation only to attach the copy to a different span.
         """
-        return Annotation(span=None, **self.mapping)
+        result = Annotation(span=None)
+        result.update(self)
+        return result
 
     def __deepcopy__(self, memo=None):
         """
@@ -33,72 +42,34 @@ class Annotation(Mapping):
         RATIONALE: One copies an annotation only to attach the copy to a different span.
         """
         memo = memo or {}
-        # Create invalid instance
-        cls = self.__class__
-        result = cls.__new__(cls)
-        # Add all fields to the instance to make it valid
-        result._span = None
+        result = Annotation(span=None)
         # Add newly created valid mutable objects to memo
         memo[id(self)] = result
-        print('boo', id(result))
         # Perform deep copy with a valid memo dict
-        result.mapping = deepcopy(self.mapping, memo)
+        result.update(deepcopy(self.mapping, memo))
         return result
 
-    def __getattr__(self, item):
-        if item in self.mapping:
-            return self.mapping[item]
-        raise AttributeError('Annotation object has no attribute {!r}'.format(item))
-
     def __setattr__(self, key, value):
-        if key in self.__slots__:
-            super().__setattr__(key, value)
-        elif key == 'span':
-            if self._span is None:
-                super().__setattr__('_span', value)
+        """
+        Gives access to dict keys as attributes for all keys that are not shadowed by methods, properties or slots.
+        RATIONALE: This is the best trade-off between convenience and safety.
+        """
+        if key == 'span' and self.span is not None:
+            if value is None:
+                raise AttributeError('an attempt to detach Annotation form its span')
             else:
-                raise AttributeError('this Annotation object already has a span')
-        else:
-            self.mapping[key] = value
+                raise AttributeError('an attempt to re-attach Annotation to a different span')
+        super().__setattr__(key, value)
 
     def __getitem__(self, item):
+        """
+        # TODO: remove this function. The tuple exception is dangerous and unintuitive. Why is it here?
+        """
         if isinstance(item, str):
             return self.mapping[item]
         if isinstance(item, tuple):
             return tuple(self.mapping[i] for i in item)
         raise TypeError(item)
-
-    def __setitem__(self, key, value):
-        self.mapping[key] = value
-
-    def __dir__(self) -> Iterable[str]:
-        """
-        Extends default attribute list with annotation attributes in order to make code completion work.
-        """
-        return set(super().__dir__()) | set(self.mapping.keys())
-
-    def __delitem__(self, key):
-        if key not in self.mapping:
-            raise KeyError('Annotation does not contain attribute {!r}'.format(key))
-        del self.mapping[key]
-
-    def __delattr__(self, item):
-        if item not in self.mapping:
-            raise AttributeError('Annotation does not contain attribute {!r}'.format(item))
-        del self.mapping[item]
-
-    def __len__(self):
-        # Works also on invalid class instances
-        return len(self.__getattribute__('mapping'))
-
-    def __contains__(self, item):
-        return item in self.mapping
-
-    def __iter__(self):
-        yield from self.mapping
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Annotation) and self.mapping == other.mapping
 
     @recursive_repr()
     def __str__(self):
@@ -114,24 +85,19 @@ class Annotation(Mapping):
 
         return '{class_name}({text!r}, {{{attributes}}})'.format(class_name=self.__class__.__name__, text=self.text,
                                                                  attributes=', '.join(key_value_strings))
-
     def __repr__(self):
         return str(self)
 
 
     @property
-    def span(self):
-        return self._span
-
-    @property
     def start(self) -> int:
-        if self._span:
-            return self._span.start
+        if self.span:
+            return self.span.start
 
     @property
     def end(self) -> int:
-        if self._span:
-            return self._span.end
+        if self.span:
+            return self.span.end
 
     # TODO: get rid of this. This does not work correctly
     def to_record(self, with_text=False) -> Mapping[str, Any]:
@@ -144,8 +110,8 @@ class Annotation(Mapping):
 
     @property
     def layer(self):
-        if self._span:
-            return self._span.layer
+        if self.span:
+            return self.span.layer
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
@@ -154,10 +120,10 @@ class Annotation(Mapping):
 
     @property
     def text_object(self):
-        if self._span is not None:
-            return self._span.text_object
+        if self.span is not None:
+            return self.span.text_object
 
     @property
     def text(self):
-        if self._span:
-            return self._span.text
+        if self.span:
+            return self.span.text
