@@ -303,6 +303,11 @@ def test_inheritance():
     assert subdict.mapping == {'new_slot': 55, 'attr': 44}
     with pytest.raises(AttributeError):
         assert subdict.new_slot is None
+    subdict.new_slot = 42
+    # If you really want you can delete new slots
+    del subdict.new_slot
+    with pytest.raises(AttributeError):
+        _ = subdict.new_slot
 
     # Test equality for subclasses without new slots
     attrdict  = AttrDict()
