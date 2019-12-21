@@ -55,7 +55,7 @@ class AttrDict:
     def __delitem__(self, key):
         if key not in super().__getattribute__('mapping'):
             raise KeyError('{!r} object does not have a key {!r}'.format(type(self).__name__, key))
-        if key not in super().__getattribute__('methods'):
+        if key not in super().__getattribute__('methods') and key not in super().__getattribute__('__slots__'):
             super().__delattr__(key)
         del super().__getattribute__('mapping')[key]
 
