@@ -280,18 +280,24 @@ def test_inheritance():
         __slots__ = ['new_slot']
         methods = AttrDict.methods
         pass
-
+    # Assigning a slot works no keys are added
     subdict = SubClassWithSlots()
     assert len(subdict) == 0
     assert subdict.mapping == {}
     subdict.new_slot = 42
     assert len(subdict) == 0
     assert subdict.mapping == {}
+    # Assigning the slot key does not alter slot
     subdict['new_slot'] = 55
     assert len(subdict) == 1
     assert subdict.mapping == {'new_slot': 55}
     assert subdict.new_slot == 42
-
+    # Deleting the slot key does not remove slot
+    del subdict['new_slot']
+    assert len(subdict) == 0
+    assert subdict.mapping == {}
+    assert subdict.new_slot == 42
+    # Slot is not present if it is not initialised
     subdict = SubClassWithSlots(new_slot=55, attr=44)
     assert len(subdict) == 2
     assert subdict.mapping == {'new_slot': 55, 'attr': 44}
