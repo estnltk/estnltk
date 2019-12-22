@@ -261,6 +261,31 @@ def test_item_assignment_and_access():
     assert annotation.__dict__ == dict(number=42, string='twelve', dict={'a': 15, 'b': 'one'})
 
 
+def test_multi_indexing():
+    annotation = Annotation(None, attr_1='üks', attr_2=1, attr_3=dict(a=1, b=2))
+    assert annotation[()] == ()
+    assert annotation['attr_1'] == 'üks'
+    assert annotation[('attr_1',)] == ('üks',)
+    assert annotation['attr_1', 'attr_2'] == ('üks', 1)
+    assert annotation[('attr_1', 'attr_2')] == ('üks', 1)
+    assert annotation['attr_1', 'attr_2', 'attr_3'] == ('üks', 1, dict(a=1, b=2))
+    assert annotation[('attr_1', 'attr_2', 'attr_3')] == ('üks', 1, dict(a=1, b=2))
+
+    # No multi-key deletion
+    with pytest.raises(KeyError, match="'Annotation' object does not have a key"):
+        del annotation[()]
+    with pytest.raises(KeyError, match="'Annotation' object does not have a key"):
+        del annotation[('attr_1',)]
+    with pytest.raises(KeyError, match="'Annotation' object does not have a key"):
+        del annotation['attr_1', 'attr_2']
+    with pytest.raises(KeyError, match="'Annotation' object does not have a key"):
+        del annotation[('attr_1', 'attr_2')]
+    with pytest.raises(KeyError, match="'Annotation' object does not have a key"):
+        del annotation['attr_1', 'attr_2', 'attr_3']
+    with pytest.raises(KeyError, match="'Annotation' object does not have a key"):
+        del annotation[('attr_1', 'attr_2', 'attr_3')]
+
+
 def test_span_slot_access_rules():
     base_span = ElementaryBaseSpan(0, 1)
     other_base_span = ElementaryBaseSpan(0, 2)
