@@ -285,6 +285,22 @@ def test_multi_indexing():
     with pytest.raises(KeyError, match="'Annotation' object does not have a key"):
         del annotation[('attr_1', 'attr_2', 'attr_3')]
 
+    # No multi-key assignment
+    print(isinstance((), str))
+    with pytest.raises(TypeError, match='index must be a string. Multi-indexing is not supported'):
+        annotation[()] = ()
+    annotation['attr_1'] = 'üks'
+    with pytest.raises(TypeError, match='index must be a string. Multi-indexing is not supported'):
+        annotation[('attr_1',)] = ('üks',)
+    with pytest.raises(TypeError, match='index must be a string. Multi-indexing is not supported'):
+        annotation['attr_1', 'attr_2'] = ('üks', 1)
+    with pytest.raises(TypeError, match='index must be a string. Multi-indexing is not supported'):
+        annotation[('attr_1', 'attr_2')] = ('üks', 1)
+    with pytest.raises(TypeError, match='index must be a string. Multi-indexing is not supported'):
+        annotation['attr_1', 'attr_2', 'attr_3'] = ('üks', 1, dict(a=1, b=2))
+    with pytest.raises(TypeError, match='index must be a string. Multi-indexing is not supported'):
+        annotation[('attr_1', 'attr_2', 'attr_3')] = ('üks', 1, dict(a=1, b=2))
+
 
 def test_span_slot_access_rules():
     base_span = ElementaryBaseSpan(0, 1)
