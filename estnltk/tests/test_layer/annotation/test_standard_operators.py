@@ -38,7 +38,6 @@ def test_methods_list():
     assert isinstance(Annotation.methods, frozenset)
 
 
-
 def test_copy_constructors():
     # Copying of empty annotation
     base_span = ElementaryBaseSpan(0, 1)
@@ -248,7 +247,7 @@ def test_item_assignment_and_access():
 
     # Check that item assignment and deletion correctly updates __dict__
     annotation = Annotation(None, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
-                        methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
+                            methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
     assert annotation.__dict__ == dict(number=42, string='twelve', dict={'a': 15, 'b': 'one'})
 
     annotation['new'] = 56
@@ -338,3 +337,48 @@ def test_span_slot_access_rules():
     # Annotation cannot be re-attached to same span
     with pytest.raises(AttributeError, match='an attempt to re-attach Annotation to a different span'):
         annotation.span = base_span
+
+
+def test_equality():
+    annotation_1 = Annotation(span=None)
+    annotation_2 = Annotation(span=ElementaryBaseSpan(0, 1))
+    assert annotation_1 == annotation_1
+    assert annotation_2 == annotation_2
+    assert annotation_1 == annotation_2
+
+    annotation_3 = Annotation(span=None, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    annotation_4 = Annotation(span=ElementaryBaseSpan(0, 1), number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    annotation_5 = Annotation(span=ElementaryBaseSpan(0, 3), number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    assert annotation_3 == annotation_3
+    assert annotation_3 == annotation_4
+    assert annotation_3 == annotation_5
+    assert annotation_4 == annotation_3
+    assert annotation_4 == annotation_4
+    assert annotation_4 == annotation_5
+    assert annotation_5 == annotation_3
+    assert annotation_5 == annotation_4
+    assert annotation_5 == annotation_5
+
+    assert annotation_1 != annotation_3
+    assert annotation_1 != annotation_4
+    assert annotation_1 != annotation_5
+    assert annotation_2 != annotation_3
+    assert annotation_2 != annotation_4
+    assert annotation_2 != annotation_5
+
+    annotation_6 = Annotation(span=None, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+                              methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
+    annotation_7 = Annotation(span=ElementaryBaseSpan(0, 1), number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+                              methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
+    assert annotation_6 == annotation_6
+    assert annotation_6 == annotation_7
+    assert annotation_7 == annotation_6
+    assert annotation_7 == annotation_7
+
+    assert annotation_3 != annotation_6
+    assert annotation_3 != annotation_7
+    assert annotation_4 != annotation_6
+    assert annotation_4 != annotation_7
+    assert annotation_5 != annotation_6
+    assert annotation_5 != annotation_7
+
