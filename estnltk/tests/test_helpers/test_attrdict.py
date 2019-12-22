@@ -307,6 +307,9 @@ def test_inheritance():
     del subdict.new_slot
     with pytest.raises(AttributeError):
         _ = subdict.new_slot
+    # And add it back afterwards
+    subdict.new_slot = 42
+    assert subdict.new_slot == 42
 
     # Test equality for subclasses without new slots
     attrdict = AttrDict()
