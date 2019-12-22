@@ -202,8 +202,7 @@ def test_other_dict_functions():
     assert len(attrdict) == 8
     assert attrdict.__dict__ == {'number': 1, 'string': 2, 'dict': 3, 'a': 7, 'b': 8}
     assert attrdict.mapping == {'number': 1, 'string': 2, 'dict': 3, 'methods': 4,
-                                'keys': 5, '__len__': 6, 'a': 7 , 'b': 8}
-
+                                'keys': 5, '__len__': 6, 'a': 7, 'b': 8}
 
     attrdict.update({'number': 0, '__len__': 0, 'a': 0, 'c': 9})
     assert attrdict.number == 0
@@ -228,7 +227,7 @@ def test_other_dict_functions():
     assert len(attrdict) == 8
     assert attrdict.__dict__ == {'number': 1, 'string': 2, 'dict': 3, 'a': 7, 'b': 8}
     assert attrdict.mapping == {'number': 1, 'string': 2, 'dict': 3, 'methods': 4,
-                                'keys': 5, '__len__': 6, 'a': 7 , 'b': 8}
+                                'keys': 5, '__len__': 6, 'a': 7, 'b': 8}
 
     other = AttrDict(number=0, __len__=0, a=0, c=9)
     attrdict.update(other)
@@ -310,11 +309,11 @@ def test_inheritance():
         _ = subdict.new_slot
 
     # Test equality for subclasses without new slots
-    attrdict  = AttrDict()
+    attrdict = AttrDict()
     subdict_1 = SubClass()
     subdict_2 = SubClass(number=42, string='twelve', dict={'a': 15, 'b': 'one'})
     subdict_3 = SubClass(number=42, string='twelve', dict={'a': 15, 'b': 'one'},
-                          methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
+                         methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
 
     assert attrdict != subdict_1
     assert attrdict != subdict_2
@@ -339,7 +338,7 @@ def test_inheritance():
     subdict_3 = SubClassWithSlots(number=42, string='twelve', dict={'a': 15, 'b': 'one'})
     subdict_3.new_slot = 2
     subdict_4 = SubClassWithSlots(number=42, string='twelve', dict={'a': 15, 'b': 'one'},
-                          methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
+                                  methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
     subdict_4.new_slot = 2
 
     assert subdict_1 == subdict_1
