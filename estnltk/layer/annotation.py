@@ -51,7 +51,8 @@ class Annotation(AttrDict):
 
     def __setattr__(self, key, value):
         """
-        Gives access to dict keys as attributes for all keys that are not shadowed by methods, properties or slots.
+        Gives access to all annotation attributes that are not shadowed by methods, properties or slots.
+        All attributes are accessible by index operator regardless of the attribute name.
         RATIONALE: This is the best trade-off between convenience and safety.
         """
         if key == 'span' and self.span is not None:
@@ -61,15 +62,34 @@ class Annotation(AttrDict):
                 raise AttributeError('an attempt to re-attach Annotation to a different span')
         super().__setattr__(key, value)
 
+    def __setitem__(self, key, value):
+        """
+        Gives access to an annotation attribute regardless of the attribute name.
+        Multi-indexing is not supported in assignment statements.
+        RATIONALE: As layers do not support multi-indexing in assignments nor should annotations do.
+        """
+        if not isinstance(key, str):
+            raise TypeError('index must be a string. Multi-indexing is not supported')
+        super().__setitem__(key, value)
+
     def __getitem__(self, item):
         """
-        # TODO: remove this function. The tuple exception is dangerous and unintuitive. Why is it here?
+        Gives access to (multiple) annotation attributes regardless of the attribute names.
+        Multiple attributes can be specified by providing a tuple of keys as an index.
+        RATIONALE: Multi-indexing is just to preserve an indexing invariant layer[i, attrs] == layer[i][attrs].
         """
         if isinstance(item, str):
             return self.mapping[item]
         if isinstance(item, tuple):
             return tuple(self.mapping[i] for i in item)
-        raise TypeError(item)
+        raise TypeError(item, 'index must be a string or a tuple of string')
+
+    def __eq__(self, other):
+        """
+        Checks if key-value pairs are same and completely ignores the span slot.
+        RATIONALE: One often needs to check if annotations of two different spans are equal or not.
+        """
+        return isinstance(other, Annotation) and self.mapping == other.mapping
 
     @recursive_repr()
     def __str__(self):
