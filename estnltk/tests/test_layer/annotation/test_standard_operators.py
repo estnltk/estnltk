@@ -1,6 +1,9 @@
 import pytest
 from copy import copy, deepcopy
 
+from estnltk import Text
+from estnltk import Layer
+from estnltk import Span
 from estnltk import Annotation
 from estnltk import ElementaryBaseSpan
 from estnltk.tests import inspect_class_members
@@ -382,3 +385,50 @@ def test_equality():
     assert annotation_5 != annotation_6
     assert annotation_5 != annotation_7
 
+
+def test_repr_and_str():
+    # Non-recursive annotations without the span
+    annotation = Annotation(span=None)
+    assert str(annotation) == 'Annotation(None, {})'
+    assert repr(annotation) == 'Annotation(None, {})'
+    annotation = Annotation(span=None, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    assert str(annotation) == "Annotation(None, {'dict': {'a': 15, 'b': 'one'}, 'number': 42, 'string': 'twelve'})"
+    assert repr(annotation) == "Annotation(None, {'dict': {'a': 15, 'b': 'one'}, 'number': 42, 'string': 'twelve'})"
+    annotation = Annotation(span=None, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+                            end=['a', 'b'], __deepcopy__='its gonna fail without arrangements')
+    assert str(annotation) == "Annotation(None, {'__deepcopy__': 'its gonna fail without arrangements'," + \
+                              " 'dict': {'a': 15, 'b': 'one'}, 'end': ['a', 'b'], 'number': 42, 'string': 'twelve'})"
+    assert repr(annotation) == "Annotation(None, {'__deepcopy__': 'its gonna fail without arrangements'," + \
+                               " 'dict': {'a': 15, 'b': 'one'}, 'end': ['a', 'b'], 'number': 42, 'string': 'twelve'})"
+
+    # Span in a layer must have all attributes required by the layer
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=Text('Tere!'))
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    annotation = Annotation(span=span)
+    with pytest.raises(KeyError):
+        assert str(annotation) == 'Annotation(Tere, {})'
+    with pytest.raises(KeyError):
+        assert repr(annotation) == 'Annotation(Tere, {})'
+    # The order of attributes is determined by the order of attributes in the layer
+    layer = Layer('test_layer', attributes=['number', 'string', 'dict'], text_object=Text('Tere!'))
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    annotation = Annotation(span=span, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    assert str(annotation) == "Annotation('Tere', {'number': 42, 'string': 'twelve', 'dict': {'a': 15, 'b': 'one'}})"
+    assert repr(annotation) == "Annotation('Tere', {'number': 42, 'string': 'twelve', 'dict': {'a': 15, 'b': 'one'}})"
+    # There are no restrictions what attribute names are for the layer
+    layer = Layer('test_layer', attributes=['number', 'string', 'dict', 'end', '__deepcopy__'], text_object=Text('Jah'))
+    span = Span(base_span=ElementaryBaseSpan(0, 3), layer=layer)
+    annotation = Annotation(span=span, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+                            end=['a', 'b'], __deepcopy__='its gonna fail without arrangements')
+    assert str(annotation) == "Annotation('Jah', {'number': 42, 'string': 'twelve', 'dict': {'a': 15, 'b': 'one'}," + \
+                              " 'end': ['a', 'b'], '__deepcopy__': 'its gonna fail without arrangements'})"
+    assert repr(annotation) == "Annotation('Jah', {'number': 42, 'string': 'twelve', 'dict': {'a': 15, 'b': 'one'}," +\
+                               " 'end': ['a', 'b'], '__deepcopy__': 'its gonna fail without arrangements'})"
+
+    # Simple test that repr and str are recursion safe
+    annotation = Annotation(span=None)
+    annotation.update(dict( number=42, string='twelve', dict={'a': 15, 'b': 'one'}, rec=annotation))
+    assert str(annotation) == "Annotation(None, {'dict': {'a': 15, 'b': 'one'}, 'number': 42," + \
+                              " 'rec': ..., 'string': 'twelve'})"
+    assert repr(annotation) == "Annotation(None, {'dict': {'a': 15, 'b': 'one'}, 'number': 42," + \
+                               " 'rec': ..., 'string': 'twelve'})"
