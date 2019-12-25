@@ -4,8 +4,10 @@ from copy import copy, deepcopy
 from estnltk import Text
 from estnltk import Layer
 from estnltk import Span
+from estnltk import EnvelopingSpan
 from estnltk import Annotation
 from estnltk import ElementaryBaseSpan
+from estnltk import EnvelopingBaseSpan
 from estnltk.tests import inspect_class_members
 
 
@@ -324,11 +326,25 @@ def test_span_slot_access_rules():
     layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
     span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
     other_span = Span(base_span=ElementaryBaseSpan(0, 2), layer=layer)
+    env_layer= Layer('env_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    env_span = EnvelopingSpan(base_span=EnvelopingBaseSpan(spans=[span.base_span]), layer=env_layer)
+
+    # Annotation can be attached to a random type
+    annotation = Annotation(span=None)
+    with pytest.raises(TypeError, match="span must be an instance of 'Span'"):
+        annotation.span = 42
 
     # Annotation can be attached to a span
     annotation = Annotation(span=None)
     annotation.span = span
     assert annotation.span is span
+    with pytest.raises(KeyError):
+        _ = annotation['span']
+
+    # Annotation can be attached to an enveloping span
+    annotation = Annotation(span=None)
+    annotation.span = env_span
+    assert annotation.span is env_span
     with pytest.raises(KeyError):
         _ = annotation['span']
 
