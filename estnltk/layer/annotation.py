@@ -92,10 +92,14 @@ class Annotation(AttrDict):
         return isinstance(other, Annotation) and self.mapping == other.mapping
 
     @recursive_repr()
-    def __str__(self):
-        # Output key-value pairs in an ordered way
-        # (to assure a consistent output, e.g. for automated testing)
-
+    def __repr__(self):
+        """
+        Outputs a recursion safe representation of an annotation where key-value pairs in alphabetical order.
+        The result is not a printable representation of an object as the span is replaced by the underlying text.
+        RATIONALE: Alphabetical order guarantees a consistent output that is essential in automated testing.
+        Ability to depict recursive objects is needed in debugging. Normal annotations have simple value types.
+        TODO: Get rid of unnecessary curly brackets in the representation when we can change all tests.
+        """
         if self.legal_attribute_names is None:
             attribute_names = sorted(self.mapping)
         else:
@@ -105,9 +109,6 @@ class Annotation(AttrDict):
 
         return '{class_name}({text!r}, {{{attributes}}})'.format(class_name=self.__class__.__name__, text=self.text,
                                                                  attributes=', '.join(key_value_strings))
-    def __repr__(self):
-        return str(self)
-
 
     @property
     def start(self) -> int:
@@ -118,15 +119,6 @@ class Annotation(AttrDict):
     def end(self) -> int:
         if self.span:
             return self.span.end
-
-    # TODO: get rid of this. This does not work correctly
-    def to_record(self, with_text=False) -> Mapping[str, Any]:
-        record = self.mapping.copy()
-        if with_text:
-            record['text'] = getattr(self, 'text')
-        record['start'] = self.start
-        record['end'] = self.end
-        return record
 
     @property
     def layer(self):
@@ -147,3 +139,13 @@ class Annotation(AttrDict):
     def text(self):
         if self.span:
             return self.span.text
+
+    # TODO: get rid of this. This does not work correctly
+    def to_record(self, with_text=False) -> Mapping[str, Any]:
+        record = self.mapping.copy()
+        if with_text:
+            record['text'] = getattr(self, 'text')
+        record['start'] = self.start
+        record['end'] = self.end
+        return record
+
