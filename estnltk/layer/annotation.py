@@ -55,11 +55,15 @@ class Annotation(AttrDict):
         All attributes are accessible by index operator regardless of the attribute name.
         RATIONALE: This is the best trade-off between convenience and safety.
         """
-        if key == 'span' and self.span is not None:
-            if value is None:
-                raise AttributeError('an attempt to detach Annotation form its span')
-            else:
-                raise AttributeError('an attempt to re-attach Annotation to a different span')
+        if key == 'span':
+            if self.span is not None:
+                if value is None:
+                    raise AttributeError('an attempt to detach Annotation form its span')
+                else:
+                    raise AttributeError('an attempt to re-attach Annotation to a different span')
+            # We cannot import Span without creating circular imports
+            elif type(value).__name__ not in ['Span', 'EnvelopingSpan']:
+                raise TypeError("span must be an instance of 'Span'")
         super().__setattr__(key, value)
 
     def __setitem__(self, key, value):
