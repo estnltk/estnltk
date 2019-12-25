@@ -10,17 +10,20 @@ from estnltk.tests import inspect_class_members
 
 
 def test_len():
+    text = Text('Tere!')
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+
     # Empty annotation
-    base_span = ElementaryBaseSpan(0, 1)
-    annotation = Annotation(span=base_span)
+    annotation = Annotation(span=span)
     assert len(annotation) == 0
 
     # Annotation without shadowed attributes
-    annotation = Annotation(base_span, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    annotation = Annotation(span=span, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
     assert len(annotation) == 3
 
     # Annotation with shadowed attributes
-    annotation = Annotation(base_span, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+    annotation = Annotation(span=span, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
                             end=['a', 'b'], __deepcopy__='its gonna fail without arrangements')
     assert len(annotation) == 5
 
@@ -42,9 +45,12 @@ def test_methods_list():
 
 
 def test_copy_constructors():
+    text = Text('Tere!')
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+
     # Copying of empty annotation
-    base_span = ElementaryBaseSpan(0, 1)
-    annotation = Annotation(base_span)
+    annotation = Annotation(span=span)
 
     s_copy = copy(annotation)
     assert s_copy is not annotation
@@ -56,7 +62,7 @@ def test_copy_constructors():
     assert len(d_copy) == 0
 
     # Copying of a simple annotation without shadowed attributes
-    annotation = Annotation(base_span, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    annotation = Annotation(span=span, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
 
     s_copy = copy(annotation)
     assert s_copy is not annotation
@@ -75,7 +81,7 @@ def test_copy_constructors():
     assert d_copy.dict == annotation.dict
 
     # Copying of simple annotations with shadowed attributes
-    annotation = Annotation(base_span, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+    annotation = Annotation(span=span, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
                             end=['a', 'b'], __deepcopy__='its gonna fail without arrangements')
     annotation['span'] = [55, 66]
 
@@ -104,7 +110,7 @@ def test_copy_constructors():
     assert d_copy['span'] == annotation['span']
 
     # Copying of recursive annotations
-    annotation = Annotation(base_span, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    annotation = Annotation(span=span, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
     annotation.rec_attr = annotation
     annotation.dict['rec'] = annotation
 
@@ -130,8 +136,12 @@ def test_copy_constructors():
 
 
 def test_attribute_assignment_and_access():
+    text = Text('Tere!')
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+
     # Normal annotation without an attached span
-    annotation = Annotation(None)
+    annotation = Annotation(span=None)
     annotation.attr_1 = 'üks'
     annotation.attr_2 = 1
     annotation.attr_3 = dict(a=1, b=2)
@@ -144,8 +154,7 @@ def test_attribute_assignment_and_access():
     assert annotation['attr_3'] == dict(a=1, b=2)
 
     # Normal annotation with an attached span
-    base_span = ElementaryBaseSpan(0, 1)
-    annotation = Annotation(base_span, attr_1='kaks', attr_2=4, attr_3={})
+    annotation = Annotation(span=span, attr_1='kaks', attr_2=4, attr_3={})
     assert len(annotation) == 3
     assert annotation.attr_1 == 'kaks'
     assert annotation.attr_2 == 4
@@ -171,8 +180,12 @@ def test_attribute_assignment_and_access():
 
 
 def test_attribute_deletion():
+    text = Text('Tere!')
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+
     # Normal annotation without an attached span
-    annotation = Annotation(None, attr_1='üks', attr_2=1, attr_3=dict(a=1, b=2))
+    annotation = Annotation(span=None, attr_1='üks', attr_2=1, attr_3=dict(a=1, b=2))
     assert len(annotation) == 3
     assert annotation.mapping == dict(attr_1='üks', attr_2=1, attr_3=dict(a=1, b=2))
     del annotation.attr_1
@@ -186,8 +199,7 @@ def test_attribute_deletion():
     assert annotation.mapping == dict()
 
     # Normal annotation with an attached span
-    base_span = ElementaryBaseSpan(0, 1)
-    annotation = Annotation(base_span, attr_1='kaks', attr_2=4, attr_3={})
+    annotation = Annotation(span=span, attr_1='kaks', attr_2=4, attr_3={})
     assert len(annotation) == 3
     assert annotation.mapping == dict(attr_1='kaks', attr_2=4, attr_3={})
     del annotation.attr_1
@@ -201,7 +213,7 @@ def test_attribute_deletion():
     assert annotation.mapping == dict()
 
     # Tests that Annotation methods cannot be deleted
-    attrdict = Annotation(None)
+    attrdict = Annotation(span=None)
     for attr in Annotation.methods:
         with pytest.raises(AttributeError, match="'Annotation' object has no attribute"):
             delattr(attrdict, attr)
@@ -214,8 +226,12 @@ def test_attribute_deletion():
 
 
 def test_item_assignment_and_access():
+    text = Text('Tere!')
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+
     # Normal annotation without an attached span
-    annotation = Annotation(None)
+    annotation = Annotation(span=None)
     annotation['attr_1'] = 'üks'
     annotation['attr_2'] = 1
     annotation['attr_3'] = dict(a=1, b=2)
@@ -228,8 +244,7 @@ def test_item_assignment_and_access():
     assert annotation['attr_3'] == dict(a=1, b=2)
 
     # Normal annotation with an attached span
-    base_span = ElementaryBaseSpan(0, 1)
-    annotation = Annotation(base_span)
+    annotation = Annotation(span=span)
     annotation['attr_1'] = 'üks'
     annotation['attr_2'] = 1
     annotation['attr_3'] = dict(a=1, b=2)
@@ -249,7 +264,7 @@ def test_item_assignment_and_access():
         assert attr not in annotation.__dict__
 
     # Check that item assignment and deletion correctly updates __dict__
-    annotation = Annotation(None, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+    annotation = Annotation(span=None, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
                             methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
     assert annotation.__dict__ == dict(number=42, string='twelve', dict={'a': 15, 'b': 'one'})
 
@@ -264,7 +279,7 @@ def test_item_assignment_and_access():
 
 
 def test_multi_indexing():
-    annotation = Annotation(None, attr_1='üks', attr_2=1, attr_3=dict(a=1, b=2))
+    annotation = Annotation(span=None, attr_1='üks', attr_2=1, attr_3=dict(a=1, b=2))
     assert annotation[()] == ()
     assert annotation['attr_1'] == 'üks'
     assert annotation[('attr_1',)] == ('üks',)
@@ -305,13 +320,15 @@ def test_multi_indexing():
 
 
 def test_span_slot_access_rules():
-    base_span = ElementaryBaseSpan(0, 1)
-    other_base_span = ElementaryBaseSpan(0, 2)
+    text = Text('Tere!')
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+    other_span = Span(base_span=ElementaryBaseSpan(0, 2), layer=layer)
 
     # Annotation can be attached to a span
-    annotation = Annotation(None)
-    annotation.span = base_span
-    assert annotation.span is base_span
+    annotation = Annotation(span=None)
+    annotation.span = span
+    assert annotation.span is span
     with pytest.raises(KeyError):
         _ = annotation['span']
 
@@ -321,13 +338,13 @@ def test_span_slot_access_rules():
 
     # Annotation cannot be re-attached to another span
     with pytest.raises(AttributeError, match='an attempt to re-attach Annotation to a different span'):
-        annotation.span = other_base_span
+        annotation.span = other_span
 
     # Annotation cannot be re-attached to same span
     with pytest.raises(AttributeError, match='an attempt to re-attach Annotation to a different span'):
-        annotation.span = base_span
+        annotation.span = span
 
-    annotation = Annotation(base_span)
+    annotation = Annotation(span=span)
 
     # Annotation cannot be detached form its span
     with pytest.raises(AttributeError, match='an attempt to detach Annotation form its span'):
@@ -335,23 +352,28 @@ def test_span_slot_access_rules():
 
     # Annotation cannot be re-attached to another span
     with pytest.raises(AttributeError, match='an attempt to re-attach Annotation to a different span'):
-        annotation.span = other_base_span
+        annotation.span = other_span
 
     # Annotation cannot be re-attached to same span
     with pytest.raises(AttributeError, match='an attempt to re-attach Annotation to a different span'):
-        annotation.span = base_span
+        annotation.span = span
 
 
 def test_equality():
+    text = Text('Tere!')
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+    other_span = Span(base_span=ElementaryBaseSpan(0, 2), layer=layer)
+
     annotation_1 = Annotation(span=None)
-    annotation_2 = Annotation(span=ElementaryBaseSpan(0, 1))
+    annotation_2 = Annotation(span=span)
     assert annotation_1 == annotation_1
     assert annotation_2 == annotation_2
     assert annotation_1 == annotation_2
 
     annotation_3 = Annotation(span=None, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
-    annotation_4 = Annotation(span=ElementaryBaseSpan(0, 1), number=42, string='twelve', dict={'a': 15, 'b': 'one'})
-    annotation_5 = Annotation(span=ElementaryBaseSpan(0, 3), number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    annotation_4 = Annotation(span=span, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
+    annotation_5 = Annotation(span=other_span, number=42, string='twelve', dict={'a': 15, 'b': 'one'})
     assert annotation_3 == annotation_3
     assert annotation_3 == annotation_4
     assert annotation_3 == annotation_5
@@ -371,7 +393,7 @@ def test_equality():
 
     annotation_6 = Annotation(span=None, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
                               methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
-    annotation_7 = Annotation(span=ElementaryBaseSpan(0, 1), number=42, string='twelve', dict={'a': 15, 'b': 'one'},
+    annotation_7 = Annotation(span=span, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
                               methods=5, keys=['a', 'b'], __len__='its gonna fail without arrangements')
     assert annotation_6 == annotation_6
     assert annotation_6 == annotation_7
@@ -427,7 +449,7 @@ def test_repr_and_str():
 
     # Simple test that repr and str are recursion safe
     annotation = Annotation(span=None)
-    annotation.update(dict( number=42, string='twelve', dict={'a': 15, 'b': 'one'}, rec=annotation))
+    annotation.update(dict(number=42, string='twelve', dict={'a': 15, 'b': 'one'}, rec=annotation))
     assert str(annotation) == "Annotation(None, {'dict': {'a': 15, 'b': 'one'}, 'number': 42," + \
                               " 'rec': ..., 'string': 'twelve'})"
     assert repr(annotation) == "Annotation(None, {'dict': {'a': 15, 'b': 'one'}, 'number': 42," + \
