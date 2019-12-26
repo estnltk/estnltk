@@ -56,14 +56,14 @@ class Annotation(AttrDict):
         RATIONALE: This is the best trade-off between convenience and safety.
         """
         if key == 'span':
-            if self.span is not None:
-                if value is None:
-                    raise AttributeError('an attempt to detach Annotation form its span')
-                else:
-                    raise AttributeError('an attempt to re-attach Annotation to a different span')
-            # We cannot import Span without creating circular imports
-            elif type(value).__name__ not in ['Span', 'EnvelopingSpan']:
-                raise TypeError("span must be an instance of 'Span'")
+            if self.span is None:
+                # We cannot import Span without creating circular imports
+                if type(value).__name__ not in ['Span', 'EnvelopingSpan']:
+                    raise TypeError("span must be an instance of 'Span'")
+            elif value is None:
+                raise AttributeError('an attempt to detach Annotation form its span')
+            else:
+                raise AttributeError('an attempt to re-attach Annotation to a different span')
         super().__setattr__(key, value)
 
     def __setitem__(self, key, value):
