@@ -1,21 +1,23 @@
 from copy import deepcopy
 from reprlib import recursive_repr
-from typing import Any, Mapping, Sequence, Iterable
+from typing import Any, Mapping, Sequence, Optional
 
 from estnltk.helpers.attrdict import AttrDict
 
 
 class Annotation(AttrDict):
-    """Mapping for Span attribute values.
-
-    TODO: Find out whether it should derive from Mapping or from MutableMapping
-    TODO: Find out whether it should be mutable or not?
-         - It is not clear how retaggers work? Do they compute new annotations or modify existing
-
-    TODO: Resolve the problem with shadowed annotation keys. It is irrelevant but still necessary
-    TODO: Get rid of _span slot. Use span slot instead and protect memory with __getattr__
-
     """
+    Dictionary for Span attribute values that provides attribute access for most keys.
+    It is possible to access all keys that are not shadowed by the methods and properties of Annotation.
+    Fool-proof way to to assign, delete or access keys is through indexing.
+
+    The dictionary is fully mutable. Elements can be added and deleted.
+    The annotation does not keep track which are valid attribute names for a layer.
+    This is task of a low-lever system programmer who uses a raw access to Annotation to respect it.
+    Normally, inconsistencies will be caught by Layer level operations.
+    In particular, if you write a Tagger or a ReTagger such errors will be caught automatically.
+    """
+
     __slots__ = ['span']
 
     # List of prohibited attribute names
@@ -23,7 +25,7 @@ class Annotation(AttrDict):
         'end', 'layer', 'legal_attribute_names', 'start', 'text', 'text_object', 'to_record',
         '_repr_html_', '__copy__', '__deepcopy__', '__getattr__'}
 
-    def __init__(self, span, **attributes):
+    def __init__(self, span: 'Span', **attributes):
         super().__init__(**attributes)
         super().__setattr__('span', span)
 
@@ -115,41 +117,44 @@ class Annotation(AttrDict):
                                                                  attributes=', '.join(key_value_strings))
 
     @property
-    def start(self) -> int:
+    def start(self) -> Optional[int]:
         if self.span:
             return self.span.start
 
     @property
-    def end(self) -> int:
+    def end(self) -> Optional[int]:
         if self.span:
             return self.span.end
 
     @property
-    def layer(self):
+    def layer(self) -> Optional['Layer']:
         if self.span:
             return self.span.layer
 
     @property
-    def legal_attribute_names(self) -> Sequence[str]:
+    def legal_attribute_names(self) -> Optional[Sequence[str]]:
+        """
+        Deprecated property. Do not use it. Will be removed in
+        :return:
+        """
         if self.layer is not None:
             return self.layer.attributes
 
     @property
-    def text_object(self):
+    def text_object(self) -> Optional['Text']:
         if self.span is not None:
             return self.span.text_object
 
     @property
-    def text(self):
+    def text(self) -> Optional[str]:
         if self.span:
             return self.span.text
 
     # TODO: get rid of this. This does not work correctly
-    def to_record(self, with_text=False) -> Mapping[str, Any]:
+    def to_record(self, with_text: bool = False) -> Mapping[str, Any]:
         record = self.mapping.copy()
         if with_text:
             record['text'] = getattr(self, 'text')
         record['start'] = self.start
         record['end'] = self.end
         return record
-
