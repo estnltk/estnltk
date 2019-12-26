@@ -9,7 +9,7 @@ class Annotation(AttrDict):
     """
     Dictionary for Span attribute values that provides attribute access for most keys.
     It is possible to access all keys that are not shadowed by the methods and properties of Annotation.
-    Fool-proof way to to assign, delete or access keys is through indexing.
+    A fool-proof way to to assign, delete or access keys is through indexing.
 
     The dictionary is fully mutable. Elements can be added and deleted.
     The annotation does not keep track which are valid attribute names for a layer.
