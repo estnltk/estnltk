@@ -10,6 +10,7 @@ from estnltk.layer import AmbiguousAttributeList
 from estnltk.layer import AttributeTupleList
 from estnltk.layer import AttributeList
 from estnltk.tests import new_text
+from estnltk.tests import example_text
 
 
 def test_attributes_and_default_values():
@@ -421,7 +422,7 @@ def test_count_values():
 
 
 def test_groupby():
-    result = new_text(5).layer_1.groupby(['attr_1']).groups
+    result = example_text(5).layer_1.groupby(['attr_1']).groups
     for key in result:
         result[key] = [sp.text for sp in result[key]]
     assert result == {('KAHEKSA',): ['kaheksa'],
@@ -446,7 +447,7 @@ def test_groupby():
                       ('ÜHEKSA',): ['Üheksa', 'Üheksakümmend'],
                       ('ÜHEKSAKÜMMEND',): ['Üheksakümmend']}
 
-    result = new_text(5).layer_0.groupby(['attr', 'attr_0']).groups
+    result = example_text(5).layer_0.groupby(['attr', 'attr_0']).groups
     for key in result:
         result[key] = [sp.text for sp in result[key]]
     assert result == {('L0-0', '100'): ['Sada'],
@@ -470,7 +471,7 @@ def test_groupby():
                       ('L0-8', '500'): ['viissada'],
                       ('L0-9', '100'): ['sada']}
 
-    groups = new_text(5).layer_1.groupby(['attr'], return_type='annotations').groups
+    groups = example_text(5).layer_1.groupby(['attr'], return_type='annotations').groups
     result = {}
     for key in groups:
         result[key] = [sp.text for sp in groups[key]]
@@ -494,7 +495,7 @@ def test_groupby():
                       ('L1-8',): ['viissada', 'viissada', 'viissada'],
                       ('L1-9',): ['sada']}
 
-    result = new_text(5).layer_0.groupby(['attr', 'attr_0'], return_type='annotations').groups
+    result = example_text(5).layer_0.groupby(['attr', 'attr_0'], return_type='annotations').groups
     for key in result:
         result[key] = [sp.text for sp in result[key]]
     assert result == {('L0-0', '100'): ['Sada'],
