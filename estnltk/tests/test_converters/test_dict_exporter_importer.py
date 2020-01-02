@@ -1,7 +1,7 @@
 from estnltk import Text
 from estnltk.converters import text_to_dict, dict_to_text
 
-from estnltk.tests import new_text
+from estnltk.tests import example_text
 
 
 T_1 = "Tere, maailm!"
@@ -24,5 +24,5 @@ def test_dict_export_import():
     assert text_import == text, text.diff(text_import)
     assert text_to_dict(text) == text_to_dict(dict_to_text(text_to_dict(text)))
 
-    text = new_text(5)
+    text = example_text(5)
     assert text == dict_to_text(text_to_dict(text))
