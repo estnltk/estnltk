@@ -1,17 +1,17 @@
-from estnltk.tests import new_text
-from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
 from estnltk import Layer
 from estnltk import Text
+from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
+from estnltk.tests import example_text
 
 
 def test_decompose_empty_text_empty_span():
-    result = decompose_to_elementary_spans(new_text(1).layer_0, new_text(1).text)
+    result = decompose_to_elementary_spans(example_text(1).layer_0, example_text(1).text)
     expected = [['', []]]
     assert result == expected
 
 
 def test_decompose_text_with_empty_span():
-    result = decompose_to_elementary_spans(new_text(1).layer_0, new_text(5).text)
+    result = decompose_to_elementary_spans(example_text(1).layer_0, example_text(5).text)
     expected = [['Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.', []]]
     assert result == expected
 

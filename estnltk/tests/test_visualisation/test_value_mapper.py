@@ -1,11 +1,11 @@
-from estnltk.tests.helpers.legacy_text_objects import new_text
 from estnltk.visualisation.mappers.value_mapper import value_mapper_unique
 from estnltk.visualisation.mappers.value_mapper import value_mapper_ambiguous
 from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
+from estnltk.tests import example_text
 
 
 def test_empty_mapper():
-    decomposed = decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text)
+    decomposed = decompose_to_elementary_spans(example_text(5).layer_1, example_text(5).text)
     spans = decomposed[1]
     segment = decomposed[0][0]
     spanlist = []
@@ -18,14 +18,14 @@ def test_empty_mapper():
 
 
 def test_conflicting_mapper():
-    segment = decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text)[0][2]
+    segment = decompose_to_elementary_spans(example_text(5).layer_1, example_text(5).text)[0][2]
     result = conflicting_mapper(segment)
     expected = "conflict_value"
     assert result == expected
 
 
 def test_usual_mapper():
-    decomposed = decompose_to_elementary_spans(new_text(5).layer_1, new_text(5).text)
+    decomposed = decompose_to_elementary_spans(example_text(5).layer_1, example_text(5).text)
     spans = decomposed[1]
     segments = decomposed[0]
 

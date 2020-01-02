@@ -1,7 +1,7 @@
-from estnltk.tests import new_text
 from estnltk.visualisation.attribute_visualiser.attribute_visualisation import DisplayAttributes
 from estnltk.core import abs_path
 from estnltk import Text, Layer, ElementaryBaseSpan
+from estnltk.tests import example_text
 
 
 def test_html():
@@ -53,7 +53,7 @@ def test_mark_chosen_spans():
                               ['2'],
                               ['1'],
                               ['1', '1', '2']]
-    display.original_layer = new_text(5).layer_1
+    display.original_layer = example_text(5).layer_1
     new_layer = str(display.mark_chosen_spans())  # Layer with an extra attribute to show if the span was chosen
     file = abs_path(
         "tests/test_visualisation/expected_outputs/attribute_visualiser_outputs/mark_chosen_spans_output.txt")
@@ -81,7 +81,7 @@ def test_delete_chosen_spans():
                               ['2'],
                               ['1'],
                               ['1', '1', '2']]
-    display.original_layer = new_text(5).layer_1
+    display.original_layer = example_text(5).layer_1
     new_layer = str(display.delete_chosen_spans())  # Layer where not chosen spans are deleted
     file = abs_path(
         "tests/test_visualisation/expected_outputs/attribute_visualiser_outputs/delete_chosen_spans_output.txt")
