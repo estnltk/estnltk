@@ -42,7 +42,6 @@ def test_methods_list():
     assert set(members['protected_variables']) <= Annotation.methods
     assert set(members['public_variables']) <= Annotation.methods
     # additional slots are assignable
-    print(type(Annotation.methods))
     assert isinstance(Annotation.methods, frozenset)
 
 
