@@ -9,7 +9,6 @@ from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.layer import AmbiguousAttributeList
 from estnltk.layer import AttributeTupleList
 from estnltk.layer import AttributeList
-from estnltk.tests import new_text
 from estnltk.tests import example_text
 
 
@@ -384,9 +383,9 @@ def test_check_layer_consistency():
 
 
 def test_count_values():
-    assert new_text(1).layer_5.count_values('attr') == {}
+    assert example_text(1).layer_5.count_values('attr') == {}
 
-    assert new_text(5).layer_0.count_values('attr_0') == {',': 1,
+    assert example_text(5).layer_0.count_values('attr_0') == {',': 1,
                                                           '10': 3,
                                                           '100': 2,
                                                           '1000': 2,
@@ -403,7 +402,7 @@ def test_count_values():
                                                           '9': 1,
                                                           '90': 1}
 
-    assert new_text(5).layer_1.count_values('attr_1') == {'KAHEKSA': 1,
+    assert example_text(5).layer_1.count_values('attr_1') == {'KAHEKSA': 1,
                                                           'KAKS': 2,
                                                           'KAKSKÜMMEND': 1,
                                                           'KOLM': 1,
@@ -526,7 +525,7 @@ def test_copy():
     assert layer == layer_copy
     assert layer is not layer_copy
 
-    text = new_text(5)
+    text = example_text(5)
 
     layer = text['layer_1']
     layer_copy = layer.copy()
