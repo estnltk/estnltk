@@ -1,6 +1,6 @@
 import pytest
 from estnltk import Layer
-from estnltk.tests import new_text
+from estnltk.tests import example_text
 
 
 def test_init():
@@ -29,7 +29,7 @@ def test_repr():
 
 
 def test_default():
-    layer = new_text(5).layer_0
+    layer = example_text(5).layer_0
 
     result = [spans for spans in layer.rolling(window=3, min_periods=None, inside=None)]
 
@@ -57,7 +57,7 @@ def test_default():
 
 
 def test_inside():
-    layer = new_text(5).layer_0
+    layer = example_text(5).layer_0
     result = [spans for spans in layer.rolling(window=3, min_periods=2, inside='layer_4')]
     assert [r.text for r in result] == [
         ['Sada', 'kakskümmend'],

@@ -1,9 +1,6 @@
 from estnltk import Text, Layer, ElementaryBaseSpan
 
 from estnltk.layer import AmbiguousAttributeTupleList
-from estnltk.tests import new_text
-from estnltk.converters.layer_dict_converter import dict_to_layer
-
 from estnltk.layer_operations import apply_filter
 from estnltk.layer_operations import drop_annotations
 from estnltk.layer_operations import keep_annotations
@@ -15,6 +12,8 @@ from estnltk.layer_operations import conflicts
 from estnltk.layer_operations import count_by_document
 from estnltk.layer_operations import dict_to_df
 from estnltk.layer_operations import group_by_spans
+from estnltk.converters.layer_dict_converter import dict_to_layer
+from estnltk.tests import example_text
 
 
 def test_apply_filter():
@@ -57,7 +56,7 @@ def test_apply_filter():
 
 
 def test_drop_annotations():
-    text = new_text(3)
+    text = example_text(3)
     drop_annotations(layer=text.layer_1,
                      attribute='attr_1',
                      values={'A', 'D'}
@@ -69,7 +68,7 @@ def test_drop_annotations():
 
 def test_keep_annotations():
     # test attribute and values
-    text = new_text(3)
+    text = example_text(3)
     keep_annotations(layer=text.layer_1,
                      attribute='attr_1',
                      values={'B', 'C', 'E', 'F'}
@@ -79,7 +78,7 @@ def test_keep_annotations():
     assert text.layer_1['attr', 'attr_1'] == expected
 
     # test preserve_spans=True
-    text = new_text(3)
+    text = example_text(3)
     keep_annotations(layer=text.layer_1,
                      attribute='attr_1',
                      values={},
