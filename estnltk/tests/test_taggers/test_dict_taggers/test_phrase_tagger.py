@@ -1,9 +1,9 @@
 from os import path
 
-from estnltk.taggers import PhraseTagger
-from estnltk.tests.helpers.legacy_text_objects import new_text
-from estnltk.layer import AmbiguousAttributeList
 from estnltk import Annotation
+from estnltk.taggers import PhraseTagger
+from estnltk.layer import AmbiguousAttributeList
+from estnltk.tests import example_text
 
 
 def decorator(span, annotation):
@@ -28,7 +28,7 @@ def test_basic():
                           priority_attribute='_priority_',
                           output_ambiguous=True
                           )
-    text = new_text(5)
+    text = example_text(5)
     tagger.tag(text)
 
     layer = text['phrases']
