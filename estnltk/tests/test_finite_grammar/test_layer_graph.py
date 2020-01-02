@@ -1,6 +1,6 @@
 from estnltk.finite_grammar.layer_graph import Node, PhonyNode, GrammarNode, TerminalNode
 from estnltk.finite_grammar.layer_graph import layer_to_graph
-from estnltk.tests.helpers.text_objects import text_5
+from estnltk.tests.helpers.legacy_text_objects import text_5
 
 
 def test_Node():

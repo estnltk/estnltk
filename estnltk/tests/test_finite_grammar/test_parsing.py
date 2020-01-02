@@ -1,6 +1,6 @@
 from estnltk.finite_grammar import Grammar, Rule, parse_graph
 from estnltk.finite_grammar.layer_graph import layer_to_graph
-from estnltk.tests.helpers.text_objects import text_3
+from estnltk.tests.helpers.legacy_text_objects import text_3
 
 
 def test_parse_graph():
