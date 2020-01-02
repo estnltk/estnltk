@@ -3,7 +3,7 @@ from estnltk.converters import export_CG3
 from estnltk.converters import text_to_json, json_to_text
 from estnltk.converters import export_TCF, import_TCF
 from estnltk.converters import annotation_to_json, json_to_annotation
-from estnltk.tests import new_text
+from estnltk.tests import example_text
 
 
 def test_export_CG3():
@@ -88,7 +88,7 @@ def test_annotation_json_export_import():
     layer = Layer('my_layer', attributes=['attr', 'attr_0'])
     span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
 
-    annotation = new_text(5).layer_0[0].annotations[0]
+    annotation = example_text(5).layer_0[0].annotations[0]
 
     a = json_to_annotation(span, annotation_to_json(annotation))
     assert a == annotation
