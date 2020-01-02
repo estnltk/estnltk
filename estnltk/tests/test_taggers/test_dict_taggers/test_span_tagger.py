@@ -2,7 +2,7 @@ from os.path import dirname, join
 
 from estnltk import Text
 from estnltk.taggers import SpanTagger
-from estnltk.tests.helpers.text_objects import new_text
+from estnltk.tests.helpers.legacy_text_objects import new_text
 
 
 def test_basic():
