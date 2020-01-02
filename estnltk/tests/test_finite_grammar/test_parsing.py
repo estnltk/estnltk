@@ -1,6 +1,6 @@
 from estnltk.finite_grammar import Grammar, Rule, parse_graph
 from estnltk.finite_grammar.layer_graph import layer_to_graph
-from estnltk.tests.helpers.legacy_text_objects import text_3
+from estnltk.tests import example_text
 
 
 def test_parse_graph():
@@ -15,7 +15,8 @@ def test_parse_graph():
     grammar.add(Rule('I', 'F G'))
     grammar.add(Rule('J', 'F H'))
 
-    graph = layer_to_graph(text_3['layer_0'], text_3.text, name_attribute='attr_0')
+    text = example_text(3)
+    graph = layer_to_graph(text['layer_0'], text.text, name_attribute='attr_0')
     graph = parse_graph(graph,
                         grammar,
                         resolve_support_conflicts=False,
@@ -43,7 +44,8 @@ def test_parse_graph_SEQ():
     grammar.add(Rule('G', 'D'))
     grammar.add(Rule('H', 'E SEQ(F) G'))
 
-    graph = layer_to_graph(text_3['layer_0'], text_3.text, name_attribute='attr_0')
+    text = example_text(3)
+    graph = layer_to_graph(text['layer_0'], text.text, name_attribute='attr_0')
     graph = parse_graph(graph,
                         grammar,
                         resolve_support_conflicts=False,
@@ -90,7 +92,8 @@ def test_parse_graph_support_conflicts():
     grammar.add(Rule('L', 'B C', group='g2', priority=1))
     grammar.add(Rule('M', 'C D', group='g2', priority=2))
 
-    graph = layer_to_graph(text_3['layer_0'], text_3.text, name_attribute='attr_0')
+    text = example_text(3)
+    graph = layer_to_graph(text['layer_0'], text.text, name_attribute='attr_0')
     graph = parse_graph(graph,
                         grammar,
                         resolve_support_conflicts=True,
@@ -108,7 +111,8 @@ def test_parse_graph_support_conflicts():
                                                                  ('C', 'D'),
                                                                  ]
 
-    graph = layer_to_graph(text_3['layer_0'], text_3.text, name_attribute='attr_0')
+    text = example_text(3)
+    graph = layer_to_graph(text['layer_0'], text.text, name_attribute='attr_0')
 
     grammar = Grammar()
     grammar.add_rule('M', ['C'], priority=0, group=0)
@@ -144,7 +148,8 @@ def test_parse_graph_start_end_conflicts():
     grammar.add(Rule('L', 'B C', group='g2', priority=1))
     grammar.add(Rule('M', 'C D', group='g2', priority=2))
 
-    graph = layer_to_graph(text_3['layer_0'], text_3.text, name_attribute='attr_0')
+    text = example_text(3)
+    graph = layer_to_graph(text['layer_0'], text.text, name_attribute='attr_0')
     graph = parse_graph(graph,
                         grammar,
                         resolve_support_conflicts=True,

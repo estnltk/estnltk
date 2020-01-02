@@ -1,6 +1,6 @@
 from estnltk.finite_grammar.layer_graph import Node, PhonyNode, GrammarNode, TerminalNode
 from estnltk.finite_grammar.layer_graph import layer_to_graph
-from estnltk.tests.helpers.legacy_text_objects import text_5
+from estnltk.tests import example_text
 
 
 def test_Node():
@@ -34,7 +34,8 @@ def test_PhonyNode():
 
 
 def test_TerminalNode():
-    span_1 = text_5.layer_0[0]
+    text = example_text(5)
+    span_1 = text.layer_0[0]
     node_1 = TerminalNode(span_1.attr_0, span_1, attributes={'attr', 'attr_0'})
     assert node_1.name == span_1.attr_0
     assert node_1.start == span_1.start
@@ -44,7 +45,7 @@ def test_TerminalNode():
     assert node_1['attr'] == span_1.attr
     assert node_1['attr_0'] == span_1.attr_0
 
-    span_2 = text_5.layer_0[1]
+    span_2 = text.layer_0[1]
     node_2 = TerminalNode(span_2.attr_0, span_2)
     assert node_2 != node_1
     assert node_2['attr'] == span_2.attr
@@ -52,8 +53,9 @@ def test_TerminalNode():
 
 
 def test_GrammarNode():
-    span_0 = text_5.layer_0[0]
-    span_1 = text_5.layer_0[1]
+    text = example_text(5)
+    span_0 = text.layer_0[0]
+    span_1 = text.layer_0[1]
     t_0 = TerminalNode('A', span_0)
     t_1 = TerminalNode('B', span_1)
     node_1 = GrammarNode('TEST_1', [t_0, t_1])
@@ -66,7 +68,8 @@ def test_GrammarNode():
 
 
 def test_layer_to_graph():
-    graph = layer_to_graph(text_5['layer_0'], text_5.text, name_attribute='attr')
+    text = example_text(5)
+    graph = layer_to_graph(text['layer_0'], text.text, name_attribute='attr')
     assert len(graph) == 20
     assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [('L0-0', 'L0-1'),
                                                                   ('L0-0', 'L0-2'),
