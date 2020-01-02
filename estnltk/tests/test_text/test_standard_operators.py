@@ -8,7 +8,7 @@ from estnltk import Layer
 from estnltk import ElementaryBaseSpan
 
 from estnltk.tests import inspect_class_members
-from estnltk.tests import new_text
+from estnltk.tests import example_text
 
 
 def test_object_teardown():
@@ -442,8 +442,8 @@ def test_equal():
     t_1['morph_analysis'][0].annotations[0].form = 'x'
     assert t_1 != t_2
 
-    t_1 = new_text(5)
-    t_2 = new_text(5)
+    t_1 = example_text(5)
+    t_2 = example_text(5)
     assert t_1 == t_2
     t_1.layer_5[1].annotations[1].attr_5 = 'bla'
     assert t_1 != t_2
