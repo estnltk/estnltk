@@ -23,7 +23,7 @@ class Annotation(AttrDict):
     # List of prohibited attribute names
     methods = AttrDict.methods | {
         'end', 'layer', 'legal_attribute_names', 'start', 'text', 'text_object', 'to_record',
-        '_repr_html_', '__copy__', '__deepcopy__', '__getattr__'}
+        '_repr_html_', '__copy__', '__deepcopy__', '__getstate__', '__setstate__', '__getattr__'}
 
     def __init__(self, span: 'Span', **attributes):
         super().__init__(**attributes)
@@ -50,6 +50,21 @@ class Annotation(AttrDict):
         # Perform deep copy with a valid memo dict
         result.update(deepcopy(self.mapping, memo))
         return result
+
+    def __getstate__(self):
+        """
+        Serialises the state of the object to a dictionary with fields span and mapping.
+        RATIONALE: This is minimal amount of information needed to recreate the state.
+        """
+        return dict(span=self.span, mapping=self.mapping)
+
+    def __setstate__(self, state):
+        """
+        Reconstructs object form a dictionary with the fields span and mapping. Does not check correctness.
+        RATIONALE: This function is mostly used in pickling and thus the input is guaranteed to be correct.
+        """
+        self.__init__(span=state['span'])
+        self.update(state['mapping'])
 
     def __setattr__(self, key, value):
         """
