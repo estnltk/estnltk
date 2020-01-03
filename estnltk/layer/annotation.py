@@ -123,14 +123,15 @@ class Annotation(AttrDict):
         Ability to depict recursive objects is needed in debugging. Normal annotations have simple value types.
         TODO: Get rid of unnecessary curly brackets in the representation when we can change all tests.
         """
-        if self.legal_attribute_names is None:
+        if self.layer is None or self.layer.attributes is None:
             attribute_names = sorted(self.mapping)
         else:
+            layer_attributes = self.layer.attributes
             # Remove attribute names layer spec that are not present in the annotation
-            attribute_names = [attr for attr in self.legal_attribute_names if attr in self.mapping]
+            attribute_names = [attr for attr in layer_attributes if attr in self.mapping]
             # Add attribute names that are not present in the layer spec
             if len(attribute_names) < len(self.mapping):
-               attribute_names.extend(sorted(attr for attr in self.mapping if attr not in self.legal_attribute_names))
+                attribute_names.extend(sorted(attr for attr in self.mapping if attr not in layer_attributes))
 
         key_value_strings = ['{!r}: {!r}'.format(k, self.mapping[k]) for k in attribute_names]
 
@@ -166,12 +167,11 @@ class Annotation(AttrDict):
         if self.span:
             return self.span.layer
 
-    # deprecated
     @property
     def legal_attribute_names(self) -> Optional[Sequence[str]]:
         """
         Deprecated property. Do not use it. Will be removed as soon as possible
-        :return:
+        # TODO: Remove references in morph_common.py to achieve this
         """
         if self.layer is not None:
             return self.layer.attributes
