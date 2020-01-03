@@ -331,7 +331,7 @@ def test_span_slot_access_rules():
     layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
     span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
     other_span = Span(base_span=ElementaryBaseSpan(0, 2), layer=layer)
-    env_layer= Layer('env_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    env_layer = Layer('env_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
     env_span = EnvelopingSpan(base_span=EnvelopingBaseSpan(spans=[span.base_span]), layer=env_layer)
 
     # Annotation can be attached to a random type
