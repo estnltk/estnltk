@@ -399,12 +399,7 @@ class SyntaxIgnoreTagger( Tagger ):
                    '_input_words_layer', '_input_sentences_layer',
                    # Inner parameter(s)
                    '_syntax_ignore_hints_tagger',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name', 'attributes'
                  ]
-    layer_name  = 'syntax_ignore'          # <- For backward compatibility ...
-    attributes  = ('type',)                # <- For backward compatibility ...
-    depends_on  = ['words', 'sentences']   # <- For backward compatibility ...
 
     def __init__(self, output_layer:str='syntax_ignore',
                        input_words_layer:str='words',
@@ -500,8 +495,6 @@ class SyntaxIgnoreTagger( Tagger ):
         self._input_words_layer     = input_words_layer
         self._input_sentences_layer = input_sentences_layer
         self.input_layers           = [input_words_layer, input_sentences_layer]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
         # Set configuration flags
         self.allow_loose_match = allow_loose_match
         self.ignore_parenthesized_num=ignore_parenthesized_num
@@ -547,6 +540,7 @@ class SyntaxIgnoreTagger( Tagger ):
         # Create a new tagger
         self._syntax_ignore_hints_tagger = RegexTagger(vocabulary=patterns,
                                                  output_attributes=['_priority_', 'type'],
+                                                 priority_attribute='_priority_',
                                                  conflict_resolving_strategy="MAX",
                                                  overlapped=False,
                                                  output_layer='syntax_ignore_hints',
