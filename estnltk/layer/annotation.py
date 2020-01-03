@@ -126,9 +126,11 @@ class Annotation(AttrDict):
         if self.legal_attribute_names is None:
             attribute_names = sorted(self.mapping)
         else:
-            attribute_names = self.legal_attribute_names
-            # remove nonexistant attribute names
-            # show extra attributes
+            # Remove attribute names layer spec that are not present in the annotation
+            attribute_names = [attr for attr in self.legal_attribute_names if attr in self.mapping]
+            # Add attribute names that are not present in the layer spec
+            if len(attribute_names) < len(self.mapping):
+               attribute_names.extend(sorted(attr for attr in self.mapping if attr not in self.legal_attribute_names))
 
         key_value_strings = ['{!r}: {!r}'.format(k, self.mapping[k]) for k in attribute_names]
 
