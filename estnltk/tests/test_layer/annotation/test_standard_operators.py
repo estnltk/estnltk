@@ -289,6 +289,12 @@ def test_multi_indexing():
     assert annotation['attr_1', 'attr_2', 'attr_3'] == ('üks', 1, dict(a=1, b=2))
     assert annotation[('attr_1', 'attr_2', 'attr_3')] == ('üks', 1, dict(a=1, b=2))
 
+    # Tuple elements must be strings
+    with pytest.raises(TypeError, match='index must be a string or a tuple of strings'):
+        _ = annotation[(5,)]
+    with pytest.raises(TypeError, match='index must be a string or a tuple of strings'):
+        _ = annotation[(5,6)]
+
     # No multi-key deletion
     with pytest.raises(KeyError, match="'Annotation' object does not have a key"):
         del annotation[()]

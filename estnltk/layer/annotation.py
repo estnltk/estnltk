@@ -101,9 +101,9 @@ class Annotation(AttrDict):
         """
         if isinstance(item, str):
             return self.mapping[item]
-        if isinstance(item, tuple):
+        if isinstance(item, tuple) and all(isinstance(i, str) for i in item):
             return tuple(self.mapping[i] for i in item)
-        raise TypeError(item, 'index must be a string or a tuple of string')
+        raise TypeError(item, 'index must be a string or a tuple of strings')
 
     def __eq__(self, other):
         """
