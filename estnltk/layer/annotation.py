@@ -171,7 +171,7 @@ class Annotation(AttrDict):
     def legal_attribute_names(self) -> Optional[Sequence[str]]:
         """
         Deprecated property. Do not use it. Will be removed as soon as possible
-        # TODO: Remove references in morph_common.py to achieve this
+        TODO: Remove references in morph_common.py to achieve this
         """
         if self.layer is not None:
             return self.layer.attributes
@@ -194,12 +194,11 @@ class Annotation(AttrDict):
         if self.span:
             return self.span.text
 
-    # TODO: get rid of this. This does not work correctly
     def to_record(self, with_text: bool = False) -> Mapping[str, Any]:
         """
         Deprecated function.  Do not use it. Will be removed as soon as possible.
-        :param with_text:
-        :return:
+        This function not work correctly and is unnecessary reimplementation of __getstate__.
+        TODO: Remove references in span.py to achieve this
         """
         record = self.mapping.copy()
         if with_text:

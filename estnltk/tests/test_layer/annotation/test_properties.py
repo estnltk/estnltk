@@ -20,7 +20,7 @@ def test_start_end_and_layer():
     assert annotation.end is None
     assert annotation.layer is None
 
-    # Trully minimal layer
+    # Truly minimal layer
     layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'])
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
 
@@ -162,7 +162,7 @@ def test_to_record():
 
 
 def combined_test_for_annotation_without_span():
-    annotation =   Annotation(None, attr_1='üks', attr_2=2, attr_3=3)
+    annotation = Annotation(None, attr_1='üks', attr_2=2, attr_3=3)
     annotation_1 = Annotation(None, attr_1='üks', attr_2=2, attr_3=3, attr_4='4')
     annotation_2 = Annotation(None, attr_1='üks', attr_2=2, attr_3=3)
     annotation_3 = Annotation(None, attr_1='üks', attr_2=2, attr_3=4)
@@ -197,10 +197,10 @@ def combined_test_for_annotation_without_span():
         del annotation.attr_new
 
     with pytest.raises(KeyError):
-        annotation['bla']
+        _ = annotation['bla']
 
     with pytest.raises(TypeError):
-        annotation[3]
+        _ = annotation[3]
 
     assert annotation == annotation
     assert annotation != annotation_1
@@ -221,10 +221,10 @@ def combined_test_for_annotation_without_span():
     assert Annotation(None, attr_1=1, attr_2=None) != Annotation(None, attr_1=1)
 
     with pytest.raises(AttributeError):
-        annotation.__getstate__
+        _ = annotation.__getstate__
 
     with pytest.raises(AttributeError):
-        annotation.__setstate__
+        _ = annotation.__setstate__
 
 
 def combined_test_for_annotation_with_text_object():
@@ -266,7 +266,7 @@ def combined_test_for_annotation_with_text_object():
     del annotation['end']
 
     with pytest.raises(AttributeError):
-        annotation.bla
+        _ = annotation.bla
 
     with pytest.raises(AttributeError):
         del annotation.bla
