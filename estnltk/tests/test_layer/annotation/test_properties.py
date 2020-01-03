@@ -38,6 +38,9 @@ def test_start_end_and_layer():
 
 
 def test_legal_attribute_names():
+    """
+    TODO: Remove this function with the corresponding property
+    """
     # Normal annotation without an attached span
     annotation = Annotation(span=None)
     assert annotation.legal_attribute_names is None
@@ -168,7 +171,6 @@ def combined_test_for_annotation_without_span():
     assert annotation.start is None
     assert annotation.end is None
     assert annotation.layer is None
-    assert annotation.legal_attribute_names is None
     assert annotation.text_object is None
     assert annotation.text is None
     assert len(annotation) == 3
