@@ -10,10 +10,12 @@ class Annotation(AttrDict):
     Dictionary for Span attribute values that provides attribute access for most keys.
     It is possible to access all keys that are not shadowed by the methods and properties of Annotation.
     A fool-proof way to to assign, delete or access keys is through indexing.
+    Attribute access is meant mostly for convenience and has performance penalties.
+    Use only indexing in time-critical code as there is a faster implementation Annotation without attribute access.
 
     The dictionary is fully mutable. Elements can be added and deleted.
     The annotation does not keep track which are valid attribute names for a layer.
-    This is task of a low-lever system programmer who uses a raw access to Annotation to respect it.
+    This is task of a low-lever system programmer who uses a raw access to Annotation.
     Normally, inconsistencies will be caught by Layer level operations.
     In particular, if you write a Tagger or a ReTagger such errors will be caught automatically.
     """
@@ -125,31 +127,48 @@ class Annotation(AttrDict):
             attribute_names = sorted(self.mapping)
         else:
             attribute_names = self.legal_attribute_names
+            # remove nonexistant attribute names
+            # show extra attributes
 
         key_value_strings = ['{!r}: {!r}'.format(k, self.mapping[k]) for k in attribute_names]
 
         return '{class_name}({text!r}, {{{attributes}}})'.format(class_name=self.__class__.__name__, text=self.text,
                                                                  attributes=', '.join(key_value_strings))
 
+    # add _html_repr
+
     @property
     def start(self) -> Optional[int]:
+        """
+        Convenience function that returns the start of the span associated with the annotation.
+        Use it only for interactive explorations and not in time-critical applications.
+        """
         if self.span:
             return self.span.start
 
     @property
     def end(self) -> Optional[int]:
+        """
+        Convenience function that returns the end of the span associated with the annotation.
+        Use it only for interactive explorations and not in time-critical applications.
+        """
         if self.span:
             return self.span.end
 
     @property
     def layer(self) -> Optional['Layer']:
+        """
+        Convenience function that returns the layer to which the span associated with the annotation belongs.
+        Use it only for interactive exploration when you do not know to which layer the annotation belongs.
+        """
         if self.span:
             return self.span.layer
 
+    # deprecated
     @property
     def legal_attribute_names(self) -> Optional[Sequence[str]]:
         """
-        Deprecated property. Do not use it. Will be removed in
+        Deprecated property. Do not use it. Will be removed as soon as possible
         :return:
         """
         if self.layer is not None:
@@ -157,16 +176,29 @@ class Annotation(AttrDict):
 
     @property
     def text_object(self) -> Optional['Text']:
+        """
+        Convenience function that returns the text object to which the annotation belongs.
+        Use it only for interactive exploration when you do not know which text object is annotated.
+        """
         if self.span is not None:
             return self.span.text_object
 
     @property
     def text(self) -> Optional[str]:
+        """
+        Convenience function that returns the underlying text fragment associated with the annotation.
+        Use it only for interactive explorations and not in time-critical applications.
+        """
         if self.span:
             return self.span.text
 
     # TODO: get rid of this. This does not work correctly
     def to_record(self, with_text: bool = False) -> Mapping[str, Any]:
+        """
+        Deprecated function.  Do not use it. Will be removed as soon as possible.
+        :param with_text:
+        :return:
+        """
         record = self.mapping.copy()
         if with_text:
             record['text'] = getattr(self, 'text')
