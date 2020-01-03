@@ -293,7 +293,7 @@ def test_multi_indexing():
     with pytest.raises(TypeError, match='index must be a string or a tuple of strings'):
         _ = annotation[(5,)]
     with pytest.raises(TypeError, match='index must be a string or a tuple of strings'):
-        _ = annotation[(5,6)]
+        _ = annotation[(5, 6)]
 
     # No multi-key deletion
     with pytest.raises(KeyError, match="'Annotation' object does not have a key"):
@@ -444,14 +444,6 @@ def test_repr_and_str():
     assert repr(annotation) == "Annotation(None, {'__deepcopy__': 'its gonna fail without arrangements'," + \
                                " 'dict': {'a': 15, 'b': 'one'}, 'end': ['a', 'b'], 'number': 42, 'string': 'twelve'})"
 
-    # Span in a layer must have all attributes required by the layer
-    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=Text('Tere!'))
-    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
-    annotation = Annotation(span=span)
-    with pytest.raises(KeyError):
-        assert str(annotation) == 'Annotation(Tere, {})'
-    with pytest.raises(KeyError):
-        assert repr(annotation) == 'Annotation(Tere, {})'
     # The order of attributes is determined by the order of attributes in the layer
     layer = Layer('test_layer', attributes=['number', 'string', 'dict'], text_object=Text('Tere!'))
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
@@ -467,6 +459,31 @@ def test_repr_and_str():
                               " 'end': ['a', 'b'], '__deepcopy__': 'its gonna fail without arrangements'})"
     assert repr(annotation) == "Annotation('Jah', {'number': 42, 'string': 'twelve', 'dict': {'a': 15, 'b': 'one'}," +\
                                " 'end': ['a', 'b'], '__deepcopy__': 'its gonna fail without arrangements'})"
+
+    # Span in a layer does not have to have all attributes required by the layer for repr and str to work
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=Text('Tere!'))
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    annotation = Annotation(span=span)
+    assert str(annotation) == "Annotation('Tere', {})"
+    assert repr(annotation) == "Annotation('Tere', {})"
+    # When some attributes are missing compared to the layer spec missing ones are dropped but the ordering is kept
+    layer = Layer('test_layer', attributes=['attr_3', 'attr_2', 'attr_1'], text_object=Text('Tere!'))
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    annotation = Annotation(span=span, attr_1=5, attr_3=3)
+    assert str(annotation) == "Annotation('Tere', {'attr_3': 3, 'attr_1': 5})"
+    assert repr(annotation) == "Annotation('Tere', {'attr_3': 3, 'attr_1': 5})"
+    # Extra attributes are printed out after attributes in the layer spec in alphabetical order
+    layer = Layer('test_layer', attributes=['xttr_3', 'xttr_2', 'xttr_1'], text_object=Text('Tere!'))
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    annotation = Annotation(span=span, xttr_1=5, xttr_2=4, xttr_3=3, extra_1=6, extra_2=7)
+    assert str(annotation) == "Annotation('Tere', {'xttr_3': 3, 'xttr_2': 4, 'xttr_1': 5, 'extra_1': 6, 'extra_2': 7})"
+    assert repr(annotation) == "Annotation('Tere', {'xttr_3': 3, 'xttr_2': 4, 'xttr_1': 5, 'extra_1': 6, 'extra_2': 7})"
+    # There can be missing and extra attributes compared to layer spec the ordering is an obvious generalisation
+    layer = Layer('test_layer', attributes=['xttr_3', 'xttr_2', 'xttr_1'], text_object=Text('Tere!'))
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    annotation = Annotation(span=span, xttr_1=5, xttr_3=3, extra_1=6, extra_2=7)
+    assert str(annotation) == "Annotation('Tere', {'xttr_3': 3, 'xttr_1': 5, 'extra_1': 6, 'extra_2': 7})"
+    assert repr(annotation) == "Annotation('Tere', {'xttr_3': 3, 'xttr_1': 5, 'extra_1': 6, 'extra_2': 7})"
 
     # Simple test that repr and str are recursion safe
     annotation = Annotation(span=None)
