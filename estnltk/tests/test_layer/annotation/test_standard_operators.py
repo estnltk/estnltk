@@ -42,7 +42,7 @@ def test_methods_list():
     assert set(members['private_variables']) <= Annotation.methods
     assert set(members['protected_variables']) <= Annotation.methods
     assert set(members['public_variables']) <= Annotation.methods
-    # additional slots are assignable
+    # Additional slots are assignable
     assert len(set(Annotation.__slots__) & Annotation.methods) == 0
 
 
