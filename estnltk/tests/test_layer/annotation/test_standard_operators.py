@@ -34,7 +34,6 @@ def test_methods_list():
     # Test that the list of prohibited attribute names is complete
     members = inspect_class_members(Annotation(None))
     assert set(members['properties']) <= Annotation.methods
-    print(set(members['private_methods'])-set(Annotation.methods))
     assert set(members['private_methods']) <= Annotation.methods
     assert set(members['protected_methods']) <= Annotation.methods
     assert set(members['public_methods']) <= Annotation.methods
