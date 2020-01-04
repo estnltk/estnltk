@@ -31,6 +31,8 @@ def test_len():
 
 
 def test_methods_list():
+    # Check that list of methods is constant
+    assert isinstance(Annotation.methods, frozenset)
     # Test that the list of prohibited attribute names is complete
     members = inspect_class_members(Annotation(None))
     assert set(members['properties']) <= Annotation.methods
@@ -41,7 +43,7 @@ def test_methods_list():
     assert set(members['protected_variables']) <= Annotation.methods
     assert set(members['public_variables']) <= Annotation.methods
     # additional slots are assignable
-    assert isinstance(Annotation.methods, frozenset)
+    assert len(set(Annotation.__slots__) & Annotation.methods) == 0
 
 
 def test_copy_constructors():
