@@ -19,34 +19,121 @@ class Span:
 
     def __init__(self, base_span: BaseSpan, layer):
         assert isinstance(base_span, BaseSpan), base_span
+        # assert isinstance(layer, Layer), layer
 
-        self._base_span = base_span
-        self._layer = layer  # type: Layer
+        self_setattr = super().__setattr__
+        # self._layer: Layer = layer
+        self_setattr('_layer', layer)
+        # self._base_span: BaseSpan = base_span
+        self_setattr('_base_span', base_span)
+        # self._parent: Span = None
+        self_setattr('_parent', None)
+        # self.annotations: List[Annotation] = []
+        self_setattr('_annotations', [])
 
-        self._annotations = []
+    def __copy__(self):
+        result = Span(base_span=self._base_span, layer=self.layer)
+        result_setattr = super(Span, result).__setattr__
+        result_setattr('_parent', self._parent)
+        result_setattr('_annotations', self._annotations)
+        return result
 
-        self._parent = None  # type: Span
+    def __deepcopy__(self, memo=None):
+        memo = memo or {}
+        # Create invalid instance
+        cls = self.__class__
+        result = cls.__new__(cls)
+        # Add all fields to the instance to make it valid
+        # All assignments are safe as self is consistent
+        result_setattr = super(Span, result).__setattr__
+        result_setattr('_layer',  None)                        # Mutable
+        result_setattr('_base_span', self._base_span)          # Immutable
+        result_setattr('_parent', None)                        # Mutable
+        result_setattr('_annotations', list())                 # List[Mutable]
+        # Add newly created valid mutable objects to memo
+        memo[id(self)] = result
+        memo[id(self._annotations)] = result._annotations
+        # Perform deep copy with a valid memo dict
+        result_setattr('_layer', deepcopy(self.layer, memo))
+        result_setattr('_parent', deepcopy(self.parent, memo))
+        result._annotations.extend(deepcopy(annotation, memo) for annotation in self._annotations)
+        return result
 
-    # def __deepcopy__(self, memo=None):
-    #     memo = memo or {}
-    #     # Create invalid instance
-    #     cls = self.__class__
-    #     result = cls.__new__(cls)
-    #     # Add all fields to the instance to make it valid
-    #     # All assignments are safe as self is consistent
-    #     result._base_span = self._base_span                    # Immutable
-    #     result._layer = None                                   # Mutable
-    #     result._annotations = []                               # List[Mutable]
-    #     result._parent = None                                  # Mutable
-    #     # Add newly created valid mutable objects to memo
-    #     memo[id(self)] = result
-    #     memo[id(self._annotations)] = result._annotations
-    #
-    #     # Perform deep copy with a valid memo dict
-    #     result._layer = deepcopy(self.layer, memo)
-    #     result._parent = deepcopy(self.parent, memo)
-    #     result._annotations.append(deepcopy(anno, memo) for anno in self._annotations)
-    #     return result
+    def __getstate__(self):
+        return dict(layer=self.layer, base_span=self._base_span, parent=self._parent, annotations=self._annotations)
+
+    def __setstate__(self, state):
+        self.__init__(base_span=state['base_span'], layer=state['layer'])
+        self_setattr = super().__setattr__
+        self_setattr('_parent', state['parent'])
+        self_setattr('_annotations', state['annotations'])
+
+    def __getattr__(self, item):
+        if item in self.__getattribute__('_layer').attributes:
+            return self[item]
+        try:
+            return self.resolve_attribute(item)
+        except KeyError as key_error:
+            raise AttributeError(key_error.args[0]) from key_error
+
+    def __setattr__(self, key, value):
+        if key in {'_base_span', '_layer', '_annotations', '_parent'}:
+            # Nobody sets attribute _parent, _base_span in EstNLTK codebase. Lets make it private
+            # It should be set only during the initialisation
+            # if key == '_base_span':
+            raise NotImplementedError('Boo')
+            super().__setattr__(key, value)
+        elif key in self.legal_attribute_names:
+            for annotation in self._annotations:
+                setattr(annotation, key, value)
+        else:
+            raise AttributeError(key)
+
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            if self._layer.ambiguous:
+                return AttributeList((annotation[item] for annotation in self._annotations), item)
+            return self._annotations[0][item]
+        if isinstance(item, tuple):
+            if self._layer.ambiguous:
+                return AttributeTupleList((annotation[item] for annotation in self._annotations), item)
+            return self._annotations[0][item]
+
+        raise KeyError(item)
+
+    def __lt__(self, other: Any) -> bool:
+        return self.base_span < other.base_span
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, Span) \
+               and self.base_span == other.base_span \
+               and len(self.annotations) == len(other.annotations) \
+               and all(s in other.annotations for s in self.annotations)
+
+    @recursive_repr()
+    def __str__(self):
+        try:
+            text = self.text
+        except:
+            text = None
+
+        try:
+            attribute_names = self._layer.attributes
+            annotation_strings = []
+            for annotation in self._annotations:
+                key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
+                annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
+            annotations = '[{}]'.format(', '.join(annotation_strings))
+        except:
+            annotations = None
+
+        return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
+                                                              annotations=annotations)
+
+    def __repr__(self):
+        return str(self)
+
+
 
     def add_annotation(self, annotation: Annotation) -> Annotation:
         if not isinstance(annotation, Annotation):
@@ -74,22 +161,11 @@ class Span:
     def annotations(self):
         return self._annotations
 
-    def __getitem__(self, item):
-        if isinstance(item, str):
-            if self._layer.ambiguous:
-                return AttributeList((annotation[item] for annotation in self._annotations), item)
-            return self._annotations[0][item]
-        if isinstance(item, tuple):
-            if self._layer.ambiguous:
-                return AttributeTupleList((annotation[item] for annotation in self._annotations), item)
-            return self._annotations[0][item]
-
-        raise KeyError(item)
 
     @property
     def parent(self):
         if self._parent is None and self._layer.parent:
-            self._parent = self._layer.text_object[self._layer.parent].get(self.base_span)
+            super().__setattr__('_parent',  self._layer.text_object[self._layer.parent].get(self.base_span))
 
         return self._parent
 
@@ -154,14 +230,6 @@ class Span:
         record['end'] = self.end
         return record
 
-    def __setattr__(self, key, value):
-        if key in {'_base_span', '_layer', '_annotations', '_parent'}:
-            super().__setattr__(key, value)
-        elif key in self.legal_attribute_names:
-            for annotation in self._annotations:
-                setattr(annotation, key, value)
-        else:
-            raise AttributeError(key)
 
     def resolve_attribute(self, item):
         if item not in self.text_object.layers:
@@ -170,45 +238,6 @@ class Span:
 
         return self.text_object[item].get(self.base_span)
 
-    def __getattr__(self, item):
-        if item in self.__getattribute__('_layer').attributes:
-            return self[item]
-        try:
-            return self.resolve_attribute(item)
-        except KeyError as key_error:
-            raise AttributeError(key_error.args[0]) from key_error
-
-    def __lt__(self, other: Any) -> bool:
-        return self.base_span < other.base_span
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Span) \
-               and self.base_span == other.base_span \
-               and len(self.annotations) == len(other.annotations) \
-               and all(s in other.annotations for s in self.annotations)
-
-    @recursive_repr()
-    def __str__(self):
-        try:
-            text = self.text
-        except:
-            text = None
-
-        try:
-            attribute_names = self._layer.attributes
-            annotation_strings = []
-            for annotation in self._annotations:
-                key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
-                annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
-            annotations = '[{}]'.format(', '.join(annotation_strings))
-        except:
-            annotations = None
-
-        return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
-                                                              annotations=annotations)
-
-    def __repr__(self):
-        return str(self)
 
     def _to_html(self, margin=0) -> str:
         try:
