@@ -205,7 +205,17 @@ def test_multi_indexing():
     pass
 
 def test_span_slot_access_rules():
-    pass
+    text = Text('Tere!')
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+
+    # Check that basic slots are fixed during initialisation and cannot be changed
+    error_template = 'an attempt to change an immutable slot {!r} whose value is fixed by the constructor'
+    with pytest.raises(AttributeError, match=error_template.format('_layer')):
+        span._layer = None
+    with pytest.raises(AttributeError, match=error_template.format('_base_span')):
+        span._base_span = None
+
 
 def test_equality():
     pass
