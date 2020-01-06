@@ -79,7 +79,7 @@ class Span:
     def __setattr__(self, key, value):
         if key in {'base_span', 'layer'}:
             raise AttributeError(
-                'an attempt to change an immutable slot {!r} whose value is fixed by the constructor'.format(key))
+                'an attempt to redefine a constant slot {!r}. Define a new instance for that.'.format(key))
 
         if key in {'_base_span', '_layer', '_annotations', '_parent'}:
             # Nobody sets attribute _parent, _base_span in EstNLTK codebase. Lets make it private

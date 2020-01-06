@@ -210,7 +210,7 @@ def test_span_slot_access_rules():
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
 
     # Check that basic slots are fixed during initialisation and cannot be changed
-    error_template = 'an attempt to change an immutable slot {!r} whose value is fixed by the constructor'
+    error_template = 'an attempt to redefine a constant slot {!r}. Define a new instance for that.'
     with pytest.raises(AttributeError, match=error_template.format('layer')):
         span.layer = None
     with pytest.raises(AttributeError, match=error_template.format('base_span')):
