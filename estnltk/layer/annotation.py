@@ -25,7 +25,8 @@ class Annotation(AttrDict):
     # List of prohibited attribute names
     methods = AttrDict.methods | {
         'end', 'layer', 'legal_attribute_names', 'start', 'text', 'text_object', 'to_record',
-        '_repr_html_', '__copy__', '__deepcopy__', '__getstate__', '__setstate__', '__getattr__'}
+        '_repr_html_', '_ipython_canary_method_should_not_exist_',
+        '__copy__', '__deepcopy__', '__getstate__', '__setstate__', '__getattr__'}
 
     def __init__(self, span: 'Span', **attributes):
         super().__init__(**attributes)
