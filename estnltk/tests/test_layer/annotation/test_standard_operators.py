@@ -44,6 +44,8 @@ def test_methods_list():
     assert set(members['public_variables']) <= Annotation.methods
     # Additional slots are assignable
     assert len(set(Annotation.__slots__) & Annotation.methods) == 0
+    # Make sure that Annotation passes Jupyter sanity checks
+    assert '_ipython_canary_method_should_not_exist_' in Annotation.methods
 
 
 def test_copy_constructors():
@@ -180,6 +182,10 @@ def test_attribute_assignment_and_access():
         with pytest.raises(AttributeError, match='attempt to set an attribute that shadows a method'):
             setattr(annotation, attr, 42)
 
+    # Tests that Jupyter sanity check works
+    with pytest.raises(AttributeError, match='attempt to set an attribute that shadows a method'):
+        annotation._ipython_canary_method_should_not_exist_ = 5
+
 
 def test_attribute_deletion():
     text = Text('Tere!')
@@ -264,6 +270,11 @@ def test_item_assignment_and_access():
         annotation[attr] = 42
         assert annotation[attr] == 42
         assert attr not in annotation.__dict__
+
+    # Tests that Jupyter sanity check works
+    annotation = Annotation(span=None, _ipython_canary_method_should_not_exist_=5)
+    with pytest.raises(AttributeError, match="'Annotation' object has no attribute"):
+        _ = annotation._ipython_canary_method_should_not_exist_
 
     # Check that item assignment and deletion correctly updates __dict__
     annotation = Annotation(span=None, number=42, string='twelve', dict={'a': 15, 'b': 'one'},
