@@ -29,16 +29,16 @@ def test_copy_constructors():
 
     def check_shallow_copy(span_1, span_2):
         assert span_1 is not span_2
-        assert span_1._layer is span_2._layer
-        assert span_1._base_span is span_2._base_span
+        assert span_1.layer is span_2.layer
+        assert span_1.base_span is span_2.base_span
         assert span_1._parent is span_2._parent
         assert span_1._annotations is span_2._annotations
 
     def check_deep_copy(span_1, span_2):
         assert span_1 is not span_2
-        assert span_1._layer is not span_2._layer
-        assert span_1._layer == span_2._layer
-        assert span_1._base_span is span_2._base_span
+        assert span_1.layer is not span_2.layer
+        assert span_1.layer == span_2.layer
+        assert span_1.base_span is span_2.base_span
         assert span_1._parent is not span_2._parent or span_1.parent is None
         assert span_1._parent == span_2._parent
         assert span_1._annotations is not span_2._annotations
@@ -127,9 +127,9 @@ def test_copy_constructors():
     check_shallow_copy(copy(span), span)
     d_copy = deepcopy(span)
     assert d_copy is not span
-    assert d_copy._layer is not span._layer
-    assert d_copy._layer == span._layer
-    assert d_copy._base_span is span._base_span
+    assert d_copy.layer is not span.layer
+    assert d_copy.layer == span.layer
+    assert d_copy.base_span is span.base_span
     assert d_copy.parent is None
     assert d_copy._parent == span._parent
     assert d_copy._annotations is not span._annotations
@@ -150,9 +150,9 @@ def test_copy_constructors():
     check_shallow_copy(copy(span), span)
     d_copy = deepcopy(span)
     assert d_copy is not span
-    assert d_copy._layer is not span._layer
-    assert d_copy._layer == span._layer
-    assert d_copy._base_span is span._base_span
+    assert d_copy.layer is not span.layer
+    assert d_copy.layer == span.layer
+    assert d_copy.base_span is span.base_span
     assert d_copy.parent is None
     assert d_copy._parent == span._parent
     assert d_copy._annotations is not span._annotations
@@ -178,11 +178,11 @@ def test_copy_constructors():
     check_shallow_copy(copy(span), span)
     d_copy = deepcopy(span)
     assert d_copy is not span
-    assert d_copy._layer is not span._layer
-    assert d_copy._layer == span._layer
-    assert d_copy._base_span is span._base_span
+    assert d_copy.layer is not span.layer
+    assert d_copy.layer == span.layer
+    assert d_copy.base_span is span.base_span
     assert d_copy._parent is not span.parent
-    assert d_copy._parent._base_span == span.parent._base_span
+    assert d_copy._parent.base_span == span.parent.base_span
     assert len(d_copy._parent.annotations) == 1
     assert d_copy._parent.annotations[0][('a', 'b', 'c')] == span._parent.annotations[0][('a', 'b', 'c')]
     assert d_copy._parent.annotations[0]['rec'] is d_copy
@@ -211,10 +211,10 @@ def test_span_slot_access_rules():
 
     # Check that basic slots are fixed during initialisation and cannot be changed
     error_template = 'an attempt to change an immutable slot {!r} whose value is fixed by the constructor'
-    with pytest.raises(AttributeError, match=error_template.format('_layer')):
-        span._layer = None
-    with pytest.raises(AttributeError, match=error_template.format('_base_span')):
-        span._base_span = None
+    with pytest.raises(AttributeError, match=error_template.format('layer')):
+        span.layer = None
+    with pytest.raises(AttributeError, match=error_template.format('base_span')):
+        span.base_span = None
 
 
 def test_equality():

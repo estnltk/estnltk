@@ -21,8 +21,8 @@ class EnvelopingSpan(Span):
     @property
     def spans(self):
         if self._spans is None:
-            get_from_enveloped = self._layer.text_object[self._layer.enveloping].get
-            self._spans = tuple(get_from_enveloped(base) for base in self._base_span)
+            get_from_enveloped = self.layer.text_object[self.layer.enveloping].get
+            self._spans = tuple(get_from_enveloped(base) for base in self.base_span)
 
         return self._spans
 
@@ -42,7 +42,7 @@ class EnvelopingSpan(Span):
         yield from self.spans
 
     def __len__(self) -> int:
-        return len(self._base_span)
+        return len(self.base_span)
 
     def __contains__(self, item: Any) -> bool:
         return item in self.spans
@@ -56,16 +56,16 @@ class EnvelopingSpan(Span):
     def resolve_attribute(self, item):
         if item not in self.text_object.layers:
             attribute_mapping = self.text_object.attribute_mapping_for_enveloping_layers
-            return self._layer.text_object[attribute_mapping[item]].get(self.base_span)[item]
+            return self.layer.text_object[attribute_mapping[item]].get(self.base_span)[item]
 
         target_layer = self.text_object[item]
 
         if len(target_layer) == 0:
             return
 
-        if target_layer[0].base_span.level >= self._base_span.level:
+        if target_layer[0].base_span.level >= self.base_span.level:
             raise AttributeError('target layer level {} should be lower than {}'.format(
-                    target_layer[0].base_span.level, self._base_span.level))
+                    target_layer[0].base_span.level, self.base_span.level))
 
         return target_layer.get(self.base_span)
 
