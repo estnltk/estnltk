@@ -55,6 +55,10 @@ from estnltk.taggers.text_segmentation.paragraph_tokenizer import ParagraphToken
 from estnltk.taggers.text_segmentation.compound_token_tagger import CompoundTokenTagger
 from estnltk.taggers.text_segmentation.clause_segmenter import ClauseSegmenter
 
+# Taggers for processing pretokenized texts:
+from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
+from estnltk.taggers.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
+
 from estnltk.taggers.syntax_preprocessing.pronoun_type_retagger import PronounTypeRetagger
 from estnltk.taggers.syntax_preprocessing.verb_extension_suffix_tagger import VerbExtensionSuffixRetagger
 from estnltk.taggers.syntax_preprocessing.subcat_tagger import SubcatRetagger

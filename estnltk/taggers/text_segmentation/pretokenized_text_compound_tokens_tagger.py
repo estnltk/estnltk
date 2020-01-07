@@ -17,7 +17,6 @@
 #     exactly in the same order as the appear in the text.
 # 
 
-
 from estnltk.text import Layer
 from estnltk.taggers import Tagger
 
@@ -34,14 +33,7 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
     output_attributes = ('type', 'normalized')
     input_layers = ['tokens']
     conf_param   = ['_multiword_units', 
-                    '_input_tokens_layer',
-                    'layer_name',  # <- For backward compatibility ...
-                    'depends_on'   # <- For backward compatibility ...
-                   ]
-    
-    depends_on   = input_layers  # <- For backward compatibility ...
-    layer_name   = output_layer  # <- For backward compatibility ...
-
+                    '_input_tokens_layer' ]
 
     def __init__(self, multiword_units = [],
                        output_layer:str='compound_tokens',
@@ -73,8 +65,6 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
         self.output_layer = output_layer
         self._input_tokens_layer = input_tokens_layer
         self.input_layers = [input_tokens_layer]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
         # Add multiword units (if provided)
         if multiword_units:
            # Assert the format (should be a list of list of strings)
