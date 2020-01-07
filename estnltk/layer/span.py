@@ -55,7 +55,7 @@ class Span:
         memo[id(self._annotations)] = result._annotations
         # Perform deep copy with a valid memo dict
         result_setattr('layer', deepcopy(self.layer, memo))
-        result_setattr('_parent', deepcopy(self.parent, memo))
+        result_setattr('_parent', deepcopy(self._parent, memo))
         result._annotations.extend(deepcopy(annotation, memo) for annotation in self._annotations)
         return result
 
@@ -68,7 +68,23 @@ class Span:
         self_setattr('_parent', state['parent'])
         self_setattr('_annotations', state['annotations'])
 
+    @property
+    def parent(self):
+        parent = self._parent
+        if parent is None:
+            # Lets try to recompute parent
+            layer = self.__getattribute__('layer')
+            if not layer or not layer.parent:
+                return parent
+            text = layer.text_object
+            if not text or layer.parent not in text.layers:
+                return parent
+            parent = text[layer.parent].get(self.base_span)
+            super().__setattr__('_parent', parent)
+        return parent
+
     def __getattr__(self, item):
+
         if item in self.__getattribute__('layer').attributes:
             return self[item]
         try:
@@ -77,9 +93,17 @@ class Span:
             raise AttributeError(key_error.args[0]) from key_error
 
     def __setattr__(self, key, value):
+        # Constant slots
         if key in {'base_span', 'layer'}:
             raise AttributeError(
                 'an attempt to redefine a constant slot {!r}. Define a new instance for that.'.format(key))
+        # Custom checks for assigning parent property
+        if key in {'parent', '_parent'}:
+            if not isinstance(value, Span):
+                raise TypeError('???')
+            if value.base_span != self.base_span:
+                raise ValueError('???')
+            return super().__setattr__('_parent', value)
 
         if key in {'_base_span', '_layer', '_annotations', '_parent'}:
             # Nobody sets attribute _parent, _base_span in EstNLTK codebase. Lets make it private
@@ -164,14 +188,6 @@ class Span:
     @property
     def annotations(self):
         return self._annotations
-
-
-    @property
-    def parent(self):
-        if self._parent is None and self.layer.parent:
-            super().__setattr__('_parent', self.layer.text_object[self.layer.parent].get(self.base_span))
-
-        return self._parent
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
