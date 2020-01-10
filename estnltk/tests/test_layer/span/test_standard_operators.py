@@ -253,6 +253,14 @@ def test_span_slot_access_rules():
     span.parent = parent
     assert span.parent is parent
 
+    # Check that the parent property is assignable if it not present
+    text = Text('Tere!')
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    _ = span.parent
+    span.parent = parent
+    assert span.parent is parent
 
 
 
