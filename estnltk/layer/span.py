@@ -15,7 +15,7 @@ class Span:
     Span can exist without annotations. It is the responsibility of a programmer to remove such spans.
 
     """
-    __slots__ = ['base_span', 'layer', '_annotations', '_parent']
+    __slots__ = ['base_span', 'layer', 'annotations', '_parent']
 
     def __init__(self, base_span: BaseSpan, layer):
         assert isinstance(base_span, BaseSpan), base_span
@@ -26,16 +26,16 @@ class Span:
         self_setattr('layer', layer)
         # self.base_span: BaseSpan = base_span
         self_setattr('base_span', base_span)
+        # self.annotations: List[Annotation] = []
+        self_setattr('annotations', [])
         # self._parent: Span = None
         self_setattr('_parent', None)
-        # self.annotations: List[Annotation] = []
-        self_setattr('_annotations', [])
 
     def __copy__(self):
         result = Span(base_span=self.base_span, layer=self.layer)
         result_setattr = super(Span, result).__setattr__
+        result_setattr('annotations', self.annotations)
         result_setattr('_parent', self._parent)
-        result_setattr('_annotations', self._annotations)
         return result
 
     def __deepcopy__(self, memo=None):
@@ -48,40 +48,57 @@ class Span:
         result_setattr = super(Span, result).__setattr__
         result_setattr('layer',  None)                         # Mutable
         result_setattr('base_span', self.base_span)            # Immutable
+        result_setattr('annotations', list())                  # List[Mutable]
         result_setattr('_parent', None)                        # Mutable
-        result_setattr('_annotations', list())                 # List[Mutable]
         # Add newly created valid mutable objects to memo
         memo[id(self)] = result
-        memo[id(self._annotations)] = result._annotations
+        memo[id(self.annotations)] = result.annotations
         # Perform deep copy with a valid memo dict
         result_setattr('layer', deepcopy(self.layer, memo))
         result_setattr('_parent', deepcopy(self._parent, memo))
-        result._annotations.extend(deepcopy(annotation, memo) for annotation in self._annotations)
+        result.annotations.extend(deepcopy(annotation, memo) for annotation in self.annotations)
         return result
 
     def __getstate__(self):
-        return dict(layer=self.layer, base_span=self.base_span, parent=self._parent, annotations=self._annotations)
+        return dict(layer=self.layer, base_span=self.base_span, annotations=self.annotations, parent=self._parent)
 
     def __setstate__(self, state):
         self.__init__(base_span=state['base_span'], layer=state['layer'])
         self_setattr = super().__setattr__
+        self_setattr('annotations', state['annotations'])
         self_setattr('_parent', state['parent'])
-        self_setattr('_annotations', state['annotations'])
 
     @property
     def parent(self):
         parent = self._parent
         if parent is None:
-            # Lets try to recompute parent
+            # Lets try to compute parent
             layer = self.__getattribute__('layer')
-            if not layer or not layer.parent:
+            # Be explicit bool conversion can fail sometimes
+            if layer is None or layer.parent is None:
                 return parent
             text = layer.text_object
-            if not text or layer.parent not in text.layers:
+            # Be explicit bool conversion can fail sometimes
+            if text is None or layer.parent not in text.layers:
                 return parent
+            # We have it. Lets cache the result
             parent = text[layer.parent].get(self.base_span)
             super().__setattr__('_parent', parent)
         return parent
+
+    @parent.setter
+    def parent(self, value):
+        # Validity checks
+        if self._parent is not None:
+            raise AttributeError("value of 'parent' property is already fixed. Define a new instance.")
+        elif not isinstance(value, Span):
+            raise TypeError("'parent' must be an instance of Span.")
+        elif value.base_span != self.base_span:
+            raise ValueError("an invalid 'parent' value: 'base_span' attributes must coincide.")
+        elif value is self:
+            raise ValueError("an invalid 'parent' value: self-loops are not allowed.")
+        # Assignment
+        return super().__setattr__('_parent', value)
 
     def __getattr__(self, item):
 
@@ -93,17 +110,18 @@ class Span:
             raise AttributeError(key_error.args[0]) from key_error
 
     def __setattr__(self, key, value):
+        # Assignable properties
+        if key == 'parent':
+            return super().__setattr__(key, value)
         # Constant slots
-        if key in {'base_span', 'layer'}:
+        if key in {'annotations', 'base_span', 'layer'}:
             raise AttributeError(
-                'an attempt to redefine a constant slot {!r}. Define a new instance for that.'.format(key))
-        # Custom checks for assigning parent property
-        if key in {'parent', '_parent'}:
-            if not isinstance(value, Span):
-                raise TypeError('???')
-            if value.base_span != self.base_span:
-                raise ValueError('???')
-            return super().__setattr__('_parent', value)
+                'an attempt to redefine a constant slot {!r} of Span. Define a new instance.'.format(key))
+        # Prohibited slots
+        if key == '_parent':
+            raise AttributeError('an attempt to assign a private slot {!r} of Span'.format(key))
+
+
 
         if key in {'_base_span', '_layer', '_annotations', '_parent'}:
             # Nobody sets attribute _parent, _base_span in EstNLTK codebase. Lets make it private
@@ -112,7 +130,7 @@ class Span:
             raise NotImplementedError('Boo')
             super().__setattr__(key, value)
         elif key in self.legal_attribute_names:
-            for annotation in self._annotations:
+            for annotation in self.annotations:
                 setattr(annotation, key, value)
         else:
             raise AttributeError(key)
@@ -120,12 +138,12 @@ class Span:
     def __getitem__(self, item):
         if isinstance(item, str):
             if self.layer.ambiguous:
-                return AttributeList((annotation[item] for annotation in self._annotations), item)
-            return self._annotations[0][item]
+                return AttributeList((annotation[item] for annotation in self.annotations), item)
+            return self.annotations[0][item]
         if isinstance(item, tuple):
             if self.layer.ambiguous:
-                return AttributeTupleList((annotation[item] for annotation in self._annotations), item)
-            return self._annotations[0][item]
+                return AttributeTupleList((annotation[item] for annotation in self.annotations), item)
+            return self.annotations[0][item]
 
         raise KeyError(item)
 
@@ -148,7 +166,7 @@ class Span:
         try:
             attribute_names = self.layer.attributes
             annotation_strings = []
-            for annotation in self._annotations:
+            for annotation in self.annotations:
                 key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
                 annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
             annotations = '[{}]'.format(', '.join(annotation_strings))
@@ -172,22 +190,18 @@ class Span:
             raise ValueError('the annotation has unexpected or missing attributes {}!={}'.format(
                     set(annotation), set(self.layer.attributes)))
 
-        if annotation not in self._annotations:
-            if self.layer.ambiguous or len(self._annotations) == 0:
-                self._annotations.append(annotation)
+        if annotation not in self.annotations:
+            if self.layer.ambiguous or len(self.annotations) == 0:
+                self.annotations.append(annotation)
                 return annotation
 
             raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
 
     def del_annotation(self, idx):
-        del self._annotations[idx]
+        del self.annotations[idx]
 
     def clear_annotations(self):
-        self._annotations.clear()
-
-    @property
-    def annotations(self):
-        return self._annotations
+        self.annotations.clear()
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
@@ -233,7 +247,7 @@ class Span:
 
     def to_records(self, with_text=False):
         if self.layer.ambiguous:
-            return [i.to_record(with_text) for i in self._annotations]
+            return [i.to_record(with_text) for i in self.annotations]
         annotation = self.annotations[0]
         record = {k: annotation[k] for k in self.layer.attributes}
         if with_text:

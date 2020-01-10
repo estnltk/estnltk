@@ -32,7 +32,7 @@ def test_copy_constructors():
         assert span_1.layer is span_2.layer
         assert span_1.base_span is span_2.base_span
         assert span_1.parent is span_2.parent
-        assert span_1._annotations is span_2._annotations
+        assert span_1.annotations is span_2.annotations
 
     def check_deep_copy(span_1, span_2):
         assert span_1 is not span_2
@@ -41,8 +41,8 @@ def test_copy_constructors():
         assert span_1.base_span is span_2.base_span
         assert span_1.parent is not span_2.parent or span_1.parent is None
         assert span_1.parent == span_2.parent
-        assert span_1._annotations is not span_2._annotations
-        assert span_1._annotations == span_2._annotations
+        assert span_1.annotations is not span_2.annotations
+        assert span_1.annotations == span_2.annotations
 
     text = Text('Tere!')
     base_span = ElementaryBaseSpan(0, 4)
@@ -128,8 +128,8 @@ def test_copy_constructors():
     assert d_copy.base_span is span.base_span
     assert d_copy.parent is None
     assert d_copy.parent == span.parent
-    assert d_copy._annotations is not span._annotations
-    assert len(d_copy._annotations) == 1
+    assert d_copy.annotations is not span.annotations
+    assert len(d_copy.annotations) == 1
     assert d_copy.annotations[0][('a', 'b', 'c')] == span.annotations[0][('a', 'b', 'c')]
     assert d_copy.annotations[0]['rec'] is d_copy
 
@@ -140,9 +140,9 @@ def test_copy_constructors():
     span.add_annotation(annotation_1)
     annotation_2 = Annotation(span=span, a=4, b=5, c=6, rec=None)
     span.add_annotation(annotation_2)
-    annotation_2['rec'] = span._annotations
+    annotation_2['rec'] = span.annotations
     assert span.annotations[0]['rec'] is span
-    assert span.annotations[1]['rec'] is span._annotations
+    assert span.annotations[1]['rec'] is span.annotations
     check_shallow_copy(copy(span), span)
     d_copy = deepcopy(span)
     assert d_copy is not span
@@ -151,12 +151,12 @@ def test_copy_constructors():
     assert d_copy.base_span is span.base_span
     assert d_copy.parent is None
     assert d_copy.parent == span.parent
-    assert d_copy._annotations is not span._annotations
-    assert len(d_copy._annotations) == 2
+    assert d_copy.annotations is not span.annotations
+    assert len(d_copy.annotations) == 2
     assert d_copy.annotations[0][('a', 'b', 'c')] == span.annotations[0][('a', 'b', 'c')]
     assert d_copy.annotations[1][('a', 'b', 'c')] == span.annotations[1][('a', 'b', 'c')]
     assert d_copy.annotations[0]['rec'] is d_copy
-    assert d_copy.annotations[1]['rec'] is d_copy._annotations
+    assert d_copy.annotations[1]['rec'] is d_copy.annotations
 
     # Copying of recursive span with parent as an attribute
     layer = Layer('test_layer', attributes=['a', 'b', 'c', 'rec'], ambiguous=True, text_object=text)
@@ -181,8 +181,8 @@ def test_copy_constructors():
     assert len(d_copy.parent.annotations) == 1
     assert d_copy.parent.annotations[0][('a', 'b', 'c')] == span.parent.annotations[0][('a', 'b', 'c')]
     assert d_copy.parent.annotations[0]['rec'] is d_copy
-    assert d_copy.annotations is not span._annotations
-    assert len(d_copy._annotations) == 1
+    assert d_copy.annotations is not span.annotations
+    assert len(d_copy.annotations) == 1
     assert d_copy.annotations[0][('a', 'b', 'c')] == span.annotations[0][('a', 'b', 'c')]
     assert d_copy.annotations[0]['rec'] is d_copy.parent
 
@@ -205,11 +205,57 @@ def test_span_slot_access_rules():
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
 
     # Check that basic slots are fixed during initialisation and cannot be changed
-    error_template = 'an attempt to redefine a constant slot {!r}. Define a new instance for that.'
+    error_template = 'an attempt to redefine a constant slot {!r} of Span. Define a new instance.'
     with pytest.raises(AttributeError, match=error_template.format('layer')):
         span.layer = None
     with pytest.raises(AttributeError, match=error_template.format('base_span')):
         span.base_span = None
+    with pytest.raises(AttributeError, match=error_template.format('annotations')):
+        span.annotations = None
+
+    # Check that private slots cannot be assigned
+    error_template = 'an attempt to assign a private slot {!r} of Span'
+    with pytest.raises(AttributeError, match=error_template.format('_parent')):
+        span._parent = None
+
+    # Check that parent property cannot be assigned with incorrect values
+    with pytest.raises(TypeError, match="'parent' must be an instance of Span."):
+        span.parent = 5
+    with pytest.raises(ValueError, match="an invalid 'parent' value: 'base_span' attributes must coincide."):
+        span.parent = Span(base_span=ElementaryBaseSpan(2, 4), layer=layer)
+    with pytest.raises(ValueError, match="an invalid 'parent' value: self-loops are not allowed."):
+        span.parent = span
+
+    # Check that parent property can be assigned only once
+    span.parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    with pytest.raises(AttributeError, match="value of 'parent' property is already fixed. Define a new instance."):
+        span.parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+
+    # The same check but the parent property is computed silently
+    text = Text('Tere!')
+    parent_layer = Layer('parent_layer', attributes=['attr'], text_object=text)
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
+    parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
+    text.add_layer(parent_layer)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    _ = span.parent
+    with pytest.raises(AttributeError, match="value of 'parent' property is already fixed. Define a new instance."):
+        span.parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+
+    # The same check but the parent property is computed silently but it fails
+    text = Text('Tere!')
+    parent_layer = Layer('parent_layer', attributes=['attr'], text_object=text)
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
+    text.add_layer(parent_layer)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    _ = span.parent
+    span.parent = parent
+    assert span.parent is parent
+
+
+
+
 
 
 def test_equality():
