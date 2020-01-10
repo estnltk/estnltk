@@ -68,6 +68,77 @@ class Span:
         self_setattr('annotations', state['annotations'])
         self_setattr('_parent', state['parent'])
 
+    def __getattr__(self, item):
+
+        if item in self.__getattribute__('layer').attributes:
+            return self[item]
+        try:
+            return self.resolve_attribute(item)
+        except KeyError as key_error:
+            raise AttributeError(key_error.args[0]) from key_error
+
+    def __setattr__(self, key, value):
+        # Assignable properties
+        if key == 'parent':
+            return super().__setattr__(key, value)
+        # Constant slots
+        elif key in {'annotations', 'base_span', 'layer'}:
+            raise AttributeError(
+                'an attempt to redefine a constant slot {!r} of Span. Define a new instance.'.format(key))
+        # Prohibited slots
+        elif key == '_parent':
+            raise AttributeError('an attempt to assign a private slot {!r} of Span'.format(key))
+
+        # TODO: Resolve property attribute conflict
+        # Properties must win and put the corresponding check first
+
+        if key in self.legal_attribute_names:
+            for annotation in self.annotations:
+                setattr(annotation, key, value)
+        else:
+            raise AttributeError(key)
+
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            if self.layer.ambiguous:
+                return AttributeList((annotation[item] for annotation in self.annotations), item)
+            return self.annotations[0][item]
+        if isinstance(item, tuple):
+            if self.layer.ambiguous:
+                return AttributeTupleList((annotation[item] for annotation in self.annotations), item)
+            return self.annotations[0][item]
+
+        raise KeyError(item)
+
+    def __lt__(self, other: Any) -> bool:
+        return self.base_span < other.base_span
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, Span) \
+               and self.base_span == other.base_span \
+               and len(self.annotations) == len(other.annotations) \
+               and all(s in other.annotations for s in self.annotations)
+
+    @recursive_repr()
+    def __repr__(self):
+        try:
+            text = self.text
+        except:
+            text = None
+
+        try:
+            attribute_names = self.layer.attributes
+            annotation_strings = []
+            for annotation in self.annotations:
+                key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
+                annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
+            annotations = '[{}]'.format(', '.join(annotation_strings))
+        except:
+            annotations = None
+
+        return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
+                                                              annotations=annotations)
+
     @property
     def parent(self):
         parent = self._parent
@@ -99,86 +170,6 @@ class Span:
             raise ValueError("an invalid 'parent' value: self-loops are not allowed.")
         # Assignment
         return super().__setattr__('_parent', value)
-
-    def __getattr__(self, item):
-
-        if item in self.__getattribute__('layer').attributes:
-            return self[item]
-        try:
-            return self.resolve_attribute(item)
-        except KeyError as key_error:
-            raise AttributeError(key_error.args[0]) from key_error
-
-    def __setattr__(self, key, value):
-        # Assignable properties
-        if key == 'parent':
-            return super().__setattr__(key, value)
-        # Constant slots
-        if key in {'annotations', 'base_span', 'layer'}:
-            raise AttributeError(
-                'an attempt to redefine a constant slot {!r} of Span. Define a new instance.'.format(key))
-        # Prohibited slots
-        if key == '_parent':
-            raise AttributeError('an attempt to assign a private slot {!r} of Span'.format(key))
-
-
-
-        if key in {'_base_span', '_layer', '_annotations', '_parent'}:
-            # Nobody sets attribute _parent, _base_span in EstNLTK codebase. Lets make it private
-            # It should be set only during the initialisation
-            # if key == '_base_span':
-            raise NotImplementedError('Boo')
-            super().__setattr__(key, value)
-        elif key in self.legal_attribute_names:
-            for annotation in self.annotations:
-                setattr(annotation, key, value)
-        else:
-            raise AttributeError(key)
-
-    def __getitem__(self, item):
-        if isinstance(item, str):
-            if self.layer.ambiguous:
-                return AttributeList((annotation[item] for annotation in self.annotations), item)
-            return self.annotations[0][item]
-        if isinstance(item, tuple):
-            if self.layer.ambiguous:
-                return AttributeTupleList((annotation[item] for annotation in self.annotations), item)
-            return self.annotations[0][item]
-
-        raise KeyError(item)
-
-    def __lt__(self, other: Any) -> bool:
-        return self.base_span < other.base_span
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Span) \
-               and self.base_span == other.base_span \
-               and len(self.annotations) == len(other.annotations) \
-               and all(s in other.annotations for s in self.annotations)
-
-    @recursive_repr()
-    def __str__(self):
-        try:
-            text = self.text
-        except:
-            text = None
-
-        try:
-            attribute_names = self.layer.attributes
-            annotation_strings = []
-            for annotation in self.annotations:
-                key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
-                annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
-            annotations = '[{}]'.format(', '.join(annotation_strings))
-        except:
-            annotations = None
-
-        return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
-                                                              annotations=annotations)
-
-    def __repr__(self):
-        return str(self)
-
 
 
     def add_annotation(self, annotation: Annotation) -> Annotation:
