@@ -140,6 +140,35 @@ class Span:
                                                               annotations=annotations)
 
     @property
+    def start(self) -> int:
+        return self.base_span.start
+
+    @property
+    def end(self) -> int:
+        return self.base_span.end
+
+    @property
+    def text(self):
+        if self.text_object is None:
+            return
+        text = self.text_object.text
+        base_span = self.base_span
+
+        if isinstance(base_span, ElementaryBaseSpan):
+            return text[base_span.start:base_span.end]
+
+        return [text[start:end] for start, end in base_span.flatten()]
+
+    @property
+    def enclosing_text(self):
+        return self.layer.text_object.text[self.start:self.end]
+
+    @property
+    def text_object(self):
+        if self.layer is not None:
+            return self.layer.text_object
+
+    @property
     def parent(self):
         parent = self._parent
         if parent is None:
@@ -194,48 +223,6 @@ class Span:
     def clear_annotations(self):
         self.annotations.clear()
 
-    @property
-    def legal_attribute_names(self) -> Sequence[str]:
-        return self.layer.attributes
-
-    @property
-    def start(self) -> int:
-        return self.base_span.start
-
-    @property
-    def end(self) -> int:
-        return self.base_span.end
-
-    # TODO: Legacy. To be removed!
-    @property
-    def base_spans(self):
-        return [(self.start, self.end)]
-
-    @property
-    def text(self):
-        if self.text_object is None:
-            return
-        text = self.text_object.text
-        base_span = self.base_span
-
-        if isinstance(base_span, ElementaryBaseSpan):
-            return text[base_span.start:base_span.end]
-
-        return [text[start:end] for start, end in base_span.flatten()]
-
-    @property
-    def enclosing_text(self):
-        return self.layer.text_object.text[self.start:self.end]
-
-    @property
-    def text_object(self):
-        if self.layer is not None:
-            return self.layer.text_object
-
-    @property
-    def raw_text(self):
-        return self.text_object.text
-
     def to_records(self, with_text=False):
         if self.layer.ambiguous:
             return [i.to_record(with_text) for i in self.annotations]
@@ -247,7 +234,7 @@ class Span:
         record['end'] = self.end
         return record
 
-
+    # TODO: To be inlined
     def resolve_attribute(self, item):
         if item not in self.text_object.layers:
             attribute_mapping = self.text_object.attribute_mapping_for_elementary_layers
@@ -255,7 +242,8 @@ class Span:
 
         return self.text_object[item].get(self.base_span)
 
-
+    # TODO: To be inlined
+    # Why do we need to change margin!?
     def _to_html(self, margin=0) -> str:
         try:
             return '<b>{}</b>\n{}'.format(
@@ -266,3 +254,19 @@ class Span:
 
     def _repr_html_(self):
         return self._to_html()
+
+    # TODO: Legacy. To be removed!
+    @property
+    def legal_attribute_names(self) -> Sequence[str]:
+        return self.layer.attributes
+
+    # TODO: Legacy. To be removed!
+    @property
+    def base_spans(self):
+        return [(self.start, self.end)]
+
+    # TODO: Legacy. To be removed!
+    @property
+    def raw_text(self):
+        return self.text_object.text
+
