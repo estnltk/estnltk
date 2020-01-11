@@ -92,6 +92,8 @@ class Span:
         # TODO: Resolve property attribute conflict
         # Properties must win and put the corresponding check first
 
+        # Peaks töötama ühe Annotatsiooniga spanil
+        # Probleemid annotationlisti invariantidega
         if key in self.legal_attribute_names:
             for annotation in self.annotations:
                 setattr(annotation, key, value)
@@ -141,10 +143,17 @@ class Span:
 
     @property
     def start(self) -> int:
+        """
+        Returns the location of the first character (start) in the span.
+        """
         return self.base_span.start
 
     @property
     def end(self) -> int:
+        """
+        Returns the location of the character next to the last character (end) in the span.
+        RATIONALE: This is in line with the convention how substrings are indexed in Pyhton.
+        """
         return self.base_span.end
 
     @property
@@ -251,7 +260,7 @@ class Span:
                     html_table(spans=[self], attributes=self.layer.attributes, margin=margin, index=False))
         except:
             return str(self)
-
+    # We can add kwargs fror conf through display
     def _repr_html_(self):
         return self._to_html()
 
