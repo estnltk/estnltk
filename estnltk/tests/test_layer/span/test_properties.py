@@ -57,44 +57,77 @@ def test_legal_attribute_names():
 
 
 def test_text_and_text_object():
-    return
-    # Normal annotation without an attached span
-    annotation = Annotation(span=None)
-    assert annotation.text is None
-    assert annotation.text_object is None
+    # Span with elementary base span and no layer
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    assert span.text is None
+    assert span.text_object is None
 
-    # Annotation with without an attached span but has same-named attributes
-    annotation = Annotation(span=None, text=42, text_object=43)
-    assert annotation.text is None
-    assert annotation.text_object is None
+    # Span with enveloping base span and no layer
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=None)
+    assert span.text is None
+    assert span.text_object is None
 
-    # Annotation with a span that is not mapped to a text object
+    # Span with elementary base span and no text object
     layer = Layer('test_layer')
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
-    annotation = Annotation(span=span)
-    assert annotation.text is None
-    assert annotation.text_object is None
+    assert span.text is None
+    assert span.text_object is None
 
-    # Annotation with a span that is not mapped to a text object but has same-named attributes
-    annotation = Annotation(span=span, text=42, text_object=43)
-    assert annotation.text is None
-    assert annotation.text_object is None
+    # Span with enveloping base span and no text object
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=layer)
+    assert span.text is None
+    assert span.text_object is None
 
-    # Annotation with a span that is mapped to a text object
-    text = Text('Tere!')
-    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    # Valid span with elementary base span that is attached to text
+    text = Text('0123456789abcdef')
+    layer = Layer('test_layer', text_object=text)
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
-    annotation = Annotation(span=span, attr_1=42, attr_2=43, attr_3=44)
-    assert annotation.text == 'Tere'
-    assert annotation.text_object is text
+    assert span.text == '0123'
+    assert span.text_object is text
 
-    # Annotation with a span that is mapped to a text object but has same-named attributes
-    text = Text('Tere!')
-    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    # Valid span with enveloping base span that is attached to text
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=layer)
+    assert span.text == ['0123', '89ab']
+    assert span.text_object is text
+
+    # Valid span with enveloping base span that is attached to text and is continuous
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(4, 8), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=layer)
+    assert span.text == ['0123', '4567', '89ab']
+    assert span.text_object is text
+
+    # Invalid span with elementary base span that is attached to text
+    # We cannot check whether span is valid during its creation as text might be unreachable.
+    # Thus natural truncation is the only sane solution to the problem.
+    text = Text('01')
+    layer = Layer('test_layer', text_object=text)
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
-    annotation = Annotation(span=span, text=42, text_object=43)
-    assert annotation.text == 'Tere'
-    assert annotation.text_object is text
+    assert span.text == '01'
+    assert span.text_object is text
+    # Invalid span that is completely outside of text
+    # The outcome is an empty string
+    span = Span(base_span=ElementaryBaseSpan(3, 8), layer=layer)
+    assert span.text == ''
+    assert span.text_object is text
+
+    # Invalid span with enveloping base span that is attached to text
+    # Natural truncation is the only sane solution to the problem.
+    # We do not omit empty texts to preserve the number of leafs
+    text = Text('0123456589a')
+    layer = Layer('test_layer', text_object=text)
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=layer)
+    assert span.text == ['0123', '89a']
+    assert span.text_object is text
+    text = Text('')
+    layer = Layer('test_layer', text_object=text)
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=layer)
+    assert span.text == ['', '']
+    assert span.text_object is text
 
 
 def test_to_record():

@@ -1,6 +1,6 @@
 from copy import deepcopy
 from reprlib import recursive_repr
-from typing import Any, Sequence
+from typing import Any, Sequence, List, Optional, Union
 
 from estnltk.layer.base_span import BaseSpan, ElementaryBaseSpan
 from estnltk.layer.annotation import Annotation
@@ -19,7 +19,9 @@ class Span:
 
     def __init__(self, base_span: BaseSpan, layer):
         assert isinstance(base_span, BaseSpan), base_span
-        # assert isinstance(layer, Layer), layer
+        # We cannot import Layer without creating circular imports
+        # TODO: Make None invalid argument as soon as possible
+        assert type(layer).__name__ in {'NoneType', 'Layer'}, layer
 
         self_setattr = super().__setattr__
         # self.layer: Layer = layer
@@ -157,9 +159,35 @@ class Span:
         return self.base_span.end
 
     @property
-    def text(self):
+    def text_object(self) -> Optional['Text']:
+        """
+        Returns the text object to which the span belongs or none if the layer is not attached to text.
+        """
+        # TODO: Drop this check as soon as layer is guaranteed to be not None
+        if self.layer is not None:
+            return self.layer.text_object
+
+
+    @property
+    def text(self) -> Union[None, str, List[str]]:
+        """
+        Returns the underlying text fragment associated with the annotation or none the layer is not attached to text.
+        The output type None indicates that the span is not attached to a text. If span is consists of a single text
+        fragment a string is returned. Otherwise, the list of strings corresponding to the smallest fragments are
+        returned. Note that these fragments may be adjacent or even cover a continuous chunk of text.
+
+        It is theoretically possible that the base span defining fragments is wider than the text. Then fragments are
+        truncated to the length of text. No fragments are dropped even if they are completely outside of the text.
+        However, you are doing something fundamentally wrong if you have this issue.
+
+        RATIONALE: It is impossible to test whether base_span fits text during initialisation as the layer might be
+        detached from text. Omission of empty text fragments would invalidate invariant len(base_span) == len(text)
+        for enveloping spans. The alternative output types are for convenience: the natural output for elementary spans
+        is string and not one element list of strings.
+        """
         if self.text_object is None:
-            return
+            return None
+
         text = self.text_object.text
         base_span = self.base_span
 
@@ -171,11 +199,6 @@ class Span:
     @property
     def enclosing_text(self):
         return self.layer.text_object.text[self.start:self.end]
-
-    @property
-    def text_object(self):
-        if self.layer is not None:
-            return self.layer.text_object
 
     @property
     def parent(self):
