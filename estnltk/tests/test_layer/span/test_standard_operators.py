@@ -24,6 +24,8 @@ def test_len():
 def test_methods_list():
     pass
 
+def test_constructor():
+    pass
 
 def test_copy_constructors():
 
