@@ -7,6 +7,8 @@ from estnltk import Span
 from estnltk import EnvelopingSpan
 from estnltk import Annotation
 from estnltk import ElementaryBaseSpan
+from estnltk.layer import AttributeList
+
 from estnltk import EnvelopingBaseSpan
 from estnltk.tests import inspect_class_members
 
@@ -27,7 +29,10 @@ def test_methods_list():
 def test_constructor():
     pass
 
+
 def test_copy_constructors():
+    # TODO: Add check for _spans field
+    # TODO: Correct checks .parent. It is incorrect now
 
     def check_shallow_copy(span_1, span_2):
         assert span_1 is not span_2
@@ -190,13 +195,57 @@ def test_copy_constructors():
 
 
 def test_attribute_assignment_and_access():
+    # TODO: Use the next function as a start
     pass
+
+def test_getattr():
+    span_1 = Span(ElementaryBaseSpan(0, 1), Layer('test', attributes=['attr_1'], ambiguous=True))
+
+    span_1.add_annotation(Annotation(span_1, attr_1=0))
+    span_1.add_annotation(Annotation(span_1, attr_1=3))
+
+    assert span_1.attr_1 == AttributeList([0, 3], 'attr_1')
+
+    _ = span_1.__getstate__
+    _ = span_1.__setstate__
+    with pytest.raises(AttributeError):
+        span_1._ipython_canary_method_should_not_exist_
+    with pytest.raises(AttributeError):
+        span_1.blabla
+
+    assert hasattr(span_1, 'attr_1')
+    assert not hasattr(span_1, 'blabla')
+
+
 
 def test_attribute_deletion():
     pass
 
 def test_item_assignment_and_access():
+    # TODO: Use the next function as a start
     pass
+
+def test_getitem():
+    span_1 = Span(ElementaryBaseSpan(0, 1), Layer('test', attributes=['attr_1'], ambiguous=True))
+
+    span_1.add_annotation(Annotation(span_1, attr_1=0))
+    span_1.add_annotation(Annotation(span_1, attr_1=3))
+
+    assert isinstance(span_1.annotations[0], Annotation)
+    assert span_1.annotations[0].attr_1 == 0
+    assert span_1.annotations[1].attr_1 == 3
+
+    assert span_1['attr_1'] == AttributeList([0, 3], 'attr_1')
+
+    with pytest.raises(KeyError):
+        span_1[:]
+
+    with pytest.raises(KeyError):
+        span_1['bla']
+
+    with pytest.raises(KeyError):
+        span_1[0]
+
 
 def test_multi_indexing():
     pass
@@ -265,6 +314,13 @@ def test_span_slot_access_rules():
     assert span.parent is parent
 
 
+
+
+def test_base_spans():
+    # TODO: Merge with previous tests
+    span_1 = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['attr_1'], ambiguous=True))
+
+    assert ElementaryBaseSpan(0, 1) == span_1.base_span
 
 
 
