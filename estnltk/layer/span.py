@@ -171,14 +171,14 @@ class Span:
     @property
     def text(self) -> Union[None, str, List[str]]:
         """
-        Returns the underlying text fragment associated with the annotation or none the layer is not attached to text.
+        Returns the underlying text fragment associated with the span or none the layer is not attached to text.
         The output type None indicates that the span is not attached to a text. If span is consists of a single text
         fragment a string is returned. Otherwise, the list of strings corresponding to the smallest fragments are
         returned. Note that these fragments may be adjacent or even cover a continuous chunk of text.
 
-        It is theoretically possible that the base span defining fragments is wider than the text. Then fragments are
-        truncated to the length of text. No fragments are dropped even if they are completely outside of the text.
-        However, you are doing something fundamentally wrong if you have this issue.
+        It is theoretically possible that the base span contains fragments that are partially outside of the text.
+        These fragments are truncated to be inside the text. No fragments are dropped even if they are completely
+        outside of the text. However, you are doing something fundamentally wrong if you have this issue.
 
         RATIONALE: It is impossible to test whether base_span fits text during initialisation as the layer might be
         detached from text. Omission of empty text fragments would invalidate invariant len(base_span) == len(text)
@@ -197,8 +197,22 @@ class Span:
         return [text[start:end] for start, end in base_span.flatten()]
 
     @property
-    def enclosing_text(self):
-        return self.layer.text_object.text[self.start:self.end]
+    def enclosing_text(self) -> Optional[str]:
+        """
+        Returns a minimal chunk of text that contains all text fragments in the span or none the layer is not attached
+        to text. The output type None indicates that the span is not attached to a text.
+
+        It is theoretically possible that the base span contains fragments that are partially outside of the text.
+        Then the enclosing text fragment is truncated to be inside the text.
+
+        RATIONALE: It is impossible to test whether base_span fits text during initialisation as the layer might be
+        detached from text. The truncation is the only reasonable option.
+        """
+        text_object = self.text_object
+        if text_object is None:
+            return None
+
+        return text_object.text[self.start:self.end]
 
     @property
     def parent(self):
