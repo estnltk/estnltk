@@ -27,6 +27,13 @@ def test_methods_list():
     pass
 
 def test_constructor():
+    text = Text('Tere!')
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+
+    # Enveloping spans can be created
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 2), ElementaryBaseSpan(3, 4)])
+    span = EnvelopingSpan(base_span=base_span, layer=layer)
+    assert span.base_span == base_span
     pass
 
 
