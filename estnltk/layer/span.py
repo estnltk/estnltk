@@ -15,7 +15,7 @@ class Span:
     Span can exist without annotations. It is the responsibility of a programmer to remove such spans.
 
     """
-    __slots__ = ['base_span', 'layer', 'annotations', '_parent']
+    __slots__ = ['base_span', 'layer', 'annotations', '_parent', '_spans']
 
     def __init__(self, base_span: BaseSpan, layer):
         assert isinstance(base_span, BaseSpan), base_span
@@ -32,12 +32,15 @@ class Span:
         self_setattr('annotations', [])
         # self._parent: Span = None
         self_setattr('_parent', None)
+        # self._spans: List[Span] = None
+        self_setattr('_spans', None)
 
     def __copy__(self):
         result = Span(base_span=self.base_span, layer=self.layer)
         result_setattr = super(Span, result).__setattr__
         result_setattr('annotations', self.annotations)
         result_setattr('_parent', self._parent)
+        result_setattr('_spans', self._spans)
         return result
 
     def __deepcopy__(self, memo=None):
@@ -45,30 +48,56 @@ class Span:
         # Create invalid instance
         cls = self.__class__
         result = cls.__new__(cls)
-        # Add all fields to the instance to make it valid
-        # All assignments are safe as self is consistent
-        result_setattr = super(Span, result).__setattr__
-        result_setattr('layer',  None)                         # Mutable
-        result_setattr('base_span', self.base_span)            # Immutable
-        result_setattr('annotations', list())                  # List[Mutable]
-        result_setattr('_parent', None)                        # Mutable
-        # Add newly created valid mutable objects to memo
-        memo[id(self)] = result
-        memo[id(self.annotations)] = result.annotations
-        # Perform deep copy with a valid memo dict
-        result_setattr('layer', deepcopy(self.layer, memo))
-        result_setattr('_parent', deepcopy(self._parent, memo))
-        result.annotations.extend(deepcopy(annotation, memo) for annotation in self.annotations)
+        # Process span without sub-spans
+        if self._spans is None:
+            # Add all fields to the instance to make it valid
+            # All assignments are safe as self is consistent
+            annotations = list()
+            result_setattr = super(Span, result).__setattr__
+            result_setattr('layer',  None)                         # Mutable
+            result_setattr('base_span', self.base_span)            # Immutable
+            result_setattr('annotations', annotations)             # List[Mutable]
+            result_setattr('_parent', None)                        # Mutable
+            result_setattr('_spans', None)                         # Mutable
+            # Add newly created valid mutable objects to memo
+            memo[id(self)] = result
+            memo[id(self.annotations)] = annotations
+            # Perform deep copy with a valid memo dict
+            result_setattr('layer', deepcopy(self.layer, memo))
+            result_setattr('_parent', deepcopy(self._parent, memo))
+            annotations.extend(deepcopy(annotation, memo) for annotation in self.annotations)
+        else:
+            # Add all fields to the instance to make it valid
+            # All assignments are safe as self is consistent
+            spans = list()
+            annotations = list()
+            result_setattr = super(Span, result).__setattr__
+            result_setattr('layer',  None)                         # Mutable
+            result_setattr('base_span', self.base_span)            # Immutable
+            result_setattr('annotations', annotations)             # List[Mutable]
+            result_setattr('_parent', None)                        # Mutable
+            result_setattr('_spans', spans)                        # Mutable
+            # Add newly created valid mutable objects to memo
+            memo[id(self)] = result
+            memo[id(self.annotations)] = annotations
+            memo[id(self._spans)] = spans
+            # Perform deep copy with a valid memo dict
+            result_setattr('layer', deepcopy(self.layer, memo))
+            result_setattr('_parent', deepcopy(self._parent, memo))
+            spans.extend(deepcopy(self._spans))
+            annotations.extend(deepcopy(annotation, memo) for annotation in self.annotations)
         return result
 
     def __getstate__(self):
-        return dict(layer=self.layer, base_span=self.base_span, annotations=self.annotations, parent=self._parent)
+        return dict(layer=self.layer, base_span=self.base_span, annotations=self.annotations,
+                    parent=self._parent, spans=self._spans)
 
     def __setstate__(self, state):
         self.__init__(base_span=state['base_span'], layer=state['layer'])
         self_setattr = super().__setattr__
         self_setattr('annotations', state['annotations'])
         self_setattr('_parent', state['parent'])
+        self_setattr('_spans', state['spans'])
 
     def __getattr__(self, item):
 
@@ -216,6 +245,10 @@ class Span:
 
     @property
     def parent(self):
+        """
+
+        :return:
+        """
         parent = self._parent
         if parent is None:
             # Lets try to compute parent
