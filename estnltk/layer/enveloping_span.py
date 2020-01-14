@@ -5,10 +5,8 @@ from estnltk import BaseSpan, EnvelopingBaseSpan
 
 
 class EnvelopingSpan(Span):
-    __slots__ = ['_spans']
 
     def __init__(self, base_span: BaseSpan, layer):
-        self._spans = None
         super().__init__(base_span, layer)
 
     @classmethod
@@ -18,6 +16,7 @@ class EnvelopingSpan(Span):
             span.add_annotation(Annotation(span, **record))
         return span
 
+    # TODO: Push down to Span
     @property
     def spans(self):
         if self._spans is None:
@@ -38,6 +37,7 @@ class EnvelopingSpan(Span):
         result.extend(('<b>', rt[self.spans[-1].start:self.spans[-1].end], '</b>'))
         return ''.join(result)
 
+    # TODO: Push down to Span
     def __iter__(self):
         yield from self.spans
 
@@ -52,6 +52,7 @@ class EnvelopingSpan(Span):
             object.__setattr__(self, key, value)
         else:
             super().__setattr__(key, value)
+    # TODO: ------------------
 
     def resolve_attribute(self, item):
         if item not in self.text_object.layers:
@@ -69,6 +70,7 @@ class EnvelopingSpan(Span):
 
         return target_layer.get(self.base_span)
 
+    # TODO: Push down to Span
     def __getitem__(self, idx):
         if isinstance(idx, int):
             return self.spans[idx]
