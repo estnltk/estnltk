@@ -59,7 +59,9 @@ MACROS = {
             # ===================================================
             # C) Abbreviations may or may not be affected by tokenization
             #    However, patterns must be ordered by their length: longest patterns first
-            'ABBREVIATIONS3': '('+\
+            # C.1) Patterns that will be checked for ending period 
+            #      (so we can allow a single letter pattern)
+            'ABBREVIATIONS3A': '('+\
                                r'e\s?\.\s?m\s?\.\s?a|'+\
                                r'm\s?\.\s?a\s?\.\s?j|'+\
                                r'e\s?\.\s?Kr|'+\
@@ -72,6 +74,21 @@ MACROS = {
                                'a|'+\
                                'u'+\
                               ')',
+            # C.2) Patterns that won't be checked for ending period
+            #      (single letter patterns disallowed)
+            'ABBREVIATIONS3B': '('+\
+                               r'e\s?\.\s?m\s?\.\s?a|'+\
+                               r'm\s?\.\s?a\s?\.\s?j|'+\
+                               r'e\s?\.\s?Kr|'+\
+                               r'p\s?\.\s?Kr|'+\
+                               r'A\s?\.\s?D|'+\
+                               r'õ\s?\.\s?a|'+\
+                               'saj|'+\
+                               '[Jj]r|'+\
+                               'j[mt]'+\
+                              ')',
+            # Note: distinguishing between C.1 and C.2 provides a major 
+            #       optimization for processing speed
             # ===================================================
             # Common unit combinations
             # ===================================================
@@ -616,8 +633,8 @@ abbreviation_patterns = [
       'example': 'p.Kr.',
       'pattern_type': 'abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        ({ABBREVIATIONS3}          # abbreviation
-                        \s?\.)                     # period
+                        ({ABBREVIATIONS3A}          # abbreviation
+                        \s?\.)                      # period
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (5, 4, 0),
@@ -627,7 +644,7 @@ abbreviation_patterns = [
       'example': 'saj',
       'pattern_type': 'abbreviation', 
       '_regex_pattern_': re.compile(r'''
-                        ({ABBREVIATIONS3})         # abbreviation
+                        ({ABBREVIATIONS3B})         # abbreviation
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (5, 5, 0),
