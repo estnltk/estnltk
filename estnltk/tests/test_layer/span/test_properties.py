@@ -143,21 +143,71 @@ def test_text_properties_and_text_object():
 
 
 def test_parent_property_assignment_and_access():
-    # Only spans can be assigned as parents
+    # Check that parent property cannot be assigned with incorrect values
     layer = Layer('test_layer')
-    span = Span(base_span=base_span, layer=layer)
-    span.parent = 5
-
-
-
-
-    # Self-looping through parent attribute is not allowed
-    text = Text('Tere!')
     base_span = ElementaryBaseSpan(0, 4)
-    layer = Layer('test_layer', attributes=['a', 'b', 'c'], ambiguous=True, text_object=text)
     span = Span(base_span=base_span, layer=layer)
+    # Only spans can be assigned as parents
+    with pytest.raises(TypeError, match="'parent' must be an instance of Span."):
+        span.parent = 5
+    # Parent must have the same base span as the span
+    with pytest.raises(ValueError, match="an invalid 'parent' value: 'base_span' attributes must coincide."):
+        span.parent = Span(base_span=ElementaryBaseSpan(2, 4), layer=layer)
+    with pytest.raises(ValueError, match="an invalid 'parent' value: 'base_span' attributes must coincide."):
+        span.parent = Span(base_span=EnvelopingBaseSpan(spans=[base_span]), layer=layer)
+    # Self-looping through parent attribute is not allowed
     with pytest.raises(ValueError, match="an invalid 'parent' value: self-loops are not allowed."):
         span.parent = span
+
+    # Check that parent property can be assigned only once
+    span = Span(base_span=base_span, layer=layer)
+    parent = Span(base_span=base_span, layer=layer)
+    span.parent = parent
+    assert span.parent is parent
+    with pytest.raises(AttributeError, match="value of 'parent' property is already fixed. Define a new instance."):
+        span.parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+
+    # Computation of parent property succeeds if we do everything right
+    text = Text('Tere!')
+    parent_layer = Layer('parent_layer', attributes=['attr'], text_object=text)
+    parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
+    text.add_layer(parent_layer)
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    # Parent attribute is computed and cached
+    assert span.parent is parent_layer[0]
+    assert span._parent is parent_layer[0]
+    # It is now impossible to redefine the parent property
+    with pytest.raises(AttributeError, match="value of 'parent' property is already fixed. Define a new instance."):
+        span.parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+
+    # Computation of parent property fails if the parent layer is not attached to the text
+    text = Text('Tere!')
+    parent_layer = Layer('parent_layer', attributes=['attr'], text_object=text)
+    parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    # Parent attribute is not computed and cached
+    assert span.parent is None
+    assert span._parent is None
+    # It is possible to redefine the parent property
+    parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    span.parent = parent
+    assert span.parent is parent
+
+    # Computation of parent property fails if the base span is not in parent layer that is attached to the text
+    text = Text('Tere!')
+    parent_layer = Layer('parent_layer', attributes=['attr'], text_object=text)
+    parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 2), attr=42)
+    text.add_layer(parent_layer)
+    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    # Parent attribute is not computed and cached
+    assert span.parent is None
+    assert span._parent is None
+    # It is possible to redefine the parent property
+    span.parent = parent
+    assert span.parent is parent
 
 
 def test_to_record():
