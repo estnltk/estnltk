@@ -142,6 +142,17 @@ def test_text_properties_and_text_object():
     assert span.text_object is text
 
 
+def test_parent_property_assignment_and_access():
+
+    # Self-looping through parent attribute is not allowed
+    text = Text('Tere!')
+    base_span = ElementaryBaseSpan(0, 4)
+    layer = Layer('test_layer', attributes=['a', 'b', 'c'], ambiguous=True, text_object=text)
+    span = Span(base_span=base_span, layer=layer)
+    with pytest.raises(ValueError, match="an invalid 'parent' value: self-loops are not allowed."):
+        span.parent = span
+
+
 def test_to_record():
     return
     # Normal annotation without an attached span

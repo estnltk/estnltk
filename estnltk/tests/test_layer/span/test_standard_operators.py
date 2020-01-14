@@ -27,6 +27,9 @@ def test_methods_list():
     pass
 
 def test_constructor():
+
+
+
     text = Text('Tere!')
     layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
 
@@ -45,7 +48,7 @@ def test_copy_constructors():
         assert span_1 is not span_2
         assert span_1.layer is span_2.layer
         assert span_1.base_span is span_2.base_span
-        assert span_1.parent is span_2.parent
+        assert span_1._parent is span_2._parent
         assert span_1.annotations is span_2.annotations
 
     def check_deep_copy(span_1, span_2):
@@ -53,8 +56,8 @@ def test_copy_constructors():
         assert span_1.layer is not span_2.layer
         assert span_1.layer == span_2.layer
         assert span_1.base_span is span_2.base_span
-        assert span_1.parent is not span_2.parent or span_1.parent is None
-        assert span_1.parent == span_2.parent
+        assert span_1._parent is None or span_1._parent is not span_2._parent
+        assert span_1._parent == span_2._parent
         assert span_1.annotations is not span_2.annotations
         assert span_1.annotations == span_2.annotations
 
@@ -119,16 +122,28 @@ def test_copy_constructors():
     check_shallow_copy(copy(span), span)
     check_deep_copy(deepcopy(span), span)
 
-    # Copying of recursive span with parent = span
+    # Copying of recursive span with parent.parent as span
+    text = Text('Tere!')
+    base_span = ElementaryBaseSpan(0, 4)
+    layer = Layer('test_layer', attributes=['a', 'b', 'c'], text_object=text)
     span = Span(base_span=base_span, layer=layer)
-    span.parent = span
-    assert span.parent is span
+    parent = Span(base_span=base_span, layer=layer)
+    span.add_annotation(Annotation(span=span, a=1, b=2, c=3))
+    parent.add_annotation(Annotation(span=parent, a=4, b=5, c=6))
+    span.parent = parent
+    parent.parent = span
+    assert span.parent is parent
+    assert parent.parent is span
     check_shallow_copy(copy(span), span)
     d_copy = deepcopy(span)
     check_deep_copy(d_copy, span)
-    assert d_copy.parent is d_copy
+    assert d_copy.parent.parent is d_copy
+    assert d_copy['a'] == 1
+    assert d_copy.parent['a'] == 4
 
     # Copying of recursive span with span as an attribute
+    text = Text('Tere!')
+    base_span = ElementaryBaseSpan(0, 4)
     layer = Layer('test_layer', attributes=['a', 'b', 'c', 'rec'], ambiguous=True, text_object=text)
     span = Span(base_span=base_span, layer=layer)
     annotation = Annotation(span=span, a=1, b=2, c=3, rec=span)
@@ -140,8 +155,8 @@ def test_copy_constructors():
     assert d_copy.layer is not span.layer
     assert d_copy.layer == span.layer
     assert d_copy.base_span is span.base_span
-    assert d_copy.parent is None
-    assert d_copy.parent == span.parent
+    assert d_copy._parent is None
+    assert d_copy._parent == span._parent
     assert d_copy.annotations is not span.annotations
     assert len(d_copy.annotations) == 1
     assert d_copy.annotations[0][('a', 'b', 'c')] == span.annotations[0][('a', 'b', 'c')]
@@ -163,8 +178,8 @@ def test_copy_constructors():
     assert d_copy.layer is not span.layer
     assert d_copy.layer == span.layer
     assert d_copy.base_span is span.base_span
-    assert d_copy.parent is None
-    assert d_copy.parent == span.parent
+    assert d_copy._parent is None
+    assert d_copy._parent == span._parent
     assert d_copy.annotations is not span.annotations
     assert len(d_copy.annotations) == 2
     assert d_copy.annotations[0][('a', 'b', 'c')] == span.annotations[0][('a', 'b', 'c')]
@@ -181,7 +196,7 @@ def test_copy_constructors():
     span.add_annotation(annotation)
     annotation = Annotation(span=parent, a=4, b=5, c=6, rec=span)
     parent.add_annotation(annotation)
-    assert span.parent is parent
+    assert span._parent is parent
     assert span.annotations[0]['rec'] is parent
     assert parent.annotations[0]['rec'] is span
     check_shallow_copy(copy(span), span)
@@ -190,15 +205,15 @@ def test_copy_constructors():
     assert d_copy.layer is not span.layer
     assert d_copy.layer == span.layer
     assert d_copy.base_span is span.base_span
-    assert d_copy.parent is not span.parent
-    assert d_copy.parent.base_span == span.parent.base_span
+    assert d_copy._parent is not span._parent
+    assert d_copy._parent.base_span == span._parent.base_span
     assert len(d_copy.parent.annotations) == 1
-    assert d_copy.parent.annotations[0][('a', 'b', 'c')] == span.parent.annotations[0][('a', 'b', 'c')]
-    assert d_copy.parent.annotations[0]['rec'] is d_copy
+    assert d_copy._parent.annotations[0][('a', 'b', 'c')] == span._parent.annotations[0][('a', 'b', 'c')]
+    assert d_copy._parent.annotations[0]['rec'] is d_copy
     assert d_copy.annotations is not span.annotations
     assert len(d_copy.annotations) == 1
     assert d_copy.annotations[0][('a', 'b', 'c')] == span.annotations[0][('a', 'b', 'c')]
-    assert d_copy.annotations[0]['rec'] is d_copy.parent
+    assert d_copy.annotations[0]['rec'] is d_copy._parent
 
 
 def test_attribute_assignment_and_access():
