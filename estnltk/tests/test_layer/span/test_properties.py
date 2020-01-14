@@ -143,6 +143,13 @@ def test_text_properties_and_text_object():
 
 
 def test_parent_property_assignment_and_access():
+    # Only spans can be assigned as parents
+    layer = Layer('test_layer')
+    span = Span(base_span=base_span, layer=layer)
+    span.parent = 5
+
+
+
 
     # Self-looping through parent attribute is not allowed
     text = Text('Tere!')
