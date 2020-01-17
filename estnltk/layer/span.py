@@ -295,7 +295,9 @@ class Span:
         but there is a default algorithm to compute its value when the attribute value is undefined.
         A span is a sub-span if its base span is a direct sub-span of a base span of the compound span.
 
-        By default sub-spans are taken form the layer from which the current layer is derived.
+        By default sub-spans are taken form the layer from which the current layer is derived. The algorithm uses all
+        or nothing tactic -- it some sub-spans cannot be resolved the algorithm returns none.
+
         However, it is possible to take a sub-span from other layers if it makes sense. For that one must explicitly
         define the list of spans and take responsibility for potential confusion it might create.
 
@@ -314,9 +316,13 @@ class Span:
             # Be explicit bool conversion can fail sometimes
             if text is None or layer.enveloping not in text.layers:
                 return spans
-            # We have it. Lets cache the result
+            # We can search for individual sub-spans
             resolve_base_span = self.layer.text_object[self.layer.enveloping].get
             spans = tuple(resolve_base_span(base) for base in self.base_span)
+            # Make sure that all sub-spans are resolved
+            if any(span is None for span in spans):
+                return None
+            # We have it. Lets cache the result
             super().__setattr__('_spans', spans)
         return spans
 
