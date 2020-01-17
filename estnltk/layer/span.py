@@ -1,6 +1,6 @@
 from copy import deepcopy
 from reprlib import recursive_repr
-from typing import Any, Sequence, List, Optional, Union
+from typing import Any, Sequence, List, Tuple, Optional, Union
 from collections.abc import Iterable
 
 from estnltk.layer.base_span import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
@@ -409,19 +409,20 @@ class Span:
             return self.layer.attributes
 
     @property
-    def base_spans(self):
+    def base_spans(self) -> List[Tuple[int, int]]:
         """
         Deprecated property. Do not use it. Will be removed as soon as possible.
-        TODO: Remove references in morph_common.py to achieve this
+        TODO: Remove references in texta_exporter.py to achieve this
         """
-        raise NotImplementedError('boo')
         return [(self.start, self.end)]
 
     @property
-    def raw_text(self):
+    def raw_text(self) -> str:
         """
         Deprecated property. Do not use it. Will be removed as soon as possible.
-        TODO: Remove references in morph_common.py to achieve this
+        TODO: Remove references in enveloping_span.py to achieve this
         """
-        return self.text_object.text
-
+        if self.text_object is not None:
+            return self.text_object.text
+        else:
+            return ""
