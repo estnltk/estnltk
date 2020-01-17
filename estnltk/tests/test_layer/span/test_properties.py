@@ -277,17 +277,17 @@ def test_spans_property_assignment_and_access():
 
     # Computation of spans property succeeds if we do everything right
     text = Text('Tere see on piisavalt pikk tekst!')
-    parent_layer = Layer('base_layer', attributes=['attr'], text_object=text)
-    parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
-    parent_layer.add_annotation(base_span=ElementaryBaseSpan(6, 10), attr=24)
-    text.add_layer(parent_layer)
+    base_layer = Layer('base_layer', attributes=['attr'], text_object=text)
+    base_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
+    base_layer.add_annotation(base_span=ElementaryBaseSpan(6, 10), attr=24)
+    text.add_layer(base_layer)
     layer = Layer('test_layer', enveloping='base_layer', text_object=text)
     base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
     span = Span(base_span=base_span, layer=layer)
     # Span attribute is computed and cached
-    assert span.spans == (parent_layer[0], parent_layer[1])
-    assert span._spans[0] is parent_layer[0]
-    assert span._spans[1] is parent_layer[1]
+    assert span.spans == (base_layer[0], base_layer[1])
+    assert span._spans[0] is base_layer[0]
+    assert span._spans[1] is base_layer[1]
     # It is now impossible to redefine the parent property
     with pytest.raises(AttributeError, match="value of 'spans' property is already fixed. Define a new instance."):
         span.spans = [Span(base_span=sub_base_span, layer=None) for sub_base_span in base_span._spans]
@@ -300,13 +300,88 @@ def test_spans_property_assignment_and_access():
     assert span._spans is None
     # It is possible to redefine the spans property
     span.spans = sub_spans
-    assert span.spans == spans
+    assert span.spans == sub_spans
 
+    # Computation of spans property fails if a layer does have a enveloping attribute
+    layer = Layer('test_layer')
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=layer)
+    sub_spans = [Span(base_span=sub_base_span, layer=None) for sub_base_span in base_span._spans]
+    assert span.spans is None
+    assert span._spans is None
+    # It is possible to redefine the spans property
+    span.spans = sub_spans
+    assert span.spans == sub_spans
 
+    # Computation of spans property fails if a layer does not reference a text object
+    layer = Layer('test_layer', enveloping='base_layer')
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=layer)
+    sub_spans = [Span(base_span=sub_base_span, layer=None) for sub_base_span in base_span._spans]
+    assert span.spans is None
+    assert span._spans is None
+    # It is possible to redefine the spans property
+    span.spans = sub_spans
+    assert span.spans == sub_spans
 
+    # Computation of spans property fails if the base layer is not attached to the text
+    text = Text('Tere see on piisavalt pikk tekst!')
+    base_layer = Layer('base_layer', attributes=['attr'], text_object=text)
+    base_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
+    base_layer.add_annotation(base_span=ElementaryBaseSpan(6, 10), attr=24)
+    layer = Layer('test_layer', enveloping='base_layer', text_object=text)
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=layer)
+    sub_spans = [Span(base_span=sub_base_span, layer=None) for sub_base_span in base_span._spans]
+    assert span.spans is None
+    assert span._spans is None
+    # It is possible to redefine the spans property
+    span.spans = sub_spans
+    assert span.spans == sub_spans
 
+    # Computation of spans property fails if sub-spans are not in base layer that is attached to the text (1)
+    text = Text('Tere see on piisavalt pikk tekst!')
+    base_layer = Layer('base_layer', attributes=['attr'], text_object=text)
+    text.add_layer(base_layer)
+    layer = Layer('test_layer', enveloping='base_layer', text_object=text)
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=layer)
+    sub_spans = [Span(base_span=sub_base_span, layer=None) for sub_base_span in base_span._spans]
+    assert span.spans is None
+    assert span._spans is None
+    # It is possible to redefine the spans property
+    span.spans = sub_spans
+    assert span.spans == sub_spans
 
+    # Computation of spans property fails if sub-spans are not in base layer that is attached to the text (2)
+    text = Text('Tere see on piisavalt pikk tekst!')
+    base_layer = Layer('base_layer', attributes=['attr'], text_object=text)
+    base_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
+    text.add_layer(base_layer)
+    layer = Layer('test_layer', enveloping='base_layer', text_object=text)
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=layer)
+    sub_spans = [Span(base_span=sub_base_span, layer=None) for sub_base_span in base_span._spans]
+    assert span.spans is None
+    assert span._spans is None
+    # It is possible to redefine the spans property
+    span.spans = sub_spans
+    assert span.spans == sub_spans
 
+    # Computation of spans property fails if sub-spans are not in base layer that is attached to the text (3)
+    text = Text('Tere see on piisavalt pikk tekst!')
+    base_layer = Layer('base_layer', attributes=['attr'], text_object=text)
+    base_layer.add_annotation(base_span=ElementaryBaseSpan(6, 10), attr=24)
+    text.add_layer(base_layer)
+    layer = Layer('test_layer', enveloping='base_layer', text_object=text)
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=layer)
+    sub_spans = [Span(base_span=sub_base_span, layer=None) for sub_base_span in base_span._spans]
+    assert span.spans is None
+    assert span._spans is None
+    # It is possible to redefine the spans property
+    span.spans = sub_spans
+    assert span.spans == sub_spans
 
 
 def test_complex_logic_for_parent_and_spans_attributes():
