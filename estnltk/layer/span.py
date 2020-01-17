@@ -111,7 +111,7 @@ class Span:
 
     def __setattr__(self, key, value):
         # Assignable properties
-        if key == 'parent':
+        if key in {'parent', 'spans'}:
             return super().__setattr__(key, value)
         # Constant slots
         elif key in {'annotations', 'base_span', 'layer'}:
@@ -323,18 +323,18 @@ class Span:
     @spans.setter
     def spans(self, value):
         # Validity checks
-        if self._parent is not None:
+        if self._spans is not None:
             raise AttributeError("value of 'spans' property is already fixed. Define a new instance.")
         elif not isinstance(self.base_span, EnvelopingBaseSpan):
-            raise AttributeError("'spans' property cannot be set as the span contains no sub-spans")
+            raise AttributeError("'spans' property cannot be set as the span contains no sub-spans.")
         elif not isinstance(value, Iterable) or any(not isinstance(span, Span) for span in value):
             raise TypeError("'spans' must be a list of Span objects.")
         elif len(self.base_span) != len(value):
-            raise ValueError("an invalid 'spans' value: the number of spans must match the sub-span count")
+            raise ValueError("an invalid 'spans' value: the number of spans must match the sub-span count.")
         # Validity check for individual elements
         for span, base_span in zip(value, self.base_span._spans):
             if span.base_span != base_span:
-                raise ValueError("an invalid 'spans' value: 'base_span' attribute must match the sub-span location")
+                raise ValueError("an invalid 'spans' value: 'base_span' attribute must match a sub-span location.")
         # Assignment
         return super().__setattr__('_spans', value)
 
