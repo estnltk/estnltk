@@ -26,18 +26,26 @@ def test_len():
 def test_methods_list():
     pass
 
+
 def test_constructor():
+    # Check a minimal viable constructor with elementary base span
+    layer = Layer('test')
+    base_span = ElementaryBaseSpan(0, 1)
+    span = Span(base_span=base_span, layer=layer)
+    assert span.layer is layer
+    assert span.base_span is base_span
+    assert span.annotations == list()
+    assert span._parent is None
+    assert span._spans is None
 
-
-
-    text = Text('Tere!')
-    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
-
-    # Enveloping spans can be created
+    # Check a minimal viable constructor with enveloping base span
     base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 2), ElementaryBaseSpan(3, 4)])
     span = EnvelopingSpan(base_span=base_span, layer=layer)
-    assert span.base_span == base_span
-    pass
+    assert span.layer is layer
+    assert span.base_span is base_span
+    assert span.annotations == list()
+    assert span._parent is None
+    assert span._spans is None
 
 
 def test_copy_constructors():
@@ -275,7 +283,15 @@ def test_multi_indexing():
 def test_span_slot_access_rules():
     text = Text('Tere!')
     layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
-    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    base_span = ElementaryBaseSpan(0, 4)
+    span = Span(base_span=base_span, layer=layer)
+
+    # Check that all basic slots are accessible for reading
+    assert span.base_span is base_span
+    assert span.layer is layer
+    assert span.annotations == list()
+    assert span._parent is None
+    assert span._spans is None
 
     # Check that basic slots are fixed during initialisation and cannot be changed
     error_template = 'an attempt to redefine a constant slot {!r} of Span. Define a new instance.'
@@ -300,11 +316,8 @@ def test_span_slot_access_rules():
 
 
 
-def test_base_spans():
-    # TODO: Merge with previous tests
-    span_1 = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['attr_1'], ambiguous=True))
 
-    assert ElementaryBaseSpan(0, 1) == span_1.base_span
+
 
 
 
