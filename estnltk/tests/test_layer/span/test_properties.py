@@ -292,12 +292,21 @@ def test_spans_property_assignment_and_access():
     with pytest.raises(AttributeError, match="value of 'spans' property is already fixed. Define a new instance."):
         span.spans = [Span(base_span=sub_base_span, layer=None) for sub_base_span in base_span._spans]
 
+    # Computation of span property fails if span does not have a layer
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=None)
+    sub_spans = [Span(base_span=sub_base_span, layer=None) for sub_base_span in base_span._spans]
+    assert span.spans is None
+    assert span._spans is None
+    # It is possible to redefine the spans property
+    span.spans = sub_spans
+    assert span.spans == spans
 
 
 
 
 
-    pass
+
 
 
 def test_complex_logic_for_parent_and_spans_attributes():
