@@ -1,8 +1,9 @@
 from copy import deepcopy
 from reprlib import recursive_repr
 from typing import Any, Sequence, List, Optional, Union
+from collections.abc import Iterable
 
-from estnltk.layer.base_span import BaseSpan, ElementaryBaseSpan
+from estnltk.layer.base_span import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
 from estnltk.layer.annotation import Annotation
 from estnltk.layer import AttributeList, AttributeTupleList
 
@@ -244,16 +245,24 @@ class Span:
         return text_object.text[self.start:self.end]
 
     @property
-    def parent(self):
+    def parent(self) -> Optional['Span']:
         """
+        Returns parent span if it is defined or can be computed. The attribute value can be set only once.
+        A parent span is a span with the same base span from which the span is derived by adding additional attributes.
 
-        :return:
+        By default the parent span is taken form the parent layer from which the current layer is derived.
+        However, it is possible to take the parent span from other layers if it makes sense. For that one must
+        explicitly define the value and take responsibility for potential confusion it might create.
+
+        RATIONALE: This property is defined for efficiency and convenience. One often needs to combine matching spans
+        from different layers. Existing parent attribute allows to omit search for a matching spans. As such it is
+        useful only if one frequently uses its value in computations.
         """
         parent = self._parent
         if parent is None:
             # Lets try to compute parent
             layer = self.__getattribute__('layer')
-            # Be explicit bool conversion can fail sometimes
+            # Be explicit: bool conversion can fail sometimes
             if layer is None or layer.parent is None:
                 return parent
             text = layer.text_object
@@ -279,6 +288,55 @@ class Span:
         # Assignment
         return super().__setattr__('_parent', value)
 
+    @property
+    def spans(self) -> Optional[List['Span']]:
+        """
+        Returns a list of sub-spans from which the current span is composed. The attribute value can be set only once
+        but there is a default algorithm to compute its value when the attribute value is undefined.
+        A span is a sub-span if its base span is a direct sub-span of a base span of the compound span.
+
+        By default sub-spans are taken form the layer from which the current layer is derived.
+        However, it is possible to take a sub-span from other layers if it makes sense. For that one must explicitly
+        define the list of spans and take responsibility for potential confusion it might create.
+
+        RATIONALE: This property is defined for efficiency and convenience. One often needs to combine matching spans
+        from different layers. Existing spans attribute allows to omit search for a sub-spans. As such it is
+        useful only if one frequently uses sub-span values in computations.
+        """
+        spans = self._spans
+        if spans is None:
+            # Lets try to compute parent
+            layer = self.__getattribute__('layer')
+            # Be explicit: bool conversion can fail sometimes
+            if layer is None or layer.enveloping is None:
+                return spans
+            text = layer.text_object
+            # Be explicit bool conversion can fail sometimes
+            if text is None or layer.enveloping not in text.layers:
+                return spans
+            # We have it. Lets cache the result
+            resolve_base_span = self.layer.text_object[self.layer.enveloping].get
+            spans = tuple(resolve_base_span(base) for base in self.base_span)
+            super().__setattr__('_spans', spans)
+        return spans
+
+    @spans.setter
+    def spans(self, value):
+        # Validity checks
+        if self._parent is not None:
+            raise AttributeError("value of 'spans' property is already fixed. Define a new instance.")
+        elif not isinstance(self.base_span, EnvelopingBaseSpan):
+            raise AttributeError("'spans' property cannot be set as the span contains no sub-spans")
+        elif not isinstance(value, Iterable) or any(not isinstance(span, Span) for span in value):
+            raise TypeError("'spans' must be a list of Span objects.")
+        elif len(self.base_span) != len(value):
+            raise ValueError("an invalid 'spans' value: the number of spans must match the sub-span count")
+        # Validity check for individual elements
+        for span, base_span in zip(value, self.base_span._spans):
+            if span.base_span != base_span:
+                raise ValueError("an invalid 'spans' value: 'base_span' attribute must match the sub-span location")
+        # Assignment
+        return super().__setattr__('_spans', value)
 
     def add_annotation(self, annotation: Annotation) -> Annotation:
         if not isinstance(annotation, Annotation):
