@@ -291,49 +291,9 @@ def test_span_slot_access_rules():
     with pytest.raises(AttributeError, match=error_template.format('_parent')):
         span._parent = None
 
-    # Check that parent property cannot be assigned with incorrect values
-    with pytest.raises(TypeError, match="'parent' must be an instance of Span."):
-        span.parent = 5
-    with pytest.raises(ValueError, match="an invalid 'parent' value: 'base_span' attributes must coincide."):
-        span.parent = Span(base_span=ElementaryBaseSpan(2, 4), layer=layer)
-    with pytest.raises(ValueError, match="an invalid 'parent' value: self-loops are not allowed."):
-        span.parent = span
+    # Span.parent and Span.spans are properties and tested together with other properties
 
-    # Check that parent property can be assigned only once
-    span.parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
-    with pytest.raises(AttributeError, match="value of 'parent' property is already fixed. Define a new instance."):
-        span.parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
 
-    # The same check but the parent property is computed silently
-    text = Text('Tere!')
-    parent_layer = Layer('parent_layer', attributes=['attr'], text_object=text)
-    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
-    parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
-    text.add_layer(parent_layer)
-    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
-    _ = span.parent
-    with pytest.raises(AttributeError, match="value of 'parent' property is already fixed. Define a new instance."):
-        span.parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
-
-    # The same check but the parent property is computed silently but it fails
-    text = Text('Tere!')
-    parent_layer = Layer('parent_layer', attributes=['attr'], text_object=text)
-    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
-    text.add_layer(parent_layer)
-    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
-    parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
-    _ = span.parent
-    span.parent = parent
-    assert span.parent is parent
-
-    # Check that the parent property is assignable if it not present
-    text = Text('Tere!')
-    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
-    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
-    parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
-    _ = span.parent
-    span.parent = parent
-    assert span.parent is parent
 
 
 
