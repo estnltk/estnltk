@@ -181,6 +181,13 @@ def test_parent_property_assignment_and_access():
     with pytest.raises(AttributeError, match="value of 'parent' property is already fixed. Define a new instance."):
         span.parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
 
+    # Computation of parent property fails if span does not have a layer
+
+    # Computation of parent property fails if a layer does have a parent attribute
+
+    # Computation of parent property fails if a layer does not reference a text object
+
+
     # Computation of parent property fails if the parent layer is not attached to the text
     text = Text('Tere!')
     parent_layer = Layer('parent_layer', attributes=['attr'], text_object=text)
@@ -208,6 +215,10 @@ def test_parent_property_assignment_and_access():
     # It is possible to redefine the parent property
     span.parent = parent
     assert span.parent is parent
+
+def test_spans_property_assignment_and_access():
+    pass
+
 
 
 def test_to_record():
