@@ -118,7 +118,7 @@ class Span:
             raise AttributeError(
                 'an attempt to redefine a constant slot {!r} of Span. Define a new instance.'.format(key))
         # Prohibited slots
-        elif key == '_parent':
+        elif key in {'_parent', '_spans'}:
             raise AttributeError('an attempt to assign a private slot {!r} of Span'.format(key))
 
         # TODO: Resolve property attribute conflict
@@ -398,18 +398,30 @@ class Span:
     def _repr_html_(self):
         return self._to_html()
 
-    # TODO: Legacy. To be removed!
     @property
-    def legal_attribute_names(self) -> Sequence[str]:
-        return self.layer.attributes
+    def legal_attribute_names(self) -> Optional[Sequence[str]]:
+        """
+        Deprecated property. Do not use it. Will be removed as soon as possible.
+        TODO: Remove references in morph_common.py to achieve this
+        """
+        # TODO: Drop this check as soon as layer is guaranteed to be not None
+        if self.layer is not None:
+            return self.layer.attributes
 
-    # TODO: Legacy. To be removed!
     @property
     def base_spans(self):
+        """
+        Deprecated property. Do not use it. Will be removed as soon as possible.
+        TODO: Remove references in morph_common.py to achieve this
+        """
+        raise NotImplementedError('boo')
         return [(self.start, self.end)]
 
-    # TODO: Legacy. To be removed!
     @property
     def raw_text(self):
+        """
+        Deprecated property. Do not use it. Will be removed as soon as possible.
+        TODO: Remove references in morph_common.py to achieve this
+        """
         return self.text_object.text
 
