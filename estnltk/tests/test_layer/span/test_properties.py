@@ -385,7 +385,36 @@ def test_spans_property_assignment_and_access():
 
 
 def test_complex_logic_for_parent_and_spans_attributes():
-    pass
+    # Default resolving mechanism is conservative
+    text = Text('Tere see on piisavalt pikk tekst!')
+    layer_1 = Layer('layer_1', attributes=['a'], text_object=text)
+    layer_2 = Layer('layer_2', attributes=['b'], text_object=text, parent='layer_1')
+    layer_3 = Layer('layer_3', attributes=['c'], text_object=text, enveloping='layer_2')
+    layer_4 = Layer('layer_2', attributes=['d'], text_object=text, parent='layer_3')
+    text.add_layer(layer_1)
+    text.add_layer(layer_2)
+    text.add_layer(layer_3)
+    text.add_layer(layer_4)
+    layer_1.add_annotation(base_span=ElementaryBaseSpan(0, 4), a=1)
+    layer_1.add_annotation(base_span=ElementaryBaseSpan(6, 9), a=2)
+    layer_2.add_annotation(base_span=ElementaryBaseSpan(0, 4), b=3)
+    layer_2.add_annotation(base_span=ElementaryBaseSpan(6, 9), b=4)
+    compound_base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 9)])
+    layer_3.add_annotation(base_span=compound_base_span, c=5)
+    layer_4.add_annotation(base_span=compound_base_span, d=6)
+    assert layer_4[0].spans is None
+    assert layer_4[0].parent is layer_3[0]
+    assert layer_3[0].spans == (layer_2[0], layer_2[1])
+    assert layer_3[0].parent is None
+    assert layer_2[0].spans is None
+    assert layer_2[0].parent is layer_1[0]
+    assert layer_2[1].spans is None
+    assert layer_1[1].parent is None
+    assert layer_1[0].spans is None
+    assert layer_1[0].parent is None
+    assert layer_1[1].spans is None
+    assert layer_1[1].parent is None
+
 
 def test_to_record():
     return
