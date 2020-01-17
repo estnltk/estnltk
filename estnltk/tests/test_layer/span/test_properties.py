@@ -390,7 +390,7 @@ def test_complex_logic_for_parent_and_spans_attributes():
     layer_1 = Layer('layer_1', attributes=['a'], text_object=text)
     layer_2 = Layer('layer_2', attributes=['b'], text_object=text, parent='layer_1')
     layer_3 = Layer('layer_3', attributes=['c'], text_object=text, enveloping='layer_2')
-    layer_4 = Layer('layer_2', attributes=['d'], text_object=text, parent='layer_3')
+    layer_4 = Layer('layer_4', attributes=['d'], text_object=text, parent='layer_3')
     text.add_layer(layer_1)
     text.add_layer(layer_2)
     text.add_layer(layer_3)
@@ -409,11 +409,47 @@ def test_complex_logic_for_parent_and_spans_attributes():
     assert layer_2[0].spans is None
     assert layer_2[0].parent is layer_1[0]
     assert layer_2[1].spans is None
-    assert layer_1[1].parent is None
+    assert layer_2[1].parent is layer_1[1]
     assert layer_1[0].spans is None
     assert layer_1[0].parent is None
     assert layer_1[1].spans is None
     assert layer_1[1].parent is None
+
+    # It is possible to define very aggressive scheme for parent and spans attributes
+    text = Text('Tere see on piisavalt pikk tekst!')
+    layer_1 = Layer('layer_1', attributes=['a'], text_object=text)
+    layer_2 = Layer('layer_2', attributes=['b'], text_object=text, parent='layer_1')
+    layer_3 = Layer('layer_3', attributes=['c'], text_object=text, enveloping='layer_2')
+    layer_4 = Layer('layer_4', attributes=['d'], text_object=text, parent='layer_3')
+    text.add_layer(layer_1)
+    text.add_layer(layer_2)
+    text.add_layer(layer_3)
+    text.add_layer(layer_4)
+    layer_1.add_annotation(base_span=ElementaryBaseSpan(0, 4), a=1)
+    layer_1.add_annotation(base_span=ElementaryBaseSpan(6, 9), a=2)
+    layer_2.add_annotation(base_span=ElementaryBaseSpan(0, 4), b=3)
+    layer_2.add_annotation(base_span=ElementaryBaseSpan(6, 9), b=4)
+    compound_base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 9)])
+    layer_3.add_annotation(base_span=compound_base_span, c=5)
+    layer_4.add_annotation(base_span=compound_base_span, d=6)
+    # A span can have both parent and spans attribute, spans attribute does not have to be closest
+    layer_4[0].spans = (layer_1[0], layer_1[1])
+    # Parent attribute does not have to respect the layer derivation
+    layer_1[0].parent = layer_2[0]
+    layer_1[1].parent = layer_2[1]
+    layer_3[0].parent = layer_4[0]
+    assert layer_4[0].spans == (layer_1[0], layer_1[1])
+    assert layer_4[0].parent is layer_3[0]
+    assert layer_3[0].spans == (layer_2[0], layer_2[1])
+    assert layer_3[0].parent is layer_4[0]
+    assert layer_2[0].spans is None
+    assert layer_2[0].parent is layer_1[0]
+    assert layer_2[1].spans is None
+    assert layer_2[1].parent is layer_1[1]
+    assert layer_1[0].spans is None
+    assert layer_1[0].parent is layer_2[0]
+    assert layer_1[1].spans is None
+    assert layer_1[1].parent is layer_2[1]
 
 
 def test_to_record():
