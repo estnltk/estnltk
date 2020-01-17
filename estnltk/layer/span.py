@@ -1,7 +1,6 @@
 from copy import deepcopy
 from reprlib import recursive_repr
 from typing import Any, Sequence, List, Tuple, Optional, Union
-from collections.abc import Iterable
 
 from estnltk.layer.base_span import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
 from estnltk.layer.annotation import Annotation
@@ -333,8 +332,8 @@ class Span:
             raise AttributeError("value of 'spans' property is already fixed. Define a new instance.")
         elif not isinstance(self.base_span, EnvelopingBaseSpan):
             raise AttributeError("'spans' property cannot be set as the span contains no sub-spans.")
-        elif not isinstance(value, Iterable) or any(not isinstance(span, Span) for span in value):
-            raise TypeError("'spans' must be a list of Span objects.")
+        elif not isinstance(value, (list, tuple)) or any(not isinstance(span, Span) for span in value):
+            raise TypeError("'spans' must be a list or tuple of Span objects.")
         elif len(self.base_span) != len(value):
             raise ValueError("an invalid 'spans' value: the number of spans must match the sub-span count.")
         # Validity check for individual elements

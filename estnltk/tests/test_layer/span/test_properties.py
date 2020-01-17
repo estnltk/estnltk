@@ -250,9 +250,9 @@ def test_spans_property_assignment_and_access():
     # Only a list of spans can be assigned as spans
     base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
     span = Span(base_span=base_span, layer=layer)
-    with pytest.raises(TypeError, match="'spans' must be a list of Span objects."):
+    with pytest.raises(TypeError, match="'spans' must be a list or tuple of Span objects."):
         span.spans = 5
-    with pytest.raises(TypeError, match="'spans' must be a list of Span objects."):
+    with pytest.raises(TypeError, match="'spans' must be a list or tuple of Span objects."):
         span.spans = [4, 6, 9]
     # The number of spans in the list must be correct
     error = "an invalid 'spans' value: the number of spans must match the sub-span count."
@@ -265,7 +265,17 @@ def test_spans_property_assignment_and_access():
     with pytest.raises(ValueError, match=error):
         span.spans = [Span(base_span=base_span._spans[1], layer=None), Span(base_span=base_span._spans[1], layer=None)]
 
-    # Check that spans property can be assigned only once
+    # Check that spans property can be assigned only once for tuple of spans
+    layer = Layer('test_layer')
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4)])
+    span = Span(base_span=base_span, layer=layer)
+    sub_spans = (Span(base_span=base_span._spans[0], layer=None),)
+    span.spans = sub_spans
+    assert span.spans == sub_spans
+    with pytest.raises(AttributeError, match="value of 'spans' property is already fixed. Define a new instance."):
+        span.spans = sub_spans
+
+    # Check that spans property can be assigned only once for list of spans
     layer = Layer('test_layer')
     base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4)])
     span = Span(base_span=base_span, layer=layer)
@@ -274,6 +284,7 @@ def test_spans_property_assignment_and_access():
     assert span.spans == sub_spans
     with pytest.raises(AttributeError, match="value of 'spans' property is already fixed. Define a new instance."):
         span.spans = sub_spans
+
 
     # Computation of spans property succeeds if we do everything right
     text = Text('Tere see on piisavalt pikk tekst!')
