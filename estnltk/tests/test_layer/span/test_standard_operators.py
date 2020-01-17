@@ -290,6 +290,8 @@ def test_span_slot_access_rules():
     error_template = 'an attempt to assign a private slot {!r} of Span'
     with pytest.raises(AttributeError, match=error_template.format('_parent')):
         span._parent = None
+    with pytest.raises(AttributeError, match=error_template.format('_spans')):
+        span._spans = None
 
     # Span.parent and Span.spans are properties and tested together with other properties
 

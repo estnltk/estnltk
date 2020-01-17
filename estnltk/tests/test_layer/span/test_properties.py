@@ -182,11 +182,33 @@ def test_parent_property_assignment_and_access():
         span.parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
 
     # Computation of parent property fails if span does not have a layer
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    assert span.parent is None
+    assert span._parent is None
+    # It is possible to redefine the parent property
+    span.parent = parent
+    assert span.parent is parent
 
     # Computation of parent property fails if a layer does have a parent attribute
+    layer = Layer('test_layer')
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    assert span.parent is None
+    assert span._parent is None
+    # It is possible to redefine the parent property
+    span.parent = parent
+    assert span.parent is parent
 
     # Computation of parent property fails if a layer does not reference a text object
-
+    layer = Layer('test_layer', parent="parent_layer")
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    assert span.parent is None
+    assert span._parent is None
+    # It is possible to redefine the parent property
+    span.parent = parent
+    assert span.parent is parent
 
     # Computation of parent property fails if the parent layer is not attached to the text
     text = Text('Tere!')
@@ -194,11 +216,11 @@ def test_parent_property_assignment_and_access():
     parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
     layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
     # Parent attribute is not computed and cached
     assert span.parent is None
     assert span._parent is None
     # It is possible to redefine the parent property
-    parent = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
     span.parent = parent
     assert span.parent is parent
 
@@ -216,10 +238,70 @@ def test_parent_property_assignment_and_access():
     span.parent = parent
     assert span.parent is parent
 
+
 def test_spans_property_assignment_and_access():
+    # Check that spans property cannot be assigned with incorrect values
+    layer = Layer('test_layer')
+    base_span = ElementaryBaseSpan(0, 4)
+    span = Span(base_span=base_span, layer=layer)
+    # Spans must be empty for spans without compound spans
+    with pytest.raises(AttributeError, match="'spans' property cannot be set as the span contains no sub-spans."):
+        span.spans = [Span(base_span=base_span, layer=None)]
+    # Only a list of spans can be assigned as spans
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=layer)
+    with pytest.raises(TypeError, match="'spans' must be a list of Span objects."):
+        span.spans = 5
+    with pytest.raises(TypeError, match="'spans' must be a list of Span objects."):
+        span.spans = [4, 6, 9]
+    # The number of spans in the list must be correct
+    error = "an invalid 'spans' value: the number of spans must match the sub-span count."
+    with pytest.raises(ValueError, match=error):
+        span.spans = [Span(base_span=base_span._spans[0], layer=None)]
+    # The base span attribute must be correct
+    error = "an invalid 'spans' value: 'base_span' attribute must match a sub-span location."
+    with pytest.raises(ValueError, match=error):
+        span.spans = [Span(base_span=base_span._spans[0], layer=None), Span(base_span=base_span._spans[0], layer=None)]
+    with pytest.raises(ValueError, match=error):
+        span.spans = [Span(base_span=base_span._spans[1], layer=None), Span(base_span=base_span._spans[1], layer=None)]
+
+    # Check that spans property can be assigned only once
+    layer = Layer('test_layer')
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4)])
+    span = Span(base_span=base_span, layer=layer)
+    sub_spans = [Span(base_span=base_span._spans[0], layer=None)]
+    span.spans = sub_spans
+    assert span.spans == sub_spans
+    with pytest.raises(AttributeError, match="value of 'spans' property is already fixed. Define a new instance."):
+        span.spans = sub_spans
+
+    # Computation of spans property succeeds if we do everything right
+    text = Text('Tere see on piisavalt pikk tekst!')
+    parent_layer = Layer('base_layer', attributes=['attr'], text_object=text)
+    parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
+    parent_layer.add_annotation(base_span=ElementaryBaseSpan(6, 10), attr=24)
+    text.add_layer(parent_layer)
+    layer = Layer('test_layer', enveloping='base_layer', text_object=text)
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=layer)
+    # Span attribute is computed and cached
+    assert span.spans == (parent_layer[0], parent_layer[1])
+    assert span._spans[0] is parent_layer[0]
+    assert span._spans[1] is parent_layer[1]
+    # It is now impossible to redefine the parent property
+    with pytest.raises(AttributeError, match="value of 'spans' property is already fixed. Define a new instance."):
+        span.spans = [Span(base_span=sub_base_span, layer=None) for sub_base_span in base_span._spans]
+
+
+
+
+
+
     pass
 
 
+def test_complex_logic_for_parent_and_spans_attributes():
+    pass
 
 def test_to_record():
     return
