@@ -23,8 +23,23 @@ def test_len():
         _ = len(span)
 
 
-def test_methods_list():
-    pass
+def test_protected_attribute_list():
+    # Check that list of methods is constant
+    assert isinstance(Span.methods, frozenset)
+    # Test that the list of prohibited attribute names is complete
+    members = inspect_class_members(Span(ElementaryBaseSpan(0, 1), None))
+    assert set(members['properties']) <= Span.methods | Span.constant_attributes | {'parent', 'spans'}
+    assert set(members['private_methods']) <= Span.methods
+    assert set(members['protected_methods']) <= Span.methods
+    assert set(members['public_methods']) <= Span.methods
+    assert set(members['private_variables']) <= Span.constant_attributes
+    assert set(members['protected_variables']) <= Span.methods
+    assert set(members['public_variables']) <= Span.constant_attributes
+    # Additional slots are assignable
+    print(set(Span.__slots__) & Span.methods)
+    assert len(set(Span.__slots__) & Span.methods) == 0
+    # Make sure that Span passes Jupyter sanity checks
+    assert '_ipython_canary_method_should_not_exist_' in Span.constant_attributes
 
 
 def test_constructor():
