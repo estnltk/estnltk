@@ -29,7 +29,7 @@ class Span:
         '__lt__', '__eq__', '__iter__', '__len__', '__contains__', '__repr__',
         'add_annotation', 'del_annotation', 'clear_annotations',
         'to_records', 'resolve_attribute', '_to_html', '_repr_html_'] + \
-        [method for method in dir(object) if callable(getattr(object, method, None))])
+        [method for method in dir(object) if callable(getattr(object, method, None)) and method != '__hash__'])
 
     def __init__(self, base_span: BaseSpan, layer):
         assert isinstance(base_span, BaseSpan), base_span
@@ -139,7 +139,7 @@ class Span:
             raise AttributeError('an attempt to redefine a constant property or attribute {!r} of Span.'.format(key))
         # Protected methods
         if key in super().__getattribute__('methods'):
-            raise AttributeError('attempt to set an attribute that shadows a method{!r}'.format(key))
+            raise AttributeError('attempt to set an attribute that shadows a method {!r} of Span.'.format(key))
 
         # Dynamic attributes resolving for layer attributes
         if self.layer is None or key not in self.layer.attributes:

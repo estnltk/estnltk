@@ -240,8 +240,34 @@ def test_copy_constructors():
 
 
 def test_attribute_assignment_and_access():
+    # Normal span and normal attributes
+    # ???
+
+
+    layer = Layer('test_layer')
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+
+    # Check that constant attributes cannot be assigned
+    error_template = "an attempt to redefine a constant property or attribute {!r} of Span."
+    for attr in Span.constant_attributes:
+        with pytest.raises(AttributeError, match=error_template.format(attr)):
+            setattr(span, attr, 42)
+
+    # Check that methods cannot be redefined as attributes
+    error_template = "attempt to set an attribute that shadows a method {!r} of Span."
+    for attr in Span.methods:
+        with pytest.raises(AttributeError, match=error_template.format(attr)):
+            setattr(span, attr, 42)
+
+    # Test that Jupyter sanity check works
+    error_template = "an attempt to redefine a constant property or attribute {!r} of Span."
+    with pytest.raises(AttributeError, match=error_template.format('_ipython_canary_method_should_not_exist_')):
+        span._ipython_canary_method_should_not_exist_ = 5
+
+
+
+
     # TODO: Use the next function as a start
-    pass
 
 def test_getattr():
     span_1 = Span(ElementaryBaseSpan(0, 1), Layer('test', attributes=['attr_1'], ambiguous=True))
