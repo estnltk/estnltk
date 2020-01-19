@@ -16,9 +16,9 @@ class EnvelopingSpan(Span):
             span.add_annotation(Annotation(span, **record))
         return span
 
-    # TODO: Push down to Span
     @property
     def spans(self):
+        # TODO: Completely redundant remove the code if all tests work
         if self._spans is None:
             get_from_enveloped = self.layer.text_object[self.layer.enveloping].get
             self._spans = tuple(get_from_enveloped(base) for base in self.base_span)
