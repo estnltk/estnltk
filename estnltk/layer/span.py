@@ -17,6 +17,20 @@ class Span:
     """
     __slots__ = ['base_span', 'layer', 'annotations', '_parent', '_spans']
 
+    # List of prohibited attribute names
+    constant_attributes = frozenset([
+        '__doc__', '__hash__','__module__', '__slots__', 'methods', 'constant_attributes',
+        'start', 'end', 'text_object', 'text', 'enclosing_text',
+        '_ipython_canary_method_should_not_exist_',
+        'legal_attribute_names', 'base_spans', 'raw_text'])
+    methods = frozenset([
+        '__copy__', '__deepcopy__', '__getstate__', '__setstate__',
+        '__getattr__', '__setattr__', '__delattr__', '__getitem__', '__settitem__', '__delitem__',
+        '__lt__', '__eq__', '__iter__', '__len__', '__contains__', '__repr__',
+        'add_annotation', 'del_annotation', 'clear_annotations',
+        'to_records', 'resolve_attribute', '_to_html', '_repr_html_'] + \
+        [method for method in dir(object) if callable(getattr(object, method, None))])
+
     def __init__(self, base_span: BaseSpan, layer):
         assert isinstance(base_span, BaseSpan), base_span
         # We cannot import Layer without creating circular imports
@@ -100,7 +114,7 @@ class Span:
         self_setattr('_spans', state['spans'])
 
     def __getattr__(self, item):
-
+        # TODO: resolve property attribute conflict
         if item in self.__getattribute__('layer').attributes:
             return self[item]
         try:
@@ -112,6 +126,7 @@ class Span:
         # Assignable properties
         if key in {'parent', 'spans'}:
             return super().__setattr__(key, value)
+
         # Constant slots
         elif key in {'annotations', 'base_span', 'layer'}:
             raise AttributeError(
@@ -119,19 +134,31 @@ class Span:
         # Prohibited slots
         elif key in {'_parent', '_spans'}:
             raise AttributeError('an attempt to assign a private slot {!r} of Span'.format(key))
+        # Constant properties and attributes
+        elif key in super().__getattribute__('constant_attributes'):
+            raise AttributeError('an attempt to redefine a constant property or attribute {!r} of Span.'.format(key))
+        # Protected methods
+        if key in super().__getattribute__('methods'):
+            raise AttributeError('attempt to set an attribute that shadows a method{!r}'.format(key))
 
-        # TODO: Resolve property attribute conflict
-        # Properties must win and put the corresponding check first
+        # Dynamic attributes resolving for layer attributes
+        if self.layer is None or key not in self.layer.attributes:
+            raise AttributeError('an attempt to set an attribute {!r} that is not a layer attribute.'.format(key))
+        # Update the attribute value for all annotations. This may lead to two or more identical annotations
+        # TODO: Resolve this issue when it is clear what is the right way to address this issue
+        # There are three options:
+        # 1) omit assignment altogether
+        # 2) allow assignment only for spans with a single annotation
+        # 3) restore the invariant after assignment
+        for annotation in self.annotations:
+            setattr(annotation, key, value)
 
-        # Peaks töötama ühe Annotatsiooniga spanil
-        # Probleemid annotationlisti invariantidega
-        if key in self.legal_attribute_names:
-            for annotation in self.annotations:
-                setattr(annotation, key, value)
-        else:
-            raise AttributeError(key)
+    def __dir__(self):
+        # TODO: To be completed to get all hints in Jupyter
+        return super().__dir__()
 
     def __getitem__(self, item):
+        # We need to resolve non-slot and non-properties and non-methods
         if isinstance(item, str):
             if self.layer.ambiguous:
                 return AttributeList((annotation[item] for annotation in self.annotations), item)
@@ -151,6 +178,17 @@ class Span:
                and self.base_span == other.base_span \
                and len(self.annotations) == len(other.annotations) \
                and all(s in other.annotations for s in self.annotations)
+
+    # TODO: Correct and test
+    # def __iter__(self):
+    #     yield from self.spans
+    #
+    # def __len__(self) -> int:
+    #     return len(self.base_span)
+    #
+    # def __contains__(self, item: Any) -> bool:
+    #     return item in self.spans
+    # # -----------------------
 
     @recursive_repr()
     def __repr__(self):
@@ -393,6 +431,7 @@ class Span:
                     html_table(spans=[self], attributes=self.layer.attributes, margin=margin, index=False))
         except:
             return str(self)
+
     # We can add kwargs fror conf through display
     def _repr_html_(self):
         return self._to_html()
