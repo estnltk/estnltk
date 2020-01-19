@@ -240,8 +240,27 @@ def test_copy_constructors():
 
 
 def test_attribute_assignment_and_access():
-    # Normal span and normal attributes
-    # ???
+    # A layer attribute of a normal span in a non-ambiguous layer
+    span = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['a', 'b', 'c'], ambiguous=False))
+    span.add_annotation(Annotation(span, a=0, b='1', c=dict(a=1, b=2)))
+    assert span.a == 0 and span.b == '1' and span.c == dict(a=1, b=2)
+    assert hasattr(span, 'a') and hasattr(span, 'b') and hasattr(span, 'c')
+    # Non-existing layer attribute of a normal span in a non-ambiguous layer
+    assert not hasattr(span, 'missing_layer_attribute')
+    span.missing_layer_attribute
+
+    # A layer attribute of a normal span in an ambiguous layer
+    span = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['a', 'b', 'c'], ambiguous=True))
+    span.add_annotation(Annotation(span, a=0, b='1', c=dict(a=1, b=2)))
+    span.add_annotation(Annotation(span, a=3, b='4', c=dict(a=3, b=4)))
+    assert span.a == AttributeList([0, 3], 'a')
+    assert span.b == AttributeList(['1', '4'], 'b')
+    assert span.c == AttributeList([dict(a=1, b=2), dict(a=3, b=4)], 'c')
+    assert hasattr(span, 'a') and hasattr(span, 'b') and hasattr(span, 'c')
+    # Non-existing layer attribute of a normal span in an ambiguous layer
+    assert not hasattr(span, 'missing_layer_attribute')
+    span.missing_layer_attribute
+
 
 
     layer = Layer('test_layer')
