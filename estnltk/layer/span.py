@@ -27,7 +27,7 @@ class Span:
         '__copy__', '__deepcopy__', '__getstate__', '__setstate__',
         '__getattr__', '__setattr__', '__delattr__', '__getitem__', '__settitem__', '__delitem__',
         '__lt__', '__eq__', '__iter__', '__len__', '__contains__', '__repr__',
-        'add_annotation', 'del_annotation', 'clear_annotations',
+        'add_annotation', 'del_annotation', 'clear_annotations', 'get',
         'to_records', 'resolve_attribute', '_to_html', '_repr_html_'] + \
         [method for method in dir(object) if callable(getattr(object, method, None)) and method != '__hash__'])
 
@@ -127,7 +127,7 @@ class Span:
 
         TODO: There are some other attributes that become accessible
         """
-        # Python resolves property vs layer attribute name conflict: item is not a method, a slots or a property.
+        # Python resolves property vs layer attribute name conflict: item is not a method, a slot or a property.
 
         # TODO: Remove this check when layer cannot be None
         if self.layer is None:
@@ -136,7 +136,7 @@ class Span:
 
         # Start resolving from legitimate layer attributes
         if item in self.__getattribute__('layer').attributes:
-            return self[item]  # return self.get(item, None)
+            return self.get(item, None)
 
         # Abort if text object is not available
         text = self.layer.text_object
@@ -237,6 +237,22 @@ class Span:
             return self.annotations[0][item]
 
         raise KeyError(item)
+
+    # Quick hack to get going
+    # No annotations is filled with default for non-ambiquous layer
+    # This is exception safe
+    def get(self, key, default=None):
+        if isinstance(key, str):
+            if self.layer.ambiguous:
+                return AttributeList((annotation.get(key, default) for annotation in self.annotations), key)
+            if len(self.annotations) == 0:
+                return default
+            return self.annotations[0].get(key, default)
+        if isinstance(key, tuple):
+            raise NotImplementedError('Indeed. Probably not need as well')
+            if self.layer.ambiguous:
+                return AttributeTupleList((annotation[key] for annotation in self.annotations), key)
+            return self.annotations[0][key]
 
     def __lt__(self, other: Any) -> bool:
         return self.base_span < other.base_span
