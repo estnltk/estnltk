@@ -17,7 +17,7 @@ class Span:
     """
     __slots__ = ['base_span', 'layer', 'annotations', '_parent', '_spans']
 
-    # List of prohibited attribute names
+    # List of protected attribute names
     constant_attributes = frozenset([
         '__doc__', '__hash__','__module__', '__slots__', 'methods', 'constant_attributes',
         'start', 'end', 'text_object', 'text', 'enclosing_text',
@@ -114,15 +114,82 @@ class Span:
         self_setattr('_spans', state['spans'])
 
     def __getattr__(self, item):
-        # TODO: resolve property attribute conflict
+        """
+        Gives access to all layer attributes that are not shadowed by methods, properties or slots.
+        All layer attributes are accessible by index operator regardless of the attribute name.
+        RATIONALE: This is the best trade-off between convenience and safety.
+
+        1) layer attributes
+        2) layer names
+        3) special construction
+
+        None has many meanings here!
+
+        TODO: There are some other attributes that become accessible
+        """
+        # Python resolves property vs layer attribute name conflict: item is not a method, a slots or a property.
+
+        # TODO: Remove this check when layer cannot be None
+        if self.layer is None:
+            raise AttributeError(
+                "unable to resolve attribute {!r} as the span is not attached a layer.".format(item))
+
+        # Start resolving from legitimate layer attributes
         if item in self.__getattribute__('layer').attributes:
-            return self[item]
+            return self[item]  # return self.get(item, None)
+
+        # Abort if text object is not available
+        text = self.layer.text_object
+        if text is None:
+            raise AttributeError(
+                "unable to resolve attribute {!r} as the layer is not attached to a text.".format(item))
+
+        # Return span if the attribute is legitimate layer name.
+        if item in text.layers:
+            # TODO: there are some additional checks
+
+            return text[item].get(self.base_span)
+
+            # if len(target_layer) == 0:
+            #     return
+            #
+            # if target_layer[0].base_span.level >= self.base_span.level:
+            #     raise AttributeError('target layer level {} should be lower than {}'.format(
+            #         target_layer[0].base_span.level, self.base_span.level))
+            #
+            # return target_layer.get(self.base_span)
+
+        # Choose the correct lookup table according to the base span level
+        if self.base_span.level == 0:
+            target_layer = text.attribute_mapping_for_elementary_layers[item]
+        else:
+            target_layer = text.attribute_mapping_for_enveloping_layers[item]
+
+        # Abort if the target layer is not part of the text
+        if target_layer not in text.layers:
+            raise AttributeError("???")
+
+        return text[target_layer].get(self.base_span)
+
         try:
             return self.resolve_attribute(item)
+                # if item not in self.text_object.layers:
+                #     attribute_mapping = self.text_object.attribute_mapping_for_elementary_layers
+                #     return self.layer.text_object[attribute_mapping[item]].get(self.base_span)[item]
+
+#        return self.text_object[item].get(self.base_span)
+
+
         except KeyError as key_error:
+            raise AttributeError("unresolvable attribute {!r}".format(key))
             raise AttributeError(key_error.args[0]) from key_error
 
     def __setattr__(self, key, value):
+        """
+        Gives access to all layer attributes that are not shadowed by methods, properties or slots.
+        All layer attributes are accessible by index operator regardless of the attribute name.
+        RATIONALE: This is the best trade-off between convenience and safety.
+        """
         # Assignable properties
         if key in {'parent', 'spans'}:
             return super().__setattr__(key, value)
@@ -158,6 +225,7 @@ class Span:
         return super().__dir__()
 
     def __getitem__(self, item):
+        # TODO: define non-failing get version as well!
         # We need to resolve non-slot and non-properties and non-methods
         if isinstance(item, str):
             if self.layer.ambiguous:
@@ -382,6 +450,7 @@ class Span:
         return super().__setattr__('_spans', value)
 
     def add_annotation(self, annotation: Annotation) -> Annotation:
+        # TODO: Allow less attributes than required!
         if not isinstance(annotation, Annotation):
             raise TypeError('expected Annotation, got {}'.format(type(annotation)))
         if annotation.span is not self:
@@ -414,7 +483,7 @@ class Span:
         record['end'] = self.end
         return record
 
-    # TODO: To be inlined
+    # TODO: To be pushed into the layer as layer does the resolving
     def resolve_attribute(self, item):
         if item not in self.text_object.layers:
             attribute_mapping = self.text_object.attribute_mapping_for_elementary_layers

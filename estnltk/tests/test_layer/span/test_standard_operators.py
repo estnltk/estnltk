@@ -12,6 +12,7 @@ from estnltk.layer import AttributeList
 from estnltk import EnvelopingBaseSpan
 from estnltk.tests import inspect_class_members
 
+# TODO: remove dependecy form Layer.add_annotation()
 
 def test_len():
     text = Text('Tere!')
@@ -247,7 +248,9 @@ def test_attribute_assignment_and_access():
     assert hasattr(span, 'a') and hasattr(span, 'b') and hasattr(span, 'c')
     # Non-existing layer attribute of a normal span in a non-ambiguous layer
     assert not hasattr(span, 'missing_layer_attribute')
-    span.missing_layer_attribute
+    error = "unable to resolve attribute 'missing_layer_attribute' as the layer is not attached to a text."
+    with pytest.raises(AttributeError, match=error):
+        _ = span.missing_layer_attribute
 
     # A layer attribute of a normal span in an ambiguous layer
     span = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['a', 'b', 'c'], ambiguous=True))
@@ -259,7 +262,23 @@ def test_attribute_assignment_and_access():
     assert hasattr(span, 'a') and hasattr(span, 'b') and hasattr(span, 'c')
     # Non-existing layer attribute of a normal span in an ambiguous layer
     assert not hasattr(span, 'missing_layer_attribute')
-    span.missing_layer_attribute
+    error = "unable to resolve attribute 'missing_layer_attribute' as the layer is not attached to a text."
+    with pytest.raises(AttributeError, match=error):
+        _ = span.missing_layer_attribute
+
+    # Attribute resolving fails as the span is not attached to a layer
+    span = Span(ElementaryBaseSpan(0, 1), layer=None)
+    error = "unable to resolve attribute 'missing_layer_attribute' as the span is not attached a layer."
+    with pytest.raises(AttributeError, match=error):
+        _ = span.missing_layer_attribute
+
+    # Attribute resolving leads to a missing layer attribute
+    span = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['a', 'b', 'c']))
+    span.annotations.append(Annotation(span, a=1, b=2))
+    # TODO: Should return None but raises a key error instead
+    with pytest.raises(KeyError):
+        _ = span.c
+
 
 
 
