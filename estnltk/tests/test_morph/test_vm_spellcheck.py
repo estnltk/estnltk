@@ -2,6 +2,8 @@ import pytest
 
 from estnltk import Text
 from estnltk import Annotation
+from estnltk import Layer
+from estnltk import ElementaryBaseSpan
 from estnltk.taggers import SpellCheckRetagger
 from estnltk.taggers import VabamorfAnalyzer
 
@@ -195,3 +197,56 @@ def test_spellcheck_retagger_2():
                 'base_span': (36, 37)}]}
     assert text.words == dict_to_layer(expected_layer_dict)
 
+
+# Creates a words layer without 'normalized_form' and adds to the text object
+def add_words_layer_without_normalized_form( text ):
+    words = Layer(name='words', attributes=(),
+                  text_object=text, ambiguous=True)
+    compounds = set()
+    for spl in text['compound_tokens']:
+        words.add_annotation(ElementaryBaseSpan(spl.start, spl.end))
+        for sp in spl:
+            compounds.add(sp.base_span)
+    for span in text['tokens']:
+        if span.base_span not in compounds:
+            words.add_annotation(span.base_span)
+    text.add_layer(words)
+
+
+def test_spellcheck_retagger_3():
+    # Test that SpellCheckRetagger adds the normalized_form automatically if the words layer is missing it
+    # ( this is useful when processing imported texts )
+    # Case 1
+    spelling_tagger=SpellCheckRetagger()
+    text=Text('Metsawahi obusele on uus laut ehitet.')
+    text.tag_layer(['compound_tokens'])
+    add_words_layer_without_normalized_form( text )
+    assert 'words' in text.layers
+    assert 'normalized_form' not in text['words'].attributes
+    spelling_tagger.retag(text)
+    assert 'normalized_form' in text['words'].attributes
+    #from pprint import pprint
+    #pprint(layer_to_dict(text.words))
+    # Validate the results
+    expected_layer_dict = \
+     {'ambiguous': True,
+     'attributes': ('normalized_form',),
+     'enveloping': None,
+     'meta': {},
+     'name': 'words',
+     'parent': None,
+     'serialisation_module': None,
+     'spans': [{'annotations': [{'normalized_form': 'Metsavahi'},
+                                {'normalized_form': 'Metsaahi'}],
+                'base_span': (0, 9)},
+               {'annotations': [{'normalized_form': 'hobusele'}],
+                'base_span': (10, 17)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (18, 20)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (21, 24)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (25, 29)},
+               {'annotations': [{'normalized_form': 'ehite'}],
+                'base_span': (30, 36)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (36, 37)}]}
+    assert text.words == dict_to_layer(expected_layer_dict)
+    
+    

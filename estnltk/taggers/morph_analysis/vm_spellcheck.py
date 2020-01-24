@@ -75,14 +75,19 @@ class SpellCheckRetagger(Retagger):
            This can be used to store metadata on layer tagging.
         """
         words_layer = layers[ self.input_layers[0] ]
+        normalized_form_newly_added = False
         attribute_added = False
         if self.add_spellcheck and 'spelling' not in words_layer.attributes:
             words_layer.attributes += ('spelling',)
             attribute_added = True
+        if 'normalized_form' not in words_layer.attributes:
+            words_layer.attributes += ('normalized_form',)
+            normalized_form_newly_added = True
+            attribute_added = True
         for word in words_layer:
             misspelled = False
             has_prev_normalizations = False
-            if 'normalized_form' in words_layer.attributes:
+            if 'normalized_form' in words_layer.attributes and not normalized_form_newly_added:
                 word_texts = _get_word_texts(word)
                 if len(word_texts) > 0:
                     if not( word_texts[0] == word.text and len(word_texts) == 1 ):
