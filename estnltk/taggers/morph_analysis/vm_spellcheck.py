@@ -77,12 +77,12 @@ class SpellCheckRetagger(Retagger):
         words_layer = layers[ self.input_layers[0] ]
         normalized_form_newly_added = False
         attribute_added = False
-        if self.add_spellcheck and 'spelling' not in words_layer.attributes:
-            words_layer.attributes += ('spelling',)
-            attribute_added = True
         if 'normalized_form' not in words_layer.attributes:
             words_layer.attributes += ('normalized_form',)
             normalized_form_newly_added = True
+            attribute_added = True
+        if self.add_spellcheck and 'spelling' not in words_layer.attributes:
+            words_layer.attributes += ('spelling',)
             attribute_added = True
         for word in words_layer:
             misspelled = False
