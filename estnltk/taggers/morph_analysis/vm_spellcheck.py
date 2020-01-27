@@ -13,10 +13,11 @@ from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 
 class SpellCheckRetagger(Retagger):
     '''Processes words with Vabamorf's spellchecker and adds normalized forms to misspelled words.'''
-    conf_param = ['add_spellcheck', 'keep_original_word', '_vm_instance']
+    conf_param = ['add_spellcheck', 'add_all_suggestions', 'keep_original_word', '_vm_instance']
     output_attributes = []
     
-    def __init__(self, output_layer='words', add_spellcheck=False, keep_original_word=False, vm_instance=None):
+    def __init__(self, output_layer='words', add_all_suggestions=False, add_spellcheck=False, \
+                       keep_original_word=False, vm_instance=None):
         """Initialize SpellCheckRetagger class.
         
         Parameters
@@ -24,16 +25,27 @@ class SpellCheckRetagger(Retagger):
         output_layer: str (default: 'words')
             Name of the input / output words layer that will be normalized.
         add_spellcheck: boolean (default: False)
-            If attribute 'spelling' will be added to annotations.
+            If True, the attribute 'spelling' will be added to annotations.
             This attribute contains a boolean, showing if the original 
             word.text was spelled correctly.
+        add_all_suggestions: boolean (default: False)
+            If True, then all Vabamorf spellchecker's suggestions will be 
+            added as normalized forms of the misspelled word.
+            The default setting (add_all_suggestions=False) means that 
+            only the first suggestion that is given for each misspelled word
+            will be added as the normalized form. Note that picking the first 
+            suggestion is likely not the best strategy, but the sophisticated 
+            analysis about which one of the suggestions fits best into the 
+            context is currently out of our scope.
         keep_original_word: boolean (default: False)
-            If the original word.text (the misspelled word) will be added as
-            one of the normalized_form's of the word.
+            If True, then the original word.text (the misspelled word) will 
+            be added as one of the normalized_form's of the word.
             Some of the words that spellchecker thinks are wrong can actually
             analysed pretty well if the morphological guessing is enabled, so 
             you may want to keep to original word among the suggestions of 
             the spellchecker to enchance morphological analysis results.
+            Note: this setting can only be used if add_all_suggestions is 
+            True.
         vm_instance: estnltk.vabamorf.morf.Vabamorf
             An instance of Vabamorf that is to be used for 
             performing spellchecking.
@@ -42,8 +54,11 @@ class SpellCheckRetagger(Retagger):
         self.output_layer = output_layer
         self.output_attributes = ('normalized_form',)
         self.add_spellcheck = add_spellcheck
+        self.add_all_suggestions = add_all_suggestions
         if self.add_spellcheck:
             self.output_attributes += ('spelling',)
+        if not self.add_all_suggestions and keep_original_word:
+            raise ValueError('Parameter conflict: keep_original_word can be True only if add_all_suggestions is True')
         self.keep_original_word = keep_original_word
         # Initialize Vabamorf's instance;
         _vm_instance = None
@@ -103,8 +118,12 @@ class SpellCheckRetagger(Retagger):
                     misspelled = True
                     if len(item["suggestions"]) > 0:
                         for new_suggestion in item["suggestions"]:
-                            if new_suggestion not in suggestions:
-                                suggestions.append( new_suggestion )
+                            if new_suggestion not in suggestions and \
+                               new_suggestion not in word_texts:
+                                if self.add_all_suggestions:
+                                    suggestions.append( new_suggestion )
+                                elif not self.add_all_suggestions and len(suggestions) < 1:
+                                    suggestions.append( new_suggestion )
             # Create new annotations that are to be replaced with old ones
             new_annotations = []
             if suggestions:

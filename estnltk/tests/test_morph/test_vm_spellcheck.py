@@ -12,7 +12,7 @@ from estnltk.converters import dict_to_layer, layer_to_dict
 
 def test_spellcheck_retagger_1():
     # Test SpellCheckRetagger on providing normalizations to misspelled words
-    spelling_tagger=SpellCheckRetagger()
+    spelling_tagger=SpellCheckRetagger(add_all_suggestions=True)
     # Case 1
     text=Text('Ma tahax minna järve äärde ja püda hauge, katikaid ja karpe.')
     text.tag_layer(['words'])
@@ -80,7 +80,7 @@ def test_spellcheck_retagger_1():
     assert text.words == dict_to_layer(expected_layer_dict)
     
     # Case 3: Add the original word.text to normalized_form
-    spelling_tagger=SpellCheckRetagger(keep_original_word=True)
+    spelling_tagger=SpellCheckRetagger(add_all_suggestions=True, keep_original_word=True)
     text=Text('Metsawahi obusele on uus laut ehitet.')
     text.tag_layer(['words'])
     spelling_tagger.retag(text)
@@ -111,11 +111,66 @@ def test_spellcheck_retagger_1():
                {'annotations': [{'normalized_form': None}], 'base_span': (36, 37)}]}
     assert text.words == dict_to_layer(expected_layer_dict)
 
+    # Case 4: The default setting: only one suggestion per misspelled word
+    spelling_tagger_default=SpellCheckRetagger()
+    text=Text('Metsawahi obusele on uus laut ehitet.')
+    text.tag_layer(['words'])
+    spelling_tagger_default.retag(text)
+    #from pprint import pprint
+    #pprint(layer_to_dict(text.words))
+    # Validate the results
+    expected_layer_dict = \
+     {'ambiguous': True,
+     'attributes': ('normalized_form',),
+     'enveloping': None,
+     'meta': {},
+     'name': 'words',
+     'parent': None,
+     'serialisation_module': None,
+     'spans': [{'annotations': [{'normalized_form': 'Metsavahi'}], 'base_span': (0, 9)},
+               {'annotations': [{'normalized_form': 'hobusele'}], 'base_span': (10, 17)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (18, 20)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (21, 24)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (25, 29)},
+               {'annotations': [{'normalized_form': 'ehite'}], 'base_span': (30, 36)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (36, 37)}]}
+    assert text.words == dict_to_layer(expected_layer_dict)
+
+    # Case 5: The default setting: only one suggestion per misspelled word
+    text=Text('Ma tahax minna järve äärde ja püda hauge, katikaid ja karpe.')
+    text.tag_layer(['words'])
+    spelling_tagger_default.retag(text)
+    #from pprint import pprint
+    #pprint(layer_to_dict(text.words))
+    # Validate the results
+    expected_layer_dict = \
+    {'ambiguous': True,
+     'attributes': ('normalized_form',),
+     'enveloping': None,
+     'meta': {},
+     'name': 'words',
+     'parent': None,
+     'serialisation_module': None,
+     'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 2)},
+               {'annotations': [{'normalized_form': 'tahaks'}], 'base_span': (3, 8)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (9, 14)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (15, 20)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (21, 26)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (27, 29)},
+               {'annotations': [{'normalized_form': 'püüda'}], 'base_span': (30, 34)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (35, 40)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (40, 41)},
+               {'annotations': [{'normalized_form': 'kaikaid'}], 'base_span': (42, 50)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (51, 53)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (54, 59)},
+               {'annotations': [{'normalized_form': None}], 'base_span': (59, 60)}] }
+    assert text.words == dict_to_layer(expected_layer_dict)
+
 
 
 def test_spellcheck_retagger_2():
     # Test SpellCheckRetagger on marking misspelled words and providing them normalizations
-    spelling_tagger=SpellCheckRetagger(add_spellcheck=True)
+    spelling_tagger=SpellCheckRetagger(add_all_suggestions=True, add_spellcheck=True)
     # Case 1
     text=Text('Ma tahax minna järve äärde ja püda hauge, katikaid ja karpe.')
     text.tag_layer(['words'])
@@ -217,7 +272,7 @@ def test_spellcheck_retagger_3():
     # Test that SpellCheckRetagger adds the normalized_form automatically if the words layer is missing it
     # ( this is useful when processing imported texts )
     # Case 1
-    spelling_tagger=SpellCheckRetagger()
+    spelling_tagger=SpellCheckRetagger(add_all_suggestions=True)
     text=Text('Metsawahi obusele on uus laut ehitet.')
     text.tag_layer(['compound_tokens'])
     add_words_layer_without_normalized_form( text )
