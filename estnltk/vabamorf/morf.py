@@ -642,6 +642,70 @@ def _split_word_for_syllabification( word_text ):
     return [''.join(chars) for chars in split_word]
 
 
+# Heuristic: attempts to split the input word by its 
+# compound word boundaries. Only succeeds if:
+#  a) the input word is unambiguously a compound word;
+#  b) lemma and the surface form of the input word 
+#     match by prefix (to extent of compound word 
+#     boundaries);
+def _split_compound_word_heuristically( word_text ):
+    # Discard unanalysable inputs
+    if word_text is None or len(word_text) == 0 or word_text.isspace():
+        return [word_text]
+    # Apply morph analysis to determine if we have a compound
+    analyses_of_word = \
+        analyze(word_text,guess=True,propername=True,disambiguate=False)
+    all_root_tokens = []
+    for a in analyses_of_word[0]['analysis']:
+        if a['root_tokens'] not in all_root_tokens:
+            all_root_tokens.append( a['root_tokens'] )
+    if len(all_root_tokens) == 1:
+        # The compound is unambiguous
+        all_root_tokens = all_root_tokens[0]
+        # Throw out empty strings
+        all_root_tokens = [rt for rt in all_root_tokens if len(rt) > 0]
+        if len(all_root_tokens) < 2:
+            # Nothing to split here: move along! 
+            return [word_text]
+        # Assume prefix of the root can be matched to prefix of the 
+        # surface form; Split as long as there is a match:
+        c = 0
+        i = 0
+        j = 0
+        split_word_text = [[]]
+        wc = ''
+        rc = ''
+        while c < len(word_text):
+            wc = word_text[c]
+            rc = all_root_tokens[i][j]
+            if wc == rc:
+                split_word_text[-1].append( wc )
+            else:
+                # break in case of a mismatch
+                # (unable to match inflected lemma)
+                break
+            c += 1
+            j += 1
+            if j >= len(all_root_tokens[i]):
+                j = 0
+                i += 1
+                if i >= len(all_root_tokens):
+                    break 
+                # Make a break in word_text
+                if len(split_word_text[-1]) > 0 and \
+                   c < len(word_text):
+                    split_word_text.append([])
+        while c < len(word_text):
+            wc = word_text[c]
+            split_word_text[-1].append( wc )
+            c += 1
+        return [''.join(chars) for chars in split_word_text]
+    # If the compound was ambiguous, or there were problems with 
+    # determining the compound boundaries, the return the input 
+    # text without splitting:
+    return [word_text]
+
+
 def syllable_as_dict(syllable):
     if isinstance(syllable, dict):
         return syllable

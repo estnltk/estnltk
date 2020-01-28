@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from ..morf import syllabify_word
 from ..morf import _split_word_for_syllabification
+from ..morf import _split_compound_word_heuristically
 import unittest
 from pprint import pprint
 
@@ -75,4 +76,35 @@ class SyllabificationTest(unittest.TestCase):
           {'accent': 0, 'quantity': 2, 'syllable': 'han'}]
         self.assertListEqual(expected, actual)
 
-
+    def test_split_compound_word_heuristically(self):
+        # Case 0
+        actual = _split_compound_word_heuristically('')
+        expected = ['']
+        self.assertListEqual(expected, actual)
+        # Case 1
+        actual = _split_compound_word_heuristically('ema')
+        expected = ['ema']
+        self.assertListEqual(expected, actual)
+        # Case 2
+        actual = _split_compound_word_heuristically('vanaema')
+        expected = ['vana', 'ema']
+        self.assertListEqual(expected, actual)
+        # Case 3
+        actual = _split_compound_word_heuristically('vanaemadele')
+        expected = ['vana', 'emadele']
+        self.assertListEqual(expected, actual)
+        # Case 4
+        actual = _split_compound_word_heuristically('lasteaialastelegi')
+        expected = ['laste', 'aia', 'lastelegi']
+        self.assertListEqual(expected, actual)
+        # Case 5
+        actual = _split_compound_word_heuristically('noorsandideks')
+        expected = ['noor', 'sandideks']
+        self.assertListEqual(expected, actual)
+        # Case 6
+        actual = _split_compound_word_heuristically('--')
+        expected = ['--']
+        self.assertListEqual(expected, actual)
+        actual = _split_compound_word_heuristically('-------')
+        expected = ['-------']
+        self.assertListEqual(expected, actual)
