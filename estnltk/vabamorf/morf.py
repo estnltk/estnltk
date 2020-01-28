@@ -616,21 +616,62 @@ def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False
     return Vabamorf.instance().synthesize(lemma, form, partofspeech, hint, guess, phonetic)
 
 
+# Note: dash and slash are special symbols for Vabamorf's syllabifier
+# marking points where words are split.
+# Analysing these characters alone causes syllabifier to crash, so 
+# we should refrain from analysing them and only analyse strings and 
+# symbols around them.
+_SPECIAL_SYMBOL_SYLLABLES = { \
+  '-' : {'accent': 1, 'quantity': 3, 'syllable': '-'},
+  '/' : {'accent': 1, 'quantity': 3, 'syllable': '/'}
+}
+
+# Prepares word for syllabification: tokenizes word in a way 
+# that dash and slash are separate symbols
+def _split_word_for_syllabification( word_text ):
+    split_word = [[]]
+    for cid, c in enumerate( word_text ):
+        if c not in ['-', '/']:
+            split_word[-1].append(c)
+        else:
+            if len(split_word[-1]) > 0:
+                split_word.append([])
+            split_word[-1].append(c)
+            if cid+1 < len(word_text):
+                split_word.append([])
+    return [''.join(chars) for chars in split_word]
+
+
 def syllable_as_dict(syllable):
+    if isinstance(syllable, dict):
+        return syllable
     return dict(syllable=syllable.syllable,
                 quantity=syllable.quantity,
                 accent=syllable.accent)
 
 
 def syllable_as_tuple(syllable):
+    if isinstance(syllable, dict):
+        return (syllable['syllable'], syllable['quantity'], syllable['accent'])
     return syllable.syllable, syllable.quantity, syllable.accent
 
 
 def syllabify_word(word, as_dict=True):
-    syllables = vm.syllabify(convert(word))
+    # Split word by special symbols
+    word_tokens = _split_word_for_syllabification(word)
+    raw_syllables = []
+    for token in word_tokens:
+        if token in _SPECIAL_SYMBOL_SYLLABLES:
+            # If the token is a special symbol, then do not apply
+            # Vabamorf on it -- instead, take the symbol from 
+            # dictionary
+            raw_syllables.append( _SPECIAL_SYMBOL_SYLLABLES[token] )
+        else:
+            syllables = vm.syllabify(convert(token))
+            raw_syllables.extend( syllables )
     if as_dict:
-        return [syllable_as_dict(syllable) for syllable in syllables]
-    return [syllable_as_tuple(syllable) for syllable in syllables]
+        return [syllable_as_dict(syllable) for syllable in raw_syllables]
+    return [syllable_as_tuple(syllable) for syllable in raw_syllables]
 
 
 def syllabify_words(words, as_dict=True):

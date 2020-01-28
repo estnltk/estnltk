@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from ..morf import syllabify_word
+from ..morf import _split_word_for_syllabification
 import unittest
 from pprint import pprint
 
@@ -29,3 +30,49 @@ class SyllabificationTest(unittest.TestCase):
                      {'accent': 0, 'quantity': 1, 'syllable': 'la'},
                      {'accent': 0, 'quantity': 1, 'syllable': 'gu'}]
         #self.assertListEqual(expected, actual)
+
+    def test_split_word_for_syllabification(self):
+        # Case 1
+        actual = _split_word_for_syllabification('jagamata')
+        expected = ['jagamata']
+        self.assertListEqual(expected, actual)
+        # Case 2
+        actual = _split_word_for_syllabification('ja/da-ma/ga///----ja-jah-')
+        expected = ['ja', '/', 'da', '-', 'ma', '/', 'ga', '/', '/', '/', '-', '-', '-', '-', 'ja', '-', 'jah', '-']
+        self.assertListEqual(expected, actual)
+        # Case 3
+        actual = _split_word_for_syllabification('-')
+        expected = ['-']
+        self.assertListEqual(expected, actual)
+
+    def test_syllabification_on_dash_and_slash_symbols(self):
+        # Case 1
+        actual = syllabify_word('vana-ema')
+        expected = \
+        [{'accent': 1, 'quantity': 1, 'syllable': 'va'},
+         {'accent': 0, 'quantity': 1, 'syllable': 'na'},
+         {'accent': 1, 'quantity': 3, 'syllable': '-'},
+         {'accent': 1, 'quantity': 1, 'syllable': 'e'},
+         {'accent': 0, 'quantity': 1, 'syllable': 'ma'}]
+        self.assertListEqual(expected, actual)
+        # Case 2
+        actual = syllabify_word('/')
+        expected = \
+          [{'accent': 1, 'quantity': 3, 'syllable': '/'}]
+        self.assertListEqual(expected, actual)
+        # Case 3
+        actual = syllabify_word('igavene-tuha/juhan')
+        expected = \
+         [{'accent': 1, 'quantity': 1, 'syllable': 'i'},
+          {'accent': 0, 'quantity': 1, 'syllable': 'ga'},
+          {'accent': 0, 'quantity': 1, 'syllable': 've'},
+          {'accent': 0, 'quantity': 1, 'syllable': 'ne'},
+          {'accent': 1, 'quantity': 3, 'syllable': '-'},
+          {'accent': 1, 'quantity': 1, 'syllable': 'tu'},
+          {'accent': 0, 'quantity': 1, 'syllable': 'ha'},
+          {'accent': 1, 'quantity': 3, 'syllable': '/'},
+          {'accent': 1, 'quantity': 1, 'syllable': 'ju'},
+          {'accent': 0, 'quantity': 2, 'syllable': 'han'}]
+        self.assertListEqual(expected, actual)
+
+
