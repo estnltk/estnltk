@@ -24,13 +24,13 @@ class SyllabificationTest(unittest.TestCase):
         self.assertListEqual(expected, actual)
 
     def test_lasteaialaps(self):
-        # ilmselt toimiks kui iga liits6na komponent eraldi silbitada
-        actual = syllabify_word('lasteaialaps')
-        pprint (actual)
-        expected = [{'accent': 1, 'quantity': 1, 'syllable': 'e'},
-                     {'accent': 0, 'quantity': 1, 'syllable': 'la'},
-                     {'accent': 0, 'quantity': 1, 'syllable': 'gu'}]
-        #self.assertListEqual(expected, actual)
+        actual = syllabify_word('lasteaialaps', split_compounds=True)
+        expected = [{'syllable': 'las', 'quantity': 2, 'accent': 1},
+                    {'syllable': 'te', 'quantity': 1, 'accent': 0},
+                    {'syllable': 'ai', 'quantity': 2, 'accent': 1},
+                    {'syllable': 'a', 'quantity': 1, 'accent': 0},
+                    {'syllable': 'laps', 'quantity': 3, 'accent': 1}]
+        self.assertListEqual(expected, actual)
 
     def test_split_word_for_syllabification(self):
         # Case 1
@@ -107,4 +107,35 @@ class SyllabificationTest(unittest.TestCase):
         self.assertListEqual(expected, actual)
         actual = _split_compound_word_heuristically('-------')
         expected = ['-------']
+        self.assertListEqual(expected, actual)
+
+    def test_syllabification_with_split_compounds(self):
+        # Case 1
+        actual = syllabify_word('kalamajja', split_compounds=True)
+        expected = [ {'syllable': 'ka', 'quantity': 1, 'accent': 1},
+                     {'syllable': 'la', 'quantity': 1, 'accent': 0},
+                     {'syllable': 'maj', 'quantity': 2, 'accent': 1},
+                     {'syllable': 'ja', 'quantity': 1, 'accent': 0}]
+        self.assertListEqual(expected, actual)
+        # Case 2
+        actual = syllabify_word('drooniülelennult', split_compounds=True)
+        expected = [ {'syllable': 'droo', 'quantity': 2, 'accent': 1},
+                     {'syllable': 'ni', 'quantity': 1, 'accent': 0},
+                     {'syllable': 'ü', 'quantity': 1, 'accent': 1},
+                     {'syllable': 'le', 'quantity': 1, 'accent': 0},
+                     {'syllable': 'len', 'quantity': 2, 'accent': 1},
+                     {'syllable': 'nult', 'quantity': 2, 'accent': 0}]
+        self.assertListEqual(expected, actual)
+        # Case 3
+        actual = syllabify_word('polaarpraktikapakkumistele', split_compounds=True)
+        expected = [ {'syllable': 'po', 'quantity': 1, 'accent': 0},
+                     {'syllable': 'laar', 'quantity': 3, 'accent': 1},
+                     {'syllable': 'prak', 'quantity': 2, 'accent': 1},
+                     {'syllable': 'ti', 'quantity': 2, 'accent': 0},
+                     {'syllable': 'ka', 'quantity': 1, 'accent': 0},
+                     {'syllable': 'pak', 'quantity': 3, 'accent': 1},
+                     {'syllable': 'ku', 'quantity': 1, 'accent': 0},
+                     {'syllable': 'mis', 'quantity': 2, 'accent': 0},
+                     {'syllable': 'te', 'quantity': 1, 'accent': 0},
+                     {'syllable': 'le', 'quantity': 1, 'accent': 0}]
         self.assertListEqual(expected, actual)

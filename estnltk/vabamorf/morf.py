@@ -622,8 +622,8 @@ def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False
 # we should refrain from analysing them and only analyse strings and 
 # symbols around them.
 _SPECIAL_SYMBOL_SYLLABLES = { \
-  '-' : {'accent': 1, 'quantity': 3, 'syllable': '-'},
-  '/' : {'accent': 1, 'quantity': 3, 'syllable': '/'}
+  '-' : {'syllable': '-','quantity': 3, 'accent': 1 },
+  '/' : {'syllable': '/','quantity': 3, 'accent': 1,}
 }
 
 # Prepares word for syllabification: tokenizes word in a way 
@@ -720,7 +720,7 @@ def syllable_as_tuple(syllable):
     return syllable.syllable, syllable.quantity, syllable.accent
 
 
-def syllabify_word(word, as_dict=True):
+def syllabify_word(word, as_dict=True, split_compounds=False):
     # Split word by special symbols
     word_tokens = _split_word_for_syllabification(word)
     raw_syllables = []
@@ -731,13 +731,23 @@ def syllabify_word(word, as_dict=True):
             # dictionary
             raw_syllables.append( _SPECIAL_SYMBOL_SYLLABLES[token] )
         else:
-            syllables = vm.syllabify(convert(token))
-            raw_syllables.extend( syllables )
+            if not split_compounds:
+                # The old syllabification: does not take account 
+                # of compound word boundaries
+                syllables = vm.syllabify(convert(token))
+                raw_syllables.extend( syllables )
+            else:
+                # Split word by compound word boundaries (heuristic)
+                subwords = _split_compound_word_heuristically( token )
+                # Syllabify each subword separately
+                for subword in subwords:
+                    syllables = vm.syllabify(convert(subword))
+                    raw_syllables.extend( syllables )
     if as_dict:
         return [syllable_as_dict(syllable) for syllable in raw_syllables]
     return [syllable_as_tuple(syllable) for syllable in raw_syllables]
 
 
-def syllabify_words(words, as_dict=True):
-    return [syllabify_word(w, as_dict) for w in words]
+def syllabify_words(words, as_dict=True, split_compounds=False):
+    return [syllabify_word(w, as_dict=as_dict, split_compounds=split_compounds) for w in words]
 
