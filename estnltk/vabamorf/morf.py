@@ -720,7 +720,7 @@ def syllable_as_tuple(syllable):
     return syllable.syllable, syllable.quantity, syllable.accent
 
 
-def syllabify_word(word, as_dict=True, split_compounds=False):
+def syllabify_word(word, as_dict=True, split_compounds=True):
     # Split word by special symbols
     word_tokens = _split_word_for_syllabification(word)
     raw_syllables = []
@@ -748,6 +748,6 @@ def syllabify_word(word, as_dict=True, split_compounds=False):
     return [syllable_as_tuple(syllable) for syllable in raw_syllables]
 
 
-def syllabify_words(words, as_dict=True, split_compounds=False):
+def syllabify_words(words, as_dict=True, split_compounds=True):
     return [syllabify_word(w, as_dict=as_dict, split_compounds=split_compounds) for w in words]
 
