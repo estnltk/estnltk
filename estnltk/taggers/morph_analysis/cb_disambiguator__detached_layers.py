@@ -311,67 +311,73 @@ class CorpusBasedMorphDisambiguator( object ):
               a) a list of Text objects;
               b) a list of lists of Text objects;
         """
-        # 0) Determine input structure
-        flat_docs = []
+        # Determine input structure
+        input_format = determine_input_corpus_structure(docs)
+        # Collect detached layers
         detached_layers = []
-        input_format = None
-        if is_list_of_texts( docs ):
-            input_format = 'I'
-        elif is_list_of_lists_of_texts( docs ):
-            input_format = 'II'
-        if input_format in ['I', 'II'] and len(docs) == 0:
-            input_format = '0'
         if input_format in ['I', '0']:
-            flat_docs = docs
-            for doc in flat_docs:
+            for doc in docs:
                 layers = {}
                 for layer in self.input_layers:
                     if layer in doc.layers:
                         layers[layer] = doc[layer]
                 detached_layers.append(layers)
         elif input_format == 'II':
-            # Flatten the collection
-            flat_docs = [doc for sub_docs in docs for doc in sub_docs]
-            for doc in flat_docs:
-                layers = {}
-                for layer in self.input_layers:
-                    if layer in doc.layers:
-                        layers[layer] = doc[layer]
-                detached_layers.append(layers)
-        if self._validate_inputs:
-            # Validate input structure
-            assert input_format is not None, \
-                   '(!) Unexpected input structure. Input argument docs should be '+\
-                   'either a list of Text objects, or a list of lists of Text objects.'
-            # Validate input Texts for required layers
-            # TODO: to something with the detached_layers
-            # TODO: maybe whole input validation should take place in 
-            #       _predisambiguate_detached_layers ?
-            self._validate_docs_for_required_layers( flat_docs )
+            for docs_list in docs:
+                detached_layers.append([])
+                for doc in docs_list:
+                    layers = {}
+                    for layer in self.input_layers:
+                        if layer in doc.layers:
+                            layers[layer] = doc[layer]
+                    detached_layers[-1].append(layers)
         # Predisambiguate on docs and detached layers
-        self._predisambiguate_detached_layers( flat_docs, detached_layers )
+        self._predisambiguate_detached_layers( docs, detached_layers, input_format_hint=input_format )
 
 
-    def _predisambiguate_detached_layers(self, flat_docs, detached_layers):
+    def _predisambiguate_detached_layers(self, docs, detached_layers, input_format_hint=None ):
         """ Pre-disambiguates proper names based on lemma counts 
             obtained from the input corpus. 
-            The algorithm is applied on flat docs with detached_layers;
+            The algorithm is applied on docs with detached_layers;
             Note: this interface mimics the _change_layer interface of Retagger;
         """
+        # Determine input structure (if not already determined)
+        if input_format_hint is None:
+            input_format_hint = determine_input_corpus_structure(docs)
+        else:
+            if input_format_hint not in ['I', 'II', '0']:
+                raise ValueError('(!) Unexpected input_format_hint value {}.'.format(input_format_hint)+\
+                                 ' The value should be from the set {"I","II","0"}.')
+        # Validate the input collection for required layers
+        if self._validate_inputs:
+            self._validate_docs_for_required_layers( docs, detached_layers, \
+                                                     input_format_hint=input_format_hint)
+        # Restructure input (if required)
+        flat_docs = []
+        flat_detached_layers = []
+        if input_format_hint in ['I', '0']:
+            flat_docs = docs
+            flat_detached_layers = detached_layers
+        elif input_format_hint == 'II':
+            # Flatten the collection
+            flat_docs = \
+                 [doc for sub_docs in docs for doc in sub_docs]
+            flat_detached_layers = \
+                 [layer for sub_layers in detached_layers for layer in sub_layers]
         # Sanity check
-        assert len(detached_layers) == len(flat_docs), \
+        assert len(flat_detached_layers) == len(flat_docs), \
              ' (!) Inconsistent input: the size of detached_layers is not equal to size of flat_docs.'
         # 1) Find frequencies of proper name lemmas
-        lexicon = self._create_proper_names_lexicon( flat_docs, detached_layers )
+        lexicon = self._create_proper_names_lexicon( flat_docs, flat_detached_layers )
         # 2) First disambiguation: if a word has multiple proper name
         #    analyses with different frequencies, keep only the analysis
         #    with the highest corpus frequency ...
-        self._disambiguate_proper_names_1( flat_docs, detached_layers, lexicon )
+        self._disambiguate_proper_names_1( flat_docs, flat_detached_layers, lexicon )
         # 3) Find certain proper names, sentence-initial proper names,
         #    and sentence-central proper names 
-        certainNames     = self._find_certain_proper_names(flat_docs, detached_layers)
-        sentInitialNames = self._find_sentence_initial_proper_names(flat_docs, detached_layers)
-        sentCentralNames = self._find_sentence_central_proper_names(flat_docs, detached_layers)
+        certainNames     = self._find_certain_proper_names(flat_docs, flat_detached_layers)
+        sentInitialNames = self._find_sentence_initial_proper_names(flat_docs, flat_detached_layers)
+        sentCentralNames = self._find_sentence_central_proper_names(flat_docs, flat_detached_layers)
         
         # 3.1) Find names only sentence initial, not sentence central
         onlySentenceInitial = sentInitialNames.difference(sentCentralNames)
@@ -382,11 +388,11 @@ class CorpusBasedMorphDisambiguator( object ):
         notProperNames = onlySentenceInitial.difference(certainNames)
         # 3.3) Second disambiguation: remove sentence initial proper names
         #      that are most likely false positives
-        self._remove_redundant_proper_names(flat_docs, detached_layers, notProperNames)
+        self._remove_redundant_proper_names(flat_docs, flat_detached_layers, notProperNames)
 
         # 4) Find frequencies of proper name lemmas once again
         #    ( taking account that frequencies may have been changed )
-        lexicon = self._create_proper_names_lexicon( flat_docs, detached_layers )
+        lexicon = self._create_proper_names_lexicon( flat_docs, flat_detached_layers )
 
         # 5) Remove redundant proper name analyses from words 
         #    that are ambiguous between proper name analyses 
@@ -397,7 +403,7 @@ class CorpusBasedMorphDisambiguator( object ):
         #       if the proper name has corpus frequency greater than
         #       1, then keep only proper name analyses. 
         #       Otherwise, leave analyses intact;
-        self._disambiguate_proper_names_2(flat_docs, detached_layers, lexicon)
+        self._disambiguate_proper_names_2(flat_docs, flat_detached_layers, lexicon)
 
 
     # =========================================================
@@ -571,26 +577,8 @@ class CorpusBasedMorphDisambiguator( object ):
             within the whole collection.
         """ 
         # 1) Determine input structure
-        in_collections = []
-        input_format = None
-        if is_list_of_texts( collections ):
-            input_format = 'I'
-        elif is_list_of_lists_of_texts( collections ):
-            input_format = 'II'
-        if input_format in ['I', 'II'] and len(collections) == 0:
-            input_format = '0'
-        # 2) Validate input for required layers
-        if self._validate_inputs:
-            assert input_format is not None, \
-                   '(!) Unexpected input structure. Input argument collections should be '+\
-                   'either a list of Text objects, or a list of lists of Text objects.'
-            # Validate input Texts for required layers
-            if input_format == 'I':
-                self._validate_docs_for_required_layers( collections )
-            elif input_format == 'II':
-                for docs in collections:
-                    self._validate_docs_for_required_layers( docs )
-        # 3) Make detached_layers
+        input_format = determine_input_corpus_structure(collections)
+        # 2) Make detached_layers
         detached_layers = []
         if input_format == 'I':
             for doc in collections:
@@ -608,6 +596,7 @@ class CorpusBasedMorphDisambiguator( object ):
                         if layer in doc.layers:
                             layers[layer] = doc[layer]
                     detached_layers[-1].append(layers)
+        # 3) Post-disambiguate
         self._postdisambiguate_detached_layers( collections, detached_layers, \
                                                 input_format_hint=input_format)
 
@@ -618,19 +607,17 @@ class CorpusBasedMorphDisambiguator( object ):
             The algorithm is applied on a collection of docs with detached_layers.
             Note: this interface mimics the _change_layer interface of Retagger;
         """
-        # Determine the input corpus structure
+        # Determine input structure (if not already determined)
         if input_format_hint is None:
-            if is_list_of_texts( collections ):
-                input_format_hint = 'I'
-            elif is_list_of_lists_of_texts( collections ):
-                input_format_hint = 'II'
-            if input_format in ['I', 'II'] and len(collections) == 0:
-                input_format_hint = '0'
+            input_format_hint=determine_input_corpus_structure(collections)
         else:
             if input_format_hint not in ['I', 'II', '0']:
                 raise ValueError('(!) Unexpected input_format_hint value {}.'.format(input_format_hint)+\
-                                 'The value should be from the set {"I","II","0"}.')
-        # TODO: we should validate the input for required layers somewhere here
+                                 ' The value should be from the set {"I","II","0"}.')
+        # Validate the input collection for required layers
+        if self._validate_inputs:
+            self._validate_docs_for_required_layers( collections, detached_layers, \
+                                                     input_format_hint=input_format_hint)
         # Restructure input (if required)
         in_collections = []
         in_detached_layers = []
@@ -714,21 +701,60 @@ class CorpusBasedMorphDisambiguator( object ):
     #     Input validation
     # =========================================================
 
-    def _validate_docs_for_required_layers( self, docs:list ):
-        """ Checks that all documens have the layers required
-            by this disambiguator.  If  one  of  the documents 
-            in the collection misses some of the layers, raises
-            an expection.
+    def _validate_docs_for_required_layers( self, collections:list, detached_layers:list, input_format_hint=None):
+        """ Checks that all documents' detached_layers include the 
+            layers required by this disambiguator.  If one of the 
+            documents in the collection misses some of the layers, 
+            raises an expection.
         """
-        required_layers = self.input_layers
-        for doc_id, doc in enumerate( docs ):
-            assert isinstance(doc, Text)
-            missing = []
-            for layer in required_layers:
-                if layer not in doc.layers:
-                    missing.append( layer )
-            if missing:
-                raise Exception('(!) {!r} is missing layers: {!r}'.format(doc, missing))
+        # Determine the input corpus structure
+        if input_format_hint is None:
+            input_format_hint=determine_input_corpus_structure(collections)
+        else:
+            if input_format_hint not in ['I', 'II', '0']:
+                raise ValueError('(!) Unexpected input_format_hint value {}.'.format(input_format_hint)+\
+                                 'The value should be from the set {"I","II","0"}.')
+        # Validate the structure
+        if input_format_hint == 'I':
+            assert len(collections) == len(detached_layers)
+            for doc_id, doc in enumerate(collections):
+                doc_detached_layers = detached_layers[doc_id]
+                assert isinstance(doc, Text)
+                assert isinstance(doc_detached_layers, dict)
+                missing = []
+                not_detached = []
+                for layer in self.input_layers:
+                    if layer not in doc_detached_layers:
+                        if layer in doc.layers:
+                            not_detached.append( layer )
+                        missing.append( layer )
+                if not_detached:
+                    raise Exception( '(!) {!r} has layers {!r}, but they are not in detached_layers: {!r}'.\
+                          format(doc,not_detached,detached_layers.keys()))
+                if missing:
+                    raise Exception('(!) {!r} is missing layers {!r} from its detached_layers.'.format(doc, missing))
+        elif input_format_hint == 'II':
+            assert len(collections) == len(detached_layers)
+            for cid, docs_list in enumerate(collections):
+                assert len(docs_list) == len(detached_layers[cid])
+                for doc_id, doc in enumerate(docs_list):
+                    doc_detached_layers = detached_layers[cid][doc_id]
+                    assert isinstance(doc, Text)
+                    assert isinstance(doc_detached_layers, dict)
+                    missing = []
+                    not_detached = []
+                    for layer in self.input_layers:
+                        if layer not in doc_detached_layers:
+                            if layer in doc.layers:
+                                not_detached.append( layer )
+                            missing.append( layer )
+                    if not_detached:
+                        raise Exception( '(!) {!r} has layers {!r}, but they are not in detached_layers: {!r}'.\
+                              format(doc,not_detached,detached_layers.keys()))
+                    if missing:
+                        raise Exception('(!) {!r} is missing layers {!r} from its detached_layers.'.format(doc, missing))
+
+
 
     # =========================================================
     # =========================================================
@@ -779,6 +805,31 @@ class CorpusBasedMorphDisambiguator( object ):
 #     Helpers
 # =========================================================
 # =========================================================
+
+def determine_input_corpus_structure( collections:list, validate=True ):
+    """ Determines which type of structure of the input collection has.
+        Returns:
+           '0'  -- the input is an empty list;
+           'I'  -- the input is a list of Text objects;
+           'II' -- the input is a list of list of Text objects;
+        If validate=True (default), raises an AssertionError about
+        unexpected input structure if the input structure is not 
+        one of the 3 aforementioned types.
+    """ 
+    # Determine the input corpus structure
+    input_format_hint=None
+    if is_list_of_texts( collections ):
+        input_format_hint = 'I'
+    elif is_list_of_lists_of_texts( collections ):
+        input_format_hint = 'II'
+    if input_format_hint in ['I', 'II'] and len(collections) == 0:
+        input_format_hint = '0'
+    # Validate input structure
+    if validate and input_format_hint is None:
+        raise AssertionError('(!) Unexpected input structure. The first input argument should be '+\
+                             'either a list of Text objects, or a list of lists of Text objects.')
+    return input_format_hint
+
 
 def is_list_of_texts( docs:list ):
     """ Checks that the input list docs is:
