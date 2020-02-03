@@ -44,6 +44,11 @@ if sys.version_info[0] == 3:
     swig_opts.append('-py3')
 swig_opts.append('-c++')
 
+# Check command line args: are we making a source distribution?
+is_source_dist = 'sdist' in sys.argv
+# If we are making a source distribution, then include "preinstall";
+# otherwise: exclude it.
+exclude_package_dirs=["preinstall"] if not is_source_dist else []
 
 # Create necessary cached files
 from preinstall import create_caches
@@ -54,7 +59,7 @@ setup(
     name="estnltk",
     version="1.6.5beta",
 
-    packages=find_packages(exclude=["preinstall"]),
+    packages=find_packages(exclude=exclude_package_dirs),
     include_package_data=True,
     package_data={
         'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java/res/*.*'],
