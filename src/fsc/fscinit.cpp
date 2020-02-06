@@ -149,7 +149,13 @@ void FSCTerminate() {
 }
 
 bool FSCThreadInit() {
+//
+// A patch from https://github.com/estnltk/estnltk/pull/109 by https://github.com/xmichelf
+// 
+#if defined (UNIX)
 	if (pthread_getspecific(g_TlsKey) != 0) return true;
+#endif
+// end patch
 	CStringMemoryPool *pPool=new CStringMemoryPool();
 #if defined (WINRT)
 	if (!g_FSStringMemoryPool) {
@@ -219,8 +225,12 @@ static inline CStringMemoryPool *GetStringMemoryPool() {
 		return 0;
 	}
 #elif defined (UNIX)
+//
+// A patch from https://github.com/estnltk/estnltk/pull/109 by https://github.com/xmichelf
+// 
 	if (g_TlsKey==TLS_OUT_OF_INDEXES)
 		FSCInit();
+// end patch
 	if (g_TlsKey!=TLS_OUT_OF_INDEXES) {
 		CStringMemoryPool *pPool=(CStringMemoryPool *)pthread_getspecific(g_TlsKey);
 		if (!pPool) {
