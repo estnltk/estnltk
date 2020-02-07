@@ -149,7 +149,6 @@ class Tagger(metaclass=TaggerChecker):
 
     def _repr_html_(self):
         import pandas
-        pandas.set_option('display.max_colwidth', -1)
         parameters = {'name': self.__class__.__name__,
                       'output layer': self.output_layer,
                       'output attributes': str(self.output_attributes),

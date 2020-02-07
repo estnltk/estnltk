@@ -355,11 +355,9 @@ class VabamorfCorpusTagger( object ):
         conf_str += ', output_layer='+self.output_layer
         return self.__class__.__name__ + '(' + conf_str + ')'
 
-
     def _repr_html_(self):
         # Add description
         import pandas
-        pandas.set_option('display.max_colwidth', -1)
         parameters = {'output layer': self.output_layer,
                       'output attributes': str(self.output_attributes),
                       'input layers': str(self.input_layers)}

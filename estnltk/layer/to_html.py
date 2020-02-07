@@ -68,6 +68,5 @@ def html_table(spans, attributes, margin=0, index=False):
                 record['text'] = ''
             records.append(record)
             first = False
-    pandas.set_option('display.max_colwidth', -1)
     df = pandas.DataFrame.from_records(records, columns=columns)
     return df.to_html(index=False, escape=False)

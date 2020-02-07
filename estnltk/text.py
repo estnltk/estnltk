@@ -335,8 +335,6 @@ class Text:
         return None
 
     def _repr_html_(self):
-        pandas.set_option('display.max_colwidth', -1)
-
         if self.text is None:
             table = '<h4>Empty Text object</h4>'
         else:

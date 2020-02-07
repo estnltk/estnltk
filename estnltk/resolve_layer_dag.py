@@ -33,7 +33,6 @@ class Taggers:
         for layer_name in self.list_layers():
             records.append(self.rules[layer_name].parameters())
         import pandas
-        pandas.set_option('display.max_colwidth', -1)
         df = pandas.DataFrame.from_records(records, columns=['name',
                                                              'layer',
                                                              'attributes',
