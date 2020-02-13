@@ -153,7 +153,7 @@ TEMPLATES = [
 ]
 
 FEATURE_EXTRACTORS = (
-    "estnltk.taggers.estner.fex.MorphFeatureExtractor",
+    "estnltk.taggers.estner.featureextraction.MorphFeatureExtractor",
     "estnltk.taggers.estner.featureextraction.LocalFeatureExtractor",
     "estnltk.taggers.estner.featureextraction.SentenceFeatureExtractor",
     "estnltk.taggers.estner.featureextraction.GazetteerFeatureExtractor",

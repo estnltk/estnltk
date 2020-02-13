@@ -79,11 +79,22 @@ class Tagger():
             Predicted token Labels for each sentence in the document
         """
 
-        feature_list = []
+        labels = []
         for span in nerdoc.ner_features:
+            feature_list = []
             features = []
-            for annotation in span.value[49:]:
-                features.append(str(annotation)[2:len(str(annotation)) - 2])
+            start_index = list(span.name).index('F')
+            for annotation in span.value[start_index:]:
+                addable_val = str(annotation)[2:-2]
+                if '=' in addable_val:
+                    features.append(addable_val)
             feature_list.append(features)
+            labels.append(self.tagger.tag(feature_list))
+        return labels
 
-        return self.tagger.tag(feature_list)
+        # labels = []
+        # for snt in nerdoc.sentences:
+        #     xseq = [t.feature_list() for t in snt]
+        #     yseq = self.tagger.tag(xseq)
+        #     labels.append(yseq)
+        # return labels

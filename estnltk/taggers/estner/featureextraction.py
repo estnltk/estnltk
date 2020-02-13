@@ -298,6 +298,7 @@ class GlobalContextFeatureExtractor(BaseFeatureExtractor):
                 sametoks_dict[t['lem']].append(t)
 
         for sametoks in sametoks_dict.values():
+            print(sametoks)
             for t in sametoks:
                 t[IUOC] = 'y'
 
@@ -367,7 +368,6 @@ class SentenceFeatureExtractor(BaseFeatureExtractor):
     """Generates features for the first and last tokens in a sentence."""
 
     def process(self, doc):
-        print(doc)
         FSNT = "fsnt"
         LSNT = "lsnt"
         for snt in doc.sentences:

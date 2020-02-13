@@ -159,5 +159,15 @@ FEATURE_EXTRACTORS = (
     "estnltk.taggers.estner.fex.NerLocalFeatureTagger",
     "estnltk.taggers.estner.fex.NerSentenceFeatureTagger",
     "estnltk.taggers.estner.fex.NerGazetteerFeatureTagger",
-    "estnltk.taggers.estner.fex.GlobalContextFeatureExtractor"
+    "estnltk.taggers.estner.fex.NerGlobalContextFeatureTagger"
+ )
+
+'''
+FEATURE_EXTRACTORS = (
+    "estnltk.taggers.estner.featureextraction.MorphFeatureExtractor",
+    "estnltk.taggers.estner.featureextraction.LocalFeatureExtractor",
+    "estnltk.taggers.estner.featureextraction.SentenceFeatureExtractor",
+    "estnltk.taggers.estner.featureextraction.GazetteerFeatureExtractor",
+    "estnltk.taggers.estner.featureextraction.GlobalContextFeatureExtractor"
 )
+'''

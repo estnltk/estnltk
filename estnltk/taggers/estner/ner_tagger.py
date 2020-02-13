@@ -4,11 +4,8 @@ import six
 from estnltk.taggers.estner.refac.ner import ModelStorageUtil
 from estnltk.taggers.estner.fex import FeatureExtractor
 from estnltk.taggers.estner import CrfsuiteTagger
-from estnltk.taggers.estner.refac.ner import json_document_to_estner_document
 from estnltk import Layer
 from estnltk import EnvelopingBaseSpan
-from estnltk import EnvelopingSpan
-from estnltk import Annotation
 from typing import MutableMapping
 from estnltk.text import Text
 from estnltk.converters import text_to_dict
@@ -46,7 +43,8 @@ class NerTagger(Tagger):
         nerlayer = Layer(name="ner", attributes=self.output_attributes, text_object=text, enveloping="words")
         entity_spans = []
         entity_type = None
-        for span, label in zip(text.words, snt_labels[0]):
+        for span, label in zip(text.words, snt_labels):
+            label = label[0]
             if entity_type is None:
                 entity_type = label[2:]
             #TODO: pane kaks if-i kokku

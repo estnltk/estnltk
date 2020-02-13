@@ -6,6 +6,7 @@ from estnltk.taggers import Tagger, Retagger
 from typing import MutableMapping
 from estnltk.text import Text
 from itertools import product
+import re
 
 class BaseFeatureExtractor(object):
     """Base class for all feature extractors."""
@@ -28,6 +29,18 @@ class BaseFeatureExtractor(object):
         raise NotImplementedError("Not implemented!")
 
 
+def get_lemma(morph_lemma):
+    if len(morph_lemma) > 1:
+        ridx = morph_lemma.rfind("=")
+        if ridx == -1: ridx = morph_lemma.rfind("+")
+        if ridx == -1: ridx = len(morph_lemma)
+        if ridx > 0:
+            morph_lemma = morph_lemma[:ridx]
+        lemma = re.sub(r'(?<=[^\W_])_(?=[^\W_])', '', morph_lemma)
+    else:
+        lemma = morph_lemma
+    return lemma.lower()
+
 def get_pos(input):
     return "_" + input[0] + "_"
 
@@ -45,13 +58,13 @@ def get_word_parts(root_tokens):
     postfix = None
     if len(root_tokens) > 1:
         prefix = root_tokens[0]
-        postfix = root_tokens[1]
+        postfix = root_tokens[-1]
     return prefix, postfix
 
 
 def get_case(form):
-    if len(form) > 1:
-        return form[1]
+    if len(form.split(" ")) > 1:
+        return form.split(" ")[1]
     return None
 
 
@@ -165,7 +178,7 @@ def split_char(token, char):
 
 
 def contains_feature(feature, token):
-    return feature in token.name
+    return feature in token.name and token.value[list(token.name).index(feature)] is not None
 
 
 class MorphFeatureExtractor(BaseFeatureExtractor):
@@ -196,9 +209,12 @@ class NerMorphFeatureTagger(Tagger):
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         layer = Layer(self.output_layer, ambiguous=True, attributes=self.output_attributes, text_object=text)
         text.tag_layer()
+        add_annotation = layer.add_annotation
         for token in text.words:
-            add_annotation = layer.add_annotation
-            add_annotation(token, value=token.lemma[0], name="lem")
+            LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+            if not LEM:
+                LEM = token.text
+            add_annotation(token, value=get_lemma(LEM), name="lem")
             add_annotation(token, value=get_pos(token.partofspeech), name="pos")
             add_annotation(token, value=b(is_prop(token.partofspeech)), name="prop")
             add_annotation(token, value=get_word_parts(token.root_tokens[0])[0], name="pref")
@@ -214,7 +230,10 @@ class LocalFeatureExtractor(BaseFeatureExtractor):
     """Generates features for a token based on its character makeup."""
 
     def _process(self, token, textobject):
-        LEM = token.lemma[0]
+        LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+        if not LEM:
+            LEM = token.text
+        LEM = get_lemma(LEM)
 
         add_annotation = textobject.ner_features.add_annotation
 
@@ -318,7 +337,10 @@ class NerLocalFeatureTagger(Retagger):
         layer = layers[self.output_layer]
         layer.attributes += tuple(self.output_attributes)
         for token in text.words:
-            LEM = token.lemma[0]
+            LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+            if not LEM:
+                LEM = token.text
+            LEM = get_lemma(LEM)
 
             add_annotation = layer.add_annotation
 
@@ -415,7 +437,7 @@ class SentenceFeatureExtractor(BaseFeatureExtractor):
     def process(self, doc):
         for snt in doc.sentences:
             doc.ner_features.add_annotation(snt[0], value='y', name="fsnt")
-            doc.ner_features.add_annotation(snt[-1], value='y', name="lsnt")
+            doc.ner_features.add_annotation(snt[-1], value='y', name="lsnt") # actually never used
 
 class NerSentenceFeatureTagger(Retagger):
     """Tagger version of SentenceFeatureExtractor"""
@@ -470,11 +492,16 @@ class GazetteerFeatureExtractor(BaseFeatureExtractor):
         for i in range(len(tokens)):
             if tokens[i].value[list(tokens[i].name).index('iu')] is not None:  # Only capitalised strings
                 for j in range(i + 1, i + 1 + look_ahead):
-                    phrase = " ".join(token.lemma[0] for token in tokens[i:j]).lower()
-                    if phrase in self.data:
-                        labels = self.data[phrase]
-                        for tok in tokens[i:j]:
-                            doc.ner_features.add_annotation(tok, value=labels, name="gaz")
+                    for token in tokens[i:j].lower():
+                        LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+                        if not LEM:
+                            LEM = token.text
+                        LEM = get_lemma(LEM)
+                        phrase = " ".join(LEM)
+                        if phrase in self.data:
+                            labels = self.data[phrase]
+                            for tok in tokens[i:j]:
+                                doc.ner_features.add_annotation(tok, value=labels, name="gaz")
 
 class NerGazetteerFeatureTagger(Retagger):
     """Tagger version of GazetteerFeatureExtractor"""
@@ -501,7 +528,14 @@ class NerGazetteerFeatureTagger(Retagger):
         for i in range(len(tokens)):
             if tokens[i].value[list(tokens[i].name).index('iu')] is not None:  # Only capitalised strings
                 for j in range(i + 1, i + 1 + look_ahead):
-                    phrase = " ".join(token.lemma[0] for token in tokens[i:j]).lower()
+                    lemmas = []
+                    for token in tokens[i:j]:
+                        LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '').lower()
+                        if not LEM:
+                            LEM = token.text
+                        LEM = get_lemma(LEM)
+                        lemmas.append(LEM)
+                    phrase = " ".join(lemmas)
                     if phrase in self.data:
                         labels = self.data[phrase]
                         for tok in tokens[i:j]:
@@ -510,10 +544,12 @@ class NerGazetteerFeatureTagger(Retagger):
 class GlobalContextFeatureExtractor(BaseFeatureExtractor):
     def process(self, doc):
 
-        for i in range(1, len(doc.ner_features)):
-            doc.ner_features.add_annotation(doc.ner_features[i], value=doc.ner_features[i - 1], name="prew")
-        for i in range(len(doc.ner_features) - 1):
-            doc.ner_features.add_annotation(doc.ner_features[i], value=doc.ner_features[i + 1], name="next")
+        for snt in doc.sentences:
+            for i in range(1, len(snt)):
+                doc.ner_features.add_annotation(snt[i], value=snt[i - 1], name="prew")
+            # TODO vaata kas peaks lausepiiriga lõppema
+            for i in range(len(snt) - 1):
+                doc.ner_features.add_annotation(snt[i], value=snt[i + 1], name="next")
 
         ui_lems = set()
         for i, token in enumerate(doc.ner_features):
@@ -594,31 +630,46 @@ class NerGlobalContextFeatureTagger(Retagger):
         self.input_layers = input_layers
 
     def _change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
+
         layer = layers[self.output_layer]
         layer.attributes += tuple(self.output_attributes)
 
         add_annotation = layer.add_annotation
 
-        for i in range(1, len(layer)):
-            add_annotation(layer[i], value=layer[i - 1], name="prew")
-        for i in range(len(layer) - 1):
-            add_annotation(layer[i], value=layer[i + 1], name="next")
+        for snt in text.sentences:
+            for i in range(1, len(snt)):
+                add_annotation(snt[i], value=snt[i - 1].ner_features, name="prew")
+            # TODO vaata kas peaks lausepiiriga lõppema
+            for i in range(len(snt) - 1):
+                add_annotation(snt[i], value=snt[i + 1].ner_features, name="next")
+
+
 
         ui_lems = set()
         for i, token in enumerate(layer):
+            LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+            if not LEM:
+                LEM = token.text
             if contains_feature('iu', token) and not contains_feature('fsnt', token):
                 if layer[i - 1].text not in {u'\u201d', u'\u201e', u'\u201c'}:
-                    ui_lems.add(token.lemma[0])
+                    ui_lems.add(get_lemma(LEM))
+
+
 
         sametoks_dict = defaultdict(list)
-        for token in layer:
-            if token.lemma[0] in ui_lems:
-                sametoks_dict[token.lemma[0]].append(token)
+        sametoks_index_dict = defaultdict(list)
+        for i, token in enumerate(layer):
+            LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+            if not LEM:
+                LEM = token.text
+            LEM = get_lemma(LEM)
+            if LEM in ui_lems:
+                sametoks_dict[LEM].append(token)
+                sametoks_index_dict[LEM].append((token,i))
 
         for sametoks in sametoks_dict.values():
             for tok in sametoks:
                 add_annotation(tok, value='y', name="iuoc")
-
             if any('prew' in t.name and 'prop' in t.value[list(t.name).index('prew')].name for t in sametoks):
                 for t in sametoks:
                     add_annotation(t, value='y', name="pprop")
@@ -634,46 +685,51 @@ class NerGlobalContextFeatureTagger(Retagger):
                 for t in sametoks:
                     add_annotation(t, value=pgaz_set, name="pgaz")
 
-            ngaz_set = reduce(set.union, [
-                t.value[list(t.name).index('next')].value[list(t.value[list(t.name).index('next')].name).index("gaz")]
-                for t in sametoks if 'next' in t.name and 'gaz' in t.value[list(t.name).index('next')].name], set([]))
+            next = t.value[list(t.name).index('next')]
+            ngaz_set = reduce(set.union, [next.value[list(next.name).index("gaz")]
+                                          for t in sametoks if contains_feature('next',t)
+                                          and contains_feature('gaz',next)], set([]))
+
+            # ngaz_set = reduce(set.union, [
+            #     t.value[list(t.name).index('next')].value[list(t.value[list(t.name).index('next')].name).index("gaz")]
+            #     for t in sametoks if 'next' in t.name and 'gaz' in t.value[list(t.name).index('next')].name], set([]))
             if ngaz_set:
                 for t in sametoks:
                     add_annotation(t, value=ngaz_set, name="ngaz")
 
-        sametoks_dict = defaultdict(list)
-        for t in layer:
-            if "prop" in t.name:
-                sametoks_dict[t.lemma[0]].append(t)
-
-        def check_feature(sametoks, fname, fvalue, test_fun):
-            for tok in sametoks:
-                if test_fun(tok):
-                    for t in sametoks:
-                        add_annotation(t, value=fvalue, name=fname)
-                    break
-
-        for t in text.tokens:
-            if t.lemma[0] in sametoks_dict:
-                sametoks = sametoks_dict[t.lemma[0]]
-                # Capitalized in other occurrences
-                check_feature(sametoks, 'iuoc', "y", lambda tok: tok and "iu" in tok)
-                # Prew proper in other occurrences
-                check_feature(sametoks, 'pprop', "y",
-                              lambda tok: tok.prew and 'prop' in t.value[list(t.name).index('prew')].name)
-                # Next proper in other occurrences
-                check_feature(sametoks, 'nprop', "y",
-                              lambda tok: tok.next and 'prop' in t.value[list(t.name).index('next')].name)
-                # Prew in gazeteer in other occurrences
-                check_feature(sametoks, 'pgaz', "y",
-                              lambda tok: tok.prew and 'gaz' in t.value[list(t.name).index('prew')].name)
-                # Next in gazeteer in other occurrences
-                # Prew lemma in other occurrences
-                check_feature(sametoks, 'plem', "y",
-                              lambda tok: tok.prew and 'prop' in t.value[list(t.name).index('prew')].name)
-                # Next lemma in other occurrences
-
-                del sametoks_dict[t.lemma[0]]
+        # sametoks_dict = defaultdict(list)
+        # for t in layer:
+        #     if "prop" in t.name:
+        #         sametoks_dict[t.lemma[0]].append(t)
+        #
+        # def check_feature(sametoks, fname, fvalue, test_fun):
+        #     for tok in sametoks:
+        #         if test_fun(tok):
+        #             for t in sametoks:
+        #                 add_annotation(t, value=fvalue, name=fname)
+        #             break
+        #
+        # for t in text.tokens:
+        #     if t.lemma[0] in sametoks_dict:
+        #         sametoks = sametoks_dict[t.lemma[0]]
+        #         # Capitalized in other occurrences
+        #         check_feature(sametoks, 'iuoc', "y", lambda tok: tok and "iu" in tok)
+        #         # Prew proper in other occurrences
+        #         check_feature(sametoks, 'pprop', "y",
+        #                       lambda tok: tok.prew and 'prop' in t.value[list(t.name).index('prew')].name)
+        #         # Next proper in other occurrences
+        #         check_feature(sametoks, 'nprop', "y",
+        #                       lambda tok: tok.next and 'prop' in t.value[list(t.name).index('next')].name)
+        #         # Prew in gazeteer in other occurrences
+        #         check_feature(sametoks, 'pgaz', "y",
+        #                       lambda tok: tok.prew and 'gaz' in t.value[list(t.name).index('prew')].name)
+        #         # Next in gazeteer in other occurrences
+        #         # Prew lemma in other occurrences
+        #         check_feature(sametoks, 'plem', "y",
+        #                       lambda tok: tok.prew and 'prop' in t.value[list(t.name).index('prew')].name)
+        #         # Next lemma in other occurrences
+        #
+        #         del sametoks_dict[t.lemma[0]]
 
 
 
@@ -695,6 +751,9 @@ def apply_templates(toks, templates):
         where name and offset specify a field name and offset from which
         the template extracts a feature value.
     """
+
+    #TODO tee üks annotation F ja pane sinna listi kõik praegused F väärtused
+    f = []
     for template in templates:
         name = '|'.join(['%s[%d]' % (f, o) for f, o in template])
         for t in range(len(toks)):
