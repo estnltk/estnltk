@@ -1,56 +1,49 @@
+import os
 import json
 from typing import List
 from IPython.display import display_html
 
-from estnltk import Layer
+from estnltk.core import abs_path
 from estnltk.layer.span import Span
 from estnltk.converters import layer_to_dict, dict_to_layer
 from estnltk.visualisation.core import format_tag_attributes
 from estnltk.visualisation.core import header_cell, value_cell, dropdown_cell
-from estnltk.taggers import AttributeComparisonTagger
+from estnltk.visualisation.syntax_visualiser.development.syntax_editor import SyntaxEditor
 
 
-class SyntaxVisualiser:
-    # attributes = ["id", "text", "lemma", "head", "deprel", "upostag", "xpostag", "feats", "deps", "misc"]
+class LayerEditor:
     attributes = []
-    changeable_attributes = {'deprel': ['@<KN', '@<NN', '@<P', '@<Q', '@ADVL', '@AN>', '@DN>', '@FCV', '@FMV', '@J', '@NN>', '@OBJ', '@P>', '@PRD', '@Punc', '@SUBJ', '@Vpart', 'ROOT']}
 
-    def __call__(self, layers, text):
-        display_html(self.table_creation(layers, self.attributes, text), raw=True)
+    def __init__(self, dropdown_values = [], dropdown_from_attributes = []):
+        self.dropdown_values = dropdown_values
+        self.dropdown_from_attributes = dropdown_from_attributes
+
+    def __call__(self, layers, input_attributes, attributes_to_compare):
+        syntax_editor = SyntaxEditor(layers, input_attributes, attributes_to_compare)
+        self.layer = syntax_editor.layer
+        display_html(self.table_creation(self.layer, self.layer.attributes, self.layer.text_object), raw=True)
 
     @property
     def css_style_tag(self):
+        css_file = abs_path("visualisation/syntax_visualiser/development/syntax_visualiser.css")
         """
         Represents css file through <style> tag
         """
-        with open("syntax_visualiser.css") as css_file:
+        with open(css_file) as css_file:
             output = ''.join(["<style>\n", css_file.read(), "</style>"])
         return output
 
     @property
     def event_handler_script_tag(self):
+        js_file = abs_path("visualisation/syntax_visualiser/development/syntax_visualiser.js")
         """
         Imports event handling code as a <script> tag
 
         TODO: Add script tag
         """
-        with open("syntax_visualiser.js") as js_file:
+        with open(js_file) as js_file:
             contents = js_file.read()
         return contents
-
-    def new_layer_attributes(self, layers, attributes_to_compare, attributes_to_keep):
-        attributes = []
-
-        for attribute in attributes_to_keep:
-            if attribute == 'head' or attribute in attributes_to_compare:
-                attributes.append(attribute)
-                for i in range(len(layers)):
-                    attributes.append(attribute + "_" + str(i + 1))
-            else:
-                attributes.append(attribute)
-
-        return attributes
-
 
     def header(self, attributes: List[str], layer) -> List[str]:
         row = ["<tr>"]
@@ -59,17 +52,17 @@ class SyntaxVisualiser:
         row.append("</tr>")
         return row
 
-
     def table_cell(self, span: Span, attribute: str, i) -> List[str]:
         """
         This is a temporary function that should be inlined to the code
         """
         row = []
-        if attribute in self.changeable_attributes:
-            values = [(attr, attr) for attr in self.changeable_attributes[attribute]]
+        if attribute in self.dropdown_values:
+            values = [(attr, attr) for attr in self.dropdown_values[attribute]]
             values.insert(0, (span[attribute], span[attribute]) if span[attribute] is not None else ('', ''))
 
-            row.extend(dropdown_cell(values, select_tag_attributes=format_tag_attributes({'class': 'syntax_choice ' + attribute, 'id': attribute + str(i)})))
+            row.extend(dropdown_cell(values, select_tag_attributes=format_tag_attributes(
+                {'class': 'syntax_choice ' + attribute, 'id': attribute + str(i)})))
 
         elif attribute == "text":
             # This is a funky exception. Text is not an attribute! but a property
@@ -83,23 +76,26 @@ class SyntaxVisualiser:
                 row.append(value_cell(span[attribute]))
         return row
 
-    def table_head_attribute(self, span, sentence, i):
+    def table_head_attribute(self, attr, span, sentence, i):
         """
         Inline this code
         """
-        default_value = span['head']
+        default_value = span[attr]
         if default_value is None:
             default_choice = (default_value, '')
         elif default_value == 0:
             default_choice = (default_value, '0: ')
         else:
             default_choice = (default_value, str(default_value) + ': ' + sentence[default_value - 1].text)
+            #default_choice = (default_value, str(default_value) + ': ' + sentence[sentence.text.index(span.text)].text)
 
-        values = [default_choice, (None, '0: '), *[(i + 1, "{}: {}".format(i + 1, span.text)) for i, span in enumerate(sentence)]]
+        values = [default_choice, (None, '0: '),
+                  *[(i + 1, "{}: {}".format(i + 1, span.text)) for i, span in enumerate(sentence)]]
 
-        return dropdown_cell(values, select_tag_attributes=format_tag_attributes({'class': 'syntax_choice head', 'id': 'head' + str(i)}))
+        return dropdown_cell(values, select_tag_attributes=format_tag_attributes(
+            {'class': 'syntax_choice head', 'id': attr + str(i)}))
 
-    def table_creation(self, layers, attributes, text):
+    def table_creation(self, layer, attributes, text):
         """
         TODO: Separate
         * data injection script
@@ -108,43 +104,36 @@ class SyntaxVisualiser:
 
         """
         # Data injection starts here!
-        tables = [self.css_style_tag, "<script>", "var changeable_attribute_count = " + str(len(self.changeable_attributes) + 1) + "\n",
+        tables = [self.css_style_tag, "<script>",
+                  "var changeable_attribute_count = " + str(len(self.dropdown_values) + 1) + "\n",
                   "if (typeof all_tables === 'undefined'){\n var all_tables = [];\n} \n else {\n all_tables = [] \n} \n"]
 
-        #new_layer = self.new_layer(layers, "new")
-        #map_attr, attr = self.new_layer_attributes(layers, self.changeable_attributes, layers[0].attributes)
-
-        #attr = self.new_layer_attributes(layers, self.changeable_attributes, layers[0].attributes)
-        attributes_to_compare = [a for a in self.changeable_attributes]
-        attributes_to_compare.insert(0, 'head')
-        new_layer = AttributeComparisonTagger("new", [layer.name for layer in layers], layers[0].attributes[:-4], attributes_to_compare)\
-            .make_layer(layers[0].text_object, {layer.name: layer for layer in layers})
 
         # this is so attributes would get a working default value, but could also be changed
         if len(self.attributes) == 0:
-            self.attributes = list(new_layer.attributes)
-            new_layer_attributes = self.attributes
-            new_layer_attributes.insert(0, 'text')
+            self.attributes = list(layer.attributes)
+            layer_attributes = self.attributes
+            layer_attributes.insert(0, 'text')
         else:
-            new_layer_attributes = self.attributes
+            layer_attributes = self.attributes
 
         for index, sentence in enumerate(text.sentences):
 
             # TODO: Encapsulate this as a function table_for_sentence
             # Does this function have a wrong output type?
             tables.append("all_tables.push(`<table class=\"iterable-table\">\n")
-            tables.extend(self.header(new_layer_attributes, new_layer))
+            tables.extend(self.header(layer_attributes, layer))
 
             # TODO: This is wrong way of getting spans of syntax layer
             # Paul, tell us how this should be done correctly!
             for i, span in enumerate(sentence):
-                syntax_span = new_layer.get(span)
+                syntax_span = layer.get(span)
 
                 tables.append("<tr>")
                 # TODO: Inline these functions to get simple code
-                for attribute in new_layer_attributes:
-                    if attribute == "head":
-                        tables.extend(self.table_head_attribute(syntax_span, sentence, i))
+                for attribute in layer_attributes:
+                    if attribute in self.dropdown_from_attributes:
+                        tables.extend(self.table_head_attribute(attribute, syntax_span, sentence, i))
                     else:
                         tables.extend(self.table_cell(syntax_span, attribute, i))
                 tables.append("</tr>\n")
@@ -164,16 +153,26 @@ class SyntaxVisualiser:
         return "".join(tables)
 
     def create_layer_from_choices(self, all_values, original_layer):
-        converted_all_values = []
-        for i in range(len(all_values)):
-            for element in all_values[str(i)]:
-                converted_all_values.append(json.loads(element))
+        text = original_layer.text_object
+        converted_all_values = {}
+        for i in all_values.keys():
+            for element in all_values[i]:
+                start = 0
+                for sentence in text.sentences[:int(i)]:
+                    start += len(sentence)
+                if start not in converted_all_values:
+                    converted_all_values[start] = []
+                converted_all_values[start].append(json.loads(element))
 
         new_layer_dict = layer_to_dict(original_layer)
-        for index, annotation in enumerate(new_layer_dict['spans']):
-            if index < len(converted_all_values):
-                for key in converted_all_values[index]:
-                    if key != 'id':
-                        annotation['annotations'][0][key] = converted_all_values[index][key]
+
+        for index in range(len(new_layer_dict['spans'])):
+            if index in converted_all_values:
+                values_index = index
+                for element in converted_all_values[values_index]:
+                    for key in element:
+                        if key != 'id':
+                            new_layer_dict['spans'][index]['annotations'][0][key] = element[key]
+                    index += 1
 
         return dict_to_layer(new_layer_dict, text_object=original_layer.text_object)

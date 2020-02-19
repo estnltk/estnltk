@@ -6,6 +6,7 @@ from estnltk.taggers.tagger_tester import TaggerTester
 from estnltk.taggers.standard_taggers.atomizer import Atomizer
 from estnltk.taggers.standard_taggers.annotation_rewriter import AnnotationRewriter
 from estnltk.taggers.standard_taggers.span_rewriter import SpanRewriter
+from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
 
 from estnltk.taggers.combined_tagger import CombinedTagger
 

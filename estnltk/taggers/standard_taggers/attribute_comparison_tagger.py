@@ -5,7 +5,19 @@ from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 
 class AttributeComparisonTagger(Tagger):
-    """Compares the attributes of two layers"""
+    """Compares the specified attributes of input layers.
+    The new layer created will have attributes corresponding to
+    the comparable attributes in all input layers and an attribute
+    corresponding to the result of the comparison.
+
+    For example, if there are two layers and the attribute 'head' is
+    in attributes_to_compare, the output_attributes will include
+    head_1, head_2 and head. For each head value, if the respective
+    values in all input layers are equal, the head attribute will get
+    the same value, otherwise its value will be None.
+
+    Attributes that are not to be compared will receive the values of
+    the first input layer."""
 
     conf_param = ['attributes_to_compare', 'constant_attributes']
 
@@ -40,7 +52,7 @@ class AttributeComparisonTagger(Tagger):
                 span_values = set()
                 for i, span in enumerate(spans):
                     span_values.add(span[attr])
-                    annotation[attr + "_" + str(i + 1)] = span.annotations[0][attr]
+                    annotation["{}_{}".format(attr, i + 1)] = span.annotations[0][attr]
                 if len(span_values) == 1:
                     annotation[attr] = spans[0].annotations[0][attr]
                 else:
