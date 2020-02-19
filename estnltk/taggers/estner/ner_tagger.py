@@ -8,7 +8,6 @@ from estnltk import Layer
 from estnltk import EnvelopingBaseSpan
 from typing import MutableMapping
 from estnltk.text import Text
-from estnltk.converters import text_to_dict
 
 class NerTagger(Tagger):
     """The class for tagging named entities."""
@@ -40,7 +39,7 @@ class NerTagger(Tagger):
         snt_labels = self.tagger.tag(text)
 
         # add the labels
-        nerlayer = Layer(name="ner", attributes=self.output_attributes, text_object=text, enveloping="words")
+        nerlayer = Layer(name=self.output_layer, attributes=self.output_attributes, text_object=text, enveloping="words")
         entity_spans = []
         entity_type = None
         for span, label in zip(text.words, snt_labels):

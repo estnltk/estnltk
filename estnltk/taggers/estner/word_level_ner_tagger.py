@@ -38,7 +38,7 @@ class NerTagger(Tagger):
         self.fex.process([text])
         snt_labels = self.tagger.tag(text)
 
-        nerlayer = Layer(name="wordner", attributes=self.output_attributes, text_object=text, enveloping="words")
+        nerlayer = Layer(name=self.output_layer, attributes=self.output_attributes, text_object=text, enveloping="words")
         for span, label in zip(text.words, snt_labels):
             nerlayer.add_annotation(span, nertag=label[0])
         return nerlayer
