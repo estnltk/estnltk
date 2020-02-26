@@ -80,16 +80,11 @@ class Tagger():
         """
 
         labels = []
-        for span in nerdoc.ner_features:
-            feature_list = []
-            features = []
-            start_index = list(span.name).index('F')
-            for annotation in span.value[start_index:]:
-                addable_val = str(annotation)[2:-2]
-                if '=' in addable_val:
-                    features.append(addable_val)
-            feature_list.append(features)
-            labels.append(self.tagger.tag(feature_list))
+        for snt in nerdoc.sentences:
+            xseq = [t.ner_features.F for t in snt]
+            for word in xseq:
+                yseq = self.tagger.tag(word)
+                labels.append(yseq)
         return labels
 
         # labels = []

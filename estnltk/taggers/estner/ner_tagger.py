@@ -8,6 +8,7 @@ from estnltk import Layer
 from estnltk import EnvelopingBaseSpan
 from typing import MutableMapping
 from estnltk.text import Text
+import time
 
 class NerTagger(Tagger):
     """The class for tagging named entities."""
@@ -35,8 +36,11 @@ class NerTagger(Tagger):
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         # prepare input for nertagger
         #nerdoc = json_document_to_estner_document(text)
+        begin = time.time()
         self.fex.process([text])
         snt_labels = self.tagger.tag(text)
+        print("CRF lopp")
+        print(time.time()-begin)
 
         # add the labels
         nerlayer = Layer(name=self.output_layer, attributes=self.output_attributes, text_object=text, enveloping="words")
@@ -58,4 +62,6 @@ class NerTagger(Tagger):
                     entity_spans = []
             entity_type = label[2:]
             entity_spans.append(span.base_span)
+        print("kogu lopp")
+        print(time.time()-begin)
         return nerlayer

@@ -20,7 +20,7 @@ class BaseFeatureExtractor(object):
         collect global statistics on the corpus. '''
         """for doc in docs:
             doc.add_layer(Layer('ner_features', ambiguous=True, attributes=["lem","pos","prop","pref","post","case",
-                                                                            "end","pun","w","w1","shape","shaped","p1",
+                                                                            "ending","pun","w","w1","shape","shaped","p1",
                                                                             "p2","p3","p4","s1","s2","s3","s4","2d",
                                                                             "4d","d&-","d&/","d&,","d&.","up","iu","au",
                                                                             "al","ad","ao","aan","cu","cl","ca","cd",
@@ -198,7 +198,7 @@ class NerMorphFeatureTagger(Tagger):
 
     def __init__(self, settings, output_layer='ner_features',
                  output_attributes=("lem", "pos", "prop", "pref", "post", "case",
-                                    "end", "pun", "w", "w1", "shape", "shaped", "p1",
+                                    "ending", "pun", "w", "w1", "shape", "shaped", "p1",
                                     "p2", "p3", "p4", "s1", "s2", "s3", "s4", "d2",
                                     "d4", "dndash", "dnslash", "dncomma", "dndot", "up", "iu", "au",
                                     "al", "ad", "ao", "aan", "cu", "cl", "ca", "cd",
@@ -221,7 +221,7 @@ class NerMorphFeatureTagger(Tagger):
                                  prop=b(is_prop(token.partofspeech)),
                                  pref=get_word_parts(token.root_tokens[0])[0],
                                  post=get_word_parts(token.root_tokens[0])[1],
-                                 case=get_case(token.form[0]), end=get_ending(token.ending[0]),
+                                 case=get_case(token.form[0]), ending=get_ending(token.ending[0]),
                                  pun=b(get_pos(token.partofspeech)), w=None, w1=None, shape=None, shaped=None, p1=None,
                                  p2=None, p3=None, p4=None, s1=None, s2=None, s3=None, s4=None, d2=None, d4=None,
                                  dndash=None,
@@ -519,7 +519,7 @@ def apply_templates(toks, templates):
         where name and offset specify a field name and offset from which
         the template extracts a feature value.
     """
-
+    token_lists = []
     for template in templates:
         name = '|'.join(['%s[%d]' % (f, o) for f, o in template])
         for t in range(len(toks)):
@@ -535,12 +535,19 @@ def apply_templates(toks, templates):
                     values_list.append(value if isinstance(value, (set, list)) else [value])
             if len(template) == len(values_list):
                 for values in product(*values_list):
-                    print(values)
-                    if type(values[0]) is list:
-                        if None not in values[0]:
-                            print(values[0])
-                            f_values.append('%s=%s' % (name, '|'.join(values[0])))
-            toks[t].ner_features.F = f_values
+                    if len(token_lists)==t:
+                        token_lists.append([])
+                    if None not in values[0]:
+                        joinable=[]
+                        if isinstance(values[0][0],set):
+                            for value in values[0]:
+                                for instance in value:
+                                    joinable.append(instance)
+                        else:
+                            joinable = values[0]
+                        token_lists[t].append('%s=%s' % (name, '|'.join(joinable)))
+    for t in range(len(toks)):
+        toks[t].ner_features.F = token_lists[t]
 
 
 class FeatureExtractor(object):

@@ -523,6 +523,7 @@ def apply_templates(toks, templates):
         where name and offset specify a field name and offset from which
         the template extracts a feature value.
     """
+
     for template in templates:
         name = '|'.join(['%s[%d]' % (f, o) for f, o in template])
         for t in range(len(toks)):
