@@ -67,8 +67,8 @@ def get_word_parts(root_tokens):
     prefix = None
     postfix = None
     if len(root_tokens) > 1:
-        prefix = root_tokens[0]
-        postfix = root_tokens[-1]
+        prefix = root_tokens[0].lower()
+        postfix = root_tokens[-1].lower()
     return prefix, postfix
 
 
@@ -79,7 +79,7 @@ def get_case(form):
 
 
 def get_ending(ending):
-    if ending == '0':
+    if ending == '0' or ending == '':
         return None
     return ending
 
@@ -222,7 +222,7 @@ class NerMorphFeatureTagger(Tagger):
                                  pref=get_word_parts(token.root_tokens[0])[0],
                                  post=get_word_parts(token.root_tokens[0])[1],
                                  case=get_case(token.form[0]), ending=get_ending(token.ending[0]),
-                                 pun=b(get_pos(token.partofspeech)), w=None, w1=None, shape=None, shaped=None, p1=None,
+                                 pun=b(get_pos(token.partofspeech)=="_Z_"), w=None, w1=None, shape=None, shaped=None, p1=None,
                                  p2=None, p3=None, p4=None, s1=None, s2=None, s3=None, s4=None, d2=None, d4=None,
                                  dndash=None,
                                  dnslash=None, dncomma=None, dndot=None, up=None, iu=None, au=None,
@@ -522,32 +522,43 @@ def apply_templates(toks, templates):
     token_lists = []
     for template in templates:
         name = '|'.join(['%s[%d]' % (f, o) for f, o in template])
-        for t in range(len(toks)):
-            f_values = []
-            values_list = []
-            for field, offset in template:
-                p = t + offset
-                if p < 0 or p >= len(toks):
-                    values_list = []
-                    break
-                if field in toks[p].ner_features.annotations[0]:
-                    value = getattr(toks[p].ner_features,field)
-                    values_list.append(value if isinstance(value, (set, list)) else [value])
-            if len(template) == len(values_list):
-                for values in product(*values_list):
-                    if len(token_lists)==t:
-                        token_lists.append([])
-                    if None not in values[0]:
-                        joinable=[]
-                        if isinstance(values[0][0],set):
-                            for value in values[0]:
-                                for instance in value:
-                                    joinable.append(instance)
-                        else:
-                            joinable = values[0]
-                        token_lists[t].append('%s=%s' % (name, '|'.join(joinable)))
-    for t in range(len(toks)):
-        toks[t].ner_features.F = token_lists[t]
+        index = 0
+        for snt in toks.sentences:
+            for t in range(len(snt)):
+                values_list = []
+                for field, offset in template:
+                    p = t + offset
+                    if p < 0 or p >= len(snt):
+                        values_list = []
+                        break
+                    if field in snt[p].ner_features.annotations[0]:
+                        value = getattr(snt[p].ner_features,field)
+                        values_list.append(value if isinstance(value, (set, list)) else [value])
+                if len(template) == len(values_list):
+                    for values in product(*values_list):
+                        if len(token_lists)==t+index:
+                            token_lists.append([])
+                        if None not in values[0] and len(values)==1 or None not in values[0] and None not in values[1]:
+                            joinable=[]
+                            if isinstance(values[0][0],set):
+                                for value in values[0]:
+                                    for instance in value:
+                                        joinable.append(instance)
+                                if len(values) > 1:
+                                    for value in values[1]:
+                                        for instance in value:
+                                            joinable.append(instance)
+                            else:
+                                joinable = values[0]
+                                if len(values)==2:
+                                    joinable = list(joinable)
+                                    joinable.append(values[1][0])
+                            if name == 'ending[0]':
+                                name = 'end[0]'
+                            token_lists[t+index].append('%s=%s' % (name, '|'.join(joinable)))
+            index+= len(snt)
+    for t in range(len(toks.ner_features)):
+        toks.ner_features[t].F = token_lists[t]
 
 
 class FeatureExtractor(object):
@@ -589,7 +600,7 @@ class FeatureExtractor(object):
 
         # apply the feature templates.
         for doc in docs:
-            apply_templates(doc.ner_features, self.settings.TEMPLATES)
+            apply_templates(doc, self.settings.TEMPLATES)
 
     @staticmethod
     def _get_class(kls):

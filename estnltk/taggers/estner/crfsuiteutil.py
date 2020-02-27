@@ -82,9 +82,12 @@ class Tagger():
         labels = []
         for snt in nerdoc.sentences:
             xseq = [t.ner_features.F for t in snt]
+            to_be_tagged = []
             for word in xseq:
-                yseq = self.tagger.tag(word)
-                labels.append(yseq)
+                to_be_tagged.append(word[0])
+            print(to_be_tagged)
+            yseq = self.tagger.tag(to_be_tagged)
+            labels.append(yseq)
         return labels
 
         # labels = []
