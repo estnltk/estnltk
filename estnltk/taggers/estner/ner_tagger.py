@@ -39,6 +39,10 @@ class NerTagger(Tagger):
         begin = time.time()
         self.fex.process([text])
         snt_labels = self.tagger.tag(text)
+        flat_labels = []
+        for sublist in snt_labels:
+            for item in sublist:
+                flat_labels.append(item)
         print("CRF lopp")
         print(time.time()-begin)
 
@@ -46,8 +50,7 @@ class NerTagger(Tagger):
         nerlayer = Layer(name=self.output_layer, attributes=self.output_attributes, text_object=text, enveloping="words")
         entity_spans = []
         entity_type = None
-        for span, label in zip(text.words, snt_labels):
-            label = label[0]
+        for span, label in zip(text.words, flat_labels):
             if entity_type is None:
                 entity_type = label[2:]
             #TODO: pane kaks if-i kokku

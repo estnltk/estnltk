@@ -188,7 +188,7 @@ def split_char(token, char):
 
 
 def contains_feature(feature, token):
-    return feature in token.ner_features.annotations and token.ner_features.feature[0] is not None
+    return feature in token.annotations[0] and getattr(token.annotations[0],feature) is not None
 
 
 class NerMorphFeatureTagger(Tagger):
@@ -420,14 +420,13 @@ class NerGlobalContextFeatureTagger(Retagger):
                 snt[i].ner_features.next = snt[i + 1].ner_features
 
         ui_lems = set()
-        for i, token in enumerate(layer):
+        for i, token in enumerate(text.ner_features):
             LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
             if not LEM:
                 LEM = token.text
             if contains_feature('iu', token) and not contains_feature('fsnt', token):
                 if layer[i - 1].text not in {u'\u201d', u'\u201e', u'\u201c'}:
                     ui_lems.add(get_lemma(LEM))
-
         sametoks_dict = defaultdict(list)
         sametoks_index_dict = defaultdict(list)
         for i, token in enumerate(layer):
@@ -442,23 +441,39 @@ class NerGlobalContextFeatureTagger(Retagger):
         for sametoks in sametoks_dict.values():
             for tok in sametoks:
                 tok.ner_features.iuoc = 'y'
-            if any(contains_feature('prew',t) and 'prop' in t.prew for t in sametoks):
+
+            if any(contains_feature('prew',t) and contains_feature('prop',t.prew[0]) for t in sametoks):
                 for t in sametoks:
                     t.ner_features.pprop = 'y'
 
-            if any(contains_feature('next',t) and 'prop' in t.next for t in sametoks):
+
+            if any(contains_feature('next',t) and contains_feature('prop',t.next[0]) for t in sametoks):
                 for t in sametoks:
                     t.ner_features.nprop = 'y'
             # t.value[list(t.name).index('next')].value[list(t.value[list(t.name).index('next')].name).index("gaz")]
-            pgaz_set = reduce(set.union, [
-                t.prew.gaz for t in sametoks if contains_feature('prew',t) and 'gaz' in t.prew], set([]))
+            pgaz_set = set()
+            for t in sametoks:
+                if contains_feature('prew',t) and contains_feature('gaz',t.prew[0]):
+                    for gaz_set in t.prew[0].gaz:
+                        for gaz in gaz_set:
+                            pgaz_set.add(gaz)
+            #pgaz_set = set.union(
+            #    t.prew[0].gaz for t in sametoks if contains_feature('prew',t) and contains_feature('gaz', t.prew[0]))
+            print("pgazset " + str(pgaz_set))
             if pgaz_set:
                 for t in sametoks:
                     t.ner_features.pgaz = pgaz_set
 
-            next = t.value[list(t.name).index('next')]
-            ngaz_set = reduce(set.union, [t.next.gaz for t in sametoks if contains_feature('next',t) and 'gaz' in t.next], set([]))
-
+            #next = t.value[list(t.name).index('next')]
+            ngaz_set = set()
+            for t in sametoks:
+                if contains_feature('next', t) and contains_feature('gaz', t.next[0]):
+                    for gaz_set in t.next[0].gaz:
+                        for gaz in gaz_set:
+                            ngaz_set.add(gaz)
+            print("ngazset " + str(ngaz_set))
+            #ngaz_set = reduce(set.union, [t.next.gaz for t in sametoks if contains_feature('next',t) and 'gaz' in t.next[0]], set([]))
+            #print("ngazset " + str(ngaz_set))
             # ngaz_set = reduce(set.union, [
             #     t.value[list(t.name).index('next')].value[list(t.value[list(t.name).index('next')].name).index("gaz")]
             #     for t in sametoks if 'next' in t.name and 'gaz' in t.value[list(t.name).index('next')].name], set([]))
