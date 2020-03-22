@@ -7,6 +7,7 @@ from typing import MutableMapping
 from estnltk.text import Text
 from itertools import product
 import re
+import time
 
 
 class BaseFeatureExtractor(object):
@@ -52,7 +53,12 @@ def get_lemma(morph_lemma):
 
 
 def get_pos(input):
-    return "_" + input[0] + "_"
+    inputs = sorted(list(set(input)))
+    output = ""
+    for inp in inputs:
+        output += inp + "|"
+    output = output[:-1]
+    return "_" + output + "_"
 
 
 def b(v):
@@ -60,7 +66,7 @@ def b(v):
 
 
 def is_prop(pos):
-    return pos[0] == "H"
+    return pos[0] == "H" and len(pos) == 1
 
 
 def get_word_parts(root_tokens):
@@ -79,9 +85,15 @@ def get_case(form):
 
 
 def get_ending(ending):
-    if ending == '0' or ending == '':
-        return None
-    return ending
+    endings = sorted(list(set(ending)))
+    if len(endings) == 1:
+        if endings[0] == '0' or endings[0] == '':
+            return None
+    output = ""
+    for end in endings:
+        output += end + "|"
+    output = output[:-1]
+    return output
 
 
 def get_shape(token):
@@ -221,7 +233,7 @@ class NerMorphFeatureTagger(Tagger):
                                  prop=b(is_prop(token.partofspeech)),
                                  pref=get_word_parts(token.root_tokens[0])[0],
                                  post=get_word_parts(token.root_tokens[0])[1],
-                                 case=get_case(token.form[0]), ending=get_ending(token.ending[0]),
+                                 case=get_case(token.form[0]), ending=get_ending(token.ending),
                                  pun=b(get_pos(token.partofspeech)=="_Z_"), w=None, w1=None, shape=None, shaped=None, p1=None,
                                  p2=None, p3=None, p4=None, s1=None, s2=None, s3=None, s4=None, d2=None, d4=None,
                                  dndash=None,
@@ -230,6 +242,7 @@ class NerMorphFeatureTagger(Tagger):
                                  cd=None, cp=None, cds=None, cdt=None, cs=None, bdash=None, adash=None,
                                  bdot=None, adot=None, len=None, fsnt=None, lsnt=None, gaz=None, prew=None,
                                  next=None, iuoc=None, pprop=None, nprop=None, pgaz=None, ngaz=None, F=None)
+
         return layer
 
 
@@ -331,6 +344,7 @@ class NerLocalFeatureTagger(Retagger):
             token.ner_features.len = str(len(LEM))
 
 
+
 class NerSentenceFeatureTagger(Retagger):
     """Generates features for the first and last tokens in a sentence."""
     conf_param = ['settings']
@@ -347,6 +361,7 @@ class NerSentenceFeatureTagger(Retagger):
         for snt in text.sentences:
             snt[0].ner_features.fsnt = 'y'
             snt[-1].ner_features.lsnt = 'y' #never used
+
 
 
 class NerGazetteerFeatureTagger(Retagger):
@@ -459,7 +474,6 @@ class NerGlobalContextFeatureTagger(Retagger):
                             pgaz_set.add(gaz)
             #pgaz_set = set.union(
             #    t.prew[0].gaz for t in sametoks if contains_feature('prew',t) and contains_feature('gaz', t.prew[0]))
-            print("pgazset " + str(pgaz_set))
             if pgaz_set:
                 for t in sametoks:
                     t.ner_features.pgaz = pgaz_set
@@ -471,7 +485,6 @@ class NerGlobalContextFeatureTagger(Retagger):
                     for gaz_set in t.next[0].gaz:
                         for gaz in gaz_set:
                             ngaz_set.add(gaz)
-            print("ngazset " + str(ngaz_set))
             #ngaz_set = reduce(set.union, [t.next.gaz for t in sametoks if contains_feature('next',t) and 'gaz' in t.next[0]], set([]))
             #print("ngazset " + str(ngaz_set))
             # ngaz_set = reduce(set.union, [
@@ -572,6 +585,7 @@ def apply_templates(toks, templates):
                                 name = 'end[0]'
                             token_lists[t+index].append('%s=%s' % (name, '|'.join(joinable)))
             index+= len(snt)
+
     for t in range(len(toks.ner_features)):
         toks.ner_features[t].F = token_lists[t]
 
@@ -612,10 +626,11 @@ class FeatureExtractor(object):
                         fex.tag(doc)
                     except:
                         fex.retag(doc)
-
+        print(time.time())
         # apply the feature templates.
         for doc in docs:
             apply_templates(doc, self.settings.TEMPLATES)
+            print(time.time())
 
     @staticmethod
     def _get_class(kls):

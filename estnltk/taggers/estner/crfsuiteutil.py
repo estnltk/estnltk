@@ -85,7 +85,6 @@ class Tagger():
             to_be_tagged = []
             for word in xseq:
                 to_be_tagged.append(word[0])
-            print(to_be_tagged)
             yseq = self.tagger.tag(to_be_tagged)
             labels.append(yseq)
         return labels
