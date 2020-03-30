@@ -36,7 +36,7 @@ class UDPipeTagger(Tagger):
     def _make_layer(self, text, layers, status=None):
         conllu_string = sentence_to_conll(text.sentences[0], self.input_layers[1])
         layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes, ambiguous=True,
-                      parent=self.input_layers[1].name)
+                      parent=self.input_layers[1])
 
         processed = self.pipeline.process(conllu_string, self.error).strip()
         if self.error.occurred():
