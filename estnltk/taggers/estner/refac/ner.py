@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
-from estnltk import Layer
 from estnltk import EnvelopingBaseSpan
-from estnltk import EnvelopingSpan
-from estnltk import Annotation
+from estnltk.layer.layer import Layer
+from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk.layer.annotation import Annotation
 
 """
 Module containing functionality for training and using NER models.

@@ -4,7 +4,7 @@ import six
 from estnltk.taggers.estner.refac.ner import ModelStorageUtil
 from estnltk.taggers.estner.fex import FeatureExtractor
 from estnltk.taggers.estner import CrfsuiteTagger
-from estnltk import Layer
+from estnltk.layer.layer import Layer
 from estnltk import EnvelopingBaseSpan
 from typing import MutableMapping
 from estnltk.text import Text

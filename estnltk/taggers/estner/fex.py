@@ -1,4 +1,4 @@
-from estnltk import Layer
+from estnltk.layer.layer import Layer
 from collections import defaultdict
 import codecs
 from functools import reduce
