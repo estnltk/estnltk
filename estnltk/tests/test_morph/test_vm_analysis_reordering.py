@@ -87,7 +87,6 @@ def test_default_morph_analysis_reorderer_1():
     #    print(a)
     # ==============
     expected_orderings = [ \
-        ['miks', ('miks', 'D', ''), ('miks', 'S', 'sg n')],
         ['ühed', ('üks', 'P', 'pl n'), ('üks', 'N', 'pl n')],
         ['teistega', ('teine', 'P', 'pl kom'), ('teine', 'O', 'pl kom')],
         ['seotud', ('seotud', 'A', ''), ('sidu', 'V', 'tud'), ('seotud', 'A', 'pl n'), ('seotud', 'A', 'sg n')],
@@ -228,7 +227,6 @@ def test_reorderer_with_customized_postag_freq_info():
     #    print(a)
     # ==============
     expected_orderings = [ \
-        ['miks', ('miks', 'S', 'sg n'), ('miks', 'D', '')],
         ['ühed', ('üks', 'P', 'pl n'), ('üks', 'N', 'pl n')],
         ['teistega', ('teine', 'P', 'pl kom'), ('teine', 'O', 'pl kom')],
         ['seotud', ('sidu', 'V', 'tud'), ('seotud', 'A', ''), ('seotud', 'A', 'sg n'), ('seotud', 'A', 'pl n')],

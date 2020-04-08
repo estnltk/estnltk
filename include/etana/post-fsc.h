@@ -10,6 +10,8 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
+
 #if !defined( POST_FSC_H )
 #define POST_FSC_H
 
@@ -22,9 +24,9 @@ of any kind, either express or implied.
 
 #include "fsc.h"
 
+#include "viga.h"
 #include "tmplptrsrtfnd.h"
 #include "suurused.h"
-#include "viga.h"
 #include "pfscodepage.h"
 #include "fsxstring.h"
 
@@ -372,13 +374,6 @@ public:
         Start(buf, eraldajad, algsuurus, samm, yhekohalineEraldaja);
     }
 
-    /// Initsialiseerib klassi.
-    //
-    /// Initsialiseerib klassi peale argumentideta konstruktorit.
-    /// @return Funktsiooni väärtus:
-    /// - \a ==true õnnestus
-    /// - \a ==false ebaõnnstus
-
     /**
      * 
      * @param[in] buf Tükeldatav string.
@@ -492,60 +487,6 @@ inline FSWCHAR Kahest(const unsigned char* ptr)
     assert(ptr != NULL);
     return (FSWCHAR) ((ptr[0] | (ptr[1] << 8))&0xFFFF);
 }
-
-/** 16bitise 0-lõpulise stringi baidijärg õigeks, tulemus 0-lõpulisse stringi
- * 
- * @param[out] pWstr Siia paneme 'õigekskeeratud' baidijärjega stringi.
- * @attention Peab olema tagatud, 
- * et @a wcslen(pStr) @a >= @a wcstrlen((wchar_t*)pStr)
- * @param[in] pStr Esialgse baidijärjega string.
- * @return Funktsiooni väärtuseks on 'õigeks'
- * keeratud baidipaaride arv. Stringilõputunnus 
- * läheb ka arvesse. Kasutab funktsiooni Kahest().
- * @attention Peab olema tagatud, 
- * et @a wcslen(pStr) @a >= @a wcstrlen((wchar_t*)pStr)
- *
- *  Oli süsteemi mõttes, reaalselt ei kasuta
- * 
-inline int FixStrByteOrder(FSWCHAR* pWstr, const unsigned char* pStr)
-{
-    assert(pWstr != NULL && pStr != NULL);
-    if (pWstr == NULL || pStr == NULL)
-    {
-        return 0;
-    }
-    int i = 0;
-    for (int pos = 0; (pWstr[i] = Kahest(pStr + pos)) != 0; pos += 2)
-    {
-        i++;
-    }
-    return i + 1;
-}
-*/
-
-/** 16bitise 0-lõpulise stringi baidijärg õigeks, tulemus stringiklassi
- * 
- * @param[out] pcWstr Siia paneme 'õigekskeeratud' baidijärjega stringi.
- * Sobib ka @a FSXSTRING \a *pcWstr.
- * @param[in] pStr Esialgse baidijärjega string.
- * @return Niimitu FSWCHARi keeras ümber, EOS läheb arvesse.
- */
-/*inline int FixStrByteOrder(CFSWString* cWstr, const unsigned char* pStr)
-{
-    assert(cWstr != NULL);
-    assert(pStr != NULL);
-    if (pStr == NULL)
-        return 0;
-    cWstr->Empty();
-    FSWCHAR wChar;
-    int i = 0;
-    for (int pos = 0; (wChar = Kahest(pStr + pos)) != 0; pos += 2)
-    {
-        *cWstr += wChar;
-        i++;
-    }
-    return i + 1;
-}*/
 
 inline int FixStrByteOrder(CFSWString& cWstr, const unsigned char* pStr)
 {
@@ -701,24 +642,21 @@ inline int UnsignedStr2Hex(NUMTYPE* pNum, const STRTYPE* pStr)
     return i;
 }
 
-/// String (märgiga) numbriks.
-//
-/// NUMTYPE = {int, long, ...}
-/// STRTYPE = {char, FSWCHAR, FSTCHAR, ...}
-/// @return Funktsiooni väärtuseks on arvuks teisendatud 
-/// numbrite hulk. Kui string ei alanud numbriga \a (0-9)
-/// väi märgiga \a (+-), tagastatakse \a 0.
-
+/**  String (märgiga) numbriks.
+ * 
+ * Malliparameetrid:
+ * <ul><li> NUMTYPE = {int, long, ...}
+ *     <li> STRTYPE = {char, FSWCHAR, FSTCHAR, ...}
+ * </ul>
+ * 
+ * @param pNum -- Stringist kokkuarvutatud (märgiga) number.
+ * @param pStr -- Sellest stringist õngitseme (märgiga) numbri.
+ *      Kui string ei alanud numbriga \a (0-9),
+ *      või märgiga \a (+-), tagastatakse \a 0.
+ * @return numbri pikkus stringis
+ */
 template <class NUMTYPE, class STRTYPE>
-inline int SignedStr2Num(//==numbri pikkus stringis
-                         NUMTYPE* pNum,
-                         ///< Stringist kokkuarvutatud
-                         ///<  (märgiga) number.
-                         const STRTYPE* pStr
-                         ///< Sellest stringist õngitseme (märgiga) numbri.
-                         ///< Kui string ei alanud numbriga \a (0-9),
-                         ///< või märgiga \a (+-), tagastatakse \a 0.
-                         )
+inline int SignedStr2Num(NUMTYPE* pNum, const STRTYPE* pStr)
 {
     assert(pNum != NULL && pStr != NULL);
     bool miinus = false;
@@ -742,25 +680,23 @@ inline int SignedStr2Num(//==numbri pikkus stringis
     return ret;
 }
 
-/// Loeb stringist märgita/märgiga arvu 1/2/4 baidisena.
-//
-// TYPE2READ={UB1, UB2, UB4} 
-// TYPE4ARG={(un)signed char, (un)signed short, (un)signed int, (un)signed long, enum} jne
-
+/** Loeb stringist märgita/märgiga arvu 1/2/4 baidisena
+ * 
+ * Malliparameetrid:
+ * <ul><li> TYPE2READ={UB1, UB2, UB4} 
+ *     <li> TYPE4ARG={(un)signed char, (un)signed short, (un)signed int, (un)signed long, enum} jne
+ * </ul>
+ * 
+ * @param pStr -- Sisendstring.
+ *          Sisendstringist loetakse TYPE4ARG tüüpi arv baithaaval.
+ *          { (*pNum)>>(i*8)==pStr[i] | i=0, 1, ..., sizeof(TYPE2READ) },
+ *          kus TYPE2READ={UB1, UB2, UB4}
+ * @param pNum -- Siia loeme sisendist õiges järjekorras õige arvu baite.
+ * @param readArg -- Seda ei kasutata kunagi.
+ */
 template <class TYPE2READ, class TYPE4ARG>
-inline void ReadUnsignedFromString(
-                                   const unsigned char* pStr,
-                                   ///< Sisendstring.
-                                   ///< Sisendstringist loetakse TYPE4ARG tüüpi arv baithaaval.
-                                   ///< { (*pNum)>>(i*8)==pStr[i] | i=0, 1, ..., sizeof(TYPE2READ) },
-                                   ///< kus TYPE2READ={UB1, UB2, UB4}
-                                   TYPE4ARG* pNum,
-                                   ///< Siia loeme sisendist õiges
-                                   ///< järjekorras õige arvu baite.
-                                   const TYPE2READ readArg = 0
-                                   ///< Seda ei kasutata kunagi.
-                                   ///< TYPE2READ={UB1, UB2, UB4}
-                                   )
+inline void ReadUnsignedFromString(const unsigned char* pStr, TYPE4ARG* pNum,
+                                   const TYPE2READ readArg = 0)
 {
     FSUNUSED(readArg);
     assert(pStr != NULL && pNum != NULL);
@@ -769,45 +705,44 @@ inline void ReadUnsignedFromString(
     *pNum = 0;
     for (unsigned int i = 0; i < sizeof (TYPE2READ); i++)
     {
-        //unsigned char tmp_c=pStr[i];
-        //TYPE4ARG tmp_arg1=(TYPE4ARG)tmp_c;
-        //TYPE4ARG tmp_arg2=tmp_arg1&0xFF;
-        //TYPE4ARG tmp_arg3=tmp_arg2<<(i*8);
-        // *pNum += tmp_arg3;
-
         *pNum += (((TYPE4ARG) (pStr[i]))&0xFF) << (i * 8);
     }
 }
 
-/// Kirjutab baidimassiivi baithaaaval märgita/märgiga arvu 1/2/4 baidisena.
-
+/** Kirjutab baidimassiivi baithaaaval märgita/märgiga arvu 1/2/4 baidisena
+ * 
+ * Malliparameetrid:
+ * <ul><li> TYPE2WRITE={UB1, UB2, UB4}
+ *     <li> TYPE4ARG={(un)signed char, (un)signed short, (un)signed int, (un)signed long}
+ * </ul>
+ * 
+ * @param pStr -- 
+ *      Väljundstringi kirjutatakse TYPE2WRITE tüüpi arv baithaaval.
+ *      { num>>(i*8)==pStr[i] | i=0, 1, ..., sizeof(TYPE2WRITE) },
+ *      @a pStr peab viitama puhvrile,
+ *      mille suurus on vähemalt @a sizeof(TYPE2WRITE)
+.* @param num --
+ *      Sellest numbrist kirjutame õiges järjekorras õige arvu baite väljundisse.
+ * @param writeArg
+ *      Selle parameetri väärtust ei kasutata kunagi.
+ *      Määrab väljundstringi kirjutatava arvu tüübi.
+ */
 template <class TYPE2WRITE, class TYPE4ARG>
-inline void WriteUnsignedToString(
-                                  unsigned char* pStr,
-                                  ///< Väljundstringi kirjutatakse TYPE2WRITE tüüpi arv baithaaval.
-                                  ///< { num>>(i*8)==pStr[i] | i=0, 1, ..., sizeof(TYPE2WRITE) },
-                                  ///< kus TYPE2WRITE={UB1, UB2, UB4}
-                                  ///< @attention @a pStr peab viitama puhvrile,
-                                  ///< mille suurus on vähemalt @a sizeof(TYPE2WRITE).
-                                  const TYPE4ARG num,
-                                  ///< Sellest numbrist kirjutame õiges
-                                  ///< järjekorras õige arvu baite väljundisse.
-                                  /// TYPE4ARG={(un)signed char, (un)signed short, (un)signed int, (un)signed long}
-                                  const TYPE2WRITE writeArg = 0
-                                  ///< Selle parameetri väärtust ei kasutata kunagi.
-                                  ///< Määrab väljundstringi kirjutatava arvu tüübi.
-                                  ///< TYPE2WRITE={UB1, UB2, UB4}
-                                  )
+inline void WriteUnsignedToString(unsigned char* pStr, const TYPE4ARG num,
+                                  const TYPE2WRITE writeArg = 0)
 {
     FSUNUSED(writeArg);
     assert(pStr != NULL);
     assert(sizeof (TYPE2WRITE) == 1u || sizeof (TYPE2WRITE) == 2u || sizeof (TYPE2WRITE) == 4u);
-    assert(sizeof (TYPE4ARG) == 1u || sizeof (TYPE4ARG) == 2u || sizeof (TYPE4ARG) == 4u);
+    //assert(sizeof (TYPE4ARG) == 1u || sizeof (TYPE4ARG) == 2u || sizeof (TYPE4ARG) == 4u);
+    //2018.06.08 long võib olla 8 baiti ka nüüd
+    assert(sizeof (TYPE4ARG) == 1u || sizeof (TYPE4ARG) == 2u || sizeof (TYPE4ARG) == 4u || sizeof (TYPE4ARG) == 8u);
     assert(sizeof (TYPE2WRITE) <= sizeof (TYPE4ARG));
     // kontrollime, kas number on piisavalt väike, et kõik bitid ära mahuksid
     assert((sizeof (TYPE2WRITE) == sizeof (TYPE4ARG)) ||
            ((sizeof (TYPE2WRITE) == 1u) && ((num & 0x000000ff) == num)) ||
-           ((sizeof (TYPE2WRITE) == 2u) && ((num & 0x0000ffff) == num)));
+           ((sizeof (TYPE2WRITE) == 2u) && ((num & 0x0000ffff) == num)) ||
+           ((sizeof (TYPE2WRITE) == 4u) && ((num & 0xffffffff) == num)) ); // see juurde 2018.06.08
     for (unsigned int i = 0; i < sizeof (TYPE2WRITE); i++)
     {
         pStr[i] = (unsigned char) ((num >> (i * 8u))&0xFF);
@@ -821,8 +756,6 @@ class CPFSFile
 {
 public:
 
-    /// Argumentideta konstruktor.
-
     CPFSFile(void) : dontClose(true)
     {
     };
@@ -832,8 +765,8 @@ public:
      * @param fileName -- faili nimi
      * @param lpszMode -- sama mis @a ::fopen() funktsioonil
      * @return 
-     * <ul><li> @a bool -- õnnestus
-     *      <li> @a false -- äpardus
+     * <ul><li> @a true  -- õnnestus
+     *     <li> @a false -- viga
      * </ul>
      */
     bool Open(const CFSFileName& fileName, const FSTCHAR* lpszMode)
@@ -856,16 +789,15 @@ public:
         return (FILE *) file;
     }
 
-
-    /// Avab faili.
-    //
-    /// @return
-    /// - \a ==true Ok
-    /// - \a !=false Viga
-
-    bool Open(
-              FILE* pFile ///< Käideldav fail (reeglina @a stdin, @a stdout või @a stderr)
-              )
+    /** Avab faili, kasutab @a FILE struktuuri
+     * 
+     * @param pFile -- Käideldav fail (reeglina @a stdin, @a stdout või @a stderr)
+     * @return 
+     * <ul><li> @a true  -- õnnestus
+     *     <li> @a false -- viga
+     * </ul> 
+     */
+    bool Open(FILE* pFile)
     {
         assert(pFile != NULL);
         Close();
@@ -883,26 +815,20 @@ public:
         return true;
     }
 
-    /// Loeb failist märgita/märgiga arvu 1/2/4 baidisena.
-    //
-    /// Peab kehtima assert( sizeof(TYPE2READ) <= sizeof(TYPE4ARG) ).
-    ///
-    /// @return
-    /// - \a ==true õnnestus
-    /// - \a ==false Ebaõnnestus
-    /// TYPE2READ={UB1, UB2, UB4}
-
+    /** Loeb failist "õigeks keeratud" baidijärjega 1/2/4 baidise arvu
+     * 
+     * @param pNum -- Siia loeme failist õiges järjekorras @a sizeof(TYPE2READ) baiti.
+     *      Sisendfailist loetakse @a sizeof(TYPE2READ) baiti.
+     *      Baidjärg keeratakse "õigeks" @a STRSOUP::ReadUnsignedFromString() funktsiooniga.
+     * @param readArg -- Kasutame ainult tüüpi, parameetri väärtust ei kasutata kunagi. 
+     *      TYPE4ARG={(un)signed char, (un)signed short, (un)signed int, (un)signed long, enum, ...}
+     * @return 
+     * <ul><li> @a true  -- õnnestus
+     *     <li> @a false -- viga
+     * </ul>
+     */
     template <class TYPE2READ, class TYPE4ARG>
-    bool ReadUnsigned(
-                      TYPE4ARG* pNum,
-                      ///< Siia loeme failist õiges järjekorras
-                      ///< @a sizeof(TYPE2READ) baiti.
-                      ///< TYPE4ARG={(un)signed char, (un)signed short, (un)signed int, (un)signed long, enum, ...}
-                      const TYPE2READ readArg = 0
-                      ///< Selle parameetri väärtust ei kasutata kunagi.
-                      ///< Sisendfailist loetakse @a sizeof(TYPE2READ) baiti.
-                      ///< Baidjärg keeratakse "õigeks" @a STRSOUP::ReadUnsignedFromString() funktsiooniga.
-                      )
+    bool ReadUnsigned(TYPE4ARG* pNum, const TYPE2READ readArg = 0)
     {
         FSUNUSED(readArg);
         assert(pNum != NULL);
@@ -920,32 +846,28 @@ public:
         STRSOUP::ReadUnsignedFromString<TYPE2READ, TYPE4ARG > (tmp, pNum); //  baidijärg õigeks ja muutujasse
         return true;
     };
-
-    /// Kirjutab faili märgita/märgiga arvu 1/2/4 baidisena.
-    //
-    /// Peab kehtima assert( sizeof(TYPE2WRITE) <= sizeof(TYPE4ARG) ).
-    /// TYPE4ARG tüüpi numbrist kirjutame faili sizeof(TYPE2WRITE) baiti.
-    /// @return
-    /// - \a ==true õnnestus
-    /// - \a ==false Ebaõnnestus
-
+  
+    /** Kirjutab faili "õigeks keeratud" baidijärjega 1/2/4 baidise arvu
+     * 
+     * Peab kehtima assert( sizeof(TYPE2WRITE) <= sizeof(TYPE4ARG) ).
+     * 
+     * @param num -- Sellest numbrist kirjutame faili "õiges järjekorras"
+     *      <@a sizeof(TYPE2WRITE) baiti. 
+     *      Baidijärg keeratakse "õigeks" @a STRSOUP::WriteUnsignedToString() funktsiooniga.  
+     * @param writeArg --  Kasutame ainult tüüpi, parameetri väärtust ei kasutata kunagi.
+     *      TYPE4ARG={(un)signed char, (un)signed short, (un)signed int, (un)signed long, ...}
+     * @return 
+     * <ul><li> @a true  -- õnnestus
+     *     <li> @a false -- viga
+     * </ul>
+     */
     template <class TYPE2WRITE, class TYPE4ARG>
-    bool WriteUnsigned(
-                       const TYPE4ARG num,
-                       ///< Sellest numbrist kirjutame faili õiges järjekorras
-                       ///<@a sizeof(TYPE2WRITE) baiti.
-                       /// TYPE4ARG={(un)signed char, (un)signed short, (un)signed int, (un)signed long, ...}
-                       const TYPE2WRITE writeArg = 0
-                       ///< Selle parameetri väärtust ei kasutata kunagi.
-                       ///< Väljundfaili kirjutatakse sizeof(TYPE2WRITE) baiti.
-                       ///< Baidijärg keeratakse "õigeks" @a STRSOUP::WriteUnsignedToString() funktsiooniga.
-                       )
+    bool WriteUnsigned(const TYPE4ARG num, const TYPE2WRITE writeArg = 0)
     {
         FSUNUSED(writeArg);
         assert(sizeof (TYPE2WRITE) == 1 || sizeof (TYPE2WRITE) == 2 || sizeof (TYPE2WRITE) == 4);
         assert(sizeof (TYPE2WRITE) <= sizeof (TYPE4ARG));
-        //assert( ((sizeof(TYPE2WRITE)==1) && ((num&0x000000ff)==num)) ||
-        //        ((sizeof(TYPE2WRITE)==2) && ((num&0x0000ffff)==num)) );
+
         unsigned char tmp[sizeof (TYPE2WRITE)];
         STRSOUP::WriteUnsignedToString<TYPE2WRITE, TYPE4ARG > (tmp, num); // puhvris baidijärg õigeks
         try
@@ -959,15 +881,15 @@ public:
         return true;
     }
 
-    /// Loeb failist 1baidise sümboli.
-    //
-    /// @return
-    /// - @a ==true Sümbol loetud.
-    /// - @a ==false EOF või viga.
-
-    bool ReadChar(
-                  char* c ///< Siia loeme
-                  )
+    /** Loeb failist 1baidise sümboli.
+     * 
+     * @param c
+     * @return 
+     * <ul><li> @a true  -- õnnestus
+     *     <li> @a false -- EOF või viga.
+     * </ul>
+     */
+    bool ReadChar(char* c)
     {
         assert(c != NULL);
         try
@@ -980,16 +902,16 @@ public:
         }
         return true;
     }
-
-    /// Kirjutab faili 1baidise sümboli.
-    //
-    /// @return
-    /// - @a ==true Sümbol kirjutatud.
-    /// - @a ==false Viga.
-
-    bool WriteChar(
-                   char c ///< Selle kirjutame
-                   )
+   
+    /** Kirjutab faili 1baidise sümboli.
+     * 
+     * @param c
+     * @return 
+     * <ul><li> @a true  -- õnnestus
+     *     <li> @a false -- viga
+     * </ul>
+     */
+    bool WriteChar(char c)
     {
         try
         {
@@ -1002,45 +924,43 @@ public:
         return true;
     }
 
-    /// Loeb failist UC2 sümboli.
-    //
-    /// UC2 peab failis olema Litttle Endian baidijärjega.
-    /// @return
-    /// - @a ==true Sümbol loetud.
-    /// - @a ==false EOF või viga.
-
-    bool ReadChar(
-                  FSWCHAR* wChar ///< Siia loeme
-                  )
+    /** Loeb failist UC2 sümboli.
+     * 
+     * @param wChar
+     * @return 
+     * <ul><li> @a true  -- õnnestus
+     *     <li> @a false -- EOF või viga.
+     * </ul>
+     */
+    bool ReadChar(FSWCHAR* wChar)
     {
         assert(wChar != NULL);
         return ReadUnsigned<UB2, FSWCHAR > (wChar);
     }
 
-    /// Kirjutab faili UC2 sümboli.
-    //
-    /// UC2 kirjutatakse faili Litttle Endian baidijärjega.
-    /// @return
-    /// - @a ==true Sümbol kirjutatud.
-    /// - @a ==false EOF või viga.
-
-    bool WriteChar(
-                   FSWCHAR wChar ///< Selle kirjutame
-                   )
+    /** Kirjutab faili UC2 sümboli.
+     * 
+     * @param wChar
+     * @return 
+     * <ul><li> @a true  -- õnnestus
+     *     <li> @a false -- viga.
+     * </ul>
+     */
+    bool WriteChar(FSWCHAR wChar)
     {
         return WriteUnsigned<UB2, FSWCHAR > (wChar);
     }
-
-    /// Loeb failist etteantud arvu baite.
-    //
-    /// @return
-    /// - @a ==true Puhver loetud.
-    /// - @a ==false EOF või viga.
-
-    bool ReadBuffer(
-                    void* pBuf, ///< Siia loeme baidid.
-                    const int lBytes ///< Niimitu baiti loeme.
-                    )
+    
+    /** Loeb failist etteantud arvu baite.
+     * 
+     * @param pBuf -- Siia loeme baidid.
+     * @param lBytes -- Niimitu baiti loeme.
+     * @return 
+     * <ul><li> @a true  -- õnnestus
+     *     <li> @a false -- viga
+     * </ul>
+     */
+    bool ReadBuffer(void* pBuf, const int lBytes)
     {
         assert(pBuf != NULL);
         try
@@ -1054,26 +974,6 @@ public:
         return true;
     }
 
-    /// Loeb failist baite stringipuhvrisse
-    //
-    /// @return 
-    /// - @a ==true Luges vähemalt ühe baidi
-    /// - @a ==false Ei lugenud ühtegi baiti (eof)
-
-    /*
-    bool AppendToStringBuf(CFSAString& str, const int nBytes)
-    {
-        char buf [nBytes + 1];
-        int n;
-        if ((n = (int) CFSFile::ReadBuf(buf, nBytes)) > 0)
-        {
-            buf[n] = '\0';
-            str += buf;
-            return true;
-        }
-        return false;
-    }
-     */
     int LoeBaite(void* pBuf, const int lBytes)
     {
         return file.ReadBuf(pBuf, lBytes, false); // niimitu baiti luges

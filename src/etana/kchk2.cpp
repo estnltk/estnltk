@@ -10,6 +10,8 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
+
 /*
 * kontrollib, kas S6na on tyvi+suf+lp;
 * paneb seejuures v�imal. sufiksid lp[]-sse
@@ -90,7 +92,9 @@ int MORF0::kchk2(
 	        /* leidsin 1 sobiva sufiksi */
 	        if ( !liide_ok( &vt_tyvi, sfkoht, &sf, taandliik[ sufix[sfnr].tsl ] ) )
 		        continue;     /* tyvi+suf ei sobi ortogr. p�hjustel */
-            ssl = (unsigned char)(sufix[sfnr].ssl);
+            //TV: SUFINFO.ssl int alates 191112
+            //ssl = (unsigned char)(sufix[sfnr].ssl);
+            ssl = sufix[sfnr].ssl;
             /* maha kirjutanud cyybs.cpp pealt HJK 14.01.2002*/
             for(i=0; i < sonaliik[ssl]->GetLength(); i++)
                 {

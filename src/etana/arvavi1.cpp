@@ -10,6 +10,8 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
+
 /*
 * kontrollib, kas S6nas on keskel kirjavahem�rk v�i suurta'ht, millega
 * algab tavaline sona (vo'ib olla tyhik ununenud)
@@ -73,6 +75,15 @@ int MORF0::arvavi1(MRFTULEMUSED *tulemus, FSXSTRING *S6na, int S6naPikkus)
                 break; 
             }
         S6na3 = S6na3.Mid(i);
+        }
+    if (S6na3 == *S6na ) // polnud vigasid
+        {        // �kki on saand, olnd vms
+        if (S6na3.Mid(S6naPikkus-2) == FSxSTR("nd"))
+            {
+            S6na3 = S6na3.Mid(0, S6naPikkus-2) + FSxSTR("nud");
+            res = chkx( tulemus, &S6na3, S6na3.GetLength(), 100, &tagasitasand );
+            return res;
+            }
         }
     if (S6na3 != *S6na)
         {

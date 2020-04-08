@@ -10,6 +10,7 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
 #include "etmrf.h"
 #include "etmrfverstr.h"
 #include "post-fsc.h"
@@ -327,7 +328,7 @@ LYLI *ETMRFA::FlushMrf(void)
         MORF0::chkmin(pLyli->ptr.pStr, &sissePuhastatud, &morfAnal, maxTasand); //vaatame põhisõnastikku
         if (morfAnal.on_tulem() == true) // suutis analüüsida
         {
-            morfAnal.eKustTulemused = eMRF_AP; //TODO::kas ei tule juba chkmin()-ist
+            morfAnal.eKustTulemused = eMRF_P; //TODO::kas ei tule juba chkmin()-ist
 
             // MF_LISAPNANAL lippu kasutab vaikimisi ainult ühestaja,
             // seda teeme omaette tsüklis peale morfi ja enne ühestamist
@@ -337,7 +338,7 @@ LYLI *ETMRFA::FlushMrf(void)
         else //ei suutnud põhisõnastiku baasil analüüsida
         {
             arvamin(&sissePuhastatud, &morfAnal); //katsume oletada
-            morfAnal.eKustTulemused = eMRF_AO; //TODO::kas ei tule juba arvamin()-ist
+            morfAnal.eKustTulemused = eMRF_O; //TODO::kas ei tule juba arvamin()-ist
         }
     }
     if (mrfFlags->ChkB(MF_YHMRG) == true) //lisame analüüsidele ühestajamärgendid
@@ -440,7 +441,12 @@ void ETMRFA::MargistaJustkuiLauseAlgused(AHEL2 &ahel, int lauseAlgusIdx)
             continue; // jätame vahele, kui ei ole morf analüüs
         ++sonaNr;
         MRFTULEMUSED *pMorfJooksev = jooksev->ptr.pMrfAnal;
-        if (TaheHulgad::suurtht.Find(pMorfJooksev->s6na[0]) == -1) // ei alga suurega
+
+        // +/-xml lipust sõltuvalt puhastame märgendi(te)st
+        FSXSTRING puhastatudS6na(pMorfJooksev->s6na);
+        PuhastaXMList<FSXSTRING, FSWCHAR > (puhastatudS6na, mrfFlags->ChkB(MF_XML));
+        //if (TaheHulgad::suurtht.Find(pMorfJooksev->s6na[0]) == -1) // ei alga suurega
+        if (TaheHulgad::suurtht.Find(puhastatudS6na[0]) == -1) // ei alga suurega
             continue; // siis pole ka huvitav
 
         if (sonaNr == 0) // esimene sõna
@@ -489,12 +495,18 @@ void ETMRFA::MargistaJustkuiLauseAlgused(AHEL2 &ahel, int lauseAlgusIdx)
                     {
                         yle_eelmine = ahel.LyliN(idx, i, PRMS_MRF, &indeks);
                         assert(indeks >= lauseAlgusIdx);
-                        if (yle_eelmine->ptr.pMrfAnal->s6na.SpanIncluding(FSxSTR("1234567890.()")) == yle_eelmine->ptr.pMrfAnal->s6na)
-              //          if (TaheHulgad::PoleMuudKui((const CFSWString*)&(yle_eelmine->ptr.pMrfAnal->s6na), (const CFSWString*) &(FSxSTR("1234567890.()"))))
+                        
+                        // +/-xml lipust sõltuvalt puhastame märgendi(te)st
+                        FSXSTRING puhS6na(yle_eelmine->ptr.pMrfAnal->s6na);
+                        PuhastaXMList<FSXSTRING, FSWCHAR > (puhS6na, mrfFlags->ChkB(MF_XML));
+                        
+                        //if (yle_eelmine->ptr.pMrfAnal->s6na.SpanIncluding(FSxSTR("1234567890.()")) == yle_eelmine->ptr.pMrfAnal->s6na)
+                        if (puhS6na.SpanIncluding(FSxSTR("1234567890.()")) == puhS6na)
                             loend = 1;
-                        else {
+                        else
+                        {
                             loend = 0;
-                            break;
+                            break;          // pole mõtet enam ettepoole vaadata 11.02.2016
                         }
                     }
                     if (loend == 0) // eespool on (ka) midagi muud kui loendi tähis
@@ -526,7 +538,7 @@ void ETMRFA::LisaPNimeAnalyys(LYLI &lyli)
 {
     if ((lyli.lipp & PRMS_MRF) != PRMS_MRF)
         return; // pole morf analüüs
-    if (lyli.ptr.pMrfAnal->eKustTulemused != eMRF_AP)
+    if (lyli.ptr.pMrfAnal->eKustTulemused != eMRF_P)
         return; // analüüs ei tulnud põhisõnastikust
     if (mrfFlags->ChkB(MF_LISAPNANAL) == false)
         return;
@@ -537,22 +549,32 @@ void ETMRFA::LisaPNimeAnalyys(LYLI &lyli)
     MRFTUL tmpMrfTul, *tmPtr, *mrfTul;
     int kriips, i1, i2;
 
-    pik = pMorfAnal->s6na.GetLength();
+    // +/-xml lipust sõltuvalt puhastame märgendi(te)st
+    FSXSTRING puhastatudS6na(pMorfAnal->s6na);
+    PuhastaXMList<FSXSTRING, FSWCHAR > (puhastatudS6na, mrfFlags->ChkB(MF_XML));
+
+    //pik = pMorfAnal->s6na.GetLength();
+    pik = puhastatudS6na.GetLength();
     if (pik >= STEMLEN)
         return;
-    if (TaheHulgad::suurtht.Find(pMorfAnal->s6na[0]) == -1)
+    //if (TaheHulgad::suurtht.Find(pMorfAnal->s6na[0]) == -1)
+    if (TaheHulgad::suurtht.Find(puhastatudS6na[0]) == -1)
         return; // ei alga suurega
     //if (TaheHulgad::AintSuuredjaNrjaKriipsud(&(pMorfAnal->s6na))) 
     //    continue;        // ainult suured ja nr ja kriipsud ongi
     // äkki on nt. Dudajevi-meelne ?
-
-    i1 = pMorfAnal->s6na.ReverseFind((FSxCHAR) '-');
-    i2 = pMorfAnal->s6na.ReverseFind((FSxCHAR) '/');
+       
+    //i1 = pMorfAnal->s6na.ReverseFind((FSxCHAR) '-');
+    //i2 = pMorfAnal->s6na.ReverseFind((FSxCHAR) '/');
+    i1 = puhastatudS6na.ReverseFind((FSxCHAR) '-');
+    i2 = puhastatudS6na.ReverseFind((FSxCHAR) '/');
+    
     kriips = i1 > i2 ? i1 : i2; // kriips on viimase - või / indeks
     if (kriips == pik) // sona-
         kriips = -1; // kriipsu olemasolu pole t�htis
     if (kriips != -1)
-        if (TaheHulgad::suurtht.Find(pMorfAnal->s6na[kriips + 1]) == -1)
+        //if (TaheHulgad::suurtht.Find(pMorfAnal->s6na[kriips + 1]) == -1)
+        if (TaheHulgad::suurtht.Find(puhastatudS6na[kriips + 1]) == -1)
             return; // nt. Dudajevi-meelne
     if (kriips == -1) // kriipsuga sõnu nagu Vana-Kuuse siin ei kontrolli
     {
@@ -590,8 +612,10 @@ void ETMRFA::LisaPNimeAnalyys(LYLI &lyli)
     //vaatame, kas tuleks lisada
     FSXSTRING tmpsona = FSxSTR("X");
     FSXSTRING ette;
-    ette = pMorfAnal->s6na.Left(kriips + 1); //
-    tmpsona += pMorfAnal->s6na.Mid(kriips + 1);
+    //ette = pMorfAnal->s6na.Left(kriips + 1); //
+    //tmpsona += pMorfAnal->s6na.Mid(kriips + 1);
+    ette = puhastatudS6na.Left(kriips + 1); //
+    tmpsona += puhastatudS6na.Mid(kriips + 1);
 
     for (i = 0; i < viimane; i++)
     {
@@ -606,7 +630,7 @@ void ETMRFA::LisaPNimeAnalyys(LYLI &lyli)
         }
         if (mrfTul->sl.FindOneOf(FSxSTR("PYN")) != -1)
             continue; // on ebatõenäoline pärisnimekandidaat 
-        if (mrfTul->sl.FindOneOf(LIIK_SACU) != -1)
+        if (mrfTul->sl.FindOneOf(LIIK_SACU) != -1)          
         { // oli Metsale    mets+le //_S_ sg all, //
             tmpMrfTul.Start(*mrfTul);
             TaheHulgad::AlgusSuureks(&(tmpMrfTul.tyvi));
@@ -619,6 +643,7 @@ void ETMRFA::LisaPNimeAnalyys(LYLI &lyli)
                 Clr();
                 throw (VEAD(ERR_MORFI_MOOTOR, ERR_NOMEM, __FILE__, __LINE__, "$Revision: 1287 $"));
             }
+            // SELLE KOHTA EI ÜTLE, ET OLETAJAST, pärime päritolu ülalt
         }
         // vaja veel oletada pärisnime analüüsi
 
@@ -648,13 +673,14 @@ void ETMRFA::LisaPNimeAnalyys(LYLI &lyli)
             if (tulemus[j]->tyvi.Find(FSxSTR("=")) != -1) // tuletamine on siin kahtlane
                 continue;
             analyyseLisatud = true;
-            if ((tmPtr = pMorfAnal->AddClone(*(tulemus[j]))) == NULL)
+            if ((tmPtr = pMorfAnal->AddClone(*(tulemus[j]))) == NULL) 
             {
                 Clr();
                 throw (VEAD(ERR_MORFI_MOOTOR,
                             ERR_NOMEM,
                             __FILE__, __LINE__, "$Revision: 1287 $"));
             }
+            tmPtr->eKustTulemused = eMRF_S; // SELLE KOHTA ÜTLEME, ET OLETAJAST
         }
     }
     if (analyyseLisatud == true)
@@ -763,7 +789,7 @@ bool MRFAUDCT::chkmin(
         tul->tagasiTasand = 0;
         tul->mitmeS6naline = 1;
         tul->keeraYmber = false;
-        tul->eKustTulemused = eMRF_XX;
+        tul->eKustTulemused = eMRF_X;
         return false;
     }
     //saime lisasõnastikust
@@ -773,6 +799,6 @@ bool MRFAUDCT::chkmin(
     tul->tagasiTasand = 0;
     tul->mitmeS6naline = 1;
     tul->keeraYmber = false;
-    tul->eKustTulemused = eMRF_AL; // analüüsid lisasõnastikust
+    tul->eKustTulemused = eMRF_L; // analüüsid lisasõnastikust
     return true;
 }

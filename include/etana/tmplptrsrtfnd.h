@@ -10,6 +10,8 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
+
 #if !defined( TMPLPTRSRTFND_H )
 #define TMPLPTRSRTFND_H
 
@@ -939,6 +941,13 @@ private:
 template <class REC>
 void TMPLPTRARRAYSRT<REC>::Uniq(const int sortOrder)
 {
+    for(int i=TMPLPTRARRAY<REC>::idxLast - 1; i > 0; --i)
+    {
+        int cmp=TMPLPTRARRAY<REC>::rec[i]->Compare(TMPLPTRARRAY<REC>::rec[i - 1], sortOrder);
+        if(cmp==0)
+            TMPLPTRARRAY<REC>::Del(i);   // viit massiivist välja, mälu vabaks
+    }
+    /*
     for (int i = TMPLPTRARRAY<REC>::idxLast - 1; i > 0; i--)
     {
         int j;
@@ -955,6 +964,7 @@ void TMPLPTRARRAYSRT<REC>::Uniq(const int sortOrder)
             i = j;
         }
     }
+    */
     //for(int x=0; x<TMPLPTRARRAY<REC>::idxLast-2; x++)
     //{
     //assert(TMPLPTRARRAY<REC>::rec[x]->Compare(TMPLPTRARRAY<REC>::rec[x+1])!=0);

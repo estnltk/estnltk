@@ -280,3 +280,57 @@ def test_default_morph_analysis_with_different_input_layer_names():
     for layer in ['my_compounds', 'my_words', 'my_sentences', 'my_morph']:
         assert layer in text.layers
 
+
+
+def test_default_morph_with_vm_src_update_2020_04_07():
+    # Test effects of the Vabamorf's source update from 2020_04_07
+    # ( default lexicon )
+    morph_analyser = VabamorfTagger(output_layer='my_morph')
+    text = Text('Pole olnd või toimund ulatuslikku metasomatoosi vms protsessi.')
+    text.tag_layer(['words', 'sentences'])
+    morph_analyser.tag(text)
+    analyses = []
+    for span in text.my_morph:
+        analyses.append( [(a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    expected_analyses = \
+      [ [('ole', 'V', 'neg o')], 
+        [('ole', 'V', 'nud')], 
+        [('või', 'J', '')], 
+        [('toimunu', 'S', 'pl n')], 
+        [('ulatuslik', 'A', 'sg p')], 
+        [('metasomatoos', 'S', 'sg p')], 
+        [('vms', 'Y', '?')], 
+        [('protsess', 'S', 'sg p')], 
+        [('.', 'Z', '')] ]
+    assert expected_analyses == analyses
+
+
+
+def test_no_spell_morph_with_vm_src_update_2020_04_07():
+    # Test effects of the Vabamorf's source update from 2020_04_07
+    # ( newly added nosp [no-spell] improvements to the lexicon )
+    # 1) Test that nosp lexicon is available
+    from estnltk.vabamorf.morf import VM_LEXICONS
+    nosp_lexicons = [lex_dir for lex_dir in VM_LEXICONS if lex_dir.endswith('_nosp')]
+    assert len(nosp_lexicons) > 0
+    # 2) Test using the last nosp lexicon
+    from estnltk.vabamorf.morf import Vabamorf as VabamorfInstance
+    vm_instance    = VabamorfInstance( lexicon_dir=nosp_lexicons[-1] )
+    morph_analyser = VabamorfTagger(output_layer='morph_nosp', vm_instance=vm_instance)
+    text = Text('Bemmiga paarutanud pandikunn kadus kippelt kirbukale.')
+    text.tag_layer(['words', 'sentences'])
+    morph_analyser.tag(text)
+    analyses = []
+    for span in text.morph_nosp:
+        analyses.append( [(a.text, a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    expected_analyses = \
+        [[('Bemmiga', 'bemm', 'S', 'sg kom')], 
+         [('paarutanud', 'paaruta', 'V', 'nud'), ('paarutanud', 'paaruta=nud', 'A', ''), ('paarutanud', 'paaruta=nud', 'A', 'sg n'), ('paarutanud', 'paaruta=nud', 'A', 'pl n')], 
+         [('pandikunn', 'pandi_kunn', 'S', 'sg n')], 
+         [('kadus', 'kadu', 'V', 's')], 
+         [('kippelt', 'kippelt', 'D', '')], 
+         [('kirbukale', 'kirbukas', 'S', 'sg all')], 
+         [('.', '.', 'Z', '')]]
+    assert expected_analyses == analyses
+
+

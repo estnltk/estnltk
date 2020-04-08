@@ -65,7 +65,7 @@ setup(
         'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java/res/*.*'],
         'estnltk.taggers': ['miscellaneous/*.csv', 'syntax/files/*.*', 'syntax/files/LICENSE', 'syntax/java-res/maltparser/*.*', 'syntax/java-res/maltparser/lib/*.*', 'syntax/udpipe_tagger/resources/*.*', 'morph_analysis/hfst/models/*.*', 'morph_analysis/number_fixes/*.*', 'morph_analysis/reorderings/*.*', 'verb_chains/v1_4_1/res/*.*', 'syntax_preprocessing/rules_files/*.*', 'text_segmentation/*.csv', 'estner/gazetteer/*', 'estner/models/py3_default/*'],
         'estnltk.tests': ['test_morph/*.csv', 'test_corpus_processing/*.vert', 'test_taggers/test_dict_taggers/*.csv', 'test_taggers/miscellaneous/*.json', 'test_taggers/test_standard_taggers/*.json', 'test_taggers/*.txt', 'test_visualisation/expected_outputs/direct_plain_span_visualiser_outputs/*.txt', 'test_visualisation/expected_outputs/indirect_plain_span_visualiser_outputs/*.txt', 'test_visualisation/expected_outputs/attribute_visualiser_outputs/*.txt', 'test_converters/*.conll', 'test_syntax_preprocessing/*.txt',],
-        'estnltk.vabamorf': ['dct/2015-05-06/*.dct', 'dct/2019-10-15/*.dct'],
+        'estnltk.vabamorf': ['dct/2020-01-22_nosp/*.dct', 'dct/2020-01-22_sp/*.dct'],
         'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
         'estnltk.mw_verbs': ['res/*'],
         'estnltk.converters': ['*.mrf'],
