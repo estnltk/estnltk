@@ -88,10 +88,3 @@ class Tagger():
             yseq = self.tagger.tag(to_be_tagged)
             labels.append(yseq)
         return labels
-
-        # labels = []
-        # for snt in nerdoc.sentences:
-        #     xseq = [t.feature_list() for t in snt]
-        #     yseq = self.tagger.tag(xseq)
-        #     labels.append(yseq)
-        # return labels

@@ -19,16 +19,7 @@ class BaseFeatureExtractor(object):
     def prepare(self, docs):
         ''' Called before feature extraction actually happens. Can be used to
         collect global statistics on the corpus. '''
-        """for doc in docs:
-            doc.add_layer(Layer('ner_features', ambiguous=True, attributes=["lem","pos","prop","pref","post","case",
-                                                                            "ending","pun","w","w1","shape","shaped","p1",
-                                                                            "p2","p3","p4","s1","s2","s3","s4","2d",
-                                                                            "4d","d&-","d&/","d&,","d&.","up","iu","au",
-                                                                            "al","ad","ao","aan","cu","cl","ca","cd",
-                                                                            "cp","cds","cdt","cs","bdash","adash",
-                                                                            "bdot","adot","len","fsnt","lsnt","gaz",
-                                                                            "prew","next","iuoc","pprop","nprop","pgaz",
-                                                                            "ngaz","F"], text_object=doc))"""
+        pass
 
     def process(self, doc):
         doc.tag_layer()
@@ -465,68 +456,26 @@ class NerGlobalContextFeatureTagger(Retagger):
             if any(contains_feature('next',t) and contains_feature('prop',t.next[0]) for t in sametoks):
                 for t in sametoks:
                     t.ner_features.nprop = 'y'
-            # t.value[list(t.name).index('next')].value[list(t.value[list(t.name).index('next')].name).index("gaz")]
             pgaz_set = set()
             for t in sametoks:
                 if contains_feature('prew',t) and contains_feature('gaz',t.prew[0]):
                     for gaz_set in t.prew[0].gaz:
                         for gaz in gaz_set:
                             pgaz_set.add(gaz)
-            #pgaz_set = set.union(
-            #    t.prew[0].gaz for t in sametoks if contains_feature('prew',t) and contains_feature('gaz', t.prew[0]))
             if pgaz_set:
                 for t in sametoks:
                     t.ner_features.pgaz = pgaz_set
 
-            #next = t.value[list(t.name).index('next')]
             ngaz_set = set()
             for t in sametoks:
                 if contains_feature('next', t) and contains_feature('gaz', t.next[0]):
                     for gaz_set in t.next[0].gaz:
                         for gaz in gaz_set:
                             ngaz_set.add(gaz)
-            #ngaz_set = reduce(set.union, [t.next.gaz for t in sametoks if contains_feature('next',t) and 'gaz' in t.next[0]], set([]))
-            #print("ngazset " + str(ngaz_set))
-            # ngaz_set = reduce(set.union, [
-            #     t.value[list(t.name).index('next')].value[list(t.value[list(t.name).index('next')].name).index("gaz")]
-            #     for t in sametoks if 'next' in t.name and 'gaz' in t.value[list(t.name).index('next')].name], set([]))
             if ngaz_set:
                 for t in sametoks:
                     t.ner_features.ngaz = ngaz_set
 
-        # sametoks_dict = defaultdict(list)
-        # for t in layer:
-        #     if "prop" in t.name:
-        #         sametoks_dict[t.lemma[0]].append(t)
-        #
-        # def check_feature(sametoks, fname, fvalue, test_fun):
-        #     for tok in sametoks:
-        #         if test_fun(tok):
-        #             for t in sametoks:
-        #                 add_annotation(t, value=fvalue, name=fname)
-        #             break
-        #
-        # for t in text.tokens:
-        #     if t.lemma[0] in sametoks_dict:
-        #         sametoks = sametoks_dict[t.lemma[0]]
-        #         # Capitalized in other occurrences
-        #         check_feature(sametoks, 'iuoc', "y", lambda tok: tok and "iu" in tok)
-        #         # Prew proper in other occurrences
-        #         check_feature(sametoks, 'pprop', "y",
-        #                       lambda tok: tok.prew and 'prop' in t.value[list(t.name).index('prew')].name)
-        #         # Next proper in other occurrences
-        #         check_feature(sametoks, 'nprop', "y",
-        #                       lambda tok: tok.next and 'prop' in t.value[list(t.name).index('next')].name)
-        #         # Prew in gazeteer in other occurrences
-        #         check_feature(sametoks, 'pgaz', "y",
-        #                       lambda tok: tok.prew and 'gaz' in t.value[list(t.name).index('prew')].name)
-        #         # Next in gazeteer in other occurrences
-        #         # Prew lemma in other occurrences
-        #         check_feature(sametoks, 'plem', "y",
-        #                       lambda tok: tok.prew and 'prop' in t.value[list(t.name).index('prew')].name)
-        #         # Next lemma in other occurrences
-        #
-        #         del sametoks_dict[t.lemma[0]]
 
 
 def apply_templates(toks, templates):
@@ -626,11 +575,9 @@ class FeatureExtractor(object):
                         fex.tag(doc)
                     except:
                         fex.retag(doc)
-        print(time.time())
         # apply the feature templates.
         for doc in docs:
             apply_templates(doc, self.settings.TEMPLATES)
-            print(time.time())
 
     @staticmethod
     def _get_class(kls):

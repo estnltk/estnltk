@@ -10,7 +10,6 @@ PACKAGE_PATH = os.path.dirname(__file__)
 JAVARES_PATH = os.path.join(PACKAGE_PATH, 'java', 'res')
 
 # default NER model path
-DEFAULT_PY2_NER_MODEL_DIR = os.path.join(PACKAGE_PATH, 'taggers', 'estner', 'models', 'py2_default')
 DEFAULT_PY3_NER_MODEL_DIR = os.path.join(PACKAGE_PATH, 'taggers', 'estner', 'models', 'py3_default')
 
 
