@@ -3,6 +3,9 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.6.5.5-beta] - 2020-04-16
+A pre-release only for developers. The list of changes will be documented in the next full release.
+
 # [1.6.5-beta] - 2019-12-06
 ## Changed
 
