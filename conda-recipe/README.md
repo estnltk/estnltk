@@ -38,7 +38,7 @@ Notes:
           
         conda create -n test_35 python=3.5 -y
 		conda activate test_35
-		conda install -c estnltk/label/dev estnltk -y
+		conda install -c estnltk/label/dev -c conda-forge estnltk -y
 		python -c "import estnltk; print(estnltk.Text('Tere, maailm\!').analyse('all'))"
 			
 		conda deactivate
@@ -115,7 +115,7 @@ This instruction assumes that you have already completed a Travis CI build for L
 
         conda create -n test_35 python=3.5 -y
 		conda activate test_35
-		conda install -c estnltk/label/dev estnltk -y
+		conda install -c estnltk/label/dev -c conda-forge estnltk -y
 		python -c "import estnltk; print(estnltk.Text('Tere, maailm!').analyse('all'))"
 			
 		conda deactivate
