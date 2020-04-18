@@ -15,6 +15,13 @@ from estnltk.taggers.dict_taggers.phrase_tagger import PhraseTagger
 from estnltk.taggers.dict_taggers.regex_tagger import RegexTagger
 from estnltk.taggers.dict_taggers.span_tagger import SpanTagger
 
+from estnltk.taggers.estner.ner_tagger import NerTagger
+from estnltk.taggers.estner.fex import NerGazetteerFeatureTagger
+from estnltk.taggers.estner.fex import NerGlobalContextFeatureTagger
+from estnltk.taggers.estner.fex import NerLocalFeatureTagger
+from estnltk.taggers.estner.fex import NerMorphFeatureTagger
+from estnltk.taggers.estner.fex import NerSentenceFeatureTagger
+
 from estnltk.taggers.grammar_taggers.grammar_parsing_tagger import GrammarParsingTagger
 
 from estnltk.taggers.raw_text_tagging.date_tagger.date_tagger import DateTagger
