@@ -50,7 +50,7 @@ class VabamorfCorpusTagger( object ):
                  use_postanalysis:bool=True,
                  use_vabamorf_disambiguator:bool=True,
                  use_postdisambiguation:bool=True,
-                 use_slang_lex:bool=False,
+                 slang_lex:bool=False,
                  # customize taggers
                  vabamorf_analyser:VabamorfAnalyzer=None, 
                  postanalysis_tagger:Retagger=None, 
@@ -92,7 +92,7 @@ class VabamorfCorpusTagger( object ):
         use_postdisambiguation : bool (default: True)
             If set (default), then corpus-based post-disambiguation 
             step will be applied;
-        use_slang_lex: boolean (default: False)
+        slang_lex: boolean (default: False)
             If True, then uses an extended version of Vabamorf's binary 
             lexicon, which provides valid analyses to spoken and slang words, 
             such as 'kodukas', 'mõnsa', 'mersu', 'kippelt'. However, using 
@@ -140,7 +140,7 @@ class VabamorfCorpusTagger( object ):
         self._input_sentences_layer  = input_sentences_layer
         self._use_predisambiguation  = use_predisambiguation
         self._use_postdisambiguation = use_postdisambiguation
-        self._use_slang_lex          = use_slang_lex
+        self._slang_lex              = slang_lex
         self._validate_inputs        = validate_inputs
         self.output_attributes       = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
         # Extra arguments that can be passed to VabamorfAnalyzer:
@@ -158,7 +158,7 @@ class VabamorfCorpusTagger( object ):
                 if key in ['propername', 'guess', 'compound', 'phonetic']:
                     vm_analyser_conf[key] = value
             # Initialize vabamorf_analyser
-            if not self._use_slang_lex:
+            if not self._slang_lex:
                 # Use standard written language lexicon (default)
                 vm_instance = Vabamorf.instance()
             else:
@@ -175,8 +175,8 @@ class VabamorfCorpusTagger( object ):
                                                         **vm_analyser_conf)
         else:
             # Check slang_lex param
-            if self._use_slang_lex:
-                raise ValueError('(!) Cannot apply use_slang_lex=True if vabamorf_analyser is already provided')
+            if self._slang_lex:
+                raise ValueError('(!) Cannot apply slang_lex=True if vabamorf_analyser is already provided')
             # Use given VabamorfAnalyzer
             assert isinstance(vabamorf_analyser, VabamorfAnalyzer)
             assert vabamorf_analyser.output_layer == self.output_layer, \
@@ -370,7 +370,7 @@ class VabamorfCorpusTagger( object ):
         conf_mappings['use_predisambiguation'] = self._use_predisambiguation
         conf_mappings['use_vabamorf_disambiguator'] = self._vabamorf_disambiguator is not None
         conf_mappings['use_postdisambiguation'] = self._use_postdisambiguation
-        conf_mappings['use_slang_lex'] = self._use_slang_lex
+        conf_mappings['slang_lex'] = self._slang_lex
         return conf_mappings
 
 
