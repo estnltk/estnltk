@@ -306,15 +306,17 @@ def test_default_morph_with_vm_src_update_2020_04_07():
 
 
 
+from estnltk.vabamorf.morf import VM_LEXICONS
+from estnltk.vabamorf.morf import Vabamorf as VabamorfInstance
+
 def test_no_spell_morph_with_vm_src_update_2020_04_07():
     # Test effects of the Vabamorf's source update from 2020_04_07
     # ( newly added nosp [no-spell] improvements to the lexicon )
     # 1) Test that nosp lexicon is available
-    from estnltk.vabamorf.morf import VM_LEXICONS
     nosp_lexicons = [lex_dir for lex_dir in VM_LEXICONS if lex_dir.endswith('_nosp')]
     assert len(nosp_lexicons) > 0
-    # 2) Test using the last nosp lexicon
-    from estnltk.vabamorf.morf import Vabamorf as VabamorfInstance
+    # 2.1) Test using the last nosp lexicon:
+    #      Provide nosp lexicon via VabamorfInstance
     vm_instance    = VabamorfInstance( lexicon_dir=nosp_lexicons[-1] )
     morph_analyser = VabamorfTagger(output_layer='morph_nosp', vm_instance=vm_instance)
     text = Text('Bemmiga paarutanud pandikunn kadus kippelt kirbukale.')
@@ -331,6 +333,16 @@ def test_no_spell_morph_with_vm_src_update_2020_04_07():
          [('kippelt', 'kippelt', 'D', '')], 
          [('kirbukale', 'kirbukas', 'S', 'sg all')], 
          [('.', '.', 'Z', '')]]
+    assert expected_analyses == analyses
+    # 2.2) Test using the last nosp lexicon:
+    #      Set slang_lex parameter
+    morph_analyser_2 = VabamorfTagger(output_layer='morph_nosp_2', slang_lex=True)
+    text = Text('Bemmiga paarutanud pandikunn kadus kippelt kirbukale.')
+    text.tag_layer(['words', 'sentences'])
+    morph_analyser_2.tag(text)
+    analyses = []
+    for span in text.morph_nosp_2:
+        analyses.append( [(a.text, a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
     assert expected_analyses == analyses
 
 

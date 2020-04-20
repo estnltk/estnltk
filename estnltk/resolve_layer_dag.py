@@ -87,13 +87,15 @@ def make_resolver(
                  guess       =DEFAULT_PARAM_GUESS,
                  propername  =DEFAULT_PARAM_PROPERNAME,
                  phonetic    =DEFAULT_PARAM_PHONETIC,
-                 compound    =DEFAULT_PARAM_COMPOUND):
+                 compound    =DEFAULT_PARAM_COMPOUND,
+                 slang_lex   =False):
     vabamorf_tagger = VabamorfTagger(
                                      disambiguate=disambiguate,
                                      guess=guess,
                                      propername=propername,
                                      phonetic=phonetic,
-                                     compound=compound
+                                     compound=compound,
+                                     slang_lex=slang_lex
                                      )
 
     taggers = Taggers([TokensTagger(), WordTagger(), CompoundTokenTagger(),
