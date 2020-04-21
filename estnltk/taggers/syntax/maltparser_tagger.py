@@ -1,3 +1,4 @@
+from typing import MutableMapping
 import os, os.path
 
 from conllu import parse_incr
