@@ -1,13 +1,11 @@
 from estnltk.layer.layer import Layer
 from collections import defaultdict
 import codecs
-from functools import reduce
 from estnltk.taggers import Tagger, Retagger
 from typing import MutableMapping
 from estnltk.text import Text
 from itertools import product
 import re
-import time
 
 
 class BaseFeatureExtractor(object):

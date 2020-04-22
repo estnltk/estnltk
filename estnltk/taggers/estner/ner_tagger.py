@@ -11,12 +11,10 @@ import time
 
 class NerTagger(Tagger):
     """The class for tagging named entities."""
-    conf_param = ['modelUtil', 'nersettings', 'fex', 'tagger']
+    conf_param = ['modelUtil', 'nersettings', 'fex', 'crfsuite_tagger']
     input_layers = []
 
-    DEFAULT_NER_MODEL_DIR = DEFAULT_PY3_NER_MODEL_DIR
-
-    def __init__(self, model_dir=DEFAULT_NER_MODEL_DIR, output_layer = 'ner'):
+    def __init__(self, model_dir=DEFAULT_PY3_NER_MODEL_DIR, output_layer = 'ner'):
         """Initialize a new NerTagger instance.
 
         Parameters
@@ -28,28 +26,24 @@ class NerTagger(Tagger):
 
         """
         self.output_layer = output_layer
-        self.output_attributes = ("nertag",)
+        self.output_attributes = ["nertag"]
         modelUtil = ModelStorageUtil(model_dir)
         nersettings = modelUtil.load_settings()
         self.fex = FeatureExtractor(nersettings)
-        self.tagger = CrfsuiteTagger(settings=nersettings,
-                                     model_filename=modelUtil.model_filename)
+        self.crfsuite_tagger = CrfsuiteTagger(settings=nersettings,
+                                              model_filename=modelUtil.model_filename)
 
-    def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
+    def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         # prepare input for nertagger
-        begin = time.time()
         self.fex.process([text])
-        snt_labels = self.tagger.tag(text)
-        flat_labels = []
-        for sublist in snt_labels:
-            for item in sublist:
-                flat_labels.append(item)
+        snt_labels = self.crfsuite_tagger.tag(text)
+        flattened = (word for snt in snt_labels for word in snt)
 
         # add the labels
         nerlayer = Layer(name=self.output_layer, attributes=self.output_attributes, text_object=text, enveloping="words")
         entity_spans = []
         entity_type = None
-        for span, label in zip(text.words, flat_labels):
+        for span, label in zip(text.words, flattened):
             if entity_type is None:
                 entity_type = label[2:]
             #TODO: pane kaks if-i kokku

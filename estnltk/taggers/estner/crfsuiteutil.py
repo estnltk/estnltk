@@ -46,6 +46,16 @@ class Trainer(object):
                 yseq = [t.label for t in snt]
                 trainer.append(xseq, yseq)
 
+
+
+        labels = []
+        for snt in nerdoc.sentences:
+            xseq = [t.ner_features.F for t in snt]
+            to_be_tagged = []
+            for word in xseq:
+                to_be_tagged.append(word[0])
+            labels.append(yseq)
+            trainer.append(xseq, yseq)
         trainer.train(mode_filename)
 
 

@@ -16,6 +16,7 @@ from estnltk.taggers.dict_taggers.regex_tagger import RegexTagger
 from estnltk.taggers.dict_taggers.span_tagger import SpanTagger
 
 from estnltk.taggers.estner.ner_tagger import NerTagger
+from estnltk.taggers.estner.word_level_ner_tagger import WordLevelNerTagger
 from estnltk.taggers.estner.fex import NerGazetteerFeatureTagger
 from estnltk.taggers.estner.fex import NerGlobalContextFeatureTagger
 from estnltk.taggers.estner.fex import NerLocalFeatureTagger
