@@ -71,6 +71,19 @@ class MaltParser(object):
             raise Exception('Missing input argument: MaltParser jar file name')
         elif not self.model_name:
             raise Exception('Missing input argument: MaltParser model name')
+        self.java_check_completed = False
+
+    @staticmethod
+    def check_for_java_accessibility():
+        """Checks if java is accessible from the shell by launching the command 
+           'java -version'. If launching the command fails, throws an exception 
+            informing the user that the java is not properly installed."""
+        with open(os.devnull, "w") as trash: 
+            returncode = subprocess.call('java -version', shell=True, stdout=trash, stderr=trash)
+            if returncode != 0:
+                raise Exception('(!) Unable to launch a java process. '+\
+                                'Please make sure that java is installed into the system and '+\
+                                'available via environment variable PATH.')
 
     def parse_text(self, text, return_type='conllu_lines'):
         ''' Parses given text with Maltparser.
@@ -91,6 +104,10 @@ class MaltParser(object):
         # Correct return type
         if return_type in ['conllu_lines', 'text', 'conll', 'conllu']:
             return_type = 'conllu_lines'
+        # Check if java is available (on the first run)
+        if not self.java_check_completed:
+            self.check_for_java_accessibility()
+            self.java_check_completed = True
         # Obtain CONLL formatted version of the text
         textConllStr = conll_to_str( text )
         # Execute MaltParser and get results 
@@ -129,6 +146,10 @@ class MaltParser(object):
                 function is responsible for erasing the temporary 
                 file if all work is done;
         '''
+        # Check if java is available (on the first run)
+        if not self.java_check_completed:
+            self.check_for_java_accessibility()
+            self.java_check_completed = True
         # Obtain CONLL formatted version of the text
         textConllStr =''
         assert len(words_layer) == len(conll_morph_layer)
@@ -149,6 +170,7 @@ class MaltParser(object):
                     break
                 word_id += 1
             textConllStr += '\n'
+        # Sanity check: all words should be exhausted
         assert word_id == len(words_layer)
         # Execute MaltParser and get results 
         # (either as a CONLL formatted string or as name of the temp conllu file 
@@ -221,12 +243,15 @@ def _executeMaltparser(input_string, maltparser_dir, maltparser_jar, model_name,
         in_f.close()
         if not in_f.closed:
             raise Exception('Input file unclosed!')
+        if not temp_output_file.closed:
+            raise Exception('Temp output file unclosed!')
         # Remove temporary output file
         os.remove(temp_output_file.name)
+    else:
+        if not temp_output_file.closed:
+            raise Exception('Temp output file unclosed!')
 
     if not temp_input_file.closed:
-        raise Exception('Temp input file unclosed!')
-    if not temp_output_file.closed:
         raise Exception('Temp input file unclosed!')
     if not out_f.closed:
         raise Exception('Output file unclosed!')
