@@ -3,7 +3,7 @@
 from typing import MutableMapping
 import os, os.path
 
-from estnltk import Text
+from estnltk.text import Text
 from estnltk.layer.layer import Layer
 from estnltk.taggers.retagger import Tagger
 
