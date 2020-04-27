@@ -7,32 +7,25 @@ from estnltk import Text
 from estnltk.layer.layer import Layer
 from estnltk.taggers.retagger import Tagger
 
-from estnltk.taggers import ConllMorphTagger
 from estnltk.taggers import SyntaxDependencyRetagger
 from estnltk.taggers.syntax.maltparser import MaltParser
 
 
 class MaltParserTagger(Tagger):
     """Tags dependency syntactic analysis with MaltParser."""
-    conf_param = ['_maltparser_inst', 'conll_morph_layer_name', 'conll_morph_tagger', \
-                  'add_parent_and_children', 'syntax_dependency_retagger']
+    conf_param = ['_maltparser_inst', 'add_parent_and_children', 'syntax_dependency_retagger']
 
     def __init__(self, input_words_layer = 'words',
                        input_sentences_layer = 'sentences',
-                       input_morph_extended_layer = 'morph_extended',
-                       conll_morph_layer_name = 'conll_morph',
+                       input_conll_morph_layer = 'conll_morph',
                        output_layer='maltparser_syntax',
                        add_parent_and_children=True):
         self.input_layers = [ input_words_layer,
                               input_sentences_layer,
-                              input_morph_extended_layer ]
+                              input_conll_morph_layer ]
         self.output_layer = output_layer
-        self.conll_morph_layer_name = conll_morph_layer_name
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self._maltparser_inst = MaltParser()
-        self.conll_morph_tagger = ConllMorphTagger( output_layer = conll_morph_layer_name,            
-                                                    morph_extended_layer = input_morph_extended_layer 
-                                                   )
         self.add_parent_and_children = add_parent_and_children
         if self.add_parent_and_children:
             self.syntax_dependency_retagger = SyntaxDependencyRetagger(conll_syntax_layer=output_layer)
@@ -42,13 +35,12 @@ class MaltParserTagger(Tagger):
 
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
+        # Import from conllu only if we know for sure that MaltParser is going to be applied
         from conllu import parse_incr
-        # Make conll_morph layer
-        conll_morph_layer = \
-            self.conll_morph_tagger.make_layer( text, layers )
         # Apply Maltparser and store results in a temporary file
-        words_layer     = layers[self.input_layers[0]]
-        sentences_layer = layers[self.input_layers[1]]
+        words_layer       = layers[self.input_layers[0]]
+        sentences_layer   = layers[self.input_layers[1]]
+        conll_morph_layer = layers[self.input_layers[2]]
         len_words = len(words_layer)
         temp_file_name = self._maltparser_inst.parse_detached_layers(text, 
                                                                      sentences_layer,
@@ -61,6 +53,7 @@ class MaltParserTagger(Tagger):
                              attributes=self.output_attributes,
                              ambiguous=False
                              )
+        assert os.path.exists( temp_file_name )
         with open(temp_file_name, "r", encoding="utf-8") as data_file:
             word_index = 0
             for conll_sentence in parse_incr(data_file):
@@ -79,7 +72,6 @@ class MaltParserTagger(Tagger):
             assert len_words == len( syntax_layer )
 
         # Clean up: remove temporary file
-        assert os.path.exists( temp_file_name )
         os.remove( temp_file_name )
         assert not os.path.exists( temp_file_name )
 

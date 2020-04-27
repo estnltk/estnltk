@@ -5,6 +5,7 @@ import pytest
 
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
+from estnltk.taggers import ConllMorphTagger
 from estnltk.taggers.syntax.maltparser_tagger import MaltParserTagger
 
 from estnltk.taggers.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
@@ -25,8 +26,12 @@ def simplify_syntax_layer( layer ):
 @pytest.mark.skipif(not check_if_vislcg_is_in_path('vislcg3'),
                     reason="a directory containing vislcg3 executable must be inside the system PATH")
 def test_maltparser_tagger_1():
+    # Use ConllMorphTagger to prepare text for MaltParser
+    conll_morph_tagger = ConllMorphTagger()
     # Case 1
     text = Text('Ilus suur karvane kass nurrus punasel diivanil. Ta on ise tee esimesel poolel. Valge jänes jooksis metsa!').tag_layer(['morph_extended'])
+    conll_morph_tagger.tag(text)
+    assert 'conll_morph' in text.layers
     expected_layer_dict = \
         {'ambiguous': False,
          'attributes': ('id',
@@ -296,6 +301,8 @@ def test_maltparser_tagger_1():
 
     # Case 2: rerun the same parser on different text
     text2 = Text('Ja vana karu lõi suurt trummi.').tag_layer(['morph_extended'])
+    conll_morph_tagger.tag( text2 )
+    assert 'conll_morph' in text2.layers
     tagger.tag( text2 )
     #from pprint import pprint
     #pprint( layer_to_dict(text2.maltparser_syntax) )
