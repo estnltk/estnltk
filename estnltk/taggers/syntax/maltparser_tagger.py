@@ -1,7 +1,7 @@
+#  Java-based Maltparser as a Tagger 
+
 from typing import MutableMapping
 import os, os.path
-
-from conllu import parse_incr
 
 from estnltk import Text
 from estnltk.layer.layer import Layer
@@ -42,6 +42,7 @@ class MaltParserTagger(Tagger):
 
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
+        from conllu import parse_incr
         # Make conll_morph layer
         conll_morph_layer = \
             self.conll_morph_tagger.make_layer( text, layers )

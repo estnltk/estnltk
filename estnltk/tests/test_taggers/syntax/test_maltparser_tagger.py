@@ -1,12 +1,17 @@
-import pytest
-
 from collections import OrderedDict
+import pkgutil
+
+import pytest
 
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
 from estnltk.taggers.syntax.maltparser_tagger import MaltParserTagger
 
 from estnltk.taggers.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
+
+def check_if_conllu_is_available():
+    # Check if conllu is available
+    return pkgutil.find_loader("conllu") is not None
 
 def simplify_syntax_layer( layer ):
     simpler = []
@@ -15,6 +20,8 @@ def simplify_syntax_layer( layer ):
         simpler.append( (ann.text, ann['upostag'], ann['deprel'], ann['id'], ann['head']) )
     return simpler
 
+@pytest.mark.skipif(not check_if_conllu_is_available(),
+                    reason="package conllu is required for this test")
 @pytest.mark.skipif(not check_if_vislcg_is_in_path('vislcg3'),
                     reason="a directory containing vislcg3 executable must be inside the system PATH")
 def test_maltparser_tagger_1():
