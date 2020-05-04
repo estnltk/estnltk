@@ -16,6 +16,7 @@ class Wordnet:
         self.conn = None
         self.cur = None
         self.version = version
+        self.graph = None
 
         wn_dir = '{}/data/estwn_kb{}'.format(os.path.dirname(os.path.abspath(__file__)), self.version)
         wn_entry = '{}/wordnet_entry.db'.format(wn_dir)
@@ -60,7 +61,10 @@ class Wordnet:
             if isinstance(key[1], int):
                 synset_name, id = key
                 self.cur.execute("SELECT id FROM wordnet_entry WHERE synset_name = ?", (synset_name,))
-                synset_id = self.cur.fetchall()
+                synset_id = []
+                for ss_id in self.cur.fetchall():
+                    if ss_id not in synset_id:
+                        synset_id.append(ss_id)
                 if synset_id is not None and id <= len(synset_id):
                     return Synset(self, synset_id[id - 1][0])
             else:
@@ -68,7 +72,7 @@ class Wordnet:
                 self.cur.execute("SELECT id FROM wordnet_entry WHERE synset_name = ? AND pos = ?", (synset_name, pos))
         else:
             self.cur.execute("SELECT id FROM wordnet_entry WHERE synset_name = ?", (key,))
-        synset_id = self.cur.fetchall()
+        synset_id = set(self.cur.fetchall())
         if synset_id is not None:
             return [Synset(self, id[0]) for id in synset_id]
         return

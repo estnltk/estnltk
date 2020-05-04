@@ -1,11 +1,14 @@
 import math
+import networkx as nx
 #import estnltk
 #import estnltk.wordnet.wordnet.Wordnet
 
 MAX_TAXONOMY_DEPTHS = {'a': 2, 'n': 13, 'b': 0, 'v': 10}
 
+
 class SynsetException(Exception):
     pass
+
 
 class Synset:
     """Represents a WordNet synset.
@@ -61,7 +64,7 @@ class Synset:
         relation  : str
         '''
         if self.wordnet is None:
-            return [] #ilmselt pole seda asja vaja
+            return []
         if relation is None:
             self.wordnet.cur.execute \
                 ('''SELECT start_vertex,relation FROM wordnet_relation WHERE end_vertex = '{}' '''.format(self.id))
@@ -75,20 +78,11 @@ class Synset:
             self.wordnet.cur.execute \
                 ('''SELECT start_vertex FROM wordnet_relation WHERE end_vertex = '{}' AND relation = '{}' '''.format
                     (self.id, relation))
-            return [Synset(self.wordnet, row[0]) for row in self.wordnet.cur.fetchall()]
+            all = self.wordnet.cur.fetchall()
+            return [Synset(self.wordnet, row[0]) for row in all]
 
         return []
 
-    '''
-    def get_synset(self, synset_id=None):
-
-        if synset_id is None:
-            return Synset(self.wordnet, self.id)
-        else:
-            return Synset(self.wordnet, synset_id)    
-    '''
-
-    #VAATA ÜLE
     def closure(self, relation, depth_threshold=float('inf'), return_depths=False):
 
         """Finds all the ancestors of the synset using provided relation.
@@ -133,7 +127,6 @@ class Synset:
                 node_stack.extend(parents)
                 depth_stack.extend([depth +1] * len(parents))
 
-    #VAATA ÜLE
     def root_hypernyms(self, depth_threshold=float('inf'), return_depths=False):
 
         """Retrieves all the root hypernyms.
@@ -282,6 +275,15 @@ class Synset:
 
         """
 
+        if self.wordnet.graph is None:
+            self.wordnet.cur.execute("SELECT * FROM wordnet_entry")
+            #entries = self.wordnet.cur.fetchall()
+            self.wordnet.cur.execute("SELECT * FROM wordnet_relation")
+            relations = self.wordnet.cur.fetchall()
+            self.wordnet.graph = nx.DiGraph()
+            for r in relations:
+                self.wordnet.graph.add_edge(r[0], r[3], relation=r[6])
+
         if "distances" not in self.__dict__:
             self.__dict__["distances"] = {}
 
@@ -291,8 +293,7 @@ class Synset:
         if target_synset in self.__dict__["distances"]:
             return self.__dict__["distances"][target_synset]
 
-
-        distance = 0
+        '''distance = 0
         visited = set()
         neighbor_synsets = set([self])
 
@@ -315,6 +316,30 @@ class Synset:
 
         self.__dict__["distances"][target_synset] = -1
         target_synset.__dict__["distances"][self] = -1
+
+        return -1'''
+
+        distance = 0
+        visited = set()
+        neighbor_synsets = set([self.id])
+
+        while len(neighbor_synsets) > 0:
+            neighbor_synsets_next_level = set()
+
+            for synset in neighbor_synsets:
+                if synset in visited:
+                    continue
+
+                if synset == target_synset.id:
+                    return distance
+                relations = list(self.wordnet.graph.in_edges(synset, data=True))
+                hypernyms = [r[0] for r in relations if r[2]['relation'] == 'hypernym']
+                hyponyms = [r[0] for r in relations if r[2]['relation'] == 'hyponym']
+                neighbor_synsets_next_level |= set(hypernyms)
+                neighbor_synsets_next_level |= set(hyponyms)
+                visited.add(synset)
+            distance += 1
+            neighbor_synsets = set(neighbor_synsets_next_level)
 
         return -1
 
@@ -436,7 +461,6 @@ class Synset:
         if distance >= 0:
             return -math.log((distance + 1) / (2.0 * depth))
         return None
-        return
 
     def wup_similarity(self, target_synset):
         """Calculates Wu and Palmer's similarity between the two synsets.
