@@ -299,7 +299,7 @@ class TimexTagger( Tagger ):
 
     def _convert_timex_dict_to_ordered_dict( self, timex:dict ):
         ''' Converts timex dictionary into an OrderedDict, in which the keys 
-            are ordered the same way as the TimexTagger.attributes are.
+            are ordered the same way as the TimexTagger.output_attributes are.
             In addition, rewrites TIMEX attribute names and values from the 
             camelCase format (e.g. 'temporalFunction', 'anchorTimeID') to
             Python's format, and normalizes boolean values ('true' -> True);
@@ -313,10 +313,10 @@ class TimexTagger( Tagger ):
             -------
             OrderedDict
                 OrderedDict corresponding to the timex, in which the keys 
-                are ordered the same way as in TimexTagger.attributes.
+                are ordered the same way as in TimexTagger.output_attributes.
         '''
         ordered_timex_dict = OrderedDict()
-        for attrib in self.attributes:
+        for attrib in self.output_attributes:
             # tid
             if attrib == 'tid' and attrib in timex.keys():
                ordered_timex_dict[attrib] = timex[attrib]
