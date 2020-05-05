@@ -44,15 +44,8 @@ class NounPhraseChunker( Tagger ):
                    '_input_sentences_layer',
                    '_input_morph_analysis_layer',
                    # Inner parameters:
-                   '_np_chunker',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name', 'attributes'
+                   '_np_chunker'
                  ]
-    # For backward compatibility:
-    layer_name = output_layer
-    attributes = output_attributes
-    depends_on = input_layers
-
 
     def __init__( self,
                   syntax_layer:str,
@@ -108,8 +101,6 @@ class NounPhraseChunker( Tagger ):
         # Configuration
         self.cutPhrases = cutPhrases
         self.cutMaxThreshold = cutMaxThreshold
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
         # Initialize v1.4.1 NP chunker
         if np_chunker is None:
             self._np_chunker = NounPhraseChunkerV1_4()

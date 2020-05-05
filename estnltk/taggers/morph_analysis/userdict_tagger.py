@@ -29,7 +29,7 @@ class UserDictTagger(Retagger):
     """Makes user-specified post-corrections to morphological analyses.
        This tagger can be applied after text has been morphologically analysed."""
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES
-    conf_param = ['depends_on', 'ignore_case', 'validate_vm_categories',
+    conf_param = ['ignore_case', 'validate_vm_categories',
                   'autocorrect_root', '_dict', 'replace_missing_normalized_text_with_text']
 
     def __init__(self,
@@ -73,7 +73,6 @@ class UserDictTagger(Retagger):
         """
         self.output_layer = output_layer
         self.input_layers = [output_layer]
-        self.depends_on   = self.input_layers
         
         self.ignore_case  = ignore_case
         self.validate_vm_categories = validate_vm_categories
