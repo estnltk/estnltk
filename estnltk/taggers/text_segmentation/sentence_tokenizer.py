@@ -34,95 +34,95 @@ merge_patterns = [
    { 'comment'  : '{Numeric_range_start} {period} + {dash} {Numeric_range_end}', \
      'example'  : '"Tartu Muinsuskaitsepäevad toimusid 1988. a 14." + "- 17. aprillil."', \
      'fix_type' : 'numeric_range', \
-     'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL),re.compile(_hyphen_pat+'\s*([0-9]+)\s*\.(.*)?$', re.DOTALL)], \
+     'regexes'  : [re.compile(r'(.+)?([0-9]+)\s*\.$', re.DOTALL),re.compile(_hyphen_pat+r'\s*([0-9]+)\s*\.(.*)?$', re.DOTALL)], \
    },
    #   {Numeric_range_start} {period} {dash} + {Numeric_range_end}
    { 'comment'  : '{Numeric_range_start} {period} {dash} + {Numeric_range_end}', \
      'example'  : '"Tartu Muinsuskaitsepäevad toimusid 1988. a 14." + "- 17. aprillil."', \
      'fix_type' : 'numeric_range', \
-     'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.\s*'+_hyphen_pat+'$', re.DOTALL), re.compile('([0-9]+)\s*\.(.+)?$', re.DOTALL) ], \
+     'regexes'  : [re.compile(r'(.+)?([0-9]+)\s*\.\s*'+_hyphen_pat+'$', re.DOTALL), re.compile(r'([0-9]+)\s*\.(.+)?$', re.DOTALL) ], \
    },
 
    #   {Numeric_year} {period} {|a|} + {lowercase_or_number}
    { 'comment'  : '{Numeric_year} {period} {|a|} + {lowercase_or_number}', \
      'example'  : '"Luunja sai vallaõigused 1991.a." + " kevadel."', \
      'fix_type' : 'numeric_year', \
-     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.?\s*a\s*\.$', re.DOTALL), re.compile('^('+_lc_letter+'|[0-9])+')], \
+     'regexes'  : [re.compile(r'(.+)?([0-9]{3,4})\s*\.?\s*a\s*\.$', re.DOTALL), re.compile('^('+_lc_letter+'|[0-9])+')], \
    },
    { 'comment'  : '{Numeric_year} {period} {|a|} + {lowercase_or_number}', \
      'example'  : '"1946/47 õ.a." + "oli koolis 87 õpilast."', \
      'fix_type' : 'numeric_year', \
-     'regexes'  : [re.compile('(^|.+)([0-9]{4}\s*\.?|/\s*[0-9]{2})\s*õ\s*\.?\s*a\.?$', re.DOTALL), re.compile('^('+_lc_letter+'|[0-9])+')], \
+     'regexes'  : [re.compile(r'(^|.+)([0-9]{4}\s*\.?|/\s*[0-9]{2})\s*õ\s*\.?\s*a\.?$', re.DOTALL), re.compile('^('+_lc_letter+'|[0-9])+')], \
    },
    #   {Numeric_year} {period} + {|a|} {lowercase_or_number}
    { 'comment'  : '{Numeric_year} {period} + {|a|} {lowercase_or_number}', \
      'example'  : '"Luunja sai vallaõigused 1991.a." + " kevadel."', \
      'fix_type' : 'numeric_year', \
-     'regexes'  : [ re.compile('(.+)?([0-9]{4})\s*\.$', re.DOTALL), re.compile('^\s*(õ\s*\.)?a\.?\s*('+_lc_letter+'|[0-9])+') ], \
+     'regexes'  : [ re.compile(r'(.+)?([0-9]{4})\s*\.$', re.DOTALL), re.compile(r'^\s*(õ\s*\.)?a\.?\s*('+_lc_letter+'|[0-9])+') ], \
    },
    #   {Numeric_year} {period} + {|aasta|}
    { 'comment'  : '{Numeric_year} {period} + {|aasta|}', \
      'example'  : '"BRK-de traditsioon sai alguse 1964 ." + "aastal Saksamaal Heidelbergis."', \
      'fix_type' : 'numeric_year', \
-     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.$', re.DOTALL), re.compile('^'+_lc_letter+'*aasta.*') ], \
+     'regexes'  : [re.compile(r'(.+)?([0-9]{3,4})\s*\.$', re.DOTALL), re.compile('^'+_lc_letter+'*aasta.*') ], \
    },
    #   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
    { 'comment'  : '{Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}', \
      'example'  : '"... Mileetose koolkonnd (VI-V saj." + "e. Kr.) ..."', \
      'fix_type' : 'numeric_century', \
-     'regexes'  : [re.compile('(.+)?([0-9]{1,2}|[IVXLCDM]+)\s*\.?\s*saj\.?$', re.DOTALL), re.compile('^'+_lc_letter+'+') ], \
+     'regexes'  : [re.compile(r'(.+)?([0-9]{1,2}|[IVXLCDM]+)\s*\.?\s*saj\.?$', re.DOTALL), re.compile('^'+_lc_letter+'+') ], \
    },
    
    #   {Date_dd.mm.yyyy.} + {time_HH:MM}
    { 'comment'  : '{Date_dd.mm.yyyy.} + {time_HH:MM}', \
      'example'  : "'Gert 02.03.2009.' + '14:40 Tahaks kindlalt sinna kooli:P'", \
      'fix_type' : 'numeric_date', \
-     'regexes'  : [re.compile('(.+)?([0-9]{2})\.([0-9]{2})\.([0-9]{4})\.\s*$', re.DOTALL), re.compile('^\s*([0-9]{2}):([0-9]{2})')], \
+     'regexes'  : [re.compile(r'(.+)?([0-9]{2})\.([0-9]{2})\.([0-9]{4})\.\s*$', re.DOTALL), re.compile(r'^\s*([0-9]{2}):([0-9]{2})')], \
    },
    #   {|kell|} {time_HH.} + {MM}
    { 'comment'  : '{|kell|} {time_HH.} + {MM}', \
      'example'  : "'Kell 22 .' + '00\nTV 3\n“ Thelma”\n'", \
      'fix_type' : 'numeric_time', \
-     'regexes'  : [re.compile('(.+)?[kK]ell\S?\s([0-9]{1,2})\s*\.\s*$', re.DOTALL), re.compile('^\s*([0-9]{2})\s')], \
+     'regexes'  : [re.compile(r'(.+)?[kK]ell\S?\s([0-9]{1,2})\s*\.\s*$', re.DOTALL), re.compile(r'^\s*([0-9]{2})\s')], \
    },
 
    #   {Numeric_date} {period} + {month_name}
    { 'comment'  : '{Numeric_date} {period} + {month_name}', \
      'example'  : '"Kirijenko on sündinud 26 ." + "juulil 1962 . aastal ."', \
      'fix_type' : 'numeric_date', \
-     'regexes'  : [re.compile('(.+)?([0-9]{1,2})\s*\.$', re.DOTALL), re.compile('^(jaan|veeb|märts|apr|mai|juul|juun|augu|septe|okto|nove|detse).*') ], \
+     'regexes'  : [re.compile(r'(.+)?([0-9]{1,2})\s*\.$', re.DOTALL), re.compile('^(jaan|veeb|märts|apr|mai|juul|juun|augu|septe|okto|nove|detse).*') ], \
    },
    #   {Numeric_date} {period} + {month_name_short}
    { 'comment'  : '{Numeric_date} {period} + {month_name_short}', \
      'example'  : '"( NYT , 5 ." + "okt . )"', \
      'fix_type' : 'numeric_date', \
-     'regexes'  : [re.compile('(.+)?([0-9]{1,2})\s*\.$', re.DOTALL), re.compile('^(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)(\s*\.|\s).*') ], \
+     'regexes'  : [re.compile(r'(.+)?([0-9]{1,2})\s*\.$', re.DOTALL), re.compile(r'^(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)(\s*\.|\s).*') ], \
    },
    #  {Month_name_short} {period} + {numeric_year}
    { 'comment'  : '{Numeric_date} {period} + {month_name_short}', \
      'example'  : '"17. okt." + "1998 a."', \
      'fix_type' : 'numeric_date', \
-     'regexes'  : [re.compile('^(.+)?\s(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)\s*\..*', re.DOTALL), re.compile('([0-9]{4})\s*.*') ], \
+     'regexes'  : [re.compile(r'^(.+)?\s(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)\s*\..*', re.DOTALL), re.compile(r'([0-9]{4})\s*.*') ], \
    },
 
    #   {First_10_Roman_numerals} {period} + {lowercase_or_dash}
    { 'comment'  : '{First_10_Roman_numerals} {period} + {lowercase_or_dash}', \
      'example'  : '"III." + "- II." + "sajandil enne meie ajastut toimunud sõjad."', \
      'fix_type' : 'numeric_roman_numeral', \
-     'regexes'  : [re.compile('(.+)?((VIII|III|VII|II|IV|VI|IX|V|I|X)\s*\.)$', re.DOTALL), re.compile('^('+_lc_letter+'|'+_hyphen_pat+')') ], \
+     'regexes'  : [re.compile(r'(.+)?((VIII|III|VII|II|IV|VI|IX|V|I|X)\s*\.)$', re.DOTALL), re.compile('^('+_lc_letter+'|'+_hyphen_pat+')') ], \
    },
    
    #   {Number} {period} + {lowercase}
    { 'comment'  : '{Number} {period} + {lowercase}', \
      'example'  : '"sügisringi 4 ." + "vooru kohtumine"', \
      'fix_type' : 'numeric_ordinal_numeral', \
-     'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+_lc_letter+'+') ], \
+     'regexes'  : [re.compile(r'(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+_lc_letter+'+') ], \
    },
    #   {Number} {period} + {hyphen}
    { 'comment'  : '{Number} {period} + {hyphen}', \
      'example'  : '"1500." + "- kuni 3000." + "- krooni"', \
      'fix_type' : 'numeric_monetary', \
-     'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+_hyphen_pat+'+') ], \
+     'regexes'  : [re.compile(r'(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+_hyphen_pat+'+') ], \
    },
    
    # ***********************************
@@ -132,35 +132,35 @@ merge_patterns = [
    { 'comment'  : '{BCE} {period} + {lowercase}', \
      'example'  : '"Suur rahvasterändamine oli avanud IV-nda sajandiga p. Kr." + "segaduste ja sõdade ajastu."', \
      'fix_type' : 'abbrev_century', \
-     'regexes'  : [re.compile('(.+)?[pe]\s*\.\s*Kr\s*\.?$', re.DOTALL), re.compile('^'+_lc_letter+'+') ], \
+     'regexes'  : [re.compile(r'(.+)?[pe]\s*\.\s*Kr\s*\.?$', re.DOTALL), re.compile('^'+_lc_letter+'+') ], \
    },
 
    { 'comment'  : '{Abbreviation} {period} + {numeric}', \
      'example'  : '"Hõimurahvaste Aeg Nr." + "7 lk." + "22."', \
      'fix_type' : 'abbrev_numeric', \
-     'regexes'  : [re.compile('(.+)?([Ll]k|[Nn]r)\s*\.$', re.DOTALL), re.compile('^[0-9]+') ], \
+     'regexes'  : [re.compile(r'(.+)?([Ll]k|[Nn]r)\s*\.$', re.DOTALL), re.compile('^[0-9]+') ], \
    },
    { 'comment'  : '{Common_abbreviation} {period} + {lowercase|hyhen|,|)}', \
      'example'  : '"jooniste, tabelite jm." + "selgeks tehti."', \
      'fix_type' : 'abbrev_common', \
-     'regexes'  : [re.compile('(.+)?\s(ingl|näit|'+
-                                      'jm[st]|jne|jp[mt]|mnt|pst|tbl|vm[st]|'+\
-                                      'j[tm]|mh|vm|e|t)\s?[.]$', re.DOTALL), \
-                   re.compile('^('+_lc_letter+'|'+_hyphen_pat+'|,|;|\))') ], \
+     'regexes'  : [re.compile(r'(.+)?\s(ingl|näit|'+
+                                      r'jm[st]|jne|jp[mt]|mnt|pst|tbl|vm[st]|'+\
+                                      r'j[tm]|mh|vm|e|t)\s?[.]$', re.DOTALL), \
+                   re.compile(r'^('+_lc_letter+r'|'+_hyphen_pat+r'|,|;|\))') ], \
    },
    #   {abbreviation} {period} + {comma_or_semicolon}
    { 'comment'  : '{abbreviation} {period} + {comma_or_semicolon}', \
      'example'  : "(Ribas jt.' + ', 1995; Gebel jt.' + ', 1997; Kaya jt.' + ', 2004)", \
      'fix_type' : 'abbrev_common', \
-     'regexes'  : [re.compile('.+\s[a-zöäüõ\-.]+[.]\s*$', re.DOTALL), re.compile('^([,;]).*') ], \
+     'regexes'  : [re.compile(r'.+\s[a-zöäüõ\-.]+[.]\s*$', re.DOTALL), re.compile('^([,;]).*') ], \
    },
    
    #   {uppercase_letter} {period} + {not_uppercase_followed_by_lowercase}
    { 'comment'  : '{uppercase_letter} {period} + {not_uppercase_followed_by_lowercase}', \
      'example'  : "'K.' + 'C.' + 'seal nime ees tähendab Kadri’s Choise'", \
      'fix_type' : 'abbrev_name_initial', \
-     'regexes'  : [re.compile('(.*'+_not_letter+'|^)'+_uc_letter+'\s*[.]\s*$', re.DOTALL), \
-                   re.compile('^(?!\s*'+_uc_letter+_lc_letter+').*') ], \
+     'regexes'  : [re.compile(r'(.*'+_not_letter+r'|^)'+_uc_letter+r'\s*[.]\s*$', re.DOTALL), \
+                   re.compile(r'^(?!\s*'+_uc_letter+_lc_letter+r').*') ], \
    },
 
    # ***********************************
@@ -170,44 +170,44 @@ merge_patterns = [
    { 'comment'  : '{period_ending_content_of_parentheses} + {lowercase_or_comma}', \
      'example'  : '"Lugesime Menippose (III saj. e.m.a.)" + "satiiri..."', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('(.+)?\([^()]+[.!]\s*\)$', re.DOTALL), re.compile('^('+_lc_letter+'|,)+.*')], \
+     'regexes'  : [re.compile(r'(.+)?\([^()]+[.!]\s*\)$', re.DOTALL), re.compile('^('+_lc_letter+'|,)+.*')], \
    },
    #   {parentheses_start} {content_in_parentheses} + {parentheses_end}
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
      'example'  : '( " Easy FM , soft hits ! "\' + \') .', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^()A-ZÖÄÜÕŠŽ]*\)\s*$') ], \
+     'regexes'  : [re.compile(r'.*\([^()]+$', re.DOTALL), re.compile(r'^[^()A-ZÖÄÜÕŠŽ]*\)\s*$') ], \
    },
    #   {parentheses_start} {content_in_parentheses} + {parentheses_end}
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
      'example'  : '( " Easy FM , soft hits ! "\' + \') .', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^()A-ZÖÄÜÕŠŽ]*\)(\s|\n)*[^A-ZÖÄÜÕŠŽ \n].*') ], \
+     'regexes'  : [re.compile(r'.*\([^()]+$', re.DOTALL), re.compile(r'^[^()A-ZÖÄÜÕŠŽ]*\)(\s|\n)*[^A-ZÖÄÜÕŠŽ \n].*') ], \
    },
    #   {ending_punctuation} + {parentheses_end}<end> {uppercase}
    { 'comment'   : '{ending_punctuation} + {parentheses_end}<end> {uppercase}', \
      'example'   : "'( Naerab . ' + ')\nEriti siis , kui sõidan mootorratta või jalgrattaga .'", \
      'fix_type'  : 'parentheses', \
-     'regexes'   : [re.compile('.*[.!?]\s*$', re.DOTALL), re.compile('^(?P<end>\))(\s|\n)*[A-ZÖÄÜÕŠŽ].*') ], \
+     'regexes'   : [re.compile(r'.*[.!?]\s*$', re.DOTALL), re.compile(r'^(?P<end>\))(\s|\n)*[A-ZÖÄÜÕŠŽ].*') ], \
      'shift_end' : True,   # sentence end needs to be shifted to the string captured by the pattern <end>
    },
    #   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}', \
      'example'  : '"(loe: ta läheb sügisel 11." + " klassi!)"', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('(.+)?\([^()]+$', re.DOTALL), re.compile('^('+_lc_letter+'|,)[^()]+\).*')], \
+     'regexes'  : [re.compile(r'(.+)?\([^()]+$', re.DOTALL), re.compile(r'^('+_lc_letter+r'|,)[^()]+\).*')], \
    },
    #   {parentheses_start} {content_in_parentheses} + {numeric_patterns} {parentheses_end}
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {numeric_patterns} {parentheses_end}', \
      'example'  : '"rahvuskultuuriline missioon ( lk." + "217 )"', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[0-9.\- ]+\).*') ], \
+     'regexes'  : [re.compile(r'.*\([^()]+$', re.DOTALL), re.compile(r'^[0-9.\- ]+\).*') ], \
    },
    #   {content_in_parentheses} + {single_sentence_ending_symbol}
    { 'comment'  : '{content_in_parentheses} + {single_sentence_ending_symbol}', \
      'example'  : '\'( " Easy FM , soft hits ! " )\' + \'.\'', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('.*\([^()]+\)$', re.DOTALL), _ending_punct_regexp ], \
+     'regexes'  : [re.compile(r'.*\([^()]+\)$', re.DOTALL), _ending_punct_regexp ], \
    },
    
    # ***********************************
@@ -217,13 +217,13 @@ merge_patterns = [
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}', \
      'example'  : '\'ETV-s esietendub homme " Õnne 13 ! \' + \'", mis kuu aja eest jõudis lavale Ugalas .\'', \
      'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), re.compile('^['+_ending_quotes+']\s*([,;]|'+_lc_letter+')+') ], \
+     'regexes'  : [re.compile(r'.+[?!.…]\s*$', re.DOTALL), re.compile(r'^['+_ending_quotes+r']\s*([,;]|'+_lc_letter+r')+') ], \
    },
    #   {sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}', \
      'example'  : '\'ETV-s esietendub homme " Õnne 13 ! "\' + \', mis kuu aja eest jõudis lavale Ugalas .\'', \
      'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+[?!.…]\s*['+_ending_quotes+']$', re.DOTALL), re.compile('^([,;]|'+_lc_letter+')+') ], \
+     'regexes'  : [re.compile(r'.+[?!.…]\s*['+_ending_quotes+r']$', re.DOTALL), re.compile('^([,;]|'+_lc_letter+')+') ], \
    },
    #   {sentence_ending_punct} + {only_ending_quotes}
    { 'comment'  : '{sentence_ending_punct} + {ending_quotes}', \
@@ -235,26 +235,26 @@ merge_patterns = [
    { 'comment'   : '{ending_punctuation} + {ending_quotes}<end> {starting_quotes}', \
      'example'   : "'« Väga tore !' + '»\n\n« Mis siin ikka ! »'", \
      'fix_type'  : 'double_quotes', \
-     'regexes'   : [re.compile('.*[.!?]\s*$', re.DOTALL), re.compile('^(?P<end>['+_ending_quotes+'])(\s|\n)*['+_start_quotes+'].*') ], \
+     'regexes'   : [re.compile(r'.*[.!?]\s*$', re.DOTALL), re.compile(r'^(?P<end>['+_ending_quotes+r'])(\s|\n)*['+_start_quotes+r'].*') ], \
      'shift_end' : True,   # sentence end needs to be shifted to the string captured by the pattern <end>
    },
    #   {ending_punctuation} + {ending_quotes}<end> {starting_brackets}
    { 'comment'   : '{ending_punctuation} + {ending_quotes}<end> {starting_brackets}', \
      'example'   : "'« Kus on minu mesi ?' + '»\n( Inglise keeles kallim . )'", \
      'fix_type'  : 'double_quotes', \
-     'regexes'   : [re.compile('.*[.!?]\s*$', re.DOTALL), re.compile('^(?P<end>['+_ending_quotes+'])(\s|\n)*[(\[].*') ], \
+     'regexes'   : [re.compile(r'.*[.!?]\s*$', re.DOTALL), re.compile(r'^(?P<end>['+_ending_quotes+r'])(\s|\n)*[(\[].*') ], \
      'shift_end' : True,   # sentence end needs to be shifted to the string captured by the pattern <end>
    },
    #   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
    { 'comment'  : '{sentence_ending_punct} + {ending_quotes} {only_sentence_ending_punct}', \
      'example'  : ''' '\nNii ilus ! ' + '" .' + '\nNõmmel elav pensioniealine Maret' ''', \
      'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), re.compile('^['+_ending_quotes+']\s*[?!.…]+$') ], \
+     'regexes'  : [re.compile(r'.+[?!.…]\s*$', re.DOTALL), re.compile(r'^['+_ending_quotes+r']\s*[?!.…]+$') ], \
    },
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}', \
      'example'  : ''' '\nNii ilus ! " ' + ' . \nNõmmel elav pensioniealine Maret' ''', \
      'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+[?!.…]\s*['+_ending_quotes+']$', re.DOTALL), _ending_punct_regexp ], \
+     'regexes'  : [re.compile(r'.+[?!.…]\s*['+_ending_quotes+r']$', re.DOTALL), _ending_punct_regexp ], \
    },
 
    # ***********************************
@@ -264,7 +264,7 @@ merge_patterns = [
    { 'comment'  : '{sentence_ending_punct} + {only_sentence_ending_punct}', \
      'example'  : '"arvati , et veel sellel aastal j6uab kohale ; yess !" + "!" + "!"', \
      'fix_type' : 'repeated_ending_punct', \
-     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), _ending_punct_regexp ], \
+     'regexes'  : [re.compile(r'.+[?!.…]\s*$', re.DOTALL), _ending_punct_regexp ], \
    },
    
    # ***********************************
@@ -274,7 +274,7 @@ merge_patterns = [
    { 'comment'  : '{sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}', \
      'example'  : '"Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."', \
      'fix_type' : 'inner_title_punct', \
-     'regexes'  : [re.compile('.+[?!]\s*$', re.DOTALL), re.compile('^([,;])\s*'+_lc_letter+'+') ], \
+     'regexes'  : [re.compile(r'.+[?!]\s*$', re.DOTALL), re.compile(r'^([,;])\s*'+_lc_letter+r'+') ], \
    },
 ]
 
@@ -312,6 +312,7 @@ class SentenceTokenizer( Tagger ):
                  use_emoticons_as_endings:bool = True,
                  record_fix_types:bool = False,
                  base_sentence_tokenizer = None,
+                 patterns:list = merge_patterns
                  ):
         """Initializes this SentenceTokenizer.
         
@@ -396,6 +397,11 @@ class SentenceTokenizer( Tagger ):
               but not PunktSentenceTokenizer), then its method span_tokenize() is 
               used for initial sentence tokenization;
 
+        patterns: list (default: merge_patterns)
+            A list of all merge (and merge-and-split) patterns used by this 
+            SentenceTokenizer. 
+            If you want to manually add or remove merge patterns, then make a 
+            copy of merge_patterns, modify it and pass it as patterns.
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -451,7 +457,7 @@ class SentenceTokenizer( Tagger ):
             self._apply_sentences_from_tokens = False
         # 3) Filter rules according to the given configuration
         self._merge_rules = []
-        for merge_pattern in merge_patterns:
+        for merge_pattern in patterns:
             # Fixes that use both built-in logic, and merge rules
             if fix_compound_tokens and merge_pattern['fix_type'].startswith('abbrev'):
                 self._merge_rules.append( merge_pattern )

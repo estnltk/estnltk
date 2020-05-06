@@ -1,6 +1,9 @@
+import regex as re
+
 from estnltk.text import Text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer
+from estnltk.taggers.text_segmentation.sentence_tokenizer import merge_patterns
 
 def test_merge_mistakenly_split_sentences_1():
     # Tests that mistakenly split sentences have been properly merged
@@ -939,4 +942,39 @@ def test_layer_names_can_be_changed():
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
+
+
+
+def test_sentence_tokenizer_with_custom_merge_patterns():
+    # Example text
+    example_str = 'Meie puuvarud: 3 rm. märgasid lepahalge sellest aastast, 4 rm. poolkuivasid '+\
+                  'halge eelmisest aastast ning kuivi halge 2 rm. Kas sellest piisab?'
+    # Case 1: broken sentence without post-correction
+    text = Text(example_str)
+    text.tag_layer(['sentences'])
+    assert len(text.sentences) == 4
+    
+    # Case 2: fix broken sentence with a custom rule
+    # Create a new post-correction
+    rm_fix = \
+    { 'comment'  : '{rm} {period} + {lowercase letter}', \
+      'example'  : '"Meie puuvarud: 3 rm." + "märgasid lepahalge"', \
+      'fix_type' : 'abbrev_common', \
+      'regexes'  : [ re.compile(r'(.+)?\srm\s*\.$', re.DOTALL), \
+                     re.compile(r'^([a-zöäüõžš])\s*(.*)?$', re.DOTALL)], \
+    }
+    # Update (copy of) default patterns with a new pattern
+    new_merge_patterns = merge_patterns[:]
+    new_merge_patterns.append( rm_fix )
+    # Create a tokenzier that uses customized patterns
+    custom_sentence_tokenizer = SentenceTokenizer( patterns = new_merge_patterns )
+    text = Text( example_str )
+    text.tag_layer(['words'])
+    custom_sentence_tokenizer.tag( text )
+    sentence_texts = \
+        [sentence.enclosing_text for sentence in text['sentences']]
+    expected_sentence_texts = \
+        [ 'Meie puuvarud: 3 rm. märgasid lepahalge sellest aastast, 4 rm. poolkuivasid halge eelmisest aastast ning kuivi halge 2 rm.',
+          'Kas sellest piisab?' ]
+    assert sentence_texts == expected_sentence_texts
 
