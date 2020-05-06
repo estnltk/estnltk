@@ -200,4 +200,4 @@ def test_udpipe_tagger():
     conll.tag(text)
     tagger = UDPipeTagger()
     tagger.tag(text)
-    assert dict_to_layer(udpipe_dict) == text.udpipe_syntax, text.udpipe.diff(dict_to_layer(udpipe_dict))
+    assert dict_to_layer(udpipe_dict) == text.udpipe_syntax, text.udpipe_syntax.diff(dict_to_layer(udpipe_dict))
