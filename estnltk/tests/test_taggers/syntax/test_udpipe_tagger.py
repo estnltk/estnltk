@@ -2,13 +2,11 @@ import pytest
 import pkgutil
 
 from estnltk import Text
-from estnltk.taggers.syntax_preprocessing.morph_extended_tagger import MorphExtendedTagger
-from estnltk.taggers.morph_analysis.morf import VabamorfTagger
-from estnltk.taggers.text_segmentation.compound_token_tagger import CompoundTokenTagger
-from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
+from estnltk.converters import dict_to_layer
+from estnltk.taggers import ConllMorphTagger
 
 udpipe_dict = {
-    'name': 'udpipe',
+    'name': 'udpipe_syntax',
     'text': 'Nuriseti, et hääbuvale kultuurile rõhumine mõjus pigem masendavalt ega omanud seost etnofuturismiga .',
     'meta': {},
     'parent': 'conll_morph',
@@ -192,14 +190,14 @@ udpipe_dict = {
                                 'misc': '_'}]},
               ]}
 
-@pytest.mark.skipif(pkgutil.find_loader("ufal") is None,
-                    reason="package ufal.udpipe is required for this test")
+
 def test_udpipe_tagger():
     from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
-    text = Text('Nuriseti , et hääbuvale kultuurile rõhumine mõjus pigem masendavalt ega omanud seost etnofuturismiga .')
+    text = Text(
+        'Nuriseti , et hääbuvale kultuurile rõhumine mõjus pigem masendavalt ega omanud seost etnofuturismiga .')
     text.analyse('all')
     conll = ConllMorphTagger()
     conll.tag(text)
     tagger = UDPipeTagger()
     tagger.tag(text)
-    assert dict_to_layer(udpipe_dict) == text.udpipe, text.udpipe.diff(dict_to_layer(udpipe_dict))
+    assert dict_to_layer(udpipe_dict) == text.udpipe_syntax, text.udpipe.diff(dict_to_layer(udpipe_dict))
