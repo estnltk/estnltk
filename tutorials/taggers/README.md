@@ -6,6 +6,7 @@ EstNLTK has both application taggers (directly providing an application such as 
 
 ⚙️ Application taggers:
 
+* [NerTagger](ner_tagger.ipynb) provides named entity recognition for Estonian; 
 * [TimexTagger](temporal_expression_tagger.ipynb) provides tagging for dates and other temporal expressions (such as times, durations and recurrences) in general domain texts. Its analysis output is based on the TIMEX3 tag from [TimeML](https://en.wikipedia.org/wiki/TimeML).
 * [RobustDateNumberTagger](measurement_tagging.ipynb) wraps RegexTagger to tag dates and numbers. For medical domain texts.
 * [DateTagger](date_tagger.ipynb) yet another tagger for dates. For analysing medical domain texts. 
@@ -15,7 +16,7 @@ EstNLTK has both application taggers (directly providing an application such as 
 
 🛠️ System taggers:
 
-* [This tutorial](base_tagger.ipynb) gives basics about creating your own taggers.
+* [This tutorial](base_tagger.ipynb) gives basics about using Tagger interface and creating your own taggers.
 * [make_tagger_test](tagger_test_maker.ipynb) method helps to create test files for taggers.
 * [RegexTagger](regex_tagger.ipynb) tags matches of regular expressions on the text.
 * [PhraseTagger](phrase_tagger.ipynb) tags sequencial attribute values of a layer.
