@@ -1,11 +1,25 @@
 #
-#   Preprocessing: adapting to tokenization requirements of TimexTagger
+#  * CompoundTokenTagger adapted to tokenization requirements of TimexTagger
+#  * Resolver that contains TimexTagger's preprocessing
 # 
 
 import regex as re
 
 from estnltk.taggers.text_segmentation.compound_token_tagger import ALL_1ST_LEVEL_PATTERNS
 from estnltk.taggers.text_segmentation.compound_token_tagger import CompoundTokenTagger
+
+from estnltk.taggers import TokensTagger
+from estnltk.taggers import WordTagger
+from estnltk.taggers import SentenceTokenizer
+from estnltk.taggers import ParagraphTokenizer
+from estnltk.taggers import VabamorfTagger
+from estnltk.taggers import MorphExtendedTagger
+from estnltk.taggers import ClauseSegmenter    # Requires Java
+from estnltk.taggers import TimexTagger        # Requires Java
+
+from estnltk.resolve_layer_dag import Taggers, Resolver
+
+
 
 def make_adapted_cp_tagger():
     '''Creates a version of standard CompoundTokenTagger which patterns have 
@@ -51,3 +65,18 @@ def make_adapted_cp_tagger():
 
 # CompoundTokenTagger adapted to tokenization requirements of TimexTagger
 CP_TAGGER_ADAPTED = make_adapted_cp_tagger()
+
+
+def make_timexes_resolver():
+    '''Creates a resolver that contains TimexTagger along with 
+       all the necessary preprocessing steps.
+       Returns the resolver.
+    '''
+    taggers = Taggers([TokensTagger(), WordTagger(), CP_TAGGER_ADAPTED,
+                       SentenceTokenizer(), ParagraphTokenizer(),
+                       VabamorfTagger(),    MorphExtendedTagger(), 
+                       ClauseSegmenter(),   TimexTagger()])
+    return Resolver( taggers )
+
+TIMEXES_RESOLVER = make_timexes_resolver()
+
