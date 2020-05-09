@@ -25,36 +25,26 @@ class Synset:
       Underlying Synset object. Not intended to access directly.
     """
 
-    def __init__(self, wordnet, id):
-
-        '''if not isinstance(id, int):
-            self.wordnet = None
-            self.id = None
-            self.estwn_id = None
-            self.pos = None
-            self.sense = None
-            self.literal = None
-            self.name = None
-            return'''
-        if not isinstance(id, int):
-            raise SynsetException("invalid id type")
-        #if not isinstance(wordnet, estnltk.wordnet.wordnet.Wordnet):
-        #    raise SynsetException("invalid Wordnet type")
-
-
-        self.wordnet = wordnet
-        self.id = id
-        '''self.wordnet.cur.execute \
-            ("SELECT estwn_id, pos, sense, synset_name, literal FROM wordnet_entry WHERE id = ? LIMIT 1", (id,))
-        self.estwn_id, self.pos, self.sense, name, self.literal = self.wordnet.cur.fetchone()'''
-        self.wordnet.cur.execute \
-            ("SELECT estwn_id, pos, sense, synset_name, literal FROM wordnet_entry WHERE id = ?", (id,))
-        synsets = self.wordnet.cur.fetchall()
-        self.estwn_id, self.pos, self.sense, name, self.literal = synsets[0]
-        self.name = '{}.{}.{}'.format(name, self.pos, self.sense)
+    def __init__(self, wordnet, synset_info):
+        if isinstance(synset_info, int):
+            self.wordnet = wordnet
+            self.id = synset_info
+            self.wordnet.cur.execute \
+                ("SELECT estwn_id, pos, sense, synset_name, literal FROM wordnet_entry WHERE id = ?", (synset_info,))
+            self.estwn_id, self.pos, self.sense, name, self.literal = self.wordnet.cur.fetchall()[0]
+            self.wordnet.cur.execute("SELECT sense FROM wordnet_entry WHERE id = ? AND literal = ?", (self.id, name))
+            self.name = '{}.{}.{}'.format(name, self.pos, "%02d"%self.wordnet.cur.fetchall()[0][0])
+        else:
+            self.wordnet = wordnet
+            self.id = synset_info[0]
+            self.estwn_id = synset_info[2]
+            self.pos = synset_info[3]
+            self.sense = synset_info[4]
+            self.literal = synset_info[5]
+            self.name = '{}.{}.{}'.format(synset_info[1], self.pos, "%02d"%self.sense)
 
     def __eq__(self, other):
-        return self.wordnet == other.wordnet and self.id != None and self.id == other.id
+        return self.wordnet == other.wordnet and self.id is not None and self.id == other.id
 
     def get_related_synset(self, relation=None):
         '''Returns all relation names and start_vertex if relation not specified, else returns start_vertex of specified relation.
@@ -63,12 +53,21 @@ class Synset:
         synset_id : int
         relation  : str
         '''
+
         if self.wordnet is None:
             return []
         if relation is None:
             self.wordnet.cur.execute \
                 ('''SELECT start_vertex,relation FROM wordnet_relation WHERE end_vertex = '{}' '''.format(self.id))
-            return [(Synset(self.wordnet, row[0]), row[1]) for row in self.wordnet.cur.fetchall()]
+            related_synsets = []
+            for row in self.wordnet.cur.fetchall():
+                if row[0] in self.wordnet.synsets_dict:
+                    related_synsets.append((self.wordnet.synsets_dict[row[0]], row[1]))
+                else:
+                    ss = Synset(self.wordnet, row[0])
+                    related_synsets.append((ss, row[1]))
+                    self.wordnet.synsets_dict[row[0]] = ss
+            return related_synsets
         if relation:
             try:
                 relation.isalnum()
@@ -78,8 +77,15 @@ class Synset:
             self.wordnet.cur.execute \
                 ('''SELECT start_vertex FROM wordnet_relation WHERE end_vertex = '{}' AND relation = '{}' '''.format
                     (self.id, relation))
-            all = self.wordnet.cur.fetchall()
-            return [Synset(self.wordnet, row[0]) for row in all]
+            related_synsets = []
+            for row in self.wordnet.cur.fetchall():
+                if row[0] in self.wordnet.synsets_dict:
+                    related_synsets.append(self.wordnet.synsets_dict[row[0]])
+                else:
+                    ss = Synset(self.wordnet, row[0])
+                    related_synsets.append(ss)
+                    self.wordnet.synsets_dict[row[0]] = ss
+            return related_synsets
 
         return []
 
@@ -92,7 +98,7 @@ class Synset:
         relation : str
             Name of the relation which is recursively used to fetch the ancestors.
 
-        depth_treshold : int
+        depth_threshold : float
             Amount of recursive relations to yield. If left unchanged, then yields all recursive relations.
 
         return_depths : bool
@@ -109,7 +115,7 @@ class Synset:
             return
 
         node_stack = self.get_related_synset(relation)
-        depth_stack = [1 ] *len(node_stack)
+        depth_stack = [1] * len(node_stack)
 
         while len(node_stack):
             node = node_stack.pop()
@@ -241,7 +247,7 @@ class Synset:
         """
         #parser = eurown.Parser()
         #return '\n'.join([variant.gloss for variant in self.estwn_id.variants if variant.gloss])
-        raise NotImplementedError("synset definition not implemented")
+        raise NotImplementedError("Synset definition not implemented")
 
     def lemmas(self):
         """Returns the synset's lemmas/variants' literal represantions.
@@ -277,7 +283,6 @@ class Synset:
 
         if self.wordnet.graph is None:
             self.wordnet.cur.execute("SELECT * FROM wordnet_entry")
-            #entries = self.wordnet.cur.fetchall()
             self.wordnet.cur.execute("SELECT * FROM wordnet_relation")
             relations = self.wordnet.cur.fetchall()
             self.wordnet.graph = nx.DiGraph()
@@ -292,32 +297,6 @@ class Synset:
 
         if target_synset in self.__dict__["distances"]:
             return self.__dict__["distances"][target_synset]
-
-        '''distance = 0
-        visited = set()
-        neighbor_synsets = set([self])
-
-        while len(neighbor_synsets) > 0:
-            neighbor_synsets_next_level = set()
-
-            for synset in neighbor_synsets:
-                if synset in visited:
-                    continue
-
-                if synset == target_synset:
-                    self.__dict__["distances"][target_synset] = distance
-                    target_synset.__dict__["distances"][self] = distance
-                    return distance
-                neighbor_synsets_next_level |= set(synset.hypernyms())
-                neighbor_synsets_next_level |= set(synset.hyponyms())
-                visited.add(synset)
-            distance += 1
-            neighbor_synsets = set(neighbor_synsets_next_level)
-
-        self.__dict__["distances"][target_synset] = -1
-        target_synset.__dict__["distances"][self] = -1
-
-        return -1'''
 
         distance = 0
         visited = set()

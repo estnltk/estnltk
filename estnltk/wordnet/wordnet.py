@@ -17,6 +17,8 @@ class Wordnet:
         self.cur = None
         self.version = version
         self.graph = None
+        self.synsets_dict = dict()
+        self.loaded_pos = set()
 
         wn_dir = '{}/data/estwn_kb{}'.format(os.path.dirname(os.path.abspath(__file__)), self.version)
         wn_entry = '{}/wordnet_entry.db'.format(wn_dir)
@@ -43,36 +45,45 @@ class Wordnet:
     def __del__(self):
         self.conn.close()
 
-    '''def get_synset(self, synset_name, pos, sense):
-        with self.conn:
-            if pos:
-                self.cur.execute("SELECT id FROM wordnet_entry WHERE pos = ? AND sense = ? AND synset_name = ? LIMIT 1",
-                                 (pos, sense, synset_name))
-                synset_id = self.cur.fetchone()
-                if synset_id is not None:
-                    return Synset(self, synset_id[0])
-                else:
-                    return
-            else:
-                return'''
-
     def __getitem__(self, key):
         if isinstance(key, tuple) and len(key) == 2:
             if isinstance(key[1], int):
                 synset_name, id = key
-                self.cur.execute("SELECT id FROM wordnet_entry WHERE synset_name = ?", (synset_name,))
-                synset_id = []
-                for ss_id in self.cur.fetchall():
-                    if ss_id not in synset_id:
-                        synset_id.append(ss_id)
-                if synset_id is not None and id <= len(synset_id):
-                    return Synset(self, synset_id[id - 1][0])
+                #self.cur.execute("SELECT * FROM wordnet_entry WHERE literal = ?", (synset_name,))
+                self.cur.execute("SELECT id FROM wordnet_entry WHERE literal = ?", (synset_name,))
+                synsets = self.cur.fetchall()
+                if synsets is not None and id <= len(synsets) and id - 1 >= 0:
+                    #return Synset(self, synsets[id - 1])
+                    return Synset(self, synsets[id - 1][0])
             else:
                 synset_name, pos = key
-                self.cur.execute("SELECT id FROM wordnet_entry WHERE synset_name = ? AND pos = ?", (synset_name, pos))
+                #self.cur.execute("SELECT * FROM wordnet_entry WHERE literal = ? AND pos = ?", (synset_name, pos))
+                self.cur.execute("SELECT id FROM wordnet_entry WHERE literal = ? AND pos = ?", (synset_name, pos))
         else:
-            self.cur.execute("SELECT id FROM wordnet_entry WHERE synset_name = ?", (key,))
-        synset_id = set(self.cur.fetchall())
-        if synset_id is not None:
-            return [Synset(self, id[0]) for id in synset_id]
+            #self.cur.execute("SELECT * FROM wordnet_entry WHERE literal = ?", (key,))
+            self.cur.execute("SELECT id FROM wordnet_entry WHERE literal = ?", (key,))
+        synsets = self.cur.fetchall()
+        if synsets is not None:
+            #return [Synset(self, entry) for entry in synsets]
+            return [Synset(self, entry[0]) for entry in synsets]
         return
+
+    def all_synsets(self, pos=None):
+        if pos is None:
+            self.cur.execute("SELECT * FROM wordnet_entry GROUP BY id HAVING MIN(ROWID)")
+            synset_entries = self.cur.fetchall()
+        else:
+            self.cur.execute("SELECT * FROM wordnet_entry WHERE pos = ? GROUP BY id HAVING MIN(ROWID)", (pos,))
+            synset_entries = self.cur.fetchall()
+
+        synsets = []
+
+        for row in synset_entries:
+            if row[0] in self.synsets_dict:
+                synsets.append(self.synsets_dict[row[0]])
+            else:
+                ss = Synset(self, row)
+                synsets.append(ss)
+                self.synsets_dict[row[0]] = ss
+
+        return synsets
