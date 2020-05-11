@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pytest
 import pkgutil
-
+from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import check_if_udpipe_is_in_path
 from estnltk import Text
 from estnltk.converters import dict_to_layer
 from estnltk.taggers import ConllMorphTagger
@@ -192,7 +192,8 @@ udpipe_dict = {
                                 'misc': '_'}]},
               ]}
 
-
+@pytest.mark.skipif(not check_if_udpipe_is_in_path('udpipe'),
+                    reason="a directory containing udpipe executable must be inside the system PATH")
 def test_udpipe_tagger():
     from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
     text = Text(
