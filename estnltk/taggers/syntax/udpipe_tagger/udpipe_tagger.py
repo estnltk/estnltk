@@ -1,3 +1,7 @@
+from collections import OrderedDict
+
+from conllu.parser import parse_nullable_value
+
 from estnltk.layer.base_span import ElementaryBaseSpan
 from estnltk.core import PACKAGE_PATH
 from estnltk.layer.layer import Layer
@@ -9,13 +13,32 @@ import os
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'udpipe_tagger', 'resources')
 
+
+def check_if_udpipe_is_in_path(udpipe_cmd: str):
+    ''' Checks whether given udpipe is in system's PATH. Returns True, there is
+        a file with given name (udpipe_cmd) in the PATH, otherwise returns False;
+
+        The idea borrows from:  http://stackoverflow.com/a/377028
+    '''
+    if os.getenv("PATH") == None:
+        return False
+
+    for path in os.environ["PATH"].split(os.pathsep):
+        path1 = path.strip('"')
+        file1 = os.path.join(path1, udpipe_cmd)
+        if os.path.isfile(file1) or os.path.isfile(file1 + '.exe'):
+            return True
+    return False
+
+
 class UDPipeTagger(Tagger):
     """
     Input layers should be sentences and conll_morph. Conll_morph can be replaced with something similar.
     Version should be conllx or conllu. Different UDPipe model is used with either version, otherwise the
     output does not make sense.
     """
-    conf_param = ['model', 'version', 'udpipe_path', 'add_parent_and_children', 'syntax_dependency_retagger', 'output_attributes']
+    conf_param = ['model', 'version', 'add_parent_and_children', 'syntax_dependency_retagger',
+                  'output_attributes', 'udpipe_cmd']
 
     def __init__(self,
                  model=None,
@@ -23,17 +46,21 @@ class UDPipeTagger(Tagger):
                  input_layers=None,
                  input_syntax_layer='conll_morph',
                  version=None,
-                 udpipe_path=None,
                  output_attributes=None,
-                 add_parent_and_children=False):
-
+                 add_parent_and_children=False,
+                 udpipe_cmd=None):
 
         if input_layers is None:
             input_layers = ['sentences', input_syntax_layer]
+
+        if udpipe_cmd is None:
+            self.udpipe_cmd = 'udpipe'
+        else:
+            self.udpipe_cmd = udpipe_cmd
+
         if version is None:
             version = 'conllx'
-        if udpipe_path is None:
-            udpipe_path = RESOURCES + '\\udpipe'
+
         if output_attributes is None:
             output_attributes = ('id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         if model is None:
@@ -52,18 +79,29 @@ class UDPipeTagger(Tagger):
             self.output_attributes += ('parent_span', 'children')
         else:
             self.syntax_dependency_retagger = None
-        self.udpipe_path = udpipe_path
+
         self.output_layer = output_layer
         self.input_layers = input_layers
 
         self.version = version
 
+        # Check for existence of udpipe executable
+        if not os.path.exists(self.udpipe_cmd):
+            # If the full path is not accessible, check whether the command is in PATH
+            if not check_if_udpipe_is_in_path(self.udpipe_cmd):
+                msg = " Could not find UDPipe executable: " + str(self.udpipe_cmd) + "!\n" + \
+                      " Please make sure that UDPipe is installed in your system and\n" + \
+                      " available from system's PATH variable. Alternatively, you can\n" + \
+                      " provide the location of UDPipe executable via the input\n" + \
+                      " argument 'udpipe_cmd'. ";
+                raise Exception(msg)
+
     def _make_layer(self, text, layers, status=None):
-        conllu_string = sentence_to_conll(text.sentences[0], text[self.input_layers[1]]).encode()
+        conllu_string = sentence_to_conll(layers[self.input_layers[0]][0], layers[self.input_layers[1]]).encode()
 
         layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes, ambiguous=True,
                       parent=self.input_layers[1])
-        cmd = "%s --parse %s" % (self.udpipe_path, self.model)
+        cmd = "%s --parse %s" % (self.udpipe_cmd, self.model)
 
         process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         process.stdin.write(conllu_string)
@@ -84,6 +122,10 @@ class UDPipeTagger(Tagger):
             deps = line[8]
             misc = line[9]
             span = ElementaryBaseSpan(start, start + len(form))
+            feats = OrderedDict([
+                (part.split("=")[0], parse_nullable_value(part.split("=")[1]) if "=" in part else "")
+                for part in feats.split("|") if parse_nullable_value(part.split("=")[0]) is not None
+            ])
             attributes = {'id': ID, 'form': form, 'lemma': lemma, 'upostag': upostag, 'xpostag': xpostag,
                           'feats': feats, 'head': head, 'deprel': deprel, 'deps': deps, 'misc': misc}
             layer.add_annotation(span, **attributes)
