@@ -127,7 +127,7 @@ VM_VERB_FORMS = {
 }
 
 
-class VabamorfEstCatNames(Tagger):
+class VabamorfEstCatConverter(Tagger):
     """Converts Vabamorf's morphological analysis category names to Estonian (for educational purposes).
        Purpose: only to increase human-readability & ease manual inspection.
        Automatic analysis should not be built upon this format.

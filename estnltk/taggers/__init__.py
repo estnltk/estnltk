@@ -34,7 +34,7 @@ from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.userdict_tagger import UserDictTagger
 from estnltk.taggers.morph_analysis.vm_analysis_reorderer import MorphAnalysisReorderer
-from estnltk.taggers.morph_analysis.vm_est_cat_names import VabamorfEstCatNames
+from estnltk.taggers.morph_analysis.vm_est_cat_names import VabamorfEstCatConverter
 
 from estnltk.taggers.morph_analysis.vm_spellcheck import SpellCheckRetagger
 
