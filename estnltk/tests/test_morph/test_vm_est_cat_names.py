@@ -8,7 +8,7 @@ from estnltk.converters import dict_to_layer, layer_to_dict
 
 # ----------------------------------
 
-def test_converting_vm_category_names_for_estonian():
+def test_converting_vm_category_names_to_estonian():
     # Test: converting Vabamorf's category names to Estonian
     #       (for educational purposes)
     # Case 1
@@ -88,7 +88,7 @@ def test_converting_vm_category_names_for_estonian():
 
 # ----------------------------------
 
-def test_converting_vm_category_names_for_estonian_with_empty_annotations():
+def test_converting_vm_category_names_to_estonian_with_empty_annotations():
     # Test: converting Vabamorf's category names to Estonian 
     #       (annotations can include empty ones)
     # Case 1
