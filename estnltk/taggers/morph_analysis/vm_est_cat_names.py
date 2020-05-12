@@ -2,7 +2,7 @@
 #  Converts Vabamorf's category names to Estonian
 #
 #  Purpose: only to increase human-readability & ease manual 
-#  inspection, but automatic analysis should not be built upon 
+#  inspection.  Automatic  analysis should not be built upon 
 #  this format.
 # 
 
@@ -13,8 +13,10 @@ from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 # ==============================================================
-#    Category name translations
-#    ( https://filosoft.ee/html_morf_et/morfoutinfo.html )
+#    Category name translations from:
+#     https://filosoft.ee/html_morf_et/morfoutinfo.html 
+#    and from:
+#     https://github.com/estnltk/estnltk/blob/11873a7b3336609007ed208bb40fc73984140d80/estnltk/core.py#L36
 # ==============================================================
 
 VM_POSTAGS = {
@@ -125,12 +127,12 @@ VM_VERB_FORMS = {
 }
 
 
-class VabamorfEstCategories(Tagger):
+class VabamorfEstCatNames(Tagger):
     """Converts Vabamorf's morphological analysis category names to Estonian (for educational purposes).
-       Purpose: only to increase human-readability & ease manual inspection, 
-                but automatic analysis should not be built upon this format.
+       Purpose: only to increase human-readability & ease manual inspection.
+       Automatic analysis should not be built upon this format.
     """
-    output_attributes = ('normaliseeritud_sõne', 'lemma', 'lõpp', 'sõnaliik', 'vormitunnused', 'kliitik')
+    output_attributes = ('normaliseeritud_sõne', 'algvorm', 'lõpp', 'sõnaliik', 'vormi_nimetus', 'kliitik')
     conf_param = []
     input_layers = ['morph_analysis']
     output_layer = 'morph_analysis_est'
@@ -138,7 +140,7 @@ class VabamorfEstCategories(Tagger):
     def __init__(self,
                  output_layer='morph_analysis_est',
                  input_morph_analysis_layer='morph_analysis'):
-        """Initialize VabamorfEstCategories class.
+        """Initialize VabamorfEstCatNames class.
         
         Parameters
         ----------
@@ -180,19 +182,19 @@ class VabamorfEstCategories(Tagger):
                 for annotation in morph_span.annotations:
                     record = {}
                     record['normaliseeritud_sõne'] = annotation['normalized_text']
-                    record['lemma'] = annotation['lemma']
+                    record['algvorm'] = annotation['lemma']
                     record['lõpp'] = annotation['ending']
                     record['sõnaliik'] = VM_POSTAGS.get(annotation['partofspeech'], '??')
-                    record['vormitunnused'] = '??'
+                    record['vormi_nimetus'] = '??'
                     if annotation['partofspeech'] == 'V':
-                        record['vormitunnused'] = VM_VERB_FORMS.get(annotation['form'], '??')
+                        record['vormi_nimetus'] = VM_VERB_FORMS.get(annotation['form'], '??')
                     elif 'sg ' in annotation['form'] or 'pl ' in annotation['form']:
                         number, case = annotation['form'].split()
-                        record['vormitunnused'] = VM_NUMBER.get(number, '??')+' '+VM_NOM_CASES.get(case, '??')
+                        record['vormi_nimetus'] = VM_NUMBER.get(number, '??')+' '+VM_NOM_CASES.get(case, '??')
                     elif 'adt' == annotation['form']:
-                        record['vormitunnused'] = VM_NOM_CASES.get(annotation['form'], '??')
+                        record['vormi_nimetus'] = VM_NOM_CASES.get(annotation['form'], '??')
                     elif annotation['form'] == '':
-                        record['vormitunnused'] = ''
+                        record['vormi_nimetus'] = ''
                     record['kliitik'] = annotation['clitic']
                     translated_morph_layer.add_annotation(morph_span.base_span, **record)
             else:
