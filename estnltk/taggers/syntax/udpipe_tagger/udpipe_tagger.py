@@ -1,7 +1,7 @@
+import os
+from os import linesep as OS_NEWLINE
 from collections import OrderedDict
-
 from conllu.parser import parse_nullable_value
-
 from estnltk.layer.base_span import ElementaryBaseSpan
 from estnltk.core import PACKAGE_PATH
 from estnltk.layer.layer import Layer
@@ -9,7 +9,6 @@ from estnltk.taggers import Tagger
 from estnltk.taggers import SyntaxDependencyRetagger
 from estnltk.converters.conll_exporter import sentence_to_conll
 import subprocess
-import os
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'udpipe_tagger', 'resources')
 
@@ -33,9 +32,7 @@ def check_if_udpipe_is_in_path(udpipe_cmd: str):
 
 class UDPipeTagger(Tagger):
     """
-    Input layers should be sentences and conll_morph. Conll_morph can be replaced with something similar.
-    Version should be conllx or conllu. Different UDPipe model is used with either version, otherwise the
-    output does not make sense.
+    Tags dependency syntactic analysis with UDPipe.
     """
     conf_param = ['model', 'version', 'add_parent_and_children', 'syntax_dependency_retagger',
                   'output_attributes', 'udpipe_cmd']
@@ -65,9 +62,9 @@ class UDPipeTagger(Tagger):
             output_attributes = ('id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         if model is None:
             if version == 'conllx':
-                model = RESOURCES + '\\model_0.output'
+                model = os.path.join(RESOURCES, 'model_0.output')
             elif version == 'conllu':
-                model = RESOURCES + '\\model_1.output'
+                model = os.path.join(RESOURCES, 'model_1.output')
             else:
                 raise Exception('Version should be conllu or conllx. ')
 
@@ -103,13 +100,13 @@ class UDPipeTagger(Tagger):
                       parent=self.input_layers[1])
         cmd = "%s --parse %s" % (self.udpipe_cmd, self.model)
 
-        process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
         process.stdin.write(conllu_string)
         result = process.communicate()[0].decode().strip()
         process.stdin.close()
 
         start = 0
-        for line in result.split('\r\n'):
+        for line in result.split(OS_NEWLINE):
             line = line.split('\t')
             ID = line[0]
             form = line[1]
