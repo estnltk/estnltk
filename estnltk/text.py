@@ -24,6 +24,19 @@ class Text:
         'tag_layer'
     } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
+    # Quick hack to get going
+    attribute_layer_mapping = {
+        0: {
+        'lemma': 'morph_analysis',
+        'root': 'morph_analysis',
+        'root_tokens': 'morph_analysis',
+        'ending': 'morph_analysis',
+        'clitic': 'morph_analysis',
+        'form': 'morph_analysis',
+        'partofspeech': 'morph_analysis'
+        }
+    }
+
     # attribute_mapping_for_elementary_layers: Mapping[str, str]
     attribute_mapping_for_elementary_layers = {
         'lemma': 'morph_analysis',
@@ -381,5 +394,11 @@ class Text:
             return '\n'.join((table, layer_table))
         return table
 
+    # Quick hack to get going
+    def get(self, item, default=None):
+        if item in self.layers:
+            return self[item]
+        else:
+            return default
 
 from .resolve_layer_dag import DEFAULT_RESOLVER

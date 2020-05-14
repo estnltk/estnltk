@@ -144,21 +144,28 @@ class Span:
             raise AttributeError(
                 "unable to resolve attribute {!r} as the layer is not attached to a text.".format(item))
 
-        # Return span if the attribute is legitimate layer name.
+        # Return span if the attribute is legitimate layer name and contains base spans with the same level
+        level = self.base_span.level
         if item in text.layers:
-            # TODO: there are some additional checks
+            target_layer = text[item]
+            if target_layer.level == level:
+                return target_layer.get(self.base_span)
 
-            return text[item].get(self.base_span)
+        # Look if there is a dedicated layer in the same level that contains the attribute name to be resolved
+        # The corresponding mapping is defined on text level and could potentially be different for different texts
+        mapping = text.attribute_layer_mapping.get(level)
+        if mapping is not None:
+            target_layer = text.get(mapping.get(item))
+            if target_layer is not None:
+                return target_layer.get(self.base_span)
 
-            # if len(target_layer) == 0:
-            #     return
-            #
-            # if target_layer[0].base_span.level >= self.base_span.level:
-            #     raise AttributeError('target layer level {} should be lower than {}'.format(
-            #         target_layer[0].base_span.level, self.base_span.level))
-            #
-            # return target_layer.get(self.base_span)
+        # Abort as there are no more straws to draw
+        raise AttributeError("unresolvable attribute {!r}".format(item))
 
+
+        # As there
+        #
+        # which layer with the same level
         # Choose the correct lookup table according to the base span level
         if self.base_span.level == 0:
             target_layer = text.attribute_mapping_for_elementary_layers[item]

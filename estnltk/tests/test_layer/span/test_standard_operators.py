@@ -243,7 +243,7 @@ def test_copy_constructors():
 def test_attribute_assignment_and_access():
     # A layer attribute of a normal span in a non-ambiguous layer
     span = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['a', 'b', 'c'], ambiguous=False))
-    # No annotations should lead None values
+    # No annotations should lead to None values
     assert span.a is None and span.b is None and span.c is None
     assert hasattr(span, 'a') and hasattr(span, 'b') and hasattr(span, 'c')
     # Non-existing layer attribute of a normal span in a non-ambiguous layer
@@ -263,7 +263,7 @@ def test_attribute_assignment_and_access():
 
     # A layer attribute of a normal span in an ambiguous layer
     span = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['a', 'b', 'c'], ambiguous=True))
-    # The output format is different even for missing annotation
+    # The output format is a list even for missing annotation
     assert span.a == AttributeList([], 'a')
     assert span.b == AttributeList([], 'b')
     assert span.c == AttributeList([], 'c')
@@ -273,7 +273,7 @@ def test_attribute_assignment_and_access():
     error = "unable to resolve attribute 'missing_layer_attribute' as the layer is not attached to a text."
     with pytest.raises(AttributeError, match=error):
         _ = span.missing_layer_attribute
-    # The output format is different even for a unique attribute value
+    # The output format is a list even for a unique attribute value
     span.add_annotation(Annotation(span, a=0, b='1', c=dict(a=1, b=2)))
     assert span.a == AttributeList([0], 'a')
     assert span.b == AttributeList(['1'], 'b')
@@ -309,12 +309,12 @@ def test_attribute_assignment_and_access():
     with pytest.raises(AttributeError, match=error):
         _ = span.missing_layer_attribute
 
-    # Attribute resolving leads to a missing layer attribute for a non-ambiguous layer
+    # Attribute resolving leads to a missing layer attribute for a non-ambiguous layer. Result is None
     span = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['a', 'b', 'c']))
     span.annotations.append(Annotation(span, a=1, b=2))  # TODO: Replace this with correct API call
     assert span.c is None
 
-    # Attribute resolving leads to a missing layer attribute for an ambiguous layer
+    # Attribute resolving leads to a missing layer attribute for an ambiguous layer. Result is list of Nones
     span = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['a', 'b', 'c'], ambiguous=True))
     span.annotations.append(Annotation(span, a=1, b=2))  # TODO: Replace this with correct API call
     span.annotations.append(Annotation(span, a=3, b=4))  # TODO: Replace this with correct API call
@@ -326,15 +326,55 @@ def test_attribute_assignment_and_access():
     with pytest.raises(AttributeError, match=error):
         _ = span.missing_layer_attribute
 
-    # Attribute is resolved as layer in the text. Layer attribute always wins in case of conflicts
+    # Attribute is resolved as layer in the text. Behaviour on non-ambiguous layers
+    # Layer attribute must always shadow existing layers with the same name.
     text = Text('Test text')
+    layer_b = Layer('b', attributes=['a', 'b'], text_object=text, ambiguous=False)
+    layer_b.add_annotation(ElementaryBaseSpan(0, 1), a='b', b='b')
+    text.add_layer(layer_b)
+    layer_c = Layer('c', attributes=['a', 'b'], text_object=text, ambiguous=False)
+    layer_c.add_annotation(ElementaryBaseSpan(0, 1), a='c', b='c')
+    text.add_layer(layer_c)
     layer = Layer('test', attributes=['a', 'b'], text_object=text, ambiguous=False)
     span = Span(ElementaryBaseSpan(0, 1), layer=layer)
-    # Attribute resolving if annotations are missing. Layer attributes win
-    print(span.a)
-    assert False
+    # Attribute resolving if annotations are missing. All layer attributes win
+    assert span.a is None
+    assert span.b is None
+    assert span.c is layer_c[0] and span.c.a == 'c' and span.c.b == 'c'
+    # Attribute resolving for sparse annotation. All layer attributes win
+    span.annotations.append(Annotation(span, a=1))  # TODO: Replace this with correct API call
+    assert span.a == 1
+    assert span.b is None
+    assert span.c is layer_c[0] and span.c.a == 'c' and span.c.b == 'c'
+
+    # Attribute is resolved as layer in the text. Behaviour on ambiguous layers
+    # Layer attribute must always shadow existing layers with the same name.
+    text = Text('Test text')
+    layer_b = Layer('b', attributes=['a', 'b'], text_object=text, ambiguous=False)
+    layer_b.add_annotation(ElementaryBaseSpan(0, 1), a='b', b='b')
+    text.add_layer(layer_b)
+    layer_c = Layer('c', attributes=['a', 'b'], text_object=text, ambiguous=False)
+    layer_c.add_annotation(ElementaryBaseSpan(0, 1), a='c', b='c')
+    text.add_layer(layer_c)
+    layer = Layer('test', attributes=['a', 'b'], text_object=text, ambiguous=True)
+    span = Span(ElementaryBaseSpan(0, 1), layer=layer)
+    # Attribute resolving if annotations are missing. All layer attributes win
+    assert span.a == AttributeList([], 'a')
+    assert span.b == AttributeList([], 'b')
+    assert span.c is layer_c[0] and span.c.a == 'c' and span.c.b == 'c'
+    # Attribute resolving for sparse annotation. All layer attributes win
+    span.annotations.append(Annotation(span, a=1))  # TODO: Replace this with correct API call
+    assert span.a == AttributeList([1], 'a')
+    assert span.b == AttributeList([None], 'b')
+    assert span.c is layer_c[0] and span.c.a == 'c' and span.c.b == 'c'
+    span.annotations.append(Annotation(span, a=2, b=2))  # TODO: Replace this with correct API call
+    assert span.a == AttributeList([1,2], 'a')
+    assert span.b == AttributeList([None, 2], 'b')
+    assert span.c is layer_c[0] and span.c.a == 'c' and span.c.b == 'c'
 
 
+
+    assert span.b is layer_b[0]
 
     layer = Layer('test_layer')
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)

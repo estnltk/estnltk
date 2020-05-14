@@ -646,5 +646,12 @@ class Layer:
     def __eq__(self, other):
         return self.diff(other) is None
 
+    @property
+    def level(self):
+        if len(self) == 0:
+            return None
+        else:
+            return self[0].base_span.level
+
 
 import estnltk.layer_operations as layer_operations
