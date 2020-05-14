@@ -1,10 +1,12 @@
+import os
+import re
+from typing import MutableMapping
 from estnltk.taggers import Tagger
+from estnltk.text import Text
 from estnltk.layer.layer import Layer
 from estnltk.converters.CG3_exporter import export_CG3
 from estnltk.taggers.syntax.vislcg3_syntax import VISLCG3Pipeline, convert_cg3_to_conll
 from estnltk.core import abs_path
-import os
-import re
 
 
 class ConllMorphTagger(Tagger):
@@ -13,52 +15,50 @@ class ConllMorphTagger(Tagger):
     conf_param = []
 
     def __init__(self, output_layer: str = 'conll_morph', morph_extended_layer: str = 'morph_extended'):
-        self.input_layers = [morph_extended_layer]
+        self.input_layers = ['sentences', morph_extended_layer]
         self.output_layer = output_layer
-        self.output_attributes = ['id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc']
+        self.output_attributes = ['id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps',
+                                  'misc']
 
-    def _make_layer(self, text, layers, status):
-        morph_extended_layer = layers[self.input_layers[0]]
+    def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
+        morph_extended_layer = layers[self.input_layers[1]]
 
         layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
                       parent=morph_extended_layer.name, ambiguous=True)
-
+        values_all = get_values(text, self.input_layers[1])
         for i, span in enumerate(morph_extended_layer):
-            for annotation in span.annotations:
-                values = get_values(i, text)
-                xpostag = create_xpostag(values[3], values[5])
-                feats = fix_feats(xpostag, values[2], values[5])
-                layer.add_annotation(span,
-                                     id=values[0],
-                                     form=values[1],
-                                     lemma=values[2],
-                                     upostag=values[3],
-                                     xpostag=xpostag,
-                                     feats=feats,
-                                     head='_',
-                                     deprel='_',
-                                     deps='_',
-                                     misc='_'
-                )
-                if values[3] == annotation.partofspeech:
-                    break
+            values = values_all.get(i)
+            xpostag = create_xpostag(values[3], values[5])
+            feats = fix_feats(xpostag, values[2], values[5])
+            layer.add_annotation(span,
+                                 id=values[0],
+                                 form=values[1],
+                                 lemma=values[2],
+                                 upostag=values[3],
+                                 xpostag=xpostag,
+                                 feats=feats,
+                                 head='_',
+                                 deprel='_',
+                                 deps='_',
+                                 misc='_'
+                                 )
+
         return layer
 
 
-def get_values(id, text):
-    text.analyse('syntax_preprocessing')
-    res1 = export_CG3(text)
+def get_values(text: Text, morph_layer: str) -> dict:
+    result_string = export_CG3(text, morph_layer=morph_layer)
     vislcgRulesDir = abs_path('taggers/syntax/files')
-    pipeline2 = VISLCG3Pipeline(rules_dir=vislcgRulesDir)
-    results2 = pipeline2.process_lines(res1)
-    for j, word in enumerate(list(filter(None, convert_cg3_to_conll(results2.split('\n'))))):
-        if word != '':
-            if id+1 == j+1:
-                values = word.split('\t')
-                return (values)
+    pipeline = VISLCG3Pipeline(rules_dir=vislcgRulesDir)
+    results = pipeline.process_lines(result_string)
+    values = {}
+    for j, word in enumerate(list(filter(None, convert_cg3_to_conll(results.split('\n'))))):
+        if word:
+            values[j] = (word.split('\t'))
+    return values
 
 
-def create_xpostag(upostag, feats):
+def create_xpostag(upostag: str, feats: str) -> str:
     xpostag = upostag
     if upostag == 'S' and 'prop' in feats:
         return 'H'
@@ -94,7 +94,7 @@ def create_xpostag(upostag, feats):
     return xpostag
 
 
-def fix_feats(xpostag, lemma, feats):
+def fix_feats(xpostag: str, lemma: str, feats: str) -> str:
     if xpostag == 'D':
         feats = '_'
     if xpostag == 'A':
@@ -115,6 +115,5 @@ def fix_feats(xpostag, lemma, feats):
     feats = re.sub('^\|', '', re.sub('\|+$', '', feats))
     if feats == '':
         return '_'
-
     else:
         return feats

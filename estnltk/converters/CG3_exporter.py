@@ -18,7 +18,7 @@ def _is_partic_suffix(suffix):
     return suffix in {'tud', 'nud', 'v', 'tav', 'mata'}
 
 
-def export_CG3(text):
+def export_CG3(text, morph_layer='morph_extended'):
     """Converts text with morph_extended layer to cg3 input format.
 
         Returns
@@ -27,7 +27,7 @@ def export_CG3(text):
 
     """
     assert 'sentences' in text.layers, 'sentences layer required'
-    assert 'morph_extended' in text.layers, 'morph_extended layer required'
+    assert morph_layer in text.layers, 'morph_extended or equivalent layer required'
 
     morph_lines = []
     word_index = -1
@@ -36,7 +36,7 @@ def export_CG3(text):
         for word in sentence.words:
             word_index += 1
             morph_lines.append('"<' + _esc_double_quotes(word.text) + '>"')
-            for morph_extended in text.morph_extended[word_index].annotations:
+            for morph_extended in text[morph_layer][word_index].annotations:
                 form_list = [morph_extended.partofspeech]
                 if morph_extended.pronoun_type:
                     form_list.extend(_insert_pers(morph_extended.pronoun_type))
