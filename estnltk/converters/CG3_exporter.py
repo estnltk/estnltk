@@ -18,7 +18,7 @@ def _is_partic_suffix(suffix):
     return suffix in {'tud', 'nud', 'v', 'tav', 'mata'}
 
 
-def export_CG3(text, morph_layer='morph_extended'):
+def export_CG3(text, sentences_layer: str = 'sentences', morph_layer: str = 'morph_extended'):
     """Converts text with morph_extended layer to cg3 input format.
 
         Returns
@@ -26,7 +26,7 @@ def export_CG3(text, morph_layer='morph_extended'):
             A list of strings in the VISL CG3 input format.
 
     """
-    assert 'sentences' in text.layers, 'sentences layer required'
+    assert sentences_layer in text.layers, 'sentences layer required'
     assert morph_layer in text.layers, 'morph_extended or equivalent layer required'
 
     morph_lines = []

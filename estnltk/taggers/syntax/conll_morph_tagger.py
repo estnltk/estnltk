@@ -1,4 +1,3 @@
-import os
 import re
 from typing import MutableMapping
 from estnltk.taggers import Tagger
@@ -14,8 +13,9 @@ class ConllMorphTagger(Tagger):
 
     conf_param = []
 
-    def __init__(self, output_layer: str = 'conll_morph', morph_extended_layer: str = 'morph_extended'):
-        self.input_layers = ['sentences', morph_extended_layer]
+    def __init__(self, output_layer: str = 'conll_syntax', morph_extended_layer: str = 'morph_extended',
+                 sentences_layer: str = 'sentences'):
+        self.input_layers = [sentences_layer, morph_extended_layer]
         self.output_layer = output_layer
         self.output_attributes = ['id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps',
                                   'misc']
