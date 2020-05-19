@@ -13,7 +13,7 @@ class ConllMorphTagger(Tagger):
 
     conf_param = []
 
-    def __init__(self, output_layer: str = 'conll_syntax', morph_extended_layer: str = 'morph_extended',
+    def __init__(self, output_layer: str = 'conll_morph', morph_extended_layer: str = 'morph_extended',
                  sentences_layer: str = 'sentences'):
         self.input_layers = [sentences_layer, morph_extended_layer]
         self.output_layer = output_layer
@@ -25,7 +25,8 @@ class ConllMorphTagger(Tagger):
 
         layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
                       parent=morph_extended_layer.name, ambiguous=True)
-        values_all = get_values(text, self.input_layers[1])
+        values_all = get_values(text=text, morph_layer=self.input_layers[1],
+                                sentences_layer=self.input_layers[0])
         for i, span in enumerate(morph_extended_layer):
             values = values_all.get(i)
             xpostag = create_xpostag(values[3], values[5])
@@ -46,8 +47,8 @@ class ConllMorphTagger(Tagger):
         return layer
 
 
-def get_values(text: Text, morph_layer: str) -> dict:
-    result_string = export_CG3(text, morph_layer=morph_layer)
+def get_values(text: Text, morph_layer: str, sentences_layer: str) -> dict:
+    result_string = export_CG3(text, sentences_layer=sentences_layer, morph_layer=morph_layer)
     vislcgRulesDir = abs_path('taggers/syntax/files')
     pipeline = VISLCG3Pipeline(rules_dir=vislcgRulesDir)
     results = pipeline.process_lines(result_string)

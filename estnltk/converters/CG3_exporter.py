@@ -18,7 +18,8 @@ def _is_partic_suffix(suffix):
     return suffix in {'tud', 'nud', 'v', 'tav', 'mata'}
 
 
-def export_CG3(text, sentences_layer: str = 'sentences', morph_layer: str = 'morph_extended'):
+def export_CG3(text, sentences_layer: str = 'sentences',
+               morph_layer: str = 'morph_extended'):
     """Converts text with morph_extended layer to cg3 input format.
 
         Returns
@@ -31,9 +32,9 @@ def export_CG3(text, sentences_layer: str = 'sentences', morph_layer: str = 'mor
 
     morph_lines = []
     word_index = -1
-    for sentence in text.sentences:
+    for sentence in text[sentences_layer]:
         morph_lines.append('"<s>"')
-        for word in sentence.words:
+        for word in sentence:
             word_index += 1
             morph_lines.append('"<' + _esc_double_quotes(word.text) + '>"')
             for morph_extended in text[morph_layer][word_index].annotations:
