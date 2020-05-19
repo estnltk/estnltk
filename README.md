@@ -8,7 +8,7 @@ The project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](https://
 
 Currently, there are two branches of EstNLTK:
 
-* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.4beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). It contains basic analysis tools up to morphological analysis and syntactic parsing, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions are 3.5 and 3.6. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
+* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.5beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). It contains basic analysis tools up to morphological analysis and syntactic parsing, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions are 3.5 and 3.6. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
   
 * version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4, 3.5 and 2.7. Python 3.6 and 3.7 are not supported;
 
@@ -114,7 +114,21 @@ The source of the latest v1.4 release is available at the [master branch](https:
 
 ## Citation
 
-In case you use EstNLTK in your work, please cite us as follows:
+In case you use EstNLTK 1.6 in your work, please cite us as follows:
+
+    @InProceedings{laur-EtAl:2020:LREC,
+      author    = {Laur, Sven  and  Orasmaa, Siim  and  Särg, Dage  and  Tammo, Paul},
+      title     = {EstNLTK 1.6: Remastered Estonian NLP Pipeline},
+      booktitle = {Proceedings of The 12th Language Resources and Evaluation Conference},
+      month     = {May},
+      year      = {2020},
+      address   = {Marseille, France},
+      publisher = {European Language Resources Association},
+      pages     = {7154--7162},
+      url       = {https://www.aclweb.org/anthology/2020.lrec-1.884}
+    }
+
+If you use EstNLTK 1.4.1 (or older), please cite:
 
     @InProceedings{ORASMAA16.332,
     author = {Siim Orasmaa and Timo Petmanson and Alexander Tkachenko and Sven Laur and Heiki-Jaan Kaalep},
