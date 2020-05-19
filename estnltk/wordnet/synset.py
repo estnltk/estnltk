@@ -30,18 +30,19 @@ class Synset:
             self.wordnet = wordnet
             self.id = synset_info
             self.wordnet.cur.execute \
-                ("SELECT estwn_id, pos, sense, synset_name, literal FROM wordnet_entry WHERE id = ?", (synset_info,))
-            self.estwn_id, self.pos, self.sense, name, self.literal = self.wordnet.cur.fetchall()[0]
-            self.wordnet.cur.execute("SELECT sense FROM wordnet_entry WHERE id = ? AND literal = ?", (self.id, name))
-            self.name = '{}.{}.{}'.format(name, self.pos, "%02d"%self.wordnet.cur.fetchall()[0][0])
-        else:
+                ("SELECT estwn_id, pos, sense, synset_name, literal FROM wordnet_entry WHERE id = ? AND is_name = 1", (synset_info,))
+            self.estwn_id, self.pos, self.sense, self.synset_name, self.literal = self.wordnet.cur.fetchone()
+            self.name = '{}.{}.{}'.format(self.literal, self.pos, "%02d"%self.sense)
+        elif len(synset_info) == 6:
             self.wordnet = wordnet
             self.id = synset_info[0]
             self.estwn_id = synset_info[2]
             self.pos = synset_info[3]
             self.sense = synset_info[4]
             self.literal = synset_info[5]
-            self.name = '{}.{}.{}'.format(synset_info[1], self.pos, "%02d"%self.sense)
+            self.name = '{}.{}.{}'.format(synset_info[5], self.pos, "%02d"%self.sense)
+        else:
+            raise SynsetException("Wrong arguments for Synset")
 
     def __eq__(self, other):
         return self.wordnet == other.wordnet and self.id is not None and self.id == other.id
@@ -282,12 +283,12 @@ class Synset:
         """
 
         if self.wordnet.graph is None:
-            self.wordnet.cur.execute("SELECT * FROM wordnet_entry")
-            self.wordnet.cur.execute("SELECT * FROM wordnet_relation")
+            #self.wordnet.cur.execute("SELECT * FROM wordnet_entry")
+            self.wordnet.cur.execute("SELECT start_vertex, end_vertex, relation FROM wordnet_relation")
             relations = self.wordnet.cur.fetchall()
             self.wordnet.graph = nx.DiGraph()
             for r in relations:
-                self.wordnet.graph.add_edge(r[0], r[3], relation=r[6])
+                self.wordnet.graph.add_edge(r[0], r[1], relation=r[2])
 
         if "distances" not in self.__dict__:
             self.__dict__["distances"] = {}

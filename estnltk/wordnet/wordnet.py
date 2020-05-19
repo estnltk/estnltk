@@ -12,7 +12,7 @@ class Wordnet:
     Wordnet class which implements sqlite database connection.
     '''
 
-    def __init__(self, version='74'):
+    def __init__(self, version='2.3.2'):
         self.conn = None
         self.cur = None
         self.version = version
@@ -20,7 +20,7 @@ class Wordnet:
         self.synsets_dict = dict()
         self.loaded_pos = set()
 
-        wn_dir = '{}/data/estwn_kb{}'.format(os.path.dirname(os.path.abspath(__file__)), self.version)
+        wn_dir = '{}/data/estwn-et-{}'.format(os.path.dirname(os.path.abspath(__file__)), self.version)
         wn_entry = '{}/wordnet_entry.db'.format(wn_dir)
         wn_relation = '{}/wordnet_relation.db'.format(wn_dir)
 
@@ -49,31 +49,28 @@ class Wordnet:
         if isinstance(key, tuple) and len(key) == 2:
             if isinstance(key[1], int):
                 synset_name, id = key
-                #self.cur.execute("SELECT * FROM wordnet_entry WHERE literal = ?", (synset_name,))
                 self.cur.execute("SELECT id FROM wordnet_entry WHERE literal = ?", (synset_name,))
                 synsets = self.cur.fetchall()
                 if synsets is not None and id <= len(synsets) and id - 1 >= 0:
-                    #return Synset(self, synsets[id - 1])
                     return Synset(self, synsets[id - 1][0])
             else:
                 synset_name, pos = key
-                #self.cur.execute("SELECT * FROM wordnet_entry WHERE literal = ? AND pos = ?", (synset_name, pos))
                 self.cur.execute("SELECT id FROM wordnet_entry WHERE literal = ? AND pos = ?", (synset_name, pos))
         else:
-            #self.cur.execute("SELECT * FROM wordnet_entry WHERE literal = ?", (key,))
             self.cur.execute("SELECT id FROM wordnet_entry WHERE literal = ?", (key,))
         synsets = self.cur.fetchall()
         if synsets is not None:
-            #return [Synset(self, entry) for entry in synsets]
             return [Synset(self, entry[0]) for entry in synsets]
         return
 
     def all_synsets(self, pos=None):
         if pos is None:
-            self.cur.execute("SELECT * FROM wordnet_entry GROUP BY id HAVING MIN(ROWID)")
+            self.cur.execute(
+                "SELECT id, synset_name, estwn_id, pos, sense, literal FROM wordnet_entry WHERE is_name = 1")
             synset_entries = self.cur.fetchall()
         else:
-            self.cur.execute("SELECT * FROM wordnet_entry WHERE pos = ? GROUP BY id HAVING MIN(ROWID)", (pos,))
+            self.cur.execute(
+                "SELECT id, synset_name, estwn_id, pos, sense, literal FROM wordnet_entry WHERE pos = ? AND is_name = 1", (pos,))
             synset_entries = self.cur.fetchall()
 
         synsets = []
