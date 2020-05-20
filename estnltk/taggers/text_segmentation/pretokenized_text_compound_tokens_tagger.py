@@ -109,11 +109,13 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
                          word_span_text = token_layer[token_span_id_2].text
                          if mw_text != word_span_text:
                             break
+                         i += 1
                          if token_span_id_2 + 1 < len(token_layer):
+                            # Move on in tokens layer
                             token_span_id_2 += 1
                          else:
+                            # End of tokens
                             break
-                         i += 1
                     if i == len(mw_components[mw_comp_id]):
                         # Create a new multiword unit
                         spans = layers[self._input_tokens_layer][token_span_id:token_span_id+i]
