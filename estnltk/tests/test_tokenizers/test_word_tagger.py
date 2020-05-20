@@ -120,7 +120,7 @@ class WordTaggerTest(unittest.TestCase):
     def test_change_input_and_output_layers_of_wordtagger(self):
         # Tests that input and output layer names of wordtagger can be changed
         tokens_tagger = TokensTagger(output_layer='my_tokens')
-        cp_tagger = CompoundTokenTagger(output_layer='my_compounds', input_tokens_layer='my_tokens')
+        cp_tagger   = CompoundTokenTagger(output_layer='my_compounds', input_tokens_layer='my_tokens')
         word_tagger = WordTagger(output_layer='my_words', input_tokens_layer='my_tokens', 
                                  input_compound_tokens_layer='my_compounds')
         test_texts = [ 
@@ -152,3 +152,51 @@ class WordTaggerTest(unittest.TestCase):
             # Assert that the tokenization is correct
             self.assertListEqual(test_text['expected_words'], word_segmentation)
 
+
+    def test_create_pretokenized_text_words_from_detached_layers(self):
+        # Tests that a detached 'words' layer can be created from 
+        # detached 'compound_tokens' and 'tokens' layers
+        # 1) Create text
+        pretokenized_text = '''
+        <s>
+        Kas
+        New York
+        või
+        Mauna Loa
+        ?
+        </s>
+        <s>
+        Mauna Loa
+        </s>
+        '''
+        # collect raw words and multiwords
+        raw_words = []
+        multiword_expressions = []
+        raw_tokens = pretokenized_text.split('\n')
+        for raw_token in raw_tokens:
+            raw_token = raw_token.strip()
+            if len(raw_token) == 0:
+                continue
+            if raw_token not in ['<s>', '</s>']:  # Skip sentence boundary tags
+                raw_words.append(raw_token)
+                if ' ' in raw_token:
+                    multiword_expressions.append(raw_token)
+            elif raw_token == '</s>':
+                raw_words[-1] += '\n'  # newline == sentence ending
+        # convert multiwords to the form of lists of lists of strings
+        multiword_expressions = [mw.split() for mw in multiword_expressions]
+        # make text
+        text = Text(' '.join(raw_words))
+        # 2) Create taggers
+        tokens_tagger = WhiteSpaceTokensTagger()
+        compound_tokens_tagger = PretokenizedTextCompoundTokensTagger( multiword_units = multiword_expressions )
+        words_tagger = WordTagger()
+        # 3) Create detached layers
+        tokens = tokens_tagger.make_layer(text, layers={})
+        compound_tokens = compound_tokens_tagger.make_layer(text, layers={'tokens':tokens})
+        words = words_tagger.make_layer( text, layers={'tokens':tokens, 'compound_tokens':compound_tokens})
+        # Assertions
+        self.assertListEqual( [w.text for w in words], ['Kas', 'New York', 'või', 'Mauna Loa', '?', 'Mauna Loa'])
+        self.assertEqual(len(tokens), 9)
+        self.assertEqual(len(words), 6)
+        
