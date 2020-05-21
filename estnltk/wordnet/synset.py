@@ -1,7 +1,5 @@
 import math
 import networkx as nx
-#import estnltk
-#import estnltk.wordnet.wordnet.Wordnet
 
 MAX_TAXONOMY_DEPTHS = {'a': 2, 'n': 13, 'b': 0, 'v': 10}
 
@@ -118,6 +116,8 @@ class Synset:
         node_stack = self.get_related_synset(relation)
         depth_stack = [1] * len(node_stack)
 
+        ancestors = []
+
         while len(node_stack):
             node = node_stack.pop()
             depth = depth_stack.pop()
@@ -127,12 +127,14 @@ class Synset:
 
             if not parents or depth == depth_threshold:
                 if return_depths is not False:
-                    return (node, depth)
+                    ancestors.append((node, depth))
                 else:
-                    return node
+                    ancestors.append(node)
             else:
                 node_stack.extend(parents)
                 depth_stack.extend([depth +1] * len(parents))
+
+        return ancestors
 
     def root_hypernyms(self, depth_threshold=float('inf'), return_depths=False):
 
@@ -223,20 +225,6 @@ class Synset:
         """
         return self.get_related_synset("holo_member")
 
-
-    #SEE JA JÄRGMINE FUNKTS EI TÖÖTA
-    '''def get_variants(self):
-        """Returns variants/lemmas of the synset.
-
-        Returns
-        -------
-          list of eurown.Variants
-        Lemmas/variants of the synset.
-
-        """
-        #return self.estwn_id.variants
-        raise NotImplementedError("synset get_variants not implemented")'''
-
     def definition(self):
         """Returns the definition of the synset.
 
@@ -246,8 +234,6 @@ class Synset:
         Definition of the synset as a new-line separated concatenated string from all its variants' definitions.
 
         """
-        #parser = eurown.Parser()
-        #return '\n'.join([variant.gloss for variant in self.estwn_id.variants if variant.gloss])
         raise NotImplementedError("Synset definition not implemented")
 
     def lemmas(self):
@@ -283,12 +269,12 @@ class Synset:
         """
 
         if self.wordnet.graph is None:
-            #self.wordnet.cur.execute("SELECT * FROM wordnet_entry")
             self.wordnet.cur.execute("SELECT start_vertex, end_vertex, relation FROM wordnet_relation")
-            relations = self.wordnet.cur.fetchall()
+            wn_relations = self.wordnet.cur.fetchall()
             self.wordnet.graph = nx.DiGraph()
-            for r in relations:
-                self.wordnet.graph.add_edge(r[0], r[1], relation=r[2])
+            for r in wn_relations:
+                if r[2] == 'hypernym' or r[2] == 'hyponym':
+                    self.wordnet.graph.add_edge(r[0], r[1], relation=r[2])
 
         if "distances" not in self.__dict__:
             self.__dict__["distances"] = {}

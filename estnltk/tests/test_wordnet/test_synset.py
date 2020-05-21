@@ -1,6 +1,5 @@
-import pytest
 from estnltk.wordnet.wordnet import Wordnet
-from estnltk.wordnet.synset import Synset, SynsetException
+from estnltk.wordnet.synset import Synset
 
 wn = Wordnet()
 ss = Synset(wn, 6299)
@@ -31,7 +30,7 @@ def test_get_related_synset_without_relation():
 def test_closure():
     synset = ss_koer
     result = synset.closure('hypernym')
-    expected = Synset(wn, 8471)
+    expected = [Synset(wn, 8471)]
     assert result == expected
 
 
