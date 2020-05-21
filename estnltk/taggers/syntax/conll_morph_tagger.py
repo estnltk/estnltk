@@ -32,7 +32,7 @@ class ConllMorphTagger(Tagger):
             xpostag = create_xpostag(values[3], values[5])
             feats = fix_feats(xpostag, values[2], values[5])
             layer.add_annotation(span,
-                                 id=values[0],
+                                 id=int(values[0]),
                                  form=values[1],
                                  lemma=values[2],
                                  upostag=values[3],
