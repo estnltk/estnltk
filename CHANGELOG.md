@@ -39,7 +39,7 @@ All notable changes to this project will be documented in this file.
 * Tutorial about Vabamorf-based word syllabification ([here](https://github.com/estnltk/estnltk/blob/5c5ce3a810f7a5e41602156b7044edb63e83532d/tutorials/miscellaneous/syllabification.ipynb));
 * Updated tutorial `importing_text_objects_from_corpora` on how to import texts from Estonian UD treebank;
 * Updated neural morphological tagger's tutorial: added information about where the models can be downloaded;
-* WordNet: API that provides means to query Estonian WordNet. Compared to v1.4 queries for definition and examples are missing and synsets can be queried by wn[lemma] as opposed to v1.4's wn.synsets(lemma). Other aspects are comparable to v1.4. [Usage tutorial] (https://github.com/estnltk/estnltk/blob/devel_1.6/tutorials/wordnet/wordnet.ipynb);
+* `WordNet`: API that provides means to query Estonian WordNet. Compared to v1.4 queries for definition and examples are missing and synsets can be queried by wn[lemma] as opposed to v1.4's wn.synsets(lemma). Other aspects are comparable to v1.4;
 
 ## Fixed
 
