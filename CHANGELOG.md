@@ -40,7 +40,8 @@ All notable changes to this project will be documented in this file.
 * Updated tutorial `importing_text_objects_from_corpora` on how to import texts from Estonian UD treebank;
 * Updated neural morphological tagger's tutorial: added information about where the models can be downloaded;
 * `WordNet`: API that provides means to query Estonian WordNet. Compared to v1.4 queries for definition and examples are missing and synsets can be queried by wn[lemma] as opposed to v1.4's wn.synsets(lemma). Other aspects are comparable to v1.4;
-
+* `UDPipeTagger` which analyses Text with EstNLTK's UDPipe and produces `udpipe_syntax` layer. [Usage tutorial](https://github.com/estnltk/estnltk/blob/84b12bc7ece6bde6906e8d4fa0d5831d3149fce5/tutorials/syntax/syntax.ipynb)
+* Flag `fix_selfreferences` to `VislTagger`: removes self-references.  
 ## Fixed
 
 * Vabamorf's initialization bug on Linux: merged fixes from [#97](https://github.com/estnltk/estnltk/issues/97) and pull [#109](https://github.com/estnltk/estnltk/pull/109), and added some conditionals to keep the whole thing compiling and running under Windows (and macOS);
@@ -51,6 +52,7 @@ All notable changes to this project will be documented in this file.
 * Fix in `WordTagger`: 'words' layer can now be created from detached 'tokens' and 'compound_tokens' layers;
 * `syllabify_word`: do not analyse dash and slash in order to avoid crash in Vabamorf's syllabifier;
 * Bug related to setting `'display.max_colwidth'` in `pandas` (affects  `pandas` versions >= 1.0.0);
+ * `convert_cg3_to_conll.py`: handles input '"<s>"' with analysis correctly 
 
 # [1.6.5.5-beta] - 2020-04-16
 A pre-release only for developers. The list of changes will be documented in the next release.
