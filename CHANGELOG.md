@@ -42,6 +42,8 @@ All notable changes to this project will be documented in this file.
 * `WordNet`: API that provides means to query Estonian WordNet. Compared to v1.4 queries for definition and examples are missing and synsets can be queried by wn[lemma] as opposed to v1.4's wn.synsets(lemma). Other aspects are comparable to v1.4;
 * `UDPipeTagger` which analyses Text with EstNLTK's UDPipe and produces `udpipe_syntax` layer. [Usage tutorial](https://github.com/estnltk/estnltk/blob/84b12bc7ece6bde6906e8d4fa0d5831d3149fce5/tutorials/syntax/syntax.ipynb)
 * Flag `fix_selfreferences` to `VislTagger`: removes self-references.  
+* `Named Entity Tagging`: Taggers for named entity recognition (NER). One tagger tags whole named entities and the other tagger tags each word separately. CRF model used is the same as in v1.4.
+
 ## Fixed
 
 * Vabamorf's initialization bug on Linux: merged fixes from [#97](https://github.com/estnltk/estnltk/issues/97) and pull [#109](https://github.com/estnltk/estnltk/pull/109), and added some conditionals to keep the whole thing compiling and running under Windows (and macOS);
