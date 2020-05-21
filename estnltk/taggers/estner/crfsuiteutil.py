@@ -26,40 +26,10 @@ class Trainer(object):
         self.verbose = verbose
 
     def train(self, nerdocs, mode_filename):
-        """Train a CRF model using given documents.
-
-        Parameters
-        ----------
-        nerdocs: list of estnltk.estner.ner.Document.
-            The documents for model training.
-        mode_filename: str
-            The fielname where to save the model.
-        """
-
-        trainer = pycrfsuite.Trainer(algorithm=self.algorithm,
-                                     params={'c2': self.c2},
-                                     verbose=self.verbose)
-
-        for doc in nerdocs:
-            for snt in doc.sentences:
-                xseq = [t.feature_list() for t in snt]
-                yseq = [t.label for t in snt]
-                trainer.append(xseq, yseq)
+        raise NotImplementedError("Not implemented!")
 
 
-
-        labels = []
-        for snt in nerdoc.sentences:
-            xseq = [t.ner_features.F for t in snt]
-            to_be_tagged = []
-            for word in xseq:
-                to_be_tagged.append(word[0])
-            labels.append(yseq)
-            trainer.append(xseq, yseq)
-        trainer.train(mode_filename)
-
-
-class Tagger():
+class CRF():
     """Class for named entity tagging using a crfsuite model."""
 
     def __init__(self, settings, model_filename):

@@ -15,12 +15,11 @@ class BaseFeatureExtractor(object):
         pass
 
     def prepare(self, docs):
-        ''' Called before feature extraction actually happens. Can be used to
-        collect global statistics on the corpus. '''
+        """ Called before feature extraction actually happens. Can be used to
+        collect global statistics on the corpus. """
         pass
 
     def process(self, doc):
-        doc.tag_layer()
         for word in doc.words:
             self._process(word, doc)
 
@@ -42,7 +41,7 @@ def get_lemma(morph_lemma):
 
 
 def get_pos(input):
-    inputs = sorted(list(set(input)))
+    inputs = sorted(set(input))
     output = ""
     for inp in inputs:
         output += inp + "|"
@@ -55,7 +54,7 @@ def b(v):
 
 
 def is_prop(pos):
-    return pos[0] == "H" and len(pos) == 1
+    return len(pos) == 1 and pos[0] == "H"
 
 
 def get_word_parts(root_tokens):
@@ -74,10 +73,10 @@ def get_case(form):
 
 
 def get_ending(ending):
-    endings = sorted(list(set(ending)))
+    endings = sorted(set(ending))
     if len(endings) == 1:
-        if endings[0] == '0' or endings[0] == '':
-            return None
+        if endings in ([''], ['0']):
+            return
     output = ""
     for end in endings:
         output += end + "|"
@@ -86,27 +85,27 @@ def get_ending(ending):
 
 
 def get_shape(token):
-    r = u''
+    r = []
     for c in token:
         if c.isupper():
-            r += 'U'
+            r.append('U')
         elif c.islower():
-            r += 'L'
+            r.append('L')
         elif c.isdigit():
-            r += 'D'
+            r.append('D')
         elif c in ('.', ','):
-            r += '.'
+            r.append('.')
         elif c in (';', ':', '?', '!'):
-            r += ';'
+            r.append(';')
         elif c in ('+', '-', '*', '/', '=', '|', '_'):
-            r += '-'
+            r.append('-')
         elif c in ('(', '{', '[', '<'):
-            r += '('
+            r.append('(')
         elif c in (')', '}', ']', '>'):
-            r += ')'
+            r.append(')')
         else:
-            r += c
-    return r
+            r.append(c)
+    return ''.join(r)
 
 
 def degenerate(src):
@@ -195,9 +194,8 @@ def contains_feature(feature, token):
 class NerMorphFeatureTagger(Tagger):
     """"Extracts features provided by the morphological analyser pyvabamorf. """
     conf_param = ['settings']
-    input_layers = []
 
-    def __init__(self, settings, output_layer='ner_features',
+    def __init__(self, settings, input_layers = ('words','morph_analysis'), output_layer='ner_features',
                  output_attributes=("lem", "pos", "prop", "pref", "post", "case",
                                     "ending", "pun", "w", "w1", "shape", "shaped", "p1",
                                     "p2", "p3", "p4", "s1", "s2", "s3", "s4", "d2",
@@ -210,10 +208,10 @@ class NerMorphFeatureTagger(Tagger):
         self.settings = settings
         self.output_layer = output_layer
         self.output_attributes = output_attributes
+        self.input_layers = input_layers
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         layer = Layer(self.output_layer, ambiguous=True, attributes=self.output_attributes, text_object=text)
-        text.tag_layer()
         for token in text.words:
             LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
             if not LEM:
@@ -542,7 +540,7 @@ class FeatureExtractor(object):
     with features specified in configuration files.
     """
 
-    def __init__(self, settings):
+    def __init__(self, settings, morph_layer_inputs):
         """Initialize the feature extractor.
 
         Parameters
@@ -552,10 +550,17 @@ class FeatureExtractor(object):
         """
         self.settings = settings
         self.fex_list = []
-        for fex_name in settings.FEATURE_EXTRACTORS:
+
+        first_fex = settings.FEATURE_EXTRACTORS[0]
+        fex_class = FeatureExtractor._get_class(first_fex)
+        fex_obj = fex_class(settings,morph_layer_inputs)
+        self.fex_list.append(fex_obj)
+        for fex_name in settings.FEATURE_EXTRACTORS[1:]:
             fex_class = FeatureExtractor._get_class(fex_name)
             fex_obj = fex_class(settings)
             self.fex_list.append(fex_obj)
+
+        self.morph_layer_inputs = morph_layer_inputs
 
     def prepare(self, docs):
         # init extractors
