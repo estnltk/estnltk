@@ -54,7 +54,7 @@ All notable changes to this project will be documented in this file.
 * Fix in `WordTagger`: 'words' layer can now be created from detached 'tokens' and 'compound_tokens' layers;
 * `syllabify_word`: do not analyse dash and slash in order to avoid crash in Vabamorf's syllabifier;
 * Bug related to setting `'display.max_colwidth'` in `pandas` (affects  `pandas` versions >= 1.0.0);
- * `convert_cg3_to_conll.py`: handles input '"<s>"' with analysis correctly 
+* `convert_cg3_to_conll.py`: handles input `'"<s>"'` with analysis correctly 
 
 # [1.6.5.5-beta] - 2020-04-16
 A pre-release only for developers. The list of changes will be documented in the next release.
