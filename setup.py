@@ -57,7 +57,7 @@ create_caches()
 
 setup(
     name="estnltk",
-    version="1.6.5.5beta",
+    version="1.6.6beta",
 
     packages=find_packages(exclude=exclude_package_dirs),
     include_package_data=True,
