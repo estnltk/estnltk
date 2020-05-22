@@ -90,19 +90,18 @@ class UDPipeTagger(Tagger):
         conll_layer = layers[self.input_layers[1]]
         layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes, ambiguous=True,
                       parent=self.input_layers[1])
-        # Collecting all sentences as an input to the model
-        conll_strings = []
+
+        cmd = "%s --parse %s" % (self.udpipe_cmd, self.model)
+        process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, stderr=subprocess.PIPE)
         for sentence in sentences_layer:
             output = sentence_to_conll(sentence, layers[self.input_layers[1]])
-            conll_strings.append(output)
-
-        input_string = ''.join(conll_strings).encode()
-        # Creating command for the udpipe model
-        cmd = "%s --parse %s" % (self.udpipe_cmd, self.model)
-        process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-        process.stdin.write(input_string)
-        result = process.communicate()[0].decode().strip()
+            output = output.replace('\t\t', '\t_\t')
+            process.stdin.write(output.encode())
         process.stdin.close()
+
+        result, err = process.communicate()
+        result = result.decode().strip()
+
         result = result.replace(OS_NEWLINE + OS_NEWLINE, OS_NEWLINE)  # removing double newlines
         for line, span in zip(result.split(OS_NEWLINE), conll_layer):
             line = line.split('\t')
