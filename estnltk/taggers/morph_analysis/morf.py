@@ -46,6 +46,7 @@ class VabamorfTagger(Tagger):
                   'disambiguate',
                   "compound",
                   "phonetic",
+                  "slang_lex",
                   # postanalysis tagger
                   'postanalysis_tagger',
                   # Internal stuff: layer names
@@ -72,6 +73,7 @@ class VabamorfTagger(Tagger):
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
                  compound=DEFAULT_PARAM_COMPOUND,
                  phonetic=DEFAULT_PARAM_PHONETIC,
+                 slang_lex=False,
                  re_sort_analyses = SORT_VM_MORPH_ANALYSES ):
         """Initialize VabamorfTagger class.
 
@@ -113,6 +115,15 @@ class VabamorfTagger(Tagger):
             Add compound word markers to root forms.
         phonetic: boolean (default: False)
             Add phonetic information to root forms.
+        slang_lex: boolean (default: False)
+            If True, then uses an extended version of Vabamorf's binary lexicon, 
+            which provides valid analyses to spoken and slang words, such as 
+            'kodukas', 'mõnsa', 'mersu', 'kippelt'. However, using "the slang 
+            lexicon" also hinders Vabamorf's ability to clearly distinguish 
+            between written language and slang words, and this is the reason 
+            that "the slang lexicon" is not switched on by default;
+            Note: this only works if you leave the parameter vm_instance 
+            unspecified;
         re_sort_analyses: boolean (default: morf_common.SORT_VM_MORPH_ANALYSES)
             Re-sort ambiguous morphological analyses. 
             Re-sorting was used in historical reasons in EstNLTK's 
@@ -129,6 +140,7 @@ class VabamorfTagger(Tagger):
         self.disambiguate = disambiguate
         self.compound     = compound
         self.phonetic     = phonetic
+        self.slang_lex    = slang_lex
         # Set configuration parameters
         self.output_layer = output_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
@@ -162,9 +174,21 @@ class VabamorfTagger(Tagger):
             # Check Vabamorf Instance
             if not isinstance(vm_instance, Vabamorf):
                 raise TypeError('(!) vm_instance should be of type estnltk.vabamorf.morf.Vabamorf')
+            # Check slang_lex param
+            if self.slang_lex:
+                raise ValueError('(!) Cannot use slang_lex=True if vm_instance is already provided')
             _vm_instance = vm_instance
         else:
-            _vm_instance = Vabamorf.instance()
+            if not self.slang_lex:
+                # Use standard written language lexicon (default)
+                _vm_instance = Vabamorf.instance()
+            else:
+                # Use standard written language lexicon extended with slang & spoken words
+                from estnltk.vabamorf.morf import VM_LEXICONS
+                nosp_lexicons = [lex_dir for lex_dir in VM_LEXICONS if lex_dir.endswith('_nosp')]
+                assert len(nosp_lexicons) > 0, \
+                    "(!) Slang words lexicon with suffix '_nosp' not found from the default list of lexicons: {!r}".format(VM_LEXICONS)
+                _vm_instance = Vabamorf( lexicon_dir=nosp_lexicons[-1] )
         self._vabamorf_analyser      = VabamorfAnalyzer( vm_instance=_vm_instance,
                                                          output_layer=output_layer,
                                                          input_words_layer=self._input_words_layer,

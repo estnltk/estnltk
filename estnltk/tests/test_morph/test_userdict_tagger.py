@@ -267,3 +267,41 @@ def test_userdict_tagger_save_as_csv():
     assert result_string2 == result_string
 
 
+
+def test_userdict_tagger_words_with_skip_existing_analyses():
+    # Create a morph analyser that does not guess unknown words
+    morph_analyser = VabamorfTagger( disambiguate=False, guess=False, propername=False )
+    # Example text
+    example_text_str = 'vampiiri olla öösel üts vai läbistand'
+    # Create UserDictTagger that does not overwrite existing / analysed words
+    userdict = UserDictTagger( ignore_case=True, overwrite_existing=False )
+    userdict.add_word('vampiiri', \
+             [{'form': 'sg g', 'root': 'vampiir', 'ending':'0', 'partofspeech': 'S', 'clitic':''}] )
+    userdict.add_word('vai', \
+             [{'form': '', 'root': 'või', 'ending':'0', 'partofspeech': 'J', 'clitic':''}] )
+    userdict.add_word('üts', \
+             [{'form': 'sg n', 'root': 'üks', 'ending':'0', 'partofspeech': 'N', 'clitic':''}] )
+    userdict.add_word('läbistand', \
+             [{'form': 'nud', 'root': 'läbista', 'ending':'nud', 'partofspeech': 'V', 'clitic':''}] )
+    text = Text( example_text_str )
+    text.tag_layer( ['words', 'sentences'] )
+    morph_analyser.tag( text )
+    # Check analyses before applying userdict
+    before_analyses = []
+    for morph_word in text.morph_analysis:
+        annotations = morph_word.annotations
+        before_analyses.append( [morph_word.text]+[(a['root'], a['partofspeech'], a['form'] ) for a in annotations] )
+    assert before_analyses == [ ['vampiiri', ('vampiir', 'S', 'adt'), ('vampiir', 'S', 'sg g'), ('vampiir', 'S', 'sg p')], \
+                                ['olla', ('ole', 'V', 'da')], ['öösel', ('öösel', 'D', '')], ['üts', (None, None, None)], \
+                                ['vai', ('vai', 'S', 'sg n')], ['läbistand', (None, None, None)] ]
+    userdict.retag( text )
+    # Check analyses after applying userdict
+    after_analyses = []
+    for morph_word in text.morph_analysis:
+        annotations = morph_word.annotations
+        after_analyses.append( [morph_word.text]+[(a['root'], a['partofspeech'], a['form'] ) for a in annotations] )
+    assert after_analyses == [ ['vampiiri', ('vampiir', 'S', 'adt'), ('vampiir', 'S', 'sg g'), ('vampiir', 'S', 'sg p')], \
+                               ['olla', ('ole', 'V', 'da')], ['öösel', ('öösel', 'D', '')], ['üts', ('üks', 'N', 'sg n')], \
+                               ['vai', ('vai', 'S', 'sg n')], ['läbistand', ('läbista', 'V', 'nud')] ]
+
+

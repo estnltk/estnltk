@@ -126,7 +126,7 @@ def test_split_visl_analysis_line():
     failed_analysis_case = {'line': '	mari cap @ADVL #1->4'}
     with pytest.raises(Exception):
         parser.split_visl_analysis_line(failed_analysis_case['line'])
-    failed_nonanalysis_case = {'line': '<\s>'}
+    failed_nonanalysis_case = {'line': r'<\s>'}
     assert parser.split_visl_analysis_line(failed_nonanalysis_case['line']) == ('', '', '', '')
 
 
@@ -162,6 +162,6 @@ def test_process_visl_analysis_line():
 
 def test_supress_exceptions():
     parser = CG3AnnotationParser(supress_exceptions=True)
-    assert parser.parse('<\s>') == {}
-    assert parser.split_visl_analysis_line('<\s>') == ('', '', '', '')
-    assert parser.split_visl_analysis_line('\t<\s>') == ('', '', '', '')
+    assert parser.parse(r'<\s>') == {}
+    assert parser.split_visl_analysis_line(r'<\s>') == ('', '', '', '')
+    assert parser.split_visl_analysis_line(r'\t<\s>') == ('', '', '', '')

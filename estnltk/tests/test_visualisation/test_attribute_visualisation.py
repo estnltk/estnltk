@@ -1,18 +1,21 @@
 from estnltk.tests import new_text
 from estnltk.visualisation.attribute_visualiser.attribute_visualisation import DisplayAttributes
 from estnltk.core import abs_path
+from estnltk import Text, Layer, ElementaryBaseSpan
 
 
 def test_html():
     display = DisplayAttributes(name="display")
-    result = display.html_output(new_text(5).layer_1)
+    text = Text('Tere, maailm!')
+    layer_0 = Layer('layer_0', attributes=['attr'], text_object=text)
+    layer_0.add_annotation(ElementaryBaseSpan(0, 4), attr='L0-0')
+    layer_0.add_annotation(ElementaryBaseSpan(4, 5), attr='L0-1')
+    text.add_layer(layer_0)
+    result = display.html_output(text.layer_0)
     file = abs_path(
         "tests/test_visualisation/expected_outputs/attribute_visualiser_outputs/attribute_visualiser_html.txt")
     with open(file, encoding="UTF-8") as expected_file:
         expected = expected_file.read()
-    print(result)
-    print("-----")
-    print(expected)
     assert result == expected
 
 
@@ -24,7 +27,6 @@ def test_javascript():
     with open(file, encoding="UTF-8") as expected_file:
         expected = expected_file.read()
     assert js == expected
-
 
 def test_mark_chosen_spans_no_choices():
     display = DisplayAttributes(name="display")

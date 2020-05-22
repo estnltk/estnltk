@@ -71,7 +71,6 @@ class AmbiguousAttributeTupleList:
                     record[index] = ''
                 records.append(record)
                 first = False
-        pandas.set_option('display.max_colwidth', -1)
         df = pandas.DataFrame.from_records(records, columns=columns)
         return df.to_html(index=False, escape=True)
 

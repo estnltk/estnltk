@@ -10,6 +10,7 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
 // 2000.07.14 TV 
 
 #ifndef INI_MRF_H
@@ -40,10 +41,10 @@ of any kind, either express or implied.
 #define TYVELP_MAX_PIK 6   /* tyvelõpu stringi max pikkus */
 #define SUF_LGCNT 4        /* sufiksi max lopugruppide arv */
 // TV-2000.07.14-{{
-//#define SONALIIKE   180  // max lubatud sõnaliigi jõrjendite arv
+//#define SONALIIKE   180  // max lubatud sõnaliigi järjendite arv
                            // Seisuga 2000.07.14 oligi neid 179 tükki.
                            // Sõnaliikide tabeli indeksi jaoks ruumi 8bitt, vt cxxbs3.h
-#define SONALIIKE   300    // Peab olema teglik_sõnaliigijõrjendite_arv+1
+#define SONALIIKE   300    // Peab olema teglik_sõnaliigijärjendite_arv+1
                            // NULL_LIIKI - selle paneb 'readeel()' sõnaliikide 
                            // tabelisse juurde, nii on vaja
                            // SONALIIKE-1 == NULL_LIIKI

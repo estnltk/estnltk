@@ -10,6 +10,7 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
 #if !defined DCTMETAINF_H
 #define DCTMETAINF_H
 
@@ -130,6 +131,7 @@ class DCTMETASTRCT :
          * @param dctFileName -- sõnastikufaili nimi
          */
         DCTMETASTRCT(const CFSFileName& dctFileName)
+        {
         try {
             InitClassVariables();
             Start(dctFileName);
@@ -140,7 +142,7 @@ class DCTMETASTRCT :
             Stop();
             throw;
             }
-
+        }
         /**
          * 
          * @param dctFileName -- sõnastikufaili nimi

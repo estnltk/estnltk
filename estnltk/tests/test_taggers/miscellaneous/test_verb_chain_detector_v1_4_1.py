@@ -50,7 +50,7 @@ def test_verb_chain_detection_1():
         # Tag chains
         vc_detector.tag( text )
         # Check results 
-        assert 'verb_chains' in text.layers.keys()
+        assert 'verb_chains' in text.layers
         verb_chains = text['verb_chains']
         assert len(test_text['vc_texts']) == len(verb_chains)
         verb_chain_texts = [vc.text for vc in verb_chains]

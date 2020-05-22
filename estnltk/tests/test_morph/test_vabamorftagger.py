@@ -82,7 +82,7 @@ def test_default_morph_analysis_without_disambiguation():
     # Create text and tag all
     text = Text("Kärbes hulbib mees ja naeris puhub sädelevaid mulle.").tag_layer()
     # Remove old morph layer
-    delattr(text, 'morph_analysis')
+    text.pop_layer('morph_analysis')
     # Create a new layer without disambiguation
     text.tag_layer(resolver=resolver)['morph_analysis']
     #print( text['morph_analysis'].to_records() )
@@ -151,7 +151,7 @@ def test_default_morph_analysis_without_guessing():
     # Create text and tag all
     text = Text("Sa ajad sássi inimmeste erinevad käsitlusviisid ja lóodusnähhtuste kinndla vahekorra.").tag_layer()
     # Remove old morph layer
-    delattr(text, 'morph_analysis')
+    text.pop_layer('morph_analysis')
     # Create a new layer without guessing
     text.tag_layer(resolver=resolver)['morph_analysis']
     #print( text['morph_analysis'].to_records() )
@@ -181,7 +181,7 @@ def test_default_morph_analysis_without_guessing():
     # Create text and tag all
     text = Text("Tüdrukud läksid poodelungile.").tag_layer()  
     # Remove old morph layer
-    delattr(text, 'morph_analysis')
+    text.pop_layer('morph_analysis')
     # Create a new layer without guessing
     text.tag_layer(resolver=resolver)['morph_analysis']
     assert AmbiguousAttributeList([['tüdruk'], ['mine'], [None], [None]], 'root') == text.root
@@ -278,5 +278,71 @@ def test_default_morph_analysis_with_different_input_layer_names():
     morph_analyser.tag(text)
     # Check results
     for layer in ['my_compounds', 'my_words', 'my_sentences', 'my_morph']:
-        assert layer in text.layers.keys()
+        assert layer in text.layers
+
+
+
+def test_default_morph_with_vm_src_update_2020_04_07():
+    # Test effects of the Vabamorf's source update from 2020_04_07
+    # ( default lexicon )
+    morph_analyser = VabamorfTagger(output_layer='my_morph')
+    text = Text('Pole olnd või toimund ulatuslikku metasomatoosi vms protsessi.')
+    text.tag_layer(['words', 'sentences'])
+    morph_analyser.tag(text)
+    analyses = []
+    for span in text.my_morph:
+        analyses.append( [(a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    expected_analyses = \
+      [ [('ole', 'V', 'neg o')], 
+        [('ole', 'V', 'nud')], 
+        [('või', 'J', '')], 
+        [('toimunu', 'S', 'pl n')], 
+        [('ulatuslik', 'A', 'sg p')], 
+        [('metasomatoos', 'S', 'sg p')], 
+        [('vms', 'Y', '?')], 
+        [('protsess', 'S', 'sg p')], 
+        [('.', 'Z', '')] ]
+    assert expected_analyses == analyses
+
+
+
+from estnltk.vabamorf.morf import VM_LEXICONS
+from estnltk.vabamorf.morf import Vabamorf as VabamorfInstance
+
+def test_no_spell_morph_with_vm_src_update_2020_04_07():
+    # Test effects of the Vabamorf's source update from 2020_04_07
+    # ( newly added nosp [no-spell] improvements to the lexicon )
+    # 1) Test that nosp lexicon is available
+    nosp_lexicons = [lex_dir for lex_dir in VM_LEXICONS if lex_dir.endswith('_nosp')]
+    assert len(nosp_lexicons) > 0
+    # 2.1) Test using the last nosp lexicon:
+    #      Provide nosp lexicon via VabamorfInstance
+    vm_instance    = VabamorfInstance( lexicon_dir=nosp_lexicons[-1] )
+    morph_analyser = VabamorfTagger(output_layer='morph_nosp', vm_instance=vm_instance)
+    text = Text('Bemmiga paarutanud pandikunn kadus kippelt kirbukale.')
+    text.tag_layer(['words', 'sentences'])
+    morph_analyser.tag(text)
+    analyses = []
+    for span in text.morph_nosp:
+        analyses.append( [(a.text, a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    expected_analyses = \
+        [[('Bemmiga', 'bemm', 'S', 'sg kom')], 
+         [('paarutanud', 'paaruta', 'V', 'nud'), ('paarutanud', 'paaruta=nud', 'A', ''), ('paarutanud', 'paaruta=nud', 'A', 'sg n'), ('paarutanud', 'paaruta=nud', 'A', 'pl n')], 
+         [('pandikunn', 'pandi_kunn', 'S', 'sg n')], 
+         [('kadus', 'kadu', 'V', 's')], 
+         [('kippelt', 'kippelt', 'D', '')], 
+         [('kirbukale', 'kirbukas', 'S', 'sg all')], 
+         [('.', '.', 'Z', '')]]
+    assert expected_analyses == analyses
+    # 2.2) Test using the last nosp lexicon:
+    #      Set slang_lex parameter
+    morph_analyser_2 = VabamorfTagger(output_layer='morph_nosp_2', slang_lex=True)
+    text = Text('Bemmiga paarutanud pandikunn kadus kippelt kirbukale.')
+    text.tag_layer(['words', 'sentences'])
+    morph_analyser_2.tag(text)
+    analyses = []
+    for span in text.morph_nosp_2:
+        analyses.append( [(a.text, a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    assert expected_analyses == analyses
+
 

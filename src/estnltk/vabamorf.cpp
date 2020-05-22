@@ -376,3 +376,23 @@ SentenceSyllables syllabifySentence(const StringVector& sentence) {
     }
     return ss;
 }
+
+// 
+// Patch discussed in here: https://github.com/estnltk/estnltk/issues/97
+// Credit for the patch goes to: https://github.com/cslarsen
+// See also AleksTk's fix: https://github.com/AleksTk/estnltk-1.4-light/blob/master/src/estnltk/vabamorf.cpp
+//
+#if defined (UNIX)
+static void __init_so() {
+    FSCInit();
+}
+
+static void __init_so() __attribute__((constructor));
+
+
+static void __exit_so() {
+    FSCTerminate();
+}
+
+static void __exit_so() __attribute__((destructor));
+#endif

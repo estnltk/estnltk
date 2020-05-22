@@ -126,7 +126,8 @@ def extract_section(text,
 
 def layers_to_keep_default(text, layer):
     graph = nx.DiGraph()
-    for layer_name, layer_object in text.layers.items():
+    for layer_name in text.layers:
+        layer_object = text[layer_name]
         if layer_object.enveloping:
             graph.add_edge(layer_name, layer_object.enveloping)
         elif layer_object.parent:

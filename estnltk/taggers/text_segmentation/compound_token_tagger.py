@@ -37,8 +37,15 @@ _only_hyphens_pattern = re.compile('^(-{2,})$')
 # List containing words that should be ignored during the normalization of words with hyphens
 DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'taggers', 'text_segmentation', 'ignorable_words_with_hyphens.csv')
 
+# Lists containing all 1st level and 2nd level patterns
+# By default, CompoundTokenTagger uses patterns from these lists
+ALL_1ST_LEVEL_PATTERNS = email_and_www_patterns + emoticon_patterns + xml_patterns + unit_patterns + \
+                         number_patterns + abbreviations_before_initials_patterns + initial_patterns + \
+                         abbreviation_patterns
+ALL_2ND_LEVEL_PATTERNS = case_endings_patterns + number_fixes_patterns
 
-class CompoundTokenTagger(Tagger):
+
+class CompoundTokenTagger( Tagger ):
     """Tags adjacent tokens that should be analyzed as one word."""
     output_attributes = ('type', 'normalized')
     output_layer = 'compound_tokens'
@@ -67,6 +74,8 @@ class CompoundTokenTagger(Tagger):
                  tag_hyphenations: bool = True,
                  custom_abbreviations: list = (),
                  do_not_join_on_strings: list = ('\n\n',),
+                 patterns_1: list = ALL_1ST_LEVEL_PATTERNS,
+                 patterns_2: list = ALL_2ND_LEVEL_PATTERNS,
                  ):
         """Initializes CompoundTokenTagger.
 
@@ -137,6 +146,20 @@ class CompoundTokenTagger(Tagger):
             boundaries.
             By default, the list only contains '\n\n', intending to keep 
             compound tokens off from the paragraph boundaries.
+        
+        patterns_1 : list ( default: ALL_1ST_LEVEL_PATTERNS )
+            A list of all strict tokenization hints (patterns) used by
+            this CompoundTokenTagger. 
+            If you want to manually add or remove tokenization patterns, 
+            then make a copy of ALL_1ST_LEVEL_PATTERNS, modify it and 
+            pass it as patterns_1.
+        
+        patterns_2 : list (default: ALL_2ND_LEVEL_PATTERNS)
+            A list of all non-strict tokenization hints (patterns) used 
+            by this CompoundTokenTagger. 
+            If you want to manually add or remove non-strict tokenization 
+            patterns, then make a copy of ALL_2ND_LEVEL_PATTERNS, modify 
+            it and pass it as patterns_2.
         """
         # Set input/output parameters
         self.output_layer = output_layer
@@ -165,24 +188,32 @@ class CompoundTokenTagger(Tagger):
         #  1st level hints tagger
         # =========================
         _vocabulary_1 = [] 
-        if tag_numbers:
-            _vocabulary_1.extend(number_patterns)
-        if tag_units:
-            _vocabulary_1.extend(unit_patterns)
-        if tag_xml:
-            _vocabulary_1.extend(xml_patterns)
-        if tag_email_and_www:
-            _vocabulary_1.extend(email_and_www_patterns)
-        if tag_emoticons:
-            _vocabulary_1.extend(emoticon_patterns)
-        if tag_abbreviations:
-           # Some abbreviations need to be captured before initials to
-           # prevent a mixup between abbreviations and initials;
-           _vocabulary_1.extend(abbreviations_before_initials_patterns)
-        if tag_initials:
-            _vocabulary_1.extend(initial_patterns)
-        if tag_abbreviations:
-            _vocabulary_1.extend(abbreviation_patterns)
+        for pat in patterns_1:
+            pattern_type = pat['pattern_type'].lower()
+            if pattern_type in ['numeric', 'numeric_date', 'numeric_time', 'roman_numerals']:
+                if tag_numbers:
+                    _vocabulary_1.append( pat )
+            elif pattern_type in ['unit']:
+                if tag_units:
+                    _vocabulary_1.append( pat )
+            elif pattern_type in ['xml_tag']:
+                if tag_xml:
+                    _vocabulary_1.append( pat )
+            elif pattern_type in ['email', 'www_address', 'www_address_short']:
+                if tag_email_and_www:
+                    _vocabulary_1.append( pat )
+            elif pattern_type in ['emoticon']:
+                if tag_emoticons:
+                    _vocabulary_1.append( pat )
+            elif pattern_type in ['abbreviation', 'non_ending_abbreviation']:
+                if tag_abbreviations:
+                    _vocabulary_1.append( pat )
+            elif pattern_type in ['negative:temperature_unit', 'name_with_initial']:
+                if tag_initials:
+                    _vocabulary_1.append( pat )
+            else:
+                # There is always room for some extra user-defined patterns
+                _vocabulary_1.append( pat )
         self._tokenization_hints_tagger_1 = RegexTagger(vocabulary=_vocabulary_1,
                                                         output_attributes=('normalized', '_priority_', 'pattern_type'),
                                                         conflict_resolving_strategy=conflict_resolving_strategy,
@@ -194,10 +225,17 @@ class CompoundTokenTagger(Tagger):
         #  2nd level hints tagger
         # =========================
         _vocabulary_2 = []
-        if tag_case_endings:
-            _vocabulary_2.extend(case_endings_patterns)
-        if tag_numbers:
-            _vocabulary_2.extend(number_fixes_patterns)
+        for pat in patterns_2:
+            pattern_type = pat['pattern_type'].lower()
+            if pattern_type in ['case_ending']:
+                if tag_case_endings:
+                    _vocabulary_2.append( pat )
+            elif pattern_type in ['sign', 'percentage']:
+                if tag_numbers:
+                    _vocabulary_2.append( pat )
+            else:
+                # There is always room for some extra user-defined patterns
+                _vocabulary_2.append( pat )
         self._tokenization_hints_tagger_2 = None
         if _vocabulary_2:
             self._tokenization_hints_tagger_2 = RegexTagger(vocabulary=_vocabulary_2,

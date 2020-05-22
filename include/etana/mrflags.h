@@ -10,6 +10,7 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
 #if !defined(MRFLAGS_H)
 #define MRFLAGS_H
 
@@ -23,23 +24,24 @@ of any kind, either express or implied.
 /** Ütleb millisest moodulist (morf analüüsi/sünteesi) tulemus pärineb */
 enum EMRFKUST
 {
-    /** (morf analüüsi/sünteesi) tulemus pärineb määratlemata moodulist */
-    eMRF_XX,
-    /** (morf analüüsi/sünteesi) tulemus pärineb analüüsimooduli põhisõnastikust */
-    eMRF_AP,
+    /** tulemus pärineb määratlemata moodulist */
+    eMRF_X,
+    
+    /** tulemus pärineb põhisõnastikust */
+    eMRF_P,
 
-    /** (morf analüüsi/sünteesi) tulemus pärineb analüüsimooduli lisasõnastikust */
-    eMRF_AL,
+    /** tulemus pärineb lisasõnastikust */
+    eMRF_L,
 
-    /** (morf analüüsi/sünteesi) tulemus pärineb analüüsimooduli oletajast */
-    eMRF_AO,
+    /** tulemus pärineb sõnapõhisest oletajast */
+    eMRF_O,
 
-    /** (morf analüüsi/sünteesi) tulemus pärineb sünteesimooduli põhisõnastikust */
-    eMRF_SP,
+    /** tulemus pärineb lausepõhisest oletajast */
+    eMRF_S,
 
-    /** (morf analüüsi/sünteesi) tulemus pärineb sünteesimooduli  oletajast */
-    eMRF_SO,
-
+    /** ainult MRFTUL_TMPL klassis ja tähendab, et tulemuse päritolu võta vastavast MRFTULEMUSED_TMPL klassist */
+    eMRF_PARITUD,
+        
     /** tulemus on XML märgendit sisaldav string (MRFTULEMUSED_TMPL::s6na) */
     eTAG_XX,
 };
@@ -203,7 +205,7 @@ const MRF_FLAGS_BASE_TYPE MF_VEEBIAADRESS = 0x0000000000800000LL;
 /** 06.1 \a +y ühesta analüüsid, eeldab lõigu-lausemärgendeid */
 const MRF_FLAGS_BASE_TYPE MF_YHESTA = 0x0000000001000000LL;
 /** 06.2 \a +z VABA */
-const MRF_FLAGS_BASE_TYPE MF_vaba62 = 0x0000000002000000LL;
+const MRF_FLAGS_BASE_TYPE MF_vaba062 = 0x0000000002000000LL;
 /** 06.4 \a +0 lisa väljundisse positsioonimärgendid */
 const MRF_FLAGS_BASE_TYPE MF_INTPOS = 0x0000000004000000LL;
 /** 06.8 \a +1 tulemus-string 1le reale kokku */
@@ -228,10 +230,10 @@ const MRF_FLAGS_BASE_TYPE MF_LAUSESTA = 0x0000000800000000LL;
 const MRF_FLAGS_BASE_TYPE MF_KOMA_LAHKU = 0x0000001000000000LL;
 /** 09.2 \a -% VABA */
 const MRF_FLAGS_BASE_TYPE MF_vaba092 = 0x0000002000000000LL;
-/** 09.4       VABA */
-const MRF_FLAGS_BASE_TYPE MF_vaba094 = 0x0000004000000000LL;
-/** 09.8       VABA */
-const MRF_FLAGS_BASE_TYPE MF_vaba098 = 0x0000008000000000LL;
+/** 09.4       lisa analüüsi päritolumoodul */
+const MRF_FLAGS_BASE_TYPE MF_KUST = 0x0000004000000000LL;
+/** 09.8       GT märgend väljundisse */
+const MRF_FLAGS_BASE_TYPE MF_GTMRG = 0x0000008000000000LL;
 /** 10.1 ühestajas ei kasuta mitmesusklasse */
 const MRF_FLAGS_BASE_TYPE T3_MK_KASUTU = 0x0000010000000000LL;
 /** 10.2 ühestajas ei kasuta leksikonist saadud tõenõosusi */
@@ -302,7 +304,7 @@ const MRF_FLAGS_BASE_TYPE MF_MRF_OKFLAGS =
     MF_PIKADVALED | MF_LISAPNANAL | MF_KR6NKSA | MF_LYHREZH | MF_NIMEREZH |
     MF_POOLITA | MF_YHMRG | MF_SPELL | MF_EILUBATABU | MF_EITULETALIIT | MF_ARAROOMA | MF_VEEBIAADRESS |
     MF_YHELE_REALE | MF_IGNORAMP | MF_IGNOREBLK | MF_IGNORETAG |
-    MF_BOM | MF_AUTOSGML | MF_XML | MF_KOMA_LAHKU | MF_V0TAKOKKU;
+    MF_BOM | MF_AUTOSGML | MF_XML | MF_KOMA_LAHKU | MF_V0TAKOKKU | MF_KUST;
 
 // Sünteesiga korral kasutatakse käsurealt saadud lipukmbinatsiooni 
 // morfanalüsaatori väljakutsumisel lippude põhjana, 
@@ -319,7 +321,8 @@ const MRF_FLAGS_BASE_TYPE MF_GEN_OKFLAGS =
 
 /** t3-ühestaja jaoks legaalsed bitid */
 const MRF_FLAGS_BASE_TYPE MF_YHS_OKFLAGS = MF_YHESTA | MF_YHELE_REALE | 
-        MF_KOMA_LAHKU | MF_IGNOREBLK | MF_XML | T3_MK_KASUTU | T3_LEXPKASUTU;
+        MF_KOMA_LAHKU | MF_IGNOREBLK | MF_XML | T3_MK_KASUTU | T3_LEXPKASUTU |
+        MF_YHMRG | MF_KUST;
 
 const MRF_FLAGS_BASE_TYPE LYHVALIK = MF_YHELE_REALE|MF_IGNOREBLK|MF_XML;
 

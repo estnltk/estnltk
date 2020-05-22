@@ -1,7 +1,9 @@
 import unittest
+import regex as re
 
 from estnltk import Text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
+from estnltk.taggers.text_segmentation.compound_token_tagger import ALL_1ST_LEVEL_PATTERNS
 
 class CompoundTokenTaggerTest(unittest.TestCase):
 
@@ -44,6 +46,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
 
 
     def test_detect_emoticons(self):
+        # 1) Test that tagging emoticons is switched on by default
         test_texts = [ 
             { 'text': 'Linalakast eesti talutütar:P Ausõna, nagu meigitud Raja Teele :D', \
               'expected_words': ['Linalakast', 'eesti', 'talutütar', ':P', 'Ausõna', ',', 'nagu', 'meigitud', 'Raja', 'Teele', ':D'] }, \
@@ -59,6 +62,29 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         for test_text in test_texts:
             text = Text( test_text['text'] )
             # Perform analysis
+            text.tag_layer(['words'])
+            words_layer = text['words']
+            # Fetch results
+            word_segmentation = [] 
+            for wid, word in enumerate(words_layer):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
+        # 2) Test that tagging emoticons can also be switched off
+        test_texts = [ 
+            { 'text': 'Maja on fantastiline, mõte on hea :-)', \
+              'expected_words': ['Maja', 'on', 'fantastiline', ',', 'mõte', 'on', 'hea', ':', '-', ')'] }, \
+            { 'text': ':))) Rumal naine ...lihtsalt rumal:D', \
+              'expected_words': [':', ')', ')', ')', 'Rumal', 'naine', '...', 'lihtsalt', 'rumal', ':', 'D'] }, \
+        ]
+        cp_tagger_2 = CompoundTokenTagger(tag_emoticons=False)
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            text.tag_layer(['tokens'])
+            cp_tagger_2.tag(text)
             text.tag_layer(['words'])
             words_layer = text['words']
             # Fetch results
@@ -644,10 +670,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             # Perform analysis
             tokens_tagger.tag(text)
             cp_tagger.tag(text)
-            self.assertTrue( 'my_tokens' in text.layers.keys() )
-            self.assertTrue( 'my_compounds' in text.layers.keys() )
-            self.assertFalse( 'tokens' in text.layers.keys() )
-            self.assertFalse( 'compound_tokens' in text.layers.keys() )
+            self.assertTrue( 'my_tokens' in text.layers)
+            self.assertTrue( 'my_compounds' in text.layers)
+            self.assertFalse( 'tokens' in text.layers)
+            self.assertFalse( 'compound_tokens' in text.layers)
             word_tagger.tag(text)
             words_layer = text['words']
             # Fetch result
@@ -658,6 +684,64 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             #print(word_segmentation)
             # Assert that the tokenization is correct
             self.assertListEqual(test_text['expected_words'], word_segmentation)
+
+
+    def test_userdefined_pattern_for_compoundtokentagger(self):
+        # Tests that CompoundTokenTagger's patterns can be customized
+        example_text_str = 'LED-infotabloo heledus: 5000 cd/m²'
+        # Create a new pattern
+        new_unit_pattern = \
+        { 'comment': '2.3) A pattern for capturing cd/m² units;',
+          'example': 'cd/m²',
+          'pattern_type': 'unit',
+          '_regex_pattern_': re.compile(r'(cd\s*/\s*m²)'),
+          '_group_': 1,
+          '_priority_': (3, 0),
+          'normalized': r"lambda m: re.sub(r'\s' ,'' , m.group(1))",
+        }
+        
+        # Case 0:  token 'cd/m²' will not be formed by default
+        text = Text( example_text_str )
+        text.tag_layer(['compound_tokens'])
+        compound_tokens = [ comp_token.enclosing_text for comp_token in text['compound_tokens'] ]
+        self.assertListEqual(['LED-infotabloo'], compound_tokens)
+        
+        # Case 1: add new rule to the end of default patterns (order should not matter)
+        new_patterns = ALL_1ST_LEVEL_PATTERNS[:]
+        new_patterns.append( new_unit_pattern )
+        assert len(new_patterns) == len(ALL_1ST_LEVEL_PATTERNS) + 1
+        # Create a tagger that uses customized rules
+        cp_tagger = CompoundTokenTagger(patterns_1 = new_patterns)
+        text = Text( example_text_str )
+        text.tag_layer(['tokens'])
+        cp_tagger.tag(text)
+        compound_tokens = [ comp_token.enclosing_text for comp_token in text['compound_tokens'] ]
+        self.assertListEqual(['LED-infotabloo', 'cd/m²'], compound_tokens)
+        
+        # Case 2: insert new rule as the first in default patterns (order should not matter)
+        new_patterns = ALL_1ST_LEVEL_PATTERNS[:]
+        new_patterns.insert( 0, new_unit_pattern )
+        assert len(new_patterns) == len(ALL_1ST_LEVEL_PATTERNS) + 1
+        # Create a tagger that uses customized rules
+        cp_tagger = CompoundTokenTagger(patterns_1 = new_patterns)
+        text = Text( example_text_str )
+        text.tag_layer(['tokens'])
+        cp_tagger.tag(text)
+        compound_tokens = [ comp_token.enclosing_text for comp_token in text['compound_tokens'] ]
+        self.assertListEqual(['LED-infotabloo', 'cd/m²'], compound_tokens)
+        
+        # Case 3: use a custom pattern_type
+        new_unit_pattern['pattern_type'] = 'my_unit'
+        new_patterns = ALL_1ST_LEVEL_PATTERNS[:]
+        new_patterns.append( new_unit_pattern )
+        assert len(new_patterns) == len(ALL_1ST_LEVEL_PATTERNS) + 1
+        # Create a tagger that uses customized rules
+        cp_tagger = CompoundTokenTagger(patterns_1 = new_patterns)
+        text = Text( example_text_str )
+        text.tag_layer(['tokens'])
+        cp_tagger.tag(text)
+        compound_tokens = [ comp_token.enclosing_text for comp_token in text['compound_tokens'] ]
+        self.assertListEqual(['LED-infotabloo', 'cd/m²'], compound_tokens)
 
 
 
@@ -674,10 +758,10 @@ class PretokenizedTextCompoundTokenTaggerTest(unittest.TestCase):
         tokens_tagger.tag(text)
         compound_tokens_tagger.tag(text)
         # assert layers
-        self.assertTrue( 'ws_tokens' in text.layers.keys() )
-        self.assertTrue( 'ws_compound_tokens' in text.layers.keys() )
-        self.assertFalse( 'tokens' in text.layers.keys() )
-        self.assertFalse( 'compound_tokens' in text.layers.keys() )
+        self.assertTrue( 'ws_tokens' in text.layers)
+        self.assertTrue( 'ws_compound_tokens' in text.layers)
+        self.assertFalse( 'tokens' in text.layers)
+        self.assertFalse( 'compound_tokens' in text.layers)
         # assert compound tokens
         self.assertListEqual(text['ws_compound_tokens'].text, ['New', 'York']) 
-        
+

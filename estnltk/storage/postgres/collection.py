@@ -282,7 +282,8 @@ class PgCollection:
                 else:
                     assert set(text.layers) == set(self._structure), '{} != {}'.format(set(text.layers),
                                                                                        set(self._structure))
-                    for layer_name, layer in text.layers.items():
+                    for layer_name in text.layers:
+                        layer = text[layer_name]
                         layer_struct = self._structure[layer_name]
                         assert layer_struct['layer_type'] == 'attached'
                         assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(

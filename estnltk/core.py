@@ -1,9 +1,16 @@
+#    
+#    This module contains constants, paths and functions commonly used in the EstNLTK library.
+#    TODO: consider renaming the module 'core' --> 'base_utils' or 'common_utils'
+#
 import os
 
 PACKAGE_PATH = os.path.dirname(__file__)
 
 # Path to Java resources used by EstNLTK
 JAVARES_PATH = os.path.join(PACKAGE_PATH, 'java', 'res')
+
+# default NER model path
+DEFAULT_PY3_NER_MODEL_DIR = os.path.join(PACKAGE_PATH, 'taggers', 'estner', 'models', 'py3_default')
 
 
 def abs_path(repo_path: str) -> str:
@@ -32,7 +39,6 @@ def abs_path(repo_path: str) -> str:
 def rel_path(repo_path: str) -> str:
     """Relative path to repo_path."""
     return os.path.relpath(os.path.join(PACKAGE_PATH, repo_path))
-
 
 
 # ==============================================================================
@@ -95,4 +101,3 @@ def as_binary(s, encoding='utf-8'):
         return s.decode(encoding).encode(encoding)
     else:
         raise ValueError('Can only convert types {0} and {1}'.format(str, bytes))
-

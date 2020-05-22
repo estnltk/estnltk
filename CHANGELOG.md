@@ -3,6 +3,62 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.6.6-beta] - 2020-05-22
+## Changed
+
+* Updated the C++ source code of EstNLTK's Vabamorf module to be compatible with [Vabamorf's commit 7a44b62dba](https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9) (2020-01-22). The update also adds two new binary lexicons: `2020-01-22_nosp` and `2020-01-22_sp`. However, the old binary lexicons (`2015-05-06` and `2019-10-15`) can no longer be used with the new Vabamorf, so they were removed. For details about binary lexicons, see the section _"Changing Vabamorf's binary lexicons"_ in [this tutorial](https://github.com/estnltk/estnltk/blob/d4319cd65178fc1772c2873ee9b11d238f9745a6/tutorials/nlp_pipeline/B_06_morphological_analysis.ipynb);
+
+* Improved `CorpusBasedMorphDisambiguator`'s `count_inside_compounds` heuristic: lemmas acquired from non-compound words are now also used for reducing ambiguities of last words of compound words. In addition, a user-definable lemma skip list (`ignore_lemmas_in_compounds`) was introduced to the heuristic in order to reduce erroneous disambiguation choices. The name of heuristic's flag was changed from `count_inside_compounds` to `disamb_compound_words`. For details on the usage, see [this tutorial](https://github.com/estnltk/estnltk/blob/45eb6536d36f77284c25a1d4c7c0852d5b033e63/tutorials/nlp_pipeline/B_07b_morph_analysis_with_corpus-based_disambiguation.ipynb).
+
+* Changed Layer removing: in order to delete a layer from `Text` object, use `text.pop_layer( layer_name )`. Old ways of removing (via `del` and `delattr`) are no longer working;
+
+* Reorganized tutorials (including cleaned up some old stuff):
+
+	* Removed `brief_intro_to_text_layers_and_tools.ipynb` (became redundant after `basics_of_estnltk.ipynb` was introduced);
+	* Removed `text_segmentation.ipynb` (it's content is covered by segmentation tutorials in `tutorials/nlp_pipeline`);
+	* Relocated tutorials:
+		* `importing_text_objects_from_corpora.ipynb` to `tutorials/corpus_processing`;
+		* `restoring_pretokenized_text.ipynb` to `tutorials/corpus_processing`;
+		* `estnltk_basic_concepts.ipynb` to `tutorials/system`;
+		* `layer_operations.ipynb` to `tutorials/system`;
+		* `low_level_layer_operations.ipynb` to `tutorials/system`;
+		* `MorphAnalyzedToken`'s tutorial to `tutorials/system`;
+	* Introduced `tutorials/miscellaneous` (currently contains tutorials about morphological synthesis and word syllabification):
+
+
+## Added
+
+* `SpellCheckRetagger`: a Vabamorf-based spelling normalization for the words layer. For details on the usage, see [this tutorial](https://github.com/estnltk/estnltk/blob/5c5ce3a810f7a5e41602156b7044edb63e83532d/tutorials/nlp_pipeline/B_03_segmentation_words_spelling_normalization.ipynb);
+* `MaltParserTagger` which analyses Text with EstNLTK's MaltParser and produces `maltparser_syntax` layer. This should be the most straightforward way of using the MaltParser. [Usage tutorial](https://github.com/estnltk/estnltk/blob/84b12bc7ece6bde6906e8d4fa0d5831d3149fce5/tutorials/syntax/syntax.ipynb);
+* `VabamorfEstCatConverter` -- a tagger which can be used to convert Vabamorf's category names to Estonian (for educational purposes). For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/84b12bc7ece6bde6906e8d4fa0d5831d3149fce5/tutorials/nlp_pipeline/A_01_short_introduction_and_tutorial_for_linguists.ipynb);
+* A heuristic that improves syllabification of compounds in the function `syllabify_word`. The heuristic (`split_compounds`) is switched on by default. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/5c5ce3a810f7a5e41602156b7044edb63e83532d/tutorials/miscellaneous/syllabification.ipynb);
+* Flag `slang_lex` to `VabamorfTagger`. The flag switches on an extended version of Vabamorf's lexicon (namely, the lexicon `2020-01-22_nosp`), which contains extra entries for analysing most common spoken and slang words;
+* Flag `overwrite_existing` to `UserDictTagger`: allows to turn off overwriting of existing analyses, so that only words with `None` analyses will obtain analyses from the user dictionary; 
+* Tutorial `basics_of_estnltk.ipynb`, which provides an overview of the API of EstNLTK 1.6. The tutorial also provides links to more detailed/advanced tutorials. The tutorial should be a "getting started" point for new users of EstNLTK, as well as place for more advanced users to find pointers to further information;
+* Tutorial about Vabamorf-based morphological synthesis ([here](https://github.com/estnltk/estnltk/blob/5c5ce3a810f7a5e41602156b7044edb63e83532d/tutorials/miscellaneous/morphological_synthesis.ipynb)). The interface of the synthesizer is basically the same as in v1.4;
+* Tutorial about Vabamorf-based word syllabification ([here](https://github.com/estnltk/estnltk/blob/5c5ce3a810f7a5e41602156b7044edb63e83532d/tutorials/miscellaneous/syllabification.ipynb));
+* Updated tutorial `importing_text_objects_from_corpora` on how to import texts from Estonian UD treebank;
+* Updated neural morphological tagger's tutorial: added information about where the models can be downloaded;
+* `WordNet`: API that provides means to query Estonian WordNet. Compared to v1.4 queries for definition and examples are missing and synsets can be queried by wn[lemma] as opposed to v1.4's wn.synsets(lemma). Other aspects are comparable to v1.4;
+* `UDPipeTagger` which analyses Text with EstNLTK's UDPipe and produces `udpipe_syntax` layer. [Usage tutorial](https://github.com/estnltk/estnltk/blob/84b12bc7ece6bde6906e8d4fa0d5831d3149fce5/tutorials/syntax/syntax.ipynb)
+* Flag `fix_selfreferences` to `VislTagger`: removes self-references.  
+* `Named Entity Tagging`: Taggers for named entity recognition (NER). One tagger tags whole named entities and the other tagger tags each word separately. CRF model used is the same as in v1.4.
+
+## Fixed
+
+* Vabamorf's initialization bug on Linux: merged fixes from [#97](https://github.com/estnltk/estnltk/issues/97) and pull [#109](https://github.com/estnltk/estnltk/pull/109), and added some conditionals to keep the whole thing compiling and running under Windows (and macOS);
+* Removed a major speed bottleneck from `CompoundTokenTagger`'s patterns (annotating `compound_tokens` should be much faster now);
+* Rule customization in `CompoundTokenTagger`: 1st level and 2nd level patterns can now be updated via constructor parameters `patterns_1` and `patterns_2`;
+* Rule customization in `SentenceTokenizer`: all merge patterns can now be updated via constructor parameter `patterns`;
+* Rule prioritizing in `SyntaxIgnoreTagger` (the output no longer has fluctuations in rule types);
+* Fix in `WordTagger`: 'words' layer can now be created from detached 'tokens' and 'compound_tokens' layers;
+* `syllabify_word`: do not analyse dash and slash in order to avoid crash in Vabamorf's syllabifier;
+* Bug related to setting `'display.max_colwidth'` in `pandas` (affects  `pandas` versions >= 1.0.0);
+* `convert_cg3_to_conll.py`: handles input `'"<s>"'` with analysis correctly 
+
+# [1.6.5.5-beta] - 2020-04-16
+A pre-release only for developers. The list of changes will be documented in the next release.
+
 # [1.6.5-beta] - 2019-12-06
 ## Changed
 

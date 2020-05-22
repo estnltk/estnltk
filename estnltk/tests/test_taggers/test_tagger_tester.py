@@ -32,7 +32,7 @@ def test_tagger_tester():
             self.output_layer = output_layer
             self.output_attributes = output_attributes
             self.input_layers = input_layers
-            self.regex = re.compile('-?\d+')
+            self.regex = re.compile(r'-?\d+')
 
         def _make_layer(self, text, layers, status=None):
             layer = Layer(self.output_layer, text_object=text)
@@ -88,7 +88,7 @@ def test_tagger_tester():
             self.output_layer = output_layer
             self.output_attributes = output_attributes
             self.input_layers = input_layers
-            self.regex = re.compile('-?\d')  # this regex is changed
+            self.regex = re.compile(r'-?\d')  # this regex is changed
 
         def _make_layer(self, text, layers, status=None):
             layer = Layer(self.output_layer, text_object=text)

@@ -4,7 +4,7 @@ from os.path import dirname, join
 import estnltk.taggers.syntax_preprocessing as syntax_pp
 
 def test_abileksikon():
-    nonSpacePattern = regex.compile('^\S+$')
+    nonSpacePattern = regex.compile(r'^\S+$')
     posTagPattern   = regex.compile('_._')
     file = join(dirname(syntax_pp.__file__), 'rules_files', 'abileksikon06utf.lx')
     # not sure if this set is complete

@@ -116,8 +116,8 @@ def test_change_input_output_layer_names_of_clause_segmenter():
             morftagger.tag( text )
             segmenter.tag( text )
             # Initial assertions
-            assert 'my_clauses' in text.layers.keys()
-            assert 'clauses' not in text.layers.keys()
+            assert 'my_clauses' in text.layers
+            assert 'clauses' not in text.layers
             # Collect results 
             clause_word_texts = \
                 [[word.text for word in clause.spans] for clause in text['my_clauses']]

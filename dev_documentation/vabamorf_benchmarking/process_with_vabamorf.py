@@ -193,11 +193,11 @@ for i in range(iterations):
         if fname.endswith('json'):
             fpath = os.path.join(in_dir, fname)
             text_obj = json_to_text(file=fpath)
-            assert 'morph_analysis' not in text_obj.layers.keys()
+            assert 'morph_analysis' not in text_obj.layers
             start_time = datetime.now()
             morph_tagger1.tag( text_obj )
             time_deltas.append( datetime.now() - start_time )
-            assert 'morph_analysis' in text_obj.layers.keys()
+            assert 'morph_analysis' in text_obj.layers
             word_count += len(text_obj['words'])
             text_count += 1
         #if fid > 50:
@@ -231,11 +231,11 @@ for i in range(iterations):
         if fname.endswith('json'):
             fpath = os.path.join(in_dir, fname)
             text_obj = json_to_text(file=fpath)
-            assert 'morph_analysis' not in text_obj.layers.keys()
+            assert 'morph_analysis' not in text_obj.layers
             start_time = datetime.now()
             morph_tagger2.tag( text_obj )
             time_deltas.append( datetime.now() - start_time )
-            assert 'morph_analysis' in text_obj.layers.keys()
+            assert 'morph_analysis' in text_obj.layers
             word_count += len(text_obj['words'])
             text_count += 1
         #if fid > 50:

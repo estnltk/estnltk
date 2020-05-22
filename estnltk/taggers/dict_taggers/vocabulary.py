@@ -307,8 +307,6 @@ class Vocabulary:
         return 'background-color: %s;' % color
 
     def _repr_html_(self):
-        set_option('display.max_colwidth', -1)
-
         res = []
         keys = sorted(self.mapping, key=lambda x: to_str(x))
         for k in keys:

@@ -1,6 +1,4 @@
 from IPython.display import display_html
-from estnltk.visualisation.span_visualiser.direct_plain_span_visualiser import DirectPlainSpanVisualiser
-from estnltk.visualisation.span_visualiser.indirect_plain_span_visualiser import IndirectPlainSpanVisualiser
 from estnltk.visualisation.span_visualiser.plain_span_visualiser import PlainSpanVisualiser
 from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
 from estnltk.core import abs_path
@@ -15,16 +13,8 @@ class DisplaySpans:
     css_file = abs_path("visualisation/span_visualiser/prettyprinter.css")
     _text_id = 0
 
-    def __init__(self, styling="both", **kwargs):
-        self.styling = styling
-        if self.styling == "direct":
-            self.span_decorator = DirectPlainSpanVisualiser(**kwargs)
-        elif self.styling == "indirect":
-            self.span_decorator = IndirectPlainSpanVisualiser(**kwargs)
-        elif self.styling == "both":
-            self.span_decorator = PlainSpanVisualiser(text_id=self._text_id, **kwargs)
-        else:
-            raise ValueError(styling)
+    def __init__(self, **kwargs):
+        self.span_decorator = PlainSpanVisualiser(text_id=self._text_id, **kwargs)
 
     def __call__(self, layer):
 
@@ -39,8 +29,6 @@ class DisplaySpans:
         outputs.append(self.css())
 
         # put html together from js, css and html spans
-        if self.styling == "indirect":
-            outputs.append(self.css())
         for segment in segments:
             outputs.append(self.span_decorator(segment, span_list).replace("\n","<br>"))
 
@@ -61,9 +49,3 @@ class DisplaySpans:
             contents = css_file.read()
             output = ''.join(["<style>\n", contents, "</style>"])
         return output
-
-    def update_class_mapping(self, class_mapping, css_file=None):
-        if self.styling == "indirect":
-            self.class_mapping = class_mapping
-            if self.css_file is not None:
-                self.update_css(css_file)

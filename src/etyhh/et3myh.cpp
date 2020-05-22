@@ -10,6 +10,7 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
 #include <assert.h>
 #include <stdio.h>
 
@@ -126,7 +127,8 @@ void ET3UTF8AHEL::Run(AHEL2_UTF8& analyysid)
     
     // Leiame morf analüüside==sõnade tegeliku arvu ahelas.
     // analyysid.idxLast-nSona==tag'ide arv massiivis analyysid
-    int nSona;
+    int nSona;    
+    
     for (nSona = 0, i = 0; i < analyysid.idxLast; i++)
     {
         if (analyysid[i]->lipp & PRMS_MRF)
@@ -182,7 +184,7 @@ ARVUTA_INDEKSID:
             MKLASS* mKlass = mKlassid.Get(&tagIdxArr);
             if (mitmesusKlassKasutu == false && mKlass != NULL)
             {
-                // Tõenäosused leia varemarvutatud mitmesusklassidest.
+                // Tõenäosused varemarvutatud sõnavormiga mitteseotud mitmesusklassist.
                 for (j = 0; j < mKlass->n; j++)
                     sProb.Obj(i, mKlass->tagIdxProb[j].tagIdx) =
                     mKlass->tagIdxProb[j].tagProb;

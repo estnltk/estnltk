@@ -23,8 +23,7 @@ class WhiteSpaceTokensTagger(Tagger):
        correctly tokenized by whitespaces, and you do not need to apply 
        any extra tokenization rules. """
     attributes   = ()
-    conf_param   = ['depends_on', 'layer_name',  # <- For backward compatibility ...
-                   ]
+    conf_param   = ()
 
     def __init__(self, output_layer: str = 'tokens'):
         """
@@ -38,8 +37,6 @@ class WhiteSpaceTokensTagger(Tagger):
         """
         self.output_layer = output_layer
         self.input_layers = []
-        self.layer_name   = self.output_layer  # <- For backward compatibility
-        self.depends_on   = []                 # <- For backward compatibility
         self.output_attributes = ()
 
     def _make_layer(self, text, layers: MutableMapping[str, Layer], status: dict) -> Layer:

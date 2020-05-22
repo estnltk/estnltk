@@ -616,23 +616,138 @@ def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False
     return Vabamorf.instance().synthesize(lemma, form, partofspeech, hint, guess, phonetic)
 
 
+# Note: dash and slash are special symbols for Vabamorf's syllabifier
+# marking points where words are split.
+# Analysing these characters alone causes syllabifier to crash, so 
+# we should refrain from analysing them and only analyse strings and 
+# symbols around them.
+_SPECIAL_SYMBOL_SYLLABLES = { \
+  '-' : {'syllable': '-','quantity': 3, 'accent': 1 },
+  '/' : {'syllable': '/','quantity': 3, 'accent': 1,}
+}
+
+# Prepares word for syllabification: tokenizes word in a way 
+# that dash and slash are separate symbols
+def _split_word_for_syllabification( word_text ):
+    split_word = [[]]
+    for cid, c in enumerate( word_text ):
+        if c not in ['-', '/']:
+            split_word[-1].append(c)
+        else:
+            if len(split_word[-1]) > 0:
+                split_word.append([])
+            split_word[-1].append(c)
+            if cid+1 < len(word_text):
+                split_word.append([])
+    return [''.join(chars) for chars in split_word]
+
+
+# Heuristic: attempts to split the input word by its 
+# compound word boundaries. Only succeeds if:
+#  a) the input word is unambiguously a compound word;
+#  b) lemma and the surface form of the input word 
+#     match by prefix (to extent of compound word 
+#     boundaries);
+def _split_compound_word_heuristically( word_text ):
+    # Discard unanalysable inputs
+    if word_text is None or len(word_text) == 0 or word_text.isspace():
+        return [word_text]
+    # Apply morph analysis to determine if we have a compound
+    analyses_of_word = \
+        analyze(word_text,guess=True,propername=True,disambiguate=False)
+    all_root_tokens = []
+    for a in analyses_of_word[0]['analysis']:
+        if a['root_tokens'] not in all_root_tokens:
+            all_root_tokens.append( a['root_tokens'] )
+    if len(all_root_tokens) == 1:
+        # The compound is unambiguous
+        all_root_tokens = all_root_tokens[0]
+        # Throw out empty strings
+        all_root_tokens = [rt for rt in all_root_tokens if len(rt) > 0]
+        if len(all_root_tokens) < 2:
+            # Nothing to split here: move along! 
+            return [word_text]
+        # Assume prefix of the root can be matched to prefix of the 
+        # surface form; Split as long as there is a match:
+        c = 0
+        i = 0
+        j = 0
+        split_word_text = [[]]
+        wc = ''
+        rc = ''
+        while c < len(word_text):
+            wc = word_text[c]
+            rc = all_root_tokens[i][j]
+            if wc == rc:
+                split_word_text[-1].append( wc )
+            else:
+                # break in case of a mismatch
+                # (unable to match inflected lemma)
+                break
+            c += 1
+            j += 1
+            if j >= len(all_root_tokens[i]):
+                j = 0
+                i += 1
+                if i >= len(all_root_tokens):
+                    break 
+                # Make a break in word_text
+                if len(split_word_text[-1]) > 0 and \
+                   c < len(word_text):
+                    split_word_text.append([])
+        while c < len(word_text):
+            wc = word_text[c]
+            split_word_text[-1].append( wc )
+            c += 1
+        return [''.join(chars) for chars in split_word_text]
+    # If the compound was ambiguous, or there were problems with 
+    # determining the compound boundaries, the return the input 
+    # text without splitting:
+    return [word_text]
+
+
 def syllable_as_dict(syllable):
+    if isinstance(syllable, dict):
+        return syllable
     return dict(syllable=syllable.syllable,
                 quantity=syllable.quantity,
                 accent=syllable.accent)
 
 
 def syllable_as_tuple(syllable):
+    if isinstance(syllable, dict):
+        return (syllable['syllable'], syllable['quantity'], syllable['accent'])
     return syllable.syllable, syllable.quantity, syllable.accent
 
 
-def syllabify_word(word, as_dict=True):
-    syllables = vm.syllabify(convert(word))
+def syllabify_word(word, as_dict=True, split_compounds=True):
+    # Split word by special symbols
+    word_tokens = _split_word_for_syllabification(word)
+    raw_syllables = []
+    for token in word_tokens:
+        if token in _SPECIAL_SYMBOL_SYLLABLES:
+            # If the token is a special symbol, then do not apply
+            # Vabamorf on it -- instead, take the symbol from 
+            # dictionary
+            raw_syllables.append( _SPECIAL_SYMBOL_SYLLABLES[token] )
+        else:
+            if not split_compounds:
+                # The old syllabification: does not take account 
+                # of compound word boundaries
+                syllables = vm.syllabify(convert(token))
+                raw_syllables.extend( syllables )
+            else:
+                # Split word by compound word boundaries (heuristic)
+                subwords = _split_compound_word_heuristically( token )
+                # Syllabify each subword separately
+                for subword in subwords:
+                    syllables = vm.syllabify(convert(subword))
+                    raw_syllables.extend( syllables )
     if as_dict:
-        return [syllable_as_dict(syllable) for syllable in syllables]
-    return [syllable_as_tuple(syllable) for syllable in syllables]
+        return [syllable_as_dict(syllable) for syllable in raw_syllables]
+    return [syllable_as_tuple(syllable) for syllable in raw_syllables]
 
 
-def syllabify_words(words, as_dict=True):
-    return [syllabify_word(w, as_dict) for w in words]
+def syllabify_words(words, as_dict=True, split_compounds=True):
+    return [syllabify_word(w, as_dict=as_dict, split_compounds=split_compounds) for w in words]
 

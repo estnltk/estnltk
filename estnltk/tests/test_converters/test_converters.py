@@ -102,8 +102,8 @@ def test_TCF_export_import():
     assert TCF_text == export_TCF(text_import)
 
     text = Text(T_2).tag_layer(['morph_analysis', 'sentences'])
-    del text.tokens
-    del text.words
+    text.pop_layer('tokens')
+    text.pop_layer('words')
     TCF_text = export_TCF(text)
     text_import = import_TCF(TCF_text)
     assert text_import == text  
@@ -140,13 +140,13 @@ def test_TCF_export_import():
     assert export_TCF(import_TCF(export_TCF(text, version='0.5')), version='0.5') == export_TCF(text, version='0.5')
 
     # version 0.5
-    del text.paragraphs
+    text.pop_layer('paragraphs')
 
     result = import_TCF(export_TCF(text, version='0.5'))
     assert text == result, text.diff(result)
 
     # version 0.4
-    del text.clauses
-    del text.verb_chains
-    del text.time_phrases
+    text.pop_layer('clauses')
+    text.pop_layer('verb_chains')
+    text.pop_layer('time_phrases')
     assert text == import_TCF(export_TCF(text))
