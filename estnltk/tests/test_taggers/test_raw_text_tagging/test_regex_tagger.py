@@ -7,10 +7,10 @@ def test_validator():
         return not m.group(0).startswith('0')
 
     vocabulary = [
-        {'_regex_pattern_': '\d+',
+        {'_regex_pattern_': r'\d+',
          '_validator_': validator,
          'comment': 'starts with non-zero'},
-        {'_regex_pattern_': '\d+',
+        {'_regex_pattern_': r'\d+',
          '_validator_': lambda m: m.group(0).startswith('0'),
          'comment': 'starts with zero'}
     ]

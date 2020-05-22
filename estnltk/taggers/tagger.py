@@ -1,4 +1,4 @@
-from typing import MutableMapping, Sequence
+from typing import MutableMapping, Sequence, Set, Union
 
 from estnltk.text import Text
 from estnltk.layer.layer import Layer
@@ -70,11 +70,43 @@ class Tagger(metaclass=TaggerChecker):
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
     # TODO: rename layers -> detached_layers ?
-    def make_layer(self, text: Text, layers: MutableMapping[str, Layer] = None, status: dict = None) -> Layer:
+    # TODO: change argument type layers: Set[str]
+    def make_layer(self, text: Text, layers: Union[MutableMapping[str, Layer], Set[str]] = None, status: dict = None) -> Layer:
+        """
+        # TODO: Add documentation
+        :param text:
+        :param layers:
+        :param status:
+        :return:
+
+        # QUICK FIXES:
+        layers should be a dictionary of layers but due to the changes in the Text object signature, it is actually a
+        list of layer names which will cause a lot of problems in refactoring. Hence, we convert list of layer names
+        to dictionary of layers.
+
+        # REFLECTION:
+        Adding layers as a separate argument is justified only if the layer is not present in the text object but
+        then these layers become undocumented input which make the dependency graph useless.
+
+        The only useful place where layers as separate argument is useful is in text collectons where we cn work with
+        detached layers directly.
+
+        Hence, it makes sense to rename layers parameter as detached_layers and check that these are indeed detached
+        Also fix some resolving order for the case text[layer] != layers[layer]
+
+        BUG: The function alters layers if it is specified as variable. This can lead to unexpected results
+        """
         assert status is None or isinstance(status, dict), 'status should be None or dict, not {!r}'.format(type(status))
         if status is None:
             status = {}
+
         layers = layers or {}
+
+        # Quick fix for refactoring problem (does not propagate changes out of the function)
+        if type(layers) == set and (not layers or set(map(type, layers)) == {str}):
+            layers = {layer: text[layer] for layer in layers}
+        # End of fix
+
         for layer in self.input_layers:
             if layer in layers:
                 continue
@@ -88,6 +120,7 @@ class Tagger(metaclass=TaggerChecker):
         except Exception as e:
             e.args += ('in the {!r}'.format(self.__class__.__name__),)
             raise
+
         assert isinstance(layer, Layer), '{}._make_layer did not return a Layer object, but {!r}'.format(
                                            self.__class__.__name__, type(layer))
         assert layer.text_object is text, '{}._make_layer returned a layer with incorrect Text object'.format(
@@ -99,6 +132,7 @@ class Tagger(metaclass=TaggerChecker):
         assert layer.name == self.output_layer,\
             '{}._make_layer returned a layer with incorrect name: {} != {}'.format(
                     self.__class__.__name__, layer.name, self.output_layer)
+
         return layer
 
     def tag(self, text: Text, status: dict = None) -> Text:
@@ -115,7 +149,6 @@ class Tagger(metaclass=TaggerChecker):
 
     def _repr_html_(self):
         import pandas
-        pandas.set_option('display.max_colwidth', -1)
         parameters = {'name': self.__class__.__name__,
                       'output layer': self.output_layer,
                       'output attributes': str(self.output_attributes),

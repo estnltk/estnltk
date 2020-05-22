@@ -89,15 +89,13 @@ class WordTagger(Tagger):
         compounds = set()
         for spl in layers[self._input_compound_tokens_layer]:
             words.add_annotation(ElementaryBaseSpan(spl.start, spl.end), normalized_form=spl.normalized)
-            for sp in spl:
-                compounds.add(sp.base_span)
+            for sp in spl.base_span:
+                assert isinstance(sp, ElementaryBaseSpan)
+                compounds.add( sp )
 
         for span in layers[self._input_tokens_layer]:
             if span.base_span not in compounds:
                 words.add_annotation(span.base_span, normalized_form=None)
 
-        # 2) Apply custom word normalization 
-        #    ( to be implemented if required )
-
-        # 3) Return results
+        # 2) Return results
         return words

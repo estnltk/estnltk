@@ -46,13 +46,8 @@ class TimexTagger( Tagger ):
                    '_input_words_layer', '_input_sentences_layer',
                    '_input_morph_analysis_layer',
                    # Internal process
-                   '_java_process',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name', 'attributes'
+                   '_java_process'
                   ]
-    layer_name = output_layer       # <- For backward compatibility ...
-    attributes = output_attributes  # <- For backward compatibility ...
-    depends_on = input_layers       # <- For backward compatibility ...
 
     def __init__(self, 
                        output_layer:str='timexes',
@@ -121,8 +116,6 @@ class TimexTagger( Tagger ):
         self._input_sentences_layer = input_sentences_layer
         self._input_morph_analysis_layer = input_morph_analysis_layer
         self.input_layers = [input_words_layer, input_sentences_layer, input_morph_analysis_layer]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
         # Set configuration
         self.pick_first_in_overlap = pick_first_in_overlap
         self.mark_part_of_interval = mark_part_of_interval
@@ -306,7 +299,7 @@ class TimexTagger( Tagger ):
 
     def _convert_timex_dict_to_ordered_dict( self, timex:dict ):
         ''' Converts timex dictionary into an OrderedDict, in which the keys 
-            are ordered the same way as the TimexTagger.attributes are.
+            are ordered the same way as the TimexTagger.output_attributes are.
             In addition, rewrites TIMEX attribute names and values from the 
             camelCase format (e.g. 'temporalFunction', 'anchorTimeID') to
             Python's format, and normalizes boolean values ('true' -> True);
@@ -320,10 +313,10 @@ class TimexTagger( Tagger ):
             -------
             OrderedDict
                 OrderedDict corresponding to the timex, in which the keys 
-                are ordered the same way as in TimexTagger.attributes.
+                are ordered the same way as in TimexTagger.output_attributes.
         '''
         ordered_timex_dict = OrderedDict()
-        for attrib in self.attributes:
+        for attrib in self.output_attributes:
             # tid
             if attrib == 'tid' and attrib in timex.keys():
                ordered_timex_dict[attrib] = timex[attrib]
@@ -514,7 +507,7 @@ class TimexTagger( Tagger ):
         #
         # C.2) Create a new layer and populated with collected timexes
         #
-        layer = Layer(name=self.layer_name, text_object=text,
+        layer = Layer(name=self.output_layer, text_object=text,
                       enveloping=self._input_words_layer, 
                       attributes=self.output_attributes, 
                       ambiguous=False)

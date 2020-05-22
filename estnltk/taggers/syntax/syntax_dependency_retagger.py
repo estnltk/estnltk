@@ -30,27 +30,29 @@ class SyntaxDependencyRetagger(Retagger):
 
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict):
         layer = layers[self.output_layer]
-
         attributes = list(layer.attributes)
         attributes.extend(attr for attr in ['parent_span', 'children']
-                                   if attr not in layer.attributes)
+                          if attr not in layer.attributes)
         layer.attributes = tuple(attributes)
 
         id_to_span = {}
         id_to_children = defaultdict(list)
 
-        for span in layer:
+        for i, span in enumerate(layer):
+
             id_ = span.annotations[0].id
             head = span.annotations[0].head
             assert all(annotation.id == id_ for annotation in span.annotations)
             assert all(annotation.head == head for annotation in span.annotations)
 
-            if id_ == 1:
+            if id_ == 1:  # new sentence starts
+
                 annotate_spans(id_to_span, id_to_children)
                 id_to_span = {}
                 id_to_children = defaultdict(list)
 
             id_to_span[id_] = span
+
             id_to_children[head].append(span)
 
         annotate_spans(id_to_span, id_to_children)
@@ -63,5 +65,3 @@ def annotate_spans(id_to_span, id_to_children):
         for annotation in span.annotations:
             annotation.parent_span = id_to_span.get(annotation.head)
             annotation.children = tuple(id_to_children[id_])
-
-

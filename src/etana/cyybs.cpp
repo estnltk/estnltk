@@ -10,6 +10,7 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
 // 2002.06.13
 //
 // TV000823 'cXXfirst()' annab 0pikkusega stringi peale 'POLE_YLDSE'
@@ -63,25 +64,29 @@ int cTYVEINF::cXXfirst( //==0:leidis;==POLE_SEDA,POLE_YLDSE:polnud
         for(i=0; i < nS6naLiiki; i++)
             {
             int tmp;
-			dptr[i].piiriKr6nksud = pre.v_piir(); // TV 990312            
+            //dptr[i].piiriKr6nksud = pre.v_piir(); // TV990312, enam ei ole TV191101            
             tmp = (((int)(ptr[0]))&0xFF) | ( (((int)(ptr[1]))&0xFF)<<8);
             dptr[i].idx.blk_idx = (_uint8)((tmp   )& 0x3F );
             dptr[i].idx.tab_idx = (_int16)((tmp>>6)& 0x3FF);
+            
+            dptr[i].piiriKr6nksud = ((int)(ptr[2]))&0xFF;
+            
             switch(nKr6nksuBaiti)
                 {
                 case 1:
-                    dptr[i].lisaKr6nksud=((_int16)(ptr[2]))&0xFF;
+                    dptr[i].lisaKr6nksud=((_int16)(ptr[3]))&0xFF;
                     break;
                 case 2:
-                    dptr[i].lisaKr6nksud=(_int16)(((unsigned)(ptr[2])) | (((unsigned)(ptr[3])) << 8));
+                    dptr[i].lisaKr6nksud=(_int16)(((unsigned)(ptr[3])) | (((unsigned)(ptr[4])) << 8));
                     break;
                 }
-            ptr += sizeof(_uint8)+sizeof(_uint8)+nKr6nksuBaiti;
+            // kettal on see nii suur
+            ptr += (sizeof(_uint8)+sizeof(_uint8))+sizeof(_uint8)+nKr6nksuBaiti;
             MKT1c *rec;
             if((rec=tyveMuutused.Get(dptr[i].idx.tab_idx,dptr[i].idx.blk_idx))==NULL) 
                 {
-//printf("%s:%d -- SUUR JAMA\n", __FILE__,__LINE__);
-                // vale l�pu # grupis 
+                //printf("%s:%d -- SUUR JAMA\n", __FILE__,__LINE__);
+                // vale lõpu # grupis 
                 throw(VEAD(ERR_MG_MOOTOR,ERR_ROTTEN,__FILE__,__LINE__, "$Revision: 557 $"));
                 }
             dptr[i].lg_nr = rec->lgNr; 

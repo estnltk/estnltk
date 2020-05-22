@@ -33,7 +33,6 @@ class Taggers:
         for layer_name in self.list_layers():
             records.append(self.rules[layer_name].parameters())
         import pandas
-        pandas.set_option('display.max_colwidth', -1)
         df = pandas.DataFrame.from_records(records, columns=['name',
                                                              'layer',
                                                              'attributes',
@@ -74,6 +73,7 @@ from .taggers.text_segmentation.compound_token_tagger import CompoundTokenTagger
 from .taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer
 from .taggers.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
 from .taggers.morph_analysis.morf import VabamorfTagger
+from .taggers.morph_analysis.vm_est_cat_names import VabamorfEstCatConverter
 from .taggers.syntax_preprocessing.morph_extended_tagger import MorphExtendedTagger
 from .taggers.text_segmentation.clause_segmenter import ClauseSegmenter    # Requires Java
 
@@ -88,18 +88,21 @@ def make_resolver(
                  guess       =DEFAULT_PARAM_GUESS,
                  propername  =DEFAULT_PARAM_PROPERNAME,
                  phonetic    =DEFAULT_PARAM_PHONETIC,
-                 compound    =DEFAULT_PARAM_COMPOUND):
+                 compound    =DEFAULT_PARAM_COMPOUND,
+                 slang_lex   =False):
     vabamorf_tagger = VabamorfTagger(
                                      disambiguate=disambiguate,
                                      guess=guess,
                                      propername=propername,
                                      phonetic=phonetic,
-                                     compound=compound
+                                     compound=compound,
+                                     slang_lex=slang_lex
                                      )
 
     taggers = Taggers([TokensTagger(), WordTagger(), CompoundTokenTagger(),
                        SentenceTokenizer(), ParagraphTokenizer(),
-                       vabamorf_tagger, MorphExtendedTagger(), ClauseSegmenter()])
+                       vabamorf_tagger, MorphExtendedTagger(), ClauseSegmenter(),
+                       VabamorfEstCatConverter()])
     return Resolver(taggers)
 
 

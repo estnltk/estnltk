@@ -14,3 +14,11 @@ from estnltk.text import Text
 
 from estnltk.taggers.tagger import Tagger
 from estnltk.taggers.retagger import Retagger
+
+from distutils.version import LooseVersion
+import pandas
+
+if LooseVersion(pandas.__version__) < LooseVersion('1'):
+    pandas.set_option('display.max_colwidth', -1)
+else:
+    pandas.set_option('display.max_colwidth', None)

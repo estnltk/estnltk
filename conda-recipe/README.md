@@ -38,7 +38,7 @@ Notes:
           
         conda create -n test_35 python=3.5 -y
 		conda activate test_35
-		conda install -c estnltk/label/dev estnltk -y
+		conda install -c estnltk/label/dev -c conda-forge estnltk -y
 		python -c "import estnltk; print(estnltk.Text('Tere, maailm\!').analyse('all'))"
 			
 		conda deactivate
@@ -53,11 +53,15 @@ Notes:
 
 This instruction assumes that you have already completed a Travis CI build for Linux and MacOSX, and the source required for the build is in the branch  `version_1.6_travis`.
 
-1. Download the source from github: 
+1. Update `conda`:
+
+		conda update conda
+
+2. Download the source from github: 
 
         git clone --depth=50 --branch=version_1.6_travis https://github.com/estnltk/estnltk.git
 
-2. Create and set up a conda environment for the build, for instance:
+3. Create and set up a conda environment for the build, for instance:
 
         conda create -n py3.5_conda_build python=3.5
         conda activate py3.5_conda_build
@@ -66,16 +70,16 @@ This instruction assumes that you have already completed a Travis CI build for L
     Notes:
  
 	* If you are using win-64, and you want to build for win-32, you can call `set CONDA_FORCE_32BIT=1` before creating the new environment. This will force conda to use 32-bit Python in the new environment;
-	* If building with the latest `conda-build` fails, you may try installing the last successfully used version of `conda-build`. In creating the last EstNLTK beta version, we used `conda-build=3.15.1` for Python 3.5 (for both x86 and x64), `conda-build=3.17.8` for Python 3.6 (x64), and `conda-build=3.17.7` for Python 3.6 (x86);
+	* If building with the latest `conda-build` fails, you may try installing the last successfully used version of `conda-build`. In creating the last EstNLTK beta version, we used `conda-build=3.15.1` for Python 3.5 (for both x86 and x64), `conda-build=3.18.11` for Python 3.6 (for both x86 and x64);
 
 
-3. In order to compile estnltk's _Vabamorf_ extension, you'll need to have [Microsoft Visual Studio](https://visualstudio.microsoft.com) installed in the system. Note: which Visual C++ compiler you need depends on the specific Python version (see [this document](https://wiki.python.org/moin/WindowsCompilers) for details). In the following, _Microsoft Visual Studio Community Edition 2017_ (Visual C++ 14.0) was used.
+4. In order to compile estnltk's _Vabamorf_ extension, you'll need to have [Microsoft Visual Studio](https://visualstudio.microsoft.com) installed in the system. Note: which Visual C++ compiler you need depends on the specific Python version (see [this document](https://wiki.python.org/moin/WindowsCompilers) for details). In the following, _Microsoft Visual Studio Community Edition 2017_ (Visual C++ 14.0) was used.
 
-	3.1. Locate `vcvarsall.bat` in the Visual Studio installation directory, and use it to initialize compiling environment for `x64` (win-64) or `x86` (win-32). For instance:
+	4.1. Locate `vcvarsall.bat` in the Visual Studio installation directory, and use it to initialize compiling environment for `x64` (win-64) or `x86` (win-32). For instance:
 
         call "c:\Program Files (x86)\Microsoft Visual Studio Community 2017\VC\Auxiliary\Build\vcvarsall.bat" x64
     
-    3.2. (Optional) Set `VS140COMNTOOLS` and `VS100COMNTOOLS` environment variables, for instance:
+    4.2. (Optional) Set `VS140COMNTOOLS` and `VS100COMNTOOLS` environment variables, for instance:
 
         SET %VS140COMNTOOLS%="C:\Program Files (x86)\Microsoft Visual Studio Community 2017\Common7\Tools"
         SET VS100COMNTOOLS=%VS140COMNTOOLS%
@@ -87,7 +91,7 @@ This instruction assumes that you have already completed a Travis CI build for L
     during the building process in step 4.
 
 
-4. Navigate into the windows recipe directory and launch the build, for instance:
+5. Navigate into the windows recipe directory and launch the build, for instance:
 
         cd conda-recipe\windows
         conda build -c conda-forge --py 3.5  .
@@ -98,7 +102,7 @@ This instruction assumes that you have already completed a Travis CI build for L
  
         anaconda upload C:\Miniconda3\envs\py3.5_conda_build\conda-bld\win-64\estnltk-1.6.Xbeta-3.5.tar.bz2
 
-5. Install _anaconda-client_, login and upload the package to _anaconda.org_:
+6. Install _anaconda-client_, login and upload the package to _anaconda.org_:
 
         conda install anaconda-client
         anaconda login
@@ -107,11 +111,11 @@ This instruction assumes that you have already completed a Travis CI build for L
 
      Note: if you previously used `set CONDA_FORCE_32BIT=1`, you should now use `set CONDA_FORCE_32BIT=` before installing `anaconda-client`;
 
-6. Finally, test the installation in a new conda environment:
+7. Finally, test the installation in a new conda environment:
 
         conda create -n test_35 python=3.5 -y
 		conda activate test_35
-		conda install -c estnltk/label/dev estnltk -y
+		conda install -c estnltk/label/dev -c conda-forge estnltk -y
 		python -c "import estnltk; print(estnltk.Text('Tere, maailm!').analyse('all'))"
 			
 		conda deactivate

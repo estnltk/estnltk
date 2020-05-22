@@ -10,6 +10,10 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
+// 2000.07.14 TV 
+
+
 // 2000.07.14 TV 
 
 #if !defined( CxxBS3_H )
@@ -89,17 +93,20 @@ typedef struct
 
 #define V0RDLE      0
 
+/**
+ * kokkupakitud sõnastikus kettal: kokkulangevad (1b), erinavad (1b), sõnaliikide tab idx (2b)
+*/
 class PREFIKS
     {
     public:
-        enum { pakitudPrefiksiSuurus=4 };
+        enum { pakitudPrefiksiSuurus=sizeof(UB1)+sizeof(UB1)+sizeof(UB2) };
 
-        inline int v_piir(void)      const {return prfxPiir;      };
+        //inline int v_piir(void)      const {return prfxPiir;      };
         inline int v_samasid(void)   const {return prfxSamasid;   };
         inline int v_erinevaid(void) const {return prfxErinevaid; };
         inline int v_tabidx(void)    const {return prfxTabidx;    };
 
-        inline void p_piir(const int _prfxPiir_) { prfxPiir=_prfxPiir_; };
+        //inline void p_piir(const int _prfxPiir_) { prfxPiir=_prfxPiir_; };
         inline void p_samasid(const int _prfxSamasid_) { prfxSamasid=_prfxSamasid_; };
         inline void p_erinevaid(const int _prfxErinevaid_) { prfxErinevaid=_prfxErinevaid_; };
         inline void p_tabidx(const int _prfxTabidx_) { prfxTabidx=_prfxTabidx_; };
@@ -108,15 +115,18 @@ class PREFIKS
             const unsigned char *ptr
             )
             {
-            STRSOUP::ReadUnsignedFromString<UB1,int>(ptr  , &prfxPiir);
-            STRSOUP::ReadUnsignedFromString<UB1,int>(ptr+1, &prfxSamasid);
-            STRSOUP::ReadUnsignedFromString<UB1,int>(ptr+2, &prfxErinevaid);
-            STRSOUP::ReadUnsignedFromString<UB2,int>(ptr+3, &prfxTabidx);
+            //STRSOUP::ReadUnsignedFromString<UB1,int>(ptr  , &prfxPiir);
+            STRSOUP::ReadUnsignedFromString<UB1,int>(ptr+0, &prfxSamasid);
+            assert(prfxSamasid>=0 && prfxSamasid<= 0xff);
+            STRSOUP::ReadUnsignedFromString<UB1,int>(ptr+1, &prfxErinevaid);
+            assert(prfxErinevaid>=0 && prfxErinevaid<=0xff);
+            STRSOUP::ReadUnsignedFromString<UB2,int>(ptr+2, &prfxTabidx);
+            assert(prfxTabidx>=0 && prfxTabidx<=0xffff);
             }
 
         unsigned char *PrefiksToBytes(
             unsigned char *ptr,
-            const int _prfxPiir_,
+            //const int _prfxPiir_,
             const int _prfxSamasid_,
             const int _prfxErinevaid_,
             const int _prfxTabidx_,
@@ -125,7 +135,7 @@ class PREFIKS
             {
             if(_pakitudPrefiksiSuurus_!=pakitudPrefiksiSuurus)
                 throw VEAD(ERR_MORFI_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__,"$Revision: 1205 $");
-            prfxPiir     =_prfxPiir_;
+            //prfxPiir     =_prfxPiir_;
             prfxSamasid  =_prfxSamasid_;
             prfxErinevaid=_prfxErinevaid_;
             prfxTabidx   =_prfxTabidx_;
@@ -139,28 +149,32 @@ class PREFIKS
             {
             if(_pakitudPrefiksiSuurus_!=pakitudPrefiksiSuurus)
                 throw VEAD(ERR_MORFI_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__,"$Revision: 1205 $");
-            if(prfxPiir > 0xff)
-                throw(VEAD(ERR_X_TYKK,ERR_ARGVAL,__FILE__,__LINE__,"$Revision: 1205 $", "Liiga suur: prfxPiir"));
-            STRSOUP::WriteUnsignedToString<UB1,int>(ptr  , prfxPiir);
+            //if(prfxPiir > 0xff)
+            //    throw(VEAD(ERR_X_TYKK,ERR_ARGVAL,__FILE__,__LINE__,"$Revision: 1205 $", "Liiga suur: prfxPiir"));
+            //STRSOUP::WriteUnsignedToString<UB1,int>(ptr  , prfxPiir);
 
             if(prfxSamasid > 0xff)
                 throw(VEAD(ERR_X_TYKK,ERR_ARGVAL,__FILE__,__LINE__,"$Revision: 1205 $", "Liiga suur: prfxSamasid"));
-            STRSOUP::WriteUnsignedToString<UB1,int>(ptr+1, prfxSamasid);
+            STRSOUP::WriteUnsignedToString<UB1,int>(ptr+0, prfxSamasid);
 
             if(prfxErinevaid > 0xff)
                 throw(VEAD(ERR_X_TYKK,ERR_ARGVAL,__FILE__,__LINE__,"$Revision: 1205 $", "Liiga suur: prfxErinevaid"));
-            STRSOUP::WriteUnsignedToString<UB1,int>(ptr+2, prfxErinevaid);
+            STRSOUP::WriteUnsignedToString<UB1,int>(ptr+1, prfxErinevaid);
 
             if(prfxTabidx > 0xffff)
                 throw(VEAD(ERR_X_TYKK,ERR_ARGVAL,__FILE__,__LINE__,"$Revision: 1205 $", "Liiga suur: prfxTabidx"));
-            STRSOUP::WriteUnsignedToString<UB2,int>(ptr+3, prfxTabidx);
+            STRSOUP::WriteUnsignedToString<UB2,int>(ptr+2, prfxTabidx);
+            
             return ptr;
             };
     
     private:
-        int prfxPiir;
+        //int prfxPiir;
+        /** eelmise tüvega kokkulangeva tüveosa pikkus */
         int prfxSamasid;
+        /** eelmisest erineva tüve lõpuosa pikkus */
         int prfxErinevaid;
+        /** sõnaliikide tabeli indeks */
         int prfxTabidx;
     };
  
@@ -192,7 +206,8 @@ typedef struct
 	 {
 	 char taandlp;  /** sufiksi taandlõpp */ 
 	 char tsl;      /** sõnaliik, millele suf võib liituda (indeks massiivis) */
-	 char ssl;      /** sufiksi sõnaliigi indeks; sõnaliikide string ise on sonaliik[sufix[i].ssl] */ 
+	 //char ssl;    /** sufiksi sõnaliigi indeks; sõnaliikide string ise on sonaliik[sufix[i].ssl] */ 
+     int ssl;       /** TV: int alates 191112, sufiksi sõnaliigi indeks; sõnaliikide string ise on sonaliik[sufix[i].ssl] */
 	 char tylp;     /** nõutav tyvelõpp (indeks massiivis) */
 	 char mitutht;  /** mitu tähte sufiksi lopust kuulub tegelikult tyvele */ 
     TYVE_INF suftyinf[SUF_LGCNT];  /** HJK 19.12.01 palakro'nksunduse jaoks @n
@@ -208,15 +223,21 @@ typedef struct
 #define  SizeOfLg2(nlg)   (nlg * sizeof(TYVE_INF)) 
 #define  SizeOfEndOfBlk	  sizeof(ENDOFBLK) 
 
-// tyveinfo suurus kettal (mitmesGrupis+grupiNr_lisa+Kr6nksudeGrupiNr) 
-// grupiNr ja mitmesGrupis on 2 baidi peale kokku pakitud (10+6 bitti).
+// tyveinfo suurus kettal (mitmesGrupis+grupiNr_lisa+liitsõnapiir+Kr6nksudeGrupiNr) 
+// 2 baiti   - grupiNr ja mitmesGrupis on 2 baidi peale kokku pakitud (10+6 bitti)
+// 1 bait    - litsõnapiiride tabeli indeks    
+// 0-2 baiti - nKr6nksuBaiti on 0-2 baiti, 
+//             sõltub hääldusmärkide tabeli suurusest (palju indeksi jaoks vaja on)
 //
-#define dSizeOfLg2(nlg,nKr6nksuBaiti)   (nlg * (sizeof(_uint8)+sizeof(_uint8)+nKr6nksuBaiti)) //suurus kettal
+#define dSizeOfLg2(nlg,nKr6nksuBaiti) (nlg * (sizeof(_uint8)+sizeof(_uint8)+sizeof(_uint8)+nKr6nksuBaiti))
 
-#define dSizeOfPrefiks    5 //kettal 5 baiti
+/** prefiksi suurus kettal: kokkulangevad (1b), erinavad (1b), sõnaliikide tab idx (2b)
+ */
+#define dSizeOfPrefiks    (sizeof(UB1)+sizeof(UB1)+sizeof(UB2))
 #define dSizeOfEndOfBlk	  (dSizeOfPrefiks+dctsizeofFSxCHAR) 
 
 #define LgCopy(kuhu, kust, mitu)    memmove(kuhu, kust, SizeOfLg2(sonaliik[mitu]->GetLength()))
+#define GetPiiriKr6nksud(lg, indx)  ((TYVE_INF *)lg)[indx].piiriKr6nksud
 #define GetLgNr(lg, indx)           ((TYVE_INF *)lg)[indx].lg_nr
 #define GetKr6nksuGrupiNr(lg, indx) ((TYVE_INF *)lg)[indx].lisaKr6nksud
 #define GetTabIdx(lg, indx)         ((TYVE_INF *)lg)[indx].idx.tab_idx
@@ -588,7 +609,7 @@ class DCTRD:
         int taandlnr;           ///< taandliikide arv 
         int tyvelpnr;           ///< t�vel�ppude arv 
         
-	FSXSTRARR taandliik;
+        FSXSTRARR taandliik;
                                 // sl, mida suf, pref v�iks n�uda 
                                 // 'F...' - ainult 'pxris' suf sl. 
 	                        // 0 - suf, pref ei n�ua mingit sl 
@@ -671,7 +692,7 @@ class DCTRD:
 
 void cXXinit3(FILE_INFO &file_info);
 
-/**
+/* kuni 2019-11-01
  * 
  * Sisendread on midagi sellist: @n
  * Adelaide 99=0,361,255,0 2,361,208,0 @n
@@ -687,9 +708,32 @@ void cXXinit3(FILE_INFO &file_info);
  * <ul><li> ==true - järjekordne rida hakitud
  *     <li> ==false - sisend otsas või mingi jama
  * </ul>
- */
+
 bool cXXget2(CPFSFile &p6hisS6nTxt, CFSbaseSTRING *tyvi2, 
                         int *tabidx, int *hhhidx, TYVE_INF *lg, int *lgcnt);
+ */
+
+/**
+ * Sisendread on midagi sellist: @n
+ * Adelaide 99=0,361,255,0 2,361,208,0 @n
+ * Adelaidei 98=1,361,208,0 @n
+ * <ul><li> Adelaidei -- tüvi
+ *     <li> 98 -- sõnaliikide tabeli indeks
+ *     <ul><li> 1   -- TYVE_INF.idx.blk_idx   PutTyMuutGrupisMitmes mingi sündivärk
+ *         <li> 361 -- TYVE_INF.idx.tab_idx   PutTyMuutGrupiNr      mingi sündi värk
+ *         <li> 208 -- TYVE_INF.lisaKr6nksud  PutKr6nksuGrupiNr     hääldusmärgid
+ *         <li> 0   -- TYVE_INF.piiriKr6nksud PutPiiriGrupiNr       liitsõnapiir
+ * </ul></ul>
+ * @param p6hisS6nTxt -- selles failis on sõnastik, mida hakkame cooper'dama
+ * @param tyvi2 -- tüvi
+ * @param tabidx -- sõnaliikide tabeli indeks
+ * @param lg -- tüvega seotud info massiiiv
+ * @param lgcnt -- elementide arv tüvega seotud infio massiivis
+ * @return 
+ */
+bool cXXget2(CPFSFile &p6hisS6nTxt, CFSbaseSTRING *tyvi2, 
+                        int *tabidx, TYVE_INF *lg, int *lgcnt);
+
 
 void cXXpack2(void);
 void cXXtest(void);
@@ -701,8 +745,8 @@ void testi_sovitajat(void);
 #define InitLg(lg)       // Ei tee midagi. 
 #define PutTyMuutGrupisMitmes(lg,indx,n) ((TYVE_INF *)lg)[indx].idx.blk_idx=(_uint8)n
 #define PutTyMuutGrupiNr(     lg,indx,n) ((TYVE_INF *)lg)[indx].idx.tab_idx=(_int16)n
-#define PutKr6nksuGrupiNr(    lg,indx,n) ((TYVE_INF *)lg)[indx].lisaKr6nksud=(_int16)n
-#define PutPiiriGrupiNr(      lg,indx,n) ((TYVE_INF *)lg)[indx].piiriKr6nksud=(int)n
+#define PutKr6nksuGrupiNr(    lg,indx,n) ((TYVE_INF *)lg)[indx].lisaKr6nksud=(_int16)n  // hääldusmärgid
+#define PutPiiriGrupiNr(      lg,indx,n) ((TYVE_INF *)lg)[indx].piiriKr6nksud=(int)n    // liitsõnapiir
 
 class cTYVEINF : public DCTRD
     {

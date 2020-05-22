@@ -68,7 +68,7 @@ class Layer:
         # name of the layer
         assert name.isidentifier() and not \
             keyword.iskeyword(name), 'layer name must be a valid python identifier, {!r}'.format(name)
-        assert name != 'text'
+
         self.name = name
 
         # the name of the parent layer.
@@ -93,6 +93,24 @@ class Layer:
         self.serialisation_module = serialisation_module
 
         self.meta = {}
+
+    def __copy__(self):
+        """
+        Creates a new layer object with the same content.
+
+        New object is needed as a same layer object cannot be part of another text object.
+        """
+        result = Layer(
+            name=self.name,
+            attributes=self.attributes,
+            text_object=self.text_object,
+            parent=self.parent,
+            enveloping=self.enveloping,
+            ambiguous=self.ambiguous,
+            default_values=self.default_values,
+            serialisation_module=self.serialisation_module)
+        result._span_list = self._span_list
+        return result
 
     @property
     def layer(self):
@@ -125,9 +143,11 @@ class Layer:
         return self.text_object.text[self.start:self.end]
 
     def ancestor_layers(self):
+        text = self.text_object
         layers = self.text_object.layers
         map_ancestors = collections.defaultdict(set)
-        for layer_name, layer in layers.items():
+        for layer_name in layers:
+            layer = text[layer_name]
             if layer.parent is not None:
                 map_ancestors[layer.parent].add(layer_name)
             if layer.enveloping is not None:
@@ -143,11 +163,11 @@ class Layer:
     def descendant_layers(self):
         descendants = set()
         if self.parent is not None:
-            descendant = self.text_object.layers[self.parent]
+            descendant = self.text_object[self.parent]
             descendants.add(descendant.name)
             descendants.update(descendant.descendant_layers())
         if self.enveloping is not None:
-            descendant = self.text_object.layers[self.enveloping]
+            descendant = self.text_object[self.enveloping]
             descendants.add(descendant.name)
             descendants.update(descendant.descendant_layers())
         return sorted(descendants)

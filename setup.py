@@ -44,6 +44,11 @@ if sys.version_info[0] == 3:
     swig_opts.append('-py3')
 swig_opts.append('-c++')
 
+# Check command line args: are we making a source distribution?
+is_source_dist = 'sdist' in sys.argv
+# If we are making a source distribution, then include "preinstall";
+# otherwise: exclude it.
+exclude_package_dirs=["preinstall"] if not is_source_dist else []
 
 # Create necessary cached files
 from preinstall import create_caches
@@ -52,17 +57,16 @@ create_caches()
 
 setup(
     name="estnltk",
-    version="1.6.5beta",
+    version="1.6.6beta",
 
-    packages=find_packages(exclude=["preinstall"]),
+    packages=find_packages(exclude=exclude_package_dirs),
     include_package_data=True,
     package_data={
         'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java/res/*.*'],
-        'estnltk.taggers': ['miscellaneous/*.csv', 'syntax/files/*.*', 'syntax/files/LICENSE', 'syntax/java-res/maltparser/*.*', 'syntax/java-res/maltparser/lib/*.*', 'morph_analysis/hfst/models/*.*', 'morph_analysis/number_fixes/*.*', 'morph_analysis/reorderings/*.*', 'verb_chains/v1_4_1/res/*.*', 'syntax_preprocessing/rules_files/*.*', 'text_segmentation/*.csv'],
+        'estnltk.taggers': ['miscellaneous/*.csv', 'syntax/files/*.*', 'syntax/files/LICENSE', 'syntax/java-res/maltparser/*.*', 'syntax/java-res/maltparser/lib/*.*', 'syntax/udpipe_tagger/resources/*.*', 'morph_analysis/hfst/models/*.*', 'morph_analysis/number_fixes/*.*', 'morph_analysis/reorderings/*.*', 'verb_chains/v1_4_1/res/*.*', 'syntax_preprocessing/rules_files/*.*', 'text_segmentation/*.csv', 'estner/gazetteer/*', 'estner/models/py3_default/*'],
         'estnltk.tests': ['test_morph/*.csv', 'test_corpus_processing/*.vert', 'test_taggers/test_dict_taggers/*.csv', 'test_taggers/miscellaneous/*.json', 'test_taggers/test_standard_taggers/*.json', 'test_taggers/*.txt', 'test_visualisation/expected_outputs/direct_plain_span_visualiser_outputs/*.txt', 'test_visualisation/expected_outputs/indirect_plain_span_visualiser_outputs/*.txt', 'test_visualisation/expected_outputs/attribute_visualiser_outputs/*.txt', 'test_converters/*.conll', 'test_syntax_preprocessing/*.txt',],
-        'estnltk.vabamorf': ['dct/2015-05-06/*.dct', 'dct/2019-10-15/*.dct'],
-        'estnltk.estner': ['gazetteer/*', 'models/py2_default/*', 'models/py3_default/*'],
-        'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
+        'estnltk.vabamorf': ['dct/2020-01-22_nosp/*.dct', 'dct/2020-01-22_sp/*.dct'],
+        'estnltk.wordnet': ['data/estwn-et-2.3.2/*.*'],
         'estnltk.mw_verbs': ['res/*'],
         'estnltk.converters': ['*.mrf'],
         'estnltk.visualisation': ['attribute_visualiser/*.css', 'attribute_visualiser/*.js', 'span_visualiser/*.css', 'span_visualiser/*.js']

@@ -229,12 +229,7 @@ class GTMorphConverter( Tagger ):
                    '_input_sentences_layer', \
                    '_input_morph_analysis_layer', \
                    '_input_clauses_layer', \
-                   # For backward compatibility:
-                   'depends_on', 'layer_name', 'attributes'
                  ]
-    layer_name = output_layer       # <- For backward compatibility ...
-    depends_on = input_layers       # <- For backward compatibility ...
-    attributes = output_attributes  # <- For backward compatibility ...
 
     def __init__(self, \
                  output_layer:str='gt_morph_analysis', \
@@ -286,8 +281,7 @@ class GTMorphConverter( Tagger ):
         # Adjust input requirements
         if self.disambiguate_sid_ksid:
             self.input_layers.append( input_clauses_layer )
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
+
 
 
     def _make_layer(self, text, layers, status: dict):

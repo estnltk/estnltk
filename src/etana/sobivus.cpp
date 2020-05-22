@@ -10,6 +10,7 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
 // 2000.07.14 TV 
 // 2002.03.20 TV klass �mberv��natud
 
@@ -316,7 +317,8 @@ int MORF0::sobib_p_t_s(KOMPONENT *pref, KOMPONENT *tyvi, KOMPONENT *suff)
     if ((tyvi->liitumisinfo).Find(MITTELIITUV_SL) != -1) // HJK 26.05.2006 et igasugu liits�nad ei saaks osaleda
         return 0;
     p_n_sl = taandliik[ prfix[pref->jrk_nr].sl ];
-    ssl = (unsigned char)(sufix[suff->jrk_nr].ssl);
+    //ssl = (unsigned char)(sufix[suff->jrk_nr].ssl);
+    ssl = sufix[suff->jrk_nr].ssl; //TV: SUFINFO.ssl int alates 191112
     k = sobib_p_t(pref, tyvi);
     if (k)
         return 1;

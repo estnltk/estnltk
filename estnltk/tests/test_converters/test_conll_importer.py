@@ -282,7 +282,7 @@ def test_conll_importers():
 
     assert text_to_dict(text) == text_dict
 
-    del text.syntax
+    text.pop_layer('syntax')
     assert 'syntax' not in text.layers
 
     add_layer_from_conll(file, text, 'syntax')

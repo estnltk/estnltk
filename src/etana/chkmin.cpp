@@ -10,6 +10,8 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
+
 #include "mrf-mrf.h"
 
 // v�ljundiks on tulemuste struktuur, mitte string
@@ -34,7 +36,7 @@ void MORF0::chkmin(
     tul->tagasiTasand = 0;
     tul->mitmeS6naline = 1;
     tul->keeraYmber = false;
-    tul->eKustTulemused = eMRF_AP; // anal��sid p�his�nastikust
+    tul->eKustTulemused = eMRF_P; // anal��sid p�his�nastikust
     tul->DelAll();
 
     //printf("%s:%d  ", __FILE__,__LINE__);
@@ -56,7 +58,7 @@ void MORF0::chkmin(
         if (res != ALL_RIGHT)
         {
             tul->s6na = FSxSTR("");
-            tul->eKustTulemused = eMRF_XX;
+            tul->eKustTulemused = eMRF_X;
             throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
         }
         if (!tul->on_tulem()) // polnd v�ljend
@@ -65,7 +67,7 @@ void MORF0::chkmin(
             if (res != ALL_RIGHT)
             {
                 tul->s6na = FSxSTR("");
-                tul->eKustTulemused = eMRF_XX;
+                tul->eKustTulemused = eMRF_X;
                 throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
             }
         }
@@ -82,7 +84,7 @@ void MORF0::chkmin(
             if (sona.GetLength() >= STEMLEN)
             {
                 tul->s6na = FSxSTR("");
-                tul->eKustTulemused = eMRF_XX;
+                tul->eKustTulemused = eMRF_X;
                 throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
             }
             sona.TrimRight(FSxSTR("."));
@@ -90,7 +92,7 @@ void MORF0::chkmin(
             if (res > ALL_RIGHT)
             {
                 tul->s6na = FSxSTR("");
-                tul->eKustTulemused = eMRF_XX;
+                tul->eKustTulemused = eMRF_X;
                 throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
             }
             if (csobivad_variandid.ptr)
@@ -107,7 +109,7 @@ void MORF0::chkmin(
                 if (res > ALL_RIGHT)
                 {
                     tul->s6na = FSxSTR("");
-                    tul->eKustTulemused = eMRF_XX;
+                    tul->eKustTulemused = eMRF_X;
                     throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
                 }
                 if (csobivad_variandid.ptr)
@@ -127,7 +129,7 @@ void MORF0::chkmin(
                     if (res > ALL_RIGHT)
                     {
                         tul->s6na = FSxSTR("");
-                        tul->eKustTulemused = eMRF_XX;
+                        tul->eKustTulemused = eMRF_X;
                         throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
                     }
                     if (csobivad_variandid.ptr)
@@ -145,7 +147,7 @@ void MORF0::chkmin(
             if (res > ALL_RIGHT)
             {
                 tul->s6na = FSxSTR("");
-                tul->eKustTulemused = eMRF_XX;
+                tul->eKustTulemused = eMRF_X;
                 throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
             }
             if (!tul->on_tulem() && sona.GetLength() > 3) // proovime kigi otsast maha v�tta
@@ -168,7 +170,7 @@ void MORF0::chkmin(
                         if (res > ALL_RIGHT)
                         {
                             tul->s6na = FSxSTR("");
-                            tul->eKustTulemused = eMRF_XX;
+                            tul->eKustTulemused = eMRF_X;
                             throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
                         }
                         ahelad_vabaks(&ctoo_variandid.ptr);
@@ -192,7 +194,7 @@ void MORF0::chkmin(
             if (res != ALL_RIGHT)
             {
                 tul->s6na = FSxSTR("");
-                tul->eKustTulemused = eMRF_XX;
+                tul->eKustTulemused = eMRF_X;
                 throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
             }
         }
@@ -202,7 +204,7 @@ void MORF0::chkmin(
             if (res != ALL_RIGHT)
             {
                 tul->s6na = FSxSTR("");
-                tul->eKustTulemused = eMRF_XX;
+                tul->eKustTulemused = eMRF_X;
                 throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
             }
         }
@@ -224,7 +226,7 @@ void MORF0::chkmin(
             {
                 mrfFlags.OnOff(MF_LYHREZH, lyhrez); // taastame algse l�henirziimi
                 tul->s6na = FSxSTR("");
-                tul->eKustTulemused = eMRF_XX;
+                tul->eKustTulemused = eMRF_X;
                 throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
             }
             if (!tul->on_tulem())
@@ -235,7 +237,7 @@ void MORF0::chkmin(
                 {
                     mrfFlags.OnOff(MF_LYHREZH, lyhrez); // taastame algse l�henirziimi
                     tul->s6na = FSxSTR("");
-                    tul->eKustTulemused = eMRF_XX;
+                    tul->eKustTulemused = eMRF_X;
                     throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
                 }
             }
@@ -247,7 +249,7 @@ void MORF0::chkmin(
                 {
                     mrfFlags.OnOff(MF_LYHREZH, lyhrez); // taastame algse l�henirziimi
                     tul->s6na = FSxSTR("");
-                    tul->eKustTulemused = eMRF_XX;
+                    tul->eKustTulemused = eMRF_X;
                     throw (VEAD(ERR_MG_MOOTOR, ERR_MINGIJAMA, __FILE__, __LINE__, "$Revision: 878 $")); //jama!
                 }
             }

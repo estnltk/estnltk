@@ -15,6 +15,7 @@ from estnltk.taggers import Retagger
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
+from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
 
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_POSTAGS
@@ -29,12 +30,13 @@ class UserDictTagger(Retagger):
     """Makes user-specified post-corrections to morphological analyses.
        This tagger can be applied after text has been morphologically analysed."""
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES
-    conf_param = ['depends_on', 'ignore_case', 'validate_vm_categories',
+    conf_param = ['ignore_case', 'overwrite_existing', 'validate_vm_categories',
                   'autocorrect_root', '_dict', 'replace_missing_normalized_text_with_text']
 
     def __init__(self,
                  output_layer: str = 'morph_analysis',
                  ignore_case: bool = False,
+                 overwrite_existing: bool = True,
                  validate_vm_categories: bool = True,
                  autocorrect_root: bool = True,
                  replace_missing_normalized_text_with_text: bool = False):
@@ -70,14 +72,21 @@ class UserDictTagger(Retagger):
             then replace it by text. Otherwise, if the NORMALIZED_TEXT is missing
             from a record, then the value of NORMALIZED_TEXT will be None after
             overwriting.
+        
+        overwrite_existing: bool (default: True)
+            Whether a word with existing analyses will have its analyses 
+            overwritten by new analyses from the user dictionary.
+            If True, all existing analyses will be overwritten. Otherwise,
+            only words with empty analyses will be overwritten, and non-
+            empty analyses will remain unchanged.
         """
         self.output_layer = output_layer
         self.input_layers = [output_layer]
-        self.depends_on   = self.input_layers
         
         self.ignore_case  = ignore_case
         self.validate_vm_categories = validate_vm_categories
         self.autocorrect_root       = autocorrect_root
+        self.overwrite_existing     = overwrite_existing
         self.replace_missing_normalized_text_with_text = \
              replace_missing_normalized_text_with_text
         self._dict = {}
@@ -489,23 +498,29 @@ class UserDictTagger(Retagger):
               This can be used to store metadata on layer retagging.
         """
         assert self.output_layer in layers
-        # Take attributes from the input layer
-        current_attributes = layers[self.output_layer].attributes
         # --------------------------------------------
         #   Rewrite spans according to the dict
         # --------------------------------------------
         morph_span_id = 0
         morph_spans = layers[self.output_layer].spans
-        attribute_names = layers[self.output_layer].attributes
+        attribute_names    = layers[self.output_layer].attributes
+        estnltk_vm_attribs = [a for a in attribute_names if a not in [NORMALIZED_TEXT, IGNORE_ATTR]]
         while morph_span_id < len(morph_spans):
             # 1) Get morph records
             records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
             overwrite_records = []
+            preserve_records  = []
             records_merged = False
             # 2) Check morph records
             for rid, rec in enumerate( records ):
                 assert NORMALIZED_TEXT in rec, \
                        '(!) Record {!r} is missing the attribute {!r}'.format(rec, NORMALIZED_TEXT)
+                # Find out if the record is empty
+                is_empty_record = all([rec[k] is None for k in rec.keys() if k in estnltk_vm_attribs])
+                if not self.overwrite_existing and not is_empty_record:
+                    # If overwriting is not permitted, then preserve a non-empty record & skip
+                    preserve_records.append( rec )
+                    continue
                 word_text = rec[NORMALIZED_TEXT]
                 if word_text is None:
                     # If normalized_text is None, fall back to the morph_span.text
@@ -534,7 +549,12 @@ class UserDictTagger(Retagger):
                 # 2.3) Create a new Span
                 span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
 
-                # 2.4) Populate it with new records
+                # 2.4.1) Preserve existing records that were not allowed to be overwritten
+                if len(preserve_records) > 0:
+                    for rec in preserve_records:
+                        attributes = {attr: rec.get(attr) for attr in attribute_names}
+                        span.add_annotation( Annotation(span, **attributes) )
+                # 2.4.2) Populate it with new records
                 for rec in records:
                     attributes = {attr: rec.get(attr) for attr in attribute_names}
                     span.add_annotation( Annotation(span, **attributes) )

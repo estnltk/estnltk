@@ -2,18 +2,18 @@ import pytest
 
 from estnltk import Text
 from estnltk.taggers import TimexTagger
+from estnltk.taggers.standard_taggers.timex_tagger_preprocessing import TIMEXES_RESOLVER
 
+timexes_tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
+TIMEXES_RESOLVER.update( timexes_tagger )
 
 def test_timex_tagging_1():
     # Test the basic functionality of the TimexTagger
     all_timex_attributes = ['text']+list(TimexTagger.output_attributes)
-    #all_timex_attributes = list(TimexTagger.attributes)
-    tagger = TimexTagger(output_ordered_dicts=False)
     
     # 1) Test Timex tagger on empty text
     text = Text('')
-    text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    tagger.tag(text)
+    text.tag_layer(['words', 'sentences', 'morph_analysis', 'timexes'] , resolver=TIMEXES_RESOLVER)
     # Execution should not produce any errors
     assert len(text.words) == 0
     assert len(text.timexes) == 0
@@ -55,9 +55,7 @@ def test_timex_tagging_1():
         text = Text(test_item['text'])
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
-        text.tag_layer(['words', 'sentences', 'morph_analysis'])
-        # Tag timexes
-        tagger.tag(text)
+        text.tag_layer(['timexes'] , resolver=TIMEXES_RESOLVER)
         # Compare attributes and values of all timexes
         for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
             # Expected attributes & values
@@ -72,17 +70,11 @@ def test_timex_tagging_1():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Terminate the process "manually"
-    tagger.__exit__()
-    # Check that the process is terminated
-    assert tagger._java_process._process.poll() is not None
-
 
 
 def test_timex_tagging_2_implicit_durations():
     # Test TimexTagger on detecting timexes with implicit durations/intervals ('part_of_interval' attrib):
     all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
-    tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini 2012.',\
                    'dct':'2012-04-15',\
                    'expected_timexes': [ \
@@ -124,15 +116,12 @@ def test_timex_tagging_2_implicit_durations():
                               ]
                   },\
                 ]
-
     for test_item in test_data:
         # Prepare text
         text = Text(test_item['text'])
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
-        text.tag_layer(['words', 'sentences', 'morph_analysis'])
-        # Tag timexes
-        tagger.tag(text)
+        text.tag_layer(['words', 'sentences', 'morph_analysis', 'timexes'], resolver=TIMEXES_RESOLVER)
         # Compare attributes and values of all timexes
         for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
             # Expected attributes & values
@@ -147,17 +136,11 @@ def test_timex_tagging_2_implicit_durations():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Terminate the process "manually"
-    tagger.__exit__()
-    # Check that the process is terminated
-    assert tagger._java_process._process.poll() is not None
-
 
 
 def test_timex_tagging_3_gaps_in_dct():
     # Test TimexTagger on texts that have gaps in their document creation dates
     all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
-    tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini.',\
                    'dct':'2012-04-XX',\
                    'expected_timexes': [ \
@@ -181,15 +164,12 @@ def test_timex_tagging_3_gaps_in_dct():
                               ]
                   },\
                 ]
-
     for test_item in test_data:
         # Prepare text
         text = Text(test_item['text'])
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
-        text.tag_layer(['words', 'sentences', 'morph_analysis'])
-        # Tag timexes
-        tagger.tag(text)
+        text.tag_layer(['timexes'] , resolver=TIMEXES_RESOLVER)
         # Compare attributes and values of all timexes
         for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
             # Expected attributes & values
@@ -204,16 +184,11 @@ def test_timex_tagging_3_gaps_in_dct():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Terminate the process "manually"
-    tagger.__exit__()
-    # Check that the process is terminated
-    assert tagger._java_process._process.poll() is not None
 
 
 def test_timex_tagging_4_additional_rules():
     # Test TimexTagger with some additional rules
     all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
-    tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ # eile-täna
                   {'text': 'Ma just käisin eile-täna seal jalgrattaga.',\
                    'dct':'2011-08-24',\
@@ -265,16 +240,13 @@ def test_timex_tagging_4_additional_rules():
                        {'text':['2010.12.31'], 'tid':'t2', 'type':'DATE', 'value':'2010-12-31', 'temporal_function':False , 'anchor_time_id':None,  }, \
                    ]
                   },\
-                  
                 ]
     for test_item in test_data:
         # Prepare text
         text = Text( test_item['text'] )
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
-        text.tag_layer(['words', 'sentences', 'morph_analysis'])
-        # Tag timexes
-        tagger.tag(text)
+        text.tag_layer(['words', 'sentences', 'morph_analysis', 'timexes'] , resolver=TIMEXES_RESOLVER)
         # Compare attributes and values of all timexes
         for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
             # Expected attributes & values
@@ -288,12 +260,6 @@ def test_timex_tagging_4_additional_rules():
             #print(expected_vals, result_vals)
             # Make assertions
             assert expected_vals == result_vals
-
-    # Terminate the process "manually"
-    tagger.__exit__()
-    # Check that the process is terminated
-    assert tagger._java_process._process.poll() is not None
-
 
 
 
@@ -324,4 +290,39 @@ def test_timex_tagger_context_tear_down():
     tagger2.__exit__()
     # Check that the process is terminated
     assert tagger2._java_process._process.poll() is not None
+
+
+
+#########################################################
+#    Preprocessing for TimexTagger
+#########################################################
+
+from estnltk.taggers.standard_taggers.timex_tagger_preprocessing import CP_TAGGER_ADAPTED
+
+def test_timex_tagger_preprocessing():
+    # Case 1
+    test_text = Text('1991. a. jaanuaris, 2001. aasta lõpul või 1. jaanuaril 2001. a.').tag_layer(['tokens'])
+    CP_TAGGER_ADAPTED.tag( test_text )
+    test_text.tag_layer( ['words'] )
+    assert [t.text for t in test_text.words] == ['1991.', 'a.', 'jaanuaris', ',', '2001.', 'aasta', 'lõpul', 'või', '1.', 'jaanuaril', '2001.', 'a.']
+
+    # Case 2
+    test_text = Text('( 14.11.2001 jõust.01.01.2002 - RT I 2001 , 95 , 587 )').tag_layer(['tokens'])
+    CP_TAGGER_ADAPTED.tag( test_text )
+    test_text.tag_layer( ['words'] )
+    #print( [(cp.enclosing_text, cp.type) for cp in test_text.compound_tokens] )
+    assert [t.text for t in test_text.words] == ['(', '14.11.2001', 'jõust', '.', '01.01.2002', '-', 'RT', 'I', '2001', ',', '95', ',', '587', ')']
+
+    # Case 3
+    test_text = Text('24. detsembril kell 18 , 25. detsembril kell 10.30 , 26. ja 31. detsembril kell 17 ja 1. jaanuaril kell.10.30.').tag_layer(['tokens'])
+    CP_TAGGER_ADAPTED.tag( test_text )
+    test_text.tag_layer( ['words'] )
+    assert [t.text for t in test_text.words] == ['24.', 'detsembril', 'kell', '18', ',', '25.', 'detsembril', 'kell', '10.30', ',', '26.', 'ja', '31.', 'detsembril', 'kell', '17', 'ja', '1.', 'jaanuaril', 'kell', '.', '10.30', '.']
+
+    # Case 4
+    test_text = Text('31.detsembril kell 16 ja 23.30 , 1. jaanuaril kell 13.').tag_layer(['tokens'])
+    CP_TAGGER_ADAPTED.tag( test_text )
+    test_text.tag_layer( ['words'] )
+    assert [t.text for t in test_text.words] == ['31.', 'detsembril', 'kell', '16', 'ja', '23.30', ',', '1.', 'jaanuaril', 'kell', '13.']
+
 

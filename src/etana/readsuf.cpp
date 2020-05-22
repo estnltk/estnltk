@@ -10,6 +10,7 @@ except according to the terms contained in the license.
 This software is distributed on an "AS IS" basis, without warranties or conditions
 of any kind, either express or implied.
 */
+// 2020-04-07 : EstNLTK's Vabamorf src updated to https://github.com/Filosoft/vabamorf/tree/7a44b62dba66cd39116edaad57db4f7c6afb34d9
 
 #if defined(WIN32)
     #include <malloc.h>
@@ -77,7 +78,7 @@ void DCTRD::readsuf(void)
         sufix[i].tsl = ketta_sufix[i].tsl;
         sufix[i].tylp = ketta_sufix[i].tylp;
         sufix[i].mitutht = ketta_sufix[i].mitutht;
-        //assert( ketta_sufix[i].ssl1==0 ); // JAMA-JAMA
+        /* TV: SUFINFO.ssl int alates 191112
         if(ketta_sufix[i].ssl1!=0)
             {
             free(ketta_sufix);
@@ -85,6 +86,7 @@ void DCTRD::readsuf(void)
             sufix=NULL;
             throw(VEAD(ERR_MORFI_PS6N,ERR_ROTTEN,__FILE__,__LINE__, "$Revision: 521 $"));
             }
+        */
         sufix[i].ssl = (ketta_sufix[i].ssl0 & 0xFF) | ((ketta_sufix[i].ssl1 & 0xFF)<<8);
         for (j=0; j < SUF_LGCNT; j++)
             char2sufinfo(&(ketta_sufix[i].suftyinf[j]), &(sufix[i].suftyinf[j]));
@@ -92,9 +94,12 @@ void DCTRD::readsuf(void)
     free(ketta_sufix);
 	}
 
-//* 
-//* sufinfo char-kujult TYVE_INF kujule 
-//*
+
+/** kettal olev baidikaupa kujust intide jms kokkupanek
+ * 
+ * @param ch -- inf baidikaupa
+ * @param ti -- baidid üheks suuremaks numbriks kokkukombineeritud
+ */
 void DCTRD::char2sufinfo(SUF_TYVE_INF *ch, TYVE_INF *ti)
     {
     ti->piiriKr6nksud = (ch->piiriKr6nksud0 & 0xFF) | ((ch->piiriKr6nksud1 & 0xFF)<<8);
@@ -102,6 +107,7 @@ void DCTRD::char2sufinfo(SUF_TYVE_INF *ch, TYVE_INF *ti)
     ti->idx.tab_idx = (ch->tab_idx0 & 0xFF) | ((ch->tab_idx1 & 0xFF)<<8);
     ti->idx.blk_idx=ch->blk_idx;
     }
+
 
 
 

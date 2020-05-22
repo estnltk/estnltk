@@ -54,7 +54,7 @@
 
 from estnltk.core import abs_path
 from estnltk.core import as_unicode
-
+from os import linesep as OS_NEWLINE
 import re
 import os, os.path, sys
 import codecs
@@ -100,7 +100,7 @@ class VISLCG3Pipeline:
     rules_pipeline = SYNTAX_PIPELINE_1_4
     rules_dir      = SYNTAX_PATH
     vislcg_cmd     = 'vislcg3'
-    
+
     def __init__( self, **kwargs):
         ''' Initializes VISL CG3 based syntax pipeline. 
         
@@ -170,7 +170,7 @@ class VISLCG3Pipeline:
               raise Exception( msg )
 
 
-        
+
 
     def process_lines( self, input_lines, **kwargs ):
         ''' Executes the pipeline of subsequent VISL_CG3 commands. The first process
@@ -243,7 +243,7 @@ class VISLCG3Pipeline:
             # Record the process
             process_dict = {'process':process, 'cmd':process_cmd}
             pipeline.append( process_dict )
-        
+
         # 3) Close all stdout streams, except the last one
         for i in range( len(pipeline) ):
            if i != len(pipeline) - 1:
@@ -349,7 +349,7 @@ def cleanup_lines( lines, **kwargs ):
            #  Remove clause boundary markings
            lines[i] = re.sub('(.*)" ([LZT].*) CLBC (.*)', '\\1" \\2 \\3', lines[i])
            #  Remove additional information that was added during the analysis
-           lines[i] = re.sub('(.*)" L([^"<]*) ["<]([^@]*) (@.*)', '\\1" L\\2 \\4', lines[i]) 
+           lines[i] = re.sub('(.*)" L([^"<]*) ["<]([^@]*) (@.*)', '\\1" L\\2 \\4', lines[i])
            #  Remove 'cap' tags
            if remove_caps:
               lines[i] = lines[i].replace(' cap ', ' ')
@@ -471,6 +471,7 @@ def convert_cg3_to_conll( lines, **kwargs ):
     pat_pos_form        = re.compile('^\S\s+([^#@]+).+$')
     pat_ending_pos      = re.compile('^(L\S+\s+)?\S\s+[#@].+$')
     pat_opening_punct   = re.compile('.+\s(Opr|Oqu|Quo)\s')
+    sentence_start = re.compile('^\s*$')
     analyses_added = 0
     conll_lines = []
     word_id = 1
@@ -480,7 +481,7 @@ def convert_cg3_to_conll( lines, **kwargs ):
         # Check, whether it is an analysis line or not
         if not (line.startswith('  ') or line.startswith('\t')):
             # ******  TOKEN
-            if len(line)>0 and not (line.startswith('"<s>"') or \
+            if len(line)>0 and not (line.startswith('"<s>"') and sentence_start.match(lines[i+1]) or \
                line.startswith('"</s>"')) and not pat_empty_line.match(line):
                # Convert double quotes back to normal form (if requested)
                if unesc_quotes:

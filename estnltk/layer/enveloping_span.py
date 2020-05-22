@@ -54,10 +54,11 @@ class EnvelopingSpan(Span):
             super().__setattr__(key, value)
 
     def resolve_attribute(self, item):
-        target_layer = self.text_object.layers.get(item)
-        if target_layer is None:
+        if item not in self.text_object.layers:
             attribute_mapping = self.text_object.attribute_mapping_for_enveloping_layers
             return self._layer.text_object[attribute_mapping[item]].get(self.base_span)[item]
+
+        target_layer = self.text_object[item]
 
         if len(target_layer) == 0:
             return

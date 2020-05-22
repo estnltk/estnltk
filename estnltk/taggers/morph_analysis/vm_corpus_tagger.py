@@ -50,6 +50,7 @@ class VabamorfCorpusTagger( object ):
                  use_postanalysis:bool=True,
                  use_vabamorf_disambiguator:bool=True,
                  use_postdisambiguation:bool=True,
+                 slang_lex:bool=False,
                  # customize taggers
                  vabamorf_analyser:VabamorfAnalyzer=None, 
                  postanalysis_tagger:Retagger=None, 
@@ -91,6 +92,16 @@ class VabamorfCorpusTagger( object ):
         use_postdisambiguation : bool (default: True)
             If set (default), then corpus-based post-disambiguation 
             step will be applied;
+        slang_lex: boolean (default: False)
+            If True, then uses an extended version of Vabamorf's binary 
+            lexicon, which provides valid analyses to spoken and slang words, 
+            such as 'kodukas', 'mõnsa', 'mersu', 'kippelt'. However, using 
+            "the slang lexicon" also hinders Vabamorf's ability to clearly 
+            distinguish between written language and slang words, and this 
+            is the reason that "the slang lexicon" is not switched on by 
+            default;
+            Note: this only works if you leave the parameter vabamorf_analyser 
+            unspecified;
         vabamorf_analyser : VabamorfAnalyzer (default: VabamorfAnalyzer())
             Argument for overriding the default vabamorf analyser used
             by this corpus tagger;
@@ -129,6 +140,7 @@ class VabamorfCorpusTagger( object ):
         self._input_sentences_layer  = input_sentences_layer
         self._use_predisambiguation  = use_predisambiguation
         self._use_postdisambiguation = use_postdisambiguation
+        self._slang_lex              = slang_lex
         self._validate_inputs        = validate_inputs
         self.output_attributes       = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
         # Extra arguments that can be passed to VabamorfAnalyzer:
@@ -146,13 +158,25 @@ class VabamorfCorpusTagger( object ):
                 if key in ['propername', 'guess', 'compound', 'phonetic']:
                     vm_analyser_conf[key] = value
             # Initialize vabamorf_analyser
-            vm_instance = Vabamorf.instance()
+            if not self._slang_lex:
+                # Use standard written language lexicon (default)
+                vm_instance = Vabamorf.instance()
+            else:
+                # Use standard written language lexicon extended with slang & spoken words
+                from estnltk.vabamorf.morf import VM_LEXICONS
+                nosp_lexicons = [lex_dir for lex_dir in VM_LEXICONS if lex_dir.endswith('_nosp')]
+                assert len(nosp_lexicons) > 0, \
+                    "(!) Slang words lexicon with suffix '_nosp' not found from the default list of lexicons: {!r}".format(VM_LEXICONS)
+                vm_instance = Vabamorf( lexicon_dir=nosp_lexicons[-1] )
             self._vabamorf_analyser = VabamorfAnalyzer( vm_instance=vm_instance,
                                                         output_layer=self.output_layer,
                                                         input_words_layer=input_words_layer,
                                                         input_sentences_layer=input_sentences_layer,
                                                         **vm_analyser_conf)
         else:
+            # Check slang_lex param
+            if self._slang_lex:
+                raise ValueError('(!) Cannot apply slang_lex=True if vabamorf_analyser is already provided')
             # Use given VabamorfAnalyzer
             assert isinstance(vabamorf_analyser, VabamorfAnalyzer)
             assert vabamorf_analyser.output_layer == self.output_layer, \
@@ -312,7 +336,7 @@ class VabamorfCorpusTagger( object ):
             assert isinstance(doc, Text)
             missing = []
             for layer in required_layers:
-                if layer not in doc.layers.keys():
+                if layer not in doc.layers:
                     missing.append( layer )
             if missing:
                 raise Exception('(!) {!r} is missing layers: {!r}'.format(doc, missing))
@@ -346,6 +370,7 @@ class VabamorfCorpusTagger( object ):
         conf_mappings['use_predisambiguation'] = self._use_predisambiguation
         conf_mappings['use_vabamorf_disambiguator'] = self._vabamorf_disambiguator is not None
         conf_mappings['use_postdisambiguation'] = self._use_postdisambiguation
+        conf_mappings['slang_lex'] = self._slang_lex
         return conf_mappings
 
 
@@ -355,11 +380,9 @@ class VabamorfCorpusTagger( object ):
         conf_str += ', output_layer='+self.output_layer
         return self.__class__.__name__ + '(' + conf_str + ')'
 
-
     def _repr_html_(self):
         # Add description
         import pandas
-        pandas.set_option('display.max_colwidth', -1)
         parameters = {'output layer': self.output_layer,
                       'output attributes': str(self.output_attributes),
                       'input layers': str(self.input_layers)}

@@ -114,7 +114,21 @@ The source of the latest v1.4 release is available at the [master branch](https:
 
 ## Citation
 
-In case you use EstNLTK in your work, please cite us as follows:
+In case you use EstNLTK 1.6 in your work, please cite us as follows:
+
+    @InProceedings{laur-EtAl:2020:LREC,
+      author    = {Laur, Sven  and  Orasmaa, Siim  and  Särg, Dage  and  Tammo, Paul},
+      title     = {EstNLTK 1.6: Remastered Estonian NLP Pipeline},
+      booktitle = {Proceedings of The 12th Language Resources and Evaluation Conference},
+      month     = {May},
+      year      = {2020},
+      address   = {Marseille, France},
+      publisher = {European Language Resources Association},
+      pages     = {7154--7162},
+      url       = {https://www.aclweb.org/anthology/2020.lrec-1.884}
+    }
+
+If you use EstNLTK 1.4.1 (or older), please cite:
 
     @InProceedings{ORASMAA16.332,
     author = {Siim Orasmaa and Timo Petmanson and Alexander Tkachenko and Sven Laur and Heiki-Jaan Kaalep},

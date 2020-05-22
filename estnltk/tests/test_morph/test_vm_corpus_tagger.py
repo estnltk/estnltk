@@ -155,7 +155,7 @@ def test_vm_corpus_tagger_with_changed_layer_names():
     vm_corpus_tagger.tag(docs)
     # 3) Validate that morph analysis has been added
     for doc in docs:
-        assert 'my_morph' in doc.layers.keys()
+        assert 'my_morph' in doc.layers
 
 
 

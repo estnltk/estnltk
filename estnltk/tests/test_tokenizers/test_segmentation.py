@@ -2,6 +2,9 @@ def test_segmentation_taggers():
     T = '''Aadressilt bla@bla.ee tuli 10 000 kirja. Kirjad, st. spamm saabus 10 tunni jooksul.
 
 A. H. Tammsaare 1935. aastal: 1,0 m / s = 3,67 km/h.'''
+    #
+    # Test: add layers directly using corresponding taggers
+    #
     from estnltk import Text
     text = Text(T)
 
@@ -56,3 +59,28 @@ A. H. Tammsaare 1935. aastal: 1,0 m / s = 3,67 km/h.'''
     assert text['paragraphs'].text == ['Aadressilt', 'bla@bla.ee', 'tuli', '10 000', 'kirja', '.',
                                        'Kirjad', ',', 'st.', 'spamm', 'saabus', '10', 'tunni', 'jooksul', '.',
                                        'A. H. Tammsaare', '1935.', 'aastal', ':', '1,0', 'm / s', '=', '3,67', 'km/h', '.']
+    
+    #
+    # Test: tag_layer vs analyse
+    #
+    text1 = Text(T).tag_layer(['paragraphs'])
+    text2 = Text(T).analyse('segmentation')
+    # Validate that elements match
+    assert text1['words'].text == text2['words'].text
+    assert text1['sentences'].text == text2['sentences'].text
+    assert text1['paragraphs'].text == text2['paragraphs'].text
+    # Validate that auxiliary layers were removed if analyse was applied
+    assert text1.layers == {'compound_tokens', 'tokens', 'words', 'sentences', 'paragraphs'}
+    assert text2.layers == {'words', 'sentences', 'paragraphs'}
+    
+    #
+    # Test: tag via tag_layer method
+    #
+    tx = '''Aadressilt bla@bla.ee tuli 10 000 kirja, st. spammi aadressile foo@foo.ee 10 tunni jooksul 2017. aastal. 
+A. H. Tammsaare: 1,0 m / s = 3, 67 km/h.'''
+    text = Text(tx).tag_layer(['words'])
+    assert text['words'].text == ['Aadressilt', 'bla@bla.ee', 'tuli', '10 000', 
+                                  'kirja', ',', 'st.', 'spammi', 'aadressile', 'foo@foo.ee', 
+                                  '10', 'tunni', 'jooksul', '2017.', 'aastal', '.', 
+                                  'A. H. Tammsaare', ':', '1,0', 'm / s', '=', '3', ',', '67', 'km/h', '.']
+

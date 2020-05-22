@@ -111,7 +111,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
             sentences.add_annotation(words[sentence_start:])
             sentence_start += len(sentence)
 
-    text.set_text(' '.join(t))
+    text.text = ' '.join(t)
     text.add_layer(words)
     text.add_layer(sentences)
     text.add_layer(syntax)
@@ -206,7 +206,7 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
                         # 1) Finalize the previous Text object
                         assert len(t) > 0
                         texts[-1].meta['file_prefix'] = last_fname
-                        texts[-1].set_text(' '.join(t))
+                        texts[-1].text = ' '.join(t)
                         texts[-1].add_layer(words_layers[-1])
                         texts[-1].add_layer(sentences_layers[-1])
                         texts[-1].add_layer(syntax_layers[-1])
@@ -254,7 +254,7 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
     # Finalize the Text object
     assert len(t) > 0
     texts[-1].meta['file_prefix'] = last_fname
-    texts[-1].set_text(' '.join(t))
+    texts[-1].text = ' '.join(t)
     texts[-1].add_layer(words_layers[-1])
     texts[-1].add_layer(sentences_layers[-1])
     texts[-1].add_layer(syntax_layers[-1])
