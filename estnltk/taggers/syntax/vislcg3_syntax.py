@@ -471,6 +471,7 @@ def convert_cg3_to_conll( lines, **kwargs ):
     pat_pos_form        = re.compile('^\S\s+([^#@]+).+$')
     pat_ending_pos      = re.compile('^(L\S+\s+)?\S\s+[#@].+$')
     pat_opening_punct   = re.compile('.+\s(Opr|Oqu|Quo)\s')
+    sentence_start = re.compile('^\s*$')
     analyses_added = 0
     conll_lines = []
     word_id = 1
@@ -480,7 +481,7 @@ def convert_cg3_to_conll( lines, **kwargs ):
         # Check, whether it is an analysis line or not
         if not (line.startswith('  ') or line.startswith('\t')):
             # ******  TOKEN
-            if len(line)>0 and not (line.startswith('"<s>"') and len(lines[i+1])==1 or \
+            if len(line)>0 and not (line.startswith('"<s>"') and sentence_start.match(lines[i+1]) or \
                line.startswith('"</s>"')) and not pat_empty_line.match(line):
                # Convert double quotes back to normal form (if requested)
                if unesc_quotes:
