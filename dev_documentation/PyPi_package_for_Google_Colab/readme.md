@@ -7,4 +7,7 @@ Easiest way to build EstNLTK's manulinux package is with the help of [Docker](ht
 
 Once you have obtained estnltk `.whl` file for Python 3.6, follow the instructions [here](https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives) on uploading the wheel. A good practice would be to first upload the test wheel to [https://test.pypi.org/project/estnltk](https://test.pypi.org/project/estnltk) , test it out in Google Colab, and then upload the final version to [https://pypi.org/project/estnltk](https://pypi.org/project/estnltk) .
 
+The last version of EstNLTK can be installed in Google Colab via command:
+
+	!pip install conllu estnltk==1.6.6b0
 
