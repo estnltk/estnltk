@@ -1,4 +1,7 @@
 from estnltk import Text
+from estnltk.taggers import WordTagger
+from estnltk.taggers import SentenceTokenizer
+from estnltk.taggers import VabamorfTagger
 from estnltk.taggers.estner.ner_tagger import NerTagger
 from estnltk.taggers.estner.word_level_ner_tagger import WordLevelNerTagger
 
@@ -30,3 +33,44 @@ def test_word_level_ner():
                "EnvelopingSpan('õhusaaste',[{'nertag':'O'}]),EnvelopingSpan('suureneb',[{'nertag':'O'}])," \
                "EnvelopingSpan('.',[{'nertag':'O'}])]) "
     assert ''.join(nerlayer.split()) == ''.join(str(text.wordner).split())
+
+
+def test_ner_with_custom_layer_names():
+    # Test that all NER input layers can be fully customized
+    # 1) Create taggers that produce different layer names
+    my_word_tagger = WordTagger( output_layer='my_words' )
+    my_sentence_tokenizer = SentenceTokenizer( 
+                              input_words_layer='my_words',
+                              output_layer='my_sentences' )
+    my_morph_analyser = VabamorfTagger(
+                              output_layer='my_morph',
+                              input_words_layer='my_words',
+                              input_sentences_layer='my_sentences' )
+    # 2) Create test text with prerequisite layers
+    text = Text('Kersti Kaljulaid on Eesti Vabariigi viies ja praegune president. Ta on Eesti esimene naispresident.')
+    text.tag_layer(['compound_tokens'])
+    my_word_tagger.tag( text )
+    my_sentence_tokenizer.tag( text )
+    my_morph_analyser.tag( text )
+    # 3) Annotate with NerTagger
+    # TODO: Pass 'my_words' and 'my_sentences' as NerTagger's input_layers
+    nertagger = NerTagger(output_layer='named_entities', morph_layer_input=( my_morph_analyser.output_layer, ))
+    nertagger.tag( text )
+    # 4) Assertions
+    # 4.1) Assert that default layer names are not used at all:
+    assert 'words' not in text.layers
+    assert 'sentences' not in text.layers
+    assert 'morph_analysis' not in text.layers
+    assert 'ner' not in text.layers
+    # 4.2) Assert that custom layer names are used:
+    assert 'my_words' in text.layers
+    assert 'my_sentences' in text.layers
+    assert 'my_morph' in text.layers
+    assert 'named_entities' in text.layers
+    # 4.3) Assert NerTagger's results
+    nerlayer = (
+        "Layer(name='named_entities', attributes=('nertag',), spans=SL[EnvelopingSpan(['Kersti', 'Kaljulaid'], [{'nertag': 'PER'}]),"
+        "EnvelopingSpan(['Eesti', 'Vabariigi'], [{'nertag': 'LOC'}]),"
+        "EnvelopingSpan(['Eesti'], [{'nertag': 'LOC'}])])")
+    assert ''.join(nerlayer.split()) == ''.join(str(text['named_entities']).split())
+
