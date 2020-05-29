@@ -93,7 +93,7 @@ setup(
         'pandas>=0.16.2',  # Panel Data Analysis library for Python
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
-        'conllu==2.3.2',           # CONLLU for syntax ( TODO: upgrade to 3.0 )
+        'conllu>=2.3.2',           # CONLLU for syntax
         'bs4', # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
         'html5lib', # for processing XML files of the Estonian Reference Corpus
         'lxml',
