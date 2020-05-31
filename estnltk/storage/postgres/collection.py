@@ -99,9 +99,13 @@ class PgCollection:
 
         self.structure.create_table()
 
+        if meta:
+            self.meta = meta
+            self.column_names = ['id', 'data'] + list(meta)
+
         pg.create_collection_table(self.storage,
                                    collection_name=self.name,
-                                   meta_columns=meta or self.meta or {},
+                                   meta_columns=self.meta,
                                    description=description)
 
         logger.info('new empty collection {!r} created'.format(self.name))
