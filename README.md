@@ -33,10 +33,8 @@ conda activate py36
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge conllu estnltk
+conda install -c estnltk -c conda-forge estnltk=1.6.6b
 ```
-
-( Note: package `conllu` is required )
 
 The alternative way for installing if you are unable to use the anaconda distribution is:
 ```
