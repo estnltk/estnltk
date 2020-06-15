@@ -554,7 +554,15 @@ class ENC2017TextReconstructor:
                   orig_paragraphs.add_annotation(orig_sentences[p_start:p_end+1], **current_paragraph_attribs)
                   pid += 1; p_start = -1; p_end = -1
             orig_paragraphs.check_span_consistency()
-            assert pid == len(para_locations)
+            if pid == 0 and len(orig_paragraphs) == 0:
+                # The situation where only starting <p> tags exists
+                # ( occurs in 'etnc19_doaj.vert' document 6024414 )
+                if len(para_locations) > 0:
+                    self._log('WARNING', ('Malformed annotations in doc with id={}: '+\
+                              'only starting paragraph tags <p> exist, unable to create paragraph '+\
+                              'annotations. ').format( text_obj.meta['id'] ))
+            elif pid > 0:
+                assert pid == len(para_locations)
         # Create morph_analyses enveloping around words
         if self.restore_original_morph and morph_analyses is not None and \
            len(morph_analyses) > 0 and orig_words is not None:
@@ -793,7 +801,8 @@ class VertXMLFileParser:
         self.inside_focus_doc = False
         self.document         = {} # metadata of the document
         self.content          = {} # content of the document or subdocument
-        self.last_was_glue = False
+        self.last_was_glue    = False
+        self.last_was_doc_end = False
         if focus_ids is not None:
             assert isinstance(focus_ids, set)
             if len(focus_ids) == 0:
@@ -892,7 +901,10 @@ class VertXMLFileParser:
             # if all filters were successfully passed 
             if not doc_filters_passed or all( doc_filters_passed ):
                 self.inside_focus_doc = True
+            self.last_was_doc_end = False
         # *** End of a document
+        if m_doc_end:
+            self.last_was_doc_end = True
         if m_doc_end and self.inside_focus_doc:
             self.inside_focus_doc = False
             if 'subdoc' in self.content:
@@ -920,6 +932,13 @@ class VertXMLFileParser:
                     return text_obj
                 else:
                     return self.content
+        # Sanity check : is there an unexpected continuation after document ending?
+        if self.last_was_doc_end:
+            if not m_doc_end and not m_doc_start:
+                # Note: this problem is frequent to 'etnc19_doaj.vert'
+                self._log( 'WARNING', ('Unexpected content line {}:{!r} after document '+\
+                                       'ending tag. Content outside documents will be skipped.').format(self.lines, stripped_line))
+            self.last_was_doc_end = False
         # Skip document if it is not one of the focus documents
         if not self.inside_focus_doc:
             self.lines += 1
