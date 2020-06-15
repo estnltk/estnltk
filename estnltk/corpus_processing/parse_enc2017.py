@@ -115,6 +115,7 @@ class ENC2017TextReconstructor:
                        word_separator:str=' ', \
                        layer_name_prefix:str='',\
                        restore_morph_analysis:bool=False,\
+                       replace_broken_morph_with_none:bool=True,\
                        logger:Logger=None ):
         '''Initializes the parser.
         
@@ -173,6 +174,15 @@ class ENC2017TextReconstructor:
                If not set, then morphological analyses will be discarded 
                and only tokenization layers will be created.
                (default: False)
+           replace_broken_morph_with_none: boolean
+               If set, then malformed/broken morphological annotations
+               will have all their attribute values set to None.
+               Otherwise, the processing will halted with raising an 
+               expection if a malformed morphological annotation is 
+               encountered.
+               Note: this only has effect if restore_morph_analysis
+               has been set.
+               (default: True)
            logger: logging.Logger
                Logger to be used for warning and debug messages.
         '''
@@ -201,6 +211,7 @@ class ENC2017TextReconstructor:
                                 "morphological analysis with estnltk's tokenization. Please "+\
                                 "use original tokenization instead.")
         self.restore_original_morph = restore_morph_analysis
+        self.replace_broken_morph_with_none = replace_broken_morph_with_none
 
 
 
@@ -585,8 +596,8 @@ class ENC2017TextReconstructor:
             # B) Normalize and set attributes
             attributes = {attr: analysis_dict.get(attr) for attr in layer_attributes}
             if 'root_tokens' in attributes:
-                attributes['root_tokens'] = tuple(attributes['root_tokens'])
-
+                if attributes['root_tokens'] is not None:
+                    attributes['root_tokens'] = tuple(attributes['root_tokens'])
             # C) Record span to the layer
             morph_layer.add_annotation(word.base_span, **attributes)
         return morph_layer
@@ -622,9 +633,23 @@ class ENC2017TextReconstructor:
                 analysis_dict['clitic'] = items[7]
             else:
                 # Unexpected format for morph analysis
-                self._log('critical', \
-                   '(!) Unexpected raw_morph_analysis ({}): {!r}'.format(len(items), raw_morph_analysis))
-                
+                status_str = 'critical'
+                status_action = ''
+                if self.replace_broken_morph_with_none:
+                    # Add an empty annotation
+                    analysis_dict['root'] = None
+                    analysis_dict['form'] = None
+                    analysis_dict['ending'] = None
+                    analysis_dict['partofspeech'] = None
+                    analysis_dict['lemma'] = None
+                    analysis_dict['root_tokens'] = None
+                    analysis_dict['clitic'] = None
+                    status_str    = 'WARNING'
+                    status_action = ' Adding an empty annotation.'
+                self._log(status_str, \
+                   '(!) Broken raw_morph_analysis in line {!r}.{}'.format(raw_morph_analysis,status_action))
+                if not self.replace_broken_morph_with_none:
+                    raise Exception('(!) Unexpected malformed raw_morph_analysis: {!r}'.format(raw_morph_analysis))
         else:
             # This should be a tag: format it as a 'Z'
             if raw_morph_analysis.startswith('<') and \
@@ -639,8 +664,23 @@ class ENC2017TextReconstructor:
                        analysis_dict[attr] = ''
             else:
                # If it is not tag, then something unexpected happened
-               self._log('critical', \
-                   '(!) Unexpected raw_morph_analysis: {!r}'.format(raw_morph_analysis))
+               status_str = 'critical'
+               status_action = ''
+               if self.replace_broken_morph_with_none:
+                   # Add an empty annotation
+                   analysis_dict['root'] = None
+                   analysis_dict['form'] = None
+                   analysis_dict['ending'] = None
+                   analysis_dict['partofspeech'] = None
+                   analysis_dict['lemma'] = None
+                   analysis_dict['root_tokens'] = None
+                   analysis_dict['clitic'] = None
+                   status_str    = 'WARNING'
+                   status_action = ' Adding an empty annotation.'
+               self._log(status_str, \
+                   '(!) Broken raw_morph_analysis in line {!r}.{}'.format(raw_morph_analysis,status_action))
+               if not self.replace_broken_morph_with_none:
+                   raise Exception('(!) Unexpected malformed raw_morph_analysis: {!r}'.format(raw_morph_analysis))
         return analysis_dict
 
 
@@ -1035,12 +1075,11 @@ class VertXMLFileParser:
             self.last_was_glue = True
         # *** Text content + morph analysis inside sentence or paragraph
         elif len( stripped_line ) > 0 and '\t' in stripped_line:
-            # Some sanity checks
-            assert stripped_line.count('\t') >= 2, \
-                ('(!) Unexpected number of tabs ({}) in '+\
-                 'textual content line: {!r}').format(
-                        stripped_line.count('\t'), 
-                        stripped_line )
+            if not stripped_line.count('\t') >= 2:
+                # Inform that morph analysis is likely broken at this point
+                warn_msg = 'Malformed line {!r} : unexpected number of tabs ({}) in line.'
+                self._log( 'WARNING', warn_msg.format( stripped_line, 
+                                                       stripped_line.count('\t') ) )
             # Add word
             items = stripped_line.split('\t')
             token = items[0]
