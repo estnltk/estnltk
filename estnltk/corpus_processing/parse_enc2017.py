@@ -838,15 +838,15 @@ class VertXMLFileParser:
                       self.textreconstructor.__class__.__name__,self.textreconstructor.restore_original_morph)
                 raise Exception('(!) Conflicting configurations: {} and {}'.format(conf1, conf2) )
         # Patterns for detecting tags
-        self.enc_doc_tag_start  = re.compile("^<doc[^<>]+>\s*$")
-        self.enc_doc_tag_end    = re.compile("^</doc>\s*$")
+        self.enc_doc_tag_start  = re.compile(r"^<doc[^<>]+>\s*$")
+        self.enc_doc_tag_end    = re.compile(r"^</doc>\s*$")
         # Info tags: used for marking subdocuments inside documents
-        self.enc_info_tag_start = re.compile("^<info[^<>]+>\s*$")
-        self.enc_info_tag_end   = re.compile("^</info>\s*$")
-        self.enc_p_tag_start    = re.compile("^<p( [^<>]+)?>\s*$")
-        self.enc_p_tag_end      = re.compile("^</p>\s*$")
-        self.enc_s_tag_start    = re.compile("^<s( [^<>]+)?>\s*$")
-        self.enc_s_tag_end      = re.compile("^</s>\s*$")
+        self.enc_info_tag_start = re.compile(r"^<info[^<>]+>\s*$")
+        self.enc_info_tag_end   = re.compile(r"^</info>\s*$")
+        self.enc_p_tag_start    = re.compile(r"^<p( [^<>]+)?>\s*$")
+        self.enc_p_tag_end      = re.compile(r"^</p>\s*$")
+        self.enc_s_tag_start    = re.compile(r"^<s( [^<>]+)?>\s*$")
+        self.enc_s_tag_end      = re.compile(r"^</s>\s*$")
         self.enc_glue_tag       = re.compile("^<g/>$")
         self.enc_unknown_tag    = re.compile("^<([^<>]+)>$")
 
