@@ -358,7 +358,7 @@ class EtTenTenXMLParser:
                # Check if the last paragraph was empty
                last_par = self.paragraphs[-1]
                last_par_text = ''.join(last_par['texts'])
-               if len(last_par_text) == 0 or re.match('^\s+$', last_par_text):
+               if len(last_par_text) == 0 or re.match(r'^\s+$', last_par_text):
                    # If it was empty, remove the empty paragraph
                    self.paragraphs.pop()
             self.inside_p = False
