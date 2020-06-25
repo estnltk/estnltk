@@ -145,7 +145,8 @@ class PostgresStorage:
             version = self._collections.collections[collection]['version']
             for i in range(index, len(table_names)):
                 table = table_names[i]
-                if table.startswith(collection):
+                table_name_parts = table.split('__')
+                if table_name_parts[0] == collection:
                     structure[(collection, version, table[len(collection):].lstrip('_'))] = tables[table]
                 else:
                     break
