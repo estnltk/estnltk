@@ -1172,8 +1172,16 @@ class VertXMLFileParser:
         # Add given word
         prev_words.append( word_str )
         if self.last_was_glue:
-            # Merge word to the previous one
-            prev_original_words[-1] = prev_original_words[-1] + word_str
+            if len(prev_original_words) > 0:
+                # Merge word to the previous one
+                prev_original_words[-1] = prev_original_words[-1] + word_str
+            else:
+                # Broken annotation: <g/> is not between 
+                # two tokens, but at the start of the 
+                # sentence instead 
+                self._log( 'WARNING', 'Unexpectedly <g/> is not between two tokens at line {}'.format(self.lines-1) )
+                # Add a new word to the list 
+                prev_original_words.append( word_str )
         else:
             # Add a new word to the list 
             prev_original_words.append( word_str )
