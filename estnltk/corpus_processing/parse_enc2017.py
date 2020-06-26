@@ -843,8 +843,8 @@ class VertXMLFileParser:
                 conf2 = '{}.restore_original_morph={}'.format( \
                       self.textreconstructor.__class__.__name__,self.textreconstructor.restore_original_morph)
                 raise Exception('(!) Conflicting configurations: {} and {}'.format(conf1, conf2) )
-        # Hack: remember the number of Wiki 2017 documents seen to avoid an abundance of warnings
-        self.docs_with_wiki_2017_src = 0
+        # Hack: remember the number of Wiki 2017 docs with broken tags encountered (to avoid an abundance of warnings)
+        self.broken_tag_docs_with_wiki_2017_src = 0
         # Patterns for detecting tags
         self.enc_doc_tag_start  = re.compile(r"^<doc[^<>]+>\s*$")
         self.enc_doc_tag_end    = re.compile(r"^</doc>\s*$")
@@ -886,7 +886,6 @@ class VertXMLFileParser:
             self.document.clear()
             self.content.clear()
             if 'src="Wikipedia 2017"' in stripped_line and \
-               'texttype="Wikipedia"' in stripped_line and \
                stripped_line.count('lang_scores=') > 1:
                 #
                 #  Note: There is a systemic error in 'etnc19_wikipedia_2017.vert':
@@ -896,8 +895,8 @@ class VertXMLFileParser:
                 #        the first "lang_scores" attribute from the <doc> tag after 
                 #        we have recorded five of these warnings.
                 #
-                self.docs_with_wiki_2017_src += 1
-                if self.docs_with_wiki_2017_src > 5:
+                self.broken_tag_docs_with_wiki_2017_src += 1
+                if self.broken_tag_docs_with_wiki_2017_src > 5:
                    stripped_line = re.sub('lang_scores="[^"]+"',' ',stripped_line,count=1)
             # Carry over attributes
             attribs = parse_tag_attributes( stripped_line, logger=self.logger )
