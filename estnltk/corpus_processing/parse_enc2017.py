@@ -845,6 +845,8 @@ class VertXMLFileParser:
                 raise Exception('(!) Conflicting configurations: {} and {}'.format(conf1, conf2) )
         # Hack: remember the number of Wiki 2017 docs with broken tags encountered (to avoid an abundance of warnings)
         self.broken_tag_docs_with_wiki_2017_src = 0
+        # ... and in similar vein: remember the number of Web 2017 docs with broken tags encountered
+        self.broken_tag_docs_with_web_2017_src  = 0
         # Patterns for detecting tags
         self.enc_doc_tag_start  = re.compile(r"^<doc[^<>]+>\s*$")
         self.enc_doc_tag_end    = re.compile(r"^</doc>\s*$")
@@ -898,6 +900,21 @@ class VertXMLFileParser:
                 self.broken_tag_docs_with_wiki_2017_src += 1
                 if self.broken_tag_docs_with_wiki_2017_src > 5:
                    stripped_line = re.sub('lang_scores="[^"]+"',' ',stripped_line,count=1)
+            #
+            #  Note: the file 'etnc19_web_2017.vert' also has systematic duplicates in tag 
+            #        attributes, so apply the same strategy as previously:  warn  for  the 
+            #        first 5 malformed doc tags, and then remove the duplicates to suppress 
+            #        the abundance of warnings.
+            #
+            if 'src="Web 2017"' in stripped_line and \
+               (stripped_line.count('lang_old=') > 1 or \
+                stripped_line.count('lang_scores=') > 1 ):
+                self.broken_tag_docs_with_web_2017_src += 1
+                if self.broken_tag_docs_with_web_2017_src > 5:
+                    if stripped_line.count('lang_old=') > 1:
+                        stripped_line = re.sub('lang_old="[^"]+"',' ',stripped_line,count=1)
+                    if stripped_line.count('lang_scores=') > 1:
+                        stripped_line = re.sub('lang_scores="[^"]+"',' ',stripped_line,count=1)
             # Carry over attributes
             attribs = parse_tag_attributes( stripped_line, logger=self.logger )
             for key, value in attribs.items():
