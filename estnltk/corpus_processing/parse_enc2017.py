@@ -22,6 +22,7 @@ from typing import Iterable
 
 from logging import Logger
 from logging import getLevelName
+from sys import stderr
 
 from tqdm import tqdm, tqdm_notebook
 
@@ -41,7 +42,7 @@ from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAK
 # Pattern for capturing names & values of attributes
 enc_tag_attrib_pat = re.compile('([^= ]+)="([^"]+?)"')
 
-def parse_tag_attributes( tag_str ):
+def parse_tag_attributes( tag_str, logger:Logger=None ):
     """Extracts names & values of attributes from an XML tag string,
        and returns as a dictionary.
        Throws an Exception if attribute key appears more than once.
@@ -58,11 +59,16 @@ def parse_tag_attributes( tag_str ):
     assert tag_str.count('"') % 2 == 0, \
         '(!) Uneven number of quotation marks in: '+str(tag_str)
     attribs = {}
+    seen_duplicates = set()
     for attr_match in enc_tag_attrib_pat.finditer(tag_str):
         key   = attr_match.group(1)
         value = attr_match.group(2)
-        if key in attribs:
-           raise Exception(' (!) Unexpected: attribute "'+key+'" appears more than once in: '+tag_str)
+        if key in attribs and key not in seen_duplicates:
+            if logger != None:
+                logger.log(getLevelName('WARNING'), '(!) Unexpected: attribute "'+key+'" appears more than once in: '+tag_str)
+            else:
+                stderr.write('(!) Unexpected: attribute "'+key+'" appears more than once in: '+tag_str+'\n')
+            seen_duplicates.add(key)
         attribs[key] = value
     return attribs
 
@@ -837,6 +843,8 @@ class VertXMLFileParser:
                 conf2 = '{}.restore_original_morph={}'.format( \
                       self.textreconstructor.__class__.__name__,self.textreconstructor.restore_original_morph)
                 raise Exception('(!) Conflicting configurations: {} and {}'.format(conf1, conf2) )
+        # Hack: remember the number of Wiki 2017 documents seen to avoid an abundance of warnings
+        self.docs_with_wiki_2017_src = 0
         # Patterns for detecting tags
         self.enc_doc_tag_start  = re.compile(r"^<doc[^<>]+>\s*$")
         self.enc_doc_tag_end    = re.compile(r"^</doc>\s*$")
@@ -877,8 +885,22 @@ class VertXMLFileParser:
             # Clear old doc content
             self.document.clear()
             self.content.clear()
+            if 'src="Wikipedia 2017"' in stripped_line and \
+               'texttype="Wikipedia"' in stripped_line and \
+               stripped_line.count('lang_scores=') > 1:
+                #
+                #  Note: There is a systemic error in 'etnc19_wikipedia_2017.vert':
+                #        each and every <doc> contains two "lang_scores" attributes.
+                #        As a result, we would have an abundance of warnings about
+                #        repeated attribute names. In order to avoid that, we remove
+                #        the first "lang_scores" attribute from the <doc> tag after 
+                #        we have recorded five of these warnings.
+                #
+                self.docs_with_wiki_2017_src += 1
+                if self.docs_with_wiki_2017_src > 5:
+                   stripped_line = re.sub('lang_scores="[^"]+"',' ',stripped_line,count=1)
             # Carry over attributes
-            attribs = parse_tag_attributes( stripped_line )
+            attribs = parse_tag_attributes( stripped_line, logger=self.logger )
             for key, value in attribs.items():
                 if key in ['_paragraphs','_sentences','_words','_original_words']:
                    raise Exception("(!) Improper key name "+key+" in tag <doc>.")
@@ -956,7 +978,7 @@ class VertXMLFileParser:
         if m_info_start:
             # Assert that some content from the doc tag has already been read
             assert 'id' in self.document
-            info_attribs = parse_tag_attributes( stripped_line )
+            info_attribs = parse_tag_attributes( stripped_line, logger=self.logger )
             # Create a new subdocument
             if 'subdoc' in self.content:
                 self.content['subdoc'].clear()
@@ -1012,7 +1034,7 @@ class VertXMLFileParser:
             # Create new paragraph
             new_paragraph = {}
             if self.store_fragment_attributes:
-                attribs = parse_tag_attributes( stripped_line )
+                attribs = parse_tag_attributes( stripped_line, logger=self.logger )
                 for key, value in attribs.items():
                     if key in new_paragraph.keys():
                        raise Exception("(!) Unexpected repeating attribute name in <p>: "+str(key))
@@ -1052,7 +1074,7 @@ class VertXMLFileParser:
             # Create new sentence
             new_sentence = {}
             if self.store_fragment_attributes:
-                attribs = parse_tag_attributes( stripped_line )
+                attribs = parse_tag_attributes( stripped_line, logger=self.logger )
                 for key, value in attribs.items():
                     if key in new_sentence.keys():
                        raise Exception("(!) Unexpected repeating attribute name in <p>: "+str(key))
