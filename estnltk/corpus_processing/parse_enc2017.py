@@ -1054,6 +1054,11 @@ class VertXMLFileParser:
                 for key, value in attribs.items():
                     if key in new_paragraph.keys():
                        raise Exception("(!) Unexpected repeating attribute name in <p>: "+str(key))
+                    if '-' in key:
+                       self._log( 'WARNING', 'Fixing attribute name {!r} -> {!r}'.format(key, key.replace('-', '_')) )
+                       key = key.replace('-', '_')
+                    if not key.isidentifier():
+                       self._log( 'CRITICAL', 'Invalid attribute name {} in {!r}'.format(key, stripped_line) )
                     new_paragraph[key] = value
             # Attach the paragraph
             parent = None
@@ -1094,6 +1099,11 @@ class VertXMLFileParser:
                 for key, value in attribs.items():
                     if key in new_sentence.keys():
                        raise Exception("(!) Unexpected repeating attribute name in <p>: "+str(key))
+                    if '-' in key:
+                       self._log( 'WARNING', 'Fixing attribute name {!r} -> {!r}'.format(key, key.replace('-', '_')) )
+                       key = key.replace('-', '_')
+                    if not key.isidentifier():
+                       self._log( 'CRITICAL', 'Invalid attribute name {} in {!r}'.format(key, stripped_line) )
                     new_sentence[key] = value
             # Attach the sentence
             parent = None
