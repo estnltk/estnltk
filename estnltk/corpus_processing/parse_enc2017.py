@@ -96,6 +96,15 @@ def extract_doc_ids_from_corpus_file( in_file:str, encoding:str='utf-8' ):
     with open( in_file, mode='r', encoding=encoding ) as f:
         for line in f:
             stripped_line = line.strip()
+            if stripped_line.startswith('<doc'):
+                # Problem:  sometimes <doc>-tag contains more than one 
+                #           < or >, and thus escapes from detection
+                # Solution: replace < and > with &lt; and &gt; inside 
+                #           the tag
+                if stripped_line.count('<') > 1:
+                    stripped_line = '<'+(stripped_line[1:]).replace('<', '&lt;')
+                if stripped_line.count('>') > 1:
+                    stripped_line = (stripped_line[:-1]).replace('>', '&gt;')+'>'
             m_doc_start = enc_doc_tag_start.search(stripped_line)
             if m_doc_start: 
                 attribs = parse_tag_attributes( stripped_line )
@@ -880,10 +889,28 @@ class VertXMLFileParser:
            is returned instead of the document.
         '''
         stripped_line = line.strip()
-        m_doc_start   = self.enc_doc_tag_start.match(stripped_line)
-        m_doc_end     = self.enc_doc_tag_end.match(stripped_line)
+        lt_escaped = False
+        gt_escaped = False
+        if stripped_line.startswith('<doc'):
+            # Problem:  sometimes <doc>-tag contains more than one 
+            #           < or >, and thus escapes from detection
+            # Solution: replace < and > with &lt; and &gt; inside 
+            #           the tag
+            if stripped_line.count('<') > 1:
+                stripped_line = '<'+(stripped_line[1:]).replace('<', '&lt;')
+                lt_escaped = True
+            if stripped_line.count('>') > 1:
+                stripped_line = (stripped_line[:-1]).replace('>', '&gt;')+'>'
+                gt_escaped = True
+        m_doc_start = self.enc_doc_tag_start.match(stripped_line)
+        m_doc_end   = self.enc_doc_tag_end.match(stripped_line)
         # *** Start of a new document
         if m_doc_start: 
+            # Replace back &lt; and &gt;
+            if lt_escaped:
+                stripped_line = stripped_line.replace('&lt;', '<')
+            if gt_escaped:
+                stripped_line = stripped_line.replace('&gt;', '>')
             # Clear old doc content
             self.document.clear()
             self.content.clear()
