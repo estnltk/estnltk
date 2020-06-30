@@ -40,21 +40,21 @@ def test_lemmas():
 
 def test_shortest_path_distance_with_self():
     synset = ss_koer
-    assert synset._shortest_path_distance(synset) == 0
+    assert wn._shortest_path_distance(synset, synset) == 0
 
 
 def test_path_similarity_with_self():
     synset = ss_koer
-    assert synset.path_similarity(synset) == 1
+    assert wn.path_similarity(synset, synset) == 1
 
 
 def test_path_similarity_with_parent():
     synset = ss_koer
     target_synset = wn['koduloom'][0]
-    assert synset.path_similarity(target_synset) == 1/2
+    assert wn.path_similarity(synset, target_synset) == 1/2
 
 
 def test_path_similarity_with_unreachable():
     synset = wn['laulma'][0]
     target_synset = ss_koer
-    assert synset.path_similarity(target_synset) is None
+    assert wn.path_similarity(synset, target_synset) is None
