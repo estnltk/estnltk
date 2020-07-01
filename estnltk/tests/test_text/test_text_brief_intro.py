@@ -216,4 +216,16 @@ def test_adding_layer():
     
     #from pprint import pprint
     #pprint(layer_to_dict(t.uppercase[:11]))
-    
+
+
+
+def test_tag_layer_with_string_input():
+    #
+    # Test that tag_layer also accepts string as an input
+    #
+    t = Text( example_text_str )
+    t.tag_layer('words')
+    assert t.layers == {'compound_tokens', 'tokens', 'words'}
+    t.tag_layer('sentences')
+    t.tag_layer('paragraphs')
+    assert t.layers == {'compound_tokens', 'tokens', 'words', 'sentences', 'paragraphs'}
