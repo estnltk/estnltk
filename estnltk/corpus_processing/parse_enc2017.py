@@ -905,7 +905,7 @@ class VertXMLFileParser:
         m_doc_start = self.enc_doc_tag_start.match(stripped_line)
         m_doc_end   = self.enc_doc_tag_end.match(stripped_line)
         # *** Start of a new document
-        if m_doc_start: 
+        if m_doc_start and stripped_line.startswith('<doc '): 
             # Replace back &lt; and &gt;
             if lt_escaped:
                 stripped_line = stripped_line.replace('&lt;', '<')
