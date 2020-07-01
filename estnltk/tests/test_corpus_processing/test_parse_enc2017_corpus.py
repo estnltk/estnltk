@@ -2,10 +2,10 @@ import os, os.path
 
 from estnltk.core import PACKAGE_PATH
 
-from estnltk.corpus_processing.parse_enc2017 import VertXMLFileParser
-from estnltk.corpus_processing.parse_enc2017 import ENC2017TextReconstructor
+from estnltk.corpus_processing.parse_enc import VertXMLFileParser
+from estnltk.corpus_processing.parse_enc import ENCTextReconstructor
 
-from estnltk.corpus_processing.parse_enc2017 import parse_enc2017_file_iterator
+from estnltk.corpus_processing.parse_enc import parse_enc_file_iterator
 
 from estnltk.layer_operations import split_by
 
@@ -22,7 +22,7 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_1():
     texts = []
     inputfile_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_1)
-    for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+    for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve'):
         texts.append( text_obj )
     # Make assertions
@@ -67,7 +67,7 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_2():
     texts = []
     inputfile_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_2)
-    for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+    for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve'):
         texts.append( text_obj )
     # Make assertions
@@ -114,7 +114,7 @@ def test_parse_enc2017_file_iterator_extract_specific_docs():
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
         inputfile_path = \
             os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
-        for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+        for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                      focus_doc_ids=focus_doc_ids ):
             texts.append( text_obj )
     # Make assertions
@@ -136,7 +136,7 @@ def test_parse_enc2017_file_iterator_extract_specific_docs():
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
         inputfile_path = \
             os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
-        for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+        for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                      focus_srcs=focus_srcs ):
             texts.append( text_obj )
     # Make assertions
@@ -159,7 +159,7 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
     texts = []
     inputfile_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
-    for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+    for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve'):
         texts.append( text_obj )
     # One document should be missing
@@ -171,10 +171,10 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
     inputfile_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
     # Create VertXMLFileParser that does not discard empty fragments
-    reconstructor = ENC2017TextReconstructor(layer_name_prefix='original_')
+    reconstructor = ENCTextReconstructor(layer_name_prefix='original_')
     vertParser = VertXMLFileParser(discard_empty_fragments=False,\
                                    textReconstructor=reconstructor)
-    for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+    for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve',
                                                  vertParser=vertParser):
         # Assert that:
@@ -206,7 +206,7 @@ def test_parse_enc2017_with_original_tokens_use_split_by():
     texts = []
     inputfile_path = \
             os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_1)
-    for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+    for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve',\
                                                  restore_morph_analysis=True ):
         texts.append( text_obj )
@@ -252,7 +252,7 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
     #    Create TextReconstructor that preserves original tokenization,
     #    and restores original morph analysis; 
     #    Create also VertXMLFileParser with matching configuration;
-    reconstructor = ENC2017TextReconstructor(restore_morph_analysis=True,\
+    reconstructor = ENCTextReconstructor(restore_morph_analysis=True,\
                                              tokenization='preserve',\
                                              layer_name_prefix='original_')
     parser = VertXMLFileParser(textReconstructor=reconstructor, \
@@ -262,7 +262,7 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
         inputfile_path = \
             os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
-        for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+        for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                      textReconstructor=reconstructor,\
                                                      vertParser=parser):
             # Assert that required layers exist
@@ -291,12 +291,12 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
             [{'text': 'EPLO', 'root_tokens': ('EPLO',), 'start': 23, 'ending': '0', 'partofspeech': 'Y', 'form': '?', 'root': 'EPLO', 'lemma': 'EPLO', 'clitic': '', 'end': 27}], \
             [{'text': ')', 'root_tokens': (')',), 'start': 27, 'ending': '', 'partofspeech': 'Z', 'form': '', 'root': ')', 'lemma': ')', 'clitic': '', 'end': 28}]]
 
-    # 2) Configure restoring morph analysis via parse_enc2017_file_iterator's
+    # 2) Configure restoring morph analysis via parse_enc_file_iterator's
     #    argument
     texts = []
     inputfile_path = \
             os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
-    for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+    for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve',\
                                                  restore_morph_analysis=True ):
         assert len(text_obj["original_morph_analysis"]) == len(text_obj['original_words'])
@@ -318,13 +318,13 @@ def test_parse_enc2017_with_original_tokens_and_add_morph_analysis():
     # 1) Create TextReconstructor that preserves original tokenization,
     #     but does not add prefix 'original_' to layer names
     #   (so, layer names will be identical to estnltk's layer names)
-    textReconstructor = ENC2017TextReconstructor(tokenization='preserve',\
+    textReconstructor = ENCTextReconstructor(tokenization='preserve',\
                                                  layer_name_prefix='')
     texts = []
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
         inputfile_path = \
             os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
-        for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+        for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                      textReconstructor=textReconstructor ):
             # Assert that required layers exist (and have correct names)
             assert 'sentences' in text_obj.layers

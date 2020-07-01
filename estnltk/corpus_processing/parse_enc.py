@@ -1,8 +1,8 @@
 #
-#  Module for converting Estonian National Corpus (ENC) 2017 documents 
-#  to EstNLTK Text objects.
+#  Module for converting Estonian National Corpus (ENC) 2017 and 2019 
+#  documents to EstNLTK Text objects.
 #
-#  The Estonian National Corpus (ENC) 2017 contains variety of corpora,
+#  The Estonian National Corpus (ENC) 2017 & 2019 contain variety of corpora,
 #  including documents crawled from web (etTenTen 2013 and etTenTen 2017),
 #  documents from the National Corpus (e.g. Estonian Reference Corpus), 
 #  and articles from Estonian Wikipedia.
@@ -117,8 +117,8 @@ def extract_doc_ids_from_corpus_file( in_file:str, encoding:str='utf-8' ):
 #   Reconstructing EstNLTK Text objects
 # =================================================
 
-class ENC2017TextReconstructor:
-    """ ENC2017TextReconstructor builds Estnltk Text objects 
+class ENCTextReconstructor:
+    """ ENCTextReconstructor builds Estnltk Text objects 
         based on document contents extracted by VertXMLFileParser.
     """
     NOT_METADATA_KEYS = ['_paragraphs','_sentences','_words',\
@@ -718,7 +718,7 @@ class ENC2017TextReconstructor:
 
 
 # =================================================
-#   Parsing ENC 2017 corpus files
+#   Parsing ENC 2017 & 2019 corpus files
 # =================================================
 
 class VertXMLFileParser:
@@ -731,7 +731,7 @@ class VertXMLFileParser:
         files: all XML tags are on separate lines, so the line by line parsing 
         is actually the most straightforward approach.
         
-        * VertXMLFileParser is made for parsing vert files of ENC 2017; 
+        * VertXMLFileParser is made for parsing vert files of ENC 2017 & 2019; 
           the implementation is loosely based on earlier EtTenTenXMLParser;
         * vert / prevert is an output file type used by the SpiderLing web 
           crawler, see http://corpus.tools/wiki/SpiderLing for details; 
@@ -749,7 +749,7 @@ class VertXMLFileParser:
                        store_fragment_attributes:bool=True, \
                        add_unexpected_tags_to_words:bool=False, \
                        record_morph_analysis:bool=False,\
-                       textReconstructor:ENC2017TextReconstructor=None,\
+                       textReconstructor:ENCTextReconstructor=None,\
                        logger:Logger=None ):
         '''Initializes the parser.
         
@@ -802,15 +802,15 @@ class VertXMLFileParser:
                Otherwise, morphological analyses will be discarded and only 
                segmentation annotations will be recorded.
                (default: False)
-           textReconstructor: ENC2017TextReconstructor
-               ENC2017TextReconstructor instance that can be used for reconstructing
+           textReconstructor: ENCTextReconstructor
+               ENCTextReconstructor instance that can be used for reconstructing
                the Text object based on extracted document content;
                Default: None
            logger: logging.Logger
                Logger to be used for warning and debug messages.
         '''
         assert not logger or isinstance(logger, Logger)
-        assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
+        assert not textReconstructor or isinstance(textReconstructor, ENCTextReconstructor)
         # Initialize the state of parsing
         self.lines            = 0
         self.inside_focus_doc = False
@@ -872,7 +872,7 @@ class VertXMLFileParser:
 
 
     def parse_next_line( self, line: str ):
-        '''Parses a next line from the XML content of ENC_2017 corpus.
+        '''Parses a next line from the XML content of ENC corpus.
         
            If an end of document is reached with the line, there a two 
            possibilities.
@@ -1323,19 +1323,19 @@ def _get_iterable_content_w_tqdm( iterable_content:Iterable,
 
 
 
-def parse_enc2017_file_iterator( in_file:str, 
-                                 encoding:str='utf-8', \
-                                 focus_doc_ids:set=None, \
-                                 focus_srcs:set=None, \
-                                 focus_lang:set=None, \
-                                 tokenization:str='preserve', \
-                                 original_layer_prefix:str='original_',\
-                                 restore_morph_analysis:bool=False, \
-                                 vertParser:VertXMLFileParser=None, \
-                                 textReconstructor:ENC2017TextReconstructor=None, \
-                                 line_progressbar:str=None, \
-                                 logger:Logger=None  ):
-    '''Opens an ENC 2017 corpus file (a vert or prevert type file), 
+def parse_enc_file_iterator( in_file:str, 
+                             encoding:str='utf-8', \
+                             focus_doc_ids:set=None, \
+                             focus_srcs:set=None, \
+                             focus_lang:set=None, \
+                             tokenization:str='preserve', \
+                             original_layer_prefix:str='original_',\
+                             restore_morph_analysis:bool=False, \
+                             vertParser:VertXMLFileParser=None, \
+                             textReconstructor:ENCTextReconstructor=None, \
+                             line_progressbar:str=None, \
+                             logger:Logger=None  ):
+    '''Opens ENC 2017 or ENC 2019 corpus file (a vert type file), 
        reads its content document by document, reconstructs Text 
        objects from the documents, and yields created Text objects 
        one by one.
@@ -1355,7 +1355,7 @@ def parse_enc2017_file_iterator( in_file:str,
        Parameters
        ----------
        in_file: str
-           Full name of etTenTen corpus file (name with path);
+           Full name of ENC corpus file (name with path);
            
        encoding: str
            Encoding of in_file. Defaults to 'utf-8';
@@ -1436,8 +1436,8 @@ def parse_enc2017_file_iterator( in_file:str,
            If set, then overrides the default VertXMLFileParser with the 
            given vertParser.
        
-       textReconstructor: ENC2017TextReconstructor
-           If set, then overrides the default ENC2017TextReconstructor with 
+       textReconstructor: ENCTextReconstructor
+           If set, then overrides the default ENCTextReconstructor with 
            the given textReconstructor.
        
        line_progressbar:str
@@ -1452,14 +1452,14 @@ def parse_enc2017_file_iterator( in_file:str,
     '''
     assert isinstance(original_layer_prefix, str)
     assert not vertParser or isinstance(vertParser, VertXMLFileParser)
-    assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
+    assert not textReconstructor or isinstance(textReconstructor, ENCTextReconstructor)
     if textReconstructor:
         reconstructor = textReconstructor
     else:
-        reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
-                                                 layer_name_prefix=original_layer_prefix,\
-                                                 restore_morph_analysis=restore_morph_analysis,\
-                                                 logger=logger)
+        reconstructor = ENCTextReconstructor(tokenization=tokenization,\
+                                             layer_name_prefix=original_layer_prefix,\
+                                             restore_morph_analysis=restore_morph_analysis,\
+                                             logger=logger)
     if vertParser:
         xmlParser = vertParser
     else:
@@ -1480,20 +1480,21 @@ def parse_enc2017_file_iterator( in_file:str,
 
 
 
-def parse_enc2017_file_content_iterator( content, 
-                                         focus_doc_ids:set=None, \
-                                         focus_srcs:set=None, \
-                                         focus_lang:set=None, \
-                                         tokenization:str='preserve', \
-                                         original_layer_prefix:str='original_',\
-                                         restore_morph_analysis:bool=False, \
-                                         vertParser:VertXMLFileParser=None, \
-                                         textReconstructor:ENC2017TextReconstructor=None, \
-                                         line_progressbar:str=None, \
-                                         logger:Logger=None  ):
-    '''Reads ENC 2017 corpus file's content, extracts documents 
-       based on the XML annotations, reconstructs Text objects from 
-       the documents, and yields created Text objects one by one.
+def parse_enc_file_content_iterator( content, 
+                                     focus_doc_ids:set=None, \
+                                     focus_srcs:set=None, \
+                                     focus_lang:set=None, \
+                                     tokenization:str='preserve', \
+                                     original_layer_prefix:str='original_',\
+                                     restore_morph_analysis:bool=False, \
+                                     vertParser:VertXMLFileParser=None, \
+                                     textReconstructor:ENCTextReconstructor=None, \
+                                     line_progressbar:str=None, \
+                                     logger:Logger=None  ):
+    '''Reads ENC 2017 or ENC 2019 corpus file's content, extracts 
+       documents based on the XML annotations, reconstructs Text 
+       objects from the documents, and yields created Text objects 
+       one by one.
        
        If tokenization=='preserve' (default), then created Text 
        objects will have layers preserving original segmentation:
@@ -1510,8 +1511,8 @@ def parse_enc2017_file_content_iterator( content,
        Parameters
        ----------
        content: str
-           ENC 2017 corpus file's content (or a subset of the content) 
-           as a string.
+           ENC 2017 or 2019 corpus file's content (or a subset of the 
+           content) as a string.
        
        focus_doc_ids: set of str
            Set of document id-s corresponding to the documents which 
@@ -1589,8 +1590,8 @@ def parse_enc2017_file_content_iterator( content,
            If set, then overrides the default VertXMLFileParser with the 
            given vertParser.
        
-       textReconstructor: ENC2017TextReconstructor
-           If set, then overrides the default ENC2017TextReconstructor with the 
+       textReconstructor: ENCTextReconstructor
+           If set, then overrides the default ENCTextReconstructor with the 
            given textReconstructor.
        
        line_progressbar:str
@@ -1606,14 +1607,14 @@ def parse_enc2017_file_content_iterator( content,
     assert isinstance(content, str)
     assert isinstance(original_layer_prefix, str)
     assert not vertParser or isinstance(vertParser, VertXMLFileParser)
-    assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
+    assert not textReconstructor or isinstance(textReconstructor, ENCTextReconstructor)
     if textReconstructor:
         reconstructor = textReconstructor
     else:
-        reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
-                                                 layer_name_prefix=original_layer_prefix,\
-                                                 restore_morph_analysis=restore_morph_analysis,\
-                                                 logger=logger)
+        reconstructor = ENCTextReconstructor(tokenization=tokenization,\
+                                             layer_name_prefix=original_layer_prefix,\
+                                             restore_morph_analysis=restore_morph_analysis,\
+                                             logger=logger)
     if vertParser:
         xmlParser = vertParser
     else:
