@@ -106,7 +106,7 @@ def extract_doc_ids_from_corpus_file( in_file:str, encoding:str='utf-8' ):
                 if stripped_line.count('>') > 1:
                     stripped_line = (stripped_line[:-1]).replace('>', '&gt;')+'>'
             m_doc_start = enc_doc_tag_start.search(stripped_line)
-            if m_doc_start: 
+            if m_doc_start and stripped_line.startswith('<doc '):
                 attribs = parse_tag_attributes( stripped_line )
                 assert 'id' in attribs.keys()
                 doc_ids.append( attribs['id'] )
