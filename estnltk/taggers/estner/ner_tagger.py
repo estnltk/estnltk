@@ -28,12 +28,12 @@ class NerTagger(Tagger):
         """
         self.output_layer = output_layer
         self.output_attributes = ["nertag"]
-        modelUtil = ModelStorageUtil(model_dir)
-        nersettings = modelUtil.load_settings()
+        self.modelUtil = ModelStorageUtil(model_dir)
+        self.nersettings = self.modelUtil.load_settings()
         self.input_layers = morph_layer_input
-        self.fex = FeatureExtractor(nersettings, self.input_layers)
-        self.crf_model = CrfsuiteModel(settings=nersettings,
-                                       model_filename=modelUtil.model_filename)
+        self.fex = FeatureExtractor(self.nersettings, self.input_layers)
+        self.crf_model = CrfsuiteModel(settings=self.nersettings,
+                                       model_filename=self.modelUtil.model_filename)
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         # prepare input for nertagger
