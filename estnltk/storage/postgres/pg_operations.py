@@ -7,7 +7,6 @@ from estnltk.storage.postgres import collection_table_name
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import fragment_table_name
 
-
 pytype2dbtype = {
     "int": "integer",
     "bigint": "bigint",
@@ -67,9 +66,9 @@ def get_all_tables(storage):
     with storage.conn.cursor() as c:
         sql = SQL(
             "SELECT table_name, "
-                   "pg_size_pretty(pg_total_relation_size({schema}||'.'||table_name)), "
-                   "obj_description(({schema}||'.'||table_name)::regclass), "
-                   "S.n_live_tup "
+            "pg_size_pretty(pg_total_relation_size({schema}||'.'||table_name)), "
+            "obj_description(({schema}||'.'||table_name)::regclass), "
+            "S.n_live_tup "
             "FROM information_schema.tables "
             "LEFT JOIN pg_stat_user_tables S ON S.relname = table_name AND S.schemaname = table_schema "
             "WHERE table_schema={schema} AND table_type='BASE TABLE';").format(schema=Literal(storage.schema))
@@ -240,6 +239,7 @@ def build_column_ngram_query(storage, collection_name, query, column, layer_name
     return column_ngram_query
 
 
+# @TODO: Inline it
 def build_layer_ngram_query(storage, collection_name, ngram_query):
     sql_parts = []
     for layer_name in ngram_query:

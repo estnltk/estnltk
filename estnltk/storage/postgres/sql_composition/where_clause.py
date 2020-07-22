@@ -1,16 +1,23 @@
 from psycopg2.sql import Composed, Literal, SQL
 
 from estnltk.storage import postgres as pg
+from estnltk.storage.postgres.queries.query import Query
 
 
 class WhereClause(Composed):
+    """`WhereClause` class is a sequence of Composed SQL strings following the statement "WHERE" in an SQL query,
+    indicating what is being queried from the database.
+
+    The main usecase for the class is as a selection criterion for selecting data from a collection.
+
+    """
     def __init__(self,
                  collection,
                  query=None,
                  layer_query: dict = None,
-                 layer_ngram_query: dict = None,
-                 keys: list = None,
-                 missing_layer: str = None,
+                 # layer_ngram_query: dict = None,
+                 # keys: list = None,
+                 # missing_layer: str = None,
                  seq=None,
                  required_layers=None):
         self.collection = collection
@@ -18,18 +25,21 @@ class WhereClause(Composed):
         if seq is None:
             seq = self.where_clause(collection,
                                     query=query,
-                                    layer_query=layer_query,
-                                    layer_ngram_query=layer_ngram_query,
-                                    keys=keys,
-                                    missing_layer=missing_layer)
+                                    layer_query=layer_query)
+            # layer_ngram_query=layer_ngram_query
+            # keys=keys,
+            # missing_layer=missing_layer
 
-        super().__init__(seq)
+
 
         # We omit layers inside a Text object.
         if required_layers is None:
-            self._required_layers = sorted(set(layer_query or()) | set(layer_ngram_query or ()))
+            self._required_layers = sorted(set(layer_query or ()))
         else:
             self._required_layers = required_layers
+
+        # Initialization of composed object
+        super().__init__(seq)
 
     def __bool__(self):
         return bool(self.seq)
@@ -43,7 +53,7 @@ class WhereClause(Composed):
             raise TypeError('unsupported operand type for &: {!r}'.format(type(other)))
         if self.collection is not other.collection:
             raise ValueError("can't combine WhereClauses with different collections: {!r} and {!r}".format(
-                             self.collection.name, other.collection.name))
+                self.collection.name, other.collection.name))
 
         if not other:
             return self
@@ -56,34 +66,34 @@ class WhereClause(Composed):
 
     @staticmethod
     def where_clause(collection,
-                     query=None,
-                     layer_query: dict = None,
-                     layer_ngram_query: dict = None,
-                     keys: list = None,
-                     missing_layer: str = None):
+                     query: Query = None,
+                     layer_query: dict = None
+                     # layer_ngram_query: dict = None
+                     # keys: list = None,
+                     # missing_layer: str = None
+                     ):
+        """
+
+        :param collection:
+            instance of the EstNLTK PostgreSQL collection
+        :param query:
+            composed SQL query
+        :param layer_query:
+            composed SQL query to search 'layer' objects
+        :return:
+            composed SQL query following "WHERE" statement based on queries given as parameters, joined by AND operator
+        """
         sql_parts = []
         collection_name = collection.name
         storage = collection.storage
 
         if query is not None:
             # build constraint on the main text table
-            sql_parts.append(query.eval(storage, collection_name))
+            q = query.eval(storage, collection_name)
+            sql_parts.append(q)
         if layer_query:
             # build constraint on related layer tables
-            q = SQL(" AND ").join(query.eval(storage, collection_name) for layer, query in layer_query.items())
-            sql_parts.append(q)
-        if keys is not None:
-            # build constraint on id-s
-            sql_parts.append(SQL('{table}."id" = ANY({keys})').format(
-                    table=pg.collection_table_identifier(storage, collection_name),
-                    keys=Literal(list(keys))))
-        if layer_ngram_query:
-            # build constraint on related layer's ngram index
-            sql_parts.append(pg.build_layer_ngram_query(storage, collection_name, layer_ngram_query))
-        if missing_layer:
-            # select collection objects for which there is no entry in the layer table
-            q = SQL('"id" NOT IN (SELECT "text_id" FROM {})'
-                    ).format(pg.layer_table_identifier(storage, collection_name, missing_layer))
+            q = SQL(" AND ").join(query.eval(storage, collection_name) for query in layer_query)
             sql_parts.append(q)
 
         if sql_parts:

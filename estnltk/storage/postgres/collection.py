@@ -458,10 +458,11 @@ class PgCollection:
 
         where_clause = pg.WhereClause(collection=self,
                                       query=query,
-                                      layer_query=layer_query,
-                                      layer_ngram_query=layer_ngram_query,
-                                      keys=keys,
-                                      missing_layer=missing_layer)
+                                      layer_query=layer_query
+                                      #layer_ngram_query=layer_ngram_query
+                                      #keys=keys,
+                                      #missing_layer=missing_layer
+                                      )
 
         return pg.PgSubCollection(collection=self,
                                   selection_criterion=where_clause,
