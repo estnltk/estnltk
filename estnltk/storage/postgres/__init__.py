@@ -61,9 +61,6 @@ from .pg_operations import drop_structure_table
 from .pg_operations import drop_fragment_table
 from .pg_operations import drop_layer_table
 
-from .pg_operations import build_layer_ngram_query
-from .pg_operations import build_column_ngram_query
-
 from .pg_operations import count_rows
 
 from estnltk.storage.postgres.queries.jsonb_layer_query import JsonbLayerQuery
