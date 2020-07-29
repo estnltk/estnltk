@@ -19,7 +19,7 @@ def get_random_collection_name():
 
 class TestMissingLayerQuery(unittest.TestCase):
     def setUp(self):
-        schema = "test_schema7"
+        schema = "test_schema"
         self.schema = schema
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
 
