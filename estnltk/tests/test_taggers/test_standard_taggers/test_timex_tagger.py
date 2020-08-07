@@ -240,6 +240,14 @@ def test_timex_tagging_4_additional_rules():
                        {'text':['2010.12.31'], 'tid':'t2', 'type':'DATE', 'value':'2010-12-31', 'temporal_function':False , 'anchor_time_id':None,  }, \
                    ]
                   },\
+                  # Negative rules:
+                  # Do not extract any timexes from these sentences
+                  {'text': 'Kõik , kellele on pakutud müüa arvuti Sun Ultra1 protsessoriplokki ( Part number : 600-3796-02 ; Serial number : 616M1751 ) ,'+\
+                           ' andke teada diagnostikakeskusse telefonil 6 406 750.',\
+                   'dct':'1999-11-24',\
+                   'expected_timexes': []
+                  },\
+                  
                 ]
     for test_item in test_data:
         # Prepare text
@@ -260,6 +268,8 @@ def test_timex_tagging_4_additional_rules():
             #print(expected_vals, result_vals)
             # Make assertions
             assert expected_vals == result_vals
+        if len( test_item['expected_timexes'] ) == 0:
+            assert len( text.timexes ) == 0
 
 
 
