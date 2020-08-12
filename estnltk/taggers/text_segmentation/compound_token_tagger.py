@@ -10,7 +10,7 @@ import os
 from typing import Union
 
 from pandas import read_csv
-from pandas.io.common import EmptyDataError
+from pandas.errors import EmptyDataError
 
 from estnltk.core import PACKAGE_PATH
 
