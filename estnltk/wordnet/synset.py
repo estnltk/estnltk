@@ -1,4 +1,4 @@
-MAX_TAXONOMY_DEPTHS = {'a': 2, 'n': 13, 'b': 0, 'v': 10}
+from typing import Union
 
 
 class SynsetException(Exception):
@@ -9,7 +9,7 @@ class Synset:
     """Represents a WordNet synset.
     Attributes
     ----------
-    wordnet: wordnet version
+    wordnet: Wordnet
     name : str
       Synset  string identifier in the form `lemma.pos.sense_id`.
     id : int
@@ -20,7 +20,7 @@ class Synset:
       Underlying Synset object. Not intended to access directly.
     """
 
-    def __init__(self, wordnet, synset_info):
+    def __init__(self, wordnet, synset_info: Union[int, tuple]) -> None:
         if isinstance(synset_info, int):
             self.wordnet = wordnet
             self.id = synset_info
@@ -39,10 +39,10 @@ class Synset:
         else:
             raise SynsetException("Wrong arguments for Synset")
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.wordnet == other.wordnet and self.id is not None and self.id == other.id
 
-    def get_related_synset(self, relation=None):
+    def get_related_synset(self, relation: str = None) -> list:
         '''Returns all relation names and start_vertex if relation not specified, else returns start_vertex of specified relation.
         Parameters
         ----------
@@ -52,35 +52,26 @@ class Synset:
 
         if self.wordnet is None:
             return []
+        if self.wordnet._graph is None:
+            self.wordnet.graph
+
+        graph = self.wordnet.graph
+        relations = graph.in_edges(self.id, data=True)
+        related_synsets = []
+
         if relation is None:
-            self.wordnet.cur.execute \
-                ('''SELECT start_vertex,relation FROM wordnet_relation WHERE end_vertex = '{}' '''.format(self.id))
-            related_synsets = []
-            for row in self.wordnet.cur.fetchall():
-                if row[0] in self.wordnet.synsets_dict:
-                    related_synsets.append((self.wordnet.synsets_dict[row[0]], row[1]))
-                else:
-                    ss = Synset(self.wordnet, row[0])
-                    related_synsets.append((ss, row[1]))
-                    self.wordnet.synsets_dict[row[0]] = ss
+            for r in relations:
+                ss = self.wordnet._synsets_dict[r[0]]
+                related_synsets.append((ss, r[2]['relation']))
             return related_synsets
         if relation:
-            self.wordnet.cur.execute \
-                ('''SELECT start_vertex FROM wordnet_relation WHERE end_vertex = '{}' AND relation = '{}' '''.format
-                    (self.id, relation))
-            related_synsets = []
-            for row in self.wordnet.cur.fetchall():
-                if row[0] in self.wordnet.synsets_dict:
-                    related_synsets.append(self.wordnet.synsets_dict[row[0]])
-                else:
-                    ss = Synset(self.wordnet, row[0])
-                    related_synsets.append(ss)
-                    self.wordnet.synsets_dict[row[0]] = ss
+            with_relation = [r[0] for r in relations if r[2]['relation'] == relation]
+            for r in with_relation:
+                ss = self.wordnet._synsets_dict[r]
+                related_synsets.append(ss)
             return related_synsets
 
-        return []
-
-    def closure(self, relation, depth_threshold=float('inf'), return_depths=False):
+    def closure(self, relation: str, depth_threshold: float = float('inf'), return_depths: bool = False) -> Union[list, None]:
 
         """Finds all the ancestors of the synset using provided relation.
 
@@ -117,18 +108,17 @@ class Synset:
                 continue
             parents = node.get_related_synset(relation)
 
-            if not parents or depth == depth_threshold:
-                if return_depths is not False:
-                    ancestors.append((node, depth))
-                else:
-                    ancestors.append(node)
+            if return_depths is False:
+                ancestors.append(node)
             else:
-                node_stack.extend(parents)
-                depth_stack.extend([depth +1] * len(parents))
+                ancestors.append((node, depth))
+
+            node_stack.extend(parents)
+            depth_stack.extend([depth + 1] * len(parents))
 
         return ancestors
 
-    def root_hypernyms(self, depth_threshold=float('inf'), return_depths=False):
+    def root_hypernyms(self, depth_threshold: float = float('inf'), return_depths: bool = False) -> Union[tuple, None]:
 
         """Retrieves all the root hypernyms.
 
@@ -141,7 +131,7 @@ class Synset:
         if depth_threshold < 1:
             return
 
-        node_stack = self.hypernyms()
+        node_stack = self.hypernyms
         depth_stack = [1] * len(node_stack)
 
         while len(node_stack):
@@ -149,7 +139,7 @@ class Synset:
             depth = depth_stack.pop()
             if depth > depth_threshold:
                 continue
-            parents = node.hypernyms()
+            parents = node.hypernyms
 
             if not parents or depth == depth_threshold:
                 if return_depths is not False:
@@ -160,8 +150,10 @@ class Synset:
                 node_stack.extend(parents)
                 depth_stack.extend([depth + 1] * len(parents))
 
-    def hypernyms(self):
-        """Retrieves all the hypernyms.
+    @property
+    def hypernyms(self) -> list:
+        """Retrieves all the hypernyms, which are words with a more broad meaning, that the lemma of
+        the current synset falls under.
 
         Returns
         -------
@@ -172,8 +164,10 @@ class Synset:
 
         return self.get_related_synset("hypernym")
 
-    def hyponyms(self):
-        """Retrieves all the hyponyms.
+    @property
+    def hyponyms(self) -> list:
+        """Retrieves all the hyponyms, which are words with a more narrow meaning, that fall under the
+        lemma of the current synset.
 
         Returns
         -------
@@ -184,8 +178,10 @@ class Synset:
 
         return self.get_related_synset("hyponym")
 
-    def holonyms(self):
-        """Retrieves all the holonyms.
+    @property
+    def holonyms(self) -> list:
+        """Retrieves all the holonyms, which are words that denote a whole, whose part is denoted
+        by the lemma of the current synset.
 
         Returns
         -------
@@ -195,8 +191,9 @@ class Synset:
         """
         return self.get_related_synset("holonym")
 
-    def meronyms(self):
-        """Retrieves all the meronyms.
+    @property
+    def meronyms(self) -> list:
+        """Retrieves all the meronyms, which are words that denote a part of the lemma of the current synset.
 
         Returns
         -------
@@ -206,8 +203,10 @@ class Synset:
         """
         return self.get_related_synset("meronym")
 
-    def member_holonyms(self):
-        """Retrieves all the member holoynms.
+    @property
+    def member_holonyms(self) -> list:
+        """Retrieves all the member holoynms. Member holonyms are a specific type of holonyms and they denote
+        a group to which a word (the lemma of the current synset on which this function is called) belongs.
 
         Returns
         -------
@@ -217,7 +216,8 @@ class Synset:
         """
         return self.get_related_synset("holo_member")
 
-    def definition(self):
+    @property
+    def definition(self) -> list:
         """Returns the definition of the synset.
 
         Returns
@@ -229,7 +229,8 @@ class Synset:
         self.wordnet.cur.execute("SELECT definition FROM wordnet_definition WHERE synset_name = ?", (self.synset_name,))
         return self.wordnet.cur.fetchone()[0]
 
-    def examples(self):
+    @property
+    def examples(self) -> list:
         """Returns the examples of the synset.
 
         Returns
@@ -241,7 +242,8 @@ class Synset:
         self.wordnet.cur.execute("SELECT example FROM wordnet_example WHERE synset_name = ?", (self.synset_name,))
         return [row[0] for row in self.wordnet.cur.fetchall()]
 
-    def lemmas(self):
+    @property
+    def lemmas(self) -> list:
         """Returns the synset's lemmas/variants' literal represantions.
 
         Returns

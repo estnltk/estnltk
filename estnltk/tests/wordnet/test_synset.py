@@ -29,13 +29,13 @@ def test_get_related_synset_without_relation():
 
 def test_closure():
     synset = ss_koer
-    result = synset.closure('hypernym')
-    expected = [Synset(wn, 8471)]
+    result = synset.closure('holonym')
+    expected = [Synset(wn, 55794)]
     assert result == expected
 
 
 def test_lemmas():
-    assert ss.lemmas() == ['üllatamine']
+    assert ss.lemmas == ['üllatamine']
 
 
 def test_shortest_path_distance_with_self():
