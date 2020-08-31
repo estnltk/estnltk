@@ -26,7 +26,7 @@ class GrammarParsingTagger(Tagger):
                  resolve_start_end_conflicts: bool = True,
                  resolve_terminals_conflicts: bool = True,
                  force_resolving_by_priority: bool = False,
-                 priority_attribute='priority',
+                 priority_attribute='_priority',
                  debug=False,
                  output_ambiguous: bool = False):
         self.grammar = grammar
