@@ -31,6 +31,7 @@ class Synset:
         elif len(synset_info) == 6:
             self.wordnet = wordnet
             self.id = synset_info[0]
+            self.synset_name = synset_info[1]
             self.estwn_id = synset_info[2]
             self.pos = synset_info[3]
             self.sense = synset_info[4]
@@ -227,7 +228,11 @@ class Synset:
 
         """
         self.wordnet.cur.execute("SELECT definition FROM wordnet_definition WHERE synset_name = ?", (self.synset_name,))
-        return self.wordnet.cur.fetchone()[0]
+        result = self.wordnet.cur.fetchone()
+        if result is not None:
+            return result[0]
+        else:
+            return None
 
     @property
     def examples(self) -> list:
