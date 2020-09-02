@@ -3,15 +3,16 @@
 
 All notable changes to this project will be documented in this file.
 
-# [1.6.7-beta] - 2020-09-01
+# [1.6.7-beta] - 2020-09-02
 ## Changed
 
-* The module `parse_enc2017` was renamed to `parse_enc`. Tools were updated so that they can also be used to read *.vert files of the [Estonian National Corpus 2019](https://metashare.ut.ee/repository/browse/eesti-keele-uhendkorpus-2019-vrt-vormingus/be71121e733b11eaa6e4005056b4002483e6e5cdf35343e595e6ba4576d839fb/). So, now both ENC 2017 corpus and ENC 2019 corpus files can be read. For details, see the renewed tutorial [here](https://github.com/estnltk/estnltk/blob/9535931e9ade45fe17d5bfd0f24e4411fac02999/tutorials/corpus_processing/importing_text_objects_from_corpora.ipynb). 
+* The module `parse_enc2017` was renamed to `parse_enc`. Tools were updated so that they can also be used to read *.vert files of the [Estonian National Corpus 2019](https://metashare.ut.ee/repository/browse/eesti-keele-uhendkorpus-2019-vrt-vormingus/be71121e733b11eaa6e4005056b4002483e6e5cdf35343e595e6ba4576d839fb/). So, now both ENC 2017 corpus and ENC 2019 corpus files can be read. For details, see the renewed tutorial [here](https://github.com/estnltk/estnltk/blob/9535931e9ade45fe17d5bfd0f24e4411fac02999/tutorials/corpus_processing/importing_text_objects_from_corpora.ipynb).
 * Updated `text.tag_layer(layer_names)` : `layer_names` can now also be a string. So, you can use `text.tag_layer('sentences')` or `text.tag_layer('morph_analysis')`;
 
 ## Added
 
 * Experimental noun phrase chunker, which can be used to detect non-overlapping noun phrases from the text. The tool was ported from the version 1.4.1; the tutorial is available [here](https://github.com/estnltk/estnltk/blob/9535931e9ade45fe17d5bfd0f24e4411fac02999/tutorials/taggers/noun_phrase_chunker.ipynb);
+* `WordNet` synset definitions and examples. Interfaces of `WordNet` queries and similarity finding functions were also changed, see [this tutorial](https://github.com/estnltk/estnltk/blob/ca4be5942c991c380dea330a177226c35aa7dbb8/tutorials/wordnet/wordnet.ipynb) for details;
 * `delete_layer()` to Postgres collection (can only be used with detached layers);
 
 ## Fixed
