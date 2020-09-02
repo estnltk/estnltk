@@ -1,3 +1,9 @@
+from psycopg2.sql import SQL, Literal
+
+from estnltk import logger
+from estnltk.storage.postgres import structure_table_identifier
+
+
 class CollectionStructureBase:
     def __init__(self, collection, version):
         self.collection = collection
@@ -37,5 +43,16 @@ class CollectionStructureBase:
     def insert(self, layer, layer_type: str, meta: dict = None, loader: str = None):
         raise NotImplementedError
 
-    def load(self):
+    def delete_layer(self, layer_name: str):
+        self._modified = True
+        with self.collection.storage.conn.cursor() as c:
+            c.execute(SQL("DELETE FROM {} WHERE layer_name={};").format(
+                structure_table_identifier(self.collection.storage, self.collection.name),
+                Literal(layer_name)
+            )
+            )
+            self.collection.storage.conn.commit()
+            logger.debug(c.query.decode())
+
+    def load(self) -> dict:
         raise NotImplementedError

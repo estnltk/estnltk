@@ -99,9 +99,13 @@ class PgCollection:
 
         self.structure.create_table()
 
+        if meta:
+            self.meta = meta
+            self.column_names = ['id', 'data'] + list(meta)
+
         pg.create_collection_table(self.storage,
                                    collection_name=self.name,
-                                   meta_columns=meta or self.meta or {},
+                                   meta_columns=self.meta,
                                    description=description)
 
         logger.info('new empty collection {!r} created'.format(self.name))
@@ -219,16 +223,6 @@ class PgCollection:
                           'ORDER BY ordinal_position'
                           ).format(Literal(self.storage.schema), Literal(self.name)))
             return collections.OrderedDict(c.fetchall())
-
-    def _delete_from_structure(self, layer_name):
-        with self.storage.conn.cursor() as c:
-            c.execute(SQL("DELETE FROM {} WHERE layer_name={};").format(
-                structure_table_identifier(self.storage, self.name),
-                Literal(layer_name)
-            )
-            )
-            self.storage.conn.commit()
-            logger.debug(c.query.decode())
 
     def _insert_first(self, text, key, meta_data, cursor, table_identifier, column_identifiers):
         if key is None:
@@ -464,10 +458,11 @@ class PgCollection:
 
         where_clause = pg.WhereClause(collection=self,
                                       query=query,
-                                      layer_query=layer_query,
-                                      layer_ngram_query=layer_ngram_query,
-                                      keys=keys,
-                                      missing_layer=missing_layer)
+                                      layer_query=layer_query
+                                      #layer_ngram_query=layer_ngram_query
+                                      #keys=keys,
+                                      #missing_layer=missing_layer
+                                      )
 
         return pg.PgSubCollection(collection=self,
                                   selection_criterion=where_clause,
@@ -1100,7 +1095,7 @@ class PgCollection:
                     raise PgCollectionException("can't delete layer {!r}; "
                                                 "there is a dependant layer {!r}".format(layer_name, ln))
         drop_layer_table(self.storage, self.name, layer_name)
-        self._delete_from_structure(layer_name)
+        self._structure.delete_layer(layer_name)
         logger.info('layer deleted: {!r}'.format(layer_name))
 
     def delete_fragment(self, fragment_name):

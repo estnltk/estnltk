@@ -54,13 +54,7 @@ class VerbChainDetector( Tagger ):
                    # Inner parameters:
                    '_resources_dir',
                    '_verb_chain_detector',
-                   # For backward compatibility:
-                   'depends_on', 'layer_name', 'attributes'
                  ]
-    # For backward compatibility:
-    layer_name = output_layer
-    attributes = output_attributes
-    depends_on = input_layers
 
     def __init__( self,
                   output_layer:str='verb_chains',
@@ -121,8 +115,6 @@ class VerbChainDetector( Tagger ):
         self._input_morph_analysis_layer = input_morph_analysis_layer
         self.input_layers = [ input_words_layer, input_sentences_layer, \
                               input_morph_analysis_layer, input_clauses_layer ]
-        self.layer_name = self.output_layer  # <- For backward compatibility ...
-        self.depends_on = self.input_layers  # <- For backward compatibility ...
         # Configuration
         self.add_morph_attr = add_morph_attr
         self.add_analysis_ids_attr = add_analysis_ids_attr
@@ -139,7 +131,6 @@ class VerbChainDetector( Tagger ):
         self.breakOnPunctuation = breakOnPunctuation
         self.removeSingleAraEi  = removeSingleAraEi
         self.output_attributes = cur_output_attributes
-        self.attributes = self.output_attributes  # <- For backward compatibility ...
         # Initialize v1.4.1 vc detector
         if vc_detector is None:
             self._resources_dir = resources_dir

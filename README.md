@@ -8,7 +8,7 @@ The project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](https://
 
 Currently, there are two branches of EstNLTK:
 
-* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.6beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). It contains basic analysis tools up to morphological analysis and syntactic parsing, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions are 3.5 and 3.6. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
+* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.7beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). As this is a work-in-progress version, some of the tools have limited or incomplete interface. Supported Python versions are 3.5 and 3.6. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
   
 * version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4, 3.5 and 2.7. Python 3.6 and 3.7 are not supported;
 
@@ -33,10 +33,8 @@ conda activate py36
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge conllu estnltk
+conda install -c estnltk -c conda-forge estnltk=1.6.7b
 ```
-
-( Note: package `conllu` is required )
 
 The alternative way for installing if you are unable to use the anaconda distribution is:
 ```

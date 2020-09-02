@@ -56,7 +56,7 @@ class MaltParserTagger(Tagger):
         assert os.path.exists( temp_file_name )
         with open(temp_file_name, "r", encoding="utf-8") as data_file:
             word_index = 0
-            for conll_sentence in parse_incr(data_file):
+            for conll_sentence in parse_incr(data_file, fields=('id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')):
                 for conll_word in conll_sentence:
                     token = conll_word['form']
                     if word_index >= len_words:

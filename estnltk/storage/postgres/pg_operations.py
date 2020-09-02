@@ -7,7 +7,6 @@ from estnltk.storage.postgres import collection_table_name
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import fragment_table_name
 
-
 pytype2dbtype = {
     "int": "integer",
     "bigint": "bigint",
@@ -67,9 +66,9 @@ def get_all_tables(storage):
     with storage.conn.cursor() as c:
         sql = SQL(
             "SELECT table_name, "
-                   "pg_size_pretty(pg_total_relation_size({schema}||'.'||table_name)), "
-                   "obj_description(({schema}||'.'||table_name)::regclass), "
-                   "S.n_live_tup "
+            "pg_size_pretty(pg_total_relation_size({schema}||'.'||table_name)), "
+            "obj_description(({schema}||'.'||table_name)::regclass), "
+            "S.n_live_tup "
             "FROM information_schema.tables "
             "LEFT JOIN pg_stat_user_tables S ON S.relname = table_name AND S.schemaname = table_schema "
             "WHERE table_schema={schema} AND table_type='BASE TABLE';").format(schema=Literal(storage.schema))
@@ -211,40 +210,3 @@ def drop_fragment_table(storage, collection_name, fragment_name):
     if not table_exists(storage, table_name):
         raise Exception("Fragment table '%s' does not exist." % table_name)
     drop_table(storage, table_name)
-
-
-def build_column_ngram_query(storage, collection_name, query, column, layer_name):
-    if not isinstance(query, list):
-        query = list(query)
-    if isinstance(query[0], list):
-        # case: [[(a),(b)], [(c)]] -> a AND b OR c
-        or_terms = [["-".join(e) for e in and_term] for and_term in query]
-    elif isinstance(query[0], tuple):
-        # case: [(a), (b)] -> a OR b
-        or_terms = [["-".join(e)] for e in query]
-    elif isinstance(query[0], str):
-        # case: [a, b] -> "a-b"
-        or_terms = [["-".join(query)]]
-    else:
-        raise ValueError("Invalid ngram query format: {}".format(query))
-
-    table_identifier = layer_table_identifier(storage, collection_name, layer_name)
-    or_parts = []
-    for and_term in or_terms:
-        arr = ",".join("'%s'" % v for v in and_term)
-        p = SQL("{table}.{column} @> ARRAY[%s]" % arr).format(
-            table=table_identifier,
-            column=Identifier(column))
-        or_parts.append(p)
-    column_ngram_query = SQL("({})").format(SQL(" OR ").join(or_parts))
-    return column_ngram_query
-
-
-def build_layer_ngram_query(storage, collection_name, ngram_query):
-    sql_parts = []
-    for layer_name in ngram_query:
-        for column, q in ngram_query[layer_name].items():
-            col_query = build_column_ngram_query(storage, collection_name, q, column, layer_name)
-            sql_parts.append(col_query)
-    q = SQL(" AND ").join(sql_parts)
-    return q
