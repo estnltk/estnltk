@@ -17,6 +17,7 @@ env:
   matrix:
     - PYTHON_TARGET=3.5
     - PYTHON_TARGET=3.6
+    - PYTHON_TARGET=3.7
 
 before_install:
   - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
@@ -43,10 +44,10 @@ install:
 
 script:
   # build estnltk
-  - conda build -c conda-forge --py $PYTHON_TARGET conda-recipe
+  - conda build -c conda-forge --py $PYTHON_TARGET conda-recipe/linux_and_osx
 
 after_success:
   # upload build to conda repository with a label "dev"
   - yes | anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
-  - filename=`conda build --output --py $PYTHON_TARGET conda-recipe`
+  - filename=`conda build --output --py $PYTHON_TARGET conda-recipe/linux_and_osx`
   - anaconda upload -l dev --force $filename
