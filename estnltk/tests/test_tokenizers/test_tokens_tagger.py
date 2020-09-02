@@ -29,6 +29,22 @@ class TokensTaggerTest(unittest.TestCase):
         tokens = [text.text[start:end] for (start, end) in spans]
         self.assertListEqual(expected_tokens, tokens)
 
+    def test_separate_specific_quotation_marks(self):
+        # Some fixes for the issue 110
+        text = Text('«! Mis värk on ?»')
+        expected_tokens = ['«', '!', 'Mis', 'värk', 'on', '?', '»']
+        result = tokenizer.tag(text)
+        spans  = [(sp.start, sp.end) for sp in result['tokens']]
+        tokens = [text.text[start:end] for (start, end) in spans]
+        self.assertListEqual(expected_tokens, tokens)
+
+        text = Text('“.Ok.”!')
+        expected_tokens = ['“', '.', 'Ok', '.', '”', '!']
+        result = tokenizer.tag(text)
+        spans  = [(sp.start, sp.end) for sp in result['tokens']]
+        tokens = [text.text[start:end] for (start, end) in spans]
+        self.assertListEqual(expected_tokens, tokens)
+
     def test_separate_mistakenly_conjoined_sentences(self):
         text1 = Text('Iga päev teeme valikuid.Valime kõike.')
         expected_tokens = ['Iga', 'päev', 'teeme', 'valikuid', '.', 'Valime', 'kõike', '.']

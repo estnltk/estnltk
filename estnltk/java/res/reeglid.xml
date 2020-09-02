@@ -4125,6 +4125,8 @@
      <SemReegel priority="7" seotudMustriosa="^0 AASTA_ALATES_A" op="SET_HALVING_POINT"    semValue="0,true" />
      <!-- Neg-Nt: ... Maapank anda < < < 1500-40 >>> 000 krooni ulatuses ... -->
      <NegMuster startPos="0">  /\d\d00-/  /\d[05]/ /\d+00/ </NegMuster>
+     <!-- Neg-Nt: ... ( Part number : 600-<<3796-02>> ; Serial number : 616M1751 )  ... -->
+     <NegMuster startPos="-1">  /\d\d\d+-+/ </NegMuster>
   </Reegel>
   
   <Reegel>
@@ -4140,6 +4142,8 @@
      <SemReegel priority="7" seotudMustriosa="^0 AASTA_A"     op="SET_HALVING_POINT"    semValue="1,false" />
      <!-- Neg-Nt: ... Maapank anda < < < 1500-40 >>> 000 krooni ulatuses ... -->
      <NegMuster startPos="0">  /\d\d00-/  /\d[05]/ /\d+00/ </NegMuster>
+     <!-- Neg-Nt: ... ( Part number : 600-<<3796-02>> ; Serial number : 616M1751 )  ... -->
+     <NegMuster startPos="-2">  /\d\d\d+/  /-+/ </NegMuster>
   </Reegel>
 
   <!-- ****  enne meie ajaarvamist **** -->

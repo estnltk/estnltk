@@ -17,6 +17,7 @@ env:
   matrix:
     - PYTHON_TARGET=3.5
     - PYTHON_TARGET=3.6
+    - PYTHON_TARGET=3.7
 
 before_install:
   - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"

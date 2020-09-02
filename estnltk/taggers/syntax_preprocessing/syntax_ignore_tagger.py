@@ -1,6 +1,6 @@
 #
 #  Tags text snippets that should be ignored during the syntactic analysis.
-# 
+#  
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk import Annotation, EnvelopingBaseSpan, EnvelopingSpan, Layer
@@ -13,20 +13,20 @@ _titlecase_word = '['+_uc_letter+']['+_lc_letter+']+'
 _hyphen_pat     = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
 _start_quotes   = '"\u00AB\u02EE\u030B\u201C\u201D\u201E'
 _end_quotes     = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
-_three_lc_words = '['+_lc_letter+']+\s+['+_lc_letter+']+\s+['+_lc_letter+']+'
-_clock_time     = '((0|\D)[0-9]|[12][0-9]|2[0123])\s?:\s?([0-5][0-9])'
-_clock_time_2   = '(0?[0-9]|[12][0-9]|2[0123])\s?[.:]\s?([0-5][0-9])'
-_comma_ucase_list_item = ',\s*['+_uc_letter+']'
+_three_lc_words = r'['+_lc_letter+r']+\s+['+_lc_letter+r']+\s+['+_lc_letter+r']+'
+_clock_time     = r'((0|\D)[0-9]|[12][0-9]|2[0123])\s?:\s?([0-5][0-9])'
+_clock_time_2   = r'(0?[0-9]|[12][0-9]|2[0123])\s?[.:]\s?([0-5][0-9])'
+_comma_ucase_list_item = r',\s*['+_uc_letter+r']'
 
 
-_contains_number_compiled  = re.compile('\d+')
+_contains_number_compiled  = re.compile(r'\d+')
 _contains_letter_compiled  = re.compile('['+_uc_letter+_lc_letter+']')
 _three_lc_words_compiled   = re.compile(_three_lc_words)
-_colon_start_compiled      = re.compile('^[^: ]+(\s+[^: ]+)?(\s+[^: ]+)?\s*:')
-_enum_ucase_num_compiled   = re.compile('^(?=\D*\d)(\d+\s*(\.\s|\s))?['+_uc_letter+']')
-_enum_num_compiled         = re.compile('^\d+\s*\.?\s?$')
-_clock_time_start_compiled = re.compile('^\s*'+_clock_time_2+'\s*'+_hyphen_pat+'+\s*'+_clock_time_2+
-                                        '(?!\s*['+_lc_letter+'])\s*.')
+_colon_start_compiled      = re.compile(r'^[^: ]+(\s+[^: ]+)?(\s+[^: ]+)?\s*:')
+_enum_ucase_num_compiled   = re.compile(r'^(?=\D*\d)(\d+\s*(\.\s|\s))?['+_uc_letter+']')
+_enum_num_compiled         = re.compile(r'^\d+\s*\.?\s?$')
+_clock_time_start_compiled = re.compile(r'^\s*'+_clock_time_2+r'\s*'+_hyphen_pat+r'+\s*'+_clock_time_2+
+                                        r'(?!\s*['+_lc_letter+r'])\s*.')
 
 # ===================================================================
 #  Patterns for capturing text snippets that should be ignored;
@@ -47,10 +47,10 @@ ignore_patterns = [
             r'''
             (\(\s                                                          # starts with '('
               (                                                            #
-                (['''+_uc_letter+_lc_letter+'''0-9,\-<>\[\]\/]{1,3}|\+)    # 1-3 symbols or +
+                (['''+_uc_letter+_lc_letter+r'''0-9,\-<>\[\]\/]{1,3}|\+)    # 1-3 symbols or +
               )                                                            #
               (                                                            #
-                 \s(['''+_uc_letter+_lc_letter+'''0-9,\-<>\[\]\/]{1,3}|\+) # 1-3 symbols or +
+                 \s(['''+_uc_letter+_lc_letter+r'''0-9,\-<>\[\]\/]{1,3}|\+) # 1-3 symbols or +
               )*                                                           #
             \s\))                                                          # ends with ')'
             ''', re.X),
@@ -67,10 +67,10 @@ ignore_patterns = [
             r'''
             (\(                                                             # starts with '('
               (                                                             #
-                (['''+_uc_letter+_lc_letter+'''0-9,.\-<>\[\]\/]{1,3}|\+)    # 1-3 symbols or +
+                (['''+_uc_letter+_lc_letter+r'''0-9,.\-<>\[\]\/]{1,3}|\+)    # 1-3 symbols or +
               )                                                             #
               (                                                             #
-                 \s(['''+_uc_letter+_lc_letter+'''0-9,.\-<>\[\]\/]{1,3}|\+) # 1-3 symbols or +
+                 \s(['''+_uc_letter+_lc_letter+r'''0-9,.\-<>\[\]\/]{1,3}|\+) # 1-3 symbols or +
               )+                                                            #
             \))                                                             # ends with ')'
             ''', re.X),
@@ -114,7 +114,7 @@ ignore_patterns = [
         '_regex_pattern_': re.compile(\
             r'''
             (\(\s*                                               # starts with '('
-              (s|(sünd|sur[nm])['''+_lc_letter+''']*)\s*\.?\s*   # birth/death
+              (s|(sünd|sur[nm])['''+_lc_letter+r''']*)\s*\.?\s*   # birth/death
               (                                                  #
                 ([0-9,.\-+]{4,5})                                # a year-number like sequence
               )                                                  #
@@ -127,12 +127,12 @@ ignore_patterns = [
         '_priority_': (0, 0, 1, 6),
         '_regex_pattern_': re.compile(\
             r'''
-            [^'''+_uc_letter+''']                             # preceding char is not ucase letter
+            [^'''+_uc_letter+r''']                             # preceding char is not ucase letter
             (\(                                               # starts with '('
-               (?=[^()]*['''+_uc_letter+'''])                 # look ahead: ucase letter inside parentheses
-               ['''+_uc_letter+'''0-9.]+                      # sequence of ucase letters, numbers, puncts
+               (?=[^()]*['''+_uc_letter+r'''])                 # look ahead: ucase letter inside parentheses
+               ['''+_uc_letter+r'''0-9.]+                      # sequence of ucase letters, numbers, puncts
              \))                                              #  ends with ')'
-             [^'''+_uc_letter+''']                            # following char is not ucase letter
+             [^'''+_uc_letter+r''']                            # following char is not ucase letter
             ''', re.X),
         '_group_': 1 },\
 
@@ -143,12 +143,12 @@ ignore_patterns = [
         '_priority_': (0, 0, 2, 1),
         '_regex_pattern_': re.compile(\
             r'''
-            (['''+_uc_letter+_lc_letter+'''0-9]+\s)          # preceding word
+            (['''+_uc_letter+_lc_letter+r'''0-9]+\s)          # preceding word
             (\(\s*                                           # starts with '('
-                ('''+_titlecase_word+''')                    # titlecase word 
-                (-'''+_titlecase_word+''')?                  # hyphen + titlecase word (optional)
+                ('''+_titlecase_word+r''')                    # titlecase word 
+                (-'''+_titlecase_word+r''')?                  # hyphen + titlecase word (optional)
                 \s?                                          # space
-                (,'''+_titlecase_word+'''\s)?                # comma + titlecase word 
+                (,'''+_titlecase_word+r'''\s)?                # comma + titlecase word 
             \s*\))                                           # ends with ')'
             ''', re.X),
         '_group_': 2 },\
@@ -161,11 +161,11 @@ ignore_patterns = [
         '_regex_pattern_': re.compile(\
             r'''
             (\(\s*                                     # starts with '('
-                ('''+_titlecase_word+''')              # titlecase word 
-                (-'''+_titlecase_word+''')?            # hyphen + titlecase word (optional)
+                ('''+_titlecase_word+r''')              # titlecase word 
+                (-'''+_titlecase_word+r''')?            # hyphen + titlecase word (optional)
                 \s+                                    # space
-                ('''+_titlecase_word+''')              # titlecase word
-                (-'''+_titlecase_word+''')?            # hyphen + titlecase word (optional)
+                ('''+_titlecase_word+r''')              # titlecase word
+                (-'''+_titlecase_word+r''')?            # hyphen + titlecase word (optional)
             \s*\))                                     # ends with ')'
             ''', re.X),
         '_group_': 1 },\
@@ -177,11 +177,11 @@ ignore_patterns = [
         '_priority_': (0, 0, 2, 3),
         '_regex_pattern_': re.compile(\
             r'''
-            (['''+_uc_letter+_lc_letter+'''0-9]+\s)    # preceding word
+            (['''+_uc_letter+_lc_letter+r'''0-9]+\s)    # preceding word
             (\(\s*                                     # starts with '('
                 (\d+\s?\.                              # ordinal number 
-                  (\s['''+_lc_letter+''']+)?|          #   followed by lc word, or 
-                 '''+_uc_letter+'''+                   # uc word
+                  (\s['''+_lc_letter+r''']+)?|          #   followed by lc word, or 
+                 '''+_uc_letter+r'''+                   # uc word
                   \s\d+\s?\.)                          #   followed by ordinal number 
             \s*\))                                     # ends with ')'
             ''', re.X),
@@ -193,11 +193,11 @@ ignore_patterns = [
         '_regex_pattern_': re.compile(\
             r'''
             (\(\s*                                  # starts with '('
-                ['''+_uc_letter+''']+               # titlecased word start
-                ['''+_lc_letter+'''\-]*             # titlecased word content
+                ['''+_uc_letter+r''']+               # titlecased word start
+                ['''+_lc_letter+r'''\-]*             # titlecased word content
                 ((\s+|\s*/\s*)                      # separator: space or slash
-                   ['''+_uc_letter+''']+            # next titlecased word start (optional)
-                   ['''+_lc_letter+'''-]*){0,2}     # next titlecased word (optional)
+                   ['''+_uc_letter+r''']+            # next titlecased word start (optional)
+                   ['''+_lc_letter+r'''-]*){0,2}     # next titlecased word (optional)
                 (\s?,\s?)                           # separating comma content
                 (?=[^()]*\d)                        # look-ahead: should contain a number
                 ([0-9,.\-<>\[\]\/+])+               # non-letters / non-spaces (optional)
@@ -242,15 +242,15 @@ ignore_patterns = [
         '_priority_': (0, 0, 4, 1),
         '_regex_pattern_': re.compile(\
             r'''
-            (\(                                    # starts with '('
-                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
-                [^()]*                             # some content after range (optional)
-                \d+\s*\.?\s*                       # first number
-                '''+_hyphen_pat+'''+               # hyphen, dash etc.
-                \d+\s*\.?\s*                       # second number
-                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
-                [^()]*                             # some content after range (optional)
-            \))                                    # ends with ')'
+            (\(                                     # starts with '('
+                (?![^()]*'''+_three_lc_words+r''')  # look-ahead: block if there are 3 lowercase words
+                [^()]*                              # some content after range (optional)
+                \d+\s*\.?\s*                        # first number
+                '''+_hyphen_pat+r'''+               # hyphen, dash etc.
+                \d+\s*\.?\s*                        # second number
+                (?![^()]*'''+_three_lc_words+r''')  # look-ahead: block if there are 3 lowercase words
+                [^()]*                              # some content after range (optional)
+            \))                                     # ends with ')'
             ''', re.X),
         '_group_': 1 },\
       { 'comment': 'Captures parentheses that likely contain date/time;',
@@ -259,12 +259,12 @@ ignore_patterns = [
         '_priority_': (0, 0, 4, 2),
         '_regex_pattern_': re.compile(\
             r'''
-            (\(\s*                                 # starts with '('
-                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
-                (?=[^()]*[12][05-9]\d\d)           # look-ahead: require a year-like number
-                (?=[^()]*'''+_clock_time+''')      # look-ahead: require a clock-time-like number
-                [^()]*                             # some content (different date formats possibly)
-            \s*\))                                 # ends with ')'
+            (\(\s*                                  # starts with '('
+                (?![^()]*'''+_three_lc_words+r''')  # look-ahead: block if there are 3 lowercase words
+                (?=[^()]*[12][05-9]\d\d)            # look-ahead: require a year-like number
+                (?=[^()]*'''+_clock_time+r''')      # look-ahead: require a clock-time-like number
+                [^()]*                              # some content (different date formats possibly)
+            \s*\))                                  # ends with ')'
             ''', re.X),
         '_group_': 1 },\
       { 'comment': 'Captures parentheses likely containing a reference with year number;',
@@ -273,12 +273,12 @@ ignore_patterns = [
         '_priority_': (0, 0, 4, 3),
         '_regex_pattern_': re.compile(\
             r'''
-            (\(\s*                                 # starts with '('
-                ['''+_uc_letter+_start_quotes+'''] # titlecase word, or starting quotes
-                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
-                (?=[^()]*[12][05-9]\d\d)           # look-ahead: require a year-like number
-                [^()]*                             # content
-            \s*\))                                 # ends with ')'
+            (\(\s*                                  # starts with '('
+                ['''+_uc_letter+_start_quotes+r'''] # titlecase word, or starting quotes
+                (?![^()]*'''+_three_lc_words+r''')  # look-ahead: block if there are 3 lowercase words
+                (?=[^()]*[12][05-9]\d\d)            # look-ahead: require a year-like number
+                [^()]*                              # content
+            \s*\))                                  # ends with ')'
             ''', re.X),
         '_group_': 1 },\
       { 'comment': 'Captures parentheses likely containing a reference with quotes, and a number;',
@@ -287,14 +287,14 @@ ignore_patterns = [
         '_priority_': (0, 0, 4, 4),
         '_regex_pattern_': re.compile(\
             r'''
-            (\(\s*                                       # starts with '('
-                (?=[^()]*\s*,\s*\D{0,3}\s*\d)            # look-ahead: there should comma + number somewhere
-                [^()]*                                   # some content (optional)
-                ['''+_start_quotes+''']                  # starting quotes
-                [^'''+_start_quotes+_end_quotes+'''()]+  # some content
-                ['''+_end_quotes+''']                    # ending quotes
-                [^()]*                                   # some content (optional)
-            \s*\))                                       # ends with ')'
+            (\(\s*                                        # starts with '('
+                (?=[^()]*\s*,\s*\D{0,3}\s*\d)             # look-ahead: there should comma + number somewhere
+                [^()]*                                    # some content (optional)
+                ['''+_start_quotes+r''']                  # starting quotes
+                [^'''+_start_quotes+_end_quotes+r'''()]+  # some content
+                ['''+_end_quotes+r''']                    # ending quotes
+                [^()]*                                    # some content (optional)
+            \s*\))                                        # ends with ')'
             ''', re.X),
         '_group_': 1 },\
       { 'comment': 'Captures parentheses that likely contain references to paragraphs;',
@@ -303,13 +303,13 @@ ignore_patterns = [
         '_priority_': (0, 0, 4, 5),
         '_regex_pattern_': re.compile(\
             r'''
-            (\(\s*                                 # starts with '('
-                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
-                [^()]*                             # random content
-                §(-?[a-z]{1,3})?\s*\d              # look-ahead: require a year-like number
-                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
-                [^()]*                             # random content
-            \s*\))                                 # ends with ')'
+            (\(\s*                                  # starts with '('
+                (?![^()]*'''+_three_lc_words+r''')  # look-ahead: block if there are 3 lowercase words
+                [^()]*                              # random content
+                §(-?[a-z]{1,3})?\s*\d               # look-ahead: require a year-like number
+                (?![^()]*'''+_three_lc_words+r''')  # look-ahead: block if there are 3 lowercase words
+                [^()]*                              # random content
+            \s*\))                                  # ends with ')'
             ''', re.X),
         '_group_': 1 },\
       { 'comment': 'Captures parentheses containing numbers and punctuation (unrestricted length);',
@@ -333,11 +333,11 @@ ignore_patterns = [
         '_priority_': (0, 0, 5, 1),
         '_regex_pattern_': re.compile(\
             r'''
-            (\(                                          # starts with '('
-              (?![^()]*'''+_three_lc_words+''')          # look-ahead: block if there are 3 lowercase words
-              [^()]+                                     # non-parenthesis
-              \s*\d+\.?\s*                               # a number
-            \))                                          # ends with ')'
+            (\(                                           # starts with '('
+              (?![^()]*'''+_three_lc_words+r''')          # look-ahead: block if there are 3 lowercase words
+              [^()]+                                      # non-parenthesis
+              \s*\d+\.?\s*                                # a number
+            \))                                           # ends with ')'
             ''', re.X),
         '_group_': 1 
       },
@@ -349,7 +349,7 @@ ignore_patterns = [
             r'''
             (\(                                          # starts with '('
               \s*\d+                                     # a number 
-              (?![^()]*'''+_three_lc_words+''')          # look-ahead: block if there are 3 lowercase words
+              (?![^()]*'''+_three_lc_words+r''')         # look-ahead: block if there are 3 lowercase words
               [^()]+                                     # non-parenthesis
             \))                                          # ends with ')'
             ''', re.X),
@@ -362,7 +362,7 @@ ignore_patterns = [
         '_regex_pattern_': re.compile(\
             r'''
             (\(                                          # starts with '('
-              (?![^()]*'''+_three_lc_words+''')          # look-ahead: block if there are 3 lowercase words
+              (?![^()]*'''+_three_lc_words+r''')         # look-ahead: block if there are 3 lowercase words
               [^()0-9]+                                  # non-numbers
               \s*\d+                                     # a number 
               [^()]+                                     # non-parenthesis
@@ -966,8 +966,8 @@ class SyntaxIgnoreTagger( Tagger ):
             sentence_text = sentence_span.enclosing_text
             misses_lc_words    = not bool( _three_lc_words_compiled.search(sentence_text) )
             comma_ucase_items  = len( re.findall(_comma_ucase_list_item, sentence_text) )
-            hyphen_ucase_items = len( re.findall(_hyphen_pat+'\s*['+_uc_letter+']', sentence_text) )
-            number_items       = len( re.findall('\d+', sentence_text) )
+            hyphen_ucase_items = len( re.findall(_hyphen_pat+r'\s*['+_uc_letter+r']', sentence_text) )
+            number_items       = len( re.findall(r'\d+', sentence_text) )
             colon_items        = sentence_text.count(':')
             comma_items        = sentence_text.count(',')
             colon_start        = bool( _colon_start_compiled.match(sentence_text) )

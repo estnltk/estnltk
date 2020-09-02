@@ -35,7 +35,7 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
 
     with open(file, "r", encoding="utf-8") as data_file:
 
-        for conll_sentence in parse_incr(data_file):
+        for conll_sentence in parse_incr(data_file, fields=('id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')):
             for conll_word in conll_sentence:
                 token = conll_word['form']
 
@@ -97,7 +97,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
 
     with open(file, "r", encoding="utf-8") as data_file:
 
-        for sentence in parse_incr(data_file):
+        for sentence in parse_incr(data_file, fields=('id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')):
             for w in sentence:
                 token = w['form']
                 t.append(token)
@@ -186,7 +186,7 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
     last_fname = None
     last_sent_id = '##start##'
     with open(file, "r", encoding="utf-8") as data_file:
-        for sentence in parse_incr(data_file):
+        for sentence in parse_incr(data_file, fields=('id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')):
             cur_sent_id = sentence.metadata.get('sent_id', None)
             if not last_sent_id == '##start##':
                 # Determine if we need to create a new document

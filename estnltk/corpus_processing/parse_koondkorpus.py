@@ -120,7 +120,7 @@ def get_text_subcorpus_name( corpus_dir, corpus_file, text_obj, \
     """
     assert text_obj is not None or corpus_dir is not None, \
            '(!) At least one of the arguments corpus_dir and text_obj must be not None.'
-    f_prefix  = re.sub('^([A-Za-z_\-]+)(\.|[0-9]+).*', '\\1', corpus_file)
+    f_prefix  = re.sub(r'^([A-Za-z_\-]+)(\.|[0-9]+).*', '\\1', corpus_file)
     text_type = None
     if f_prefix.startswith('ilu_'):
         f_prefix  = 'ilu_'

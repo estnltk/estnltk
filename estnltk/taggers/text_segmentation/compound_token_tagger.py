@@ -10,7 +10,7 @@ import os
 from typing import Union
 
 from pandas import read_csv
-from pandas.io.common import EmptyDataError
+from pandas.errors import EmptyDataError
 
 from estnltk.core import PACKAGE_PATH
 
@@ -544,14 +544,19 @@ class CompoundTokenTagger( Tagger ):
                                                                  status=conflict_status)
         # Find tokens that should be joined according to 2nd level hints and 
         # create new compound tokens based on them
+        last_sp_start = -1
+        last_token_index = 0
         for sp in new_layer:
+            # a sanity check: spans should be 1) ordered, 2) not overlapping
+            assert last_sp_start < sp.start
             # get tokens covered by the span
-            covered_compound_tokens =\
+            covered_compound_tokens, last_cp_index =\
                 self._get_covered_tokens(
-                    sp.start,sp.end,sp.left_strict,sp.right_strict, compound_tokens_lists)
-            covered_tokens = \
+                    sp.start,sp.end,sp.left_strict,sp.right_strict, compound_tokens_lists, -1)
+            covered_tokens, last_token_index = \
                 self._get_covered_tokens(
-                    sp.start, sp.end, sp.left_strict, sp.right_strict, layers[self._input_tokens_layer])
+                    sp.start, sp.end, sp.left_strict, sp.right_strict, 
+                    layers[self._input_tokens_layer], last_token_index, optimize=True)
             # remove regular tokens that are within compound tokens
             covered_tokens = \
                 self._remove_overlapped_spans(covered_compound_tokens, covered_tokens)
@@ -576,7 +581,8 @@ class CompoundTokenTagger( Tagger ):
             if sp.right_strict  and  sp.end != rightmost:
                 # hint's right boundary was supposed to match exactly a token end, but did not
                 constraints_satisfied = False
-
+            last_sp_start = sp.start
+            
             # If constraints were satisfied, try to add a new compound token
             if (covered_compound_tokens or covered_tokens) and constraints_satisfied:
                 # Create new SpanList
@@ -601,7 +607,8 @@ class CompoundTokenTagger( Tagger ):
 
         return compound_tokens_lists
 
-    def _get_covered_tokens(self, start: int, end: int, left_strict: bool, right_strict: bool, spans: list):
+    def _get_covered_tokens(self, start: int, end: int, left_strict: bool, right_strict: bool, spans: list, 
+                                  last_span_index:int, optimize=False):
         """
         Filters the list spans and returns a sublist containing spans within 
         the range (start, end).
@@ -609,10 +616,21 @@ class CompoundTokenTagger( Tagger ):
         Parameters left_strict and right_strict can be used to loosen the range
         constraints; e.g. if left_strict==False, then returned spans can start 
         before the given start position.
+        
+        If the flag optimize is switched on, then continues finding covered spans 
+        from the last_span_index and stops after end < span.start.
+        Note: this optimization can only be used if the list spans is sorted by 
+        start/end positions.
+        
+        Returns a tuple: (list of covered spans, last_span_index)
         """
         covered = []
         if spans:
-            for span in spans:
+            span_id = 0
+            if optimize and last_span_index >= 0:
+                span_id = last_span_index
+            while span_id < len( spans ):
+                span = spans[span_id]
                 #print('>>>> ',text.text[span.start:span.end],span.start,span.end, start, end)
                 if not left_strict and right_strict:
                     if start <= span.end and span.end <= end:
@@ -626,7 +644,11 @@ class CompoundTokenTagger( Tagger ):
                     if start <= span.start and span.end <= end:
                         # span entirely falls into target's start and end
                         covered.append( span )
-        return covered
+                if optimize and end < span.start:
+                    last_span_index = span_id - 1
+                    break
+                span_id += 1
+        return covered, last_span_index
 
     def _remove_overlapped_spans(self, compound_token_spans:list, regular_spans:list):
         """

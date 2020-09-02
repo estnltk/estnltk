@@ -175,14 +175,14 @@ class TestPgSubCollection(unittest.TestCase):
         assert text_id == 0
         assert text.text == 'Esimene lause. Teine lause. Kolmas lause.'
         assert set(text.layers) == set()
-        assert meta == {'meta_1': None, 'meta_2': None}
+        assert meta == {'meta_1': 'value_0', 'meta_2': 0}
 
         subcollection = pg.PgSubCollection(self.collection, meta_attributes=['meta_2'],
                                            selected_layers=['morph_analysis'], return_index=False)
         text, meta = next(iter(subcollection))
         assert text.text == 'Esimene lause. Teine lause. Kolmas lause.'
         assert set(text.layers) == {'words', 'morph_analysis'}
-        assert meta == {'meta_2': None}
+        assert meta == {'meta_2': 0}
 
         subcollection = pg.PgSubCollection(self.collection, progressbar='ascii')
         result = list(subcollection)

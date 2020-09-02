@@ -61,15 +61,15 @@ from .pg_operations import drop_structure_table
 from .pg_operations import drop_fragment_table
 from .pg_operations import drop_layer_table
 
-from .pg_operations import build_layer_ngram_query
-from .pg_operations import build_column_ngram_query
-
 from .pg_operations import count_rows
 
 from estnltk.storage.postgres.queries.jsonb_layer_query import JsonbLayerQuery
 from estnltk.storage.postgres.queries.jsonb_text_query import JsonbTextQuery
 from estnltk.storage.postgres.queries.substring_query import SubstringQuery
 from estnltk.storage.postgres.queries.block_query import BlockQuery
+from estnltk.storage.postgres.queries.keys_query import KeysQuery
+from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
+from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
 
 from .structure.base.collection_structure_base import CollectionStructureBase
 from .structure import v00

@@ -258,9 +258,11 @@ class Text:
 
         return result
 
-    def tag_layer(self, layer_names: Sequence[str] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
+    def tag_layer(self, layer_names: Union[str, Sequence[str]] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
         if resolver is None:
             resolver = DEFAULT_RESOLVER
+        if isinstance(layer_names, str):
+            layer_names = [layer_names]
         for layer_name in layer_names:
             resolver.apply(self, layer_name)
         return self
