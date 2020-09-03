@@ -85,5 +85,6 @@ from estnltk.taggers.syntax.maltparser_tagger import MaltParserTagger
 from estnltk.taggers.syntax.syntax_diff_retagger import SyntaxDiffRetagger
 from estnltk.taggers.syntax.syntax_las_tagger import SyntaxLasTagger
 from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
+from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
 
 from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
