@@ -45,6 +45,14 @@ This is slower, more error-prone and requires you to have the appropriate compil
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 
+### Using on Google Colab
+
+You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
+
+```
+!pip install estnltk==1.6.7b0
+```
+
 ### Documentation
 
 Documentation for 1.6 currently comes in the form of [jupyter notebooks](http://jupyter.org), which are available here: https://github.com/estnltk/estnltk/tree/version_1.6/tutorials
@@ -105,7 +113,7 @@ For more tools see https://estnltk.github.io.
 
 Additional educational materials on EstNLTK version 1.4 are available on web pages of the NLP courses taught at the University of Tartu:
 
-  * https://github.com/d009/EstNLP
+  * <a href="https://github.com/d009/EstNLP/tree/v1.0_estnltk_v1.4">https://github.com/d009/EstNLP/tree/v1.0\_estnltk\_v1.4</a>
   * https://courses.cs.ut.ee/2015/pynlp/fall
 
 ### Source
