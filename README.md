@@ -113,7 +113,7 @@ For more tools see https://estnltk.github.io.
 
 Additional educational materials on EstNLTK version 1.4 are available on web pages of the NLP courses taught at the University of Tartu:
 
-  * <a href="https://github.com/d009/EstNLP/tree/v1.0_estnltk_v1.4">https://github.com/d009/EstNLP/tree/v1.0\_estnltk\_v1.4</a>
+  * [https://github.com/d009/EstNLP/tree/v1.0\\_estnltk\\_v1.4](https://github.com/d009/EstNLP/tree/v1.0\_estnltk\_v1.4)
   * https://courses.cs.ut.ee/2015/pynlp/fall
 
 ### Source
