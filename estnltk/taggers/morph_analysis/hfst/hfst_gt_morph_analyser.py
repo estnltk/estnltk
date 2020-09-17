@@ -38,11 +38,7 @@ class HfstEstMorphAnalyser(Tagger):
                   '_transducer',
                   '_input_words_layer',
                   '_flag_cleaner_re',
-                  # For backward compatibility:
-                  'depends_on',
-                  'attributes' 
                  ]
-    attributes = () # For backward compatibility:
 
     def __init__(self,
                  output_layer:str='hfst_gt_morph_analysis',
@@ -132,14 +128,11 @@ class HfstEstMorphAnalyser(Tagger):
         self.input_layers = [ input_words_layer ]
         self._input_words_layer     = self.input_layers[0]
         self.remove_guesses = remove_guesses
-        self.depends_on = self.input_layers
-        self.attributes = self.output_attributes
         
         # Utils: create a flag cleaner
         self._flag_cleaner_re = re.compile('@[PNDRCU][.][^@]*@')
         self._transducer = None
         self.transducer_file = None
-        
         
         if transducer:
             # Validate the type of the transducer
