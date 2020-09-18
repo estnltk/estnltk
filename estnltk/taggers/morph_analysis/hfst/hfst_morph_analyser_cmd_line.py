@@ -13,7 +13,7 @@ import re
 import tempfile
 import subprocess
 
-from estnltk import Layer, Text
+from estnltk.text import Layer, Text
 from estnltk.taggers import Tagger
 
 from estnltk.taggers.morph_analysis.morf_common import _get_word_texts

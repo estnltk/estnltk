@@ -116,7 +116,8 @@ def test_hfst_morph_analyser_raw_output():
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
 def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
-    from estnltk import Text, Annotation
+    from estnltk import Annotation
+    from estnltk.text import Text
     from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstMorphAnalyser
     # Test HfstMorphAnalyser's raw output format
     hfstAnalyser = HfstMorphAnalyser( output_format='raw' )

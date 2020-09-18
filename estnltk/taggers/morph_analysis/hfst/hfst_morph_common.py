@@ -10,7 +10,8 @@ import re
 
 from estnltk import logger
 
-from estnltk import Span, Layer, Text
+from estnltk.text import Layer, Text
+from estnltk.layer.span import Span
 from estnltk.taggers import Tagger
 
 from estnltk.core import PACKAGE_PATH

@@ -14,7 +14,8 @@ import re
 
 from estnltk import logger
 
-from estnltk import Span, Layer, Text
+from estnltk.text import Layer, Text
+from estnltk.layer.span import Span
 from estnltk.taggers import Tagger
 
 from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
