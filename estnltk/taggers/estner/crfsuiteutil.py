@@ -25,8 +25,37 @@ class Trainer(object):
         self.c2 = c2
         self.verbose = verbose
 
-    def train(self, nerdocs, mode_filename):
-        raise NotImplementedError("Not implemented!")
+    def train(self, text, correct_labels, mode_filename):
+
+        """Train a CRF model using given documents.
+
+
+
+        Parameters
+
+        ----------
+
+        nerdocs: list of estnltk.estner.ner.Document.
+
+            The documents for model training.
+
+        mode_filename: str
+
+            The fielname where to save the model.
+
+        """
+
+        trainer = pycrfsuite.Trainer(algorithm=self.algorithm, params={'c2': self.c2}, verbose=self.verbose)
+
+        for i,snt in enumerate(text.sentences):
+            xseq = [t.ner_features.F for t in snt]
+
+            new_xseq = []
+            #change format of lists
+            for word in xseq:
+                new_xseq.append(list(word)[0])
+            trainer.append(new_xseq, correct_labels[i])
+        trainer.train(mode_filename)
 
 
 class CRF():

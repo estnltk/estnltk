@@ -1,10 +1,11 @@
+import pytest
+
 from estnltk import Text
 from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers.estner.ner_tagger import NerTagger
 from estnltk.taggers.estner.word_level_ner_tagger import WordLevelNerTagger
-
 
 def test_ner():
     text = """Norm , 24 tunni keskmine , on 50 mikrogrammi kuupmeetri kohta ja seda võib ületada 35 päeval aastas ,
@@ -35,7 +36,8 @@ def test_word_level_ner():
     assert ''.join(nerlayer.split()) == ''.join(str(text.wordner).split())
 
 
-def test_ner_with_custom_layer_names():
+@pytest.mark.xfail(reason="customizing layer names needs to be implemented!")
+def test_ner_with_customized_layer_names():
     # Test that all NER input layers can be fully customized
     # 1) Create taggers that produce different layer names
     my_word_tagger = WordTagger( output_layer='my_words' )

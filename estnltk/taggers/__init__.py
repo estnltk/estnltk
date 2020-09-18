@@ -41,6 +41,8 @@ from estnltk.taggers.morph_analysis.vm_spellcheck import SpellCheckRetagger
 from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 from estnltk.taggers.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
 
+from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
+
 from estnltk.taggers.sequential_tagger import SequentialTagger
 
 from estnltk.taggers.standard_taggers.disambiguating_tagger import DisambiguatingTagger
@@ -85,5 +87,6 @@ from estnltk.taggers.syntax.maltparser_tagger import MaltParserTagger
 from estnltk.taggers.syntax.syntax_diff_retagger import SyntaxDiffRetagger
 from estnltk.taggers.syntax.syntax_las_tagger import SyntaxLasTagger
 from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
+from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
 
 from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
