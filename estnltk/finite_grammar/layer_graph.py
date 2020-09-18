@@ -1,4 +1,5 @@
-from collections import defaultdict, Hashable
+from collections import defaultdict
+from collections.abc import Hashable
 from typing import Sequence
 import networkx as nx
 import matplotlib.pyplot as plt
