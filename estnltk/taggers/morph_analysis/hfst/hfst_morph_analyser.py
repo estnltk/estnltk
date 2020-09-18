@@ -25,7 +25,7 @@ from estnltk.taggers.morph_analysis.hfst.hfst_morph_common import RawAnalysesHfs
 from estnltk.taggers.morph_analysis.hfst.hfst_morph_common import MorphemesLemmasHfstOutputExtractor
 
 
-class HfstEstMorphAnalyser(Tagger):
+class HfstMorphAnalyser(Tagger):
     """ Hfst morphological analyser for Estonian (based on HFST Python bindings)
         Note: resulting analyses can be ambiguous.
     """
@@ -47,7 +47,7 @@ class HfstEstMorphAnalyser(Tagger):
                  transducer_file:str=HFST_MODEL_FILE,
                  transducer:hfst.HfstTransducer=None,
                  remove_guesses:bool=False):
-        """Initializes HfstEstMorphAnalyser class.
+        """Initializes HfstMorphAnalyser class.
         
         Parameters
         ----------

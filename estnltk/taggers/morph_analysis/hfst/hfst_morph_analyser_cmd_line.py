@@ -46,7 +46,7 @@ def check_if_hfst_is_in_path( hfst_cmd:str='hfst-lookup' ):
 #   Main class
 # ==================================================================================
 
-class HfstEstMorphAnalyser(Tagger):
+class HfstClMorphAnalyser(Tagger):
     """ Hfst morphological analyser for Estonian (based on HFST command line tools)
         Note: resulting analyses can be ambiguous.
     """
@@ -68,7 +68,7 @@ class HfstEstMorphAnalyser(Tagger):
                  transducer_file:str=HFST_MODEL_FILE,
                  hfst_cmd:str=None,
                  remove_guesses:bool=False):
-        """Initializes HfstEstMorphAnalyser class.
+        """Initializes HfstClMorphAnalyser class.
         
         Parameters
         ----------

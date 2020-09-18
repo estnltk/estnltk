@@ -1,5 +1,5 @@
 #
-#   Tests for HfstEstMorphAnalyser that is based on hfst command line tools
+#   Tests for Hfst morph analyser that is based on hfst command line tools (HfstClMorphAnalyser)
 #
 
 import pytest
@@ -7,13 +7,13 @@ import pytest
 from estnltk import Text, Annotation
 
 from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import check_if_hfst_is_in_path
-from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstEstMorphAnalyser
+from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
 def test_hfst_morph_analyser_raw_output():
-    # Test HfstEstMorphAnalyser's raw output format
-    hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
+    # Test HfstClMorphAnalyser's raw output format
+    hfstAnalyser = HfstClMorphAnalyser( output_format='raw' )
 
     # Case 1
     input_text_str = 'No, tore talv! Vannaemale ei öeldud, et mäesuusatamine võib-olla tore Juhhhei'
@@ -108,8 +108,8 @@ def test_hfst_morph_analyser_raw_output():
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
 def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
-    # Test HfstEstMorphAnalyser's raw output format
-    hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
+    # Test HfstClMorphAnalyser's raw output format
+    hfstAnalyser = HfstClMorphAnalyser( output_format='raw' )
     # Case 1: word normalizations without unknown words
     text = Text('''isaand kui juuuubbeee ...''')
     text.tag_layer(['compound_tokens', 'words'])
@@ -182,8 +182,8 @@ def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
 def test_hfst_morph_analyser_morphemes_lemmas_output():
-    # Test HfstEstMorphAnalyser's morphemes_lemmas output format
-    hfstAnalyser = HfstEstMorphAnalyser( output_format='morphemes_lemmas' )
+    # Test HfstClMorphAnalyser's morphemes_lemmas output format
+    hfstAnalyser = HfstClMorphAnalyser( output_format='morphemes_lemmas' )
 
     # Case 1
     input_text_str = 'Ülipüüdlik vannaemake rohib võib-olla Zathumaeres iluaedasid.'
@@ -262,10 +262,10 @@ def test_hfst_morph_analyser_morphemes_lemmas_output():
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
 def test_hfst_morph_analyser_with_guessing_switched_on_and_off():
-    # Test HfstEstMorphAnalyser's with guessing switched on and off
+    # Test HfstClMorphAnalyser's with guessing switched on and off
     # Case 1: lookup
-    hfstAnalyser = HfstEstMorphAnalyser( output_format='raw', remove_guesses=True )
-    hfstAnalyserGuesser = HfstEstMorphAnalyser( output_format='raw' )
+    hfstAnalyser = HfstClMorphAnalyser( output_format='raw', remove_guesses=True )
+    hfstAnalyserGuesser = HfstClMorphAnalyser( output_format='raw' )
     with pytest.raises(NotImplementedError):
         records1 = hfstAnalyser.lookup('kiwikübarad')
         #assert records1 == []
@@ -275,8 +275,8 @@ def test_hfst_morph_analyser_with_guessing_switched_on_and_off():
     # Case 2: tagging
     text = Text('bronzemehikesed')
     text.tag_layer(['compound_tokens', 'words'])
-    hfstAnalyser = HfstEstMorphAnalyser(remove_guesses=True)
-    hfstAnalyserGuesser = HfstEstMorphAnalyser(output_layer='hfst_gt_morph_analysis_w_guesses')
+    hfstAnalyser = HfstClMorphAnalyser(remove_guesses=True)
+    hfstAnalyserGuesser = HfstClMorphAnalyser(output_layer='hfst_gt_morph_analysis_w_guesses')
     hfstAnalyser.tag(text)
     results1 = text['hfst_gt_morph_analysis'].to_records()
     assert results1 == [[{'weight': float('inf'), 'postags': None, 'forms': None, 'morphemes_lemmas': None, 'end': 15, 'usage': None, 'start': 0, 'has_clitic': None, 'is_guessed': None}]]

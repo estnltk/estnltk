@@ -1,5 +1,5 @@
 #
-#   Tests for HfstEstMorphAnalyser that is based on hfst python bindings
+#   Tests for Hfst morph analyser that is based on hfst python bindings (HfstMorphAnalyser)
 #
 
 import faulthandler
@@ -21,10 +21,10 @@ def check_if_hfst_is_available():
 def test_hfst_morph_analyser_raw_output():
 
     from estnltk import Text
-    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstEstMorphAnalyser
+    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstMorphAnalyser
     
-    # Test HfstEstMorphAnalyser's raw output format
-    hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
+    # Test HfstMorphAnalyser's raw output format
+    hfstAnalyser = HfstMorphAnalyser( output_format='raw' )
 
     # Case 1
     input_text_str = 'No, tore talv! Vannaemale ei öeldud, et mäesuusatamine võib-olla tore Juhhhei'
@@ -117,9 +117,9 @@ def test_hfst_morph_analyser_raw_output():
                     reason="package hfst is required for this test")
 def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
     from estnltk import Text, Annotation
-    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstEstMorphAnalyser
-    # Test HfstEstMorphAnalyser's raw output format
-    hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
+    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstMorphAnalyser
+    # Test HfstMorphAnalyser's raw output format
+    hfstAnalyser = HfstMorphAnalyser( output_format='raw' )
     # Case 1: word normalizations without unknown words
     text = Text('''isaand kui juuuubbeee ...''')
     text.tag_layer(['compound_tokens', 'words'])
@@ -193,10 +193,10 @@ def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
                     reason="package hfst is required for this test")
 def test_hfst_morph_analyser_morphemes_lemmas_output():
     from estnltk import Text
-    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstEstMorphAnalyser
+    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstMorphAnalyser
     
-    # Test HfstEstMorphAnalyser's morphemes_lemmas output format
-    hfstAnalyser = HfstEstMorphAnalyser( output_format='morphemes_lemmas' )
+    # Test HfstMorphAnalyser's morphemes_lemmas output format
+    hfstAnalyser = HfstMorphAnalyser( output_format='morphemes_lemmas' )
 
     # Case 1
     input_text_str = 'Ülipüüdlik vannaemake rohib võib-olla Zathumaeres iluaedasid.'
@@ -274,12 +274,12 @@ def test_hfst_morph_analyser_morphemes_lemmas_output():
                     reason="package hfst is required for this test")
 def test_hfst_morph_analyser_with_guessing_switched_on_and_off():
     from estnltk import Text
-    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstEstMorphAnalyser
+    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstMorphAnalyser
     
-    # Test HfstEstMorphAnalyser's with guessing switched on and off
+    # Test HfstMorphAnalyser's with guessing switched on and off
     # Case 1: lookup
-    hfstAnalyser = HfstEstMorphAnalyser( output_format='raw', remove_guesses=True )
-    hfstAnalyserGuesser = HfstEstMorphAnalyser( output_format='raw' )
+    hfstAnalyser = HfstMorphAnalyser( output_format='raw', remove_guesses=True )
+    hfstAnalyserGuesser = HfstMorphAnalyser( output_format='raw' )
     records1 = hfstAnalyser.lookup('kiwikübarad')
     assert records1 == []
     records2 = hfstAnalyserGuesser.lookup('kiwikübarad')
@@ -288,8 +288,8 @@ def test_hfst_morph_analyser_with_guessing_switched_on_and_off():
     # Case 2: tagging
     text = Text('bronzemehikesed')
     text.tag_layer(['compound_tokens', 'words'])
-    hfstAnalyser = HfstEstMorphAnalyser(remove_guesses=True)
-    hfstAnalyserGuesser = HfstEstMorphAnalyser(output_layer='hfst_gt_morph_analysis_w_guesses')
+    hfstAnalyser = HfstMorphAnalyser(remove_guesses=True)
+    hfstAnalyserGuesser = HfstMorphAnalyser(output_layer='hfst_gt_morph_analysis_w_guesses')
     hfstAnalyser.tag(text)
     results1 = text['hfst_gt_morph_analysis'].to_records()
     assert results1 == [[{'weight': float('inf'), 'postags': None, 'forms': None, 'morphemes_lemmas': None, 'end': 15, 'usage': None, 'start': 0, 'has_clitic': None, 'is_guessed': None}]]
