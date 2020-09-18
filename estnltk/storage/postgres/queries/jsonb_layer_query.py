@@ -3,6 +3,7 @@ from psycopg2.sql import SQL
 
 from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres.queries.query import Query
+from typing import Set
 
 
 class JsonbLayerQuery(Query):
@@ -16,6 +17,10 @@ class JsonbLayerQuery(Query):
             raise ValueError('At least one layer attribute is required.')
         self.layer_name = layer_name
         self.kwargs = kwargs
+
+    @property
+    def required_layers(self) -> Set[str]:
+        return {self.layer_name}
 
     def eval(self, storage, collection_name):
         table = layer_table_identifier(storage, collection_name, self.layer_name)

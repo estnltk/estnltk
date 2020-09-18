@@ -1,4 +1,5 @@
 from psycopg2.sql import SQL
+from typing import Set
 
 """
 The module provides tools to compose boolean queries.
@@ -48,6 +49,11 @@ class Or(BinaryOperation):
 class Query(Node):
     def eval(self, storage, collection_name):
         """Returns string representation of a (leaf) node"""
+        raise NotImplemented()
+
+    @property
+    def required_layers(self) -> Set[str]:
+        """Returns list of detached collection layers used in query"""
         raise NotImplemented()
 
 

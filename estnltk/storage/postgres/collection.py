@@ -457,11 +457,11 @@ class PgCollection:
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
 
         where_clause = pg.WhereClause(collection=self,
-                                      query=query,
-                                      layer_query=layer_query
-                                      #layer_ngram_query=layer_ngram_query
-                                      #keys=keys,
-                                      #missing_layer=missing_layer
+                                      query=query
+                                      # layer_query=layer_query,
+                                      # layer_ngram_query=layer_ngram_query
+                                      # keys=keys,
+                                      # missing_layer=missing_layer
                                       )
 
         return pg.PgSubCollection(collection=self,
@@ -513,6 +513,8 @@ class PgCollection:
             counter.update(t[layer].count_values(attr))
         return counter
 
+    # Deprecated
+    # Teha kõik query'd ja AND'ida need kokku
     def find_fingerprint(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
         """A wrapper over `select` method, which enables to conveniently build composite AND/OR queries.
 
@@ -565,6 +567,7 @@ class PgCollection:
         """
         if query is None and layer_query is None and layer_ngram_query is None:
             raise PgCollectionException("One of 'query', 'layer_query' or 'layer_ngramm_query' should be specified.")
+
 
         def build_text_query(q):
             or_query_list = []

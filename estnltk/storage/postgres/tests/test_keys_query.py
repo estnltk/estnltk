@@ -18,6 +18,7 @@ class TestKeysQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+
         create_schema(self.storage)
 
     def tearDown(self):
