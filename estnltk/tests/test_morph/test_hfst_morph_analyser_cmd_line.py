@@ -6,12 +6,12 @@ import pytest
 
 from estnltk import Text, Annotation
 
-from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser_cmd_line import check_if_hfst_is_in_path
-from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser_cmd_line import HfstEstMorphAnalyser
+from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import check_if_hfst_is_in_path
+from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstEstMorphAnalyser
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
-def test_hfst_gt_morph_analyser_raw_output():
+def test_hfst_morph_analyser_raw_output():
     # Test HfstEstMorphAnalyser's raw output format
     hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
 
@@ -107,7 +107,7 @@ def test_hfst_gt_morph_analyser_raw_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
-def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
+def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
     # Test HfstEstMorphAnalyser's raw output format
     hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
     # Case 1: word normalizations without unknown words
@@ -181,7 +181,7 @@ def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
-def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
+def test_hfst_morph_analyser_morphemes_lemmas_output():
     # Test HfstEstMorphAnalyser's morphemes_lemmas output format
     hfstAnalyser = HfstEstMorphAnalyser( output_format='morphemes_lemmas' )
 
@@ -261,7 +261,7 @@ def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
-def test_hfst_gt_morph_analyser_with_guessing_switched_on_and_off():
+def test_hfst_morph_analyser_with_guessing_switched_on_and_off():
     # Test HfstEstMorphAnalyser's with guessing switched on and off
     # Case 1: lookup
     hfstAnalyser = HfstEstMorphAnalyser( output_format='raw', remove_guesses=True )

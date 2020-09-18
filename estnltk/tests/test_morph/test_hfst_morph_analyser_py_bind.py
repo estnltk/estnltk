@@ -18,10 +18,10 @@ def check_if_hfst_is_available():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-def test_hfst_gt_morph_analyser_raw_output():
+def test_hfst_morph_analyser_raw_output():
 
     from estnltk import Text
-    from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
+    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstEstMorphAnalyser
     
     # Test HfstEstMorphAnalyser's raw output format
     hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
@@ -115,9 +115,9 @@ def test_hfst_gt_morph_analyser_raw_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
+def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
     from estnltk import Text, Annotation
-    from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
+    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstEstMorphAnalyser
     # Test HfstEstMorphAnalyser's raw output format
     hfstAnalyser = HfstEstMorphAnalyser( output_format='raw' )
     # Case 1: word normalizations without unknown words
@@ -191,9 +191,9 @@ def test_hfst_gt_morph_analyser_raw_output_on_multiple_normalized_word_forms():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
+def test_hfst_morph_analyser_morphemes_lemmas_output():
     from estnltk import Text
-    from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
+    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstEstMorphAnalyser
     
     # Test HfstEstMorphAnalyser's morphemes_lemmas output format
     hfstAnalyser = HfstEstMorphAnalyser( output_format='morphemes_lemmas' )
@@ -272,9 +272,9 @@ def test_hfst_gt_morph_analyser_morphemes_lemmas_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_available(),
                     reason="package hfst is required for this test")
-def test_hfst_gt_morph_analyser_with_guessing_switched_on_and_off():
+def test_hfst_morph_analyser_with_guessing_switched_on_and_off():
     from estnltk import Text
-    from estnltk.taggers.morph_analysis.hfst.hfst_gt_morph_analyser import HfstEstMorphAnalyser
+    from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser import HfstEstMorphAnalyser
     
     # Test HfstEstMorphAnalyser's with guessing switched on and off
     # Case 1: lookup
