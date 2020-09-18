@@ -41,6 +41,8 @@ from estnltk.taggers.morph_analysis.vm_spellcheck import SpellCheckRetagger
 from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 from estnltk.taggers.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
 
+from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
+
 from estnltk.taggers.sequential_tagger import SequentialTagger
 
 from estnltk.taggers.standard_taggers.disambiguating_tagger import DisambiguatingTagger
