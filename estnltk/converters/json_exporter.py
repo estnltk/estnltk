@@ -62,3 +62,22 @@ def layer_to_json(layer: 'Layer',
 
     with open(file, 'w', encoding=file_encoding) as out_f:
         json.dump(layer_dict, fp=out_f, ensure_ascii=False)
+
+
+def layers_to_json(layers: dict,
+                   file: str = None,
+                   file_encoding: str = 'utf-8'):
+    """Exports a dict of layers to json.
+
+    The dict of layers maps layer names to Layer objects of the same Text object.
+
+    If file is None, returns json string,
+    otherwise dumps json string to file and returns None.
+
+    """
+    layers_dict = {name: layer_to_dict(layer) for name, layer in layers.items()}
+    if file is None:
+        return json.dumps(layers_dict, ensure_ascii=False)
+
+    with open(file, 'w', encoding=file_encoding) as out_f:
+        json.dump(layers_dict, fp=out_f, ensure_ascii=False)
