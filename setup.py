@@ -98,6 +98,7 @@ setup(
         'html5lib', # for processing XML files of the Estonian Reference Corpus
         'lxml',
         'networkx',
+        'stanza',
     ],
 
     classifiers=['Intended Audience :: Developers',
