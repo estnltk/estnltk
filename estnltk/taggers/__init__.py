@@ -89,3 +89,5 @@ from estnltk.taggers.syntax.syntax_las_tagger import SyntaxLasTagger
 from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
 
 from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
+
+from estnltk.taggers.web_taggers.vabamorf_web_tagger import VabamorfWebTagger
