@@ -16,4 +16,3 @@ tensorflow
 numpy
 tqdm
 conllu
-stanza
