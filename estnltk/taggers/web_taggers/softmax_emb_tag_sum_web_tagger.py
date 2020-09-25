@@ -7,17 +7,19 @@ from estnltk.taggers import Tagger
 from estnltk.converters import text_to_json, layers_to_json, dict_to_layer
 
 
-class VabamorfWebTagger(Tagger):
-    """Tags morphological analysis using EstNLTK web service."""
+class SoftmaxEmbTagSumWebTagger(Tagger):
+    """Performs neural morphological tagging using EstNLTK web service.
+
+    See also SoftmaxEmbTagSumTagger documentation.
+    """
 
     conf_param = ['url']
 
-    def __init__(self, url, output_layer='morph_analysis'):
-        self.input_layers = ('words', 'sentences', 'compound_tokens')
-        self.output_layer = output_layer
-        self.output_attributes = ('normalized_text', 'lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form',
-                                  'partofspeech')
+    def __init__(self, url, output_layer='neural_morph_analysis'):
         self.url = url
+        self.input_layers = ('morph_analysis', 'sentences', 'words')
+        self.output_attributes = ('morphtag', 'pos', 'form')
+        self.output_layer = output_layer
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         data = {
