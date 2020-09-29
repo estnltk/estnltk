@@ -13,7 +13,7 @@ class ParagraphTokenizer(Tagger):
     def __init__(self, 
                  output_layer:str='paragraphs',
                  input_sentences_layer:str='sentences',
-                 regex:str='\s*\n\n'):
+                 regex:str = r'\s*\n\n'):
         # Set input/output parameters
         self.output_layer = output_layer
         self._input_sentences_layer = input_sentences_layer

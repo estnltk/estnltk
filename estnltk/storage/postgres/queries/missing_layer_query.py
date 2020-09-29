@@ -1,5 +1,6 @@
 import json
 from psycopg2.sql import SQL, Identifier, Literal
+from typing import Set
 
 from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres.queries.query import Query
@@ -16,7 +17,13 @@ class MissingLayerQuery(Query):
 
     def eval(self, storage, collection_name):
         table = layer_table_identifier(storage, collection_name, self.missing_layer)
-        pat = SQL('"id" NOT IN (SELECT "text_id" FROM {table})').format(
+        pat = SQL('{collection_name}."id" NOT IN (SELECT "text_id" FROM {table})').format(
+            collection_name = Identifier(collection_name),
             table=table
             )
         return pat
+
+    @property
+    def required_layers(self) -> Set[str]:
+        # No detached layers are joined with the collection
+        return set()

@@ -47,6 +47,25 @@ def json_to_layer(texts, json_str: str = None, file: str = None, file_encoding: 
     return [dict_to_layer(layer_dict, text) for layer_dict, text in zip(layer_dict_list, texts)]
 
 
+def json_to_layers(text: 'Text', json_str: str = None, file: str = None, file_encoding: str = 'utf-8'):
+    """Imports a dict of layers of the same Text object from json.
+    If file is None, then loads corresponding dictionary
+    from json_str, otherwise, loads the dictionary from
+    the `file` in json format.
+    In both cases, the loaded dictionary is finally
+    converted to a list of Layer objects, and returned.
+
+    """
+    if file:
+        with open(file, 'r', encoding=file_encoding) as in_f:
+            layer_dict = json.load(fp=in_f)
+    elif json_str:
+        layer_dict = json.loads(json_str)
+    else:
+        raise TypeError("either 'json_str' or 'file' argument needed")
+    return {name: dict_to_layer(layer, text) for name, layer in layer_dict.items()}
+
+
 def json_to_annotation(span, json_str: str = None, file: str = None, file_encoding: str = 'utf-8'):
     """Imports list of Layer objects from json.
     If file is None, then loads corresponding dictionary

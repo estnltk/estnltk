@@ -3,6 +3,7 @@ from psycopg2.sql import SQL, Identifier, Literal
 
 from estnltk.storage.postgres import collection_table_identifier, layer_table_identifier
 from estnltk.storage.postgres.queries.query import Query
+from typing import Mapping, Set, Any
 
 
 def build_column_ngram_query(storage, collection_name, query, column, layer_name):
@@ -38,9 +39,13 @@ class LayerNgramQuery(Query):
     """
     __slots__ = ['layer_ngram_query', 'kwargs']
 
-    def __init__(self, layer_ngram_query, ambiguous=True, **kwargs):
+    def __init__(self, layer_ngram_query: Mapping[str, Any] = None, ambiguous=True, **kwargs):
         self.layer_ngram_query = layer_ngram_query
         self.kwargs = kwargs
+
+    @property
+    def required_layers(self) -> Set[str]:
+        return {*self.layer_ngram_query}
 
     def eval(self, storage, collection_name):
         sql_parts = []

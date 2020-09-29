@@ -29,7 +29,7 @@ class TestMissingLayerQuery(unittest.TestCase):
         delete_schema(self.storage)
         self.storage.close()
 
-    def test_layer_ngram_query(self):
+    def test_missing_layer_query(self):
         collection_name = get_random_collection_name()
         collection = self.storage[collection_name]
         collection.create()

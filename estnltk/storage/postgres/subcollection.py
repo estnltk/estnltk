@@ -116,6 +116,7 @@ class PgSubCollection:
                                               include_layer_ids=False)
 
         required_layers = sorted(set(self._detached_layers + self._selection_criterion.required_layers))
+
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
         # Required layers are part of the main collection

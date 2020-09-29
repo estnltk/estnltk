@@ -196,8 +196,9 @@ class VabamorfCorpusTagger( object ):
         #
         if use_postanalysis and not postanalysis_tagger:
             # Initialize default postanalysis_tagger
-            self._postanalysis_tagger = PostMorphAnalysisTagger(output_layer=self.output_layer,\
-                                                 input_compound_tokens_layer=input_compound_tokens_layer )
+            self._postanalysis_tagger = PostMorphAnalysisTagger(output_layer=self.output_layer,
+                                                                input_compound_tokens_layer=input_compound_tokens_layer,
+                                                                input_words_layer=input_words_layer)
         elif use_postanalysis and postanalysis_tagger:
             # Use a custom PostMorphAnalysisTagger
             # Check for Retagger

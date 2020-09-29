@@ -57,6 +57,7 @@ class PostMorphAnalysisTagger(Retagger):
     def __init__(self,
                  output_layer='morph_analysis',
                  input_compound_tokens_layer='compound_tokens',
+                 input_words_layer='words',
                  ignore_emoticons:bool=True,
                  ignore_xml_tags:bool=True,
                  fix_names_with_initials:bool=True,
@@ -165,6 +166,7 @@ class PostMorphAnalysisTagger(Retagger):
         self.output_layer = output_layer
         # Names of the input layers
         self.input_layers = [input_compound_tokens_layer,
+                             input_words_layer,
                              output_layer]
         self._input_cp_tokens_layer = input_compound_tokens_layer
         
