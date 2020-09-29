@@ -53,10 +53,14 @@ class Synset:
 
         if self.wordnet is None:
             return []
-        if self.wordnet._graph is None:
-            self.wordnet.graph
+        if self.wordnet._relation_graph is None:
+            self.wordnet.relation_graph
 
-        graph = self.wordnet.graph
+        graph = self.wordnet.relation_graph
+
+        if not graph.has_node(self.id):
+            return []
+
         relations = graph.in_edges(self.id, data=True)
         related_synsets = []
 

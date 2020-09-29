@@ -32,7 +32,7 @@ class Wordnet:
     ----------
     version: str
         Version of Wordnet to use. Currently only version 2.3.2 (default) is supported
-    _graph: Networkx.MultiDiGraph
+    _relation_graph: Networkx.MultiDiGraph
         Graph where nodes are synset ids and edges are relations between nodes.
     '''
 
@@ -41,8 +41,8 @@ class Wordnet:
         self.cur = None
         self.version = version
         self._synsets_dict = dict()
-        self._graph = None
-        self._graph_hyp = None
+        self._relation_graph = None
+        self._hyponym_graph = None
 
         wn_dir = '{}/data/estwn-et-{}'.format(os.path.dirname(os.path.abspath(__file__)), self.version)
         wn_entry = '{}/wordnet_entry.db'.format(wn_dir)
@@ -73,14 +73,14 @@ class Wordnet:
         self.iloc
 
         if load_graph:
-            self.graph
-            self.graph_hyp
+            self.relation_graph
+            self.hyponym_graph
 
     def __iter__(self):
         return WordnetIterator(self)
 
     @property
-    def iloc(self) -> Union[None, dict]:
+    def iloc(self) -> dict:
         """
         If not created already, creates a dictionary of all synsets from the database. Keys are
         synset ids and values are corresponding Synset objects.
@@ -99,7 +99,7 @@ class Wordnet:
             return self._synsets_dict
 
     @property
-    def graph(self) -> Union[None, nx.MultiDiGraph]:
+    def relation_graph(self) -> nx.MultiDiGraph:
         """
         If not created already, creates Networkx graph from the database. The graph includes
         Synset id's as nodes and relations as edges between them. Otherwise returns the graph.
@@ -108,17 +108,17 @@ class Wordnet:
         -------
         Networkx graph if it has been created beforehand, None otherwise.
         """
-        if self._graph is None:
+        if self._relation_graph is None:
             self.cur.execute("SELECT start_vertex, end_vertex, relation FROM wordnet_relation")
             wn_relations = self.cur.fetchall()
-            self._graph = nx.MultiDiGraph()
+            self._relation_graph = nx.MultiDiGraph()
             for i, r in enumerate(wn_relations):
-                self._graph.add_edge(r[0], r[1], relation=r[2])
+                self._relation_graph.add_edge(r[0], r[1], relation=r[2])
         else:
-            return self._graph
+            return self._relation_graph
 
     @property
-    def graph_hyp(self) -> Union[None, nx.Graph]:
+    def hyponym_graph(self) -> nx.Graph:
         """
         If not created already, creates Networkx graph from the database. The graph includes
         Synset id's as nodes and relations as edges between them. Edges are only added, if two
@@ -128,15 +128,15 @@ class Wordnet:
         -------
         Networkx graph if it has been created beforehand, None otherwise.
         """
-        if self._graph_hyp is None:
+        if self._hyponym_graph is None:
             self.cur.execute("SELECT start_vertex, end_vertex, relation FROM wordnet_relation")
             wn_relations = self.cur.fetchall()
-            self._graph_hyp = nx.Graph()
+            self._hyponym_graph = nx.Graph()
             for i, r in enumerate(wn_relations):
                 if r[2] == 'hyponym' or r[2] == 'hypernym':
-                    self._graph_hyp.add_edge(r[0], r[1])
+                    self._hyponym_graph.add_edge(r[0], r[1])
         else:
-            return self._graph_hyp
+            return self._hyponym_graph
 
     def __del__(self) -> None:
         self.conn.close()
@@ -199,7 +199,7 @@ class Wordnet:
         for row in synset_entries:
             yield Synset(self, row)
 
-    def _min_depth(self, synset):
+    def _min_depth(self, synset) -> int:
         """Finds minimum path length from the root.
         Notes
         -----
@@ -211,14 +211,14 @@ class Wordnet:
         Minimum path length from the root.
         """
 
-        if self._graph is None:
-            self.graph
+        if self._relation_graph is None:
+            self.relation_graph
 
         if type(synset) is not int:
             synset = synset.id
 
         min_depth = 0
-        relations = self.graph.in_edges(synset, data=True)
+        relations = self.relation_graph.in_edges(synset, data=True)
         hypernyms = [r[0] for r in relations if r[2]['relation'] == 'hypernym']
         if hypernyms:
             min_depth = 1 + min(self._min_depth(h) for h in hypernyms)
@@ -292,11 +292,11 @@ class Wordnet:
 
         """
 
-        if self._graph_hyp is None:
-            self.graph_hyp
+        if self._hyponym_graph is None:
+            self.hyponym_graph
 
         try:
-            distance = nx.shortest_path_length(self.graph_hyp, start_synset.id, target_synset.id)
+            distance = nx.shortest_path_length(self.hyponym_graph, start_synset.id, target_synset.id)
             return 1.0 / (distance + 1)
         except:
             return None
@@ -318,8 +318,8 @@ class Wordnet:
 
         """
 
-        if self._graph_hyp is None:
-            self.graph_hyp
+        if self._hyponym_graph is None:
+            self.hyponym_graph
 
         if start_synset.pos != target_synset.pos:
             return None
@@ -327,7 +327,7 @@ class Wordnet:
         depth = MAX_TAXONOMY_DEPTHS[start_synset.pos]
 
         try:
-            distance = nx.shortest_path_length(self.graph_hyp, start_synset.id, target_synset.id)
+            distance = nx.shortest_path_length(self.hyponym_graph, start_synset.id, target_synset.id)
             return -math.log((distance + 1) / (2.0 * depth))
         except:
             return None
