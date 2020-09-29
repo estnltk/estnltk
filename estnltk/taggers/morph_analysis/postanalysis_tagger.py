@@ -454,6 +454,7 @@ class PostMorphAnalysisTagger(Retagger):
         # Rewrite spans of the old layer
         morph_span_id = 0
         morph_spans = layers[self.output_layer].spans
+        words_layer = layers[self.input_layers[1]]
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s
             morph_annotations = morph_spans[morph_span_id].annotations
@@ -463,7 +464,7 @@ class PostMorphAnalysisTagger(Retagger):
                 morph_annotations = _remove_duplicate_morph_spans(morph_annotations)
             
             # A.2) Check for empty spans
-            word = morph_annotations[0].span.parent
+            word = words_layer[morph_spans[morph_span_id].base_span]
             is_empty = _is_empty_annotation(morph_annotations[0])
             if is_empty:
                 empty_morph_record = \
