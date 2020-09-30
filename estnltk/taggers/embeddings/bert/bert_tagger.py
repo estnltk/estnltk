@@ -10,6 +10,7 @@ import numpy as np
 
 
 class BertTagger(Tagger):
+    """Tags BERT embeddings."""
 
     def __init__(self, bert_location: str, sentences_layer: str = 'sentences',
                  token_level: bool = True,
@@ -78,7 +79,7 @@ class BertTagger(Tagger):
                             word_span = word_spans[i]
                             start = word_span[0]  # the start id of this word
 
-                    attributes = {'token': token_init, 'bert_embedding': token_emb}
+                    attributes = {'token': token_init, 'bert_embedding': [float(t) for t in token_emb]}
                     token = token_init.strip()
                     embeddings_layer.add_annotation((start, start + len(token.replace('#', ''))), **attributes)
                     start += len(token.replace('#', ''))  # adding token length to the current pointer
@@ -108,7 +109,7 @@ class BertTagger(Tagger):
                         if start == word_spans[i][1]:  # BERT's wordpiece tokenizer can tokenize differently
 
                             if collected_embeddings:
-                                collected_embeddings = np.sum(collected_embeddings, 0)
+                                collected_embeddings = [float(t) for t in np.sum(collected_embeddings, 0)]
                                 attributes = {'token': collected_tokens, 'bert_embedding': collected_embeddings}
                                 embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                                 **attributes)
@@ -128,7 +129,7 @@ class BertTagger(Tagger):
                         start += len(token_init.replace("#", ''))
 
                 if collected_tokens:
-                    collected_embeddings = np.sum(collected_embeddings, 0)
+                    collected_embeddings = [float(t) for t in np.sum(collected_embeddings, 0)]
                     attributes = {'token': collected_tokens, 'bert_embedding': collected_embeddings}
                     embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                     **attributes)
@@ -136,9 +137,6 @@ class BertTagger(Tagger):
                 i += 1  # move the pointer manually
 
         return embeddings_layer
-
-    def __doc__(self):
-        print('BERT embeddings')
 
 
 def get_embeddings(sentence: str, model, tokenizer, method, bert_layers):
