@@ -90,5 +90,6 @@ from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
 
 from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
 
+from estnltk.taggers.web_taggers.bert_embeddings_web_tagger import BertEmbeddingsWebTagger
 from estnltk.taggers.web_taggers.softmax_emb_tag_sum_web_tagger import SoftmaxEmbTagSumWebTagger
 from estnltk.taggers.web_taggers.vabamorf_web_tagger import VabamorfWebTagger
