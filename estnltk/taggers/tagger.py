@@ -66,6 +66,7 @@ class Tagger(metaclass=TaggerChecker):
         super().__setattr__(key, value)
 
     # TODO: rename layers -> detached_layers ?
+    # TODO: remove status parameter, use Layer.meta instead
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
@@ -148,6 +149,9 @@ class Tagger(metaclass=TaggerChecker):
         return self.tag(text, status)
 
     def _repr_html_(self):
+        return self._repr_html('Tagger')
+
+    def _repr_html(self, heading):
         import pandas
         parameters = {'name': self.__class__.__name__,
                       'output layer': self.output_layer,
@@ -159,7 +163,7 @@ class Tagger(metaclass=TaggerChecker):
         table = table.to_html(index=False)
         assert self.__class__.__doc__ is not None, 'No docstring.'
         description = self.__class__.__doc__.strip().split('\n')[0]
-        table = ['<h4>Tagger</h4>', description, table]
+        table = ['<h4>{}</h4>'.format(heading), description, table]
 
         if self.conf_param:
             public_param = [p for p in self.conf_param if not p.startswith('_')]

@@ -3,11 +3,11 @@ from typing import MutableMapping
 
 from estnltk.text import Text
 from estnltk.layer.layer import Layer
-from estnltk.taggers import Tagger
+from estnltk.taggers import WebTagger
 from estnltk.converters import text_to_json, layers_to_json, dict_to_layer
 
 
-class VabamorfWebTagger(Tagger):
+class VabamorfWebTagger(WebTagger):
     """Tags morphological analysis using EstNLTK web service."""
 
     conf_param = ['url']

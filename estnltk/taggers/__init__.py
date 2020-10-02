@@ -1,4 +1,5 @@
 from estnltk.taggers.tagger import Tagger
+from estnltk.taggers.web_tagger import WebTagger
 from estnltk.taggers.retagger import Retagger
 
 from estnltk.taggers.tagger_tester import TaggerTester

@@ -3,11 +3,11 @@ from typing import MutableMapping
 
 from estnltk.text import Text
 from estnltk.layer.layer import Layer
-from estnltk.taggers import Tagger
+from estnltk.taggers import WebTagger
 from estnltk.converters import text_to_json, layers_to_json, dict_to_layer
 
 
-class BertEmbeddingsWebTagger(Tagger):
+class BertEmbeddingsWebTagger(WebTagger):
     """Tags BERT embeddings using EstNLTK web service.
 
     See also BertTagger documentation.
