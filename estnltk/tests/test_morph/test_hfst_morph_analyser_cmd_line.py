@@ -105,6 +105,85 @@ def test_hfst_morph_analyser_raw_output():
         #assert records == []
 
 
+@pytest.mark.skipif(not check_if_hfst_is_in_path(),
+                    reason="hfst command line tools are required for this test")
+def test_hfst_morph_analyser_raw_output_stream_based_io():
+    # Test HfstClMorphAnalyser's raw output format with stream based I/O
+    hfstAnalyser = HfstClMorphAnalyser( output_format='raw', use_stream=True )
+
+    # Case 1
+    input_text_str = 'No, tore talv! Vannaemale ei öeldud, et mäesuusatamine võib-olla tore Juhhhei'
+    text = Text(input_text_str)
+    text.tag_layer(['compound_tokens', 'words'])
+    hfstAnalyser.tag(text)
+    results = text['hfst_gt_morph_analysis'].to_records()
+    #print(results)
+    expected_results = [ 
+       [{'weight': 6.0, 'raw_analysis': 'no+Interj', 'start': 0, 'end': 2}], \
+       [{'weight': 0.0, 'raw_analysis': ',+CLB', 'start': 2, 'end': 3}], \
+       [{'weight': 6.0, 'raw_analysis': 'tore+A+Sg+Nom', 'start': 4, 'end': 8}], \
+       [{'weight': 6.0, 'raw_analysis': 'talv+N+Sg+Nom', 'start': 9, 'end': 13}], \
+       [{'weight': 0.0, 'raw_analysis': '!+CLB', 'start': 13, 'end': 14}], \
+       [{'weight': float('inf'), 'raw_analysis': None, 'start': 15, 'end': 25}], \
+       [{'weight': 1.0, 'raw_analysis': 'ei+Adv', 'start': 26, 'end': 28}, \
+        {'weight': 2.0, 'raw_analysis': 'ei+V+Neg', 'start': 26, 'end': 28}], \
+       [{'weight': 5.0, 'raw_analysis': 'ütlema+V+Impers+Prt+Prc', 'start': 29, 'end': 35}, \
+        {'weight': 6.0, 'raw_analysis': 'ütlema+V+Impers+Prt+Ind+Neg', 'start': 29, 'end': 35}, \
+        {'weight': 9.0, 'raw_analysis': 'öeldu+N+Pl+Nom', 'start': 29, 'end': 35}, \
+        {'weight': 10.0, 'raw_analysis': 'öeldud+A+Sg+Nom', 'start': 29, 'end': 35}, \
+        {'weight': 11.0, 'raw_analysis': 'öeldud+A+Pl+Nom', 'start': 29, 'end': 35}, \
+        {'weight': 13.0, 'raw_analysis': 'ütlema+V+Der/tud+A', 'start': 29, 'end': 35}, \
+        {'weight': 14.0, 'raw_analysis': 'ütlema+V+Der/tu+A+Pl+Nom', 'start': 29, 'end': 35}], \
+       [{'weight': 0.0, 'raw_analysis': ',+CLB', 'start': 35, 'end': 36}], \
+       [{'weight': 1.0, 'raw_analysis': 'et+CS', 'start': 37, 'end': 39}], \
+       [{'weight': 40.0, 'raw_analysis': 'mäesuusatamine+N+Sg+Nom', 'start': 40, 'end': 54}, \
+        {'weight': 56.0, 'raw_analysis': 'mägi+N+Sg+Gen#suusatamine+N+Sg+Nom', 'start': 40, 'end': 54}, \
+        {'weight': 66.0, 'raw_analysis': 'mägi+N+Sg+Gen#suusatama+V+Der/mine+N+Sg+Nom', 'start': 40, 'end': 54}], \
+       [{'weight': 5.0, 'raw_analysis': 'võib-olla+Adv', 'start': 55, 'end': 64}], \
+       [{'weight': 6.0, 'raw_analysis': 'tore+A+Sg+Nom', 'start': 65, 'end': 69}], \
+       [{'weight': float('inf'), 'raw_analysis': None, 'start': 70, 'end': 77 }] ]
+    assert results == expected_results
+
+    # Case 2
+    input_text_str = 'Trinidad ja Tobago olidki saanud suusariigiks'
+    text = Text(input_text_str)
+    text.tag_layer(['compound_tokens', 'words'])
+    hfstAnalyser.tag(text)
+    results = text['hfst_gt_morph_analysis'].to_records()
+    #print(results)
+    expected_results = [ 
+       [{'raw_analysis': 'Trinidad+N+Prop+Sg+Nom', 'end': 8, 'weight': 11.0, 'start': 0}], \
+       [{'raw_analysis': 'ja+CC', 'end': 11, 'weight': 0.0, 'start': 9}], \
+       [{'raw_analysis': 'Tobago+N+Prop+Sg+Nom', 'end': 18, 'weight': 11.0, 'start': 12}, \
+        {'raw_analysis': 'Tobago+N+Prop+Sg+Gen', 'end': 18, 'weight': 12.0, 'start': 12}], \
+       [{'raw_analysis': 'olema+V+Pers+Prt+Ind+Pl3+Aff+Foc/gi', 'end': 25, 'weight': 1.0, 'start': 19}, \
+        {'raw_analysis': 'olema+V+Pers+Prt+Ind+Sg2+Aff+Foc/gi', 'end': 25, 'weight': 1.0, 'start': 19}], \
+       [{'raw_analysis': 'saama+V+Pers+Prt+Prc', 'end': 32, 'weight': 3.0, 'start': 26}, \
+        {'raw_analysis': 'saama+V+Pers+Prt+Ind+Neg', 'end': 32, 'weight': 4.0, 'start': 26}, \
+        {'raw_analysis': 'saanu+N+Pl+Nom', 'end': 32, 'weight': 10.0, 'start': 26}, \
+        {'raw_analysis': 'saama+V+Der/nud+A', 'end': 32, 'weight': 12.0, 'start': 26}, \
+        {'raw_analysis': 'saama+V+Der/nud+A+Sg+Nom', 'end': 32, 'weight': 12.0, 'start': 26}, \
+        {'raw_analysis': 'saama+V+Der/nud+A+Pl+Nom', 'end': 32, 'weight': 13.0, 'start': 26}, \
+        {'raw_analysis': 'saama+V+Der/nu+N+Pl+Nom', 'end': 32, 'weight': 13.0, 'start': 26}], \
+       [{'raw_analysis': 'suusk+N+Sg+Gen#riik+N+Sg+Tra', 'end': 45, 'weight': 56.0, 'start': 33}] ]
+    assert results == expected_results
+    #         
+    # *** Test lookup method
+    
+    # Case 3
+    with pytest.raises(NotImplementedError):
+        records = hfstAnalyser.lookup('alpimajakene')
+        #print(records)
+        expected_records = [ \
+           {'raw_analysis': 'alpi+Pref#majake+N+Sg+Nom+Use/Rare', 'weight': 84.0}, \
+           {'raw_analysis': 'alpi+Pref#maja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 90.0}, \
+           {'raw_analysis': 'alpi+N+Sg+Gen#maja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 92.0}, \
+           {'raw_analysis': 'alp+A+Sg+Nom#imama+V+Der/ja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 110.0}, \
+           {'raw_analysis': 'alpi+Guess#majake+N+Sg+Nom+Use/Rare', 'weight': 269.0}, \
+           {'raw_analysis': 'alpi+Guess#maja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 275.0} \
+        ]
+        #assert records == expected_records
+
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")

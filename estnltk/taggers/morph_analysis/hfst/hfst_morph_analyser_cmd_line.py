@@ -8,13 +8,16 @@ from typing import MutableMapping
 from collections import defaultdict
 
 import os, os.path
-import re
+import re, io
 
 import tempfile
 import subprocess
+import atexit
 
 from estnltk.text import Layer, Text
 from estnltk.taggers import Tagger
+
+from estnltk.core import as_unicode, as_binary
 
 from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 
@@ -42,6 +45,9 @@ def check_if_hfst_is_in_path( hfst_cmd:str='hfst-lookup' ):
            return True
     return False
 
+# keep track of started hfst processes
+_STARTED_HFST_PROCESSES = []
+
 # ==================================================================================
 #   Main class
 # ==================================================================================
@@ -54,11 +60,13 @@ class HfstClMorphAnalyser(Tagger):
     output_attributes = ()
     conf_param = ['transducer_file',
                   'output_extractor',
+                  'use_stream',
                   'remove_guesses',
                   'hfst_cmd',
                   # Internal components:
                   '_input_words_layer',
                   '_flag_cleaner_re',
+                  '_hfst_process'
                  ]
 
     def __init__(self,
@@ -67,6 +75,7 @@ class HfstClMorphAnalyser(Tagger):
                  output_format:str='morphemes_lemmas',
                  transducer_file:str=HFST_MODEL_FILE,
                  hfst_cmd:str=None,
+                 use_stream:bool=False,
                  remove_guesses:bool=False):
         """Initializes HfstClMorphAnalyser class.
         
@@ -121,6 +130,14 @@ class HfstClMorphAnalyser(Tagger):
             And if the command is not available from PATH, 
             dies with an exception.
         
+        use_stream:bool (default: True)
+            If true, then hfst-lookup will be launched as a
+            persistent process and its input/output will be 
+            communicated via stream. 
+            Otherwise, hfst-lookup process will be launched
+            only if _make_layer is called and its input/output
+            will be communicated via files (which is slow).
+        
         remove_guesses:bool (default: False)
             Specifies if guessed analyses need to be removed 
             from the output.
@@ -151,6 +168,7 @@ class HfstClMorphAnalyser(Tagger):
         self.input_layers = [ input_words_layer ]
         self._input_words_layer = self.input_layers[0]
         self.remove_guesses = remove_guesses
+        self.use_stream = use_stream
         
         # Utils: create a flag cleaner
         self._flag_cleaner_re = re.compile('@[PNDRCU][.][^@]*@')
@@ -184,6 +202,17 @@ class HfstClMorphAnalyser(Tagger):
                 raise FileNotFoundError('(!) Unable to load transducer_file {!r}'.format(transducer_file))
         else:
             raise Exception("(!) Missing HFST's transducer file. Please specify the argument transducer_file.")
+
+        # Launch hfst process (if streaming will be used)
+        self._hfst_process = None
+        if self.use_stream:
+            # Launch hfst process
+            process_cmd = [self.hfst_cmd, '-i', self.transducer_file, 
+                                          '-O', 'xerox']
+            self._hfst_process = subprocess.Popen(process_cmd, stdin=subprocess.PIPE,
+                                                               stdout=subprocess.PIPE, 
+                                                               stderr=subprocess.PIPE)
+            _STARTED_HFST_PROCESSES.append( self._hfst_process )
 
 
     def _write_hfst_input_file(self, input_layer ):
@@ -259,23 +288,10 @@ class HfstClMorphAnalyser(Tagger):
                     # advance the (old) line counter
                     old_line_id += 1
                 elif len(line_clean) > 0:
-                    # Content line
-                    # Check the format
-                    assert line_clean.count('\t') == 2, \
-                           '(!) Unexpected xerox line format {!r}'.format(line_clean)
-                    # Remove surface/normalized text from the beginning of line
-                    line_parts = line_clean.split('\t')[1:]
-                    # Convert decimal separator from comma to point (if needed)
-                    if ',' in line_parts[-1]:
-                        line_parts[-1] = line_parts[-1].replace(',', '.')
-                    # Reconstruct line (use the same format as in Python's hfst)
-                    line_clean = '\t'.join( line_parts )
-                    # Collect analyses
-                    if line_parts[-1] == 'inf' and line_parts[0].endswith('+?'):
-                        # In case of an unknown word, record an empty string
-                        all_raw_analyses.append( '' )
-                    else:
-                        all_raw_analyses.append( line_clean )
+                    # Content line: reformat it
+                    new_line_clean = self._reformat_xerox_output_content_line( line_clean )
+                    # Add to raw analyses
+                    all_raw_analyses.append( new_line_clean )
                     # If this is a first content line after an empty line:
                     # get the word id associated with the line
                     if len(prev_line) == 0:
@@ -297,6 +313,30 @@ class HfstClMorphAnalyser(Tagger):
             "(!) Mismatching numbers of words in hfst's input ({}) and output ({})".format(len(input_layer), len(word_ids_used))
 
 
+    def _reformat_xerox_output_content_line( self, line_clean ):
+        '''Applies some reformatting to a hfst CLI output line, so 
+           that the output format matches with the output format 
+           of hfst python bindings.
+           Note: line_clean needs to be a line stripped from ending 
+           newline.'''
+        # Check the format
+        assert line_clean.count('\t') == 2, \
+               '(!) Unexpected xerox line format {!r}'.format(line_clean)
+        # Remove surface/normalized text from the beginning of line
+        line_parts = line_clean.split('\t')[1:]
+        # Convert decimal separator from comma to point (if needed)
+        if ',' in line_parts[-1]:
+            line_parts[-1] = line_parts[-1].replace(',', '.')
+        # Reconstruct line (use the same format as in Python's hfst)
+        line_clean = '\t'.join( line_parts )
+        # Collect analyses
+        if line_parts[-1] == 'inf' and line_parts[0].endswith('+?'):
+            # In case of an unknown word, record an empty string
+            return ''
+        else:
+            return line_clean
+
+
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
         """Applies HFST-based morphological analyser on the words layer, 
            captures the output of analyser with output_extractor,  and  
@@ -316,6 +356,69 @@ class HfstClMorphAnalyser(Tagger):
               
            status: dict
               This can be used to store metadata on layer tagging.
+        """
+        if not self.use_stream:
+            # Use file-based processing (I/O via files)
+            return self._make_layer__file_based(text, layers, status)
+        else:
+            # Stream-based processing (I/O via stream)
+            return self._make_layer__stream_based(text, layers, status)
+
+
+    def _make_layer__stream_based(self, text: Text, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
+        """Process text with HFST-based morphological analyser using
+           stream based input/output processing.
+        """
+        # Check the stream
+        assert self._hfst_process is not None, \
+           '(!) hfst process stream is not initialized in '+\
+           'this tagger.'
+        assert self._hfst_process.poll() is None, \
+           '(!) The tagger cannot be used anymore, '+\
+           'because its hfst process has been terminated.'
+        new_layer = Layer(name=self.output_layer,
+                               parent=self._input_words_layer,
+                               text_object=text,
+                               ambiguous=True,
+                               attributes=self.output_attributes
+        )
+        line_count = 0
+        for wid, word in enumerate( layers[ self._input_words_layer ] ):
+            # Analyse all normalized variants of the word
+            all_raw_analyses = []
+            for word_str in _get_word_texts(word):
+                try:
+                    self._hfst_process.stdin.write(as_binary(word_str.rstrip('\n\r')))
+                    self._hfst_process.stdin.write(as_binary('\n'))
+                    self._hfst_process.stdin.flush()
+                    # Collect all analyses
+                    while True:
+                        line = as_unicode( self._hfst_process.stdout.readline() )
+                        result = line.rstrip()
+                        if len(result) > 0:
+                            # Reformat content line
+                            line_clean = self._reformat_xerox_output_content_line(result)
+                            #print('{!r}'.format(line_clean))
+                            all_raw_analyses.append( line_clean )
+                        else:
+                            break
+                except Exception:
+                    stderr = as_unicode( self._hfst_process.stderr.read() )
+                    print('(!) Streaming exception. Stderr is {!r}'.format(stderr))
+                    self._hfst_process.terminate()
+                    raise
+            # Clean analyses
+            cleaned_analyses = self.filter_flags( '\n'.join(all_raw_analyses) )
+            # Use output_extractor for getting the output
+            self.output_extractor.extract_annotation_and_add_to_layer( \
+                        word, cleaned_analyses, new_layer, \
+                        remove_guesses = self.remove_guesses )
+        return new_layer
+        
+        
+    def _make_layer__file_based(self, text: Text, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
+        """Process text with HFST-based morphological analyser using
+           file based input/output processing (which is slow).
         """
         temp_input_file, line_2_word_map = \
             self._write_hfst_input_file( layers[ self._input_words_layer ] )
@@ -367,4 +470,24 @@ class HfstClMorphAnalyser(Tagger):
         """ Cleans the output string of the transducer from flag diacritics.
         """
         return self._flag_cleaner_re.sub('', o_str)
+
+
+
+# ==============================================================================
+#   Clean-up : terminate all started hfst processes
+# ==============================================================================
+
+@atexit.register
+def _close_hfst_processes():
+    for process in _STARTED_HFST_PROCESSES:
+        if process is not None: # if the process was initialized ...
+            if process.poll() is None: # ... and it is still up and running ...
+                # The proper way to terminate the process:
+                # 1) Send out the terminate signal
+                process.terminate()
+                # 2) Interact with the process. Read data from stdout and stderr, 
+                #    until end-of-file is reached. Wait for process to terminate.
+                process.communicate()
+                # 3) Assert that the process terminated
+                assert process.poll() is not None
 
