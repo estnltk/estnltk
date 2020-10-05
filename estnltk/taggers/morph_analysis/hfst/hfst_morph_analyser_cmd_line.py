@@ -130,13 +130,19 @@ class HfstClMorphAnalyser(Tagger):
             And if the command is not available from PATH, 
             dies with an exception.
         
-        use_stream:bool (default: True)
+        use_stream:bool (default: False)
             If true, then hfst-lookup will be launched as a
             persistent process and its input/output will be 
             communicated via stream. 
             Otherwise, hfst-lookup process will be launched
             only if _make_layer is called and its input/output
             will be communicated via files (which is slow).
+            
+            Note: streaming is not enabled by default, because
+            we encountered a problem on processing a large 
+            quantity of text via streaming: the subprocess
+            hangs. Needs further investigation. Meanwhile, it 
+            is advisable to use file based I/O.
         
         remove_guesses:bool (default: False)
             Specifies if guessed analyses need to be removed 
@@ -392,7 +398,7 @@ class HfstClMorphAnalyser(Tagger):
                     self._hfst_process.stdin.write(as_binary('\n'))
                     self._hfst_process.stdin.flush()
                     # Collect all analyses
-                    while True:
+                    while self._hfst_process.stdout.readable():
                         line = as_unicode( self._hfst_process.stdout.readline() )
                         result = line.rstrip()
                         if len(result) > 0:
@@ -405,7 +411,7 @@ class HfstClMorphAnalyser(Tagger):
                 except Exception:
                     stderr = as_unicode( self._hfst_process.stderr.read() )
                     print('(!) Streaming exception. Stderr is {!r}'.format(stderr))
-                    self._hfst_process.terminate()
+                    self.close()
                     raise
             # Clean analyses
             cleaned_analyses = self.filter_flags( '\n'.join(all_raw_analyses) )
@@ -470,6 +476,20 @@ class HfstClMorphAnalyser(Tagger):
         """ Cleans the output string of the transducer from flag diacritics.
         """
         return self._flag_cleaner_re.sub('', o_str)
+
+
+    def close(self):
+        """ Terminates streaming HFST process. """
+        if self._hfst_process is not None: # if the process was initialized
+            # The proper way to terminate the process:
+            # 1) Send out the terminate signal
+            self._hfst_process.terminate()
+            # 2) Interact with the process. Read data from stdout and stderr, 
+            #    until end-of-file is reached. Wait for process to terminate.
+            self._hfst_process.communicate()
+            # 3) Assert that the process terminated
+            assert self._hfst_process.poll() is not None
+        return False
 
 
 
