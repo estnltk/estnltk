@@ -78,8 +78,17 @@ class BertTagger(Tagger):
                             i += 1  # next word starts
                             word_span = word_spans[i]
                             start = word_span[0]  # the start id of this word
+                    if self.method == 'all':
+                        embedding = []
+                        for tok_emb in token_emb:
+                            emb = []
+                            for e in tok_emb:
+                                emb.append(float(e))
+                            embedding.append(emb)
+                    else:
+                        embedding = [float(t) for t in token_emb]
 
-                    attributes = {'token': token_init, 'bert_embedding': [float(t) for t in token_emb]}
+                    attributes = {'token': token_init, 'bert_embedding': embedding}
                     token = token_init.strip()
                     embeddings_layer.add_annotation((start, start + len(token.replace('#', ''))), **attributes)
                     start += len(token.replace('#', ''))  # adding token length to the current pointer
@@ -109,8 +118,20 @@ class BertTagger(Tagger):
                         if start == word_spans[i][1]:  # BERT's wordpiece tokenizer can tokenize differently
 
                             if collected_embeddings:
-                                collected_embeddings = [float(t) for t in np.sum(collected_embeddings, 0)]
-                                attributes = {'token': collected_tokens, 'bert_embedding': collected_embeddings}
+                                if self.method == 'all':
+                                    embedding = []
+                                    for tok_embs in collected_embeddings:
+                                        token_embs = []
+                                        for embs in tok_embs:
+                                            token_embs_emb = []
+                                            for emb in embs:
+                                                token_embs_emb.append(float(emb))
+                                            token_embs.append(token_embs_emb)
+                                        embedding.append(token_embs)
+                                else:
+                                    embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
+
+                                attributes = {'token': collected_tokens, 'bert_embedding': embedding}
                                 embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                                 **attributes)
 
@@ -129,8 +150,20 @@ class BertTagger(Tagger):
                         start += len(token_init.replace("#", ''))
 
                 if collected_tokens:
-                    collected_embeddings = [float(t) for t in np.sum(collected_embeddings, 0)]
-                    attributes = {'token': collected_tokens, 'bert_embedding': collected_embeddings}
+                    if self.method == 'all':
+                        embedding = []
+                        for tok_embs in collected_embeddings:
+                            token_embs = []
+                            for embs in tok_embs:
+                                token_embs_emb = []
+                                for emb in embs:
+                                    token_embs_emb.append(float(emb))
+                                token_embs.append(token_embs_emb)
+                            embedding.append(token_embs)
+                    else:
+                        embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
+
+                    attributes = {'token': collected_tokens, 'bert_embedding': embedding}
                     embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                     **attributes)
 
