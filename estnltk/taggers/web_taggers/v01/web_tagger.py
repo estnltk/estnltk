@@ -1,7 +1,7 @@
 import requests
 from typing import MutableMapping
 
-from .tagger import Tagger
+from estnltk.taggers.tagger import Tagger
 from estnltk.text import Text
 from estnltk.layer.layer import Layer
 from estnltk.converters import layers_to_json, dict_to_layer
