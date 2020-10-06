@@ -11,7 +11,7 @@ class WebTagger(Tagger):
     __slots__ = []
     conf_param = ['url']
 
-    def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
+    def post_request(self, text: Text, layers: MutableMapping[str, Layer]):
         data = {
             'text': text.text,
             'meta': text.meta,
@@ -21,6 +21,10 @@ class WebTagger(Tagger):
         resp = requests.post(self.url, json=data)
         resp_json = resp.json()
         layer = dict_to_layer(resp_json, text)
+        return layer
+
+    def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
+        layer = self.post_request(text, layers)
         return layer
 
     def _repr_html_(self):
