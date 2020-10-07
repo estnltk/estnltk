@@ -16,6 +16,7 @@ class WebTagger(Tagger):
             'text': text.text,
             'meta': text.meta,
             'layers': layers_to_json(layers),
+            'parameters': {param: getattr(self, param) for param in self.conf_param if param != 'url'},
             'output_layer': self.output_layer
         }
         resp = requests.post(self.url, json=data)

@@ -7,8 +7,6 @@ class SoftmaxEmbTagSumWebTagger(WebTagger):
     See also SoftmaxEmbTagSumTagger documentation.
     """
 
-    conf_param = ['url']
-
     def __init__(self, url, output_layer='neural_morph_analysis'):
         self.url = url
         self.input_layers = ('morph_analysis', 'sentences', 'words')

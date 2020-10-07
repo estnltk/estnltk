@@ -4,8 +4,6 @@ from estnltk.taggers import WebTagger
 class VabamorfWebTagger(WebTagger):
     """Tags morphological analysis using EstNLTK web service."""
 
-    conf_param = ['url']
-
     def __init__(self, url, output_layer='morph_analysis'):
         self.input_layers = ('words', 'sentences', 'compound_tokens')
         self.output_layer = output_layer
