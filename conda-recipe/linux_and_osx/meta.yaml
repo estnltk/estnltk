@@ -16,7 +16,7 @@ build:
 requirements:
   build:
     - python 
-    - swig ==3.0.8
+    - swig >=3.0.8
     #- gcc
     #- libgcc
     - six >=1.9.0
