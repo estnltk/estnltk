@@ -291,7 +291,7 @@ class Text:
         return self
 
     @staticmethod
-    def layers_to_list(layers: Mapping[str, Layer]) -> List[Layer]:
+    def topological_sort(layers: Mapping[str, Layer]) -> List[Layer]:
         """
         Returns a list of all layers of the given dict of layers in order of dependencies and layer names.
         The order is uniquely determined.
@@ -317,7 +317,7 @@ class Text:
         Returns a list of all layers of this text object in order of dependencies and layer names.
         The order is uniquely determined.
         """
-        return self.layers_to_list(self.__dict__)
+        return self.topological_sort(self.__dict__)
 
     def diff(self, other):
         """
