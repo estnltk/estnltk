@@ -75,7 +75,7 @@ class HfstClMorphAnalyser(Tagger):
                  output_format:str='morphemes_lemmas',
                  transducer_file:str=HFST_MODEL_FILE,
                  hfst_cmd:str=None,
-                 use_stream:bool=False,
+                 use_stream:bool=True,
                  remove_guesses:bool=False):
         """Initializes HfstClMorphAnalyser class.
         
@@ -130,19 +130,13 @@ class HfstClMorphAnalyser(Tagger):
             And if the command is not available from PATH, 
             dies with an exception.
         
-        use_stream:bool (default: False)
+        use_stream:bool (default: True)
             If true, then hfst-lookup will be launched as a
             persistent process and its input/output will be 
             communicated via stream. 
             Otherwise, hfst-lookup process will be launched
             only if _make_layer is called and its input/output
             will be communicated via files (which is slow).
-            
-            Note: streaming is not enabled by default, because
-            we encountered a problem on processing a large 
-            quantity of text via streaming: the subprocess
-            hangs. Needs further investigation. Meanwhile, it 
-            is advisable to use file based I/O.
         
         remove_guesses:bool (default: False)
             Specifies if guessed analyses need to be removed 

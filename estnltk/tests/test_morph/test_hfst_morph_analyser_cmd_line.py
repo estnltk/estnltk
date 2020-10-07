@@ -107,9 +107,9 @@ def test_hfst_morph_analyser_raw_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
-def test_hfst_morph_analyser_raw_output_stream_based_io():
-    # Test HfstClMorphAnalyser's raw output format with stream based I/O
-    hfstAnalyser = HfstClMorphAnalyser( output_format='raw', use_stream=True )
+def test_hfst_morph_analyser_raw_output_file_based_io():
+    # Test HfstClMorphAnalyser's raw output format with file based I/O
+    hfstAnalyser = HfstClMorphAnalyser( output_format='raw', use_stream=False )
 
     # Case 1
     input_text_str = 'No, tore talv! Vannaemale ei öeldud, et mäesuusatamine võib-olla tore Juhhhei'
