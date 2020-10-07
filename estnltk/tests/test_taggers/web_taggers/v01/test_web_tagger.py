@@ -74,6 +74,6 @@ def test_web_tagger(httpserver):
                                'serialisation_module': None,
                                'meta': {},
                                'spans': []}},
-        'parameters': {'param_1': 'parameter 1', 'param_2': 'param 2'},
+        'parameters': None,
         'output_layer': 'my_test'
     }
