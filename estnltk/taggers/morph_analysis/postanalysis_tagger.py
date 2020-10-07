@@ -194,13 +194,13 @@ class PostMorphAnalysisTagger(Retagger):
         
         # Compile regexes
         self._pat_name_needs_underscore1 = \
-                re.compile('(\.)\s+([A-ZÖÄÜÕŽŠ])')
+                re.compile(r'(\.)\s+([A-ZÖÄÜÕŽŠ])')
         self._pat_name_needs_underscore2 = \
-                re.compile('([A-ZÖÄÜÕŽŠ]\.)([A-ZÖÄÜÕŽŠ])')
+                re.compile(r'([A-ZÖÄÜÕŽŠ]\.)([A-ZÖÄÜÕŽŠ])')
         self._pat_name_needs_uppercase = \
-                re.compile('(\.\s+_)([a-zöäüõšž])')
+                re.compile(r'(\.\s+_)([a-zöäüõšž])')
         self._pat_numeric = \
-                re.compile('^(?=\D*\d)[0-9.,\- ]+$')
+                re.compile(r'^(?=\D*\d)[0-9.,\- ]+$')
 
 
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
@@ -662,7 +662,7 @@ class PostMorphAnalysisTagger(Retagger):
            Returns corrected records, or an empty list, if no 
            corrections are available.
         '''
-        m = re.match('-?(\d+\.?)-?(\D*)$', token_str)
+        m = re.match(r'-?(\d+\.?)-?(\D*)$', token_str)
         if not m:
             return []
         number_str = m.group(1)

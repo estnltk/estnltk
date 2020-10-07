@@ -77,7 +77,7 @@ class HfstClMorphAnalyser(Tagger):
                  hfst_cmd:str=None,
                  use_stream:bool=True,
                  remove_guesses:bool=False):
-        """Initializes HfstClMorphAnalyser class.
+        r"""Initializes HfstClMorphAnalyser class.
         
         Parameters
         ----------

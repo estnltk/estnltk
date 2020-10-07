@@ -945,7 +945,7 @@ class ProperNamesDisambiguationStep3Retagger(CorpusBasedMorphDisambiguationSubst
 # ------------------------------------------
 
 class RemoveDuplicateAndProblematicAnalysesRetagger( CorpusBasedMorphDisambiguationSubstepRetagger ):
-    """ A Retagger in corpus-based post-disambiguation preparation step. 
+    r""" A Retagger in corpus-based post-disambiguation preparation step. 
         Removes:
         1) duplicate morphological analyses. For instance, word 'palk'
            obtains two analyses: 'palk' (which inflects as 'palk\palgi') 

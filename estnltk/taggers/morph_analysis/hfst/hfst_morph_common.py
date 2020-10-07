@@ -253,7 +253,7 @@ def _compile_postags_pattern():
         from the output of HFST lookup. """
     sorted_postags = sorted(est_hfst_postags, key=lambda x: (-len(x), x)) # Sort (longest first, then alpha)
     postags_regexp = '|'.join(sorted_postags)
-    postags_regexp = '('+ postags_regexp.replace('+','\+') +')'
+    postags_regexp = '('+ postags_regexp.replace('+', r'\+') +')'
     return re.compile(postags_regexp)
 
 est_hfst_postags_pattern = _compile_postags_pattern()
@@ -263,7 +263,7 @@ def _compile_usage_strs_pattern():
         from the output of HFST lookup. """
     sorted_usage_strs = sorted(est_hfst_usage_strs, key=lambda x: (-len(x), x))
     usage_strs_regexp = '|'.join(sorted_usage_strs)
-    usage_strs_regexp = '('+ usage_strs_regexp.replace('+','\+') +')'
+    usage_strs_regexp = '('+ usage_strs_regexp.replace('+', r'\+') +')'
     usage_strs_pattern = re.compile(usage_strs_regexp)
     return re.compile(usage_strs_pattern)
 
