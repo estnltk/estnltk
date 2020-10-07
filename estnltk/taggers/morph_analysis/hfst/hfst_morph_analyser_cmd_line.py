@@ -8,7 +8,7 @@ from typing import MutableMapping
 from collections import defaultdict
 
 import os, os.path
-import re, io
+import re
 
 import tempfile
 import subprocess
@@ -191,7 +191,7 @@ class HfstClMorphAnalyser(Tagger):
            # If the HFST command was not provided, check whether the command is in the PATH
            command = 'hfst-lookup'
            if not check_if_hfst_is_in_path( command ):
-              msg = " Could not find HFST lookup executable: "+command+"!\n"+\
+              msg = " Could not find HFST executable: "+command+" !\n"+\
                     " Please make sure that HFST binaries are installed in your system and\n"+\
                     " available from system's PATH variable. Alternatively, you can\n"+\
                     " provide the HFST executable command via the input\n"+\
@@ -217,7 +217,12 @@ class HfstClMorphAnalyser(Tagger):
                                           '-O', 'xerox']
             self._hfst_process = subprocess.Popen(process_cmd, stdin=subprocess.PIPE,
                                                                stdout=subprocess.PIPE, 
-                                                               stderr=subprocess.PIPE)
+                                                               stderr=subprocess.STDOUT)
+            #
+            # Note: if we use stderr=subprocess.PIPE, the reading from stdout will hang after 
+            #       processing a large amount of input. But setting stderr=subprocess.STDOUT 
+            #       seems to fix the problem;
+            #
             _STARTED_HFST_PROCESSES.append( self._hfst_process )
 
 
