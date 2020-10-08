@@ -3,7 +3,19 @@ import requests
 from estnltk.converters import text_to_json, json_to_text
 
 
-class WebTransformer:
+class WebTransformerChecker(type):
+    def __call__(cls, *args, **kwargs):
+        transformer = type.__call__(cls, *args, **kwargs)
+
+        if transformer.__doc__ is None:
+            raise ValueError('{!r} class must have a docstring'.format(cls.__name__))
+
+        return transformer
+
+
+class WebTransformer(metaclass=WebTransformerChecker):
+    """Tags layers using webservice and returns a new Text object."""
+
     __slots__ = ['url']
 
     def __init__(self, url: str = 'http://127.0.0.1:5000/tag_layer/morph_analysis,words',
