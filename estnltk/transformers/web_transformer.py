@@ -1,6 +1,5 @@
 import requests
 
-from estnltk.converters import text_to_json, json_to_text
 
 CONNECTION_ERROR_MESSAGE = 'Webservice unreachable'
 STATUS_OK = 'OK'
@@ -17,22 +16,11 @@ class WebTransformerChecker(type):
 
 
 class WebTransformer(metaclass=WebTransformerChecker):
-    """Tags layers using webservice and returns a new Text object."""
 
-    __slots__ = ['url', 'layer_names']
+    __slots__ = ['url']
 
-    def __init__(self, url: str = 'http://127.0.0.1:5000', layer_names=('morph_analysis', 'sentences')):
+    def __init__(self, url: str):
         self.url = url.rstrip('/')
-        self.layer_names = (layer_names,) if isinstance(layer_names, str) else layer_names
-
-    def __call__(self, text, ):
-        text_json = text_to_json(text)
-        try:
-            resp = requests.post('{}/tag_layer/{}'.format(self.url, ','.join(self.layer_names)), json=text_json)
-        except requests.ConnectionError as e:
-            return str(e)
-        if resp.status_code == 200:
-            return json_to_text(resp.text)
 
     @property
     def about(self) -> str:
