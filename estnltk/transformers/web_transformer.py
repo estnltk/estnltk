@@ -2,6 +2,9 @@ import requests
 
 from estnltk.converters import text_to_json, json_to_text
 
+CONNECTION_ERROR_MESSAGE = 'Webservice unreachable'
+STATUS_OK = 'OK'
+
 
 class WebTransformerChecker(type):
     def __call__(cls, *args, **kwargs):
@@ -31,24 +34,32 @@ class WebTransformer(metaclass=WebTransformerChecker):
         if resp.status_code == 200:
             return json_to_text(resp.text)
 
+    @property
+    def about(self) -> str:
+        try:
+            return requests.get(self.url+'/about').text
+        except requests.ConnectionError:
+            return CONNECTION_ERROR_MESSAGE
+
+    @property
+    def status(self) -> str:
+        try:
+            return requests.get(self.url+'/status').text
+        except requests.ConnectionError:
+            return CONNECTION_ERROR_MESSAGE
+
+    @property
+    def is_alive(self) -> bool:
+        return self.status == STATUS_OK
+
     def _repr_html_(self):
         import pandas
         assert self.__class__.__doc__ is not None, 'No docstring.'
-        try:
-            status = requests.get(self.url+'/status')
-            status = status.text
-        except requests.ConnectionError:
-            status = 'Connection error'
-        try:
-            about = requests.get(self.url+'/about')
-            about = about.text
-        except requests.ConnectionError:
-            about = 'Connection error'
 
         description = self.__class__.__doc__.strip().split('\n')[0]
         html_tokens = ['<h4>{}</h4>'.format(self.__class__.__name__), description]
 
-        data = {'key': ['url', 'status', 'about'], 'value': [self.url, status, about]}
+        data = {'key': ['url', 'status', 'about'], 'value': [self.url, self.status, self.about]}
         status_table = pandas.DataFrame(data, columns=['key', 'value'])
         status_table = status_table.to_html(header=False, index=False)
 
