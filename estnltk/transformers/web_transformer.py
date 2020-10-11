@@ -1,8 +1,9 @@
 import requests
 
 
-CONNECTION_ERROR_MESSAGE = 'Webservice unreachable'
-STATUS_OK = 'OK'
+class Status:
+    CONNECTION_ERROR = 'Webservice unreachable'
+    OK = 'OK'
 
 
 class WebTransformerChecker(type):
@@ -27,27 +28,26 @@ class WebTransformer(metaclass=WebTransformerChecker):
         try:
             return requests.get(self.url+'/about').text
         except requests.ConnectionError:
-            return CONNECTION_ERROR_MESSAGE
+            return Status.CONNECTION_ERROR
 
     @property
     def status(self) -> str:
         try:
             return requests.get(self.url+'/status').text
         except requests.ConnectionError:
-            return CONNECTION_ERROR_MESSAGE
+            return Status.CONNECTION_ERROR
 
     @property
     def is_alive(self) -> bool:
-        return self.status == STATUS_OK
+        return self.status == Status.OK
 
     def _repr_html_(self):
         import pandas
         assert self.__class__.__doc__ is not None, 'No docstring.'
 
-        description = self.__class__.__doc__.strip().split('\n')[0]
-        html_tokens = ['<h4>{}</h4>'.format(self.__class__.__name__), description]
+        html_tokens = ['<h4>{}</h4>'.format(self.__class__.__name__), self.about]
 
-        data = {'key': ['url', 'status', 'about'], 'value': [self.url, self.status, self.about]}
+        data = {'key': ['url', 'status'], 'value': [self.url, self.status]}
         status_table = pandas.DataFrame(data, columns=['key', 'value'])
         status_table = status_table.to_html(header=False, index=False)
 

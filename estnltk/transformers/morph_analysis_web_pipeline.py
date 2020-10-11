@@ -1,6 +1,6 @@
 import requests
 
-from estnltk.converters import text_to_json, json_to_text
+from estnltk.converters import json_to_text, layers_to_json
 from .web_transformer import WebTransformer
 
 
@@ -14,9 +14,14 @@ class MorphAnalysisWebPipeline(WebTransformer):
         super().__init__(url)
 
     def __call__(self, text):
-        text_json = text_to_json(text)
+        data = {
+            'text': text.text,
+            'meta': text.meta,
+            'layers': layers_to_json(text.__dict__),
+            'parameters': {'layer_names': self.layer_names},
+        }
         try:
-            resp = requests.post('{}/tag_layer/{}'.format(self.url, ','.join(self.layer_names)), json=text_json)
+            resp = requests.post(self.url, json=data)
         except requests.ConnectionError as e:
             return str(e)
         if resp.status_code == 200:
