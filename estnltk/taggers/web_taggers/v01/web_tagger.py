@@ -7,6 +7,11 @@ from estnltk.layer.layer import Layer
 from estnltk.converters import layers_to_json, dict_to_layer
 
 
+class Status:
+    CONNECTION_ERROR = 'Webservice unreachable'
+    OK = 'OK'
+
+
 class WebTagger(Tagger):
     __slots__ = []
     conf_param = ['url']
@@ -28,5 +33,23 @@ class WebTagger(Tagger):
         layer = self.post_request(text, layers)
         return layer
 
+    @property
+    def about(self) -> str:
+        try:
+            return requests.get(self.url+'/about').text
+        except requests.ConnectionError:
+            return Status.CONNECTION_ERROR
+
+    @property
+    def status(self) -> str:
+        try:
+            return requests.get(self.url+'/status').text
+        except requests.ConnectionError:
+            return Status.CONNECTION_ERROR
+
+    @property
+    def is_alive(self) -> bool:
+        return self.status == Status.OK
+
     def _repr_html_(self):
-        return self._repr_html('WebTagger')
+        return self._repr_html('WebTagger', self.about)
