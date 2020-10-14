@@ -4,6 +4,10 @@ from estnltk.core import PACKAGE_PATH
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import UserDictTagger
 
+from estnltk.taggers.morph_analysis.userdict_tagger import CSV_UNSPECIFIED_FIELD
+
+from estnltk.converters import layer_to_dict
+from estnltk.converters import dict_to_layer
 
 import os, os.path, tempfile
 
@@ -37,20 +41,79 @@ def test_userdict_tagger_partial_corrections():
     userdict = UserDictTagger(words_dict=words_dict, ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Tag corrections
     userdict.retag(text)
-    expected_records = [ \
-        [{'normalized_text': 'Patsiendi', 'root_tokens': ['patsient',], 'lemma': 'patsient', 'end': 9, 'start': 0, 'form': 'sg g', 'root': 'patsient', 'ending': '0', 'clitic': '', 'partofspeech': 'S'}], \
-        [{'normalized_text': 'kopsujoonis', 'ending': '0', 'clitic': '', 'start': 10, 'lemma': 'kopsujoonis', 'form': 'sg n', 'root_tokens': ['kopsu', 'joonis'], 'partofspeech': 'S', 'end': 21, 'root': 'kopsu_joonis'}],\
-        [{'normalized_text': 'on', 'root_tokens': ['ole',], 'lemma': 'olema', 'end': 24, 'start': 22, 'form': 'b', 'root': 'ole', 'ending': '0', 'clitic': '', 'partofspeech': 'V'}, {'normalized_text': 'on', 'root_tokens': ['ole',], 'lemma': 'olema', 'end': 24, 'start': 22, 'form': 'vad', 'root': 'ole', 'ending': '0', 'clitic': '', 'partofspeech': 'V'}], \
-        [{'normalized_text': 'loetamatu', 'root_tokens': ['loetamatu',], 'lemma': 'loetamatu', 'end': 34, 'start': 25, 'form': 'sg n', 'root': 'loetamatu', 'ending': '0', 'clitic': '', 'partofspeech': 'A'}], \
-        [{'normalized_text': '.', 'root_tokens': ['.',], 'lemma': '.', 'end': 35, 'start': 34, 'form': '', 'root': '.', 'ending': '', 'clitic': '', 'partofspeech': 'Z'}]
-    ]
-    #print(text['morph_analysis'].to_records())
-    # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
+    #from pprint import pprint
+    #pprint(layer_to_dict( text['morph_analysis'] ))
+    expected_layer_dict = \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'patsient',
+                                     'normalized_text': 'Patsiendi',
+                                     'partofspeech': 'S',
+                                     'root': 'patsient',
+                                     'root_tokens': ['patsient']}],
+                    'base_span': (0, 9)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'kopsujoonis',
+                                     'normalized_text': 'kopsujoonis',
+                                     'partofspeech': 'S',
+                                     'root': 'kopsu_joonis',
+                                     'root_tokens': ['kopsu', 'joonis']}],
+                    'base_span': (10, 21)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'b',
+                                     'lemma': 'olema',
+                                     'normalized_text': 'on',
+                                     'partofspeech': 'V',
+                                     'root': 'ole',
+                                     'root_tokens': ['ole']},
+                                    {'clitic': '',
+                                     'ending': '0',
+                                     'form': 'vad',
+                                     'lemma': 'olema',
+                                     'normalized_text': 'on',
+                                     'partofspeech': 'V',
+                                     'root': 'ole',
+                                     'root_tokens': ['ole']}],
+                    'base_span': (22, 24)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'loetamatu',
+                                     'normalized_text': 'loetamatu',
+                                     'partofspeech': 'A',
+                                     'root': 'loetamatu',
+                                     'root_tokens': ['loetamatu']}],
+                    'base_span': (25, 34)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (34, 35)}]
+    }
     # Check results
-    assert expected_records == results_dict
+    assert dict_to_layer( expected_layer_dict ) == text['morph_analysis']
 
     # Case 2
     text = Text("Jah, femorises.")
@@ -61,18 +124,61 @@ def test_userdict_tagger_partial_corrections():
     userdict = UserDictTagger(words_dict=words_dict, ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Tag corrections
     userdict.retag(text)
-    expected_records = [ \
-        [{'normalized_text': 'Jah', 'form': '', 'lemma': 'jah', 'clitic': '', 'start': 0, 'end': 3, 'root_tokens': ['jah',], 'root': 'jah', 'ending': '0', 'partofspeech': 'D'}],\
-        [{'normalized_text': ',', 'form': '', 'lemma': ',', 'clitic': '', 'start': 3, 'end': 4, 'root_tokens': [',',], 'root': ',', 'ending': '', 'partofspeech': 'Z'}], \
-        [{'normalized_text': 'femorises', 'start': 5, 'root': 'femoris', 'root_tokens': ['femoris',], 'ending': 's', 'form': 'sg in', 'end': 14, 'partofspeech': 'S', 'lemma': 'femoris', 'clitic': ''}], \
-        [{'normalized_text': '.', 'form': '', 'lemma': '.', 'clitic': '', 'start': 14, 'end': 15, 'root_tokens': ['.',], 'root': '.', 'ending': '', 'partofspeech': 'Z'}] ]
-    #print(text['morph_analysis'].to_records())
-    # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
+    #from pprint import pprint
+    #pprint(layer_to_dict( text['morph_analysis'] ))
+    expected_layer_dict = \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'jah',
+                                     'normalized_text': 'Jah',
+                                     'partofspeech': 'D',
+                                     'root': 'jah',
+                                     'root_tokens': ['jah']}],
+                    'base_span': (0, 3)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': ',',
+                                     'normalized_text': ',',
+                                     'partofspeech': 'Z',
+                                     'root': ',',
+                                     'root_tokens': [',']}],
+                    'base_span': (3, 4)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 's',
+                                     'form': 'sg in',
+                                     'lemma': 'femoris',
+                                     'normalized_text': 'femorises',
+                                     'partofspeech': 'S',
+                                     'root': 'femoris',
+                                     'root_tokens': ['femoris']}],
+                    'base_span': (5, 14)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (14, 15)}]}
     # Check results
-    assert expected_records == results_dict
+    assert dict_to_layer( expected_layer_dict ) == text['morph_analysis']
     
     # Case 3
     text = Text("Pneumofibroosi unkovertebraalartroosist duodenumisse?")
@@ -86,20 +192,61 @@ def test_userdict_tagger_partial_corrections():
     userdict = UserDictTagger(words_dict=words_dict, ignore_case=True, autocorrect_root=True)
     # Tag corrections
     userdict.retag(text)
-    #print(text['morph_analysis'].to_records())
-    expected_records = [ \
-        [{'normalized_text': 'Pneumofibroosi', 'root_tokens': ['pneumofibroos',], 'root': 'pneumofibroos', 'form': 'sg g', 'ending': '0', 'lemma': 'pneumofibroos', 'end': 14, 'start': 0, 'clitic': '', 'partofspeech': 'S'}], \
-        [{'normalized_text': 'unkovertebraalartroosist', 'root_tokens': ['unkovertebraalartroos',], 'root': 'unkovertebraalartroos', 'form': 'sg el', 'ending': 'st', 'lemma': 'unkovertebraalartroos', 'end': 39, 'start': 15, 'clitic': '', 'partofspeech': 'S'}], \
-        [{'normalized_text': 'duodenumisse', 'root_tokens': ['duodenum',], 'root': 'duodenum', 'form': 'sg ill', 'ending': 'sse', 'lemma': 'duodenum', 'end': 52, 'start': 40, 'clitic': '', 'partofspeech': 'S'}], \
-        [{'normalized_text': '?', 'root_tokens': ['?',], 'root': '?', 'form': '', 'ending': '', 'lemma': '?', 'end': 53, 'start': 52, 'clitic': '', 'partofspeech': 'Z'}] \
-    ]
-    # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
+    #from pprint import pprint
+    #pprint(layer_to_dict( text['morph_analysis'] ))
+    expected_layer_dict = \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'pneumofibroos',
+                                     'normalized_text': 'Pneumofibroosi',
+                                     'partofspeech': 'S',
+                                     'root': 'pneumofibroos',
+                                     'root_tokens': ['pneumofibroos']}],
+                    'base_span': (0, 14)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'st',
+                                     'form': 'sg el',
+                                     'lemma': 'unkovertebraalartroos',
+                                     'normalized_text': 'unkovertebraalartroosist',
+                                     'partofspeech': 'S',
+                                     'root': 'unkovertebraalartroos',
+                                     'root_tokens': ['unkovertebraalartroos']}],
+                    'base_span': (15, 39)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'sse',
+                                     'form': 'sg ill',
+                                     'lemma': 'duodenum',
+                                     'normalized_text': 'duodenumisse',
+                                     'partofspeech': 'S',
+                                     'root': 'duodenum',
+                                     'root_tokens': ['duodenum']}],
+                    'base_span': (40, 52)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '?',
+                                     'normalized_text': '?',
+                                     'partofspeech': 'Z',
+                                     'root': '?',
+                                     'root_tokens': ['?']}],
+                    'base_span': (52, 53)}]}
     # Check results
-    assert expected_records == results_dict
-
+    assert dict_to_layer( expected_layer_dict ) == text['morph_analysis']
 
 
 def test_userdict_tagger_complete_overwriting():
@@ -171,22 +318,79 @@ def test_userdict_tagger_dict_from_csv_file():
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
     # Tag corrections
     userdict.retag(text)
-    expected_records = [ \
-        [{'normalized_text': 'Ah', 'lemma': 'ah', 'root': 'ah', 'end': 2, 'clitic': '', 'ending': '0', 'start': 0, 'form': '', 'partofspeech': 'I', 'root_tokens': ['ah',]}], \
-        [{'normalized_text': ',', 'lemma': ',', 'root': ',', 'end': 3, 'clitic': '', 'ending': '', 'start': 2, 'form': '', 'partofspeech': 'Z', 'root_tokens': [',',]}], \
-        [{'normalized_text': 'jälle', 'lemma': 'jälle', 'root': 'jälle', 'end': 9, 'clitic': '', 'ending': '0', 'start': 4, 'form': '', 'partofspeech': 'D', 'root_tokens': ['jälle',]}], \
-        [{'normalized_text': None, 'lemma': 'jämesooleling', 'root': 'jämesoole_ling', 'end': 25, 'clitic': '', 'ending': 'd', 'start': 10, 'form': 'pl n', 'partofspeech': 'S', 'root_tokens': ['jämesoole', 'ling']}], \
-        [{'normalized_text': None, 'lemma': 'femoris', 'root': 'femoris', 'end': 35, 'clitic': '', 'ending': 's', 'start': 26, 'form': 'sg in', 'partofspeech': 'S', 'root_tokens': ['femoris',]}], \
-        [{'normalized_text': '...', 'lemma': '...', 'root': '...', 'end': 39, 'clitic': '', 'ending': '', 'start': 36, 'form': '', 'partofspeech': 'Z', 'root_tokens': ['...',]}] \
-    ]
-    #print(text['morph_analysis'].to_records())
-    # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
+    #from pprint import pprint
+    #pprint(layer_to_dict( text['morph_analysis'] ))
+    expected_layer_dict = \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'ah',
+                                     'normalized_text': 'Ah',
+                                     'partofspeech': 'I',
+                                     'root': 'ah',
+                                     'root_tokens': ['ah']}],
+                    'base_span': (0, 2)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': ',',
+                                     'normalized_text': ',',
+                                     'partofspeech': 'Z',
+                                     'root': ',',
+                                     'root_tokens': [',']}],
+                    'base_span': (2, 3)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'jälle',
+                                     'normalized_text': 'jälle',
+                                     'partofspeech': 'D',
+                                     'root': 'jälle',
+                                     'root_tokens': ['jälle']}],
+                    'base_span': (4, 9)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'd',
+                                     'form': 'pl n',
+                                     'lemma': 'jämesooleling',
+                                     'normalized_text': None,
+                                     'partofspeech': 'S',
+                                     'root': 'jämesoole_ling',
+                                     'root_tokens': ['jämesoole', 'ling']}],
+                    'base_span': (10, 25)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 's',
+                                     'form': 'sg in',
+                                     'lemma': 'femoris',
+                                     'normalized_text': None,
+                                     'partofspeech': 'S',
+                                     'root': 'femoris',
+                                     'root_tokens': ['femoris']}],
+                    'base_span': (26, 35)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '...',
+                                     'normalized_text': '...',
+                                     'partofspeech': 'Z',
+                                     'root': '...',
+                                     'root_tokens': ['...']}],
+                    'base_span': (36, 39)}]}
     # Check results
-    assert expected_records == results_dict
-
+    assert dict_to_layer( expected_layer_dict ) == text['morph_analysis']
 
 
 def test_userdict_tagger_post_analysis():
@@ -205,26 +409,104 @@ def test_userdict_tagger_post_analysis():
     userdict = UserDictTagger(csv_file=csv_dict_path, ignore_case=True, autocorrect_root=True, delimiter=',')
     # Tag corrections
     userdict.retag(text)
-    #print( text['morph_analysis'].to_records() )
-    expected_records = [ \
-        [{'normalized_text': 'Ma', 'root_tokens': ['mina',], 'start': 0, 'ending': '0', '_ignore': False, 'end': 2, 'clitic': '', 'partofspeech': 'P', 'root': 'mina', 'form': 'sg n', 'lemma': 'mina'}], \
-        [{'normalized_text': None, 'root_tokens': ['taht',], 'start': 3, 'ending': 'ks', '_ignore': None, 'end': 8, 'clitic': '', 'partofspeech': 'V', 'root': 'taht', 'form': 'ks', 'lemma': 'tahtma'}], \
-        [{'normalized_text': 'minna', 'root_tokens': ['mine',], 'start': 9, 'ending': 'a', '_ignore': False, 'end': 14, 'clitic': '', 'partofspeech': 'V', 'root': 'mine', 'form': 'da', 'lemma': 'minema'}], \
-        [{'normalized_text': 'järve', 'root_tokens': ['järv',], 'start': 15, 'ending': '0', '_ignore': False, 'end': 20, 'clitic': '', 'partofspeech': 'S', 'root': 'järv', 'form': 'adt', 'lemma': 'järv'}, \
-         {'normalized_text': 'järve', 'root_tokens': ['järv',], 'start': 15, 'ending': '0', '_ignore': False, 'end': 20, 'clitic': '', 'partofspeech': 'S', 'root': 'järv', 'form': 'sg g', 'lemma': 'järv'}, \
-         {'normalized_text': 'järve', 'root_tokens': ['järv',], 'start': 15, 'ending': '0', '_ignore': False, 'end': 20, 'clitic': '', 'partofspeech': 'S', 'root': 'järv', 'form': 'sg p', 'lemma': 'järv'}], \
-        [{'normalized_text': None, 'root_tokens': ['äärde',], 'start': 21, 'ending': '0', '_ignore': None, 'end': 25, 'clitic': '', 'partofspeech': 'K', 'root': 'äärde', 'form': '', 'lemma': 'äärde'}, \
-         {'normalized_text': None, 'root_tokens': ['äär',], 'start': 21, 'ending': 'de', '_ignore': None, 'end': 25, 'clitic': '', 'partofspeech': 'S', 'root': 'äär', 'form': 'adt', 'lemma': 'äär'}] \
-    ]
-    # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
+    #from pprint import pprint
+    #pprint(layer_to_dict( text['morph_analysis'] ))
+    expected_layer_dict = \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech',
+                        '_ignore'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'mina',
+                                     'normalized_text': 'Ma',
+                                     'partofspeech': 'P',
+                                     'root': 'mina',
+                                     'root_tokens': ['mina']}],
+                    'base_span': (0, 2)},
+                   {'annotations': [{'_ignore': None,
+                                     'clitic': '',
+                                     'ending': 'ks',
+                                     'form': 'ks',
+                                     'lemma': 'tahtma',
+                                     'normalized_text': None,
+                                     'partofspeech': 'V',
+                                     'root': 'taht',
+                                     'root_tokens': ['taht']}],
+                    'base_span': (3, 8)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'a',
+                                     'form': 'da',
+                                     'lemma': 'minema',
+                                     'normalized_text': 'minna',
+                                     'partofspeech': 'V',
+                                     'root': 'mine',
+                                     'root_tokens': ['mine']}],
+                    'base_span': (9, 14)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'adt',
+                                     'lemma': 'järv',
+                                     'normalized_text': 'järve',
+                                     'partofspeech': 'S',
+                                     'root': 'järv',
+                                     'root_tokens': ['järv']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'järv',
+                                     'normalized_text': 'järve',
+                                     'partofspeech': 'S',
+                                     'root': 'järv',
+                                     'root_tokens': ['järv']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg p',
+                                     'lemma': 'järv',
+                                     'normalized_text': 'järve',
+                                     'partofspeech': 'S',
+                                     'root': 'järv',
+                                     'root_tokens': ['järv']}],
+                    'base_span': (15, 20)},
+                   {'annotations': [{'_ignore': None,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'äärde',
+                                     'normalized_text': None,
+                                     'partofspeech': 'K',
+                                     'root': 'äärde',
+                                     'root_tokens': ['äärde']},
+                                    {'_ignore': None,
+                                     'clitic': '',
+                                     'ending': 'de',
+                                     'form': 'adt',
+                                     'lemma': 'äär',
+                                     'normalized_text': None,
+                                     'partofspeech': 'S',
+                                     'root': 'äär',
+                                     'root_tokens': ['äär']}],
+                    'base_span': (21, 25)}]}
     # Check results
-    assert expected_records == results_dict
+    assert dict_to_layer( expected_layer_dict ) == text['morph_analysis']
 
-
-from estnltk.taggers.morph_analysis.userdict_tagger import CSV_UNSPECIFIED_FIELD
 
 def test_userdict_tagger_save_as_csv():
     # Case 1: save as csv 
