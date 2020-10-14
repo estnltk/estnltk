@@ -32,9 +32,9 @@ def test_userdict_tagger_partial_corrections():
     text = Text('Patsiendi kopsujoonis on loetamatu.')
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
-    # Add analysis of a single word
-    userdict.add_word('kopsujoonis', {'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S'} )
+    # Dictionary with a single entry
+    words_dict = { 'kopsujoonis' : {'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S'} }
+    userdict = UserDictTagger(words_dict=words_dict, ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Tag corrections
     userdict.retag(text)
     expected_records = [ \
@@ -56,9 +56,9 @@ def test_userdict_tagger_partial_corrections():
     text = Text("Jah, femorises.")
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
-    # Add analysis of a single word
-    userdict.add_word('femorises', {'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S'} )
+    # Dictionary with a single entry
+    words_dict = { 'femorises' : {'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S'} }
+    userdict = UserDictTagger(words_dict=words_dict, ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Tag corrections
     userdict.retag(text)
     expected_records = [ \
@@ -78,14 +78,12 @@ def test_userdict_tagger_partial_corrections():
     text = Text("Pneumofibroosi unkovertebraalartroosist duodenumisse?")
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
-    # Add partial corrections for words
-    userdict.add_word('pneumofibroosi', \
-        {'form': 'sg g', 'root': 'pneumofibroos', 'ending':'0', 'partofspeech': 'S'} )
-    userdict.add_word('unkovertebraalartroosist', \
-        {'form': 'sg el', 'root': 'unkovertebraalartroos', 'ending':'st', 'partofspeech': 'S'} )
-    userdict.add_word('duodenumisse', \
-        {'form': 'sg ill', 'root': 'duodenum', 'ending':'sse', 'partofspeech': 'S'} )
+    # Dictionary with multiple entries
+    words_dict = { 'pneumofibroosi':            {'form': 'sg g', 'root': 'pneumofibroos', 'ending':'0', 'partofspeech': 'S'}, 
+                   'unkovertebraalartroosist':  {'form': 'sg el', 'root': 'unkovertebraalartroos', 'ending':'st', 'partofspeech': 'S'},
+                   'duodenumisse':              {'form': 'sg ill', 'root': 'duodenum', 'ending':'sse', 'partofspeech': 'S'},
+                 }
+    userdict = UserDictTagger(words_dict=words_dict, ignore_case=True, autocorrect_root=True)
     # Tag corrections
     userdict.retag(text)
     #print(text['morph_analysis'].to_records())
@@ -111,11 +109,10 @@ def test_userdict_tagger_complete_overwriting():
     text = Text('Patsiendi kopsujoonis on loetamatu.')
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
-    # Add completely new analyses for a single word
-    userdict.add_word('kopsujoonis', \
-        [{'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S', 'clitic':''},\
-         {'form': 'pl in', 'root': 'kopsu_joon',  'ending':'is', 'partofspeech': 'S', 'clitic':''}] )
+    # Dictionary with a single entry
+    words_dict = { 'kopsujoonis': [{'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S', 'clitic':''},\
+                                   {'form': 'pl in', 'root': 'kopsu_joon',  'ending':'is', 'partofspeech': 'S', 'clitic':''}] }
+    userdict = UserDictTagger(words_dict=words_dict, ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Tag corrections
     userdict.retag(text)
     expected_records = [ \
@@ -138,12 +135,10 @@ def test_userdict_tagger_complete_overwriting():
     text = Text("Või jämesoolelingud femorises?")
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
-    # Add completely new analyses that should overwrite old analyses
-    userdict.add_word('jämesoolelingud', \
-        [{'form': 'pl n', 'root': 'jämesoole_ling', 'ending':'d', 'partofspeech': 'S', 'clitic':''}] )
-    userdict.add_word('femorises', \
-        [{'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S', 'clitic':''}] )
+    # Dictionary with multiple entries ( completely new analyses that should overwrite old analyses )
+    words_dict = { 'jämesoolelingud':  [{'form': 'pl n', 'root': 'jämesoole_ling', 'ending':'d', 'partofspeech': 'S', 'clitic':''}],
+                   'femorises':        [{'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S', 'clitic':''}] }
+    userdict = UserDictTagger(words_dict=words_dict, ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Tag corrections
     userdict.retag(text)
     #print(text['morph_analysis'].to_records())
@@ -167,9 +162,8 @@ def test_userdict_tagger_dict_from_csv_file():
     # Construct path to testing csv file
     csv_dict_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_userdict.csv')
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
-    # Load completely new analyses (from csv file )
-    userdict.add_words_from_csv_file( csv_dict_path , delimiter=',')
+    # Load completely new analyses (from a csv file)
+    userdict = UserDictTagger(csv_file=csv_dict_path, ignore_case=True, autocorrect_root=True, delimiter=',')
     
     # Case 1
     text = Text("Ah, jälle jämesoolelingud femorises ...")
@@ -205,12 +199,10 @@ def test_userdict_tagger_post_analysis():
     text.tag_layer(['words', 'sentences'])
     # Analyse morphology (without guessing, propernames and disambiguation)
     morph_analyser.tag(text)
-    # Create user dict tagger
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    # Create user dict tagger (from csv file)
     csv_dict_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_userdict.csv')
-    # Load completely new analyses (from csv file)
-    userdict.add_words_from_csv_file(csv_dict_path , delimiter=',')
+    userdict = UserDictTagger(csv_file=csv_dict_path, ignore_case=True, autocorrect_root=True, delimiter=',')
     # Tag corrections
     userdict.retag(text)
     #print( text['morph_analysis'].to_records() )
@@ -236,13 +228,11 @@ from estnltk.taggers.morph_analysis.userdict_tagger import CSV_UNSPECIFIED_FIELD
 
 def test_userdict_tagger_save_as_csv():
     # Case 1: save as csv 
-    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
-    userdict.add_word('abieluettepanek', \
-        { 'root': 'abielu_ettepanek', 'partofspeech': 'S' } )
-    userdict.add_word('kopsujoonis', \
-        [{'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S', 'clitic':''}] )
-    userdict.add_word('tahax', \
-        [{'normalized_text':'tahaks', 'root_tokens': ['taht',], 'ending': 'ks', 'clitic': '', 'partofspeech': 'V', 'root': 'taht', 'form': 'ks', 'lemma': 'tahtma'}] )
+    # Initialize a dictionary with multiple entries
+    words_dict = { 'abieluettepanek':  { 'root': 'abielu_ettepanek', 'partofspeech': 'S' },
+                   'kopsujoonis':      [{'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S', 'clitic':''}],
+                   'tahax':            [{'normalized_text':'tahaks', 'root_tokens': ['taht',], 'ending': 'ks', 'clitic': '', 'partofspeech': 'V', 'root': 'taht', 'form': 'ks', 'lemma': 'tahtma'}] }
+    userdict = UserDictTagger(words_dict=words_dict, ignore_case=True, autocorrect_root=True)
     result_string = userdict.save_as_csv(None, delimiter=',')
     expected_string = 'text,normalized_text,root,ending,clitic,form,partofspeech\n'+\
         'abieluettepanek,,abielu_ettepanek,'+CSV_UNSPECIFIED_FIELD+','+CSV_UNSPECIFIED_FIELD+','+CSV_UNSPECIFIED_FIELD+',S\n'+\
@@ -258,8 +248,7 @@ def test_userdict_tagger_save_as_csv():
     fp.close()
     result_string2 = ''
     try:
-        userdict2 = UserDictTagger()
-        userdict2.add_words_from_csv_file(fp.name, encoding='utf-8', delimiter=',')
+        userdict2 = UserDictTagger( csv_file=fp.name, encoding='utf-8', delimiter=',' )
         result_string2 = userdict2.save_as_csv(None, delimiter=',')
     finally:
         # clean up: remove temporary file
@@ -274,15 +263,14 @@ def test_userdict_tagger_words_with_skip_existing_analyses():
     # Example text
     example_text_str = 'vampiiri olla öösel üts vai läbistand'
     # Create UserDictTagger that does not overwrite existing / analysed words
-    userdict = UserDictTagger( ignore_case=True, overwrite_existing=False )
-    userdict.add_word('vampiiri', \
-             [{'form': 'sg g', 'root': 'vampiir', 'ending':'0', 'partofspeech': 'S', 'clitic':''}] )
-    userdict.add_word('vai', \
-             [{'form': '', 'root': 'või', 'ending':'0', 'partofspeech': 'J', 'clitic':''}] )
-    userdict.add_word('üts', \
-             [{'form': 'sg n', 'root': 'üks', 'ending':'0', 'partofspeech': 'N', 'clitic':''}] )
-    userdict.add_word('läbistand', \
-             [{'form': 'nud', 'root': 'läbista', 'ending':'nud', 'partofspeech': 'V', 'clitic':''}] )
+    # Initialize a dictionary with multiple entries
+    words_dict = { \
+      'vampiiri':  [{'form': 'sg g', 'root': 'vampiir', 'ending':'0', 'partofspeech': 'S', 'clitic':''}],
+      'vai':       [{'form': '', 'root': 'või', 'ending':'0', 'partofspeech': 'J', 'clitic':''}],
+      'üts':       [{'form': 'sg n', 'root': 'üks', 'ending':'0', 'partofspeech': 'N', 'clitic':''}],
+      'läbistand': [{'form': 'nud', 'root': 'läbista', 'ending':'nud', 'partofspeech': 'V', 'clitic':''}],
+    }
+    userdict = UserDictTagger( words_dict=words_dict, ignore_case=True, overwrite_existing=False )
     text = Text( example_text_str )
     text.tag_layer( ['words', 'sentences'] )
     morph_analyser.tag( text )
