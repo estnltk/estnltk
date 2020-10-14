@@ -7,6 +7,8 @@ import copy
 import csv
 import io
 
+import warnings
+
 from typing import MutableMapping
 
 from estnltk.layer.layer import Annotation, Span, Layer
@@ -35,18 +37,48 @@ class UserDictTagger(Retagger):
 
     def __init__(self,
                  output_layer: str = 'morph_analysis',
+                 csv_file: str = None,
+                 words_dict: dict = None,
                  ignore_case: bool = False,
                  overwrite_existing: bool = True,
                  validate_vm_categories: bool = True,
                  autocorrect_root: bool = True,
-                 replace_missing_normalized_text_with_text: bool = False):
+                 replace_missing_normalized_text_with_text: bool = False,
+                 **kwargs):
         """ Initialize UserDictTagger class.
 
         Parameters
         ----------
         output_layer: str (default: 'morph_analysis')
             Name of the morphological analysis layer that is to be changed;
-        
+
+        csv_file: str (default: None)
+            Path to the csv file which contains entries to be used in this 
+            tagger. 
+            The first line of the file must specify order of fields 'root', 
+            'ending', 'clitic', 'form', 'partofspeech', 'text'. Each line 
+            following the heading must specify a single analysis for a word. 
+            The word itself must be under the column 'text'.
+
+        words_dict: dict (default: None)
+            A dictionary containing entries to be used in this tagger.
+            Entries must be in the form word -> analysis_struct, where:
+
+            word: str
+                A word which entry is added to the user dictionary.
+                If ignore_case is set, then it will be converted to lowercase.
+            
+            analysis_struct: dict or list
+                A list or dict containing morphological analyses of the word.
+                If analysis_struct is a dict, then it must contain at least one 
+                of the keys 'root', 'ending', 'clitic', 'form', 'partofspeech',
+                and the word's analyses in the text will be partially overwritten
+                with the keys-values in the dict.
+                If analysis_struct is a list (of dicts), then each of its dicts must 
+                contain keys 'root', 'ending', 'clitic', 'form', 'partofspeech',
+                and the word's analyses in the text will be completely overwritten
+                with the dicts in the list.
+
         ignore_case: bool (default: False)
             If True, then case will be ignored when matching words in the text
             with words in the dictionary. Basically, all words added to the 
@@ -79,6 +111,14 @@ class UserDictTagger(Retagger):
             If True, all existing analyses will be overwritten. Otherwise,
             only words with empty analyses will be overwritten, and non-
             empty analyses will remain unchanged.
+        
+        **kwargs
+            A dictionary that can contains additional parameters for specifying
+            the format of the csv_file. Parameters include: 'encoding', 'dialect'
+            and optional keyword arguments that can to be passed to the 
+            function csv.reader().
+            See https://docs.python.org/3/library/csv.html#csv.reader
+            for details.
         """
         self.output_layer = output_layer
         self.input_layers = [output_layer]
@@ -90,16 +130,49 @@ class UserDictTagger(Retagger):
         self.replace_missing_normalized_text_with_text = \
              replace_missing_normalized_text_with_text
         self._dict = {}
+        # Initialize #1: take data from the csv file
+        words_supplied = False
+        if csv_file is not None:
+            assert isinstance(csv_file, str), '(!) csv_file must be a file name (a string)'
+            # 1) Get additional CSV file format parameters from **kwargs
+            encoding = kwargs.get( 'encoding', 'utf-8' )
+            dialect  = kwargs.get( 'dialect', 'excel-tab' )
+            allow_unspecified_fields = kwargs.get( 'allow_unspecified_fields', True)
+            allowed_fmtparam_names = ['delimiter', 'doublequote', 'escapechar', 'lineterminator',
+                                      'quotechar', 'quoting', 'skipinitialspace', 'strict']
+            new_fmtparams = { name:kwargs.get(name) for name in allowed_fmtparam_names if name in kwargs.keys() }
+            # 2) Add words from the CSV file
+            self.add_words_from_csv_file(csv_file, encoding=encoding, 
+                                         dialect=dialect, 
+                                         allow_unspecified_fields=allow_unspecified_fields, 
+                                         suppress_deprecation_warnings=True,
+                                         **new_fmtparams)
+            words_supplied = True
+        # Initialize #2: take data from the input dictionary
+        if words_dict is not None:
+            assert isinstance(words_dict, dict), '(!) words_dict must be a dictionary containing word -> analyses mappings'
+            # Add words from a Python dictionary
+            for word in words_dict.keys():
+                analysis_struct = words_dict.get(word)
+                self.add_word( word, analysis_struct, suppress_deprecation_warnings=True )
+            words_supplied = True
+        if not words_supplied:
+            # Give a DeprecationWarning if an empty dictionary was created
+            warnings.warn('No dictionary entries specified. You should specify all dictionary entries '+\
+                          'upon initialization of the tagger via parameters csv_file or words_dict. '+\
+                          'In future versions, the empty initialization is no longer allowed.', DeprecationWarning)
 
 
-
-    def add_word(self, word, analysis_struct):
+    def add_word(self, word, analysis_struct, suppress_deprecation_warnings=False):
         """ Adds a word and its new morphological analysis to the user 
             dictionary.
             
             Note: if the user dictionary already contains entry for the word,
                   then the old entry will be overwritten with the new one;
-                  
+            
+            DeprecationWarning: please do not call this function directly.
+            It should be called only inside the __init__ method.
+            
             Partial overwriting
             --------------------
             If  analysis_struct  is a dict, then its content will be used for 
@@ -131,23 +204,31 @@ class UserDictTagger(Retagger):
             category names will be validated before accepting the entry (an 
             AssertionError will be thrown is validation fails).
             
-        Parameters
-        ----------
-        word: str
-            Word which entry is to be added to the user dictionary.
-            If ignore_case is set, it will be converted to lowercase.
-        
-        analysis_struct: dict or list
-            If analysis_struct is a dict, then it must contain at least one 
-            of the keys 'root', 'ending', 'clitic', 'form', 'partofspeech',
-            and the word's analyses in the text will be partially overwritten
-            with the keys-values in the dict.
-            If analysis_struct is a list (of dicts), then each of its dicts must 
-            contain keys 'root', 'ending', 'clitic', 'form', 'partofspeech',
-            and the word's analyses in the text will be completely overwritten
-            with the dicts in the list.
-
+            Parameters
+            ----------
+            word: str
+                Word which entry is to be added to the user dictionary.
+                If ignore_case is set, it will be converted to lowercase.
+            
+            analysis_struct: dict or list
+                If analysis_struct is a dict, then it must contain at least one 
+                of the keys 'root', 'ending', 'clitic', 'form', 'partofspeech',
+                and the word's analyses in the text will be partially overwritten
+                with the keys-values in the dict.
+                If analysis_struct is a list (of dicts), then each of its dicts must 
+                contain keys 'root', 'ending', 'clitic', 'form', 'partofspeech',
+                and the word's analyses in the text will be completely overwritten
+                with the dicts in the list.
+            
+            suppress_deprecation_warnings: bool
+                This function gives a deprecation warning when called directly. 
+                In future, it should be only called via add_words_from_csv_file(),
+                so you should not rely on the direct calling nor build upon it;
         """
+        if not suppress_deprecation_warnings:
+            warnings.warn('Adding words via add_word() will not be supported in future versions. '+\
+                          'Please use constructor parameter words_dict for passing dictionary entries to the tagger.', 
+                          DeprecationWarning)
         assert isinstance(word, str)
         assert isinstance(analysis_struct, (dict, list))
         # Ignore case (if required)
@@ -232,6 +313,7 @@ class UserDictTagger(Retagger):
     def add_words_from_csv_file(self, filename, encoding='utf-8', \
                                 dialect='excel-tab', 
                                 allow_unspecified_fields=True, 
+                                suppress_deprecation_warnings=False,
                                 **fmtparams):
         ''' Loads words with their morphological analyses from the given 
             csv file, and inserts to the user dictionary.
@@ -239,6 +321,9 @@ class UserDictTagger(Retagger):
             Note: any words already having entries in the user dictionary 
                   will have their old entries overwritten with the new 
                   ones;
+            
+            DeprecationWarning: please do not call this function directly.
+            It should be called only inside the __init__ method.
             
             By default, assumes that csv file is in tab-separated-values 
             format (dialect='excel-tab') and in the encoding 'utf-8'.
@@ -261,38 +346,46 @@ class UserDictTagger(Retagger):
             Note: after analyses have been collected from the file, they
             will be inserted to the dictionary via the method add_word().
             
-        Parameters
-        ----------
-        filename: str
-            Path to the csv file which contains entries. The first line of 
-            the file must specify order of fields 'root', 'ending', 'clitic', 
-            'form', 'partofspeech', 'text'. Each line following the heading 
-            must specify a single analysis for a word. The word itself must 
-            be under the column 'text'.
-        
-        encoding: str (Default: 'utf-8')
-            Encoding of the csv file.
-        
-        dialect: str (Default: 'excel-tab')
-            Parameter dialect to be passed to the function csv.reader().
-            See https://docs.python.org/3/library/csv.html#csv.reader
-            for details.
+            Parameters
+            ----------
+            filename: str
+                Path to the csv file which contains entries. The first line of 
+                the file must specify order of fields 'root', 'ending', 'clitic', 
+                'form', 'partofspeech', 'text'. Each line following the heading 
+                must specify a single analysis for a word. The word itself must 
+                be under the column 'text'.
+            
+            encoding: str (Default: 'utf-8')
+                Encoding of the csv file.
+            
+            dialect: str (Default: 'excel-tab')
+                Parameter dialect to be passed to the function csv.reader().
+                See https://docs.python.org/3/library/csv.html#csv.reader
+                for details.
 
-        allow_unspecified_fields: bool (default: True)
-            If True (default), then some of the fileds/values can be left
-            unspecified in the csv file, which enables defining entries of 
-            partial overwriting. An unspecified field/value is marked with 
-            the constant CSV_UNSPECIFIED_FIELD. If an entry has at least 
-            one unspecified field/value, then it is considered as a partial 
-            overwriting entry, otherwise, it is considered as a complete 
-            overwriting entry.
+            allow_unspecified_fields: bool (default: True)
+                If True (default), then some of the fileds/values can be left
+                unspecified in the csv file, which enables defining entries of 
+                partial overwriting. An unspecified field/value is marked with 
+                the constant CSV_UNSPECIFIED_FIELD. If an entry has at least 
+                one unspecified field/value, then it is considered as a partial 
+                overwriting entry, otherwise, it is considered as a complete 
+                overwriting entry.
 
-        fmtparams: 
-            Optional keyword arguments to be passed to the function 
-            csv.reader().
-            See https://docs.python.org/3/library/csv.html#csv.reader
-            for details.
+            fmtparams: 
+                Optional keyword arguments to be passed to the function 
+                csv.reader().
+                See https://docs.python.org/3/library/csv.html#csv.reader
+                for details.
+
+            suppress_deprecation_warnings: bool
+                This function gives a deprecation warning when called directly. 
+                In future, it should be only called via the constructor, so 
+                you should not rely on the direct calling nor build upon it;
         '''
+        if not suppress_deprecation_warnings:
+            warnings.warn('Adding words via add_words_from_csv_file() will not be supported in future versions. '+\
+                          'Please use constructor parameter csv_file instead.', DeprecationWarning)
         collected_analyses = {}
         with open(filename, 'r', newline='', encoding=encoding) as csvfile:
             fle_reader = csv.reader(csvfile, dialect=dialect, **fmtparams)
@@ -357,7 +450,7 @@ class UserDictTagger(Retagger):
                     #print(', '.join(row))
         # Rewrite all analyses into the user dict
         for word in collected_analyses.keys():
-            self.add_word( word, collected_analyses[word] )
+            self.add_word( word, collected_analyses[word], suppress_deprecation_warnings=suppress_deprecation_warnings )
 
 
     def save_as_csv(self, filename, encoding='utf-8', \
