@@ -158,9 +158,11 @@ class UserDictTagger(Retagger):
             words_supplied = True
         if not words_supplied:
             # Give a DeprecationWarning if an empty dictionary was created
+            warnings.simplefilter("always", DeprecationWarning)
             warnings.warn('No dictionary entries specified. You should specify all dictionary entries '+\
                           'upon initialization of the tagger via parameters csv_file or words_dict. '+\
                           'In future versions, the empty initialization is no longer allowed.', DeprecationWarning)
+            warnings.simplefilter("ignore", DeprecationWarning)
 
 
     def add_word(self, word, analysis_struct, suppress_deprecation_warnings=False):
@@ -226,9 +228,11 @@ class UserDictTagger(Retagger):
                 so you should not rely on the direct calling nor build upon it;
         """
         if not suppress_deprecation_warnings:
+            warnings.simplefilter("always", DeprecationWarning)
             warnings.warn('Adding words via add_word() will not be supported in future versions. '+\
                           'Please use constructor parameter words_dict for passing dictionary entries to the tagger.', 
                           DeprecationWarning)
+            warnings.simplefilter("ignore", DeprecationWarning)
         assert isinstance(word, str)
         assert isinstance(analysis_struct, (dict, list))
         # Ignore case (if required)
@@ -384,8 +388,10 @@ class UserDictTagger(Retagger):
                 you should not rely on the direct calling nor build upon it;
         '''
         if not suppress_deprecation_warnings:
+            warnings.simplefilter("always", DeprecationWarning)
             warnings.warn('Adding words via add_words_from_csv_file() will not be supported in future versions. '+\
                           'Please use constructor parameter csv_file instead.', DeprecationWarning)
+            warnings.simplefilter("ignore", DeprecationWarning)
         collected_analyses = {}
         with open(filename, 'r', newline='', encoding=encoding) as csvfile:
             fle_reader = csv.reader(csvfile, dialect=dialect, **fmtparams)
