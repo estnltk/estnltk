@@ -22,7 +22,8 @@ class Text:
         'diff',
         'layers',
         'list_layers',
-        'tag_layer'
+        'tag_layer',
+        'topological_sort',
     } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
     # attribute_mapping_for_elementary_layers: Mapping[str, str]
