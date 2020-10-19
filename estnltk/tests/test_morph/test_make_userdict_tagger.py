@@ -255,3 +255,82 @@ def test_make_userdict_2():
     # Check results
     assert dict_to_layer( expected_layer_dict ) == text['morph_analysis']
 
+
+def test_make_userdict_3():
+    # Case 3 (some words may have more than one possible normalizations)
+    
+    text = Text("Mxne mehed neet nyt")
+    # Tag required layers
+    text.tag_layer(['words', 'sentences', 'morph_analysis'])
+    # Create UserDictTagger with corrections
+    userdict = make_userdict({'mxne':['mõne', 'mõned'],
+                              'neet':'need',
+                              'nyt':'nüüd'}, 
+                              ignore_case=True)
+    # Tag corrections
+    userdict.retag(text)
+    #from pprint import pprint
+    #pprint(layer_to_dict( text['morph_analysis'] ))
+    expected_layer_dict = \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'mõni',
+                                     'normalized_text': 'mõne',
+                                     'partofspeech': 'P',
+                                     'root': 'mõni',
+                                     'root_tokens': ['mõni']},
+                                    {'clitic': '',
+                                     'ending': 'd',
+                                     'form': 'pl n',
+                                     'lemma': 'mõni',
+                                     'normalized_text': 'mõned',
+                                     'partofspeech': 'P',
+                                     'root': 'mõni',
+                                     'root_tokens': ['mõni']}],
+                    'base_span': (0, 4)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'd',
+                                     'form': 'pl n',
+                                     'lemma': 'mees',
+                                     'normalized_text': 'mehed',
+                                     'partofspeech': 'S',
+                                     'root': 'mees',
+                                     'root_tokens': ['mees']}],
+                    'base_span': (5, 10)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'd',
+                                     'form': 'pl n',
+                                     'lemma': 'see',
+                                     'normalized_text': 'need',
+                                     'partofspeech': 'P',
+                                     'root': 'see',
+                                     'root_tokens': ['see']}],
+                    'base_span': (11, 15)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'nüüd',
+                                     'normalized_text': 'nüüd',
+                                     'partofspeech': 'D',
+                                     'root': 'nüüd',
+                                     'root_tokens': ['nüüd']}],
+                    'base_span': (16, 19)}]
+    }
+    # Check results
+    assert dict_to_layer( expected_layer_dict ) == text['morph_analysis']
+
