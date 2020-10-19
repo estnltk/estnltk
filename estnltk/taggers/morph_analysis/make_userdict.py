@@ -90,12 +90,12 @@ def make_userdict( lexicon,
                 continue
             # Collect analyses / annotations
             corresponding_annotations = []
-            surface_forms = []
+            new_normalized_forms = []
             while word_id < len( analysable_text[ vm_analyzer.output_layer ] ):
                 morph_word = analysable_text[ vm_analyzer.output_layer ][word_id]
                 if morph_word.text != _WORD_SEPARATOR:
                     corresponding_annotations.append( morph_word.annotations )
-                    surface_forms.append( morph_word.text )
+                    new_normalized_forms.append( morph_word.text )
                 word_id += 1
                 if morph_word.text == _WORD_SEPARATOR:
                     break
@@ -104,7 +104,7 @@ def make_userdict( lexicon,
             entries = []
             for aid, word_annotations in enumerate( corresponding_annotations ):
                 for annotation in word_annotations:
-                    entry = { NORMALIZED_TEXT : surface_forms[aid] }
+                    entry = { NORMALIZED_TEXT : new_normalized_forms[aid] }
                     for key in ['root', 'ending', 'clitic', 'form', 'partofspeech']:
                         entry[key] = annotation[key]
                     entries.append( entry )
