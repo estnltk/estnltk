@@ -129,7 +129,7 @@ class CorpusBasedMorphDisambiguator( object ):
     # =========================================================
 
 
-    def _create_proper_names_lexicon(self, docs):
+    def _create_proper_names_lexicon(self, docs, docs_detached_layers):
         """ Creates a proper name frequency dictionary based on the 
             collection of documents.
             Each entry in the dictionary describes how many times
@@ -137,8 +137,8 @@ class CorpusBasedMorphDisambiguator( object ):
             (including ambiguous appearances).
         """
         lemmaFreq = defaultdict(int)
-        for doc in docs:
-            for word_morph in doc[ self.output_layer ]:
+        for doc_id, doc in enumerate(docs):
+            for word_morph in docs_detached_layers[doc_id][self.output_layer]:
                 # 1) Find all unique proper name lemmas of
                 #    this word 
                 uniqLemmas = set()
@@ -151,7 +151,7 @@ class CorpusBasedMorphDisambiguator( object ):
         return lemmaFreq
 
 
-    def _disambiguate_proper_names_1(self, docs, lexicon):
+    def _disambiguate_proper_names_1(self, docs, docs_detached_layers, lexicon):
         """ Step 1 in removal of redundant proper names analyses: 
             if a word has multiple proper name analyses with different 
             frequencies, keep only the analysis that has the highest
@@ -159,17 +159,17 @@ class CorpusBasedMorphDisambiguator( object ):
         """
         disamb_retagger = ProperNamesDisambiguationStep1Retagger(lexicon,\
                           morph_analysis_layer=self.output_layer)
-        for doc in docs:
-            disamb_retagger.retag( doc )
+        for doc_id, doc in enumerate( docs ):
+            disamb_retagger.change_layer( doc, docs_detached_layers[doc_id] )
 
-    def _find_certain_proper_names(self, docs):
+    def _find_certain_proper_names(self, docs, docs_detached_layers):
         """ Creates the list of certain proper names: finds words that 
             only have proper name analyses and, gathers all unique proper 
             name lemmas from there;
         """
         certain_names = set()
-        for doc in docs:
-            for word_morph in doc[self.output_layer]:
+        for doc_id, doc in enumerate( docs ):
+            for word_morph in docs_detached_layers[doc_id][self.output_layer]:
                 # Check if word only has proper name analyses
                 if all([a.partofspeech == 'H' for a in word_morph.annotations]):
                     # If so, record its lemmas as "certain proper name lemmas"
@@ -177,7 +177,7 @@ class CorpusBasedMorphDisambiguator( object ):
                         certain_names.add(analysis.root)
         return certain_names
 
-    def _find_sentence_initial_proper_names(self, docs):
+    def _find_sentence_initial_proper_names(self, docs, docs_detached_layers):
         """ Creates the list of sentence-initial proper names.
             Finds words that have ambiguities between proper name and 
             regular analyses, and that are in the beginning of sentence, 
@@ -185,11 +185,11 @@ class CorpusBasedMorphDisambiguator( object ):
             of such words;
         """
         sentInitialNames = set()
-        for doc in docs:
-            sentences = doc[ self._input_sentences_layer ]
+        for doc_id, doc in enumerate( docs ):
+            sentences = docs_detached_layers[doc_id][self._input_sentences_layer]
             sentence_id = 0
             nextSentenceInitialPosition = -1
-            morph_analysis = doc[ self.output_layer ]
+            morph_analysis = docs_detached_layers[doc_id][self.output_layer]
             for wid, word_morph in enumerate( morph_analysis ):
                 current_sentence = sentences[sentence_id]
                 # Check if the word is in sentence-initial position:
@@ -224,7 +224,7 @@ class CorpusBasedMorphDisambiguator( object ):
         return sentInitialNames
 
 
-    def _find_sentence_central_proper_names(self, docs):
+    def _find_sentence_central_proper_names(self, docs, docs_detached_layers):
         """ Creates the list of sentence-central proper names.
             Finds words that have ambiguities between proper name and 
             regular analyses, and that in central position of the 
@@ -232,11 +232,11 @@ class CorpusBasedMorphDisambiguator( object ):
             such words;
         """
         sentCentralNames = set()
-        for doc in docs:
-            sentences = doc[ self._input_sentences_layer ]
+        for doc_id, doc in enumerate( docs ):
+            sentences = docs_detached_layers[doc_id][self._input_sentences_layer]
             sentence_id = 0
             nextSentenceInitialPosition = -1
-            morph_analysis = doc[ self.output_layer ]
+            morph_analysis = docs_detached_layers[doc_id][self.output_layer]
             for wid, word_morph in enumerate( morph_analysis ):
                 current_sentence = sentences[sentence_id]
                 # Check if the word is in sentence-initial position:
@@ -270,7 +270,7 @@ class CorpusBasedMorphDisambiguator( object ):
         return sentCentralNames
 
 
-    def _remove_redundant_proper_names(self, docs, notProperNames):
+    def _remove_redundant_proper_names(self, docs, docs_detached_layers, notProperNames):
         """ Step 2 in removal of redundant proper names analyses: 
             if a word has  multiple  analyses, and  some  of  these 
             are in the lexicon notProperNames, then delete analyses 
@@ -278,11 +278,11 @@ class CorpusBasedMorphDisambiguator( object ):
          """
         disamb_retagger = ProperNamesDisambiguationStep2Retagger(notProperNames,\
                           morph_analysis_layer=self.output_layer)
-        for doc in docs:
-            disamb_retagger.retag( doc )
+        for doc_id, doc in enumerate( docs ):
+            disamb_retagger.change_layer( doc, docs_detached_layers[doc_id] )
 
 
-    def _disambiguate_proper_names_2(self, docs, lexicon):
+    def _disambiguate_proper_names_2(self, docs, docs_detached_layers, lexicon):
         """ Step 3 in removal of redundant proper names analyses: 
             -- in case of sentence-central ambiguous proper names, keep 
                only proper name analyses;
@@ -295,8 +295,8 @@ class CorpusBasedMorphDisambiguator( object ):
                           morph_analysis_layer=self.output_layer,\
                           input_words_layer=self._input_words_layer,\
                           input_sentences_layer=self._input_sentences_layer )
-        for doc in docs:
-            disamb_retagger.retag( doc )
+        for doc_id, doc in enumerate( docs ):
+            disamb_retagger.change_layer( doc, docs_detached_layers[doc_id] )
 
 
     def predisambiguate(self, docs):
@@ -308,38 +308,73 @@ class CorpusBasedMorphDisambiguator( object ):
               a) a list of Text objects;
               b) a list of lists of Text objects;
         """
-        # 0) Determine input structure
-        flat_docs = []
-        input_format = None
-        if is_list_of_texts( docs ):
-            input_format = 'I'
-        elif is_list_of_lists_of_texts( docs ):
-            input_format = 'II'
-        if input_format in ['I', 'II'] and len(docs) == 0:
-            input_format = '0'
+        # Determine input structure
+        input_format = determine_input_corpus_structure(docs)
+        # Collect detached layers
+        detached_layers = []
         if input_format in ['I', '0']:
-            flat_docs = docs
+            for doc in docs:
+                layers = {}
+                for layer in self.input_layers:
+                    if layer in doc.layers:
+                        layers[layer] = doc[layer]
+                detached_layers.append(layers)
         elif input_format == 'II':
-            # Flatten the collection
-            flat_docs = [doc for sub_docs in docs for doc in sub_docs]
+            for docs_list in docs:
+                detached_layers.append([])
+                for doc in docs_list:
+                    layers = {}
+                    for layer in self.input_layers:
+                        if layer in doc.layers:
+                            layers[layer] = doc[layer]
+                    detached_layers[-1].append(layers)
+        # Predisambiguate on docs and detached layers
+        self._predisambiguate_detached_layers( docs, detached_layers, input_format_hint=input_format )
+
+
+    def _predisambiguate_detached_layers(self, docs, detached_layers, input_format_hint=None ):
+        """ Pre-disambiguates proper names based on lemma counts 
+            obtained from the input corpus. 
+            The algorithm is applied on docs with detached_layers;
+            Note: this interface mimics the _change_layer interface of Retagger;
+        """
+        # Determine input structure (if not already determined)
+        if input_format_hint is None:
+            input_format_hint = determine_input_corpus_structure(docs)
+        else:
+            if input_format_hint not in ['I', 'II', '0']:
+                raise ValueError('(!) Unexpected input_format_hint value {}.'.format(input_format_hint)+\
+                                 ' The value should be from the set {"I","II","0"}.')
+        # Validate the input collection for required layers
         if self._validate_inputs:
-            # Validate input structure
-            assert input_format is not None, \
-                   '(!) Unexpected input structure. Input argument docs should be '+\
-                   'either a list of Text objects, or a list of lists of Text objects.'
-            # Validate input Texts for required layers
-            self._validate_docs_for_required_layers( flat_docs )
+            self._validate_docs_for_required_layers( docs, detached_layers, \
+                                                     input_format_hint=input_format_hint)
+        # Restructure input (if required)
+        flat_docs = []
+        flat_detached_layers = []
+        if input_format_hint in ['I', '0']:
+            flat_docs = docs
+            flat_detached_layers = detached_layers
+        elif input_format_hint == 'II':
+            # Flatten the collection
+            flat_docs = \
+                 [doc for sub_docs in docs for doc in sub_docs]
+            flat_detached_layers = \
+                 [layer for sub_layers in detached_layers for layer in sub_layers]
+        # Sanity check
+        assert len(flat_detached_layers) == len(flat_docs), \
+             ' (!) Inconsistent input: the size of detached_layers is not equal to size of flat_docs.'
         # 1) Find frequencies of proper name lemmas
-        lexicon = self._create_proper_names_lexicon( flat_docs )
+        lexicon = self._create_proper_names_lexicon( flat_docs, flat_detached_layers )
         # 2) First disambiguation: if a word has multiple proper name
         #    analyses with different frequencies, keep only the analysis
         #    with the highest corpus frequency ...
-        self._disambiguate_proper_names_1( flat_docs, lexicon )
+        self._disambiguate_proper_names_1( flat_docs, flat_detached_layers, lexicon )
         # 3) Find certain proper names, sentence-initial proper names,
         #    and sentence-central proper names 
-        certainNames     = self._find_certain_proper_names(flat_docs)
-        sentInitialNames = self._find_sentence_initial_proper_names(flat_docs)
-        sentCentralNames = self._find_sentence_central_proper_names(flat_docs)
+        certainNames     = self._find_certain_proper_names(flat_docs, flat_detached_layers)
+        sentInitialNames = self._find_sentence_initial_proper_names(flat_docs, flat_detached_layers)
+        sentCentralNames = self._find_sentence_central_proper_names(flat_docs, flat_detached_layers)
         
         # 3.1) Find names only sentence initial, not sentence central
         onlySentenceInitial = sentInitialNames.difference(sentCentralNames)
@@ -350,11 +385,11 @@ class CorpusBasedMorphDisambiguator( object ):
         notProperNames = onlySentenceInitial.difference(certainNames)
         # 3.3) Second disambiguation: remove sentence initial proper names
         #      that are most likely false positives
-        self._remove_redundant_proper_names(flat_docs, notProperNames)
+        self._remove_redundant_proper_names(flat_docs, flat_detached_layers, notProperNames)
 
         # 4) Find frequencies of proper name lemmas once again
         #    ( taking account that frequencies may have been changed )
-        lexicon = self._create_proper_names_lexicon( flat_docs )
+        lexicon = self._create_proper_names_lexicon( flat_docs, flat_detached_layers )
 
         # 5) Remove redundant proper name analyses from words 
         #    that are ambiguous between proper name analyses 
@@ -365,7 +400,7 @@ class CorpusBasedMorphDisambiguator( object ):
         #       if the proper name has corpus frequency greater than
         #       1, then keep only proper name analyses. 
         #       Otherwise, leave analyses intact;
-        self._disambiguate_proper_names_2(flat_docs, lexicon)
+        self._disambiguate_proper_names_2(flat_docs, flat_detached_layers, lexicon)
 
 
     # =========================================================
@@ -374,7 +409,7 @@ class CorpusBasedMorphDisambiguator( object ):
     # =========================================================
     # =========================================================
 
-    def _remove_duplicate_and_problematic_analyses(self, docs):
+    def _remove_duplicate_and_problematic_analyses(self, docs, docs_detached_layers):
         """ Removes duplicate and problematic analyses from the 
             document collection. 
             See RemoveDuplicateAndProblematicAnalysesRetagger for 
@@ -382,12 +417,13 @@ class CorpusBasedMorphDisambiguator( object ):
          """
         duplicate_remover = RemoveDuplicateAndProblematicAnalysesRetagger(
                                 morph_analysis_layer=self.output_layer )
-        for doc in docs:
-            duplicate_remover.retag( doc )
+        for doc_id, doc in enumerate( docs ):
+            duplicate_remover.change_layer( doc, docs_detached_layers[doc_id] )
 
 
     def _add_hidden_analyses_layers(self, 
               docs, 
+              docs_detached_layers, 
               hidden_words_layer:str='_hidden_morph_analysis',
               remove_old_hidden_words_layer:bool=False):
         """ Finds morphological ambiguities that should be ignored 
@@ -401,22 +437,26 @@ class CorpusBasedMorphDisambiguator( object ):
         if remove_old_hidden_words_layer:
             # Clean-up old layers (if required)
             self._remove_hidden_analyses_layers( docs, 
+                         docs_detached_layers, 
                          hidden_words_layer = hidden_words_layer )
-        for doc in docs:
+        for doc_id, doc in enumerate( docs ):
             # Create temporary hidden words layer
-            hidden_words_tagger.tag( doc )
+            new_layer = hidden_words_tagger.make_layer( doc, docs_detached_layers[doc_id] )
+            docs_detached_layers[doc_id][hidden_words_layer] = new_layer
+
 
     @staticmethod
-    def _remove_hidden_analyses_layers(docs, hidden_words_layer: str = '_hidden_morph_analysis'):
+    def _remove_hidden_analyses_layers(docs, docs_detached_layers, hidden_words_layer: str = '_hidden_morph_analysis'):
         """ Removes temporary hidden_words_layer-s that were 
             created with the method _add_hidden_analyses_layers().
         """
-        for doc in docs:
-            if hidden_words_layer in doc.layers:
+        for doc_id, doc in enumerate( docs ):
+            if hidden_words_layer in docs_detached_layers[doc_id]:
                 # Delete existing layer
-                doc.pop_layer(hidden_words_layer)
+                del docs_detached_layers[doc_id][hidden_words_layer]
 
-    def _supplement_lemma_frequency_lexicon(self, docs, lexicon, amb_lexicon,
+
+    def _supplement_lemma_frequency_lexicon(self, docs, docs_detached_layers, lexicon, amb_lexicon,
                                                   hidden_words_layer:str='_hidden_morph_analysis' ):
         """ Counts lemma frequencies in docs, and amends given lexicon and amb_lexicon.
             *) lexicon -- frequencies of all lemmas in the corpus, except lemmas 
@@ -429,10 +469,11 @@ class CorpusBasedMorphDisambiguator( object ):
                increased by the new one;
         """
         for d in range( len(docs) ):
-            morph_analysis = docs[d][ self.output_layer ]
-            assert hidden_words_layer in docs[d].layers, \
+            layers = docs_detached_layers[d]
+            morph_analysis = layers[ self.output_layer ]
+            assert hidden_words_layer in layers, \
                    '(!) Text is missing layer {!r}'.format( hidden_words_layer )
-            hidden_words = docs[d][ hidden_words_layer ]
+            hidden_words = layers[ hidden_words_layer ]
             hidden_words_id = 0
             for w, word_morph in enumerate( morph_analysis ):
                 # Skip so-called hidden word / hidden ambiguities
@@ -500,8 +541,9 @@ class CorpusBasedMorphDisambiguator( object ):
         for lemma in amb_lexicon.keys():
             amb_lexicon[lemma] = lexicon[lemma]
 
-    def _disambiguate_with_lexicon(self, docs, lexicon, \
-                      hidden_words_layer:str='_hidden_morph_analysis' ):
+
+    def _disambiguate_with_lexicon(self, docs, docs_detached_layers, lexicon, \
+                                   hidden_words_layer:str='_hidden_morph_analysis' ):
         """ Performs lemma-based post-disambiguation. 
             Very roughly uses the idea "one sense per discourse" for lemmas.
             See LemmaBasedPostDisambiguationRetagger for details.
@@ -512,12 +554,11 @@ class CorpusBasedMorphDisambiguator( object ):
                             input_hidden_morph_analysis_layer=hidden_words_layer, \
                             disambiguate_last_words_of_compounds=self._disamb_compound_words, \
                             ignore_last_words=self._ignore_lemmas_in_compounds )
-        for doc in docs:
-            lemma_based_disambiguator.retag( doc )
+        for doc_id, doc in enumerate( docs ):
+            lemma_based_disambiguator.change_layer( doc, docs_detached_layers[doc_id] )
 
 
-
-    def postdisambiguate(self, collections):
+    def postdisambiguate(self, in_collections):
         """ Post-disambiguates ambiguous analyses based on lemma counts 
             obtained from the input corpus.
             In a nutshell: uses the idea "one sense per discourse" for 
@@ -532,38 +573,71 @@ class CorpusBasedMorphDisambiguator( object ):
             performed within each sub list of Texts, and then performed
             within the whole collection.
         """ 
-        # 0) Determine input structure
-        in_collections = []
-        input_format = None
-        if is_list_of_texts( collections ):
-            input_format = 'I'
-        elif is_list_of_lists_of_texts( collections ):
-            input_format = 'II'
-        if input_format in ['I', 'II'] and len(collections) == 0:
-            input_format = '0'
+        # 1) Determine input structure
+        input_format = determine_input_corpus_structure(in_collections)
+        # 2) Make detached_layers
+        detached_layers = []
         if input_format == 'I':
-            in_collections = [ collections ]
+            for doc in in_collections:
+                layers = {}
+                for layer in self.input_layers:
+                    if layer in doc.layers:
+                        layers[layer] = doc[layer]
+                detached_layers.append(layers)
         elif input_format == 'II':
-            # Flatten the collection
-            in_collections = collections
+            for docs_list in in_collections:
+                detached_layers.append( [] )
+                for doc in docs_list:
+                    layers = {}
+                    for layer in self.input_layers:
+                        if layer in doc.layers:
+                            layers[layer] = doc[layer]
+                    detached_layers[-1].append(layers)
+        # 3) Post-disambiguate
+        self._postdisambiguate_detached_layers( in_collections, detached_layers, \
+                                                input_format_hint=input_format)
+
+
+    def _postdisambiguate_detached_layers(self, in_collections, detached_layers, input_format_hint=None):
+        """ Post-disambiguates ambiguous analyses based on lemma counts 
+            obtained from the input corpus.
+            The algorithm is applied on a collection of docs with detached_layers.
+            Note: this interface mimics the _change_layer interface of Retagger;
+        """
+        # Determine input structure (if not already determined)
+        if input_format_hint is None:
+            input_format_hint=determine_input_corpus_structure(in_collections)
+        else:
+            if input_format_hint not in ['I', 'II', '0']:
+                raise ValueError('(!) Unexpected input_format_hint value {}.'.format(input_format_hint)+\
+                                 ' The value should be from the set {"I","II","0"}.')
+        # Validate the input collection for required layers
         if self._validate_inputs:
-            # Validate input structure
-            assert input_format is not None, \
-                   '(!) Unexpected input structure. Input argument collections should be '+\
-                   'either a list of Text objects, or a list of lists of Text objects.'
-            # Validate input Texts for required layers
-            for docs in in_collections:
-                self._validate_docs_for_required_layers( docs )
+            self._validate_docs_for_required_layers( in_collections, detached_layers, \
+                                                     input_format_hint=input_format_hint)
+        # Restructure input (if required)
+        _in_collections = []
+        in_detached_layers = []
+        if input_format_hint == 'I':
+            _in_collections = [ in_collections ]
+            in_detached_layers = [ detached_layers ]
+        elif input_format_hint == 'II':
+            _in_collections = in_collections
+            in_detached_layers = detached_layers
+        # Sanity checks on input
+        assert len(_in_collections) == len(in_detached_layers)
+        assert [len(docs) for docs in _in_collections] == [len(lyrs) for lyrs in in_detached_layers]
         #
         #  1st phase:  post-disambiguate inside a single document collection
         #     (e.g. disambiguate all news articles published on the same day)
         #
-        for docs in in_collections:
+        for collection_id, docs in enumerate(_in_collections):
+            detached_layers = in_detached_layers[collection_id]
             # 1) Remove duplicate and problematic analyses
-            self._remove_duplicate_and_problematic_analyses( docs )
+            self._remove_duplicate_and_problematic_analyses( docs, detached_layers )
             # 2) Find ambiguities that should be ignored by the post-disambiguator
             #    add results as a new (temporary) layer
-            self._add_hidden_analyses_layers( docs )
+            self._add_hidden_analyses_layers( docs, detached_layers )
             # 3) Collect two types of lemma frequencies:
             #    *) general lemma frequencies over all words (except words marked
             #       as ignored words);
@@ -571,47 +645,52 @@ class CorpusBasedMorphDisambiguator( object ):
             #       as ignored words);
             genLemmaLex = dict()
             ambLemmaLex = dict()
-            self._supplement_lemma_frequency_lexicon(docs, genLemmaLex, ambLemmaLex)
+            self._supplement_lemma_frequency_lexicon(docs, detached_layers, \
+                                                     genLemmaLex, ambLemmaLex)
             # 4) Perform lemma-based post-disambiguation;
             #    In case of ambiguous words, keep analyses with the highest lemma 
             #    frequency. An exception: if all lemma frequencies are equal, then 
             #    keep all the analyses;
-            self._disambiguate_with_lexicon( docs, ambLemmaLex )
+            self._disambiguate_with_lexicon( docs, detached_layers, ambLemmaLex )
             # 5) Clean-up: remove hidden analyses layers
-            self._remove_hidden_analyses_layers( docs )
+            self._remove_hidden_analyses_layers( docs, detached_layers )
         #
         #  2nd phase:  post-disambiguate over all document collections
         #              (for instance, disambiguate over all news editions published
         #               in a single year, each edition consists of articles published
         #               on a single day)
         #
-        if len(in_collections) > 1:
+        if len(_in_collections) > 1:
             # lexicons over the whole corpus
             genLemmaLex = dict()
             ambLemmaLex = dict()
-            for docs in in_collections:
+            for collection_id, docs in enumerate(_in_collections):
+                detached_layers = in_detached_layers[collection_id]
                 # 1) Find ambiguities that should be ignored by the post-
                 #    disambiguator; add results as a new (temporary) layer
-                self._add_hidden_analyses_layers( docs )
+                self._add_hidden_analyses_layers( docs, detached_layers )
                 # 2) Collect two types of lemma frequencies:
                 #    *) general lemma frequencies over all words (except words 
                 #       marked as ignored words);
                 #    *) lemma frequencies of ambiguous words (except words 
                 #       marked as ignored words);
-                self._supplement_lemma_frequency_lexicon(docs, genLemmaLex, ambLemmaLex)
+                self._supplement_lemma_frequency_lexicon(docs, detached_layers, \
+                                                         genLemmaLex, ambLemmaLex)
             # perform the second phase of post-disambiguation
-            for docs in in_collections:
+            for collection_id, docs in enumerate(_in_collections):
+                detached_layers = in_detached_layers[collection_id]
                 # 1) Find ambiguities that should be ignored by the post-
                 #    disambiguator; add results as a new (temporary) layer
                 #    TODO: why it is necessary to add the layer 2nd time?
-                self._add_hidden_analyses_layers( docs, remove_old_hidden_words_layer=True )
+                self._add_hidden_analyses_layers( docs, detached_layers,
+                                                  remove_old_hidden_words_layer=True )
                 # 2) Perform lemma-based post-disambiguation;
                 #    In case of ambiguous words, keep analyses with the highest lemma 
                 #    frequency. An exception: if all lemma frequencies are equal, then 
                 #    keep all the analyses;
-                self._disambiguate_with_lexicon( docs, ambLemmaLex )
+                self._disambiguate_with_lexicon( docs, detached_layers, ambLemmaLex )
                 # 3) Clean-up: remove hidden analyses layers
-                self._remove_hidden_analyses_layers( docs )
+                self._remove_hidden_analyses_layers( docs, detached_layers )
             # And we're done! (for now)
 
 
@@ -619,21 +698,59 @@ class CorpusBasedMorphDisambiguator( object ):
     #     Input validation
     # =========================================================
 
-    def _validate_docs_for_required_layers( self, docs:list ):
-        """ Checks that all documens have the layers required
-            by this disambiguator.  If  one  of  the documents 
-            in the collection misses some of the layers, raises
-            an expection.
+    def _validate_docs_for_required_layers( self, in_collections:list, detached_layers:list, input_format_hint=None):
+        """ Checks that all documents' detached_layers include the 
+            layers required by this disambiguator.  If one of the 
+            documents in the collection misses some of the layers, 
+            raises an expection.
         """
-        required_layers = self.input_layers
-        for doc_id, doc in enumerate( docs ):
-            assert isinstance(doc, Text)
-            missing = []
-            for layer in required_layers:
-                if layer not in doc.layers:
-                    missing.append( layer )
-            if missing:
-                raise Exception('(!) {!r} is missing layers: {!r}'.format(doc, missing))
+        # Determine the input corpus structure
+        if input_format_hint is None:
+            input_format_hint=determine_input_corpus_structure(in_collections)
+        else:
+            if input_format_hint not in ['I', 'II', '0']:
+                raise ValueError('(!) Unexpected input_format_hint value {}.'.format(input_format_hint)+\
+                                 'The value should be from the set {"I","II","0"}.')
+        # Validate the structure
+        if input_format_hint == 'I':
+            assert len(in_collections) == len(detached_layers)
+            for doc_id, doc in enumerate(in_collections):
+                doc_detached_layers = detached_layers[doc_id]
+                assert isinstance(doc, Text)
+                assert isinstance(doc_detached_layers, dict)
+                missing = []
+                not_detached = []
+                for layer in self.input_layers:
+                    if layer not in doc_detached_layers:
+                        if layer in doc.layers:
+                            not_detached.append( layer )
+                        missing.append( layer )
+                if not_detached:
+                    raise Exception( '(!) {!r} has layers {!r}, but they are not in detached_layers: {!r}'.\
+                          format(doc,not_detached,detached_layers.keys()))
+                if missing:
+                    raise Exception('(!) {!r} is missing layers {!r} from its detached_layers.'.format(doc, missing))
+        elif input_format_hint == 'II':
+            assert len(in_collections) == len(detached_layers)
+            for cid, docs_list in enumerate(in_collections):
+                assert len(docs_list) == len(detached_layers[cid])
+                for doc_id, doc in enumerate(docs_list):
+                    doc_detached_layers = detached_layers[cid][doc_id]
+                    assert isinstance(doc, Text)
+                    assert isinstance(doc_detached_layers, dict)
+                    missing = []
+                    not_detached = []
+                    for layer in self.input_layers:
+                        if layer not in doc_detached_layers:
+                            if layer in doc.layers:
+                                not_detached.append( layer )
+                            missing.append( layer )
+                    if not_detached:
+                        raise Exception( '(!) {!r} has layers {!r}, but they are not in detached_layers: {!r}'.\
+                              format(doc,not_detached,detached_layers.keys()))
+                    if missing:
+                        raise Exception('(!) {!r} is missing layers {!r} from its detached_layers.'.format(doc, missing))
+
 
     # =========================================================
     # =========================================================
@@ -682,6 +799,30 @@ class CorpusBasedMorphDisambiguator( object ):
 #     Helpers
 # =========================================================
 # =========================================================
+
+def determine_input_corpus_structure( in_collections:list, validate=True ):
+    """ Determines which type of structure of the input collection has.
+        Returns:
+           '0'  -- the input is an empty list;
+           'I'  -- the input is a list of Text objects;
+           'II' -- the input is a list of list of Text objects;
+        If validate=True (default), raises an AssertionError about
+        unexpected input structure if the input structure is not 
+        one of the 3 aforementioned types.
+    """ 
+    # Determine the input corpus structure
+    input_format_hint=None
+    if is_list_of_texts( in_collections ):
+        input_format_hint = 'I'
+    elif is_list_of_lists_of_texts( in_collections ):
+        input_format_hint = 'II'
+    if input_format_hint in ['I', 'II'] and len(in_collections) == 0:
+        input_format_hint = '0'
+    # Validate input structure
+    if validate and input_format_hint is None:
+        raise AssertionError('(!) Unexpected input structure. The first input argument should be '+\
+                             'either a list of Text objects, or a list of lists of Text objects.')
+    return input_format_hint
 
 def is_list_of_texts( docs:list ):
     """ Checks that the input list docs is:
