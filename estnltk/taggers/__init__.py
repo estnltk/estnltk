@@ -33,6 +33,7 @@ from estnltk.taggers.morph_analysis.gt_morf import GTMorphConverter
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.userdict_tagger import UserDictTagger
+from estnltk.taggers.morph_analysis.make_userdict import make_userdict
 from estnltk.taggers.morph_analysis.vm_analysis_reorderer import MorphAnalysisReorderer
 from estnltk.taggers.morph_analysis.vm_est_cat_names import VabamorfEstCatConverter
 
