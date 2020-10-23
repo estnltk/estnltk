@@ -1,9 +1,9 @@
 #
 #   What?
-#      Splitting logic that addresses discontinuous sections, as required by 
-#      'clauses' and 'verb_chains' layers. 
+#      Splitting logic that can handle discontinuous spans / annotations, 
+#      as in 'clauses' and 'verb_chains' layers. 
 #   Status:
-#      Work in progress
+#      Needs further testing
 #
 
 from typing import Iterable, Sequence, List
@@ -260,20 +260,29 @@ def group_consecutive_spans( text_str, spans, reduce_spans=True, correct_left_bo
 
 
 
-def split_by_clauses(text, layers_to_keep=None, trim_overlapping=False, 
-                           input_clauses_layer='clauses' ):
-    """Split text into a list of texts by clauses layer.
-       This is proper way of splitting text into clauses,
-       considering all the discontinuous spans in the 
-       clauses layer.
-       Note: the implementation is work in progress
+def _split_by_discontinuous_layer(text: Text, layer: str, layers_to_keep: Sequence[str]=None, 
+                                  trim_overlapping: bool=False ) -> List[Text]:
+    """Split text into a list of texts by a discontinuous layer.
+       This splitting method should handle correctly layers with 
+       discontinuous annotation spans, such as the clauses 
+       layer, and the verb chains layer.
+       
+       :param text: `Text` object
+       :param layer: name of the discontinuous layer to split by
+       :param layers_to_keep: list of layer names to be kept
+       :param trim_overlapping
+           If `False` (default), overlapping spans are not kept.
+           If `True`, overlapping spans are trimmed to fit the boundaries.
+       :return list of texts
+           A `Text` object for every span in the `layer`.
     """
     if layers_to_keep is None:
-        layers_to_keep = layers_to_keep_default(text, input_clauses_layer)
+        raise ValueError('(!) Unexpected None value for layers_to_keep. '+
+                         'Please specify layers you need to keep while splitting.')
     all_discontinuous_sections = []
-    for clause_spans in text[input_clauses_layer]:
-        # Group clause spans into discontinuous_sections
-        discontinuous_sections = group_consecutive_spans(text.text, clause_spans)
+    for disc_layer_spans in text[layer]:
+        # Group spans of the layer into discontinuous_sections
+        discontinuous_sections = group_consecutive_spans(text.text, disc_layer_spans)
         all_discontinuous_sections.append( discontinuous_sections )
     # Sanity check: there should be no overlap between discontinuous sections
     _flat_spans = []
@@ -294,4 +303,19 @@ def split_by_clauses(text, layers_to_keep=None, trim_overlapping=False,
     # Extract discontinuous sections
     return extract_discontinuous_sections(text, all_discontinuous_sections, \
                                           layers_to_keep, trim_overlapping)
+
+
+
+def split_by_clauses(text, layers_to_keep=None, trim_overlapping=False, 
+                           input_clauses_layer='clauses' ):
+    """Split text into a list of texts by clauses layer.
+       This is proper way of splitting text into clauses,
+       considering all the discontinuous spans in the 
+       clauses layer.
+       Note: the implementation needs further testing
+    """
+    if layers_to_keep is None:
+        layers_to_keep = layers_to_keep_default(text, input_clauses_layer)
+    return _split_by_discontinuous_layer(text, input_clauses_layer, layers_to_keep, 
+                                               trim_overlapping=trim_overlapping )
 
