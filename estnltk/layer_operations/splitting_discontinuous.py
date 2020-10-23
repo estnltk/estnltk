@@ -23,6 +23,7 @@ def extract_discontinuous_sections(text: Text,
        A discontinuous section is a list of ``(start, end)`` pairs:
        text inside the pairs will be extracted,  and  gaps between
        every two pairs will be kept out.
+       Note: pairs ``(start, end)`` must be sorted increasingly;
 
        This method is slow on long texts.
 
@@ -90,6 +91,10 @@ def extract_discontinuous_sections(text: Text,
                 else:
                     for start, end in subsections:
                         for span in layer.spans:
+                            if (span.base_span, span.layer.name) in map_spans:
+                                # Skip a base_span that has already been added
+                                # ( no need to add it twice )
+                                continue
                             span_start = span.start
                             span_end = span.end
                             if trim_overlapping:
@@ -100,6 +105,18 @@ def extract_discontinuous_sections(text: Text,
                             elif span_start < start or end < span_end:
                                 continue
                             spans = []
+                            # If the subsection is in a gap between two discontinuous 
+                            # spans, then it should be skipped ...
+                            subsection_inside_gap = False
+                            for sid, s in enumerate( span ):
+                                if sid+1 < len( span ):
+                                    next_s = span[sid+1]
+                                    if s.end <= start and end <= next_s.start:
+                                        subsection_inside_gap = True
+                                        break
+                            if subsection_inside_gap:
+                                continue
+                            # Collect spans for the enveloping span
                             for s in span:
                                 parent = map_spans.get((s.base_span, s.layer.name))
                                 if parent:
