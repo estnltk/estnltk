@@ -253,8 +253,8 @@ def group_consecutive_spans( text_str, spans, reduce_spans=True, correct_left_bo
     if reduce_spans:
         # Reduce (s1, e1), ... , (sN, eN) to (s1, eN)
         new_consecutive_span_locs = []
-        for spans in consecutive_span_locs:
-            new_consecutive_span_locs.append( (spans[0][0], spans[-1][-1]) )
+        for subspans in consecutive_span_locs:
+            new_consecutive_span_locs.append( (subspans[0][0], subspans[-1][-1]) )
         consecutive_span_locs = new_consecutive_span_locs
     return consecutive_span_locs
 
