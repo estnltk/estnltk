@@ -88,18 +88,32 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
-        'nltk>=3.0.4',  # NLTK mainly used for English
-        'regex>=2015.07.19',  # improved Python regular expressions
-        'pandas>=0.16.2',  # Panel Data Analysis library for Python
+        'nltk>=3.0.4',             # NLTK mainly used for English
+        'regex>=2015.07.19',       # improved Python regular expressions
+        'pandas>=0.16.2',          # Panel Data Analysis library for Python
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
         'conllu==3.1.1',           # CONLLU for syntax (use conllu 3 because 4 does not support py35)
         'bs4', # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
-        'html5lib', # for processing XML files of the Estonian Reference Corpus
-        'lxml',
-        'networkx',
+        'html5lib',   # for processing XML files of the Estonian Reference Corpus
+        'lxml',       # required for importing/exporting TCF format data
+        'networkx',   # building graphs: required for layers, WordNet and grammars
+        'matplotlib', # required for visualizing layer graph
+        'requests',   # required for TextA export and WebTagger
+        'tqdm',       # progressbar: for showing progress on time-hungry operations
+        'ipython'     # required for integration with Jupyter Notebook-s
     ],
-
+    #
+    #  Note: if you need to build and install for Python 3.5, you need 
+    #  the following fixed package versions:
+    #     parso==0.7.0 
+    #     matplotlib==3.0.3 
+    #     pandas==0.25.3 
+    #     regex==2018.08.29 
+    #     networkx==2.4 
+    #     ipython==7.9.0
+    #  ( tested on Ubuntu 18.04 )
+    #
     classifiers=['Intended Audience :: Developers',
                  'Intended Audience :: Education',
                  'Intended Audience :: Science/Research',
