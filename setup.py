@@ -112,6 +112,7 @@ setup(
     #     regex==2018.08.29 
     #     networkx==2.4 
     #     ipython==7.9.0
+    #     conllu==3.1.1
     #  ( tested on Ubuntu 18.04 )
     #
     classifiers=['Intended Audience :: Developers',
