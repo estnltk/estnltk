@@ -85,6 +85,17 @@ def extract_sections(text: Text,
                         elif span_start < start or end < span_end:
                             continue
                         spans = []
+                        # If the section is in a gap between two discontinuous 
+                        # spans, then it should be skipped ...
+                        section_inside_gap = False
+                        for sid, s in enumerate( span ):
+                            if sid+1 < len( span ):
+                                next_s = span[sid+1]
+                                if s.end <= start and end <= next_s.start:
+                                    section_inside_gap = True
+                                    break
+                        if section_inside_gap:
+                            continue
                         for s in span:
                             parent = map_spans.get((s.base_span, s.layer.name))
                             if parent:
