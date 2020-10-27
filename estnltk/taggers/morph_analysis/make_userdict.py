@@ -18,7 +18,8 @@ from estnltk.taggers.morph_analysis.userdict_tagger import UserDictTagger
 
 def make_userdict( lexicon, 
                    output_layer: str = 'morph_analysis',
-                   ignore_case:     bool = False, 
+                   ignore_case:        bool = False, 
+                   overwrite_existing: bool = True, 
                    warn_on_unknown: bool = True,
                    vm_analyzer: VabamorfAnalyzer=None ):
     '''
@@ -37,7 +38,11 @@ def make_userdict( lexicon,
     
     :param ignore_case: boolean specifying the value for ignore_case 
         parameter of created UserDictTagger. Default: False;
-    
+
+    :param overwrite_existing: boolean specifying the value for 
+        overwrite_existing parameter of created UserDictTagger. 
+        Default: True;
+
     :param warn_on_unknown: boolean specifying whether the user should be 
         warned if no entries are generated for a word because all its 
         normalized forms are unknown to the vm_analyzer. Default: True;
@@ -138,6 +143,7 @@ def make_userdict( lexicon,
     # Create new UserDictTagger
     userdict_tagger = UserDictTagger(words_dict=words_dict,
                                      output_layer=output_layer,
-                                     ignore_case=ignore_case)
+                                     ignore_case=ignore_case,
+                                     overwrite_existing=overwrite_existing)
     return userdict_tagger
 
