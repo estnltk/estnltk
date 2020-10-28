@@ -262,7 +262,7 @@ def group_consecutive_spans( text_str, spans, reduce_spans=True, correct_left_bo
 
 
 def _split_by_discontinuous_layer(text: Text, layer: str, layers_to_keep: Sequence[str]=None, 
-                                  trim_overlapping: bool=False ) -> List[Text]:
+                                  trim_overlapping: bool=False, _post_chk: bool=False ) -> List[Text]:
     """Split text into a list of texts by a discontinuous layer.
        This splitting method should handle correctly layers with 
        discontinuous annotation spans, such as the clauses 
@@ -274,6 +274,11 @@ def _split_by_discontinuous_layer(text: Text, layer: str, layers_to_keep: Sequen
        :param trim_overlapping
            If `False` (default), overlapping spans are not kept.
            If `True`, overlapping spans are trimmed to fit the boundaries.
+       :param _post_chk:
+           If `False` (default), then no post-checking will be done.
+           If `True`, then applies post-checking to make sure that there 
+                      are no conflicts/intersections between extracted 
+                      discontinuous sections.
        :return list of texts
            A `Text` object for every span in the `layer`.
     """
@@ -285,22 +290,23 @@ def _split_by_discontinuous_layer(text: Text, layer: str, layers_to_keep: Sequen
         # Group spans of the layer into discontinuous_sections
         discontinuous_sections = group_consecutive_spans(text.text, disc_layer_spans)
         all_discontinuous_sections.append( discontinuous_sections )
-    # Sanity check: there should be no overlap between discontinuous sections
-    _flat_spans = []
-    for group_list in all_discontinuous_sections:
-        for span in group_list:
-            _flat_spans.append( span )
-    for sid, spanA in enumerate(_flat_spans):
-        for sid2 in range(sid+1, len(_flat_spans)):
-            spanB = _flat_spans[sid2]
-            a_start = spanA[0]
-            a_end   = spanA[1]
-            b_start = spanB[0]
-            b_end   = spanB[1]
-            assert a_start <= a_end, '(!) Unexpected span {!r}'.format(spanA)
-            assert b_start <= b_end, '(!) Unexpected span {!r}'.format(spanB)
-            assert a_end <= b_start or b_end <= a_start, \
-               '(!) Conflicting spans {!r} and {!r}'.format(spanA, spanB)
+    if _post_chk:
+        # Sanity check: there should be no overlap between discontinuous sections
+        _flat_spans = []
+        for group_list in all_discontinuous_sections:
+            for span in group_list:
+                _flat_spans.append( span )
+        for sid, spanA in enumerate(_flat_spans):
+            for sid2 in range(sid+1, len(_flat_spans)):
+                spanB = _flat_spans[sid2]
+                a_start = spanA[0]
+                a_end   = spanA[1]
+                b_start = spanB[0]
+                b_end   = spanB[1]
+                assert a_start <= a_end, '(!) Unexpected span {!r}'.format(spanA)
+                assert b_start <= b_end, '(!) Unexpected span {!r}'.format(spanB)
+                assert a_end <= b_start or b_end <= a_start, \
+                   '(!) Conflicting spans {!r} and {!r}'.format(spanA, spanB)
     # Extract discontinuous sections
     return extract_discontinuous_sections(text, all_discontinuous_sections, \
                                           layers_to_keep, trim_overlapping)
