@@ -4,6 +4,9 @@ from estnltk.layer.span import Span
 from estnltk.layer.layer import Layer
 from estnltk.text import Text
 
+from estnltk.layer_operations.splitting_discontinuous import _split_by_discontinuous_layer
+from estnltk.layer_operations.splitting_discontinuous import split_by_clauses
+
 import networkx as nx
 
 
@@ -169,13 +172,17 @@ def split_by(text: Text, layer: str, layers_to_keep: Sequence[str] = None, trim_
     """
     if layers_to_keep is None:
         layers_to_keep = layers_to_keep_default(text, layer)
+    if layer == 'clauses':
+        # If we are splitting clauses, we need to consider discontinuous spans / annotations
+        return _split_by_discontinuous_layer(text, layer, layers_to_keep=layers_to_keep,
+                                                   trim_overlapping=trim_overlapping )
     sections = [(span.start, span.end) for span in text[layer]]
     return extract_sections(text, sections, layers_to_keep, trim_overlapping)
 
 
-def split_by_sentences(text, layers_to_keep=None, trim_overlapping=False):
+def split_by_sentences(text, layers_to_keep=None, trim_overlapping=False, input_sentences_layer='sentences'):
     """The same as
     >>> split_by(text, 'sentences', layers_to_keep, trim_overlapping)
 
     """
-    return split_by(text, 'sentences', layers_to_keep, trim_overlapping)
+    return split_by(text, input_sentences_layer, layers_to_keep, trim_overlapping)

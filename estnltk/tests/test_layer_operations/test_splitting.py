@@ -80,7 +80,7 @@ def test_split_by_clauses__fix_empty_spans_error():
                                   layers_to_keep=list(text.layers),
                                   trim_overlapping=True)
     assert len(clause_texts) == len(text['clauses'])
-    assert clause_texts[0].words.text == ['Mees', ',', 'keda', 'kohtasime', ',', 'oli', 'tuttav', '.']   # <-- Note: this is wrong, needs fixing in future ...
+    assert clause_texts[0].words.text == ['Mees', 'oli', 'tuttav', '.']
     assert clause_texts[1].words.text == [',', 'keda', 'kohtasime', ',']
 
 

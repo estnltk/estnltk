@@ -1,9 +1,10 @@
 #
 #   What?
 #      Splitting logic that can handle discontinuous spans / annotations, 
-#      as in 'clauses' and 'verb_chains' layers. 
+#      as in 'clauses' layer. 
 #   Status:
-#      Needs further testing
+#      The implementation is OK, but the method is very slow on long texts.
+#      Optimization is desirable.
 #
 
 from typing import Iterable, Sequence, List
