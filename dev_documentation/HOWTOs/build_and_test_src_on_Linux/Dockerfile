@@ -76,9 +76,10 @@ RUN conda create -n py36 python=3.6
 SHELL ["conda", "run", "-n", "py36", "/bin/bash", "-c"]
 RUN python --version
 #
-# Install prerequisite packages
+# Install packages required for testing
 #
-RUN conda install numpy pandas regex nltk beautifulsoup4 html5lib matplotlib networkx requests sqlalchemy tqdm cached-property pytest ipython
+RUN conda install pytest
+RUN conda install -c conda-forge pytest-httpserver
 #
 # Build and install EstNLTK
 #
