@@ -53,7 +53,6 @@ def parse_pgpass(pgpass_file=None, host=None, port=None, dbname=None, user=None,
                         _user = user
                     else:
                         continue
-
                     password = password or f_password
                     break
 
@@ -61,4 +60,6 @@ def parse_pgpass(pgpass_file=None, host=None, port=None, dbname=None, user=None,
         raise ValueError(('no password found for '
                           'host: {}, port: {}, dbname: {}, user: {}'
                           ).format(host, port, dbname, user))
+    else:
+        _password = password
     return {'host': _host, 'port': _port, 'dbname': _dbname, 'user': _user, 'password': _password}
