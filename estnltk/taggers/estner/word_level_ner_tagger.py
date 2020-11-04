@@ -1,11 +1,12 @@
 from estnltk.taggers import Tagger
 from estnltk.core import DEFAULT_PY3_NER_MODEL_DIR
-from estnltk.taggers.estner.refac.ner import ModelStorageUtil
+from estnltk.taggers.estner.model_storage_util import ModelStorageUtil
 from estnltk.taggers.estner.fex import FeatureExtractor
 from estnltk.taggers.estner import CrfsuiteModel
 from estnltk.layer.layer import Layer
 from typing import MutableMapping
 from estnltk.text import Text
+
 
 class WordLevelNerTagger(Tagger):
     """The class for tagging named entities."""
