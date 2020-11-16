@@ -15,24 +15,32 @@ class MaltParserTagger(Tagger):
     """Tags dependency syntactic analysis with MaltParser."""
     conf_param = ['_maltparser_inst', 'add_parent_and_children', 'syntax_dependency_retagger']
 
-    def __init__(self, input_words_layer = 'words',
-                       input_sentences_layer = 'sentences',
-                       input_conll_morph_layer = 'conll_morph',
-                       output_layer='maltparser_syntax',
-                       add_parent_and_children=True):
-        self.input_layers = [ input_words_layer,
-                              input_sentences_layer,
-                              input_conll_morph_layer ]
+    def __init__(self, input_words_layer='words',
+                 input_sentences_layer='sentences',
+                 input_conll_morph_layer='conll_morph',
+                 output_layer='maltparser_syntax',
+                 add_parent_and_children=True,
+                 input_type='visl_morph'): # can be morph_only, morph_extended, visl_morph
+
+        self.input_layers = [input_words_layer,
+                             input_sentences_layer,
+                             input_conll_morph_layer]
         self.output_layer = output_layer
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
-        self._maltparser_inst = MaltParser()
+
+        if input_type == 'morph_only':
+            self._maltparser_inst = MaltParser(model_name='model_morph')
+        elif input_type == 'morph_extended':
+            self._maltparser_inst = MaltParser(model_name='model_morph_ext')
+        else:
+            self._maltparser_inst = MaltParser()
+
         self.add_parent_and_children = add_parent_and_children
         if self.add_parent_and_children:
             self.syntax_dependency_retagger = SyntaxDependencyRetagger(conll_syntax_layer=output_layer)
             self.output_attributes += ('parent_span', 'children')
         else:
             self.syntax_dependency_retagger = None
-
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         # Import from conllu only if we know for sure that MaltParser is going to be applied

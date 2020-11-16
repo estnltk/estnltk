@@ -1,4 +1,5 @@
 import re
+import random
 from typing import MutableMapping
 from estnltk.taggers import Tagger
 from estnltk.text import Text
@@ -11,38 +12,57 @@ from estnltk.core import abs_path
 class ConllMorphTagger(Tagger):
     """From morph_extended towards conll_syntax"""
 
-    conf_param = []
+    conf_param = ['no_visl']
 
     def __init__(self, output_layer: str = 'conll_morph', morph_extended_layer: str = 'morph_extended',
-                 sentences_layer: str = 'sentences'):
+                 sentences_layer: str = 'sentences', no_visl: bool = False):
+
+        self.no_visl = no_visl
         self.input_layers = [sentences_layer, morph_extended_layer]
         self.output_layer = output_layer
         self.output_attributes = ['id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps',
                                   'misc']
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
-        morph_extended_layer = layers[self.input_layers[1]]
+        morph_layer = layers[self.input_layers[1]]
 
         layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
-                      parent=morph_extended_layer.name, ambiguous=True)
-        values_all = get_values(text=text, morph_layer=self.input_layers[1],
-                                sentences_layer=self.input_layers[0])
-        for i, span in enumerate(morph_extended_layer):
-            values = values_all.get(i)
-            xpostag = create_xpostag(values[3], values[5])
-            feats = fix_feats(xpostag, values[2], values[5])
-            layer.add_annotation(span,
-                                 id=int(values[0]),
-                                 form=values[1],
-                                 lemma=values[2],
-                                 upostag=values[3],
-                                 xpostag=xpostag,
-                                 feats=feats,
-                                 head='_',
-                                 deprel='_',
-                                 deps='_',
-                                 misc='_'
-                                 )
+                      parent=morph_layer.name, ambiguous=True)
+
+        if self.no_visl:
+            for i, span in enumerate(morph_layer):
+                form = random.choice(span.form).replace(' ', '|')
+                layer.add_annotation(span,
+                                     id=i + 1,
+                                     form=span.text,
+                                     lemma=span.lemma[0],
+                                     upostag=span.partofspeech[0],
+                                     xpostag=span.partofspeech[0],
+                                     feats=form if form != '' else '_',
+                                     head='_',
+                                     deprel='_',
+                                     deps='_',
+                                     misc='_'
+                                     )
+        else:
+            values_all = get_values(text=text, morph_layer=self.input_layers[1],
+                                    sentences_layer=self.input_layers[0])
+            for i, span in enumerate(morph_layer):
+                values = values_all.get(i)
+                xpostag = create_xpostag(values[3], values[5])
+                feats = fix_feats(xpostag, values[2], values[5])
+                layer.add_annotation(span,
+                                     id=int(values[0]),
+                                     form=values[1],
+                                     lemma=values[2],
+                                     upostag=values[3],
+                                     xpostag=xpostag,
+                                     feats=feats,
+                                     head='_',
+                                     deprel='_',
+                                     deps='_',
+                                     misc='_'
+                                     )
 
         return layer
 
