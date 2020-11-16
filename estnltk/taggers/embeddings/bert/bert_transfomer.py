@@ -14,10 +14,10 @@ class BertTransformer(Tagger):
 
     def __init__(self, bert_location: str, sentences_layer: str = 'sentences',
                  token_level: bool = True,
-                 output_layer=None, bert_layers: List[int] = None, method='concatenate'):
+                 output_layers=None, bert_layers: List[int] = None, method='concatenate'):
 
-        if output_layer is None:
-            output_layer = ['bert_word_embeddings', 'bert_sentence_embeddings']
+        if output_layers is None:
+            output_layers = ['bert_word_embeddings', 'bert_sentence_embeddings']
         if bert_layers is None:
             bert_layers = [-4, -3, -2, -1]
         else:
@@ -27,7 +27,9 @@ class BertTransformer(Tagger):
                           "is reasonable to choose layers from the last layers, for example [-4, -3, -2, -1]: last 4 " \
                           "layers. "
                     raise Exception(msg)
-        self.conf_param = ('bert_location', 'bert_model', 'tokenizer', 'method', 'token_level', 'bert_layers')
+        self.conf_param = (
+            'bert_location', 'bert_model', 'output_layers', 'tokenizer', 'method', 'token_level', 'bert_layers',
+            'sentence_emb_attributes')
         if bert_location is None:
             msg = "Directory containing BERT model must be specified."
             raise Exception(msg)
@@ -36,8 +38,10 @@ class BertTransformer(Tagger):
         if method not in ('concatenate', 'add', 'all'):
             msg = "Method can be 'concatenate', 'add' or 'all'."
             raise Exception(msg)
+        self.output_layers = output_layers
+        self.output_layer = self.output_layers[0]
         self.method = method
-        self.output_layer = output_layer
+
         self.input_layers = [sentences_layer]
 
         self.bert_model = BertModel.from_pretrained(bert_location, output_hidden_states=True)
@@ -52,10 +56,11 @@ class BertTransformer(Tagger):
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         sentences_layer = layers[self.input_layers[0]]
-        embeddings_layer = Layer(name=self.output_layer[0], text_object=text, attributes=self.output_attributes,
+        embeddings_layer = Layer(name=self.output_layers[0], text_object=text, attributes=self.output_attributes,
                                  ambiguous=True)
-        sentence_embedding_layer = Layer(name=self.output_layer[1], text_object=text, attributes=self.sentence_emb_attributes,
-                                 ambiguous=True)
+        sentence_embedding_layer = Layer(name=self.output_layers[1], text_object=text,
+                                         attributes=self.sentence_emb_attributes,
+                                         ambiguous=True)
 
         start, i = 0, 0
         word_spans = []
@@ -177,6 +182,7 @@ class BertTransformer(Tagger):
 
                 i += 1  # move the pointer manually
 
+        text.add_layer(sentence_embedding_layer)
         return embeddings_layer
 
 
