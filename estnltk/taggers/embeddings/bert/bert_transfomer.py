@@ -9,13 +9,15 @@ from estnltk.layer.layer import Layer
 import numpy as np
 
 
-class BertTagger(Tagger):
-    """Tags BERT embeddings."""
+class BertTransformer(Tagger):
+    """Tags BERT embeddings: token/word and sentence."""
 
     def __init__(self, bert_location: str, sentences_layer: str = 'sentences',
                  token_level: bool = True,
-                 output_layer: str = 'bert_embeddings', bert_layers: List[int] = None, method='concatenate'):
+                 output_layer=None, bert_layers: List[int] = None, method='concatenate'):
 
+        if output_layer is None:
+            output_layer = ['bert_word_embeddings', 'bert_sentence_embeddings']
         if bert_layers is None:
             bert_layers = [-4, -3, -2, -1]
         else:
@@ -42,14 +44,17 @@ class BertTagger(Tagger):
 
         self.tokenizer = BertTokenizer.from_pretrained(self.bert_location)
 
-        self.output_attributes = ['token', 'bert_embedding']
+        self.output_attributes = ['token', 'bert_token_embedding']
+        self.sentence_emb_attributes = ['sentence', 'bert_sentence_embedding']
 
         self.token_level = token_level
         self.bert_layers = bert_layers
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         sentences_layer = layers[self.input_layers[0]]
-        embeddings_layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
+        embeddings_layer = Layer(name=self.output_layer[0], text_object=text, attributes=self.output_attributes,
+                                 ambiguous=True)
+        sentence_embedding_layer = Layer(name=self.output_layer[1], text_object=text, attributes=self.sentence_emb_attributes,
                                  ambiguous=True)
 
         start, i = 0, 0
@@ -61,8 +66,12 @@ class BertTagger(Tagger):
                 word_spans.append((word.start, word.end, word.text))
             sent_text = sentence.enclosing_text
 
-            embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, self.method, self.bert_layers)[
-                         1:-1]  # first one in start token, and last one is sep token
+            embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, self.method, self.bert_layers)
+            sent_embedding = embeddings[0]
+            embeddings = embeddings[1:-1]
+            sent_attributes = {'sentence': sentence.enclosing_text, 'bert_sentence_embedding': sent_embedding}
+            sentence_embedding_layer.add_annotation((sentence.start, sentence.end), **sent_attributes)
+
             tokens = self.tokenizer.tokenize(sent_text)
             assert len(tokens) == len(embeddings)
             if k != 0:  # move the start manually when next sentence starts
@@ -87,7 +96,7 @@ class BertTagger(Tagger):
                     else:
                         embedding = [float(t) for t in token_emb]
 
-                    attributes = {'token': token_init, 'bert_embedding': embedding}
+                    attributes = {'token': token_init, 'bert_token_embedding': embedding}
                     token = token_init.strip()
                     embeddings_layer.add_annotation((start, start + len(token.replace('#', ''))), **attributes)
                     start += len(token.replace('#', ''))  # adding token length to the current pointer
@@ -130,7 +139,7 @@ class BertTagger(Tagger):
                                 else:
                                     embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
 
-                                attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                                attributes = {'token': collected_tokens, 'bert_token_embedding': embedding}
                                 embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                                 **attributes)
 
@@ -162,7 +171,7 @@ class BertTagger(Tagger):
                     else:
                         embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
 
-                    attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                    attributes = {'token': collected_tokens, 'bert_token_embedding': embedding}
                     embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                     **attributes)
 
