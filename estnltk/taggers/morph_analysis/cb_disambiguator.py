@@ -481,7 +481,7 @@ class CorpusBasedMorphDisambiguator( object ):
                 #   less likely to be (correctly) resolved by the corpus- 
                 #   based disambiguation )
                 hidden_word = hidden_words[hidden_words_id] if hidden_words_id < len(hidden_words) else []
-                if word_morph in hidden_word:
+                if len(hidden_word) > 0 and word_morph.base_span in hidden_word.base_span:
                     # Take the next hidden word id
                     hidden_words_id += 1
                     # Skip the word
@@ -1170,7 +1170,7 @@ class IgnoredByPostDisambiguationTagger( Tagger ):
                       attributes=self.output_attributes,
                       ambiguous=False)
         nudTudEndings = re.compile('^.*[ntd]ud$')
-        morph_analysis = text[ self._input_morph_analysis_layer ]
+        morph_analysis = layers[ self._input_morph_analysis_layer ]
         for w, word_morph in enumerate( morph_analysis ):
             if not is_unknown_word(word_morph) and len(word_morph.annotations) > 1:
                 #
@@ -1260,7 +1260,7 @@ class LemmaBasedPostDisambiguationRetagger(CorpusBasedMorphDisambiguationSubstep
             #   less likely to be (correctly) resolved by the corpus- 
             #   based disambiguation )
             hidden_word = hidden_words[hidden_words_id] if hidden_words_id < len(hidden_words) else []
-            if word_morph in hidden_word:
+            if len(hidden_word) > 0 and word_morph.base_span in hidden_word.base_span:
                 # Take the next hidden word id
                 hidden_words_id += 1
                 # Skip the word
