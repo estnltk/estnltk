@@ -53,6 +53,8 @@ You can install EstNLTK on [Google Colab](https://colab.research.google.com) env
 !pip install estnltk==1.6.7b0
 ```
 
+_Note_: the PyPI package, which installation is shown above, has been specifically created for Colab. For other platforms/environments, please use our conda packages. 
+
 ### Documentation
 
 Documentation for 1.6 currently comes in the form of [jupyter notebooks](http://jupyter.org), which are available here: https://github.com/estnltk/estnltk/tree/version_1.6/tutorials
@@ -82,7 +84,7 @@ conda activate py35
 
 3. install estnltk with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.4.1
+conda install -c estnltk -c conda-forge nltk=3.4.4 estnltk=1.4.1
 ```
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
