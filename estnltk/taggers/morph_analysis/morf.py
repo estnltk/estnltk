@@ -127,7 +127,8 @@ class VabamorfTagger(Tagger):
             unspecified;
         use_postanalysis: boolean (default: True)
             Whether postanalysis_tagger will be applied for post-correcting 
-            morph layer after analysis and before disambiguation.
+            morph layer. Post-corrections will be applied after morph analysis 
+            and before morph disambiguation.
         """
         # Set VM analysis parameters:
         self.guess        = guess
