@@ -362,7 +362,7 @@ def test_maltparser_tagger_1():
                                                            ('sg', '')]),
                                      'head': 0,
                                      'id': 4,
-                                     'lemma': 'loo',
+                                     'lemma': 'löö',
                                      'misc': None,
                                      'upostag': 'V',
                                      'xpostag': 'V'}],
