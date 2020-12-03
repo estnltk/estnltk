@@ -6,6 +6,7 @@
 #    3) corpus-based pre-disambiguation (CorpusBasedMorphDisambiguator);
 #    4) Vabamorf's statistical disambiguation (VabamorfDisambiguator);
 #    5) corpus-based post-disambiguation (CorpusBasedMorphDisambiguator);
+#    6) re-ordering of remaining ambiguities (MorphAnalysisReorderer);
 #
 
 from collections import OrderedDict
@@ -19,6 +20,7 @@ from estnltk.vabamorf.morf import Vabamorf
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
+from estnltk.taggers.morph_analysis.vm_analysis_reorderer import MorphAnalysisReorderer
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
@@ -37,6 +39,7 @@ class VabamorfCorpusTagger( object ):
          3) corpus-based pre-disambiguation (CorpusBasedMorphDisambiguator);
          4) Vabamorf's statistical disambiguation (VabamorfDisambiguator);
          5) corpus-based post-disambiguation (CorpusBasedMorphDisambiguator);
+         6) re-ordering of remaining ambiguities (MorphAnalysisReorderer);
     """
     
     def __init__(self,
@@ -50,14 +53,16 @@ class VabamorfCorpusTagger( object ):
                  use_postanalysis:bool=True,
                  use_vabamorf_disambiguator:bool=True,
                  use_postdisambiguation:bool=True,
+                 use_reordering:bool=True,
                  slang_lex:bool=False,
                  # customize taggers
                  vabamorf_analyser:VabamorfAnalyzer=None, 
                  postanalysis_tagger:Retagger=None, 
                  vabamorf_disambiguator:VabamorfDisambiguator=None,
                  cb_disambiguator:CorpusBasedMorphDisambiguator=None, 
+                 analysis_reorderer:MorphAnalysisReorderer=None,
                  **kwargs ):
-        """Initialize CorpusBasedMorphDisambiguator class.
+        """Initialize VabamorfCorpusTagger class.
 
         Parameters
         ----------
@@ -92,6 +97,13 @@ class VabamorfCorpusTagger( object ):
         use_postdisambiguation : bool (default: True)
             If set (default), then corpus-based post-disambiguation 
             step will be applied;
+        use_reorderer: boolean (default: True)
+            Whether analysis_reorderer will be applied for re-arranging 
+            ambiguous morphological analyses after disambiguation. 
+            Note: reorderings made by the default analysis_reorderer will 
+            only have effect together with the default disambiguation 
+            (disambiguate=True). That's why iff use_vabamorf_disambiguator
+            is False, then use_reorderer will also be forced to False.
         slang_lex: boolean (default: False)
             If True, then uses an extended version of Vabamorf's binary 
             lexicon, which provides valid analyses to spoken and slang words, 
@@ -132,6 +144,15 @@ class VabamorfCorpusTagger( object ):
             Note: the disambiguator will only be applied if either
             use_postdisambiguation or use_predisambiguation is True, regardless 
             the value of this setting;
+        analysis_reorderer: estnltk.taggers.MorphAnalysisReorderer (default: None)
+            Reorderer (retagger of morph layer) that is applied after disambiguation 
+            step to obtain better ordering for remaining ambiguous analyses. 
+            Note: if analysis_reorderer parameter is set to None (default), 
+            then analysis_reorderer will be initialized as default 
+            MorphAnalysisReorderer instance with appropriate layer names.
+            This default MorphAnalysisReorderer reorders analyses by frequencies
+            obtained from the Estonian UD corpus: most frequent analyses come 
+            first.
         """
         # Set attributes & configuration
         self.input_layers            = [] # dependencies will be taken from taggers
@@ -140,6 +161,7 @@ class VabamorfCorpusTagger( object ):
         self._input_sentences_layer  = input_sentences_layer
         self._use_predisambiguation  = use_predisambiguation
         self._use_postdisambiguation = use_postdisambiguation
+        self._use_reordering         = use_reordering
         self._slang_lex              = slang_lex
         self._validate_inputs        = validate_inputs
         self.output_attributes       = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
@@ -271,6 +293,28 @@ class VabamorfCorpusTagger( object ):
                 if cbd_dependency not in self.input_layers and \
                    cbd_dependency != self.output_layer:
                     self.input_layers.append( cbd_dependency )
+        #
+        # E) MorphAnalysisReorderer (can be turned off)
+        #
+        if not analysis_reorderer:
+            # Initialize default analysis_reorderer
+            analysis_reorderer = MorphAnalysisReorderer(output_layer=output_layer)
+        # Check analysis_reorderer
+        if analysis_reorderer:
+            # Check for MorphAnalysisReorderer
+            assert isinstance(analysis_reorderer, MorphAnalysisReorderer), \
+                '(!) analysis_reorderer should be of type estnltk.taggers.MorphAnalysisReorderer.'
+            # Check for layer match
+            assert hasattr(analysis_reorderer, 'output_layer'), \
+                '(!) analysis_reorderer does not define output_layer.'
+            assert analysis_reorderer.output_layer == self.output_layer, \
+                '(!) analysis_reorderer should modify layer "'+str(self.output_layer)+'".'+\
+                ' Currently, it modifies layer "'+str(analysis_reorderer.output_layer)+'".'
+        self._analysis_reorderer = analysis_reorderer
+        # If the default disambiguation is switched off, reordering will also be switched off
+        if not use_vabamorf_disambiguator:
+            self._use_reordering = False
+
 
     def tag(self, docs: list):
         """ Processes given corpus of documents morphologically.
@@ -323,7 +367,13 @@ class VabamorfCorpusTagger( object ):
         # 4) Perform corpus-based post-disambiguation
         if self._use_postdisambiguation:
             self._cb_disambiguator.postdisambiguate( in_docs )
+        # 5) Reorder remaining ambiguities by freq
+        if self._use_reordering:
+            for collection in in_docs:
+                for doc in collection:
+                    self._analysis_reorderer.retag( doc )
         return docs
+
 
     def _validate_docs_for_required_layers( self, docs:list ):
         """ Checks that all documens have the layers required
@@ -354,6 +404,7 @@ class VabamorfCorpusTagger( object ):
         conf_mappings['postanalysis_tagger'] = self._postanalysis_tagger
         conf_mappings['vabamorf_disambiguator'] = self._vabamorf_disambiguator
         conf_mappings['cb_disambiguator'] = self._cb_disambiguator
+        conf_mappings['analysis_reorderer'] = self._analysis_reorderer
         return conf_mappings
 
 
@@ -371,6 +422,7 @@ class VabamorfCorpusTagger( object ):
         conf_mappings['use_predisambiguation'] = self._use_predisambiguation
         conf_mappings['use_vabamorf_disambiguator'] = self._vabamorf_disambiguator is not None
         conf_mappings['use_postdisambiguation'] = self._use_postdisambiguation
+        conf_mappings['use_reordering'] = self._use_reordering
         conf_mappings['slang_lex'] = self._slang_lex
         return conf_mappings
 

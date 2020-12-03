@@ -13,7 +13,9 @@ from estnltk.layer.span import Span
 
 from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
-from estnltk.taggers import PostMorphAnalysisTagger, Retagger
+from estnltk.taggers import Retagger
+from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
+from estnltk.taggers.morph_analysis.vm_analysis_reorderer import MorphAnalysisReorderer
 
 from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
 from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
@@ -48,6 +50,9 @@ class VabamorfTagger(Tagger):
                   # postanalysis tagger
                   'postanalysis_tagger',
                   'use_postanalysis',
+                  # analysis_reorderer
+                  'analysis_reorderer',
+                  'use_reorderer',
                   # Internal stuff: layer names
                   '_input_compound_tokens_layer',
                   '_input_words_layer',
@@ -65,7 +70,9 @@ class VabamorfTagger(Tagger):
                  input_compound_tokens_layer='compound_tokens',
                  postanalysis_tagger=None,
                  vm_instance=None,
+                 analysis_reorderer=None,
                  use_postanalysis=True,
+                 use_reorderer=True,
                  guess=DEFAULT_PARAM_GUESS,
                  propername=DEFAULT_PARAM_PROPERNAME,
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
@@ -101,6 +108,15 @@ class VabamorfTagger(Tagger):
             then postanalysis_tagger will be initialized as default 
             PostMorphAnalysisTagger instance with appropriate layer and 
             attribute names.
+        analysis_reorderer: estnltk.taggers.MorphAnalysisReorderer (default: None)
+            Reorderer (retagger of morph layer) that is applied after disambiguation 
+            step to obtain better ordering for remaining ambiguous analyses. 
+            Note: if analysis_reorderer parameter is set to None (default), 
+            then analysis_reorderer will be initialized as default 
+            MorphAnalysisReorderer instance with appropriate layer names.
+            This default MorphAnalysisReorderer reorders analyses by frequencies
+            obtained from the Estonian UD corpus: most frequent analyses come 
+            first.
         vm_instance: estnltk.vabamorf.morf.Vabamorf
             An instance of Vabamorf that is to be used for 
             analysing text morphologically.
@@ -129,6 +145,13 @@ class VabamorfTagger(Tagger):
             Whether postanalysis_tagger will be applied for post-correcting 
             morph layer. Post-corrections will be applied after morph analysis 
             and before morph disambiguation.
+        use_reorderer: boolean (default: True)
+            Whether analysis_reorderer will be applied for re-arranging 
+            ambiguous morphological analyses after disambiguation. 
+            Note: reorderings made by the default analysis_reorderer will 
+            only have effect together with the default disambiguation 
+            (disambiguate=True). That's why iff disambiguate=False, then
+            use_reorderer will be forced to False.
         """
         # Set VM analysis parameters:
         self.guess        = guess
@@ -138,19 +161,23 @@ class VabamorfTagger(Tagger):
         self.phonetic     = phonetic
         self.slang_lex    = slang_lex
         self.use_postanalysis = use_postanalysis
+        self.use_reorderer    = use_reorderer
         # Set configuration parameters
         self.output_layer = output_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
         self._input_words_layer = input_words_layer
         self._input_sentences_layer = input_sentences_layer
         self.input_layers = [self._input_words_layer, self._input_sentences_layer]
-        # Check if the user has provided a custom postanalysis_tagger
+        #
+        # Initialize postanalysis_tagger
+        # Check if the user has provided a customized postanalysis_tagger
+        #
         if not postanalysis_tagger:
             # Initialize default postanalysis_tagger
             postanalysis_tagger = PostMorphAnalysisTagger(output_layer=output_layer,\
                                                           input_compound_tokens_layer=input_compound_tokens_layer,
                                                           input_words_layer=input_words_layer)
-        # Initialize postanalysis_tagger;
+        # Check postanalysis_tagger
         if postanalysis_tagger:
             # Check for Retagger
             assert isinstance(postanalysis_tagger, Retagger), \
@@ -164,6 +191,29 @@ class VabamorfTagger(Tagger):
             #assert hasattr(postanalysis_tagger, 'attributes'), \
             #    '(!) postanalysis_tagger does not define any attributes.'
         self.postanalysis_tagger = postanalysis_tagger
+        #
+        # Initialize analysis_reorderer
+        # Check if the user has provided a customized analysis_reorderer
+        #
+        if not analysis_reorderer:
+            # Initialize default analysis_reorderer
+            analysis_reorderer = MorphAnalysisReorderer(output_layer=output_layer)
+        # Check analysis_reorderer
+        if analysis_reorderer:
+            # Check for MorphAnalysisReorderer
+            assert isinstance(analysis_reorderer, MorphAnalysisReorderer), \
+                '(!) analysis_reorderer should be of type estnltk.taggers.MorphAnalysisReorderer.'
+            # Check for layer match
+            assert hasattr(analysis_reorderer, 'output_layer'), \
+                '(!) analysis_reorderer does not define output_layer.'
+            assert analysis_reorderer.output_layer == self.output_layer, \
+                '(!) analysis_reorderer should modify layer "'+str(self.output_layer)+'".'+\
+                ' Currently, it modifies layer "'+str(analysis_reorderer.output_layer)+'".'
+        self.analysis_reorderer = analysis_reorderer
+        # If the default disambiguation is switched off, reordering will also be switched off
+        if not self.disambiguate:
+            self.use_reorderer = False
+        
         # Initialize morf analyzer and disambiguator;
         # Also propagate layer names to submodules;
         _vm_instance = None
@@ -255,8 +305,12 @@ class VabamorfTagger(Tagger):
         #   Morphological disambiguation
         # --------------------------------------------
         if self.disambiguate:
+            # Disambiguation
             self._vabamorf_disambiguator.change_layer( text, layers_with_morph, status )
-
+            # Reordering of remaining ambiguous analyses by freq
+            if self.use_reorderer and self.analysis_reorderer:
+                self.analysis_reorderer.change_layer( text, layers_with_morph, status )
+        
         # TODO: Apply text-based post-disambiguation of proper names (if required)
         return morph_layer
 
