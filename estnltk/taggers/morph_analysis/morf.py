@@ -47,6 +47,7 @@ class VabamorfTagger(Tagger):
                   "slang_lex",
                   # postanalysis tagger
                   'postanalysis_tagger',
+                  'use_postanalysis',
                   # Internal stuff: layer names
                   '_input_compound_tokens_layer',
                   '_input_words_layer',
@@ -64,6 +65,7 @@ class VabamorfTagger(Tagger):
                  input_compound_tokens_layer='compound_tokens',
                  postanalysis_tagger=None,
                  vm_instance=None,
+                 use_postanalysis=True,
                  guess=DEFAULT_PARAM_GUESS,
                  propername=DEFAULT_PARAM_PROPERNAME,
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
@@ -89,12 +91,16 @@ class VabamorfTagger(Tagger):
             Name of the input words layer;
         input_sentences_layer: str (default: 'sentences')
             Name of the input sentences layer;
-        postanalysis_tagger: estnltk.taggers.Retagger (default: PostMorphAnalysisTagger())
+        postanalysis_tagger: estnltk.taggers.Retagger (default: None)
             Retagger that is used to post-process "morph_analysis" layer after
-            it is created (and before it is disambiguated).
+            it is created and before it is disambiguated.
             This tagger corrects morphological analyses, prepares morpho-
             logical analyses for disambiguation (if required) and fills in 
             values of extra attributes in morph_analysis Spans.
+            Note: if postanalysis_tagger parameter is set to None (default), 
+            then postanalysis_tagger will be initialized as default 
+            PostMorphAnalysisTagger instance with appropriate layer and 
+            attribute names.
         vm_instance: estnltk.vabamorf.morf.Vabamorf
             An instance of Vabamorf that is to be used for 
             analysing text morphologically.
@@ -119,6 +125,9 @@ class VabamorfTagger(Tagger):
             that "the slang lexicon" is not switched on by default;
             Note: this only works if you leave the parameter vm_instance 
             unspecified;
+        use_postanalysis: boolean (default: True)
+            Whether postanalysis_tagger will be applied for post-correcting 
+            morph layer after analysis and before disambiguation.
         """
         # Set VM analysis parameters:
         self.guess        = guess
@@ -127,6 +136,7 @@ class VabamorfTagger(Tagger):
         self.compound     = compound
         self.phonetic     = phonetic
         self.slang_lex    = slang_lex
+        self.use_postanalysis = use_postanalysis
         # Set configuration parameters
         self.output_layer = output_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
@@ -194,7 +204,7 @@ class VabamorfTagger(Tagger):
                    postanalysis_dependency != self.output_layer:
                     self.input_layers.append( postanalysis_dependency )
         # Updated attributes
-        if self.postanalysis_tagger is not None:
+        if self.postanalysis_tagger is not None and self.use_postanalysis:
             # If disambiguation is not performed, then the default
             # postanalysis_tagger introduces _ignore attribute
             if not self.disambiguate:
@@ -235,7 +245,7 @@ class VabamorfTagger(Tagger):
         # --------------------------------------------
         #   Post-processing
         # --------------------------------------------
-        if self.postanalysis_tagger:
+        if self.use_postanalysis and self.postanalysis_tagger:
             # Post-analysis tagger is responsible for:
             # 1) Retagging "morph_analysis" layer with post-corrections;
             # 2) Adding and filling in extra_attributes in "morph_analysis" layer;
