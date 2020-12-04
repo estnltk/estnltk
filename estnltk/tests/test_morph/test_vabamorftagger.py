@@ -281,6 +281,49 @@ def test_default_morph_analysis_with_different_input_layer_names():
         assert layer in text.layers
 
 
+def test_default_morph_analysis_on_detached_layers():
+    # Should be able to use a different input layer names
+    # and work only on detached layers 
+    # 1) Initialize taggers with custom names 
+    cp_tagger = CompoundTokenTagger(output_layer='my_compounds')
+    word_tagger = WordTagger( input_compound_tokens_layer='my_compounds',
+                              output_layer='my_words' )
+    sentence_tokenizer = SentenceTokenizer( 
+                              input_compound_tokens_layer='my_compounds',
+                              input_words_layer='my_words',
+                              output_layer='my_sentences' )
+    morph_analyser = VabamorfTagger(
+                              output_layer='my_morph',
+                              input_words_layer='my_words',
+                              input_sentences_layer='my_sentences',
+                              input_compound_tokens_layer='my_compounds' )
+    # 2) Make detached layers
+    text = Text('Tere, maailm! Kuidas siis on?')
+    text.tag_layer('tokens')
+    cp_tokens_layer = cp_tagger.make_layer(text, {'tokens':text['tokens']})
+    words_layer = word_tagger.make_layer(text,   {'tokens':text['tokens'],\
+                                                  'my_compounds' :cp_tokens_layer})
+    sentences_layer = sentence_tokenizer.make_layer(text, {'my_words' : words_layer,
+                                                           'my_compounds' :cp_tokens_layer})
+    morph_layer = morph_analyser.make_layer(text, {'my_words' : words_layer,\
+                                                   'my_compounds' : cp_tokens_layer,\
+                                                   'my_sentences' : sentences_layer})
+    # Check results
+    raw_analyses = []
+    for span in morph_layer:
+        raw_analyses.append( [(a.text, a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    #print( raw_analyses )
+    expected_raw_analyses = \
+        [ [('Tere', 'tere', 'I', '')], 
+          [(',', ',', 'Z', '')], 
+          [('maailm', 'maa_ilm', 'S', 'sg n')], 
+          [('!', '!', 'Z', '')], 
+          [('Kuidas', 'kuidas', 'D', '')], 
+          [('siis', 'siis', 'D', '')], 
+          [('on', 'ole', 'V', 'b'), ('on', 'ole', 'V', 'vad')], 
+          [('?', '?', 'Z', '')] ]
+    assert expected_raw_analyses == raw_analyses
+
 
 def test_default_morph_with_vm_src_update_2020_04_07():
     # Test effects of the Vabamorf's source update from 2020_04_07
