@@ -325,6 +325,52 @@ def test_default_morph_analysis_on_detached_layers():
     assert expected_raw_analyses == raw_analyses
 
 
+def test_default_morph_analysis_with_textbased_disambiguation():
+    text = Text('Ott sai teise koha ja tahab nüüd ka Kuldgloobust. Mis koht see on? '+\
+                'Kas Otil jätkub tarmukust teisest kohast kõrgemale tõusta? Ott lubas pingutada. '+\
+                'Võib-olla tuleks siiski teha Kuldgloobuse eesti variant.')
+    text.tag_layer(['words', 'sentences'])
+    #
+    # 1) Add morph analysis without text-based disambiguation
+    #
+    morph_tagger_no_textbased_disamb = VabamorfTagger(predisambiguate=False,
+                                                      postdisambiguate=False)
+    morph_tagger_no_textbased_disamb.tag( text )
+    no_tbd_raw_analyses = []
+    for span in text['morph_analysis']:
+        no_tbd_raw_analyses.append( [(a.text, a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    #
+    # 2) Add morph analysis with text-based disambiguation
+    #
+    morph_tagger_textbased_disamb = VabamorfTagger(output_layer='morph_analysis_textbased_disamb',
+                                                   predisambiguate =True,
+                                                   postdisambiguate=True)
+    morph_tagger_textbased_disamb.tag( text )
+    tbd_raw_analyses = []
+    for span in text['morph_analysis_textbased_disamb']:
+        tbd_raw_analyses.append( [(a.text, a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    #
+    # Get differences
+    #
+    textbased_corrections = []
+    for no_tbd_analysis, tbd_analysis in zip(no_tbd_raw_analyses, tbd_raw_analyses):
+        if no_tbd_analysis != tbd_analysis:
+            textbased_corrections.append( {'old':no_tbd_analysis, 'new': tbd_analysis} )
+    #print( textbased_corrections )
+    #
+    # Validate differences
+    #
+    expected_textbased_corrections = [ \
+       {'old': [('Ott', 'ott', 'S', 'sg n')], 'new': [('Ott', 'Ott', 'H', 'sg n')]}, \
+       {'old': [('koha', 'koht', 'S', 'sg g'), ('koha', 'koha', 'S', 'sg g')], 'new': [('koha', 'koht', 'S', 'sg g')]}, \
+       {'old': [('Kuldgloobust', 'kuld_gloobus', 'S', 'sg p')], 'new': [('Kuldgloobust', 'Kuld_gloobus', 'H', 'sg p')]}, \
+       {'old': [('Otil', 'ott', 'S', 'sg ad')], 'new': [('Otil', 'Ott', 'H', 'sg ad')]}, \
+       {'old': [('kohast', 'koht', 'S', 'sg el'), ('kohast', 'koha', 'S', 'sg el')], 'new': [('kohast', 'koht', 'S', 'sg el')]}, \
+       {'old': [('Ott', 'ott', 'S', 'sg n')], 'new': [('Ott', 'Ott', 'H', 'sg n')]}, \
+       {'old': [('Kuldgloobuse', 'kuld_gloobus', 'S', 'sg g')], 'new': [('Kuldgloobuse', 'Kuld_gloobus', 'H', 'sg g')]} ]
+    assert expected_textbased_corrections == textbased_corrections
+
+
 def test_default_morph_with_vm_src_update_2020_04_07():
     # Test effects of the Vabamorf's source update from 2020_04_07
     # ( default lexicon )

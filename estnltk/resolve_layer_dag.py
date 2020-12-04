@@ -90,7 +90,9 @@ def make_resolver(
                  phonetic    =DEFAULT_PARAM_PHONETIC,
                  compound    =DEFAULT_PARAM_COMPOUND,
                  slang_lex   =False,
-                 use_reorderer=True):
+                 use_reorderer=True,
+                 predisambiguate =False,
+                 postdisambiguate=False):
     vabamorf_tagger = VabamorfTagger(
                                      disambiguate=disambiguate,
                                      guess=guess,
@@ -98,7 +100,9 @@ def make_resolver(
                                      phonetic=phonetic,
                                      compound=compound,
                                      slang_lex=slang_lex,
-                                     use_reorderer=use_reorderer
+                                     use_reorderer=use_reorderer,
+                                     predisambiguate =predisambiguate,
+                                     postdisambiguate=postdisambiguate
                                      )
 
     taggers = Taggers([TokensTagger(), WordTagger(), CompoundTokenTagger(),

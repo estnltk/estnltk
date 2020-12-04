@@ -4,6 +4,9 @@
 #  VabamorfTagger can be used for end-to-end morphological processing.
 #  Alternatively, the process can be broken down into substeps, using 
 #  VabamorfAnalyzer, PostMorphAnalysisTagger and VabamorfDisambiguator.
+#  Additionally, CorpusBasedMorphDisambiguator provides enhanced (text-
+#  based) morphological disambiguation, and MorphAnalysisReorderer is 
+#  used to sort remaining ambiguities by their corpus frequency.
 # 
 from typing import MutableMapping
 
@@ -16,6 +19,7 @@ from estnltk.vabamorf.morf import Vabamorf
 from estnltk.taggers import Retagger
 from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 from estnltk.taggers.morph_analysis.vm_analysis_reorderer import MorphAnalysisReorderer
+from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 
 from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
 from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
@@ -53,13 +57,16 @@ class VabamorfTagger(Tagger):
                   # analysis_reorderer
                   'analysis_reorderer',
                   'use_reorderer',
+                  # textbased_disambiguator 
+                  'textbased_disambiguator',
+                  'predisambiguate',
+                  'postdisambiguate',
                   # Internal stuff: layer names
                   '_input_compound_tokens_layer',
                   '_input_words_layer',
                   '_input_sentences_layer',
-                  # Internal stuff: taggers
+                  # Internal stuff: Vabamorf's taggers
                   '_vabamorf_analyser',
-                  '_corpusbased_disambiguator',
                   '_vabamorf_disambiguator',
     ]
 
@@ -71,8 +78,11 @@ class VabamorfTagger(Tagger):
                  postanalysis_tagger=None,
                  vm_instance=None,
                  analysis_reorderer=None,
+                 textbased_disambiguator=None,
                  use_postanalysis=True,
                  use_reorderer=True,
+                 predisambiguate =False,
+                 postdisambiguate=False,
                  guess=DEFAULT_PARAM_GUESS,
                  propername=DEFAULT_PARAM_PROPERNAME,
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
@@ -117,6 +127,16 @@ class VabamorfTagger(Tagger):
             This default MorphAnalysisReorderer sorts analyses by frequencies
             obtained from the Estonian UD corpus: most frequent analyses come 
             first.
+        textbased_disambiguator: estnltk.taggers.CorpusBasedMorphDisambiguator (default: None)
+            Disambiguator that takes account of frequencies of ambiguous analyses
+            in the whole text. It resolves (predisambiguates) proper name ambiguities
+            before Vabamorf's disambiguation, and post-disambiguates remaining
+            ambiguities after Vabamorf's disambiguation.
+            Note #1: this text-based disambiguator will only be applied if either
+            predisambiguate or postdisambiguate is True;
+            Note #2: if textbased_disambiguator parameter is set to None (default), 
+            then textbased_disambiguator will be initialized as default 
+            CorpusBasedMorphDisambiguator instance with appropriate layer names.
         vm_instance: estnltk.vabamorf.morf.Vabamorf
             An instance of Vabamorf that is to be used for 
             analysing text morphologically.
@@ -152,6 +172,14 @@ class VabamorfTagger(Tagger):
             only have effect together with the default disambiguation 
             (disambiguate=True). That's why iff disambiguate=False, then
             use_reorderer will be forced to False.
+        predisambiguate: boolean (default: False)
+            Whether text-based predisambiguation of ambiguous proper name 
+            analyses will be applied before Vabamorf's morphological 
+            disambiguation.
+        postdisambiguate: boolean (default: False)
+            Whether text-based post-disambiguation of remaining ambiguous 
+            analyses will be applied after Vabamorf's morphological 
+            disambiguation.
         """
         # Set VM analysis parameters:
         self.guess        = guess
@@ -162,6 +190,8 @@ class VabamorfTagger(Tagger):
         self.slang_lex    = slang_lex
         self.use_postanalysis = use_postanalysis
         self.use_reorderer    = use_reorderer
+        self.predisambiguate  = predisambiguate
+        self.postdisambiguate = postdisambiguate
         # Set configuration parameters
         self.output_layer = output_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
@@ -213,6 +243,27 @@ class VabamorfTagger(Tagger):
         # If the default disambiguation is switched off, reordering will also be switched off
         if not self.disambiguate:
             self.use_reorderer = False
+        #
+        # Initialize textbased_disambiguator
+        # Check if the user has provided a customized textbased_disambiguator
+        #
+        if not textbased_disambiguator:
+            # Initialize default textbased_disambiguator
+            textbased_disambiguator = CorpusBasedMorphDisambiguator(output_layer=output_layer,
+                                                                    input_words_layer=self._input_words_layer,
+                                                                    input_sentences_layer=self._input_sentences_layer)
+        # Check textbased_disambiguator
+        if textbased_disambiguator:
+            # Check for CorpusBasedMorphDisambiguator
+            assert isinstance(textbased_disambiguator, CorpusBasedMorphDisambiguator), \
+                '(!) textbased_disambiguator should be of type estnltk.taggers.CorpusBasedMorphDisambiguator.'
+            # Check for layer match
+            assert hasattr(textbased_disambiguator, 'output_layer'), \
+                '(!) textbased_disambiguator does not define output_layer.'
+            assert textbased_disambiguator.output_layer == self.output_layer, \
+                '(!) textbased_disambiguator should modify layer "'+str(self.output_layer)+'".'+\
+                ' Currently, it modifies layer "'+str(textbased_disambiguator.output_layer)+'".'
+        self.textbased_disambiguator = textbased_disambiguator
         
         # Initialize morf analyzer and disambiguator;
         # Also propagate layer names to submodules;
@@ -292,7 +343,11 @@ class VabamorfTagger(Tagger):
         morph_layer = self._vabamorf_analyser.make_layer( text, layers, status )
         layers_with_morph = layers.copy()
         layers_with_morph[self.output_layer] = morph_layer
-        # TODO: Apply text-based pre-disambiguation of proper names (if required)
+        # ------------------------------------------------
+        #   Text-based pre-disambiguation of proper names
+        # ------------------------------------------------
+        if self.predisambiguate and self.textbased_disambiguator:
+            self.textbased_disambiguator._predisambiguate_detached_layers( [text], [layers_with_morph] )
         # --------------------------------------------
         #   Post-processing
         # --------------------------------------------
@@ -306,9 +361,11 @@ class VabamorfTagger(Tagger):
         # --------------------------------------------
         if self.disambiguate:
             self._vabamorf_disambiguator.change_layer( text, layers_with_morph, status )
-        
-        # TODO: Apply text-based post-disambiguation of proper names (if required)
-        
+        # ------------------------------------------------
+        #   Text-based post-disambiguation
+        # ------------------------------------------------
+        if self.postdisambiguate and self.textbased_disambiguator:
+            self.textbased_disambiguator._postdisambiguate_detached_layers( [text], [layers_with_morph] )
         # --------------------------------------------
         #   Reorder remaining ambiguities by freq
         # --------------------------------------------
