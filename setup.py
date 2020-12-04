@@ -94,6 +94,7 @@ setup(
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
         'conllu==3.1.1',           # CONLLU for syntax (use conllu 3 because 4 does not support py35)
+        'numpy==1.19.4',           # This is the last numpy version that supports py36
         'bs4', # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
         'html5lib',   # for processing XML files of the Estonian Reference Corpus
         'lxml',       # required for importing/exporting TCF format data
