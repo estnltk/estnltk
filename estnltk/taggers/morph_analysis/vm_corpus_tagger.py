@@ -53,7 +53,7 @@ class VabamorfCorpusTagger( object ):
                  use_postanalysis:bool=True,
                  use_vabamorf_disambiguator:bool=True,
                  use_postdisambiguation:bool=True,
-                 use_reordering:bool=True,
+                 use_reorderer:bool=True,
                  slang_lex:bool=False,
                  # customize taggers
                  vabamorf_analyser:VabamorfAnalyzer=None, 
@@ -150,7 +150,7 @@ class VabamorfCorpusTagger( object ):
             Note: if analysis_reorderer parameter is set to None (default), 
             then analysis_reorderer will be initialized as default 
             MorphAnalysisReorderer instance with appropriate layer names.
-            This default MorphAnalysisReorderer reorders analyses by frequencies
+            This default MorphAnalysisReorderer sorts analyses by frequencies
             obtained from the Estonian UD corpus: most frequent analyses come 
             first.
         """
@@ -161,7 +161,7 @@ class VabamorfCorpusTagger( object ):
         self._input_sentences_layer  = input_sentences_layer
         self._use_predisambiguation  = use_predisambiguation
         self._use_postdisambiguation = use_postdisambiguation
-        self._use_reordering         = use_reordering
+        self._use_reordering         = use_reorderer
         self._slang_lex              = slang_lex
         self._validate_inputs        = validate_inputs
         self.output_attributes       = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
@@ -422,7 +422,7 @@ class VabamorfCorpusTagger( object ):
         conf_mappings['use_predisambiguation'] = self._use_predisambiguation
         conf_mappings['use_vabamorf_disambiguator'] = self._vabamorf_disambiguator is not None
         conf_mappings['use_postdisambiguation'] = self._use_postdisambiguation
-        conf_mappings['use_reordering'] = self._use_reordering
+        conf_mappings['use_reorderer'] = self._use_reordering
         conf_mappings['slang_lex'] = self._slang_lex
         return conf_mappings
 

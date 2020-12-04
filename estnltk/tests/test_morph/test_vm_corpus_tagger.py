@@ -195,7 +195,7 @@ def test_ordering_of_ambiguous_morph_analyses():
     #
     text=Text(text_str)
     text.tag_layer(['words','sentences'])
-    vm_corpus_tagger = VabamorfCorpusTagger(use_reordering=False)
+    vm_corpus_tagger = VabamorfCorpusTagger(use_reorderer=False)
     vm_corpus_tagger.tag([text])
     # Collect ambiguous analyses
     ambiguous_analyses = []

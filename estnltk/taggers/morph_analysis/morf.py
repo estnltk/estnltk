@@ -114,7 +114,7 @@ class VabamorfTagger(Tagger):
             Note: if analysis_reorderer parameter is set to None (default), 
             then analysis_reorderer will be initialized as default 
             MorphAnalysisReorderer instance with appropriate layer names.
-            This default MorphAnalysisReorderer reorders analyses by frequencies
+            This default MorphAnalysisReorderer sorts analyses by frequencies
             obtained from the Estonian UD corpus: most frequent analyses come 
             first.
         vm_instance: estnltk.vabamorf.morf.Vabamorf
@@ -305,13 +305,16 @@ class VabamorfTagger(Tagger):
         #   Morphological disambiguation
         # --------------------------------------------
         if self.disambiguate:
-            # Disambiguation
             self._vabamorf_disambiguator.change_layer( text, layers_with_morph, status )
-            # Reordering of remaining ambiguous analyses by freq
-            if self.use_reorderer and self.analysis_reorderer:
-                self.analysis_reorderer.change_layer( text, layers_with_morph, status )
         
         # TODO: Apply text-based post-disambiguation of proper names (if required)
+        
+        # --------------------------------------------
+        #   Reorder remaining ambiguities by freq
+        # --------------------------------------------
+        if self.use_reorderer and self.analysis_reorderer:
+            self.analysis_reorderer.change_layer( text, layers_with_morph, status )
+
         return morph_layer
 
 
