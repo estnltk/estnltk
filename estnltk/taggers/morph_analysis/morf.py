@@ -343,19 +343,19 @@ class VabamorfTagger(Tagger):
         morph_layer = self._vabamorf_analyser.make_layer( text, layers, status )
         layers_with_morph = layers.copy()
         layers_with_morph[self.output_layer] = morph_layer
-        # ------------------------------------------------
-        #   Text-based pre-disambiguation of proper names
-        # ------------------------------------------------
-        if self.predisambiguate and self.textbased_disambiguator:
-            self.textbased_disambiguator._predisambiguate_detached_layers( [text], [layers_with_morph] )
         # --------------------------------------------
-        #   Post-processing
+        #   Post-processing after analysis
         # --------------------------------------------
         if self.use_postanalysis and self.postanalysis_tagger:
             # Post-analysis tagger is responsible for:
             # 1) Retagging "morph_analysis" layer with post-corrections;
             # 2) Adding and filling in extra_attributes in "morph_analysis" layer;
             self.postanalysis_tagger.change_layer( text, layers_with_morph, status )
+        # ------------------------------------------------
+        #   Text-based pre-disambiguation of proper names
+        # ------------------------------------------------
+        if self.predisambiguate and self.textbased_disambiguator:
+            self.textbased_disambiguator._predisambiguate_detached_layers( [text], [layers_with_morph] )
         # --------------------------------------------
         #   Morphological disambiguation
         # --------------------------------------------
