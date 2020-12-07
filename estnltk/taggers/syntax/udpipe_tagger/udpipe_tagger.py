@@ -2,7 +2,6 @@ import os
 from os import linesep as OS_NEWLINE
 from collections import OrderedDict
 from conllu.parser import parse_nullable_value
-from estnltk.layer.base_span import ElementaryBaseSpan
 from estnltk.core import PACKAGE_PATH
 from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
@@ -16,7 +15,6 @@ RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'udpipe_tagger', 're
 def check_if_udpipe_is_in_path(udpipe_cmd: str):
     ''' Checks whether given udpipe is in system's PATH. Returns True, there is
         a file with given name (udpipe_cmd) in the PATH, otherwise returns False;
-
         The idea borrows from:  http://stackoverflow.com/a/377028
     '''
     if os.getenv("PATH") == None:
@@ -44,7 +42,8 @@ class UDPipeTagger(Tagger):
                  input_syntax_layer='conll_morph',
                  version='conllx',
                  add_parent_and_children=False,
-                 udpipe_cmd=None):
+                 udpipe_cmd=None,
+                 input_type='visl_morph'): # can be morph_only, morph_extended, visl_morph
 
         if udpipe_cmd is None:
             self.udpipe_cmd = 'udpipe'
@@ -53,9 +52,19 @@ class UDPipeTagger(Tagger):
 
         if model is None:
             if version == 'conllx':
-                model = os.path.join(RESOURCES, 'model_0.output')
+                if input_type == 'morph_only':
+                    model = os.path.join(RESOURCES, 'conllx', 'model_2.output')
+                elif input_type == 'morph_extended':
+                    model = os.path.join(RESOURCES, 'conllx', 'model_3.output')
+                else:
+                    model = os.path.join(RESOURCES, 'model_0.output')
             elif version == 'conllu':
-                model = os.path.join(RESOURCES, 'model_1.output')
+                if input_type == 'morph_only':
+                    model = os.path.join(RESOURCES, 'conllu', 'model_0.output')
+                elif input_type == 'morph_extended':
+                    model = os.path.join(RESOURCES, 'conllu', 'model_1.output')
+                else:
+                    model = os.path.join(RESOURCES, 'model_1.output')
             else:
                 raise Exception('Version should be conllu or conllx. ')
 
