@@ -39,6 +39,7 @@ class PostMorphAnalysisTagger(Retagger):
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
     conf_param = ['ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials',
                   'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses',
+                  'fix_hashtags_and_usernames',
                   'fix_abbreviations', 'fix_number_postags', 'remove_duplicates',
                   'fix_number_analyses_using_rules',
                   'fix_number_analyses_by_replacing',
@@ -64,6 +65,7 @@ class PostMorphAnalysisTagger(Retagger):
                  fix_emoticons:bool=True,
                  fix_www_addresses:bool=True,
                  fix_email_addresses:bool=True,
+                 fix_hashtags_and_usernames:bool=True,
                  fix_abbreviations:bool=True,
                  remove_duplicates:bool=True,
                  fix_number_postags:bool=True,
@@ -111,7 +113,13 @@ class PostMorphAnalysisTagger(Retagger):
         fix_email_addresses: bool (default: True)
             If True, then postags of all email addresses will be 
             overwritten with 'H';
-        
+
+        fix_hashtags_and_usernames: bool (default: True)
+            If True, then Twitter-style hashtags and usernames
+            will have their postags overwritten with 'H'.
+            In addition, hashtags will be marked as to 
+            be ignored by morphological disambiguation.
+
         fix_abbreviations: bool (default: True)
             If True, then abbreviations with postags 'S' & 'H' 
             will have their postags overwritten with 'Y';
@@ -188,6 +196,7 @@ class PostMorphAnalysisTagger(Retagger):
         self.fix_emoticons = fix_emoticons
         self.fix_www_addresses = fix_www_addresses
         self.fix_email_addresses = fix_email_addresses
+        self.fix_hashtags_and_usernames = fix_hashtags_and_usernames
         self.fix_abbreviations = fix_abbreviations
         self.fix_number_postags = fix_number_postags
         self.remove_duplicates = remove_duplicates
@@ -280,6 +289,9 @@ class PostMorphAnalysisTagger(Retagger):
                         ignore_spans = True
                     if self.ignore_xml_tags and \
                        'xml_tag' in comp_token.type:
+                        ignore_spans = True
+                    if self.fix_hashtags_and_usernames and \
+                       'hashtag' in comp_token.type:
                         ignore_spans = True
                     if ignore_spans:
                         # Mark all spans as to be ignored
@@ -400,6 +412,16 @@ class PostMorphAnalysisTagger(Retagger):
                                     root = getattr(annotation, 'root')
                                     if self._pat_numeric.match(root):
                                         setattr(annotation, 'partofspeech', 'N')
+                    # 7) Fix hashtags and Twitter-style usernames
+                    if self.fix_hashtags_and_usernames and \
+                            ('hashtag' in comp_token.type or 
+                             'username_mention' in comp_token.type):
+                        # Set postags to 'H'
+                        for span in morph_spanlist.annotations:
+                            # Set partofspeech to H
+                            setattr(span, 'partofspeech', 'H')
+                            # TODO: some of these may be verbs, and 
+                            # thus require special corrections
                     # Next compound token
                     comp_token_id += 1
             else:
