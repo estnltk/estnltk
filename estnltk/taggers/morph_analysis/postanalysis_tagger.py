@@ -37,7 +37,8 @@ class PostMorphAnalysisTagger(Retagger):
        layer before the disambiguation process.
        This tagger should be applied before VabamorfDisambiguator."""
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
-    conf_param = ['ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials',
+    conf_param = ['ignore_emoticons', 'ignore_xml_tags', 'ignore_hashtags',
+                  'fix_names_with_initials',
                   'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses',
                   'fix_hashtags_and_usernames',
                   'fix_abbreviations', 'fix_number_postags', 'remove_duplicates',
@@ -61,6 +62,7 @@ class PostMorphAnalysisTagger(Retagger):
                  input_words_layer='words',
                  ignore_emoticons:bool=True,
                  ignore_xml_tags:bool=True,
+                 ignore_hashtags:bool=True,
                  fix_names_with_initials:bool=True,
                  fix_emoticons:bool=True,
                  fix_www_addresses:bool=True,
@@ -92,6 +94,10 @@ class PostMorphAnalysisTagger(Retagger):
         ignore_xml_tags: bool (default: True)
             If True, then xml tags will be marked as to 
             be ignored by morphological disambiguation.
+        
+        ignore_hashtags: bool (default: True)
+            If True, then hashtags will be marked as to 
+            be ignored by morphological disambiguation.
 
         fix_names_with_initials: bool (default: True)
             If True, then words that are of type 'name_with_initial'
@@ -117,8 +123,6 @@ class PostMorphAnalysisTagger(Retagger):
         fix_hashtags_and_usernames: bool (default: True)
             If True, then Twitter-style hashtags and usernames
             will have their postags overwritten with 'H'.
-            In addition, hashtags will be marked as to 
-            be ignored by morphological disambiguation.
 
         fix_abbreviations: bool (default: True)
             If True, then abbreviations with postags 'S' & 'H' 
@@ -192,6 +196,7 @@ class PostMorphAnalysisTagger(Retagger):
         
         self.ignore_emoticons = ignore_emoticons
         self.ignore_xml_tags = ignore_xml_tags
+        self.ignore_hashtags = ignore_hashtags
         self.fix_names_with_initials = fix_names_with_initials
         self.fix_emoticons = fix_emoticons
         self.fix_www_addresses = fix_www_addresses
@@ -290,7 +295,7 @@ class PostMorphAnalysisTagger(Retagger):
                     if self.ignore_xml_tags and \
                        'xml_tag' in comp_token.type:
                         ignore_spans = True
-                    if self.fix_hashtags_and_usernames and \
+                    if self.ignore_hashtags and \
                        'hashtag' in comp_token.type:
                         ignore_spans = True
                     if ignore_spans:
