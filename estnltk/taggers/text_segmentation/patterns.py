@@ -307,6 +307,29 @@ emoticon_patterns = [
       'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(1))"},
 ]
 
+hashtag_and_username_patterns = [
+    # Pattern for detecting Twitter-style hashtags
+    { 'comment': '*) detect Twitter-style hashtags. Note: the pattern is a simplification;',
+      'example': '#eestilaul #superstaar #goalz',
+      'pattern_type': 'hashtag',
+      '_group_': 0,
+      '_priority_': (1, 0, 8),
+      '_regex_pattern_': re.compile(r'''
+                         (\#[{ALPHANUM}_]+)          # potential hashtag
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+    # Pattern for detecting Twitter-style username mentions
+    { 'comment': '*) detect Twitter-style username mentions. Note: the pattern is a simplification;',
+      'example': 'RT @polaaarkaru',
+      'pattern_type': 'username_mention',
+      '_group_': 0,
+      '_priority_': (1, 0, 9),
+      '_regex_pattern_': re.compile(r'''
+                         (@[{ALPHANUM}_]+)           # potential user name mention
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+]
+
 _month_period_year_pattern = re.compile(r'^([012][0-9]|1[012])\.(1[7-9]\d\d|2[0-2]\d\d)$')
 _day_period_month_pattern  = re.compile(r'^(3[01]|[12][0-9]|0?[0-9])\.([012][0-9]|1[012])$')
 
