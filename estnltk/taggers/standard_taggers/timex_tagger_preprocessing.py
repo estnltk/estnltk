@@ -21,7 +21,7 @@ from estnltk.resolve_layer_dag import Taggers, Resolver
 
 
 
-def make_adapted_cp_tagger():
+def make_adapted_cp_tagger(**kwargs):
     '''Creates a version of standard CompoundTokenTagger which patterns have 
        been adapted to tokenization requirements of TimexTagger.
        Returns an instance of CompoundTokenTagger.
@@ -61,7 +61,9 @@ def make_adapted_cp_tagger():
         else:
             new_1st_level_patterns.append( pat )
     assert len(new_1st_level_patterns)+1 == len(ALL_1ST_LEVEL_PATTERNS)
-    return CompoundTokenTagger( patterns_1=new_1st_level_patterns )
+    if kwargs is not None:
+        assert 'patterns_1' not in kwargs.keys(), "(!) Cannot overwrite 'patterns_1' in adapted CompoundTokenTagger."
+    return CompoundTokenTagger( patterns_1=new_1st_level_patterns, **kwargs )
 
 # CompoundTokenTagger adapted to tokenization requirements of TimexTagger
 CP_TAGGER_ADAPTED = make_adapted_cp_tagger()
