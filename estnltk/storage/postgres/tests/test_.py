@@ -38,9 +38,7 @@ def get_random_collection_name():
 class TestPgCollection(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        # self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        self.storage = PostgresStorage(host="localhost", port=5432, user="postgres", password="123", schema=schema,
-                                       dbname='test_db')
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
         create_schema(self.storage)
 
     def tearDown(self):
@@ -422,8 +420,7 @@ class TestFragment(unittest.TestCase):
 class TestLayer(unittest.TestCase):
     def setUp(self):
         self.schema = "test_layer"
-        self.storage = PostgresStorage(host="localhost", port=5432, user="postgres", password="123", schema=self.schema,
-                                       dbname='test_db')
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=self.schema, dbname='test_db')
         create_schema(self.storage)
 
     def tearDown(self):
