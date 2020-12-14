@@ -1,5 +1,5 @@
 import os
-
+import sys
 
 def parse_pgpass(pgpass_file=None, host=None, port=None, dbname=None, user=None, password=None):
     _host, _port, _dbname, _user, _password = host, port, dbname, user, password
@@ -9,6 +9,12 @@ def parse_pgpass(pgpass_file=None, host=None, port=None, dbname=None, user=None,
                              "then 'pgpass_file' must not be None.")
         else:
             pgpass = os.path.expanduser(pgpass_file)
+            if sys.platform.startswith('win') and pgpass_file == '~/.pgpass':
+                # Fix passfile location for Windows
+                pgpass = pgpass.replace('/', os.sep)
+                if not os.path.isfile(pgpass):
+                    if os.path.isfile(pgpass.replace(os.sep+'.', os.sep)):
+                        pgpass = pgpass.replace(os.sep+'.', os.sep)
             if not os.path.isfile(pgpass):
                 raise FileNotFoundError('pgpass file {!r} not found.'.format(pgpass))
             with open(pgpass, encoding="utf-8") as f:
@@ -53,6 +59,7 @@ def parse_pgpass(pgpass_file=None, host=None, port=None, dbname=None, user=None,
                         _user = user
                     else:
                         continue
+
                     password = password or f_password
                     break
 
