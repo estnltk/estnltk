@@ -24,7 +24,8 @@ from logging import Logger
 from logging import getLevelName
 from sys import stderr
 
-from tqdm import tqdm, tqdm_notebook
+from tqdm import tqdm
+from tqdm.notebook import tqdm as notebook_tqdm
 
 from estnltk.text import Text, Layer
 
@@ -1307,7 +1308,7 @@ def _get_iterable_content_w_tqdm( iterable_content:Iterable,
             iterable_content.seek(0)
         # 2) Get corresponding line_progressbar
         if line_progressbar == 'notebook':
-            return tqdm_notebook(iterable_content,
+            return notebook_tqdm(iterable_content,
                                  total=total,
                                  unit='line',
                                  smoothing=0)
