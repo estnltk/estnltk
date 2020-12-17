@@ -294,10 +294,10 @@ class TestPgCollection(unittest.TestCase):
 
         # test keys_query
 
-        res = list(collection.select(pg.KeysQuery(keys=[])))
+        res = list(collection.select(pg.IndexQuery(keys=[])))
         self.assertEqual(len(res), 0)
 
-        res = list(collection.select(pg.KeysQuery(keys=[1, 3])))
+        res = list(collection.select(pg.IndexQuery(keys=[1, 3])))
         self.assertEqual(len(res), 1)
 
         collection.delete()

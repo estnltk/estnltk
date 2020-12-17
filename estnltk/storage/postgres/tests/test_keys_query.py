@@ -39,22 +39,22 @@ class TestKeysQuery(unittest.TestCase):
             text2 = Text('kes Kell on?').analyse('morphology')
             collection_insert(text2, key=6)
 
-        res = list(collection.select(pg.KeysQuery(keys=[])))
+        res = list(collection.select(pg.IndexQuery(keys=[])))
         self.assertEqual(len(res), 0)
 
-        res = list(collection.select(pg.KeysQuery(keys=[1])))
+        res = list(collection.select(pg.IndexQuery(keys=[1])))
         self.assertEqual(len(res), 0)
 
-        res = list(collection.select(pg.KeysQuery(keys=[3])))
+        res = list(collection.select(pg.IndexQuery(keys=[3])))
         self.assertEqual(len(res), 1)
 
-        res = list(collection.select(pg.KeysQuery(keys=[1, 3])))
+        res = list(collection.select(pg.IndexQuery(keys=[1, 3])))
         self.assertEqual(len(res), 1)
 
-        res = list(collection.select(pg.KeysQuery(keys=[3, 4])))
+        res = list(collection.select(pg.IndexQuery(keys=[3, 4])))
         self.assertEqual(len(res), 2)
 
-        res = list(collection.select(pg.KeysQuery(keys=[3, 4, 5, 6])))
+        res = list(collection.select(pg.IndexQuery(keys=[3, 4, 5, 6])))
         self.assertEqual(len(res), 4)
 
         collection.delete()

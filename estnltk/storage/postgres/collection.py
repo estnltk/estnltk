@@ -35,7 +35,7 @@ from estnltk.storage.postgres import JsonbLayerQuery
 from estnltk.storage.postgres import JsonbTextQuery
 from estnltk.storage import postgres as pg
 
-from estnltk.storage.postgres.queries.keys_query import KeysQuery
+from estnltk.storage.postgres.queries.index_query import IndexQuery
 
 
 class PgCollectionException(Exception):
@@ -471,7 +471,7 @@ class PgCollection:
     def __getitem__(self, item):
         # TODO: Three times slower than naive approach!
         if isinstance(item, int):
-            subcollection = self.select(query=KeysQuery([item]), layers=self.selected_layers, collection_meta=None, return_index=False)
+            subcollection = self.select(query=IndexQuery(item), layers=self.selected_layers, collection_meta=None, return_index=False)
 
             cursor = self.storage.conn.cursor()
             cursor.execute(subcollection.sql_query)

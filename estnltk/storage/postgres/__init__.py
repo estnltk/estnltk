@@ -67,7 +67,7 @@ from estnltk.storage.postgres.queries.jsonb_layer_query import JsonbLayerQuery
 from estnltk.storage.postgres.queries.jsonb_text_query import JsonbTextQuery
 from estnltk.storage.postgres.queries.substring_query import SubstringQuery
 from estnltk.storage.postgres.queries.block_query import BlockQuery
-from estnltk.storage.postgres.queries.keys_query import KeysQuery
+from estnltk.storage.postgres.queries.index_query import IndexQuery
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
 
