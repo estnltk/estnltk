@@ -35,6 +35,8 @@ from estnltk.storage.postgres import JsonbLayerQuery
 from estnltk.storage.postgres import JsonbTextQuery
 from estnltk.storage import postgres as pg
 
+from estnltk.storage.postgres.queries.keys_query import KeysQuery
+
 
 class PgCollectionException(Exception):
     pass
@@ -436,19 +438,18 @@ class PgCollection:
                 fragment_layer = dict_to_layer(fragment_dict, text)
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
-    def select(self, query=None, layer_query=None, layer_ngram_query=None, layers: Sequence[str] = None,
-               keys: Sequence[int] = None, collection_meta: Sequence[str] = None, progressbar: str = None,
-               missing_layer: str = None, return_index: bool = True):
+    def select(self,
+               query=None,
+               layers: Sequence[str] = None,
+               collection_meta: Sequence[str] = None,
+               progressbar: str = None,
+               return_index: bool = True):
         """
 
         :param query:
-        :param layer_query:
-        :param layer_ngram_query:
         :param layers:
-        :param keys:
         :param collection_meta:
         :param progressbar:
-        :param missing_layer:
         :param return_index:
         :return: PgSubCollection
 
@@ -456,16 +457,8 @@ class PgCollection:
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
 
-        where_clause = pg.WhereClause(collection=self,
-                                      query=query
-                                      # layer_query=layer_query,
-                                      # layer_ngram_query=layer_ngram_query
-                                      # keys=keys,
-                                      # missing_layer=missing_layer
-                                      )
-
         return pg.PgSubCollection(collection=self,
-                                  selection_criterion=where_clause,
+                                  selection_criterion=pg.WhereClause(collection=self, query=query),
                                   selected_layers=layers,
                                   meta_attributes=collection_meta,
                                   progressbar=progressbar,
@@ -476,11 +469,22 @@ class PgCollection:
         return count_rows(self.storage, self.name)
 
     def __getitem__(self, item):
+        # TODO: Three times slower than naive approach!
         if isinstance(item, int):
-            result = list(self.select(layers=self.selected_layers, keys=[item]))
+            subcollection = self.select(query=KeysQuery([item]), layers=self.selected_layers, collection_meta=None, return_index=False)
+
+            cursor = self.storage.conn.cursor()
+            cursor.execute(subcollection.sql_query)
+            result = cursor.fetchone()
+            cursor.close()
+
             if result:
-                return result[0][1]
-            raise KeyError(item)
+                return pg.PgSubCollection.assemble_text_object(
+                    text_dict=result[1], layer_dicts=result[2:],
+                    selected_layers=self.selected_layers, structure=self.structure)
+            else:
+                raise KeyError("Index {!r} is outside of the collection".format(item))
+
         if isinstance(item, slice):  # TODO
             if item.step not in {1, None}:
                 raise NotImplementedError('slicing step not supported: {}'.format(item.step))
@@ -502,7 +506,8 @@ class PgCollection:
             res = c.fetchone()
             if res is None:
                 raise PgCollectionException("Key not found: {!r}".format(key))
-            key, text_dict = res
+            #key, text_dict = res
+            text_dict = res[1]
             text = text_dict if return_as_dict is True else dict_to_text(text_dict)
             return text
 

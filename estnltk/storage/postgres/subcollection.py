@@ -1,11 +1,13 @@
 from typing import Sequence, List
 from psycopg2.sql import SQL
+from itertools import chain
 
 from estnltk import logger, Progressbar
 from estnltk import Text
 from estnltk.converters import serialisation_modules
 from estnltk.storage import postgres as pg
 from estnltk.converters.layer_dict_converter import layer_converter_collection
+
 
 
 class PgSubCollection:
@@ -52,9 +54,9 @@ class PgSubCollection:
         #TODO: Make sure that all objects used by the class are independent copies and cannot be 
         #changed form the outside. This might invalidate invariants 
 
-
-        if not collection.exists():
-            raise pg.PgCollectionException('collection {!r} does not exist'.format(collection.name))
+        # This is quite constly we should not do it!
+        # if not collection.exists():
+        #    raise pg.PgCollectionException('collection {!r} does not exist'.format(collection.name))
 
         self.collection = collection
 
@@ -187,29 +189,6 @@ class PgSubCollection:
 
     __read_cursor_counter = 0
 
-    def _dict_to_layer(self, layer_dict: dict, text_object=None):
-        # collections with structure versions <2.0 are used same old serialisation module for all layers
-        if self.collection.structure.version in {'0.0', '1.0'}:
-            return serialisation_modules.legacy_v0.dict_to_layer(layer_dict, text_object)
-
-        serialisation_module = self.collection.structure[layer_dict['name']]['serialisation_module']
-        # use default serialisation if specification is missing
-        if serialisation_module is None:
-            return serialisation_modules.default.dict_to_layer(layer_dict, text_object)
-
-        if serialisation_module in layer_converter_collection:
-            return layer_converter_collection[serialisation_module].dict_to_layer(layer_dict, text_object)
-
-        raise ValueError('serialisation module not registered in serialisation map: ' + layer_converter_collection)
-
-    def _dict_to_text(self, text_dict: dict, attached_layers) -> Text:
-        text = Text(text_dict['text'])
-        text.meta = text_dict['meta']
-        for layer_dict in text_dict['layers']:
-            if layer_dict['name'] in attached_layers:
-                layer = self._dict_to_layer(layer_dict, text)
-                text.add_layer(layer)
-        return text
 
     def __iter__(self):
         """
@@ -224,14 +203,19 @@ class PgSubCollection:
         The value of these configuration attributes is fixed before starting the iteration.
         """
 
+        # This is quite costly. we shold not do it!
         # Check that somebody else has not deleted the collection
-        if not self.collection.exists():
-            raise pg.PgCollectionException('collection {!r} has been unexpectedly deleted'.format(self.collection.name))
+        # if not self.collection.exists():
+        #    raise pg.PgCollectionException('collection {!r} has been unexpectedly deleted'.format(self.collection.name))
 
-        with self.collection.storage.conn.cursor() as c:
-            c.execute(self.sql_count_query)
-            logger.debug(c.query.decode())
-            total = next(c)[0]
+        # Optimisation: Find the selection size only if it used in a progress bar.
+        if self.progressbar is None:
+            total = 0
+        else:
+            with self.collection.storage.conn.cursor() as c:
+                c.execute(self.sql_count_query)
+                logger.debug(c.query.decode())
+                total = next(c)[0]
 
         self.__class__.__read_cursor_counter += 1
 
@@ -311,3 +295,71 @@ class PgSubCollection:
                 'meta_attributes={self.meta_attributes}, '
                 'progressbar={self.progressbar!r}, '
                 'return_index={self.return_index})').format(self=self)
+
+    @staticmethod
+    def assemble_text_object(text_dict: str, layer_dicts: List[str], selected_layers: List[str],
+                             structure: pg.CollectionStructureBase = None) -> Text:
+        """
+        Assembles Text object from json specification of texts and json specifications of detached layers.
+
+        The list of layer names determines which layers are selected. The collection structure determines how these
+        layers are reconstructed. Default reconstruction method is used when serialisation module is unspecified.
+
+        All json specifications must be in recursive dict format.
+        All serialisation modules must be registered in a serialisation map.
+        Layer names must contain all dependencies or otherwise the reconstruction fails.
+        """
+
+        text = Text(text_dict['text'])
+        text.meta = text_dict['meta']
+
+        # Collections with structure versions < 2.0 are used same old serialisation module for all layers
+        if structure is None or structure.version in {'0.0', '1.0'}:
+
+            dict_to_layer = serialisation_modules.legacy_v0.dict_to_layer
+            for layer_element in chain(text_dict['layers'], layer_dicts):
+                if layer_element['name'] in selected_layers:
+                    text.add_layer(dict_to_layer(layer_element, text))
+
+            return text
+
+        # Otherwise each layer can be serialised differently
+        dict_to_layer = serialisation_modules.default.dict_to_layer
+        for layer_element in chain(text_dict['layers'], layer_dicts):
+            layer_name = layer_element['name']
+            if layer_name in selected_layers:
+                serialisation_module = structure[layer_name]['serialisation_module']
+
+                # Use default serialisation if specification is missing
+                if serialisation_module is None:
+                    text.add_layer(dict_to_layer(layer_element, text))
+                elif serialisation_module in layer_converter_collection:
+                    text.add_layer(layer_converter_collection[serialisation_module].dict_to_layer(layer_element, text))
+                else:
+                    raise ValueError('serialisation module not registered in serialisation map: ' + layer_converter_collection)
+
+        return text
+
+    def _dict_to_layer(self, layer_dict: dict, text_object=None):
+        # collections with structure versions <2.0 are used same old serialisation module for all layers
+        if self.collection.structure.version in {'0.0', '1.0'}:
+            return serialisation_modules.legacy_v0.dict_to_layer(layer_dict, text_object)
+
+        serialisation_module = self.collection.structure[layer_dict['name']]['serialisation_module']
+        # use default serialisation if specification is missing
+        if serialisation_module is None:
+            return serialisation_modules.default.dict_to_layer(layer_dict, text_object)
+
+        if serialisation_module in layer_converter_collection:
+            return layer_converter_collection[serialisation_module].dict_to_layer(layer_dict, text_object)
+
+        raise ValueError('serialisation module not registered in serialisation map: ' + layer_converter_collection)
+
+    def _dict_to_text(self, text_dict: dict, attached_layers) -> Text:
+        text = Text(text_dict['text'])
+        text.meta = text_dict['meta']
+        for layer_dict in text_dict['layers']:
+            if layer_dict['name'] in attached_layers:
+                layer = self._dict_to_layer(layer_dict, text)
+                text.add_layer(layer)
+        return text
