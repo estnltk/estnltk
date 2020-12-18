@@ -36,6 +36,7 @@ from estnltk.storage.postgres import JsonbTextQuery
 from estnltk.storage import postgres as pg
 
 from estnltk.storage.postgres.queries.index_query import IndexQuery
+from estnltk.storage.postgres.queries.slice_query import SliceQuery
 
 
 class PgCollectionException(Exception):
@@ -469,8 +470,9 @@ class PgCollection:
         return count_rows(self.storage, self.name)
 
     def __getitem__(self, item):
-        # TODO: Three times slower than naive approach!
+
         if isinstance(item, int):
+            # TODO: This is quite a big hack. It should work with a sub-collections. But good enough for now.
             subcollection = self.select(query=IndexQuery(item), layers=self.selected_layers, collection_meta=None, return_index=False)
 
             cursor = self.storage.conn.cursor()
@@ -486,9 +488,12 @@ class PgCollection:
                 raise KeyError("Index {!r} is outside of the collection".format(item))
 
         if isinstance(item, slice):  # TODO
-            if item.step not in {1, None}:
-                raise NotImplementedError('slicing step not supported: {}'.format(item.step))
-            raise NotImplementedError('slicing not implemented')
+            if item.step is not None:
+                raise KeyError("Invalid index slice {!r}".format(item))
+
+            return self.select(
+                query=SliceQuery(item.start, item.stop), layers=self.selected_layers,
+                collection_meta=None, return_index=False)
 
         raise KeyError(item)
 
