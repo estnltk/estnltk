@@ -88,7 +88,7 @@ class PgSubCollection:
 
     def __len__(self):
         """
-        Executes a SQL query to find the size of the subcollection. The result is not cached.
+        Executes an SQL query to find the size of the subcollection. The result is not cached.
         """
         with self.collection.storage.conn.cursor() as cur:
             cur.execute(self.sql_count_query)
@@ -244,56 +244,33 @@ class PgSubCollection:
             server_cursor.execute(self.sql_query)
             logger.debug(server_cursor.query.decode())
             data_iterator = Progressbar(iterable=server_cursor, total=total, initial=0, progressbar_type=self.progressbar)
+            structure = self.collection.structure
 
             if self.meta_attributes and self.return_index:
                 for row in data_iterator:
                     data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
-
-                    text = self._dict_to_text(row[1], self._attached_layers)
-                    for layer_dict in row[2 + len(self.meta_attributes):]:
-                        layer = self._dict_to_layer(layer_dict, text)
-                        text.add_layer(layer)
-
-                    meta_values = row[2:2 + len(self.meta_attributes)]
-                    meta = {attr: value for attr, value in zip(self.meta_attributes, meta_values)}
-
+                    meta_stop = 2 + len(self.meta_attributes)
+                    meta = {attr: value for attr, value in zip(self.meta_attributes, row[2:meta_stop])}
+                    text = self.assemble_text_object(row[1], row[meta_stop:], self.selected_layers, structure)
                     yield row[0], text, meta
 
             elif self.meta_attributes:
                 for row in data_iterator:
                     data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
-
-                    text = self._dict_to_text(row[1], self._attached_layers)
-                    for layer_dict in row[2 + len(self.meta_attributes):]:
-                        layer = self._dict_to_layer(layer_dict, text)
-                        text.add_layer(layer)
-
-                    meta_values = row[2:2 + len(self.meta_attributes)]
-                    meta = {attr: value for attr, value in zip(self.meta_attributes, meta_values)}
-
+                    meta_stop = 2 + len(self.meta_attributes)
+                    meta = {attr: value for attr, value in zip(self.meta_attributes, row[2:meta_stop])}
+                    text = self.assemble_text_object(row[1], row[meta_stop:], self.selected_layers, structure)
                     yield text, meta
 
             elif self.return_index:
                 for row in data_iterator:
                     data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
-
-                    text = self._dict_to_text(row[1], self._attached_layers)
-                    for layer_dict in row[2:]:
-                        layer = self._dict_to_layer(layer_dict, text)
-                        text.add_layer(layer)
-
-                    yield row[0], text
+                    yield row[0], self.assemble_text_object(row[1], row[2:], self.selected_layers, structure)
 
             else:
                 for row in data_iterator:
                     data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
-
-                    text = self._dict_to_text(row[1], self._attached_layers)
-                    for layer_dict in row[2:]:
-                        layer = self._dict_to_layer(layer_dict, text)
-                        text.add_layer(layer)
-
-                    yield text
+                    yield self.assemble_text_object(row[1], row[2:], self.selected_layers, structure)
 
     def head(self, n: int = 5) -> List[Text]:
         return [t for _, t in zip(range(n), self)]
@@ -330,7 +307,7 @@ class PgSubCollection:
                 'return_index={self.return_index})').format(self=self)
 
     @staticmethod
-    def assemble_text_object(text_dict: str, layer_dicts: List[str], selected_layers: List[str],
+    def assemble_text_object(text_dict: dict, layer_dicts: List[dict], selected_layers: List[str],
                              structure: pg.CollectionStructureBase = None) -> Text:
         """
         Assembles Text object from json specification of texts and json specifications of detached layers.
@@ -374,6 +351,7 @@ class PgSubCollection:
         return text
 
     def _dict_to_layer(self, layer_dict: dict, text_object=None):
+        """Deprecated to be removed"""
         # collections with structure versions <2.0 are used same old serialisation module for all layers
         if self.collection.structure.version in {'0.0', '1.0'}:
             return serialisation_modules.legacy_v0.dict_to_layer(layer_dict, text_object)
@@ -389,6 +367,7 @@ class PgSubCollection:
         raise ValueError('serialisation module not registered in serialisation map: ' + layer_converter_collection)
 
     def _dict_to_text(self, text_dict: dict, attached_layers) -> Text:
+        """Deprecated to be removed"""
         text = Text(text_dict['text'])
         text.meta = text_dict['meta']
         for layer_dict in text_dict['layers']:
