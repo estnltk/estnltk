@@ -444,7 +444,8 @@ class PgCollection:
                layers: Sequence[str] = None,
                collection_meta: Sequence[str] = None,
                progressbar: str = None,
-               return_index: bool = True):
+               return_index: bool = True,
+               itersize: int= 10):
         """
 
         :param query:
@@ -463,7 +464,8 @@ class PgCollection:
                                   selected_layers=layers,
                                   meta_attributes=collection_meta,
                                   progressbar=progressbar,
-                                  return_index=return_index
+                                  return_index=return_index,
+                                  itersize=itersize
                                   )
 
     def __len__(self):

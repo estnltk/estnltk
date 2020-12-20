@@ -9,7 +9,6 @@ from estnltk.storage import postgres as pg
 from estnltk.converters.layer_dict_converter import layer_converter_collection
 
 
-
 class PgSubCollection:
     """
     Wrapper class that provides read-only access to a subset of a collection.
@@ -19,7 +18,7 @@ class PgSubCollection:
     - the set of selected layers
     - the set of meta attributes
 
-    The main usecase for the class is iteration over its elements. 
+    The main usecase for the class is iteration over its elements.
     It is possible to iterate several times over the subcollection.
 
     Depending on the configuration attributes, the iterator returns:
@@ -27,8 +26,22 @@ class PgSubCollection:
     - text objects together with their index
     - text objects together with their index and meta fields
 
+    The iteration speed depends on the network and collection parameters:
+    - network bandwidth
+    - application level ping time
+    - average size of a collection element
+    - the number of simultaneously fetched elements (itersize)
+
+    The first three parameters determine the minimal time for complete iteration.
+    The parameter itersize determines how fast the first iteration is completed:
+    - Small itersize leads to small delays as only few elements must be fetched.
+    - Small itersize increases overall running time as more queries are performed.
+    - The overhead for each query is application-level ping time which is at least 20 msec.
+    Exact trade-off is very configuration specific.
+
 
     TODO: Complete the description
+    Not secure against deleting of the collection
 
     ISSUES: How one specifies layer meta attributes? Do they come automatically
     retrieving layer meta attributes is not implemented
@@ -36,7 +49,7 @@ class PgSubCollection:
 
     def __init__(self, collection: pg.PgCollection, selection_criterion: pg.WhereClause = None,
                  selected_layers: Sequence[str] = None, meta_attributes: Sequence[str] = None,
-                 progressbar: str = None, return_index: bool = True):
+                 progressbar: str = None, return_index: bool = True, itersize: int = 50):
         """
         :param collection: PgCollection
         :param selection_criterion: WhereClause
@@ -49,18 +62,17 @@ class PgSubCollection:
             'ascii', 'unicode' or 'notebook'
         :param return_index: bool
             yield collection id with text objects
+        :param itersize: int
+            the number of simultaneously fetched elements
         """
 
         #TODO: Make sure that all objects used by the class are independent copies and cannot be 
         #changed form the outside. This might invalidate invariants 
 
-        # This is quite constly we should not do it!
-        # if not collection.exists():
-        #    raise pg.PgCollectionException('collection {!r} does not exist'.format(collection.name))
-
         self.collection = collection
 
         if selection_criterion is None:
+            # TODO: This is fishy. Check and remove it
             self._selection_criterion = pg.WhereClause(collection=self.collection)
         elif isinstance(selection_criterion, pg.WhereClause):
             self._selection_criterion = selection_criterion
@@ -72,6 +84,16 @@ class PgSubCollection:
         self.meta_attributes = meta_attributes or ()
         self.progressbar = progressbar
         self.return_index = return_index
+        self.itersize = itersize
+
+    def __len__(self):
+        """
+        Executes a SQL query to find the size of the subcollection. The result is not cached.
+        """
+        with self.collection.storage.conn.cursor() as cur:
+            cur.execute(self.sql_count_query)
+            logger.debug(cur.query.decode())
+            return next(cur)[0]
 
     @property
     def selected_layers(self):
@@ -201,66 +223,77 @@ class PgSubCollection:
         - text_id, text, meta
 
         The value of these configuration attributes is fixed before starting the iteration.
+
+        Tradeoff itersize ! Depends on size of the document and network ping
         """
 
-        # This is quite costly. we shold not do it!
-        # Check that somebody else has not deleted the collection
-        # if not self.collection.exists():
-        #    raise pg.PgCollectionException('collection {!r} has been unexpectedly deleted'.format(self.collection.name))
 
-        # Optimisation: Find the selection size only if it used in a progress bar.
-        if self.progressbar is None:
-            total = 0
-        else:
-            with self.collection.storage.conn.cursor() as c:
-                c.execute(self.sql_count_query)
-                logger.debug(c.query.decode())
-                total = next(c)[0]
+        # Gain few milliseconds: Find the selection size only if it used in a progress bar.
+        total = 0 if self.progressbar is None else len(self)
+
+        # Server side cursor must have unique name per transaction
+        # To make code thread-safe we use unique naming scheme inside storage (per connection)
+        # TODO: Current naming scheme is not correct
+        # Let the storage handle the naming
 
         self.__class__.__read_cursor_counter += 1
+        cur_name = 'read_{}'.format(self.__class__.__read_cursor_counter)
 
-        with self.collection.storage.conn.cursor('read_'+str(self.__class__.__read_cursor_counter),
-                                                 withhold=True) as c:
-            c.execute(self.sql_query)
-            logger.debug(c.query.decode())
-            data_iterator = Progressbar(iterable=c, total=total, initial=0, progressbar_type=self.progressbar)
+        with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
+            server_cursor.itersize = self.itersize
+            server_cursor.execute(self.sql_query)
+            logger.debug(server_cursor.query.decode())
+            data_iterator = Progressbar(iterable=server_cursor, total=total, initial=0, progressbar_type=self.progressbar)
 
-            # Cash configuration attributes to protect against unexpected changes during iteration
-            return_index = self.return_index
-            if self.meta_attributes:
+            if self.meta_attributes and self.return_index:
                 for row in data_iterator:
-                    text_id = row[0]
-                    data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
 
-                    text_dict = row[1]
-                    text = self._dict_to_text(text_dict, self._attached_layers)
-
+                    text = self._dict_to_text(row[1], self._attached_layers)
                     for layer_dict in row[2 + len(self.meta_attributes):]:
                         layer = self._dict_to_layer(layer_dict, text)
                         text.add_layer(layer)
 
                     meta_values = row[2:2 + len(self.meta_attributes)]
                     meta = {attr: value for attr, value in zip(self.meta_attributes, meta_values)}
-                    if return_index:
-                        yield text_id, text, meta
-                    else:
-                        yield text, meta
-            else:
+
+                    yield row[0], text, meta
+
+            elif self.meta_attributes:
                 for row in data_iterator:
-                    text_id = row[0]
-                    data_iterator.set_description('collection_id: {}'.format(text_id), refresh=False)
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
 
-                    text_dict = row[1]
-                    text = self._dict_to_text(text_dict, self._attached_layers)
+                    text = self._dict_to_text(row[1], self._attached_layers)
+                    for layer_dict in row[2 + len(self.meta_attributes):]:
+                        layer = self._dict_to_layer(layer_dict, text)
+                        text.add_layer(layer)
 
+                    meta_values = row[2:2 + len(self.meta_attributes)]
+                    meta = {attr: value for attr, value in zip(self.meta_attributes, meta_values)}
+
+                    yield text, meta
+
+            elif self.return_index:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+
+                    text = self._dict_to_text(row[1], self._attached_layers)
                     for layer_dict in row[2:]:
                         layer = self._dict_to_layer(layer_dict, text)
                         text.add_layer(layer)
 
-                    if return_index:
-                        yield text_id, text
-                    else:
-                        yield text
+                    yield row[0], text
+
+            else:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+
+                    text = self._dict_to_text(row[1], self._attached_layers)
+                    for layer_dict in row[2:]:
+                        layer = self._dict_to_layer(layer_dict, text)
+                        text.add_layer(layer)
+
+                    yield text
 
     def head(self, n: int = 5) -> List[Text]:
         return [t for _, t in zip(range(n), self)]
