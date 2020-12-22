@@ -59,7 +59,8 @@ class Trainer(object):
                 for word in xseq:
                     new_xseq.append(list(word)[0])
                 trainer.append(new_xseq, correct_labels[idx][i])
-            trainer.train(mode_filename)
+
+        trainer.train(mode_filename)
 
 
 
