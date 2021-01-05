@@ -90,7 +90,6 @@ setup(
     install_requires=[
         'nltk>=3.0.4',             # NLTK mainly used for English
         'regex>=2015.07.19',       # improved Python regular expressions
-        'pandas>=0.16.2',          # Panel Data Analysis library for Python
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
         'bs4', # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
@@ -101,10 +100,13 @@ setup(
         'requests',   # required for TextA export and WebTagger
         'tqdm',       # progressbar: for showing progress on time-hungry operations
         'ipython',    # required for integration with Jupyter Notebook-s
-        # Specific requirements for specific Python versions
+        # Specific package requirements for specific Python versions
         'conllu>=3.1.1 ; python_version >= "3.6"', # CONLLU for syntax
         'conllu==3.1.1 ; python_version == "3.5"', # CONLLU for syntax (use conllu 3 because 4 does not support py35)
         'numpy==1.19.4 ; python_version == "3.6"', # This is the last numpy version that supports py36
+        'pandas>=1.1.5 ; python_version >  "3.6"', # Panel Data Analysis library for Python (> py36)
+        'pandas<=1.1.5 ; python_version == "3.6"', # Panel Data Analysis library for Python (= py36)
+        'pandas<1.0.0  ; python_version <  "3.6"', # Panel Data Analysis library for Python (< py36)
     ],
     #
     #  Note: if you need to build and install for Python 3.5, you need 
