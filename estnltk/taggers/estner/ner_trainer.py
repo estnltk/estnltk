@@ -52,6 +52,10 @@ class NerTrainer(object):
         if labels is None:
             labels_list = []
             for i, t in enumerate(texts):
+                if layer not in t.layers:
+                    raise Exception("Error in text {}: missing NER layer {!r}.".format(i, layer))
+                if t[layer].ambiguous:
+                    raise Exception("Error in text {}: expected unambiguous NER layer, but found ambiguous NER layer instead.".format(i))
                 text_labels = []
                 cur = 0
                 for snt in texts[i].sentences:
