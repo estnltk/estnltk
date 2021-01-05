@@ -34,13 +34,13 @@ ENV PATH=/udpipe-1.2.0-bin/bin-linux64:${PATH}
 #
 # Get & install dependency: libhfst
 #
-RUN wget -nv http://apertium.projectjj.com/apt/nightly/pool/main/h/hfst/libhfst52_3.15.2+g3754~c78084b3-1~bionic1_amd64.deb
-RUN apt install -y ./libhfst52_3.15.2+g3754~c78084b3-1~bionic1_amd64.deb
+RUN wget -nv http://apertium.projectjj.com/apt/release/pool/main/h/hfst/libhfst53_3.15.3-1~bionic1_amd64.deb
+RUN apt install -y ./libhfst53_3.15.3-1~bionic1_amd64.deb
 #
 # Get & install hfst command line tools
 #
-RUN wget -nv http://apertium.projectjj.com/apt/nightly/pool/main/h/hfst/hfst_3.15.2+g3754~c78084b3-1~bionic1_amd64.deb
-RUN apt install -y ./hfst_3.15.2+g3754~c78084b3-1~bionic1_amd64.deb
+RUN wget -nv http://apertium.projectjj.com/apt/release/pool/main/h/hfst/hfst_3.15.3-1~bionic1_amd64.deb
+RUN apt install -y ./hfst_3.15.3-1~bionic1_amd64.deb
 #
 # Check that command line tool is available
 #
