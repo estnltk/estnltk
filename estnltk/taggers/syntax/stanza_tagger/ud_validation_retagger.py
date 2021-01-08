@@ -12,19 +12,20 @@ VALIDATION_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger
 
 
 class UDValidationRetagger(Retagger):
-    """Adds `syntax_error` attribute to the syntax layer.
+    """
+    Check syntax layer in UD-format against common errors and inconsistencies
+    Adds `syntax_error` attribute to the syntax layer.
     Syntax layer must have attributes `id`, `head`, `lemma`, `upostag`, `xpostag`, `feats`, `deprel`, `dep` and `misc`
     in order to be formatted as conllu and validated by UD validation script from
     https://github.com/universaldependencies/tools/
 
-    Value of attribute `syntax_error` is 1 if any syntactic errors (such as non-projectivity, unsuitable children etc)
-    were discovered, otherwise 0. Syntactic errors relating to UPOS-tag are ignored.
+    Value of attribute `syntax_error` is True if any syntactic errors (such as non-projectivity, unsuitable children etc)
+    were discovered, otherwise False. Syntactic errors relating to UPOS-tag are ignored.
     """
 
     conf_param = []
 
     def __init__(self, output_layer='stanza_syntax'):
-        print(output_layer)
         self.input_layers = [output_layer]
         self.output_layer = output_layer
         self.output_attributes = ()
@@ -32,59 +33,75 @@ class UDValidationRetagger(Retagger):
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict):
         layer = layers[self.output_layer]
         attributes = list(layer.attributes)
-        attributes.extend(attr for attr in ['syntax_error']
-                          if attr not in layer.attributes)
+        if 'syntax_error' not in layer.attributes:
+            attributes.extend(('syntax_error',))
+        if 'error_message' not in layer.attributes:
+            attributes.extend(('error_message',))
         layer.attributes = tuple(attributes)
 
-        # create conll-string similarly to conll_morph_to_str.py
+        # Create conll-string from layer and writing to file
+        # for using it as input for validation.py
         conll_str = ''
         for i, span in enumerate(layer):
             annotation = span.annotations[0]
-            if i != 0 and annotation.id == 1:
-                conll_str += '\n'
+            if i != 0 and annotation['id'] == 1:
+                conll_str += '\n'  # Sentence break
             conll_str += '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' % (
-                annotation.id, annotation.text, annotation.lemma, annotation.upostag, annotation.xpostag,
-                annotation.feats, annotation.head, annotation.deprel, annotation.deps, annotation.misc)
-
+                annotation['id'], annotation.text, annotation['lemma'], annotation['upostag'], annotation['xpostag'],
+                annotation['feats'], annotation['head'], annotation['deprel'], annotation['deps'], annotation['misc'])
         conll_str += '\n'
 
-        temp_conll = tempfile.NamedTemporaryFile('w+', encoding='utf-8', delete=False)
-        with open(temp_conll.name, 'w', encoding='utf-8') as out:
-            out.write(conll_str)
-        syntax_errors = ud_validation_errors(temp_conll.name)
-        temp_conll.close()
-        os.remove(temp_conll.name)
+        # Line numbers of raw text that contained syntactic errors
+        error_lines, error_messages = ud_validation_errors(conll_str)
 
-        # go over lines to mark erroneous words
-        line_no = 0
+        # Iterate over lines (and keep track of empty lines between sentences)
+        # to detect if line/word has errors
+        raw_text_line_no = 0
 
         for i, span in enumerate(layer):
-            line_no += 1
+            raw_text_line_no += 1
             annotation = span.annotations[0]
-            if i != 0 and annotation.id == 1:
-                line_no += 1
-            if line_no in syntax_errors:
-                annotation.syntax_error = 1
+            if i != 0 and annotation['id'] == 1:   # Keeping track of empty lines between sentences
+                raw_text_line_no += 1
+            if raw_text_line_no in error_lines:
+                annotation['syntax_error'] = True
+                error_idx = error_lines.index(raw_text_line_no)
+                error_lines.remove(raw_text_line_no)
+                annotation['error_message'] = error_messages.pop(error_idx)
             else:
-                annotation.syntax_error = 0
+                annotation['syntax_error'] = False
+                annotation['error_message'] = None
 
 
-def ud_validation_errors(filename):
+def ud_validation_errors(conll_str):
     """
-    :return: List of line numbers where syntax errors are in given file
+    Validates conllu-format string and returns lines that contain syntactcic errors.
+    :param conll_str: string in conllu-format
+    :return: list of
     """
-    errors = list()
-    temp = tempfile.NamedTemporaryFile('w+', encoding='utf-8', delete=False)
-    subprocess.run('python ' + VALIDATION_PATH + '/validate.py --lang et --max-err=0 --level 3 ' + filename,
-                   stderr=temp)
-    temp.seek(0)
-    for line in temp:
-        finds = re.findall(r"^\[Line ([0-9]+) Node [0-9]+\]: \[L3 Syntax ([^\]]+\])", line)
-        for row, error in finds:
+    temp_input = tempfile.NamedTemporaryFile('w+', encoding='utf-8', delete=False)
+    with open(temp_input.name, 'w', encoding='utf-8') as out:
+        out.write(conll_str)
+
+    error_lines = list()
+    error_messages = list()
+    temp_output = tempfile.NamedTemporaryFile('w+', encoding='utf-8', delete=False)
+    subprocess.run('python ' + VALIDATION_PATH + '/validate.py --lang et --max-err=0 --level 3 ' + temp_input.name,
+                   stderr=temp_output)
+    temp_output.seek(0)
+    for line in temp_output:
+        finds = re.findall(r"^\[Line ([0-9]+) Node [0-9]+\]: \[L3 Syntax ([^\]]+\]) (.*)$", line)
+        for row, error, error_message in finds:
+            # Syntax errors concerning UPOS-tags are not of interest as StanzaSyntaxTagger returns
+            # (on most cases) VabaMorf's tags as UPOS, which are considered erroneous.
             if 'upos' not in error:
-                errors.append(int(row))
+                error_lines.append(int(row))
+                error_messages.append(error_message)
 
-    temp.close()
-    os.remove(temp.name)
+    temp_output.close()
+    os.remove(temp_output.name)
 
-    return errors
+    temp_input.close()
+    os.remove(temp_input.name)
+
+    return error_lines, error_messages
