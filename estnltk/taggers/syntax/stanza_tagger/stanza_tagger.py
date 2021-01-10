@@ -5,20 +5,39 @@ import stanza
 from stanza.models.common.doc import Document
 from estnltk.layer.layer import Layer
 from estnltk.core import PACKAGE_PATH
-from estnltk.taggers import Tagger
-from estnltk.taggers import SyntaxDependencyRetagger
-from taggers.syntax.stanza_tagger.ud_validation_retagger import UDValidationRetagger
+from estnltk.taggers.tagger import Tagger
+from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
+from estnltk.taggers.syntax.stanza_tagger.ud_validation_retagger import UDValidationRetagger
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
 
 
 class StanzaSyntaxTagger(Tagger):
     """
-    Tags dependency syntactic analysis with Stanza
+    Tags dependency syntactic analysis with Stanza.
+    The tagger assumes that the segmentation to sentences and words is completed before. Morphological analysis
+    can be used, too.
+
+    The tagger assumes that morph analysis is completed with VabaMorf module and follows EstMorph tagset.
+    For using extended analysis, basic morph analysis layer must first exist.
+
+    The tagger creates a syntax layer that features Universal Dependencies dependency-tags in attribute 'deprel'.
+    When using only sentences for prediction, features and UPOS-tags from UD-tagset are used and displayed.
+    Otherwise UPOS is the same as VabaMorf's part of speech tag and feats is based on VabaMorf's forms.
+
+    An optional input_type flag allows choosing layer type to use as the base of prediction. Default is 'morph_only',
+    which expects 'morph_analysis' as input. Values 'morph_extended' and 'sentences' can also be chosen. When using
+    one of the morphological layers, the name of the morphological layer to use must be declared in input_morph_layer
+    parameter (default 'morph_analysis').
+
+    Names of layers to use can be changed using parameters sentences_layer, words_layer and input_morph_layer,
+    if needed. To use GPU for parsing, parameter use_gpu must be set to True.
+    Parameter add_parents_and_children adds attributes that contain the parent and children of a word.
+    Tutorial:
     """
 
     conf_param = ['model_path', 'model_name', 'add_parent_and_children', 'syntax_dependency_retagger',
-                  'input_type', 'dir', 'mark_syntax_error', 'ud_validation_retagger']
+                  'input_type', 'dir', 'mark_syntax_error', 'ud_validation_retagger', 'use_gpu', 'nlp']
 
     def __init__(self,
                  output_layer='stanza_syntax',
@@ -38,6 +57,7 @@ class StanzaSyntaxTagger(Tagger):
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.input_type = input_type
         self.dir = RESOURCES
+        self.use_gpu = use_gpu
 
         if add_parent_and_children:
             self.syntax_dependency_retagger = SyntaxDependencyRetagger(conll_syntax_layer=output_layer)
@@ -84,13 +104,6 @@ class StanzaSyntaxTagger(Tagger):
     def _make_layer(self, text, layers, status=None):
 
         if self.input_type in ['morph_only', 'morph_extended']:
-            # stanza on pretagged morph analysis
-            nlp = stanza.Pipeline(lang='et', processors='depparse',
-                                  dir=self.dir,
-                                  depparse_pretagged=True,
-                                  depparse_model_path=self.model_path,
-                                  use_gpu=False,
-                                  logging_level='WARN')
 
             sentences_layer = layers[self.input_layers[0]]
             data = []
