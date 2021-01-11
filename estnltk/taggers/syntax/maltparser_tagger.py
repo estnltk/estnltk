@@ -1,4 +1,4 @@
-#  Java-based Maltparser as a Tagger 
+#  Java-based Maltparser as a Tagger
 
 from typing import MutableMapping
 import os, os.path
@@ -20,7 +20,8 @@ class MaltParserTagger(Tagger):
                  input_conll_morph_layer='conll_morph',
                  output_layer='maltparser_syntax',
                  add_parent_and_children=True,
-                 input_type='visl_morph'): # can be morph_only, morph_extended, visl_morph
+                 input_type='visl_morph',
+                 version='conllx'): # can be morph_analysis, morph_extended, visl_morph
 
         self.input_layers = [input_words_layer,
                              input_sentences_layer,
@@ -28,10 +29,16 @@ class MaltParserTagger(Tagger):
         self.output_layer = output_layer
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
 
-        if input_type == 'morph_only':
-            self._maltparser_inst = MaltParser(model_name='model_morph')
+        if input_type == 'morph_analysis':
+            if version == 'conllu':
+                self._maltparser_inst = MaltParser(model_name='model_an_pos')
+            else:
+                self._maltparser_inst = MaltParser(model_name='model_morph')
         elif input_type == 'morph_extended':
-            self._maltparser_inst = MaltParser(model_name='model_morph_ext')
+            if version == 'conllu':
+                self._maltparser_inst = MaltParser(model_name='model_ext_pos')
+            else:
+                self._maltparser_inst = MaltParser(model_name='model_morph_ext')
         else:
             self._maltparser_inst = MaltParser()
 
@@ -50,7 +57,7 @@ class MaltParserTagger(Tagger):
         sentences_layer   = layers[self.input_layers[1]]
         conll_morph_layer = layers[self.input_layers[2]]
         len_words = len(words_layer)
-        temp_file_name = self._maltparser_inst.parse_detached_layers(text, 
+        temp_file_name = self._maltparser_inst.parse_detached_layers(text,
                                                                      sentences_layer,
                                                                      words_layer,
                                                                      conll_morph_layer,
@@ -86,7 +93,7 @@ class MaltParserTagger(Tagger):
         if self.add_parent_and_children:
             # Add 'parent_span' & 'children' to the syntax layer
             self.syntax_dependency_retagger.change_layer(text, {self.output_layer : syntax_layer})
-        
+
         # Return the resulting layer
         return syntax_layer
 

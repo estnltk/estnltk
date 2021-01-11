@@ -43,7 +43,7 @@ class UDPipeTagger(Tagger):
                  version='conllx',
                  add_parent_and_children=False,
                  udpipe_cmd=None,
-                 input_type='visl_morph'): # can be morph_only, morph_extended, visl_morph
+                 input_type='visl_morph'): # can be morph_analysis, morph_extended, visl_morph
 
         if udpipe_cmd is None:
             self.udpipe_cmd = 'udpipe'
@@ -52,14 +52,14 @@ class UDPipeTagger(Tagger):
 
         if model is None:
             if version == 'conllx':
-                if input_type == 'morph_only':
+                if input_type == 'morph_analysis':
                     model = os.path.join(RESOURCES, 'conllx', 'model_2.output')
                 elif input_type == 'morph_extended':
                     model = os.path.join(RESOURCES, 'conllx', 'model_3.output')
                 else:
                     model = os.path.join(RESOURCES, 'model_0.output')
             elif version == 'conllu':
-                if input_type == 'morph_only':
+                if input_type == 'morph_analysis':
                     model = os.path.join(RESOURCES, 'conllu', 'model_0.output')
                 elif input_type == 'morph_extended':
                     model = os.path.join(RESOURCES, 'conllu', 'model_1.output')

@@ -25,25 +25,30 @@ class ConllMorphTagger(Tagger):
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         morph_layer = layers[self.input_layers[1]]
-
+        sentences_layer = layers[self.input_layers[0]]
         layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
                       parent=morph_layer.name, ambiguous=True)
 
         if self.no_visl:
-            for i, span in enumerate(morph_layer):
-                form = random.choice(span.form).replace(' ', '|')
-                layer.add_annotation(span,
+            track = 0
+            for sentence in sentences_layer:
+                for i, word in enumerate(sentence):
+                    morph_span = morph_layer[track]
+                    form = random.choice(morph_span.form).replace(' ', '|')
+                    layer.add_annotation(morph_span,
                                      id=i + 1,
-                                     form=span.text,
-                                     lemma=span.lemma[0],
-                                     upostag=span.partofspeech[0],
-                                     xpostag=span.partofspeech[0],
+                                     form=morph_span.text,
+                                     lemma=morph_span.lemma[0],
+                                     upostag=morph_span.partofspeech[0],
+                                     xpostag=morph_span.partofspeech[0],
                                      feats=form if form != '' else '_',
                                      head='_',
                                      deprel='_',
                                      deps='_',
                                      misc='_'
                                      )
+                    track += 1
+
         else:
             values_all = get_values(text=text, morph_layer=self.input_layers[1],
                                     sentences_layer=self.input_layers[0])
