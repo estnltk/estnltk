@@ -36,7 +36,7 @@ def test_word_level_ner():
     assert ''.join(nerlayer.split()) == ''.join(str(text.wordner).split())
 
 
-@pytest.mark.xfail(reason="customizing layer names needs to be implemented!")
+#@pytest.mark.xfail(reason="customizing layer names needs to be implemented!")
 def test_ner_with_customized_layer_names():
     # Test that all NER input layers can be fully customized
     # 1) Create taggers that produce different layer names
@@ -56,8 +56,9 @@ def test_ner_with_customized_layer_names():
     my_morph_analyser.tag( text )
     # 3) Annotate with NerTagger
     # TODO: Pass 'my_words' and 'my_sentences' as NerTagger's input_layers
-    nertagger = NerTagger(output_layer='named_entities', morph_layer_input=( my_morph_analyser.output_layer, ))
+    nertagger = NerTagger(output_layer='named_entities', morph_layer_input=my_morph_analyser.output_layer, words_layer_input=my_word_tagger.output_layer, sentences_layer_input=my_sentence_tokenizer.output_layer)
     nertagger.tag( text )
+
     # 4) Assertions
     # 4.1) Assert that default layer names are not used at all:
     assert 'words' not in text.layers

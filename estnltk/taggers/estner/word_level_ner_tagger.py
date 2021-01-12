@@ -13,7 +13,7 @@ class WordLevelNerTagger(Tagger):
     conf_param = ['modelUtil', 'nersettings', 'fex', 'crf_model']
     input_layers = []
 
-    def __init__(self, model_dir=DEFAULT_PY3_NER_MODEL_DIR, output_layer = 'wordner', morph_layer_input=('morph_analysis',)):
+    def __init__(self, model_dir=DEFAULT_PY3_NER_MODEL_DIR, output_layer='wordner', morph_layer_input='morph_analysis', words_layer_input='words', sentences_layer_input='sentences'):
         """Initialize a new WordLevelNerTagger instance.
 
         Parameters
@@ -29,18 +29,20 @@ class WordLevelNerTagger(Tagger):
         self.output_attributes = ["nertag"]
         modelUtil = ModelStorageUtil(model_dir)
         nersettings = modelUtil.load_settings()
-        self.input_layers = morph_layer_input
+        self.input_layers = (morph_layer_input, words_layer_input, sentences_layer_input)
         self.fex = FeatureExtractor(nersettings, self.input_layers)
         self.crf_model = CrfsuiteModel(settings=nersettings,
                                        model_filename=modelUtil.model_filename)
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         self.fex.process([text])
-        snt_labels = self.crf_model.tag(text)
+        snt_labels = self.crf_model.tag(text, self.input_layers)
         flattened = (word for snt in snt_labels for word in snt)
 
-        nerlayer = Layer(name=self.output_layer, attributes=self.output_attributes, text_object=text, enveloping="words")
-        for span, label in zip(text.words, flattened):
+        words = self.input_layers[1]
+
+        nerlayer = Layer(name=self.output_layer, attributes=self.output_attributes, text_object=text, enveloping=words)
+        for span, label in zip(getattr(text, words), flattened):
             nerlayer.add_annotation(span, nertag=label)
         text.pop_layer("ner_features")
         return nerlayer

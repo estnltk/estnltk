@@ -81,7 +81,7 @@ class CRF():
         self.tagger = pycrfsuite.Tagger()
         self.tagger.open(model_filename)
 
-    def tag(self, nerdoc):
+    def tag(self, nerdoc, layers=["morph_analysis", "words", "sentences"]):
         """Tag the given document.
         Parameters
         ----------
@@ -95,7 +95,8 @@ class CRF():
         """
 
         labels = []
-        for snt in nerdoc.sentences:
+        sentences = layers[2]
+        for snt in getattr(nerdoc, sentences):
             xseq = [t.ner_features.F for t in snt]
             to_be_tagged = []
             for word in xseq:

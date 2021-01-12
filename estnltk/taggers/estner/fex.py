@@ -212,16 +212,19 @@ class NerMorphFeatureTagger(Tagger):
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         layer = Layer(self.output_layer, ambiguous=True, attributes=self.output_attributes, text_object=text)
-        for token in text.words:
-            LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+        morph_layer = self.input_layers[0]
+        words = text[self.input_layers[1]]
+        for token in words:
+            morph = getattr(token, morph_layer)
+            LEM = '_'.join(morph.root_tokens[0]) + ('+' + morph.ending[0] if morph.ending[0] else '')
             if not LEM:
                 LEM = token.text
-            layer.add_annotation(token, lem=get_lemma(LEM), pos=get_pos(token.partofspeech),
-                                 prop=b(is_prop(token.partofspeech)),
-                                 pref=get_word_parts(token.root_tokens[0])[0],
-                                 post=get_word_parts(token.root_tokens[0])[1],
-                                 case=get_case(token.form[0]), ending=get_ending(token.ending),
-                                 pun=b(get_pos(token.partofspeech)=="_Z_"), w=None, w1=None, shape=None, shaped=None, p1=None,
+            layer.add_annotation(token, lem=get_lemma(LEM), pos=get_pos(morph.partofspeech),
+                                 prop=b(is_prop(morph.partofspeech)),
+                                 pref=get_word_parts(morph.root_tokens[0])[0],
+                                 post=get_word_parts(morph.root_tokens[0])[1],
+                                 case=get_case(morph.form[0]), ending=get_ending(morph.ending),
+                                 pun=b(get_pos(morph.partofspeech)=="_Z_"), w=None, w1=None, shape=None, shaped=None, p1=None,
                                  p2=None, p3=None, p4=None, s1=None, s2=None, s3=None, s4=None, d2=None, d4=None,
                                  dndash=None,
                                  dnslash=None, dncomma=None, dndot=None, up=None, iu=None, au=None,
@@ -246,8 +249,11 @@ class NerLocalFeatureTagger(Retagger):
     def _change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         layer = layers[self.output_layer]
         layer.attributes += tuple(self.output_attributes)
+        morph_layer = self.input_layers[1]
         for token in text.ner_features:
-            LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+            morph = getattr(token, morph_layer)
+            #LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+            LEM = '_'.join(morph.root_tokens[0]) + ('+' + morph.ending[0] if morph.ending[0] else '')
             if not LEM:
                 LEM = token.text
             LEM = get_lemma(LEM)
@@ -345,7 +351,8 @@ class NerSentenceFeatureTagger(Retagger):
     def _change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         layer = layers[self.output_layer]
         layer.attributes += tuple(self.output_attributes)
-        for snt in text.sentences:
+        sentences = self.input_layers[3]
+        for snt in getattr(text, sentences):
             snt[0].ner_features.fsnt = 'y'
             snt[-1].ner_features.lsnt = 'y' #never used
 
@@ -381,13 +388,17 @@ class NerGazetteerFeatureTagger(Retagger):
         layer.attributes += tuple(self.output_attributes)
         tokens = list(layer)
         look_ahead = self.look_ahead
+        morph_layer = self.input_layers[1]
         for i in range(len(tokens)):
             if tokens[i].ner_features.iu[0] is not None:  # Only capitalised strings
                 for j in range(i + 1, i + 1 + look_ahead):
                     lemmas = []
                     for token in tokens[i:j]:
-                        LEM = '_'.join(token.root_tokens[0]) + (
-                        '+' + token.ending[0] if token.ending[0] else '').lower()
+                        morph = getattr(token, morph_layer)
+                        #LEM = '_'.join(token.root_tokens[0]) + (
+                        #'+' + token.ending[0] if token.ending[0] else '').lower()
+                        LEM = '_'.join(morph.root_tokens[0]) + (
+                            '+' + morph.ending[0] if morph.ending[0] else '').lower()
                         if not LEM:
                             LEM = token.text
                         LEM = get_lemma(LEM)
@@ -414,8 +425,9 @@ class NerGlobalContextFeatureTagger(Retagger):
         layer = layers[self.output_layer]
         layer.attributes += tuple(self.output_attributes)
 
-
-        for snt in text.sentences:
+        sentences = self.input_layers[3]
+        morph_layer = self.input_layers[1]
+        for snt in getattr(text, sentences):
             for i in range(1, len(snt)):
                 snt[i].ner_features.prew = snt[i - 1].ner_features
             for i in range(len(snt) - 1):
@@ -423,7 +435,9 @@ class NerGlobalContextFeatureTagger(Retagger):
 
         ui_lems = set()
         for i, token in enumerate(text.ner_features):
-            LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+            morph = getattr(token, morph_layer)
+            #LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+            LEM = '_'.join(morph.root_tokens[0]) + ('+' + morph.ending[0] if morph.ending[0] else '')
             if not LEM:
                 LEM = token.text
             if contains_feature('iu', token) and not contains_feature('fsnt', token):
@@ -432,7 +446,9 @@ class NerGlobalContextFeatureTagger(Retagger):
         sametoks_dict = defaultdict(list)
         sametoks_index_dict = defaultdict(list)
         for i, token in enumerate(layer):
-            LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+            morph = getattr(token, morph_layer)
+            #LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
+            LEM = '_'.join(morph.root_tokens[0]) + ('+' + morph.ending[0] if morph.ending[0] else '')
             if not LEM:
                 LEM = token.text
             LEM = get_lemma(LEM)
@@ -474,7 +490,7 @@ class NerGlobalContextFeatureTagger(Retagger):
 
 
 
-def apply_templates(toks, templates):
+def apply_templates(toks, templates, text_layers=["morph_analysis", "words", "sentences"]):
     """
     Generate features for an item sequence by applying feature templates.
     A feature template consists of a tuple of (name, offset) pairs,
@@ -496,7 +512,8 @@ def apply_templates(toks, templates):
     for template in templates:
         name = '|'.join(['%s[%d]' % (f, o) for f, o in template])
         index = 0
-        for snt in toks.sentences:
+        sentences_layer = text_layers[2]
+        for snt in getattr(toks, sentences_layer):
             for t in range(len(snt)):
                 values_list = []
                 for field, offset in template:
@@ -553,11 +570,13 @@ class FeatureExtractor(object):
 
         first_fex = settings.FEATURE_EXTRACTORS[0]
         fex_class = FeatureExtractor._get_class(first_fex)
-        fex_obj = fex_class(settings,morph_layer_inputs)
+        fex_obj = fex_class(settings, morph_layer_inputs)
         self.fex_list.append(fex_obj)
         for fex_name in settings.FEATURE_EXTRACTORS[1:]:
             fex_class = FeatureExtractor._get_class(fex_name)
-            fex_obj = fex_class(settings)
+            input_layers = ["ner_features"]
+            input_layers.extend(morph_layer_inputs)
+            fex_obj = fex_class(settings, input_layers=input_layers)
             self.fex_list.append(fex_obj)
 
         self.morph_layer_inputs = morph_layer_inputs
@@ -580,7 +599,7 @@ class FeatureExtractor(object):
                         fex.retag(doc)
         # apply the feature templates.
         for doc in docs:
-            apply_templates(doc, self.settings.TEMPLATES)
+            apply_templates(doc, self.settings.TEMPLATES, self.morph_layer_inputs)
 
     @staticmethod
     def _get_class(kls):
@@ -589,4 +608,5 @@ class FeatureExtractor(object):
         m = __import__(module)
         for comp in parts[1:]:
             m = getattr(m, comp)
+
         return m
