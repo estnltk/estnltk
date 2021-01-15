@@ -1,13 +1,15 @@
 import os
 import random
+from collections import OrderedDict
 
 import stanza
-from stanza.models.common.doc import Document
-from estnltk.layer.layer import Layer
 from estnltk.core import PACKAGE_PATH
-from estnltk.taggers.tagger import Tagger
-from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
+from estnltk.layer.layer import Layer
 from estnltk.taggers.syntax.stanza_tagger.ud_validation_retagger import UDValidationRetagger
+from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
+from estnltk.taggers.tagger import Tagger
+from stanza.models.common.doc import Document
+from taggers.syntax.stanza_tagger.deprel_agreement_retagger import DeprelAgreementRetagger
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
 
@@ -25,7 +27,7 @@ class StanzaSyntaxTagger(Tagger):
     When using only sentences for prediction, features and UPOS-tags from UD-tagset are used and displayed.
     Otherwise UPOS is the same as VabaMorf's part of speech tag and feats is based on VabaMorf's forms.
 
-    An optional input_type flag allows choosing layer type to use as the base of prediction. Default is 'morph_only',
+    An optional input_type flag allows choosing layer type to use as the base of prediction. Default is 'morph_analysis',
     which expects 'morph_analysis' as input. Values 'morph_extended' and 'sentences' can also be chosen. When using
     one of the morphological layers, the name of the morphological layer to use must be declared in input_morph_layer
     parameter (default 'morph_analysis').
@@ -37,22 +39,25 @@ class StanzaSyntaxTagger(Tagger):
     """
 
     conf_param = ['model_path', 'model_name', 'add_parent_and_children', 'syntax_dependency_retagger',
-                  'input_type', 'dir', 'mark_syntax_error', 'ud_validation_retagger', 'use_gpu', 'nlp']
+                  'input_type', 'dir', 'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
+                  'ud_validation_retagger', 'use_gpu', 'nlp']
 
     def __init__(self,
                  output_layer='stanza_syntax',
                  sentences_layer='sentences',
                  words_layer='words',
                  input_morph_layer='morph_analysis',
-                 input_type='morph_only',  # or 'morph_extended', 'sentences'
+                 input_type='morph_analysis',  # or 'morph_extended', 'sentences'
                  add_parent_and_children=False,
                  depparse_path=None,
                  mark_syntax_error=False,
+                 mark_agreement_error=False,
                  use_gpu=False
                  ):
 
         self.add_parent_and_children = add_parent_and_children
         self.mark_syntax_error = mark_syntax_error
+        self.mark_agreement_error = mark_agreement_error
         self.output_layer = output_layer
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.input_type = input_type
@@ -67,7 +72,13 @@ class StanzaSyntaxTagger(Tagger):
             self.ud_validation_retagger = UDValidationRetagger(output_layer=output_layer)
             self.output_attributes += ('syntax_error', 'error_message')
 
-        if self.input_type not in ['sentences', 'morph_only', 'morph_extended']:
+        if mark_agreement_error:
+            if not add_parent_and_children:
+                raise ValueError('`add_parent_and_children` must be True for marking agreement errors.')
+            else:
+                self.agreement_error_retagger = DeprelAgreementRetagger(output_layer=output_layer)
+
+        if self.input_type not in ['sentences', 'morph_analysis', 'morph_extended']:
             raise ValueError('Invalid input type {}'.format(input_type))
 
         if depparse_path and not os.path.isfile(depparse_path):
@@ -75,7 +86,7 @@ class StanzaSyntaxTagger(Tagger):
         elif depparse_path and os.path.isfile(depparse_path):
             self.model_path = depparse_path
         else:
-            if input_type == 'morph_only':
+            if input_type == 'morph_analysis':
                 self.model_path = os.path.join(RESOURCES, 'et', 'depparse', 'morph_analysis.pt')
             if input_type == 'morph_extended':
                 self.model_path = os.path.join(RESOURCES, 'et', 'depparse', 'morph_extended.pt')
@@ -92,7 +103,7 @@ class StanzaSyntaxTagger(Tagger):
                                        logging_level='WARN')  # Logging level chosen so it does not display
             # information about downloading model
 
-        elif self.input_type in ['morph_only', 'morph_extended']:
+        elif self.input_type in ['morph_analysis', 'morph_extended']:
             self.input_layers = [sentences_layer, input_morph_layer, words_layer]
             self.nlp = stanza.Pipeline(lang='et', processors='depparse',
                                        dir=self.dir,
@@ -103,7 +114,7 @@ class StanzaSyntaxTagger(Tagger):
 
     def _make_layer(self, text, layers, status=None):
 
-        if self.input_type in ['morph_only', 'morph_extended']:
+        if self.input_type in ['morph_analysis', 'morph_extended']:
 
             sentences_layer = layers[self.input_layers[0]]
             data = []
@@ -163,10 +174,9 @@ class StanzaSyntaxTagger(Tagger):
             lemma = line['lemma']
             upostag = line['upos']
             xpostag = line['xpos']
-            if 'feats' not in line.keys():
-                feats = '_'
-            else:
-                feats = line['feats']
+            feats = OrderedDict()  # Stays this way if word has no features.
+            if 'feats' in line.keys():
+                feats = feats_to_ordereddict(line['feats'])
             head = line['head']
             deprel = line['deprel']
 
@@ -180,8 +190,12 @@ class StanzaSyntaxTagger(Tagger):
             self.syntax_dependency_retagger.change_layer(text, {self.output_layer: layer})
 
         if self.mark_syntax_error:
-            # Add 'syntax_error' to the layer.
+            # Add 'syntax_error' & 'error_message' to the layer.
             self.ud_validation_retagger.change_layer(text, {self.output_layer: layer})
+
+        if self.mark_agreement_error:
+            # Add 'agreement_deprel' to the layer.
+            self.agreement_error_retagger.change_layer(text, {self.output_layer: layer})
 
         return layer
 
@@ -217,3 +231,17 @@ def attributes_to_feats(feats, annotation):
     feats = feats.replace('_', '')
     feats = feats.replace('<?>', '')
     return feats.replace('invalid', '')
+
+
+def feats_to_ordereddict(feats_str):
+    """
+    Converts feats string to OrderedDict (as in MaltParserTagger and UDPipeTagger)
+    """
+    feats = OrderedDict()
+    if feats_str == '_':
+        return feats
+    feature_pairs = feats_str.split('|')
+    for feature_pair in feature_pairs:
+        key, value = feature_pair.split('=')
+        feats[key] = value
+    return feats
