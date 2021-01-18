@@ -23,7 +23,13 @@ class ModelStorageUtil(object):
         """ Copy settings module to the model_dir directory """
         source = inspect.getsourcefile(settings_module)
         dest = os.path.join(self.model_dir, 'settings.py')
-        shutil.copyfile(source, dest)
+        try:
+            shutil.copyfile(source, dest)
+        except shutil.SameFileError as sf_error:
+            print('(!) Warning: Location of the new "settings.py" is the same one as the old one. Model\'s settings are not copied.')
+            pass
+        except:
+            raise
 
     def load_settings(self):
         """Load settings module from the model_dir directory."""
