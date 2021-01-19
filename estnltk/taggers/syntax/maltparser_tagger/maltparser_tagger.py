@@ -8,7 +8,7 @@ from estnltk.layer.layer import Layer
 from estnltk.taggers.retagger import Tagger
 
 from estnltk.taggers import SyntaxDependencyRetagger
-from estnltk.taggers.syntax.maltparser import MaltParser
+from estnltk.taggers.syntax.maltparser_tagger.maltparser import MaltParser
 
 
 class MaltParserTagger(Tagger):

@@ -6,7 +6,7 @@ import pytest
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
 from estnltk.taggers import ConllMorphTagger
-from estnltk.taggers.syntax.maltparser_tagger import MaltParserTagger
+from estnltk.taggers.syntax.maltparser_tagger.maltparser_tagger import MaltParserTagger
 
 from estnltk.taggers.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
 

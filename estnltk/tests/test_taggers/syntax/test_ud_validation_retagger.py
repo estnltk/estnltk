@@ -1,5 +1,5 @@
 from estnltk.converters import dict_to_text
-from estnltk.taggers.syntax.stanza_tagger.ud_validation_retagger import UDValidationRetagger
+from estnltk.taggers.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
 
 
 def test_ud_validation_retagger():

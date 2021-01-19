@@ -84,7 +84,7 @@ from estnltk.taggers.syntax_preprocessing.morph_extended_tagger import MorphExte
 from estnltk.taggers.syntax.visl_tagger import VislTagger
 from estnltk.taggers.syntax.conll_morph_tagger import ConllMorphTagger
 from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
-from estnltk.taggers.syntax.maltparser_tagger import MaltParserTagger
+from estnltk.taggers.syntax.maltparser_tagger.maltparser_tagger import MaltParserTagger
 from estnltk.taggers.syntax.syntax_diff_retagger import SyntaxDiffRetagger
 from estnltk.taggers.syntax.syntax_las_tagger import SyntaxLasTagger
 from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger

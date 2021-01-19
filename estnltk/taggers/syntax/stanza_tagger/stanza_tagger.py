@@ -5,11 +5,11 @@ from collections import OrderedDict
 import stanza
 from estnltk.core import PACKAGE_PATH
 from estnltk.layer.layer import Layer
-from estnltk.taggers.syntax.stanza_tagger.ud_validation_retagger import UDValidationRetagger
 from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
+from estnltk.taggers.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
+from estnltk.taggers.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
 from estnltk.taggers.tagger import Tagger
 from stanza.models.common.doc import Document
-from taggers.syntax.stanza_tagger.deprel_agreement_retagger import DeprelAgreementRetagger
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
 

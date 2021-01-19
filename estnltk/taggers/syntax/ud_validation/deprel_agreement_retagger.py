@@ -6,7 +6,7 @@ from estnltk.core import PACKAGE_PATH
 from estnltk.layer.layer import Layer
 from estnltk.taggers.retagger import Retagger
 
-RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'agreement_resources')
+RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'ud_validation', 'agreement_resources')
 
 
 class DeprelAgreementRetagger(Retagger):

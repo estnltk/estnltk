@@ -12,7 +12,7 @@ import subprocess
 from estnltk.taggers.syntax.conll_morph_to_str import conll_to_str
 
 
-MALTPARSER_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'java-res', 'maltparser')
+MALTPARSER_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'maltparser_tagger', 'java-res', 'maltparser')
 MALTPARSER_MODEL = 'model1'
 MALTPARSER_JAR = 'maltparser-1.9.0.jar'
 

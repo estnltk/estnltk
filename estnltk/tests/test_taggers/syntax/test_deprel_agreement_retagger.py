@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from estnltk.converters import dict_to_text
 from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
-from taggers.syntax.stanza_tagger.deprel_agreement_retagger import DeprelAgreementRetagger
+from estnltk.taggers.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 
 
 def test_deprel_agreement_retagger():

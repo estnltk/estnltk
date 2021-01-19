@@ -8,7 +8,7 @@ from estnltk.core import PACKAGE_PATH
 from estnltk.layer.layer import Layer
 from estnltk.taggers.retagger import Retagger
 
-VALIDATION_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
+VALIDATION_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'ud_validation')
 
 
 class UDValidationRetagger(Retagger):
