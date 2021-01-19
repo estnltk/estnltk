@@ -1,11 +1,11 @@
-
-from converters import layer_to_dict
 import os
+from collections import OrderedDict
+
 from estnltk import Text
-from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
-from estnltk.converters import dict_to_layer
-from stanza import Document
+from estnltk.converters import dict_to_layer, layer_to_dict
 from estnltk.core import PACKAGE_PATH
+from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
+from stanza import Document
 
 MODEL_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources', 'et', 'depparse')
 
@@ -31,7 +31,9 @@ stanza_dict_sentences = {
                                 'lemma': 'väike',
                                 'upostag': 'ADJ',
                                 'xpostag': 'A',
-                                'feats': 'Case=Nom|Degree=Pos|Number=Sing',
+                                'feats': OrderedDict([('Case', 'Nom'),
+                                                      ('Degree', 'Pos'),
+                                                      ('Number', 'Sing')]),
                                 'head': 2,
                                 'deprel': 'amod',
                                 'deps': '_',
@@ -42,7 +44,8 @@ stanza_dict_sentences = {
                                 'lemma': 'jänes',
                                 'upostag': 'NOUN',
                                 'xpostag': 'S',
-                                'feats': 'Case=Nom|Number=Sing',
+                                'feats': OrderedDict([('Case', 'Nom'),
+                                                      ('Number', 'Sing')]),
                                 'head': 3,
                                 'deprel': 'nsubj',
                                 'deps': '_',
@@ -52,7 +55,12 @@ stanza_dict_sentences = {
                                 'lemma': 'jooksma',
                                 'upostag': 'VERB',
                                 'xpostag': 'V',
-                                'feats': 'Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin|Voice=Act',
+                                'feats': OrderedDict([('Mood', 'Ind'),
+                                                      ('Number', 'Sing'),
+                                                      ('Person', '3'),
+                                                      ('Tense', 'Past'),
+                                                      ('VerbForm', 'Fin'),
+                                                      ('Voice', 'Act')]),
                                 'head': 0,
                                 'deprel': 'root',
                                 'deps': '_',
@@ -62,7 +70,8 @@ stanza_dict_sentences = {
                                 'lemma': 'mets',
                                 'upostag': 'NOUN',
                                 'xpostag': 'S',
-                                'feats': 'Case=Add|Number=Sing',
+                                'feats': OrderedDict([('Case', 'Add'),
+                                                      ('Number', 'Sing')]),
                                 'head': 3,
                                 'deprel': 'obl',
                                 'deps': '_',
@@ -73,7 +82,7 @@ stanza_dict_sentences = {
                                 'lemma': '!',
                                 'upostag': 'PUNCT',
                                 'xpostag': 'Z',
-                                'feats': '_',
+                                'feats': OrderedDict(),
                                 'head': 3,
                                 'deprel': 'punct',
                                 'deps': '_',
@@ -84,7 +93,10 @@ stanza_dict_sentences = {
                                 'lemma': 'mina',
                                 'upostag': 'PRON',
                                 'xpostag': 'P',
-                                'feats': 'Case=Nom|Number=Sing|Person=1|PronType=Prs',
+                                'feats': OrderedDict([('Case', 'Nom'),
+                                                      ('Number', 'Sing'),
+                                                      ('Person', '1'),
+                                                      ('PronType', 'Prs')]),
                                 'head': 3,
                                 'deprel': 'nsubj',
                                 'deps': '_',
@@ -95,7 +107,7 @@ stanza_dict_sentences = {
                                 'lemma': 'ei',
                                 'upostag': 'AUX',
                                 'xpostag': 'V',
-                                'feats': 'Polarity=Neg',
+                                'feats': OrderedDict([('Polarity', 'Neg')]),
                                 'head': 3,
                                 'deprel': 'aux',
                                 'deps': '_',
@@ -105,7 +117,11 @@ stanza_dict_sentences = {
                                 'lemma': 'jooksma',
                                 'upostag': 'VERB',
                                 'xpostag': 'V',
-                                'feats': 'Connegative=Yes|Mood=Ind|Tense=Pres|VerbForm=Fin|Voice=Act',
+                                'feats': OrderedDict([('Connegative', 'Yes'),
+                                                      ('Mood', 'Ind'),
+                                                      ('Tense', 'Pres'),
+                                                      ('VerbForm', 'Fin'),
+                                                      ('Voice', 'Act')]),
                                 'head': 0,
                                 'deprel': 'root',
                                 'deps': '_',
@@ -116,7 +132,7 @@ stanza_dict_sentences = {
                                 'lemma': '.',
                                 'upostag': 'PUNCT',
                                 'xpostag': 'Z',
-                                'feats': '_',
+                                'feats': OrderedDict(),
                                 'head': 3,
                                 'deprel': 'punct',
                                 'deps': '_',
@@ -155,7 +171,8 @@ stanza_dict_morph_analysis = {
                                 'lemma': 'väike',
                                 'upostag': 'A',
                                 'xpostag': 'A',
-                                'feats': 'sg=sg|n=n',
+                                'feats': OrderedDict([('sg', 'sg'),
+                                                      ('n', 'n')]),
                                 'head': 2,
                                 'deprel': 'amod',
                                 'deps': '_',
@@ -166,7 +183,8 @@ stanza_dict_morph_analysis = {
                                 'lemma': 'jänes',
                                 'upostag': 'S',
                                 'xpostag': 'S',
-                                'feats': 'sg=sg|n=n',
+                                'feats': OrderedDict([('sg', 'sg'),
+                                                      ('n', 'n')]),
                                 'head': 3,
                                 'deprel': 'nsubj',
                                 'deps': '_',
@@ -176,7 +194,7 @@ stanza_dict_morph_analysis = {
                                 'lemma': 'jooksma',
                                 'upostag': 'V',
                                 'xpostag': 'V',
-                                'feats': 's=s',
+                                'feats': OrderedDict([('s', 's')]),
                                 'head': 0,
                                 'deprel': 'root',
                                 'deps': '_',
@@ -186,7 +204,7 @@ stanza_dict_morph_analysis = {
                                 'lemma': 'mets',
                                 'upostag': 'S',
                                 'xpostag': 'S',
-                                'feats': 'adt=adt',
+                                'feats': OrderedDict([('adt', 'adt')]),
                                 'head': 3,
                                 'deprel': 'obl',
                                 'deps': '_',
@@ -197,7 +215,7 @@ stanza_dict_morph_analysis = {
                                 'lemma': '!',
                                 'upostag': 'Z',
                                 'xpostag': 'Z',
-                                'feats': '_',
+                                'feats': OrderedDict(),
                                 'head': 3,
                                 'deprel': 'punct',
                                 'deps': '_',
@@ -208,7 +226,8 @@ stanza_dict_morph_analysis = {
                                 'lemma': 'mina',
                                 'upostag': 'P',
                                 'xpostag': 'P',
-                                'feats': 'sg=sg|n=n',
+                                'feats': OrderedDict([('sg', 'sg'),
+                                                      ('n', 'n')]),
                                 'head': 3,
                                 'deprel': 'nsubj',
                                 'deps': '_',
@@ -219,7 +238,7 @@ stanza_dict_morph_analysis = {
                                 'lemma': 'ei',
                                 'upostag': 'V',
                                 'xpostag': 'V',
-                                'feats': 'neg=neg',
+                                'feats': OrderedDict([('neg', 'neg')]),
                                 'head': 3,
                                 'deprel': 'aux',
                                 'deps': '_',
@@ -229,7 +248,7 @@ stanza_dict_morph_analysis = {
                                 'lemma': 'jooksma',
                                 'upostag': 'V',
                                 'xpostag': 'V',
-                                'feats': 'o=o',
+                                'feats': OrderedDict([('o', 'o')]),
                                 'head': 0,
                                 'deprel': 'root',
                                 'deps': '_',
@@ -240,7 +259,7 @@ stanza_dict_morph_analysis = {
                                 'lemma': '.',
                                 'upostag': 'Z',
                                 'xpostag': 'Z',
-                                'feats': '_',
+                                'feats': OrderedDict(),
                                 'head': 3,
                                 'deprel': 'punct',
                                 'deps': '_',
@@ -256,7 +275,7 @@ def test_stanza_syntax_tagger():
     stanza_tagger.tag(text)
 
     text.tag_layer('morph_analysis')
-    stanza_tagger_ma = StanzaSyntaxTagger(output_layer='stanza_ma', input_type='morph_only')
+    stanza_tagger_ma = StanzaSyntaxTagger(output_layer='stanza_ma', input_type='morph_analysis')
     stanza_tagger_ma.tag(text)
 
     # stanza pipeline (on tokenized unambigous input)
