@@ -187,6 +187,59 @@ class PgSubCollection:
     def sql_count_query_text(self):
         return self.sql_count_query.as_string(self.collection.storage.conn)
 
+    @property
+    def sql_sampler_query(self):
+        """
+        Returns a SQL select statement that defines a sample over the subcollection.
+
+        TODO: Define this query properly based the current sketch
+        """
+
+        # Formatting is just for clarity. Also method is naive. It is just the template
+        sample_sql = SQL(
+            """SELECT * FROM
+            (
+                {subcollection}
+            ) as tbl 
+            TABLESAMPLE {sampling_method}({percentage})"""
+        ).format(
+            subcollection=self.sql_query,
+            sampling_method=SQL(self._method),
+            percentage=Literal(self._percentage))
+
+        # You used a construction
+        """
+        select * from 
+        bla-bla
+        where condition and 
+        id = any 
+        (
+            sample_query_for_id-s 
+        )
+        """
+        # For really large selections say 1% or 10% sample in and = ANY constructs may be slow
+        # The guaranteed to work construction is based on join
+        # select * from (bla) as subcollection
+        # join (sample_query_ids) as id_selection
+        # on subcollection.id = id_selection.id
+        #
+        # Another thing to notice is that you can use sample ids and then use join to select elements
+        # but you need to sample elements form the subcollection
+        # naively this could be obtained
+        # select * from (select id from (bla) as subcollection) as ids tablesample
+        # but this is terribly inefficient
+        # self.sql_query does joins over detached layers that are not part of where condition
+        # hence you need to define sql_index_query property for index selection
+        # while you are there you should optimise self.sql_count_query for the same reasons
+        #
+        # Anywhay these are just my hunches coming from various WTF experiences with SQL optimisation
+        # Test performance and choose the most maintainable/clear option with good performance.
+        #
+        # I would be glad if you would use """-strings with SQL formatting for clarity
+
+        raise NotImplementedError
+
+
     def select(self, additional_constraint: pg.WhereClause = None, selected_layers: Sequence[str] = None):
         """
         Returns a new subcollection that satisfies additional constraints.
@@ -211,6 +264,36 @@ class PgSubCollection:
 
     __read_cursor_counter = 0
 
+    def sample(self, method: str, seed, size, percentage): #The order of arguments to be optimised an harmonised with select
+        """
+        Returns an generator that can be iterated over
+        Whether you should get the same sample is up to the debate
+        Whether you could iterate it twice is also up to the debate
+
+        sample = subcollection.sample(...)
+        for text in sample:
+            print(text)
+        for text in sample:
+            print(text)
+
+        - consistent behaviours for the second for
+        a) Error('You cannot reiterate sample')
+        b) we get another independent sample
+        c) we get conditional behaviour depending whether we fix a sees or not
+           - seed fixed you can run code twice with same results
+           - see unspecified Error('You cannot reiterate sample unless you fix seed')
+
+        Other less relevant questions
+        - do we use a separate PgSubcollectionSample class to pack the end result
+          Fancy way to move sampling code out to different class.
+          If we implement gazillion methods for sampling then this might be reasonable
+          -- if we want to have uniform sampling over words/sentences instead of documents
+        - the iteration code will be very similar to self.__iter__ method and thus
+          we need to copy code or put it into separate function.
+          Initially a blatant copy of the code is ok
+        """
+
+        raise NotImplementedError
 
     def __iter__(self):
         """
