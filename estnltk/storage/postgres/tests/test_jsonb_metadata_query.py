@@ -18,7 +18,7 @@ def get_random_collection_name():
     return 'collection_{}'.format(random.randint(1, 1000000))
 
 
-class TestKeysQuery(unittest.TestCase):
+class TestJsonbMetadataQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
@@ -33,24 +33,24 @@ class TestKeysQuery(unittest.TestCase):
         delete_schema(self.storage)
         self.storage.close()
 
-    def test_keys_query(self):
+    def test_jsonb_metadata_query(self):
         collection = self.storage[get_random_collection_name()]
         collection.create()
 
         with collection.insert() as collection_insert:
-            text1 = Text('mis kell on?').analyse('morphology')
+            text1 = Text('mis kell on?').tag_layer()
             text1.meta['subcorpus'] = 'argivestlused'
             text1.meta['type'] = 'kõnekoosolek'
             collection_insert(text1, key=3)
-            text2 = Text('palju kell on?').analyse('morphology')
+            text2 = Text('palju kell on?').tag_layer()
             text2.meta['subcorpus'] = 'argivestlused'
             text2.meta['type'] = 'kiirkoosolek'
             collection_insert(text2, key=4)
-            text3 = Text('kus kell on?').analyse('morphology')
+            text3 = Text('kus kell on?').tag_layer()
             text3.meta['subcorpus'] = 'argivestlused'
             text3.meta['type'] = 'kõnekoosolek'
             collection_insert(text3, key=5)
-            text4 = Text('kes Kell on?').analyse('morphology')
+            text4 = Text('kes Kell on?').tag_layer()
             text4.meta['subcorpus'] = 'ajaleheartiklid'
             text4.meta['type'] = 'artikkel'
             collection_insert(text4, key=6)
