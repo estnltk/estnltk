@@ -70,6 +70,8 @@ from estnltk.storage.postgres.queries.block_query import BlockQuery
 from estnltk.storage.postgres.queries.index_query import IndexQuery
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
+from estnltk.storage.postgres.queries.metadata_query import JsonbMetadataQuery
+from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 
 from .structure.base.collection_structure_base import CollectionStructureBase
 from .structure import v00

@@ -3,7 +3,7 @@ from typing import Union, List, Set, Dict
 
 from estnltk.storage.postgres import collection_table_identifier
 from estnltk.storage.postgres.queries.query import Query
-from estnltk.storage.postgres import PgCollection
+from estnltk.storage.postgres.collection import PgCollection
 
 
 def _validate_value_data_type( values, meta_values, data_type:type, data_type_name:str ):
