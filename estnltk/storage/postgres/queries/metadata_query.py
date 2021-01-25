@@ -31,7 +31,7 @@ class JsonbMetadataQuery(Query):
     Note: this is a very simple query based on metadata key-value pairs that 
           need to be matching. If there are multiple pairs, all must match.
     """
-    __slots__ = ['_meta_values',]
+    __slots__ = ['_meta_values']
 
     def __init__(self, meta_values : Dict[str, Union[str, List[str]]]):
         # Check args
