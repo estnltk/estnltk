@@ -1,5 +1,5 @@
 from typing import Sequence, List
-from psycopg2.sql import SQL
+from psycopg2.sql import SQL, Literal
 from itertools import chain
 
 from estnltk import logger, Progressbar
@@ -85,6 +85,11 @@ class PgSubCollection:
         self.progressbar = progressbar
         self.return_index = return_index
         self.itersize = itersize
+        # for samping query
+        self._sampling_seed = None
+        self._sampling_method = None
+        self._sampling_percentage = None
+        self._sample_construction = None
 
     def __len__(self):
         """
@@ -191,22 +196,33 @@ class PgSubCollection:
     def sql_sampler_query(self):
         """
         Returns a SQL select statement that defines a sample over the subcollection.
-
-        TODO: Define this query properly based the current sketch
+        
+        TODO: how to combine TABLESAMPLE selection with _selection_criterion, 
+              such as SliceQuery
         """
-
+        
+        collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
+        
+        seed_sql = SQL(""" REPEATABLE({seed}) """).format(seed=Literal(self._sampling_seed)) if self._sampling_seed is not None else SQL("")
+        sample_sql = SQL("""SELECT {table}."id" FROM {table} TABLESAMPLE {sampling_method}({percentage}) {seed_sql}""").format( 
+                         table=collection_identifier, 
+                         sampling_method=SQL(self._sampling_method), 
+                         percentage=Literal(self._sampling_percentage), 
+                         seed_sql=seed_sql )
+        if not self._sample_construction or self._sample_construction == 'JOIN':
+            # 1) JOIN sample ON construction
+            whole_sample_query_sql = SQL("""SELECT * FROM ({subcollection}) AS subcollection JOIN ({sample_query}) AS sample_selection ON subcollection.id = sample_selection.id""").format(
+                subcollection=self.sql_query,
+                sample_query=sample_sql
+            )
+        elif self._sample_construction == 'ANY':
+            # 2) WHERE id in ANY(sample) construction
+            whole_sample_query_sql = SQL("""SELECT * FROM ({subcollection}) AS subcollection WHERE subcollection.id = ANY({sample_query})""").format(
+                subcollection=self.sql_query,
+                sample_query=sample_sql
+            )
+        return whole_sample_query_sql
         # Formatting is just for clarity. Also method is naive. It is just the template
-        sample_sql = SQL(
-            """SELECT * FROM
-            (
-                {subcollection}
-            ) as tbl 
-            TABLESAMPLE {sampling_method}({percentage})"""
-        ).format(
-            subcollection=self.sql_query,
-            sampling_method=SQL(self._method),
-            percentage=Literal(self._percentage))
-
         # You used a construction
         """
         select * from 
@@ -237,8 +253,20 @@ class PgSubCollection:
         #
         # I would be glad if you would use """-strings with SQL formatting for clarity
 
-        raise NotImplementedError
 
+    @property
+    def sql_sampler_count_query(self):
+        # TODO: Do not stress SQL analyzer write a flat query for it
+        return SQL('SELECT count(*) FROM ({}) AS a').format(self.sql_sampler_query)
+
+    def _sample_len(self):
+        """
+        Executes an SQL query to find the size of the sample subcollection. The result is not cached.
+        """
+        with self.collection.storage.conn.cursor() as cur:
+            cur.execute(self.sql_sampler_count_query)
+            logger.debug(cur.query.decode())
+            return next(cur)[0]
 
     def select(self, additional_constraint: pg.WhereClause = None, selected_layers: Sequence[str] = None):
         """
@@ -263,12 +291,13 @@ class PgSubCollection:
                                )
 
     __read_cursor_counter = 0
-
-    def sample(self, method: str, seed, size, percentage): #The order of arguments to be optimised an harmonised with select
+    __read_sample_cursor_counter = 0
+    
+    def sample(self, amount, amount_type:str='PERCENTAGE', seed=None, 
+                     method:str='BERNOULLI', construction:str='JOIN'):
         """
-        Returns an generator that can be iterated over
-        Whether you should get the same sample is up to the debate
-        Whether you could iterate it twice is also up to the debate
+        Returns an generator that can be iterated over.
+        If you iterate it twice like this:
 
         sample = subcollection.sample(...)
         for text in sample:
@@ -276,24 +305,105 @@ class PgSubCollection:
         for text in sample:
             print(text)
 
-        - consistent behaviours for the second for
-        a) Error('You cannot reiterate sample')
-        b) we get another independent sample
-        c) we get conditional behaviour depending whether we fix a sees or not
-           - seed fixed you can run code twice with same results
-           - see unspecified Error('You cannot reiterate sample unless you fix seed')
+        then:
+        - if the seed is fixed, then the code runs OK
+        - otherwise (no seed fixed) an Exception is risen ('cannot reiterate unless you fix seed')
 
         Other less relevant questions
         - do we use a separate PgSubcollectionSample class to pack the end result
           Fancy way to move sampling code out to different class.
           If we implement gazillion methods for sampling then this might be reasonable
           -- if we want to have uniform sampling over words/sentences instead of documents
-        - the iteration code will be very similar to self.__iter__ method and thus
-          we need to copy code or put it into separate function.
-          Initially a blatant copy of the code is ok
         """
+        # Check that args have valid values
+        if method not in ['SYSTEM', 'BERNOULLI']:
+            raise ValueError('(!) Sampling method {} not supported. Use {} or {}.'.format( method, 'SYSTEM', 'BERNOULLI' ))
+        if amount_type not in ['PERCENTAGE', 'SIZE']:
+            raise ValueError('(!) Sampling amount_type {} not supported. Use {} or {}.'.format( method, 'PERCENTAGE', 'SIZE' ))
+        if amount_type == 'PERCENTAGE':
+            percentage = amount
+            if percentage < 0 or percentage > 100:
+                raise ValueError('(!) Invalid percentage value {}.'.format( percentage ))
+        elif amount_type == 'SIZE':
+            if amount is None or not isinstance(amount, int):
+                raise ValueError('(!) Invalid amount value {}. Used int type.'.format( amount ))
+            # Recalculate amount as percentage
+            # 1) Find the selection size
+            selection_size = len(self)
+            if selection_size == 0:
+                raise ValueError('(!) Unable to sample a fixed amount from an empty subcollection.')
+            # 2) Find the approximate percentage
+            percentage = ( amount*100.0 ) / selection_size
+            assert not (percentage < 0 or percentage > 100)
+        if seed is not None and not isinstance(seed, (int, float)):
+            raise ValueError('(!) Invalid seed value {}. Used int or float.'.format( seed ))
+        if construction and construction not in ['JOIN', 'ANY']:
+            raise ValueError('(!) Sampling construction {} not supported. Use {} or {}.'.format( construction, 'JOIN', 'ANY' ))
+        # Check for reiteration
+        if not self._sampling_seed and not seed:
+            # If no seed was given, then do not allow a reiteration
+            if self._sampling_method == method and \
+               self._sampling_percentage == percentage:
+               raise Exception('(!) You cannot reiterate sample unless you fix seed.')
+        # Record arguments
+        self._sampling_method = method
+        self._sampling_percentage = percentage
+        self._sampling_seed = seed
+        # TODO: this is only for debugging purposes: to be removed later
+        self._sample_construction = construction
+        
+        # TODO: the following code is basically a very close copy of the self.__iter__ method
+        #       (with a small exception that concerns situations where construction == 'JOIN')
+        #       the code could be refactored into a separate function in the future
+        
+        # Gain few milliseconds: Find the selection size only if it used in a progress bar.
+        total = 0 if self.progressbar is None else self._sample_len()
 
-        raise NotImplementedError
+        # Server side cursor must have unique name per transaction
+        # To make code thread-safe we use unique naming scheme inside storage (per connection)
+        # TODO: Current naming scheme is not correct
+        # Let the storage handle the naming
+
+        self.__class__.__read_sample_cursor_counter += 1
+        cur_name = 'sample_read_{}'.format(self.__class__.__read_sample_cursor_counter)
+
+        with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
+            server_cursor.itersize = self.itersize
+            server_cursor.execute(self.sql_sampler_query)
+            logger.debug(server_cursor.query.decode())
+            data_iterator = Progressbar(iterable=server_cursor, total=total, initial=0, progressbar_type=self.progressbar)
+            structure = self.collection.structure
+
+            if self.meta_attributes and self.return_index:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    meta_stop = 2 + len(self.meta_attributes)
+                    meta = {attr: value for attr, value in zip(self.meta_attributes, row[2:meta_stop])}
+                    layer_dicts = row[meta_stop:] if construction != 'JOIN' else row[meta_stop:-1]
+                    text = self.assemble_text_object(row[1], layer_dicts, self.selected_layers, structure)
+                    yield row[0], text, meta
+
+            elif self.meta_attributes:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    meta_stop = 2 + len(self.meta_attributes)
+                    meta = {attr: value for attr, value in zip(self.meta_attributes, row[2:meta_stop])}
+                    layer_dicts = row[meta_stop:] if construction != 'JOIN' else row[meta_stop:-1]
+                    text = self.assemble_text_object(row[1], layer_dicts, self.selected_layers, structure)
+                    yield text, meta
+
+            elif self.return_index:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    layer_dicts = row[2:] if construction != 'JOIN' else row[2:-1]
+                    yield row[0], self.assemble_text_object(row[1], layer_dicts, self.selected_layers, structure)
+
+            else:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    layer_dicts = row[2:] if construction != 'JOIN' else row[2:-1]
+                    yield self.assemble_text_object(row[1], row[2:-1], self.selected_layers, structure)
+
 
     def __iter__(self):
         """
