@@ -185,8 +185,10 @@ class TestPgSubCollectionSample(unittest.TestCase):
         # Reiteration is disallowed without seed
         # Default select with sample size approx. 5% and no seed
         res3 = list( cur_selection.sample(5, seed=None, method='BERNOULLI', construction='JOIN') )
-        self.assertEqual(len(res1), 4)
-        with self.assertRaises(Exception) as expept:
+        # The number of selected documents will fluctuate
+        self.assertLessEqual(1, len(res3))
+        self.assertGreaterEqual(12, len(res3))
+        with self.assertRaises(Exception) as exception:
             # Reiteration should rise an exception
             res4 = list( cur_selection.sample(5, seed=None, method='BERNOULLI', construction='JOIN') )
         collection.delete()

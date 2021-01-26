@@ -326,7 +326,7 @@ class PgSubCollection:
                 raise ValueError('(!) Invalid percentage value {}.'.format( percentage ))
         elif amount_type == 'SIZE':
             if amount is None or not isinstance(amount, int):
-                raise ValueError('(!) Invalid amount value {}. Used int type.'.format( amount ))
+                raise TypeError('(!) Invalid amount type {}. Used integer.'.format( amount ))
             # Recalculate amount as percentage
             # 1) Find the selection size
             selection_size = len(self)
@@ -354,7 +354,7 @@ class PgSubCollection:
         
         # TODO: the following code is basically a very close copy of the self.__iter__ method
         #       (with a small exception that concerns situations where construction == 'JOIN')
-        #       the code could be refactored into a separate function in the future
+        #       It could be refactored into a separate function in future.
         
         # Gain few milliseconds: Find the selection size only if it used in a progress bar.
         total = 0 if self.progressbar is None else self._sample_len()
