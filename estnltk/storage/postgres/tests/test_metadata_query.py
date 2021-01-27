@@ -28,6 +28,8 @@ class TestMetadataQuery(unittest.TestCase):
             # TODO: for some reason we get DuplicateSchema error. Unexpected?
             delete_schema(self.storage)
             create_schema(self.storage)
+        except:
+            raise
 
     def tearDown(self):
         delete_schema(self.storage)
