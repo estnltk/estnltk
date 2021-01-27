@@ -147,8 +147,9 @@ class TestPgSubCollectionSample(unittest.TestCase):
         # Default select with sample size approx. 10% and no fixed seed
         res = list( collection.select().sample(10, seed=None, method='BERNOULLI', construction='JOIN') )
         # The number of selected documents will fluctuate
-        self.assertLessEqual(2, len(res))
-        self.assertGreaterEqual(18, len(res))
+        # and we give it a broad approximate range
+        self.assertLessEqual(0, len(res))
+        self.assertGreaterEqual(10+30, len(res))
         collection.delete()
 
 
@@ -188,8 +189,9 @@ class TestPgSubCollectionSample(unittest.TestCase):
         # Default select with sample size approx. 5% and no seed
         res3 = list( cur_selection.sample(5, seed=None, method='BERNOULLI', construction='JOIN') )
         # The number of selected documents will fluctuate
-        self.assertLessEqual(1, len(res3))
-        self.assertGreaterEqual(12, len(res3))
+        # and we give it a broad approximate range
+        self.assertLessEqual(0, len(res3))
+        self.assertGreaterEqual(5+20, len(res3))
         with self.assertRaises(Exception) as exception:
             # Reiteration should rise an exception
             res4 = list( cur_selection.sample(5, seed=None, method='BERNOULLI', construction='JOIN') )
@@ -249,8 +251,9 @@ class TestPgSubCollectionSample(unittest.TestCase):
         # Default select with sample size approx. 10% and no fixed seed
         res = list( collection.select(layers=[ vabamorf_tagger.output_layer ]).sample(10, seed=None, method='BERNOULLI', construction='JOIN') )
         # The number of selected documents will fluctuate
-        self.assertLessEqual(2, len(res))
-        self.assertGreaterEqual(18, len(res))
+        # and we give it a broad approximate range
+        self.assertLessEqual(0, len(res))
+        self.assertGreaterEqual(10+30, len(res))
         collection.delete()
 
 
@@ -271,14 +274,25 @@ class TestPgSubCollectionSample(unittest.TestCase):
                                 data_iterator = data_iterator, 
                                 row_mapper = vabamorf_row_mapper, 
                                 tagger=None, mode='overwrite')
-        #
         # Construction type: JOIN
-        # Select with 'morph_analysis' and sliceQuery(25:75) and sample size approx. 5%
-        res = list( collection.select(query=SliceQuery(25, 75), layers=[ vabamorf_tagger.output_layer ]).sample(5, seed=55, method='BERNOULLI', construction='JOIN') )
-        # TODO: this is problematic behaviour: too few documents will be selected
-        #self.assertGreater(len(res), 2)
-        #self.assertListNotEqual([t[1].meta['text_id'] for t in res], [38])
-        pass
+        # Select with 'morph_analysis' and SliceQuery(30:80) and sample size approx. 5%
+        res = list( collection.select(query=SliceQuery(30, 80), 
+                                      layers=[ vabamorf_tagger.output_layer ]).sample(5, seed=55, method='BERNOULLI', construction='JOIN') )
+        self.assertEqual(len(res), 2)
+        self.assertEqual(len(res[0]), 2)
+        self.assertListEqual([t[1].meta['text_id'] for t in res], [38, 77])
+        # Construction type: default
+        # Select with 'morph_analysis' and JsonbMetadataQuery(text_id=20...39) and sample size approx. 50%
+        res = list( collection.select(query=JsonbMetadataQuery( {'text_id':[ str(20+i) for i in range(10) ]} ), 
+                                      layers=[ vabamorf_tagger.output_layer ]).sample(50, seed=55, method='BERNOULLI') )
+        self.assertEqual(len(res), 6)
+        self.assertEqual(len(res[0]), 2)
+        self.assertListEqual([t[1].meta['text_id'] for t in res], [20, 21, 22, 23, 26, 29])
+        # Select with 'morph_analysis' and SliceQuery(25:75) and sample size approx. 10 items
+        res = list( collection.select(query=SliceQuery(25, 75), 
+                                      layers=[ vabamorf_tagger.output_layer ]).sample(10, amount_type = 'SIZE', seed=55, method='BERNOULLI') )
+        self.assertEqual(len(res), 9)
+        self.assertEqual(len(res[0]), 2)
+        self.assertListEqual([t[1].meta['text_id'] for t in res], [26, 32, 37, 38, 40, 51, 66, 68, 72])
         collection.delete()
-        
         
