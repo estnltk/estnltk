@@ -197,13 +197,15 @@ class PgSubCollection:
         """
         Returns a SQL select statement that defines a sample over the subcollection.
         
-        TODO: how to combine TABLESAMPLE selection with _selection_criterion, 
-              such as SliceQuery
+        TODO: an idea for performance improvement:
+              self.sql_query does joins over detached layers that are not part of where condition
+              hence you need to define sql_index_query property for index selection
+              while you are there you should optimise self.sql_count_query for the same reasons
         """
-        
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
         
-        seed_sql = SQL(""" REPEATABLE({seed}) """).format(seed=Literal(self._sampling_seed)) if self._sampling_seed is not None else SQL("")
+        seed_sql = SQL(""" REPEATABLE({seed}) """).format(seed=Literal(self._sampling_seed)) \
+                       if self._sampling_seed is not None else SQL("")
         sample_sql = SQL("""SELECT {table}."id" FROM {table} TABLESAMPLE {sampling_method}({percentage}) {seed_sql}""").format( 
                          table=collection_identifier, 
                          sampling_method=SQL(self._sampling_method), 
@@ -211,48 +213,19 @@ class PgSubCollection:
                          seed_sql=seed_sql )
         if not self._sample_construction or self._sample_construction == 'JOIN':
             # 1) JOIN sample ON construction
-            whole_sample_query_sql = SQL("""SELECT * FROM ({subcollection}) AS subcollection JOIN ({sample_query}) AS sample_selection ON subcollection.id = sample_selection.id""").format(
+            whole_sample_query_sql = SQL("""SELECT * FROM ({subcollection}) AS subcollection JOIN ({sample_query}) """+
+                                         """AS sample_selection ON subcollection.id = sample_selection.id""").format(
                 subcollection=self.sql_query,
                 sample_query=sample_sql
             )
         elif self._sample_construction == 'ANY':
             # 2) WHERE id in ANY(sample) construction
-            whole_sample_query_sql = SQL("""SELECT * FROM ({subcollection}) AS subcollection WHERE subcollection.id = ANY({sample_query})""").format(
+            whole_sample_query_sql = SQL("""SELECT * FROM ({subcollection}) AS subcollection """+
+                                         """WHERE subcollection.id = ANY({sample_query})""").format(
                 subcollection=self.sql_query,
                 sample_query=sample_sql
             )
         return whole_sample_query_sql
-        # Formatting is just for clarity. Also method is naive. It is just the template
-        # You used a construction
-        """
-        select * from 
-        bla-bla
-        where condition and 
-        id = any 
-        (
-            sample_query_for_id-s 
-        )
-        """
-        # For really large selections say 1% or 10% sample in and = ANY constructs may be slow
-        # The guaranteed to work construction is based on join
-        # select * from (bla) as subcollection
-        # join (sample_query_ids) as id_selection
-        # on subcollection.id = id_selection.id
-        #
-        # Another thing to notice is that you can use sample ids and then use join to select elements
-        # but you need to sample elements form the subcollection
-        # naively this could be obtained
-        # select * from (select id from (bla) as subcollection) as ids tablesample
-        # but this is terribly inefficient
-        # self.sql_query does joins over detached layers that are not part of where condition
-        # hence you need to define sql_index_query property for index selection
-        # while you are there you should optimise self.sql_count_query for the same reasons
-        #
-        # Anywhay these are just my hunches coming from various WTF experiences with SQL optimisation
-        # Test performance and choose the most maintainable/clear option with good performance.
-        #
-        # I would be glad if you would use """-strings with SQL formatting for clarity
-
 
     @property
     def sql_sampler_count_query(self):
@@ -296,20 +269,55 @@ class PgSubCollection:
     def sample(self, amount, amount_type:str='PERCENTAGE', seed=None, 
                      method:str='BERNOULLI', construction:str='JOIN'):
         """
-        Returns an generator that can be iterated over.
-        If you iterate it twice like this:
+        Yields a sample of subcollection elements ordered by the text_id.
+        
+        Amount of the sample can be either a percentage of elements
+        (default), or an approximate number of elements -- in the 
+        last case, an extra parameter amount_type='SIZE' must be 
+        passed to the sample function. 
+        Be aware that regardless of the amount_type, the number of 
+        returned elements will not correspond exactly to the given 
+        amount. If you need a sample with exact size, it is advisable 
+        to sample a slightly larger amount than needed, and then cut 
+        the results to the required size.
+        
+        Note: the sampling function relies on Postgre's TABLESAMPLE clause.
+        For details, see:
+        1) https://www.2ndquadrant.com/en/blog/tablesample-in-postgresql-9-5-2/
+        2) https://www.postgresql.org/docs/13/sql-select.html > TABLESAMPLE
 
-        sample = subcollection.sample(...)
+        Reiteration. If you iterate the function twice like this:
+
+        sample = subcollection.sample( amount, seed=seed_value )
         for text in sample:
             print(text)
         for text in sample:
             print(text)
 
         then:
-        - if the seed is fixed, then the code runs OK
-        - otherwise (no seed fixed) an Exception is risen ('cannot reiterate unless you fix seed')
+        - if the seed_value is a fixed integer, then the code runs OK;
+        - otherwise (if seed_value is None) an Exception will be risen 
+          ('cannot reiterate unless you fix seed')
+        
+        Parameters:
+        
+        :param amount: int or float
+            Size of the sample. if amount_type=='PERCENTAGE' (default),
+            then it is a percentage. Otherwise, it is an approximate 
+            number of documents to be sampled.
+        :param amount_type: str
+            Amount type, one of the following: ['PERCENTAGE', 'SIZE']
+        :param seed  int or float
+            Seed value to be fixed to ensure repeatability.
+        :param method: str
+            Sampling method, one of the following: ['SYSTEM', 'BERNOULLI'].
+            Note: this corresponds to Postgre's TABLESAMPLE's sampling methods.
+        :param construction: str
+            SQL-joining construction type, one of the following: ['JOIN', 'ANY'].
+            Note: this parameter is here only for testing and debugging.
+            Do not rely on this, as it will be removed later.
 
-        Other less relevant questions
+        TODO: Other less relevant question
         - do we use a separate PgSubcollectionSample class to pack the end result
           Fancy way to move sampling code out to different class.
           If we implement gazillion methods for sampling then this might be reasonable
@@ -333,7 +341,7 @@ class PgSubCollection:
             if selection_size == 0:
                 raise ValueError('(!) Unable to sample a fixed amount from an empty subcollection.')
             # 2) Find the approximate percentage
-            percentage = ( amount*100.0 ) / selection_size
+            percentage = ( amount * 100.0 ) / selection_size
             assert not (percentage < 0 or percentage > 100)
         if seed is not None and not isinstance(seed, (int, float)):
             raise ValueError('(!) Invalid seed value {}. Used int or float.'.format( seed ))
