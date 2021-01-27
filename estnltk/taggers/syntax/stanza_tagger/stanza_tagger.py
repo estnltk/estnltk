@@ -77,6 +77,7 @@ class StanzaSyntaxTagger(Tagger):
                 raise ValueError('`add_parent_and_children` must be True for marking agreement errors.')
             else:
                 self.agreement_error_retagger = DeprelAgreementRetagger(output_layer=output_layer)
+                self.output_attributes += ('agreement_deprel',)
 
         if self.input_type not in ['sentences', 'morph_analysis', 'morph_extended']:
             raise ValueError('Invalid input type {}'.format(input_type))
@@ -92,6 +93,11 @@ class StanzaSyntaxTagger(Tagger):
                 self.model_path = os.path.join(RESOURCES, 'et', 'depparse', 'morph_extended.pt')
             if input_type == 'sentences':
                 self.model_path = os.path.join(RESOURCES, 'et', 'depparse', 'stanza_depparse.pt')
+
+        if not os.path.isfile(self.model_path) or not os.path.isfile(os.path.join(RESOURCES, 'et', 'pretrain', 'edt.pt')):
+            raise FileNotFoundError('Necessary models missing, download from https://entu.keeleressursid.ee/api2/file-24505 '
+                             'and extract folders `depparse` and `pretrain` to root directory defining '
+                             'StanzaSyntaxTagger under the subdirectory `stanza_resources/et`')
 
         if self.input_type == 'sentences':
             self.input_layers = [sentences_layer, words_layer]
