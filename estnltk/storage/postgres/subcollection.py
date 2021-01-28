@@ -85,7 +85,7 @@ class PgSubCollection:
         self.progressbar = progressbar
         self.return_index = return_index
         self.itersize = itersize
-        # for samping query
+        # for sampling query
         self._sampling_seed = None
         self._sampling_method = None
         self._sampling_percentage = None
@@ -278,8 +278,10 @@ class PgSubCollection:
         Be aware that regardless of the amount_type, the number of 
         returned elements will not correspond exactly to the given 
         amount. If you need a sample with exact size, it is advisable 
-        to sample a slightly larger amount than needed, and then cut 
-        the results to the required size.
+        to sample a larger amount than needed, permute/shuffle the 
+        sample (in order  to  ensure  that all elements have even
+        chance ending up in the final sample), and then cut the 
+        sample to the required size.
         
         Note: the sampling function relies on Postgre's TABLESAMPLE clause.
         For details, see:
