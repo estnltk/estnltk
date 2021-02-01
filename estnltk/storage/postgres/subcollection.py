@@ -1,5 +1,5 @@
 from typing import Sequence, List
-from psycopg2.sql import SQL, Literal
+from psycopg2.sql import SQL, Literal, Identifier
 from itertools import chain
 
 from estnltk import logger, Progressbar
@@ -240,26 +240,52 @@ class PgSubCollection:
         seed = 1
         alpha = 0.01
         layer = 'sentences'
-        layer_table_identifier = pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
+        layer_is_attached = False
 
-        q1 = SQL("""SELECT {{target_layer_table}}."text_id" AS id, """+
-                 """jsonb_array_length( {{target_layer_table}}."data"->'spans' ) as layer_size, """+
-                 """{{target_layer_table}}."data" as layer_data FROM {{target_layer_table}}""").format( target_layer_table=layer_table_identifier )
+        # 1) Get layer's content and size
+        if layer_is_attached:
+            # attached layer
+            collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
+            q0 = SQL("""SELECT {{target_collection_table}}."id", layer_json AS layer_data, layer_idx FROM {{target_collection_table}}, """+
+                     """jsonb_array_elements( {{target_collection_table}}."data"->'layers' ) WITH ORDINALITY arr( layer_json, layer_idx ) """+
+                     """WHERE layer_json::jsonb  @> '{ "name":{{layer_name}} }'::jsonb""").format( target_collection_table=collection_identifier,
+                     layer_name=Identifier(layer))
+            q1 = SQL("""SELECT id, jsonb_array_length( layer_data->'spans' ) as layer_size, layer_data FROM ({{q0}}) AS q0""").format( q0=q0 )
+        else:
+            # detached layer
+            layer_identifier = pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
+            q1 = SQL("""SELECT {{target_layer_table}}."text_id" AS id, """+
+                     """jsonb_array_length( {{target_layer_table}}."data"->'spans' ) as layer_size, """+
+                     """{{target_layer_table}}."data" as layer_data FROM {{target_layer_table}}""").format( target_layer_table=layer_identifier )
+        # 2) Make a random pick of texts
         q2 = SQL("""SELECT id, layer_size, 1-(1-{{alpha}})^layer_size as doc_threshold, RANDOM() as rnd1, layer_data FROM ({{q1}}) AS q1""").format(alpha=Literal(alpha), q1=q1)
         q3 = SQL("""SELECT id, layer_size, doc_threshold, rnd1, layer_data FROM ({{q2}}) AS q2 WHERE rnd1 <= doc_threshold""").format(q2=q2)
+        # 3) Make a random pick of layer's spans
         q4 = SQL("""SELECT id, layer_size, doc_threshold, arr.layer_span_json AS layer_span, """+
                  """arr.layer_span_idx AS layer_span_index, """+
                  """{{alpha}}/(1-({{alpha}})^doc_threshold) AS span_threshold, """+
                  """RANDOM() as rnd2 FROM ({{q3}}) AS q3, """+
                  """jsonb_array_elements(layer_data->'spans') WITH ORDINALITY arr( layer_span_json, layer_span_idx )""").format(alpha=Literal(alpha), q3=q3)
         q5 = SQL("""SELECT id, layer_size, doc_threshold, layer_span, layer_span_index, span_threshold, rnd2 FROM ({{q4}}) AS q4 WHERE rnd2 <= span_threshold""").format(q4=q4)
+        # 5) Replace old spans with randomly picked spans
         q6 = SQL("""SELECT id, jsonb_build_object( 'spans', array_agg( layer_span ORDER BY layer_span_index )) AS selected_spans FROM ({{q5}}) AS q5 GROUP BY id""").format(q5=q5)
-        q7 = SQL("""SELECT {{target_layer_table}}."text_id" AS id, {{target_layer_table}}."data"::jsonb-'spans' AS layer_wo_spans FROM {{target_layer_table}}""").format(target_layer_table=layer_table_identifier)
-        q8 = SQL("""SELECT q6.id AS text_id, (q7.layer_wo_spans || q6.selected_spans) as layer_data_rnd_selection FROM ({{q6}}) q6 JOIN ({{q7}}) q7 ON (q6.id = q7.id);""")
+        if layer_is_attached:
+            # attached layer -- assemble new text json where the old layer has been replaced by the new one that has the randomly selected spans
+            collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
+            q7 = SQL("""SELECT {{target_collection_table}}."id", {{target_collection_table}}."data" as text_data, layer_json::jsonb - 'spans' AS layer_wo_spans, layer_idx """+
+                     """FROM {{target_collection_table}}, jsonb_array_elements( {{target_collection_table}}."data"->'layers' ) WITH ORDINALITY arr( layer_json, layer_idx ) """+
+                     """WHERE layer_json::jsonb  @> '{ "name":{{layer_name}} }'::jsonb""".format( target_collection_table=collection_identifier,
+                     layer_name=Identifier(layer)))
+            q8 = SQL("""SELECT q6.id AS text_id, """+
+                     """jsonb_set( q7.text_data::jsonb, ('{layers,'||q7.layer_idx||'}')::text[], (q7.layer_wo_spans || q6.selected_spans), false) as text_data_w_layer_rnd_selection """+
+                     """FROM ({{q6}}) q6 JOIN ({{q7}}) q7 ON (q6.id = q7.id);""").format(q6=q6, q7=q7)
+        else:
+            # detached layer -- assemble new layer json which only has the randomly selected spans
+            layer_identifier = pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
+            q7 = SQL("""SELECT {{target_layer_table}}."text_id" AS id, {{target_layer_table}}."data"::jsonb-'spans' AS layer_wo_spans FROM {{target_layer_table}}""").format(target_layer_table=layer_identifier)
+            q8 = SQL("""SELECT q6.id AS text_id, (q7.layer_wo_spans || q6.selected_spans) as layer_data_rnd_selection FROM ({{q6}}) q6 JOIN ({{q7}}) q7 ON (q6.id = q7.id);""").format(q6=q6, q7=q7)
 
         seed_query = SQL("""SELECT setseed({{seed_value}});""").format( seed_value = Literal(seed) )
-        
-        # TODO: A version for an attached layer
         
         # TODO: join the query with the subcollection query
         
