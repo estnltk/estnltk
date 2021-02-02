@@ -1,6 +1,7 @@
 from typing import Sequence, List
 from psycopg2.sql import SQL, Literal, Identifier
 from itertools import chain
+from random import uniform
 
 from estnltk import logger, Progressbar
 from estnltk import Text
@@ -85,11 +86,18 @@ class PgSubCollection:
         self.progressbar = progressbar
         self.return_index = return_index
         self.itersize = itersize
-        # for sampling query
+        # for sample documents query
         self._sampling_seed = None
         self._sampling_method = None
         self._sampling_percentage = None
         self._sample_construction = None
+        # for sample from layer query
+        self._sample_from_layer             = None
+        self._sample_from_layer_seed        = None  # seed given by the user
+        self._sample_from_layer_auto_seed   = None  # an automatically assigned seed (to make counting query repeatable)
+        self._sample_from_layer_alpha       = None
+        self._sample_from_layer_is_attached = None
+
 
     def __len__(self):
         """
@@ -228,68 +236,99 @@ class PgSubCollection:
         return whole_sample_query_sql
 
     @property
-    def sql_sample_layer_query(self):
+    def sql_sample_from_layer_query(self):
         """
-        Returns a SQL select statement that selects layer elements randomly.
-        
-        TODO: This is a work in progress
+        Returns a SQL select statement that samples elements from specific layer randomly.
         """
-        
-        # This version should work on a detached layer
-        
-        seed = 1
-        alpha = 0.01
-        layer = 'sentences'
-        layer_is_attached = False
+        alpha             = self._sample_from_layer_alpha
+        layer             = self._sample_from_layer
+        layer_is_attached = self._sample_from_layer_is_attached 
 
         # 1) Get layer's content and size
         if layer_is_attached:
             # attached layer
             collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
-            q0 = SQL("""SELECT {{target_collection_table}}."id", layer_json AS layer_data, layer_idx FROM {{target_collection_table}}, """+
-                     """jsonb_array_elements( {{target_collection_table}}."data"->'layers' ) WITH ORDINALITY arr( layer_json, layer_idx ) """+
-                     """WHERE layer_json::jsonb  @> '{ "name":{{layer_name}} }'::jsonb""").format( target_collection_table=collection_identifier,
-                     layer_name=Identifier(layer))
-            q1 = SQL("""SELECT id, jsonb_array_length( layer_data->'spans' ) as layer_size, layer_data FROM ({{q0}}) AS q0""").format( q0=q0 )
+            q0 = SQL("""SELECT {target_collection_table}."id", layer_json AS layer_data, layer_idx FROM {target_collection_table}, """+
+                     """jsonb_array_elements( {target_collection_table}."data"->'layers' ) WITH ORDINALITY arr( layer_json, layer_idx ) """+
+                     """WHERE layer_json::jsonb @> {layer_name}::jsonb""").format( target_collection_table=collection_identifier,
+                     layer_name=Literal( '{{ "name":"{}" }}'.format(layer) ))
+            q1 = SQL("""SELECT id, jsonb_array_length( layer_data->'spans' ) as layer_size, layer_data FROM ({q0}) AS q0""").format( q0=q0 )
         else:
             # detached layer
             layer_identifier = pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
-            q1 = SQL("""SELECT {{target_layer_table}}."text_id" AS id, """+
-                     """jsonb_array_length( {{target_layer_table}}."data"->'spans' ) as layer_size, """+
-                     """{{target_layer_table}}."data" as layer_data FROM {{target_layer_table}}""").format( target_layer_table=layer_identifier )
+            q1 = SQL("""SELECT {target_layer_table}."text_id" AS id, """+
+                     """jsonb_array_length( {target_layer_table}."data"->'spans' ) as layer_size, """+
+                     """{target_layer_table}."data" as layer_data FROM {target_layer_table}""").format( target_layer_table=layer_identifier )
         # 2) Make a random pick of texts
-        q2 = SQL("""SELECT id, layer_size, 1-(1-{{alpha}})^layer_size as doc_threshold, RANDOM() as rnd1, layer_data FROM ({{q1}}) AS q1""").format(alpha=Literal(alpha), q1=q1)
-        q3 = SQL("""SELECT id, layer_size, doc_threshold, rnd1, layer_data FROM ({{q2}}) AS q2 WHERE rnd1 <= doc_threshold""").format(q2=q2)
+        q2 = SQL("""SELECT id, layer_size, 1-(1-{alpha})^layer_size as doc_threshold, RANDOM() as rnd1, layer_data FROM ({q1}) AS q1""").format(alpha=Literal(alpha), q1=q1)
+        q3 = SQL("""SELECT id, layer_size, doc_threshold, rnd1, layer_data FROM ({q2}) AS q2 WHERE rnd1 <= doc_threshold""").format(q2=q2)
         # 3) Make a random pick of layer's spans
         q4 = SQL("""SELECT id, layer_size, doc_threshold, arr.layer_span_json AS layer_span, """+
                  """arr.layer_span_idx AS layer_span_index, """+
-                 """{{alpha}}/(1-({{alpha}})^doc_threshold) AS span_threshold, """+
-                 """RANDOM() as rnd2 FROM ({{q3}}) AS q3, """+
+                 """{alpha}/(1-({alpha})^doc_threshold) AS span_threshold, """+
+                 """RANDOM() as rnd2 FROM ({q3}) AS q3, """+
                  """jsonb_array_elements(layer_data->'spans') WITH ORDINALITY arr( layer_span_json, layer_span_idx )""").format(alpha=Literal(alpha), q3=q3)
-        q5 = SQL("""SELECT id, layer_size, doc_threshold, layer_span, layer_span_index, span_threshold, rnd2 FROM ({{q4}}) AS q4 WHERE rnd2 <= span_threshold""").format(q4=q4)
+        q5 = SQL("""SELECT id, layer_size, doc_threshold, layer_span, layer_span_index, span_threshold, rnd2 FROM ({q4}) AS q4 WHERE rnd2 <= span_threshold""").format(q4=q4)
         # 5) Replace old spans with randomly picked spans
-        q6 = SQL("""SELECT id, jsonb_build_object( 'spans', array_agg( layer_span ORDER BY layer_span_index )) AS selected_spans FROM ({{q5}}) AS q5 GROUP BY id""").format(q5=q5)
+        q6 = SQL("""SELECT id, jsonb_build_object( 'spans', array_agg( layer_span ORDER BY layer_span_index )) AS selected_spans FROM ({q5}) AS q5 GROUP BY id""").format(q5=q5)
+        # 6) Assemble new layer json which only has the randomly selected spans;
         if layer_is_attached:
-            # attached layer -- assemble new text json where the old layer has been replaced by the new one that has the randomly selected spans
+            # attached layer
             collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
-            q7 = SQL("""SELECT {{target_collection_table}}."id", {{target_collection_table}}."data" as text_data, layer_json::jsonb - 'spans' AS layer_wo_spans, layer_idx """+
-                     """FROM {{target_collection_table}}, jsonb_array_elements( {{target_collection_table}}."data"->'layers' ) WITH ORDINALITY arr( layer_json, layer_idx ) """+
-                     """WHERE layer_json::jsonb  @> '{ "name":{{layer_name}} }'::jsonb""".format( target_collection_table=collection_identifier,
-                     layer_name=Identifier(layer)))
-            q8 = SQL("""SELECT q6.id AS text_id, """+
-                     """jsonb_set( q7.text_data::jsonb, ('{layers,'||q7.layer_idx||'}')::text[], (q7.layer_wo_spans || q6.selected_spans), false) as text_data_w_layer_rnd_selection """+
-                     """FROM ({{q6}}) q6 JOIN ({{q7}}) q7 ON (q6.id = q7.id);""").format(q6=q6, q7=q7)
+            q7 = SQL("""SELECT {target_collection_table}."id", {target_collection_table}."data" as text_data, layer_json::jsonb - 'spans' AS layer_wo_spans, layer_idx """+
+                     """FROM {target_collection_table}, jsonb_array_elements( {target_collection_table}."data"->'layers' ) WITH ORDINALITY arr( layer_json, layer_idx ) """+
+                     """WHERE layer_json::jsonb  @> {layer_name}::jsonb""").format( target_collection_table=collection_identifier,
+                     layer_name=Literal( '{{ "name":"{}" }}'.format(layer) ) )
+            q8 = SQL("""SELECT q6.id AS text_id, (q7.layer_wo_spans || q6.selected_spans) as layer_data_rnd_selection """+
+                     """FROM ({q6}) q6 JOIN ({q7}) q7 ON (q6.id = q7.id)""").format(q6=q6, q7=q7)
         else:
-            # detached layer -- assemble new layer json which only has the randomly selected spans
+            # detached layer
             layer_identifier = pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
-            q7 = SQL("""SELECT {{target_layer_table}}."text_id" AS id, {{target_layer_table}}."data"::jsonb-'spans' AS layer_wo_spans FROM {{target_layer_table}}""").format(target_layer_table=layer_identifier)
-            q8 = SQL("""SELECT q6.id AS text_id, (q7.layer_wo_spans || q6.selected_spans) as layer_data_rnd_selection FROM ({{q6}}) q6 JOIN ({{q7}}) q7 ON (q6.id = q7.id);""").format(q6=q6, q7=q7)
+            q7 = SQL("""SELECT {target_layer_table}."text_id" AS id, {target_layer_table}."data"::jsonb-'spans' AS layer_wo_spans FROM {target_layer_table}""").format(target_layer_table=layer_identifier)
+            q8 = SQL("""SELECT q6.id AS text_id, (q7.layer_wo_spans || q6.selected_spans) as layer_data_rnd_selection FROM ({q6}) q6 JOIN ({q7}) q7 ON (q6.id = q7.id)""").format(q6=q6, q7=q7)
 
-        seed_query = SQL("""SELECT setseed({{seed_value}});""").format( seed_value = Literal(seed) )
+        # Now, a nice solution would be to seamlessly replace text objects or selected layers in 
+        # the subcollection query with the ones that have randomly selected spans. 
+        # But this requires hacking deeply into the subcollection query: providing unique names 
+        # to all columns in the query, and reconstruction of query's columns with proper replacements
+        # from the sampling query.
+        #
+        # Instead, we simply join sampling query with the subcollection query, and add the 
+        # results of the sampling as the last column of the results row. So, the iterator 
+        # function has to make proper replacements and assemble text object correspondingly.
         
-        # TODO: join the query with the subcollection query
+        whole_sample_from_layer_sql = SQL("""SELECT subcollection.*, sample_selection.{sampling_result} """
+                                          """FROM ({subcollection}) AS subcollection JOIN ({sample_query}) """+
+                                          """AS sample_selection ON subcollection.id = sample_selection.text_id""").format(
+            subcollection   = self.sql_query,
+            sampling_result = Identifier("layer_data_rnd_selection"),
+            sample_query    = q8
+        )
+        return whole_sample_from_layer_sql
+
+    
+    def sql_sample_set_seed(self, seed_value):
+        """
+        Executes setseed statement that is required to ensure repeatability before using RANDOM() functions.
+        See also: https://www.techonthenet.com/postgresql/functions/setseed.php
         
-        return None
+        Parameters:
+        
+        :param seed_value: float
+            A value between 1.0 and -1.0, inclusive.
+        """
+        # Validate seed_value
+        if seed_value is None or \
+           not isinstance(seed_value, float) or \
+           not (-1.0 <= seed_value and seed_value <= 1.0):
+            raise ValueError('(!) Invalid seed value {}. Used float from range -1.0 to 1.0'.format( seed_value ))
+        # Execute setseed statement
+        seed_query = SQL("""SELECT setseed({seed_value})""").format( seed_value=Literal(seed_value) )
+        with self.collection.storage.conn.cursor() as cur:
+            cur.execute( seed_query )
+            logger.debug(cur.query.decode())
+            return next(cur)[0]
+
 
     @property
     def sql_sampler_count_query(self):
@@ -302,6 +341,24 @@ class PgSubCollection:
         """
         with self.collection.storage.conn.cursor() as cur:
             cur.execute(self.sql_sampler_count_query)
+            logger.debug(cur.query.decode())
+            return next(cur)[0]
+
+    @property
+    def sql_sample_from_layer_count_query(self):
+        # TODO: Do not stress SQL analyzer write a flat query for it
+        return SQL('SELECT count(*) FROM ({}) AS a').format(self.sql_sample_from_layer_query)
+
+    def _sample_from_layer_len(self):
+        """
+        Executes an SQL query to find the size of the subcollection's sample from layer. The result is not cached.
+        """
+        if self._sample_from_layer_seed:
+            self.sql_sample_set_seed( self._sample_from_layer_seed )
+        else:
+            self.sql_sample_set_seed( self._sample_from_layer_auto_seed )
+        with self.collection.storage.conn.cursor() as cur:
+            cur.execute(self.sql_sample_from_layer_count_query)
             logger.debug(cur.query.decode())
             return next(cur)[0]
 
@@ -329,6 +386,7 @@ class PgSubCollection:
 
     __read_cursor_counter = 0
     __read_sample_cursor_counter = 0
+    __read_sample_from_layer_cursor_counter = 0
     
     def sample(self, amount, amount_type:str='PERCENTAGE', seed=None, 
                      method:str='BERNOULLI', construction:str='JOIN'):
@@ -477,6 +535,128 @@ class PgSubCollection:
                     data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
                     layer_dicts = row[2:] if construction != 'JOIN' else row[2:-1]
                     yield self.assemble_text_object(row[1], row[2:-1], self.selected_layers, structure)
+
+
+    def sample_from_layer(self, layer, amount, amount_type:str='PERCENTAGE', seed=None):
+        """
+        Yields a sample over subcollection documents and spans of the given layer.
+        
+        TODO: documentation
+        TODO: amount_type == 'SIZE' ??
+        """
+        alpha = None
+        if amount_type == 'PERCENTAGE':
+            percentage = amount
+            if percentage < 0 or percentage > 100:
+                raise ValueError('(!) Invalid percentage value {}.'.format( percentage ))
+            alpha = percentage/100.0
+        elif amount_type == 'SIZE':
+            raise NotImplementedError('(!) Selecting by size is yet to be implemented.')
+        if not self.selected_layers:
+            raise Exception( ('(!) This subcollection does not select any layers. '+
+                               'Please select layers before making sample_from_layer query.'))
+        if layer is None or not layer in self.selected_layers:
+            raise ValueError( ('(!) Invalid layer {!r}. '+
+                               'Layer must be one of the layers selected by the subcollection query.').format(layer))
+        # Check for reiteration
+        if not self._sample_from_layer_seed and not seed:
+            # If no seed was given, then do not allow a reiteration
+            if self._sample_from_layer == layer and \
+               self._sample_from_layer_alpha == alpha:
+               raise Exception('(!) You cannot reiterate sample unless you fix seed.')
+        # Record arguments
+        self._sample_from_layer             = layer
+        self._sample_from_layer_seed        = seed
+        self._sample_from_layer_alpha       = alpha
+        self._sample_from_layer_is_attached = (self.collection.structure[layer]['layer_type'] == 'attached')
+        if not seed:
+            # generate seed automatically (because we need matching results between counting
+            # query and the actual sampling query)
+            self._sample_from_layer_auto_seed = uniform(-1.0, 1.0)
+        
+        # TODO: the following code is basically a very close copy of the self.__iter__ method
+        #       (with a small exception that concerns situations where construction == 'JOIN')
+        #       It could be refactored into a separate function in future.
+        
+        # Gain few milliseconds: Find the selection size only if it used in a progress bar.
+        total = 0 if self.progressbar is None else self._sample_from_layer_len()
+        
+        self.__class__.__read_sample_from_layer_cursor_counter += 1
+        cur_name = 'sample_from_layer_read_{}'.format(self.__class__.__read_sample_from_layer_cursor_counter)
+        
+        if self._sample_from_layer_seed:
+            # set seed given by the user
+            self.sql_sample_set_seed( self._sample_from_layer_seed )
+        elif self.progressbar is not None:
+            # user didn't give the seed. so, we have to use auto_seed 
+            # (to ensure that we get the same documents as from the 
+            #  counting query)
+            self.sql_sample_set_seed( self._sample_from_layer_auto_seed )
+
+        with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
+            server_cursor.itersize = self.itersize
+            server_cursor.execute(self.sql_sample_from_layer_query)
+            logger.debug(server_cursor.query.decode())
+            data_iterator = Progressbar(iterable=server_cursor, total=total, initial=0, progressbar_type=self.progressbar)
+            structure = self.collection.structure
+
+            if self.meta_attributes and self.return_index:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    meta_stop = 2 + len(self.meta_attributes)
+                    meta = {attr: value for attr, value in zip(self.meta_attributes, row[2:meta_stop])}
+                    layer_dicts = row[meta_stop:-1]
+                    text_obj_dict = row[1]
+                    layer_with_rnd = row[-1]
+                    assert isinstance( layer_with_rnd, dict )
+                    if self._sample_from_layer_is_attached:
+                        text_obj_dict['layers'] = [layer_with_rnd if layer['name']==layer_with_rnd['name'] else layer for layer in text_obj_dict['layers']]
+                    else:
+                        layer_dicts = [layer_with_rnd if layer['name']==layer_with_rnd['name'] else layer for layer in layer_dicts]
+                    text = self.assemble_text_object(text_obj_dict, layer_dicts, self.selected_layers, structure)
+                    yield row[0], text, meta
+
+            elif self.meta_attributes:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    meta_stop = 2 + len(self.meta_attributes)
+                    meta = {attr: value for attr, value in zip(self.meta_attributes, row[2:meta_stop])}
+                    layer_dicts = row[meta_stop:-1]
+                    text_obj_dict = row[1]
+                    layer_with_rnd = row[-1]
+                    assert isinstance( layer_with_rnd, dict )
+                    if self._sample_from_layer_is_attached:
+                        text_obj_dict['layers'] = [layer_with_rnd if layer['name']==layer_with_rnd['name'] else layer for layer in text_obj_dict['layers']]
+                    else:
+                        layer_dicts = [layer_with_rnd if layer['name']==layer_with_rnd['name'] else layer for layer in layer_dicts]
+                    text = self.assemble_text_object(text_obj_dict, layer_dicts, self.selected_layers, structure)
+                    yield text, meta
+
+            elif self.return_index:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    layer_dicts = row[2:-1]
+                    text_obj_dict = row[1]
+                    layer_with_rnd = row[-1]
+                    assert isinstance( layer_with_rnd, dict )
+                    if self._sample_from_layer_is_attached:
+                        text_obj_dict['layers'] = [layer_with_rnd if layer['name']==layer_with_rnd['name'] else layer for layer in text_obj_dict['layers']]
+                    else:
+                        layer_dicts = [layer_with_rnd if layer['name']==layer_with_rnd['name'] else layer for layer in layer_dicts]
+                    yield row[0], self.assemble_text_object(text_obj_dict, layer_dicts, self.selected_layers, structure)
+
+            else:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    layer_dicts = row[2:-1]
+                    text_obj_dict = row[1]
+                    layer_with_rnd = row[-1]
+                    assert isinstance( layer_with_rnd, dict )
+                    if self._sample_from_layer_is_attached:
+                        text_obj_dict['layers'] = [layer_with_rnd if layer['name']==layer_with_rnd['name'] else layer for layer in text_obj_dict['layers']]
+                    else:
+                        layer_dicts = [layer_with_rnd if layer['name']==layer_with_rnd['name'] else layer for layer in layer_dicts]
+                    yield self.assemble_text_object(text_obj_dict, layer_dicts, self.selected_layers, structure)
 
 
     def __iter__(self):
