@@ -105,6 +105,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         # Create testing collection
         collection = self._create_test_collection_of_docs(size=100, detached_sentences=False)
         
+        # amount_type='PERCENTAGE' (default)
         # Default select sentences with sample size approx. 5%
         res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 5, seed=-0.7) )
         self.assertEqual(len(res), 54)
@@ -140,6 +141,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         self.assertListEqual( sent_locations[:10], [(0, 0, 25), (0, 27, 56), (0, 58, 84), (0, 86, 110), (0, 112, 141), \
                                                     (0, 143, 170), (0, 172, 203), (0, 235, 261), (0, 263, 294), (0, 327, 360)] )
         
+        # amount_type='SIZE'
         # Default select sentences with sample size roughly 100-150 sentences
         res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 150, amount_type='SIZE', seed=-0.5) )
         self.assertEqual(len(res), 59)
@@ -150,6 +152,16 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
                 sent_locations.append( (doc_id, sent.start, sent.end) )
         self.assertEqual( len(sent_locations), 102 )
 
+        # Default select sentences with return_index=False and sample size roughly 1500 sentences
+        res = list( collection.select(layers=['sentences'], return_index=False).sample_from_layer('sentences', 1500, amount_type='SIZE', seed=0.0) )
+        self.assertEqual(len(res), 100)
+        self.assertTrue( type(res[0]) is Text )
+        sent_locations = []
+        for (doc_id, dok) in enumerate(res):
+            for sent in dok['sentences']:
+                sent_locations.append( (doc_id, sent.start, sent.end) )
+        self.assertEqual( len(sent_locations), 1501 )
+
         collection.delete()
 
 
@@ -157,6 +169,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         # Create testing collection
         collection = self._create_test_collection_of_docs(size=100, detached_sentences=True)
         
+        # amount_type='PERCENTAGE' (default)
         # Default select sentences with sample size approx. 5%
         res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 5, seed=-0.25) )
         self.assertEqual(len(res), 48)
@@ -180,6 +193,17 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         self.assertEqual( len(sent_locations), 1251 )
         self.assertListEqual( sent_locations[:5],  [(0, 0, 25), (0, 27, 56), (0, 58, 84), (0, 205, 233), (0, 235, 261)] )
         self.assertListEqual( sent_locations[-5:], [(99, 438, 472), (99, 474, 504), (99, 542, 573), (99, 678, 716), (99, 790, 828)] )
+
+        # amount_type='SIZE'
+        # Default select sentences with collection_meta and return_index=False sample size roughly 1000 sentences
+        res = list( collection.select(layers=['sentences'], return_index=False, collection_meta=['text_id']).sample_from_layer('sentences', 1000, amount_type='SIZE', seed=0.5) )
+        self.assertEqual(len(res), 100)
+        self.assertEqual(len(res[0]), 2)
+        sent_locations = []
+        for (doc_id, (dok, text_meta)) in enumerate(res):
+            for sent in dok['sentences']:
+                sent_locations.append( (doc_id, sent.start, sent.end) )
+        self.assertEqual( len(sent_locations), 997 )
 
         collection.delete()
 
