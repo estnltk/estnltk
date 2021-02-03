@@ -202,9 +202,9 @@ class PgSubCollection:
         return self.sql_count_query.as_string(self.collection.storage.conn)
 
     @property
-    def sql_sampler_query(self):
+    def sql_sample_texts_query(self):
         """
-        Returns a SQL select statement that defines a sample over the subcollection.
+        Returns a SQL select statement that defines a sample (of texts) over the subcollection.
         
         TODO: an idea for performance improvement:
               self.sql_query does joins over detached layers that are not part of where condition
@@ -341,7 +341,7 @@ class PgSubCollection:
         return SQL('SELECT SUM(a.layer_size) FROM ({}) AS a').format( sql_layer_size_query )
 
 
-    def sql_sample_set_seed(self, seed_value):
+    def _sql_sample_set_seed(self, seed_value):
         """
         Executes setseed statement that is required to ensure repeatability before using RANDOM() functions.
         See also: https://www.techonthenet.com/postgresql/functions/setseed.php
@@ -365,16 +365,16 @@ class PgSubCollection:
 
 
     @property
-    def sql_sampler_count_query(self):
+    def sql_sample_texts_count_query(self):
         # TODO: Do not stress SQL analyzer write a flat query for it
-        return SQL('SELECT count(*) FROM ({}) AS a').format(self.sql_sampler_query)
+        return SQL('SELECT count(*) FROM ({}) AS a').format(self.sql_sample_texts_query)
 
-    def _sample_len(self):
+    def _sample_texts_len(self):
         """
         Executes an SQL query to find the size of the sample subcollection. The result is not cached.
         """
         with self.collection.storage.conn.cursor() as cur:
-            cur.execute(self.sql_sampler_count_query)
+            cur.execute(self.sql_sample_texts_count_query)
             logger.debug(cur.query.decode())
             return next(cur)[0]
 
@@ -388,9 +388,9 @@ class PgSubCollection:
         Executes an SQL query to find the size of the subcollection's sample from layer. The result is not cached.
         """
         if self._sample_from_layer_seed:
-            self.sql_sample_set_seed( self._sample_from_layer_seed )
+            self._sql_sample_set_seed( self._sample_from_layer_seed )
         else:
-            self.sql_sample_set_seed( self._sample_from_layer_auto_seed )
+            self._sql_sample_set_seed( self._sample_from_layer_auto_seed )
         with self.collection.storage.conn.cursor() as cur:
             cur.execute(self.sql_sample_from_layer_count_query)
             logger.debug(cur.query.decode())
@@ -543,7 +543,7 @@ class PgSubCollection:
             # possible seed values, but we assume here that it accepts the
             # range of a positive INTEGER
         # Gain few milliseconds: Find the selection size only if it used in a progress bar.
-        total = 0 if self.progressbar is None else self._sample_len()
+        total = 0 if self.progressbar is None else self._sample_texts_len()
 
         # Server side cursor must have unique name per transaction
         # To make code thread-safe we use unique naming scheme inside storage (per connection)
@@ -555,7 +555,7 @@ class PgSubCollection:
 
         with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
             server_cursor.itersize = self.itersize
-            server_cursor.execute(self.sql_sampler_query)
+            server_cursor.execute(self.sql_sample_texts_query)
             logger.debug(server_cursor.query.decode())
             data_iterator = Progressbar(iterable=server_cursor, total=total, initial=0, progressbar_type=self.progressbar)
             structure = self.collection.structure
@@ -593,13 +593,42 @@ class PgSubCollection:
 
     def sample_from_layer(self, layer, amount, amount_type:str='PERCENTAGE', seed=None):
         """
-        Yields a sample over subcollection documents and spans of the given layer.
+        Yields a sample over subcollection's documents and spans of the given layer.
         
-        TODO: documentation
+        Amount of the sample can be either a percentage of spans
+        (default), or an approximate number of spans -- in the 
+        last case, an extra parameter amount_type='SIZE' must be 
+        passed to the sample function. 
+        Be aware that regardless of the amount_type, the number of 
+        returned elements will not correspond exactly to the given 
+        amount. If you need a sample with exact size, it is advisable 
+        to sample a larger amount than needed, permute/shuffle the 
+        sample (in order  to  ensure  that all elements have even
+        chance ending up in the final sample), and then cut the 
+        sample to the required size.
+        
+        Reiteration only works if the seed value has been fixed. 
+        Otherwise,an Exception will be risen ('cannot reiterate 
+        unless you fix seed').
+        
+        Parameters:
+        
+        :param layer: str
+            Name of the layer to be sampled from.
+            Must be one of the selected layers of the subcollection.
+        :param amount: int or float
+            Size of the sample. if amount_type=='PERCENTAGE' (default),
+            then it is a percentage. Otherwise, it is an approximate 
+            number of spans to be sampled.
+        :param amount_type: str
+            Amount type, one of the following: ['PERCENTAGE', 'SIZE']
+        :param seed:  float
+            Seed value to be fixed to ensure repeatability.
+            Must be a value between -1.0 and 1.0;
         """
         alpha = None
         if amount_type not in ['PERCENTAGE', 'SIZE']:
-            raise ValueError('(!) Sampling amount_type {} not supported. Use {} or {}.'.format( method, 'PERCENTAGE', 'SIZE' ))
+            raise ValueError('(!) Sampling amount_type {!r} not supported. Use {} or {}.'.format( amount_type, 'PERCENTAGE', 'SIZE' ))
         if amount_type == 'PERCENTAGE':
             percentage = amount
             if percentage < 0 or percentage > 100:
@@ -651,11 +680,11 @@ class PgSubCollection:
         
         if self._sample_from_layer_seed:
             # set seed given by the user
-            self.sql_sample_set_seed( self._sample_from_layer_seed )
+            self._sql_sample_set_seed( self._sample_from_layer_seed )
         elif self.progressbar is not None:
             # user didn't give the seed, so use the automatically 
             # generated seed
-            self.sql_sample_set_seed( self._sample_from_layer_auto_seed )
+            self._sql_sample_set_seed( self._sample_from_layer_auto_seed )
 
         with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
             server_cursor.itersize = self.itersize
