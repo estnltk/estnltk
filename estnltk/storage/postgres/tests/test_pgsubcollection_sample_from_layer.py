@@ -166,6 +166,21 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
                 sent_locations.append( (doc_id, sent.start, sent.end) )
         self.assertEqual( len(sent_locations), 1524 )
 
+        # Test sampling without seed. 
+        # Default select sentences with sample size roughly 1000 sentences
+        res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 1000, amount_type='SIZE') )
+        # Note: the results can fluctuate quite much, so we give it a broad range
+        self.assertLessEqual(15, len(res))
+        self.assertGreaterEqual(100, len(res))
+        self.assertEqual(len(res[0]), 2)
+        sent_locations = []
+        for (doc_id, dok) in res:
+            for sent in dok['sentences']:
+                sent_locations.append( (doc_id, sent.start, sent.end) )
+        # Note: the results can fluctuate quite much, so we give it a broad range
+        self.assertLessEqual(250, len(sent_locations))
+        self.assertGreaterEqual(1750, len(sent_locations))
+        
         collection.delete()
 
 
@@ -210,6 +225,21 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
         self.assertEqual( len(sent_locations), 997 )
+        
+        # Test sampling without seed. 
+        # Default select sentences with sample size roughly 50%
+        res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 50) )
+        # Note: the results can fluctuate quite much, so we give it a broad range
+        self.assertLessEqual(10, len(res))
+        self.assertGreaterEqual(100, len(res))
+        self.assertEqual(len(res[0]), 2)
+        sent_locations = []
+        for (doc_id, dok) in res:
+            for sent in dok['sentences']:
+                sent_locations.append( (doc_id, sent.start, sent.end) )
+        # Note: the results can fluctuate quite much, so we give it a broad range
+        self.assertLessEqual(500, len(sent_locations))
+        self.assertGreaterEqual(2000, len(sent_locations))
 
         collection.delete()
 
