@@ -306,7 +306,33 @@ class PgSubCollection:
         )
         return whole_sample_from_layer_sql
 
-    
+
+    def _sql_layer_size_for_sample_query(self, layer):
+        """
+        Returns a SQL select statement that finds size (number of spans) of the given layer.
+        The layer must be one of the selected_layers.
+        """
+        if layer is None or not layer in self.selected_layers:
+            raise ValueError( ('(!) Invalid layer {!r}. '+
+                               'Layer must be one of the layers selected by the subcollection query.').format(layer))
+        layer_is_attached = ( self.collection.structure[layer]['layer_type'] == 'attached' )
+        if layer_is_attached:
+            # attached layer
+            collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
+            q0 = SQL("""SELECT {target_collection_table}."id", layer_json AS layer_data, layer_idx FROM {target_collection_table}, """+
+                     """jsonb_array_elements( {target_collection_table}."data"->'layers' ) WITH ORDINALITY arr( layer_json, layer_idx ) """+
+                     """WHERE layer_json::jsonb @> {layer_name}::jsonb""").format( target_collection_table=collection_identifier,
+                     layer_name=Literal( '{{ "name":"{}" }}'.format(layer) ))
+            sql_layer_size_query = SQL("""SELECT id, jsonb_array_length( layer_data->'spans' ) as layer_size FROM ({q0}) AS q0""").format( q0=q0 )
+        else:
+            # detached layer
+            layer_identifier = pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
+            sql_layer_size_query = SQL("""SELECT {target_layer_table}."text_id" AS id, """+
+                                       """jsonb_array_length( {target_layer_table}."data"->'spans' ) as layer_size, """+
+                                       """{target_layer_table}."data" as layer_data FROM {target_layer_table}""").format( target_layer_table=layer_identifier )
+        return SQL('SELECT SUM(a.layer_size) FROM ({}) AS a').format( sql_layer_size_query )
+
+
     def sql_sample_set_seed(self, seed_value):
         """
         Executes setseed statement that is required to ensure repeatability before using RANDOM() functions.
@@ -359,6 +385,15 @@ class PgSubCollection:
             self.sql_sample_set_seed( self._sample_from_layer_auto_seed )
         with self.collection.storage.conn.cursor() as cur:
             cur.execute(self.sql_sample_from_layer_count_query)
+            logger.debug(cur.query.decode())
+            return next(cur)[0]
+
+    def _selected_layer_size(self, layer):
+        """
+        Executes an SQL query to find the size of the given (selected) layer in spans.
+        """
+        with self.collection.storage.conn.cursor() as cur:
+            cur.execute(self._sql_layer_size_for_sample_query(layer))
             logger.debug(cur.query.decode())
             return next(cur)[0]
 
@@ -542,16 +577,27 @@ class PgSubCollection:
         Yields a sample over subcollection documents and spans of the given layer.
         
         TODO: documentation
-        TODO: amount_type == 'SIZE' ??
         """
         alpha = None
+        if amount_type not in ['PERCENTAGE', 'SIZE']:
+            raise ValueError('(!) Sampling amount_type {} not supported. Use {} or {}.'.format( method, 'PERCENTAGE', 'SIZE' ))
         if amount_type == 'PERCENTAGE':
             percentage = amount
             if percentage < 0 or percentage > 100:
                 raise ValueError('(!) Invalid percentage value {}.'.format( percentage ))
             alpha = percentage/100.0
         elif amount_type == 'SIZE':
-            raise NotImplementedError('(!) Selecting by size is yet to be implemented.')
+            # 1) Find size of the layer in spans
+            total_spans_in_layer = self._selected_layer_size( layer )
+            if total_spans_in_layer < 1:
+                raise Exception( ('(!) The layer is empty. Cannot make a sample.'))
+            # 2) Recalculate alpha to meet the amount (roughly)
+            if amount < total_spans_in_layer:
+                alpha = amount / total_spans_in_layer
+            else:
+                alpha = 0.999999999
+                if amount > total_spans_in_layer:
+                    logger.warn("Sampling amount {} exceeds the size of the layer ({}). Returning full collection.".format(amount, total_spans_in_layer))
         if not self.selected_layers:
             raise Exception( ('(!) This subcollection does not select any layers. '+
                                'Please select layers before making sample_from_layer query.'))
