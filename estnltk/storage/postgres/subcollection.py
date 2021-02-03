@@ -1,7 +1,7 @@
 from typing import Sequence, List
 from psycopg2.sql import SQL, Literal, Identifier
 from itertools import chain
-from random import uniform
+from random import uniform, randint
 
 from estnltk import logger, Progressbar
 from estnltk import Text
@@ -87,14 +87,15 @@ class PgSubCollection:
         self.return_index = return_index
         self.itersize = itersize
         # for sample documents query
-        self._sampling_seed = None
+        self._sampling_seed      = None  # seed given by the user
+        self._sampling_seed_auto = None  # an automatically assigned seed (for repeatability with the progressbar)
         self._sampling_method = None
         self._sampling_percentage = None
         self._sample_construction = None
         # for sample from layer query
         self._sample_from_layer             = None
         self._sample_from_layer_seed        = None  # seed given by the user
-        self._sample_from_layer_auto_seed   = None  # an automatically assigned seed (to make counting query repeatable)
+        self._sample_from_layer_auto_seed   = None  # an automatically assigned seed (for repeatability with the progressbar)
         self._sample_from_layer_alpha       = None
         self._sample_from_layer_is_attached = None
 
@@ -212,8 +213,15 @@ class PgSubCollection:
         """
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
         
-        seed_sql = SQL(""" REPEATABLE({seed}) """).format(seed=Literal(self._sampling_seed)) \
-                       if self._sampling_seed is not None else SQL("")
+        seed = None
+        if self._sampling_seed is not None:
+            # Use seed provided by the user
+            seed = self._sampling_seed
+        elif self._sampling_seed_auto is not None:
+            # Use automatically generated seed (for repeatability with the progressbar)
+            seed = self._sampling_seed_auto
+        
+        seed_sql = SQL(""" REPEATABLE({seed}) """).format(seed=Literal(seed)) if seed is not None else SQL("")
         sample_sql = SQL("""SELECT {table}."id" FROM {table} TABLESAMPLE {sampling_method}({percentage}) {seed_sql}""").format( 
                          table=collection_identifier, 
                          sampling_method=SQL(self._sampling_method), 
@@ -527,6 +535,13 @@ class PgSubCollection:
         #       (with a small exception that concerns situations where construction == 'JOIN')
         #       It could be refactored into a separate function in future.
         
+        if self.progressbar is not None:
+            # If user wants a progressbar, we must fix a seed to ensure 
+            # that the counting query and the real query give the same results
+            self._sampling_seed_auto = randint(1, 2147483646)
+            # NB! PostgreSQL's documentation does not give exact range for 
+            # possible seed values, but we assume here that it accepts the
+            # range of a positive INTEGER
         # Gain few milliseconds: Find the selection size only if it used in a progress bar.
         total = 0 if self.progressbar is None else self._sample_len()
 
@@ -619,11 +634,11 @@ class PgSubCollection:
         self._sample_from_layer_seed        = seed
         self._sample_from_layer_alpha       = alpha
         self._sample_from_layer_is_attached = (self.collection.structure[layer]['layer_type'] == 'attached')
-        if not seed:
-            # generate seed automatically (because we need matching results between counting
-            # query and the actual sampling query)
+        if not seed and self.progressbar is not None:
+            # generate seed automatically (because we need matching results between the counting
+            # query and the actual query)
             self._sample_from_layer_auto_seed = uniform(-1.0, 1.0)
-        
+
         # TODO: the following code is basically a very close copy of the self.__iter__ method
         #       (with a small exception that concerns situations where construction == 'JOIN')
         #       It could be refactored into a separate function in future.
@@ -638,9 +653,8 @@ class PgSubCollection:
             # set seed given by the user
             self.sql_sample_set_seed( self._sample_from_layer_seed )
         elif self.progressbar is not None:
-            # user didn't give the seed. so, we have to use auto_seed 
-            # (to ensure that we get the same documents as from the 
-            #  counting query)
+            # user didn't give the seed, so use the automatically 
+            # generated seed
             self.sql_sample_set_seed( self._sample_from_layer_auto_seed )
 
         with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
