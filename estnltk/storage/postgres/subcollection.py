@@ -277,7 +277,7 @@ class PgSubCollection:
                  """RANDOM() as rnd2 FROM ({q3}) AS q3, """+
                  """jsonb_array_elements(layer_data->'spans') WITH ORDINALITY arr( layer_span_json, layer_span_idx )""").format(alpha=Literal(alpha), q3=q3)
         q5 = SQL("""SELECT id, layer_size, doc_threshold, layer_span, layer_span_index, span_threshold, rnd2 FROM ({q4}) AS q4 WHERE rnd2 <= span_threshold""").format(q4=q4)
-        # 5) Replace old spans with randomly picked spans
+        # 5) Build new json object: { 'spans': randomly_picked_spans }
         q6 = SQL("""SELECT id, jsonb_build_object( 'spans', array_agg( layer_span ORDER BY layer_span_index )) AS selected_spans FROM ({q5}) AS q5 GROUP BY id""").format(q5=q5)
         # 6) Assemble new layer json which only has the randomly selected spans;
         if layer_is_attached:
@@ -511,6 +511,8 @@ class PgSubCollection:
             selection_size = len(self)
             if selection_size == 0:
                 raise ValueError('(!) Unable to sample a fixed amount from an empty subcollection.')
+            elif selection_size < amount:
+                raise ValueError('(!) Sample size {} exceeds subcollection size {}.'.format(amount, selection_size))
             # 2) Find the approximate percentage
             percentage = ( amount * 100.0 ) / selection_size
             assert not (percentage < 0 or percentage > 100)
