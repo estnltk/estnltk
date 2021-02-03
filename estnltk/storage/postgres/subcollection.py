@@ -307,7 +307,7 @@ class PgSubCollection:
         return whole_sample_from_layer_sql
 
 
-    def _sql_layer_size_for_sample_query(self, layer):
+    def _sql_selected_layer_size_query(self, layer):
         """
         Returns a SQL select statement that finds size (number of spans) of the given layer.
         The layer must be one of the selected_layers.
@@ -391,9 +391,13 @@ class PgSubCollection:
     def _selected_layer_size(self, layer):
         """
         Executes an SQL query to find the size of the given (selected) layer in spans.
+        The layer must be one of the selected_layers.
         """
+        if layer is None or not layer in self.selected_layers:
+            raise ValueError( ('(!) Invalid layer {!r}. '+
+                               'Layer must be one of the layers selected by the subcollection query.').format(layer))
         with self.collection.storage.conn.cursor() as cur:
-            cur.execute(self._sql_layer_size_for_sample_query(layer))
+            cur.execute(self._sql_selected_layer_size_query(layer))
             logger.debug(cur.query.decode())
             return next(cur)[0]
 
