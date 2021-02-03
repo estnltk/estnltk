@@ -27,13 +27,7 @@ class TestPgSubCollection(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
         self.storage = pg.PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            pg.create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # TODO: for some reason we get DuplicateSchema error. Unexpected?
-            pg.delete_schema(self.storage)
-            pg.create_schema(self.storage)
-        #pg.create_schema(self.storage)
+        pg.create_schema(self.storage)
 
         self.collection_name = get_random_collection_name()
         self.collection = self.storage[self.collection_name]
