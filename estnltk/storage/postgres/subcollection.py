@@ -265,7 +265,7 @@ class PgSubCollection:
         # 3) Make a random pick of layer's spans
         q4 = SQL("""SELECT id, layer_size, doc_threshold, arr.layer_span_json AS layer_span, """+
                  """arr.layer_span_idx AS layer_span_index, """+
-                 """{alpha}/(1-({alpha})^doc_threshold) AS span_threshold, """+
+                 """{alpha}/(1-({alpha})^layer_size) AS span_threshold, """+
                  """RANDOM() as rnd2 FROM ({q3}) AS q3, """+
                  """jsonb_array_elements(layer_data->'spans') WITH ORDINALITY arr( layer_span_json, layer_span_idx )""").format(alpha=Literal(alpha), q3=q3)
         q5 = SQL("""SELECT id, layer_size, doc_threshold, layer_span, layer_span_index, span_threshold, rnd2 FROM ({q4}) AS q4 WHERE rnd2 <= span_threshold""").format(q4=q4)

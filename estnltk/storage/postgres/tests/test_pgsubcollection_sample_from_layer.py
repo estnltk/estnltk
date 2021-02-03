@@ -107,26 +107,38 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         
         # Default select sentences with sample size approx. 5%
         res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 5, seed=-0.7) )
-        self.assertEqual(len(res), 57)
+        self.assertEqual(len(res), 54)
         self.assertEqual(len(res[0]), 2)
         sent_locations = []
         for (doc_id, dok) in res:
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 101 )
-        self.assertListEqual( sent_locations[:5], [(0,86,110),(0,766,803),(1,83,106),(10,491,519),(10,652,684)] )
+        self.assertEqual( len(sent_locations), 93 )
+        self.assertListEqual( sent_locations[:5], [(0, 86, 110), (0, 766, 803), (1, 83, 106), (10, 491, 519), (10, 652, 684)] )
         
-        # Default select sentences with sample size approx. 25%
-        res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 25, seed=0.1) )
+        # Default select sentences with collection_meta sample size approx. 25%
+        res = list( collection.select(layers=['sentences'], collection_meta=['text_id']).sample_from_layer('sentences', 25, seed=0.1) )
+        self.assertEqual(len(res), 100)
+        self.assertEqual(len(res[0]), 3)
+        sent_locations = []
+        for (doc_id, dok, text_meta) in res:
+            for sent in dok['sentences']:
+                sent_locations.append( (doc_id, sent.start, sent.end) )
+        self.assertEqual( len(sent_locations), 634 )
+        self.assertListEqual( sent_locations[:5], [(0, 0, 25), (0, 86, 110), (0, 112, 141), (0, 557, 585), (0, 587, 620)] )
+        self.assertListEqual( sent_locations[-7:], [(98, 644, 680), (98, 801, 836), (99, 28, 58), (99, 89, 114), (99, 212, 241), (99, 506, 540), (99, 542, 573)] )
+
+        # Default select sentences with collection_meta and return_index=False sample size approx. 75%
+        res = list( collection.select(layers=['sentences'], return_index=False, collection_meta=['text_id']).sample_from_layer('sentences', 75, seed=0.0) )
         self.assertEqual(len(res), 100)
         self.assertEqual(len(res[0]), 2)
         sent_locations = []
-        for (doc_id, dok) in res:
+        for (doc_id, (dok, text_meta)) in enumerate(res):
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 846 )
-        self.assertListEqual( sent_locations[:5], [(0, 0, 25), (0, 86, 110), (0, 112, 141), (0, 327, 360), (0, 557, 585)] )
-        self.assertListEqual( sent_locations[-7:], [(98, 644, 680), (98, 801, 836), (99, 28, 58), (99, 89, 114), (99, 212, 241), (99, 506, 540), (99, 542, 573)] )
+        self.assertEqual( len(sent_locations), 1867 )
+        self.assertListEqual( sent_locations[:10], [(0, 0, 25), (0, 27, 56), (0, 58, 84), (0, 86, 110), (0, 112, 141), \
+                                                    (0, 143, 170), (0, 172, 203), (0, 235, 261), (0, 263, 294), (0, 327, 360)] )
         
         # Default select sentences with sample size approx. 55 sentences
         with self.assertRaises(NotImplementedError) as exception:
@@ -141,15 +153,27 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         
         # Default select sentences with sample size approx. 5%
         res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 5, seed=-0.25) )
-        self.assertEqual(len(res), 52)
+        self.assertEqual(len(res), 48)
         self.assertEqual(len(res[0]), 2)
         sent_locations = []
         for (doc_id, dok) in res:
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 93 )
-        self.assertListEqual( sent_locations[:5],  [(0, 424, 457), (0, 557, 585), (1, 508, 537), (1, 709, 740), (1, 742, 778)] )
+        self.assertEqual( len(sent_locations), 76 )
+        self.assertListEqual( sent_locations[:5],  [(0, 424, 457), (0, 557, 585), (1, 508, 537), (1, 742, 778), (2, 573, 606)] )
         self.assertListEqual( sent_locations[-5:], [(96, 72, 105), (96, 178, 212), (96, 644, 681), (97, 148, 176), (97, 755, 788)] )
+
+        # Default select sentences with return_index=False and with sample size approx. 50%
+        res = list( collection.select(layers=['sentences'], return_index=False).sample_from_layer('sentences', 50, seed=-0.25) )
+        self.assertEqual(len(res), 100)
+        self.assertTrue( type(res[0]) is Text )
+        sent_locations = []
+        for (doc_id, dok) in enumerate(res):
+            for sent in dok['sentences']:
+                sent_locations.append( (doc_id, sent.start, sent.end) )
+        self.assertEqual( len(sent_locations), 1251 )
+        self.assertListEqual( sent_locations[:5],  [(0, 0, 25), (0, 27, 56), (0, 58, 84), (0, 205, 233), (0, 235, 261)] )
+        self.assertListEqual( sent_locations[-5:], [(99, 438, 472), (99, 474, 504), (99, 542, 573), (99, 678, 716), (99, 790, 828)] )
 
         collection.delete()
 
