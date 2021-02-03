@@ -80,6 +80,8 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
                 text.meta['text_id'] = doc_counter+1
                 text.meta['text_name'] = 'text_{}'.format(doc_counter+1)
                 text.meta['text_actor'] = subj
+                text.meta['mod_2'] = str( 1 + (doc_counter % 2) )
+                text.meta['mod_3'] = str( 1 + (doc_counter % 3) )
                 collection_insert(text, meta_data={'text_id':text.meta['text_id'],\
                                                    'text_name':text.meta['text_name'] })
                 doc_counter += 1
@@ -139,9 +141,9 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         for (doc_id, (dok, text_meta)) in enumerate(res):
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 1867 )
-        self.assertListEqual( sent_locations[:10], [(0, 0, 25), (0, 27, 56), (0, 58, 84), (0, 86, 110), (0, 112, 141), \
-                                                    (0, 143, 170), (0, 172, 203), (0, 235, 261), (0, 263, 294), (0, 327, 360)] )
+        self.assertEqual( len(sent_locations), 1872 )
+        self.assertListEqual( sent_locations[:10], [(0, 0, 25), (0, 27, 56), (0, 86, 110), (0, 143, 170), (0, 172, 203), \
+                                                    (0, 235, 261), (0, 263, 294), (0, 296, 325), (0, 327, 360), (0, 362, 392)] )
         
         # amount_type='SIZE'
         # Default select sentences with sample size roughly 100-150 sentences
@@ -162,7 +164,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         for (doc_id, dok) in enumerate(res):
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 1501 )
+        self.assertEqual( len(sent_locations), 1524 )
 
         collection.delete()
 
@@ -212,3 +214,39 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         collection.delete()
 
 
+
+    def test_pgsubcollection_sample_from_detached_layer_based_on_metadata_select(self):
+        # Create testing collection
+        collection = self._create_test_collection_of_docs(size=100, detached_sentences=True)
+        
+        # amount_type='PERCENTAGE' (default)
+        # Default select where mod_2=2 (every second document) with sentences sample size approx. 25%
+        res = list( collection.select(layers=['sentences'],
+                                      query=JsonbMetadataQuery({'mod_2':'2'})).sample_from_layer('sentences', 25, seed=0.0) )
+        self.assertEqual(len(res), 50)
+        self.assertEqual(len(res[0]), 2)
+        sent_locations = []
+        for (doc_id, dok) in res:
+            self.assertTrue( dok.meta['mod_2'] == '2' )
+            self.assertTrue( 'sentences' in dok.layers )
+            self.assertTrue( 'words' in dok.layers )
+            for sent in dok['sentences']:
+                sent_locations.append( (doc_id, sent.start, sent.end) )
+        self.assertEqual( len(sent_locations), 319 )
+        
+        # Default select where mod_3=3 (every third document) with return_index=False and sentences sample size approx. 75%
+        res = list( collection.select(layers=['sentences'],
+                                      query=JsonbMetadataQuery({'mod_3':'3'}),
+                                      return_index=False).sample_from_layer('sentences', 75, seed=0.5) )
+        self.assertEqual(len(res), 33)
+        self.assertTrue( type(res[0]) is Text )
+        sent_locations = []
+        for (doc_id, dok) in enumerate(res):
+            self.assertTrue( dok.meta['mod_3'] == '3' )
+            self.assertTrue( 'sentences' in dok.layers )
+            self.assertTrue( 'words' in dok.layers )
+            for sent in dok['sentences']:
+                sent_locations.append( (doc_id, sent.start, sent.end) )
+        self.assertEqual( len(sent_locations), 626 )
+        
+        collection.delete()

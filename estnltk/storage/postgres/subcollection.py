@@ -387,7 +387,7 @@ class PgSubCollection:
         """
         Executes an SQL query to find the size of the subcollection's sample from layer. The result is not cached.
         """
-        if self._sample_from_layer_seed:
+        if self._sample_from_layer_seed is not None:
             self._sql_sample_set_seed( self._sample_from_layer_seed )
         else:
             self._sql_sample_set_seed( self._sample_from_layer_auto_seed )
@@ -521,7 +521,7 @@ class PgSubCollection:
         if construction and construction not in ['JOIN', 'ANY']:
             raise ValueError('(!) Sampling construction {} not supported. Use {} or {}.'.format( construction, 'JOIN', 'ANY' ))
         # Check for reiteration
-        if not self._sampling_seed and not seed:
+        if self._sampling_seed is None and seed is None:
             # If no seed was given, then do not allow a reiteration
             if self._sampling_method == method and \
                self._sampling_percentage == percentage:
@@ -647,7 +647,7 @@ class PgSubCollection:
             else:
                 alpha = 0.999999999
                 if amount > total_spans_in_layer:
-                    logger.warn("Sampling amount {} exceeds the size of the layer ({}). Returning full collection.".format(amount, total_spans_in_layer))
+                    logger.warn("Sampling amount {} exceeds the size of the layer ({}). Yielding full subcollection.".format(amount, total_spans_in_layer))
         if not self.selected_layers:
             raise Exception( ('(!) This subcollection does not select any layers. '+
                                'Please select layers before making sample_from_layer query.'))
@@ -655,7 +655,7 @@ class PgSubCollection:
             raise ValueError( ('(!) Invalid layer {!r}. '+
                                'Layer must be one of the layers selected by the subcollection query.').format(layer))
         # Check for reiteration
-        if not self._sample_from_layer_seed and not seed:
+        if self._sample_from_layer_seed is None and seed is None:
             # If no seed was given, then do not allow a reiteration
             if self._sample_from_layer == layer and \
                self._sample_from_layer_alpha == alpha:
@@ -665,7 +665,7 @@ class PgSubCollection:
         self._sample_from_layer_seed        = seed
         self._sample_from_layer_alpha       = alpha
         self._sample_from_layer_is_attached = (self.collection.structure[layer]['layer_type'] == 'attached')
-        if not seed and self.progressbar is not None:
+        if seed is None and self.progressbar is not None:
             # generate seed automatically (because we need matching results between the counting
             # query and the actual query)
             self._sample_from_layer_auto_seed = uniform(-1.0, 1.0)
@@ -680,7 +680,7 @@ class PgSubCollection:
         self.__class__.__read_sample_from_layer_cursor_counter += 1
         cur_name = 'sample_from_layer_read_{}'.format(self.__class__.__read_sample_from_layer_cursor_counter)
         
-        if self._sample_from_layer_seed:
+        if self._sample_from_layer_seed is not None:
             # set seed given by the user
             self._sql_sample_set_seed( self._sample_from_layer_seed )
         elif self.progressbar is not None:
