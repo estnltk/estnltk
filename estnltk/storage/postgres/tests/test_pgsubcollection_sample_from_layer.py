@@ -112,6 +112,8 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         self.assertEqual(len(res[0]), 2)
         sent_locations = []
         for (doc_id, dok) in res:
+            self.assertTrue( 'sentences' in dok.layers )
+            self.assertTrue( 'words' in dok.layers )
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
         self.assertEqual( len(sent_locations), 93 )
@@ -176,6 +178,8 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         self.assertEqual(len(res[0]), 2)
         sent_locations = []
         for (doc_id, dok) in res:
+            self.assertTrue( 'sentences' in dok.layers )
+            self.assertTrue( 'words' in dok.layers )
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
         self.assertEqual( len(sent_locations), 76 )
