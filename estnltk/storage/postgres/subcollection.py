@@ -86,6 +86,9 @@ class PgSubCollection:
         self.progressbar = progressbar
         self.return_index = return_index
         self.itersize = itersize
+        # for subcollection permutation
+        self._permutation_seed     = None
+        self._permutation_iterated = False
         # for sample documents query
         self._sampling_seed      = None  # seed given by the user
         self._sampling_seed_auto = None  # an automatically assigned seed (for repeatability with the progressbar)
@@ -383,6 +386,11 @@ class PgSubCollection:
         # TODO: Do not stress SQL analyzer write a flat query for it
         return SQL('SELECT count(*) FROM ({}) AS a').format(self.sql_sample_from_layer_query)
 
+    @property
+    def sql_permutate_query(self):
+        # TODO: Do not stress SQL analyzer write a flat query for it
+        return SQL('SELECT * FROM ({}) AS subcollection ORDER BY RANDOM()').format(self.sql_query)
+
     def _sample_from_layer_len(self):
         """
         Executes an SQL query to find the size of the subcollection's sample from layer. The result is not cached.
@@ -434,6 +442,7 @@ class PgSubCollection:
     __read_cursor_counter = 0
     __read_sample_cursor_counter = 0
     __read_sample_from_layer_cursor_counter = 0
+    __read_permutate_cursor_counter = 0
     
     def sample(self, amount, amount_type:str='PERCENTAGE', seed=None, 
                      method:str='BERNOULLI', construction:str='JOIN'):
@@ -757,6 +766,84 @@ class PgSubCollection:
                     else:
                         layer_dicts = [layer_with_rnd if layer['name']==layer_with_rnd['name'] else layer for layer in layer_dicts]
                     yield self.assemble_text_object(text_obj_dict, layer_dicts, self.selected_layers, structure)
+
+
+    def permutate(self, seed=None):
+        """
+        Yields subcollection's documents in random order.
+        
+        Reiteration only works if the seed value has been fixed. 
+        Otherwise,an Exception will be risen ('cannot reiterate 
+        unless you fix seed').
+        
+        Parameters:
+        
+        :param seed:  float
+            Seed value to be fixed to ensure repeatability.
+            Must be a value between -1.0 and 1.0;
+        """
+        # Check that args have valid values
+        if seed is not None and not isinstance(seed, float):
+            raise ValueError('(!) Invalid seed value {}. Used float.'.format( seed ))
+        # Check for reiteration
+        if self._permutation_seed is None and seed is None:
+            # If no seed was given, then do not allow a reiteration
+            if self._permutation_iterated:
+               raise Exception('(!) You cannot reiterate sample unless you fix seed.')
+        # Record arguments
+        self._permutation_seed = seed
+        self._permutation_iterated = True
+        
+        # TODO: the following code is basically a very close copy of the self.__iter__ method
+        #       It could be refactored into a separate function in future.
+        
+        # Gain few milliseconds: Find the selection size only if it used in a progress bar.
+        total = 0 if self.progressbar is None else len(self)
+
+        # Server side cursor must have unique name per transaction
+        # To make code thread-safe we use unique naming scheme inside storage (per connection)
+        # TODO: Current naming scheme is not correct
+        # Let the storage handle the naming
+
+        self.__class__.__read_permutate_cursor_counter += 1
+        cur_name = 'permutate_read_{}'.format(self.__class__.__read_permutate_cursor_counter)
+
+        # set seed given by the user
+        if self._permutation_seed is not None:
+            self._sql_sample_set_seed( self._permutation_seed )
+
+        with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
+            server_cursor.itersize = self.itersize
+            server_cursor.execute(self.sql_permutate_query)
+            logger.debug(server_cursor.query.decode())
+            data_iterator = Progressbar(iterable=server_cursor, total=total, initial=0, progressbar_type=self.progressbar)
+            structure = self.collection.structure
+
+            if self.meta_attributes and self.return_index:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    meta_stop = 2 + len(self.meta_attributes)
+                    meta = {attr: value for attr, value in zip(self.meta_attributes, row[2:meta_stop])}
+                    text = self.assemble_text_object(row[1], row[meta_stop:], self.selected_layers, structure)
+                    yield row[0], text, meta
+
+            elif self.meta_attributes:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    meta_stop = 2 + len(self.meta_attributes)
+                    meta = {attr: value for attr, value in zip(self.meta_attributes, row[2:meta_stop])}
+                    text = self.assemble_text_object(row[1], row[meta_stop:], self.selected_layers, structure)
+                    yield text, meta
+
+            elif self.return_index:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    yield row[0], self.assemble_text_object(row[1], row[2:], self.selected_layers, structure)
+
+            else:
+                for row in data_iterator:
+                    data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
+                    yield self.assemble_text_object(row[1], row[2:], self.selected_layers, structure)
 
 
     def __iter__(self):
