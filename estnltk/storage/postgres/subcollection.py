@@ -15,7 +15,7 @@ class PgSubCollection:
     Wrapper class that provides read-only access to a subset of a collection.
 
     The subset is specified by a SQL select statement that is determined by
-    - the selection criterion
+    - the selection criterion and skip_rows/limit_rows constraints
     - the set of selected layers
     - the set of meta attributes
 
@@ -50,7 +50,8 @@ class PgSubCollection:
 
     def __init__(self, collection: pg.PgCollection, selection_criterion: pg.WhereClause = None,
                  selected_layers: Sequence[str] = None, meta_attributes: Sequence[str] = None,
-                 progressbar: str = None, return_index: bool = True, itersize: int = 50):
+                 progressbar: str = None, return_index: bool = True, itersize: int = 50,
+                 skip_rows: int = None, limit_rows: int = None ):
         """
         :param collection: PgCollection
         :param selection_criterion: WhereClause
@@ -65,6 +66,12 @@ class PgSubCollection:
             yield collection id with text objects
         :param itersize: int
             the number of simultaneously fetched elements
+        :param skip_rows: int
+            the number of rows to be skipped from the start of subcollection query (PostgreSQL's OFFSET clause).
+            should be a positive integer or None (if the skipping constraint is not used).
+        :param limit_rows: int
+            the limit for the number of first rows to be fetched from the subcollection query (PostgreSQL's LIMIT clause).
+            should be a positive integer or None (if the limiting constraint is not used).
         """
 
         #TODO: Make sure that all objects used by the class are independent copies and cannot be 
@@ -86,6 +93,8 @@ class PgSubCollection:
         self.progressbar = progressbar
         self.return_index = return_index
         self.itersize = itersize
+        self.skip_rows  = skip_rows if isinstance(skip_rows,int) and skip_rows > 0 else None
+        self.limit_rows = limit_rows if isinstance(limit_rows,int) and limit_rows >= 0 else None
         # for subcollection permutation
         self._permutation_seed     = None
         self._permutation_iterated = False
@@ -189,7 +198,19 @@ class PgSubCollection:
             else:
                 query = SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
 
-        return SQL('{} ORDER BY {}."id"').format(query, collection_identifier)
+        final_sql = SQL('{} ORDER BY {}."id"').format(query, collection_identifier)
+        #  
+        #  * LIMIT & OFFSET should come after WHERE conditions and ORDER BY expressions,
+        #    therefore, we cannot make a pg.WhereClause for them;
+        #  * "If both OFFSET and LIMIT appear, then OFFSET rows are skipped before 
+        #     starting to count the LIMIT rows that are returned."
+        #  Documentation:  https://www.postgresql.org/docs/13/queries-limit.html
+        #
+        if self.limit_rows is not None:
+            final_sql = SQL("{} LIMIT {}").format( final_sql, Literal(self.limit_rows) )
+        if self.skip_rows is not None:
+            final_sql = SQL("{} OFFSET {}").format( final_sql, Literal(self.skip_rows) )
+        return final_sql
 
     @property
     def sql_query_text(self):
@@ -659,7 +680,7 @@ class PgSubCollection:
             else:
                 alpha = 0.999999999
                 if amount > total_spans_in_layer:
-                    logger.warn("Sampling amount {} exceeds the size of the layer ({}). Yielding full subcollection.".format(amount, total_spans_in_layer))
+                    logger.warning("Sampling amount {} exceeds the size of the layer ({}). Yielding full subcollection.".format(amount, total_spans_in_layer))
         if not self.selected_layers:
             raise Exception( ('(!) This subcollection does not select any layers. '+
                                'Please select layers before making sample_from_layer query.'))
@@ -906,13 +927,46 @@ class PgSubCollection:
                     data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
                     yield self.assemble_text_object(row[1], row[2:], self.selected_layers, structure)
 
+
     def head(self, n: int = 5) -> List[Text]:
-        return [t for _, t in zip(range(n), self)]
+        limit_rows = n
+        if self.limit_rows is not None and self.limit_rows < n:
+            raise ValueError(('(!) This subcollection already has a limit_rows={} constraint. '+\
+                              'The new head value should be smaller.').format(self.limit_rows))
+        return PgSubCollection(collection=self.collection,
+               selection_criterion=self._selection_criterion,
+               selected_layers=self.selected_layers,
+               meta_attributes=self.meta_attributes,
+               progressbar=self.progressbar,
+               return_index=self.return_index,
+               limit_rows=limit_rows,
+               skip_rows=self.skip_rows
+        )
 
     def tail(self, n: int = 5) -> List[Text]:
-        # ineffective implementation:
-        # return list(collections.deque(self, n))
-        raise NotImplementedError()
+        if self.limit_rows is not None:
+            # NB! Adding tail after head gets messy, because "If both OFFSET and LIMIT appear, 
+            #     then OFFSET rows are skipped before starting to count the LIMIT rows that 
+            #     are returned." Therefore, we cannot allow that at the moment.
+            raise NotImplementedError('(!) Applying tail on a head of the subcollection is currently not supported.')
+        selection_size = len(self)
+        skip_rows = (selection_size - n) if self.skip_rows is None else self.skip_rows + (selection_size - n)
+        if skip_rows > 0:
+            if self.skip_rows is not None and self.skip_rows > skip_rows:
+                raise ValueError(('(!) This subcollection already has a skip_rows={} constraint. '+\
+                                  'The new tail value should be smaller.').format(self.skip_rows))
+            return PgSubCollection(collection=self.collection,
+                   selection_criterion=self._selection_criterion,
+                   selected_layers=self.selected_layers,
+                   meta_attributes=self.meta_attributes,
+                   progressbar=self.progressbar,
+                   return_index=self.return_index,
+                   limit_rows=self.limit_rows,
+                   skip_rows=skip_rows
+            )
+        else:
+            return self
+
 
     def select_all(self):
         self.selected_layers = self.layers
