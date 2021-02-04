@@ -495,10 +495,12 @@ class PgSubCollection:
           -- if we want to have uniform sampling over words/sentences instead of documents
         """
         # Check that args have valid values
-        if method not in ['SYSTEM', 'BERNOULLI']:
+        if not isinstance(method, str) or method.upper() not in ['SYSTEM', 'BERNOULLI']:
             raise ValueError('(!) Sampling method {} not supported. Use {} or {}.'.format( method, 'SYSTEM', 'BERNOULLI' ))
-        if amount_type not in ['PERCENTAGE', 'SIZE']:
-            raise ValueError('(!) Sampling amount_type {} not supported. Use {} or {}.'.format( method, 'PERCENTAGE', 'SIZE' ))
+        if not isinstance(amount_type, str) or amount_type.upper() not in ['PERCENTAGE', 'SIZE']:
+            raise ValueError('(!) Sampling amount_type {} not supported. Use {} or {}.'.format( amount_type, 'PERCENTAGE', 'SIZE' ))
+        method = method.upper()
+        amount_type = amount_type.upper()
         if amount_type == 'PERCENTAGE':
             percentage = amount
             if percentage < 0 or percentage > 100:
@@ -518,7 +520,7 @@ class PgSubCollection:
             assert not (percentage < 0 or percentage > 100)
         if seed is not None and not isinstance(seed, (int, float)):
             raise ValueError('(!) Invalid seed value {}. Used int or float.'.format( seed ))
-        if construction and construction not in ['JOIN', 'ANY']:
+        if not isinstance(construction, str) or construction.upper() not in ['JOIN', 'ANY']:
             raise ValueError('(!) Sampling construction {} not supported. Use {} or {}.'.format( construction, 'JOIN', 'ANY' ))
         # Check for reiteration
         if self._sampling_seed is None and seed is None:
@@ -531,7 +533,7 @@ class PgSubCollection:
         self._sampling_percentage = percentage
         self._sampling_seed = seed
         # TODO: this is only for debugging purposes: to be removed later
-        self._sample_construction = construction
+        self._sample_construction = construction.upper()
         
         # TODO: the following code is basically a very close copy of the self.__iter__ method
         #       (with a small exception that concerns situations where construction == 'JOIN')
@@ -629,8 +631,9 @@ class PgSubCollection:
             Must be a value between -1.0 and 1.0;
         """
         alpha = None
-        if amount_type not in ['PERCENTAGE', 'SIZE']:
+        if not isinstance(amount_type, str) or amount_type.upper() not in ['PERCENTAGE', 'SIZE']:
             raise ValueError('(!) Sampling amount_type {!r} not supported. Use {} or {}.'.format( amount_type, 'PERCENTAGE', 'SIZE' ))
+        amount_type = amount_type.upper()
         if amount_type == 'PERCENTAGE':
             percentage = amount
             if percentage < 0 or percentage > 100:
@@ -670,9 +673,11 @@ class PgSubCollection:
             # query and the actual query)
             self._sample_from_layer_auto_seed = uniform(-1.0, 1.0)
 
-        # TODO: the following code is basically a very close copy of the self.__iter__ method
-        #       (with a small exception that concerns situations where construction == 'JOIN')
-        #       It could be refactored into a separate function in future.
+        # TODO: the following code is derived from the self.__iter__ method, with some 
+        #       modifications concerning replacing the layer with the one that has
+        #       randomly sampled spans.
+        #       In future, perhaps the common part of methods __iter__(), sample() and 
+        #       sample_from_layer() could be abstracted away as a separate method.
         
         # Gain few milliseconds: Find the selection size only if it used in a progress bar.
         total = 0 if self.progressbar is None else self._sample_from_layer_len()
@@ -685,7 +690,7 @@ class PgSubCollection:
             self._sql_sample_set_seed( self._sample_from_layer_seed )
         elif self.progressbar is not None:
             # user didn't give the seed, so use the automatically 
-            # generated seed
+            # generated seed (for the sake of progressbar)
             self._sql_sample_set_seed( self._sample_from_layer_auto_seed )
 
         with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
