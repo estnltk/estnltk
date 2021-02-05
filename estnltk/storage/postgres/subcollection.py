@@ -1,5 +1,6 @@
 from typing import Sequence, List
 from psycopg2.sql import SQL, Literal, Identifier
+from psycopg2.errors import UndefinedTable
 from itertools import chain
 from random import uniform, randint
 
@@ -7,6 +8,7 @@ from estnltk import logger, Progressbar
 from estnltk import Text
 from estnltk.converters import serialisation_modules
 from estnltk.storage import postgres as pg
+from estnltk.storage.postgres.collection import PgCollectionException
 from estnltk.converters.layer_dict_converter import layer_converter_collection
 
 
@@ -76,6 +78,11 @@ class PgSubCollection:
 
         #TODO: Make sure that all objects used by the class are independent copies and cannot be 
         #changed form the outside. This might invalidate invariants 
+
+        if collection is None or (isinstance(collection, pg.PgCollection) and not collection.exists()):
+            raise PgCollectionException("collection does not exist, can't create subcollection")
+        elif not isinstance(collection, pg.PgCollection):
+            raise TypeError('collection must be an instance of PgCollection')
 
         self.collection = collection
 
@@ -599,7 +606,12 @@ class PgSubCollection:
 
         with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
             server_cursor.itersize = self.itersize
-            server_cursor.execute(self.sql_sample_texts_query)
+            try:
+                server_cursor.execute(self.sql_sample_texts_query)
+            except UndefinedTable as undefined_table_error:
+                raise PgCollectionException("collection {} does not exist anymore, can't iterate subcollection".format(self.collection.name))
+            except:
+                raise
             logger.debug(server_cursor.query.decode())
             data_iterator = Progressbar(iterable=server_cursor, total=total, initial=0, progressbar_type=self.progressbar)
             structure = self.collection.structure
@@ -735,7 +747,12 @@ class PgSubCollection:
 
         with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
             server_cursor.itersize = self.itersize
-            server_cursor.execute(self.sql_sample_from_layer_query)
+            try:
+                server_cursor.execute(self.sql_sample_from_layer_query)
+            except UndefinedTable as undefined_table_error:
+                raise PgCollectionException("collection {} does not exist anymore, can't iterate subcollection".format(self.collection.name))
+            except:
+                raise
             logger.debug(server_cursor.query.decode())
             data_iterator = Progressbar(iterable=server_cursor, total=total, initial=0, progressbar_type=self.progressbar)
             structure = self.collection.structure
@@ -813,6 +830,7 @@ class PgSubCollection:
             Seed value to be fixed to ensure repeatability.
             Must be a value between -1.0 and 1.0;
         """
+        
         # Check that args have valid values
         if seed is not None and not isinstance(seed, float):
             raise ValueError('(!) Invalid seed value {}. Used float.'.format( seed ))
@@ -845,7 +863,12 @@ class PgSubCollection:
 
         with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
             server_cursor.itersize = self.itersize
-            server_cursor.execute(self.sql_permutate_query)
+            try:
+                server_cursor.execute(self.sql_permutate_query)
+            except UndefinedTable as undefined_table_error:
+                raise PgCollectionException("collection {} does not exist anymore, can't iterate subcollection".format(self.collection.name))
+            except:
+                raise
             logger.debug(server_cursor.query.decode())
             data_iterator = Progressbar(iterable=server_cursor, total=total, initial=0, progressbar_type=self.progressbar)
             structure = self.collection.structure
@@ -892,7 +915,6 @@ class PgSubCollection:
         Tradeoff itersize ! Depends on size of the document and network ping
         """
 
-
         # Gain few milliseconds: Find the selection size only if it used in a progress bar.
         total = 0 if self.progressbar is None else len(self)
 
@@ -906,7 +928,12 @@ class PgSubCollection:
 
         with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
             server_cursor.itersize = self.itersize
-            server_cursor.execute(self.sql_query)
+            try:
+                server_cursor.execute(self.sql_query)
+            except UndefinedTable as undefined_table_error:
+                raise PgCollectionException("collection {} does not exist anymore, can't iterate subcollection".format(self.collection.name))
+            except:
+                raise
             logger.debug(server_cursor.query.decode())
             data_iterator = Progressbar(iterable=server_cursor, total=total, initial=0, progressbar_type=self.progressbar)
             structure = self.collection.structure
