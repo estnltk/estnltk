@@ -283,6 +283,18 @@ class PgSubCollection:
         layer             = self._sample_from_layer
         layer_is_attached = self._sample_from_layer_is_attached 
 
+        # Note: we must setseed inside the sampling query (and before launching any 
+        # queries with RANDOM()), otherwise, repeatability is not ensured.
+        # See also: https://www.techonthenet.com/postgresql/functions/setseed.php
+        seed_value = None
+        seed_query = None
+        if self._sample_from_layer_seed is not None:
+            seed_value = self._sample_from_layer_seed
+        elif self._sample_from_layer_auto_seed is not None:
+            seed_value = self._sample_from_layer_auto_seed
+        if seed_value is not None:
+            seed_query = SQL("""SELECT setseed({seed_value})""").format( seed_value=Literal(seed_value) )
+
         # 1) Get layer's content and size
         if layer_is_attached:
             # attached layer
@@ -292,12 +304,16 @@ class PgSubCollection:
                      """WHERE layer_json::jsonb @> {layer_name}::jsonb""").format( target_collection_table=collection_identifier,
                      layer_name=Literal( '{{ "name":"{}" }}'.format(layer) ))
             q1 = SQL("""SELECT id, jsonb_array_length( layer_data->'spans' ) as layer_size, layer_data FROM ({q0}) AS q0""").format( q0=q0 )
+            if seed_query is not None:
+                q1 = SQL("""SELECT q1w.* FROM ({}) AS seed_setting, ({}) AS q1w""").format(seed_query, q1)
         else:
             # detached layer
             layer_identifier = pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
             q1 = SQL("""SELECT {target_layer_table}."text_id" AS id, """+
                      """jsonb_array_length( {target_layer_table}."data"->'spans' ) as layer_size, """+
                      """{target_layer_table}."data" as layer_data FROM {target_layer_table}""").format( target_layer_table=layer_identifier )
+            if seed_query is not None:
+                q1 = SQL("""SELECT q1w.* FROM ({}) AS seed_setting, ({}) AS q1w""").format(seed_query, q1)
         # 2) Make a random pick of texts
         q2 = SQL("""SELECT id, layer_size, 1-(1-{alpha})^layer_size as doc_threshold, RANDOM() as rnd1, layer_data FROM ({q1}) AS q1""").format(alpha=Literal(alpha), q1=q1)
         q3 = SQL("""SELECT id, layer_size, doc_threshold, rnd1, layer_data FROM ({q2}) AS q2 WHERE rnd1 <= doc_threshold""").format(q2=q2)
@@ -343,6 +359,7 @@ class PgSubCollection:
             sampling_result = Identifier("layer_data_rnd_selection"),
             sample_query    = q8
         )
+        
         return whole_sample_from_layer_sql
 
 
@@ -370,29 +387,6 @@ class PgSubCollection:
                                        """jsonb_array_length( {target_layer_table}."data"->'spans' ) as layer_size, """+
                                        """{target_layer_table}."data" as layer_data FROM {target_layer_table}""").format( target_layer_table=layer_identifier )
         return SQL('SELECT SUM(a.layer_size) FROM ({}) AS a').format( sql_layer_size_query )
-
-
-    def _sql_sample_set_seed(self, seed_value):
-        """
-        Executes setseed statement that is required to ensure repeatability before using RANDOM() functions.
-        See also: https://www.techonthenet.com/postgresql/functions/setseed.php
-        
-        Parameters:
-        
-        :param seed_value: float
-            A value between 1.0 and -1.0, inclusive.
-        """
-        # Validate seed_value
-        if seed_value is None or \
-           not isinstance(seed_value, float) or \
-           not (-1.0 <= seed_value and seed_value <= 1.0):
-            raise ValueError('(!) Invalid seed value {}. Used float from range -1.0 to 1.0'.format( seed_value ))
-        # Execute setseed statement
-        seed_query = SQL("""SELECT setseed({seed_value})""").format( seed_value=Literal(seed_value) )
-        with self.collection.storage.conn.cursor() as cur:
-            cur.execute( seed_query )
-            logger.debug(cur.query.decode())
-            return next(cur)[0]
 
 
     @property
@@ -427,10 +421,6 @@ class PgSubCollection:
         """
         Executes an SQL query to find the size of the subcollection's sample from layer. The result is not cached.
         """
-        if self._sample_from_layer_seed is not None:
-            self._sql_sample_set_seed( self._sample_from_layer_seed )
-        else:
-            self._sql_sample_set_seed( self._sample_from_layer_auto_seed )
         with self.collection.storage.conn.cursor() as cur:
             cur.execute(self.sql_sample_from_layer_count_query)
             logger.debug(cur.query.decode())
@@ -713,6 +703,11 @@ class PgSubCollection:
         if layer is None or not layer in self.selected_layers:
             raise ValueError( ('(!) Invalid layer {!r}. '+
                                'Layer must be one of the layers selected by the subcollection query.').format(layer))
+        # Validate seed_value
+        if seed is not None and not isinstance(seed, float):
+            raise ValueError('(!) Invalid seed value {}. Use float from range -1.0 to 1.0.'.format( seed ))
+        if isinstance(seed, float) and not (-1.0 <= seed and seed <= 1.0):
+            raise ValueError('(!) Invalid seed value {}. Use float from range -1.0 to 1.0'.format( seed ))
         # Check for reiteration
         if self._sample_from_layer_seed is None and seed is None:
             # If no seed was given, then do not allow a reiteration
@@ -740,14 +735,6 @@ class PgSubCollection:
         
         self.__class__.__read_sample_from_layer_cursor_counter += 1
         cur_name = 'sample_from_layer_read_{}'.format(self.__class__.__read_sample_from_layer_cursor_counter)
-        
-        if self._sample_from_layer_seed is not None:
-            # set seed given by the user
-            self._sql_sample_set_seed( self._sample_from_layer_seed )
-        elif self.progressbar is not None:
-            # user didn't give the seed, so use the automatically 
-            # generated seed (for the sake of progressbar)
-            self._sql_sample_set_seed( self._sample_from_layer_auto_seed )
 
         with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
             server_cursor.itersize = self.itersize
@@ -836,10 +823,10 @@ class PgSubCollection:
         """
         # Check that args have valid values
         if seed is not None and not isinstance(seed, float):
-            raise ValueError('(!) Invalid seed value {}. Used float.'.format( seed ))
+            raise ValueError('(!) Invalid seed value {}. Use float from range -1.0 to 1.0.'.format( seed ))
         # Validate seed_value
         if isinstance(seed, float) and not (-1.0 <= seed and seed <= 1.0):
-            raise ValueError('(!) Invalid seed value {}. Used float from range -1.0 to 1.0'.format( seed ))
+            raise ValueError('(!) Invalid seed value {}. Use float from range -1.0 to 1.0'.format( seed ))
         # Check for reiteration
         if self._permutation_seed is None and seed is None:
             # If no seed was given, then do not allow a reiteration
