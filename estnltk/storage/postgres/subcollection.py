@@ -417,7 +417,11 @@ class PgSubCollection:
     @property
     def sql_permutate_query(self):
         # TODO: Do not stress SQL analyzer write a flat query for it
-        return SQL('SELECT * FROM ({}) AS subcollection ORDER BY RANDOM()').format(self.sql_query)
+        if self._permutation_seed is not None:
+            seed_query = SQL("""SELECT setseed({seed_value})""").format( seed_value=Literal(self._permutation_seed) )
+            return SQL('SELECT subcollection.* FROM ({}) setting_seed, ({}) AS subcollection ORDER BY RANDOM()').format(seed_query, self.sql_query)
+        else:
+            return SQL('SELECT subcollection.* FROM ({}) AS subcollection ORDER BY RANDOM()').format(self.sql_query)
 
     def _sample_from_layer_len(self):
         """
@@ -830,10 +834,12 @@ class PgSubCollection:
             Seed value to be fixed to ensure repeatability.
             Must be a value between -1.0 and 1.0;
         """
-        
         # Check that args have valid values
         if seed is not None and not isinstance(seed, float):
             raise ValueError('(!) Invalid seed value {}. Used float.'.format( seed ))
+        # Validate seed_value
+        if isinstance(seed, float) and not (-1.0 <= seed and seed <= 1.0):
+            raise ValueError('(!) Invalid seed value {}. Used float from range -1.0 to 1.0'.format( seed ))
         # Check for reiteration
         if self._permutation_seed is None and seed is None:
             # If no seed was given, then do not allow a reiteration
@@ -856,10 +862,6 @@ class PgSubCollection:
 
         self.__class__.__read_permutate_cursor_counter += 1
         cur_name = 'permutate_read_{}'.format(self.__class__.__read_permutate_cursor_counter)
-
-        # set seed given by the user
-        if self._permutation_seed is not None:
-            self._sql_sample_set_seed( self._permutation_seed )
 
         with self.collection.storage.conn.cursor(cur_name, withhold=True) as server_cursor:
             server_cursor.itersize = self.itersize
