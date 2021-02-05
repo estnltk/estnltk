@@ -452,12 +452,22 @@ class PgSubCollection:
             self.selected_layers = selected_layers
             return self
 
+        if additional_constraint is not None:
+            # Adding more constraints to a head or tail query will 
+            # likely mess it up, so this cannot be allowed;
+            if self.limit_rows is not None:
+                raise Exception('(!) Additional constraint(s) cannot be added to a head of the subcollection.')
+            elif self.skip_rows is not None:
+                raise Exception('(!) Additional constraint(s) cannot be added to a tail of the subcollection.')
+
         return PgSubCollection(collection=self.collection,
                                selection_criterion=self._selection_criterion & additional_constraint,
                                selected_layers=selected_layers.copy(),
                                meta_attributes=self.meta_attributes,
                                progressbar=self.progressbar,
-                               return_index=self.return_index
+                               return_index=self.return_index,
+                               limit_rows=self.limit_rows,
+                               skip_rows=self.skip_rows
                                )
 
     __read_cursor_counter = 0
@@ -954,7 +964,7 @@ class PgSubCollection:
         if skip_rows > 0:
             if self.skip_rows is not None and self.skip_rows > skip_rows:
                 raise ValueError(('(!) This subcollection already has a skip_rows={} constraint. '+\
-                                  'The new tail value should be smaller.').format(self.skip_rows))
+                                  'The new tail value should be smaller than {}.').format(self.skip_rows, selection_size))
             return PgSubCollection(collection=self.collection,
                    selection_criterion=self._selection_criterion,
                    selected_layers=self.selected_layers,
