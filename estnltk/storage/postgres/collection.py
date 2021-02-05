@@ -37,6 +37,7 @@ from estnltk.storage import postgres as pg
 
 from estnltk.storage.postgres.queries.index_query import IndexQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
+from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 
 
 class PgCollectionException(Exception):
@@ -820,7 +821,7 @@ class PgCollection:
 
         missing_layer = layer_name if mode == 'append' else None
         data_iterator = data_iterator or self.select(layers=tagger.input_layers, progressbar=progressbar,
-                                                     missing_layer=missing_layer)
+                                                     query=MissingLayerQuery(missing_layer=missing_layer) if missing_layer is not None else None)
 
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
