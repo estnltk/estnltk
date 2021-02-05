@@ -215,20 +215,30 @@ class TestPgSubCollection(unittest.TestCase):
     def test_head(self):
         subcollection = pg.PgSubCollection(self.collection)
 
-        head = subcollection.head(0)
+        head = list(subcollection.head(0))
         assert head == []
 
-        head = subcollection.head(2)
+        head = list(subcollection.head(2))
         assert len(head) == 2
         assert head[0][1].text == 'Esimene lause. Teine lause. Kolmas lause.'
         assert head[1][1].text == 'Teine tekst'
 
-        head = subcollection.head(20)
+        head = list(subcollection.head(20))
         assert len(head) == 4
 
     def test_tail(self):
-        with self.assertRaises(NotImplementedError):
-            self.subcollection.tail()
+        subcollection = pg.PgSubCollection(self.collection)
+
+        tail = list(subcollection.tail(0))
+        assert tail == []
+        
+        tail = list(subcollection.tail(2))
+        assert len(tail) == 2
+        assert tail[0][1].text == 'Ööbik laulab. Öökull ei laula.'
+        assert tail[1][1].text == 'Mis kell on?'
+
+        tail = list(subcollection.tail(20))
+        assert len(tail) == 4
 
     def test_select_all(self):
         subcollection_0 = pg.PgSubCollection(self.collection)
