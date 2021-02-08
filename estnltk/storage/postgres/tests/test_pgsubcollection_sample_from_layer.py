@@ -101,70 +101,122 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         logger.debug('Created test collection with {} docs and {} sentences.'.format(doc_counter,sent_counter))
         return collection
 
-
+    ##  
+    ##  Notes about testing functionalities based PostgreSQL's SETSEED() and RANDOM():
+    ##   -- at the moment, we cannot test for concrete sequences of 
+    #       documents, because even if the seed is fixed, random gives 
+    #       different results depending on server's platform (Windows 
+    #       or Linux);
+    ##   -- this issue can be resolved by migrating to PostgreSQL's
+    ##      version 12.0 (or beyond), which provides uniform behaviour
+    ##      for SETSEED() / RANDOM() across platforms;
+    ##
 
     def test_pgsubcollection_sample_from_attached_layer_based_on_simple_select(self):
         # Create testing collection
         collection = self._create_test_collection_of_docs(size=100, detached_sentences=False)
         
+        #
         # amount_type='PERCENTAGE' (default)
-        # Default select sentences with sample size approx. 5%
-        res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 5, seed=-0.7) )
-        self.assertEqual(len(res), 54)
-        self.assertEqual(len(res[0]), 2)
+        #
+        # Default select sentences with sample size approx. 5% (seed -0.7)
+        res_seed_0_7_1 = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 5, seed=-0.7) )
+        self.assertLessEqual(40, len(res_seed_0_7_1))
+        self.assertGreaterEqual(70, len(res_seed_0_7_1))
+        self.assertEqual(len(res_seed_0_7_1[0]), 2)
         sent_locations = []
-        for (doc_id, dok) in res:
+        for (doc_id, dok) in res_seed_0_7_1:
             self.assertTrue( 'sentences' in dok.layers )
             self.assertTrue( 'words' in dok.layers )
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 93 )
-        self.assertListEqual( sent_locations[:5], [(0, 86, 110), (0, 766, 803), (1, 83, 106), (10, 491, 519), (10, 652, 684)] )
+        self.assertLessEqual(25, len(sent_locations))
+        self.assertGreaterEqual(250, len(sent_locations))
         
-        # Default select sentences with collection_meta sample size approx. 25%
-        res = list( collection.select(layers=['sentences'], collection_meta=['text_id']).sample_from_layer('sentences', 25, seed=0.1) )
-        self.assertEqual(len(res), 100)
-        self.assertEqual(len(res[0]), 3)
-        sent_locations = []
-        for (doc_id, dok, text_meta) in res:
-            for sent in dok['sentences']:
-                sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 634 )
-        self.assertListEqual( sent_locations[:5], [(0, 0, 25), (0, 86, 110), (0, 112, 141), (0, 557, 585), (0, 587, 620)] )
-        self.assertListEqual( sent_locations[-7:], [(98, 644, 680), (98, 801, 836), (99, 28, 58), (99, 89, 114), (99, 212, 241), (99, 506, 540), (99, 542, 573)] )
+        # Default select sentences with collection_meta sample size approx. 25% (seed 0.1)
+        res_seed_0_1_1 = list( collection.select(layers=['sentences'], collection_meta=['text_id']).sample_from_layer('sentences', 25, seed=0.1) )
+        self.assertLessEqual(70, len(res_seed_0_1_1))
+        self.assertGreaterEqual(100, len(res_seed_0_1_1))
+        self.assertEqual(len(res_seed_0_1_1[0]), 3)
+        for (doc_id, dok, meta) in res_seed_0_1_1:
+            self.assertTrue( 'text_id' in meta )
+            self.assertTrue( 1 <= meta['text_id'] and meta['text_id'] <= 100 )
 
-        # Default select sentences with collection_meta and return_index=False sample size approx. 75%
-        res = list( collection.select(layers=['sentences'], return_index=False, collection_meta=['text_id']).sample_from_layer('sentences', 75, seed=0.0) )
-        self.assertEqual(len(res), 100)
-        self.assertEqual(len(res[0]), 2)
+        # Default select sentences with collection_meta and return_index=False sample size approx. 75% (seed 0.0)
+        res_seed_00_1 = list( collection.select(layers=['sentences'], return_index=False, collection_meta=['text_id']).sample_from_layer('sentences', 75, seed=0.0) )
+        self.assertEqual(len(res_seed_00_1), 100)
+        self.assertEqual(len(res_seed_00_1[0]), 2)
         sent_locations = []
-        for (doc_id, (dok, text_meta)) in enumerate(res):
+        for (doc_id, (dok, text_meta)) in enumerate(res_seed_00_1):
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 1872 )
-        self.assertListEqual( sent_locations[:10], [(0, 0, 25), (0, 27, 56), (0, 86, 110), (0, 143, 170), (0, 172, 203), \
-                                                    (0, 235, 261), (0, 263, 294), (0, 296, 325), (0, 327, 360), (0, 362, 392)] )
+        self.assertLessEqual(1600, len(sent_locations))
+        self.assertGreaterEqual(2000, len(sent_locations))
+
+        # Check that repeating a query with the same seed gives the same result as before
+        # Default select sentences with sample size approx. 5% (seed -0.7)
+        res_seed_0_7_2 = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 5, seed=-0.7) )
+        self.assertEqual(len(res_seed_0_7_2[0]), 2)
+        sent_locations_1 = []
+        for (doc_id, dok) in res_seed_0_7_1:
+            for sent in dok['sentences']:
+                sent_locations_1.append( (doc_id, sent.start, sent.end) )
+        sent_locations_2 = []
+        for (doc_id, dok) in res_seed_0_7_2:
+            for sent in dok['sentences']:
+                sent_locations_2.append( (doc_id, sent.start, sent.end) )
+        self.assertListEqual( sent_locations_1, sent_locations_2 )
         
+        # Check that repeating a query with the same seed gives the same result as before
+        # Default select sentences with collection_meta sample size approx. 25% (seed 0.1)
+        res_seed_0_1_2 = list( collection.select(layers=['sentences'], collection_meta=['text_id']).sample_from_layer('sentences', 25, seed=0.1) )
+        self.assertEqual(len(res_seed_0_1_2), 100)
+        self.assertEqual(len(res_seed_0_1_2[0]), 3)
+        sent_locations_1 = []
+        for (doc_id, dok, meta) in res_seed_0_1_1:
+            for sent in dok['sentences']:
+                sent_locations_1.append( (doc_id, sent.start, sent.end) )
+        sent_locations_2 = []
+        for (doc_id, dok, meta) in res_seed_0_1_2:
+            for sent in dok['sentences']:
+                sent_locations_2.append( (doc_id, sent.start, sent.end) )
+        self.assertListEqual( sent_locations_1, sent_locations_2 )
+
+
+        #
         # amount_type='SIZE'
-        # Default select sentences with sample size roughly 100-150 sentences
-        res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 150, amount_type='SIZE', seed=-0.5) )
-        self.assertEqual(len(res), 59)
-        self.assertEqual(len(res[0]), 2)
-        sent_locations = []
-        for (doc_id, dok) in res:
-            for sent in dok['sentences']:
-                sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 102 )
+        #
+        # Default select sentences with sample size roughly 100-150 sentences (seed -0.5)
+        res_0_5__1 = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 150, amount_type='SIZE', seed=-0.5) )
+        self.assertLessEqual(40, len(res_0_5__1))
+        self.assertGreaterEqual(100, len(res_0_5__1))
+        self.assertEqual(len(res_0_5__1[0]), 2)
 
-        # Default select sentences with return_index=False and sample size roughly 1500 sentences
-        res = list( collection.select(layers=['sentences'], return_index=False).sample_from_layer('sentences', 1500, amount_type='SIZE', seed=0.0) )
-        self.assertEqual(len(res), 100)
-        self.assertTrue( type(res[0]) is Text )
+        # Default select sentences with return_index=False and sample size roughly 1500 sentences (seed 0.0)
+        res_00_1 = list( collection.select(layers=['sentences'], return_index=False).sample_from_layer('sentences', 1500, amount_type='SIZE', seed=0.0) )
+        self.assertLessEqual(50, len(res_00_1))
+        self.assertGreaterEqual(100, len(res_00_1))
+        self.assertTrue( type(res_00_1[0]) is Text )
         sent_locations = []
-        for (doc_id, dok) in enumerate(res):
+        for (doc_id, dok) in enumerate(res_00_1):
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 1524 )
+        self.assertLessEqual(1200, len(sent_locations))
+        self.assertGreaterEqual(1700, len(sent_locations))
+        
+        # Check that repeating a query with the same seed gives the same result as before
+        # Default select sentences with sample size roughly 100-150 sentences (seed -0.5)
+        res_0_5__2 = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 150, amount_type='SIZE', seed=-0.5) )
+        self.assertEqual(len(res_0_5__1), len(res_0_5__2))
+        sent_locations_1 = []
+        for (doc_id, dok) in res_0_5__1:
+            for sent in dok['sentences']:
+                sent_locations_1.append( (doc_id, sent.start, sent.end) )
+        sent_locations_2 = []
+        for (doc_id, dok) in res_0_5__2:
+            for sent in dok['sentences']:
+                sent_locations_2.append( (doc_id, sent.start, sent.end) )
+        self.assertListEqual( sent_locations_1, sent_locations_2 )
 
         # Test sampling without seed. 
         # Default select sentences with sample size roughly 1000 sentences
@@ -189,19 +241,11 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         collection = self._create_test_collection_of_docs(size=100, detached_sentences=True)
         
         # amount_type='PERCENTAGE' (default)
-        # Default select sentences with sample size approx. 5%
-        res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 5, seed=-0.25) )
-        self.assertEqual(len(res), 48)
-        self.assertEqual(len(res[0]), 2)
-        sent_locations = []
-        for (doc_id, dok) in res:
-            self.assertTrue( 'sentences' in dok.layers )
-            self.assertTrue( 'words' in dok.layers )
-            for sent in dok['sentences']:
-                sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 76 )
-        self.assertListEqual( sent_locations[:5],  [(0, 424, 457), (0, 557, 585), (1, 508, 537), (1, 742, 778), (2, 573, 606)] )
-        self.assertListEqual( sent_locations[-5:], [(96, 72, 105), (96, 178, 212), (96, 644, 681), (97, 148, 176), (97, 755, 788)] )
+        # Default select sentences with sample size approx. 5% (seed -0.25)
+        res_0_25__1 = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 5, seed=-0.25) )
+        self.assertLessEqual(30, len(res_0_25__1))
+        self.assertGreaterEqual(70, len(res_0_25__1))
+        self.assertEqual(len(res_0_25__1[0]), 2)
 
         # Default select sentences with return_index=False and with sample size approx. 50%
         res = list( collection.select(layers=['sentences'], return_index=False).sample_from_layer('sentences', 50, seed=-0.25) )
@@ -211,21 +255,33 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         for (doc_id, dok) in enumerate(res):
             for sent in dok['sentences']:
                 sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 1251 )
-        self.assertListEqual( sent_locations[:5],  [(0, 0, 25), (0, 27, 56), (0, 58, 84), (0, 205, 233), (0, 235, 261)] )
-        self.assertListEqual( sent_locations[-5:], [(99, 438, 472), (99, 474, 504), (99, 542, 573), (99, 678, 716), (99, 790, 828)] )
+        self.assertLessEqual(1000, len(sent_locations))
+        self.assertGreaterEqual(1500, len(sent_locations))
 
-        # amount_type='SIZE'
-        # Default select sentences with collection_meta and return_index=False sample size roughly 1000 sentences
-        res = list( collection.select(layers=['sentences'], return_index=False, collection_meta=['text_id']).sample_from_layer('sentences', 1000, amount_type='SIZE', seed=0.5) )
-        self.assertEqual(len(res), 100)
-        self.assertEqual(len(res[0]), 2)
-        sent_locations = []
-        for (doc_id, (dok, text_meta)) in enumerate(res):
+        # Check that repeating a query with the same seed gives the same result as before
+        # Default select sentences with sample size approx. 5% (seed -0.25)
+        res_0_25__2 = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 5, seed=-0.25) )
+        self.assertEqual(len(res_0_25__1), len(res_0_25__2))
+        self.assertEqual(len(res_0_25__2[0]), 2)
+        sent_locations_1 = []
+        for (doc_id, dok) in res_0_25__1:
             for sent in dok['sentences']:
-                sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 997 )
-        
+                sent_locations_1.append( (doc_id, sent.start, sent.end) )
+        sent_locations_2 = []
+        for (doc_id, dok) in res_0_25__2:
+            for sent in dok['sentences']:
+                sent_locations_2.append( (doc_id, sent.start, sent.end) )
+        self.assertListEqual( sent_locations_1, sent_locations_2 )
+
+        #
+        # amount_type='SIZE'
+        #
+        # Default select sentences with collection_meta and return_index=False sample size roughly 1000 sentences (seed 0.5)
+        res_0_5__1 = list( collection.select(layers=['sentences'], return_index=False, collection_meta=['text_id']).sample_from_layer('sentences', 1000, amount_type='SIZE', seed=0.5) )
+        self.assertLessEqual(70, len(res_0_5__1))
+        self.assertGreaterEqual(100, len(res_0_5__1))
+        self.assertEqual(len(res_0_5__1[0]), 2)
+       
         # Test sampling without seed. 
         # Default select sentences with sample size roughly 50%
         res = list( collection.select(layers=['sentences']).sample_from_layer('sentences', 50) )
@@ -241,6 +297,19 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         self.assertLessEqual(500, len(sent_locations))
         self.assertGreaterEqual(2000, len(sent_locations))
 
+        # Check that repeating a query with the same seed gives the same result as before
+        # Default select sentences with collection_meta and return_index=False sample size roughly 1000 sentences (seed 0.5)
+        res_0_5__2 = list( collection.select(layers=['sentences'], return_index=False, collection_meta=['text_id']).sample_from_layer('sentences', 1000, amount_type='SIZE', seed=0.5) )
+        sent_locations_1 = []
+        for (doc_id, (dok, text_meta)) in enumerate(res_0_5__1):
+            for sent in dok['sentences']:
+                sent_locations_1.append( (doc_id, sent.start, sent.end) )
+        sent_locations_2 = []
+        for (doc_id, (dok, text_meta)) in enumerate(res_0_5__2):
+            for sent in dok['sentences']:
+                sent_locations_2.append( (doc_id, sent.start, sent.end) )
+        self.assertListEqual( sent_locations_1, sent_locations_2 )
+
         collection.delete()
 
 
@@ -250,33 +319,43 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         collection = self._create_test_collection_of_docs(size=100, detached_sentences=True)
         
         # amount_type='PERCENTAGE' (default)
-        # Default select where mod_2=2 (every second document) with sentences sample size approx. 25%
-        res = list( collection.select(layers=['sentences'],
-                                      query=JsonbMetadataQuery({'mod_2':'2'})).sample_from_layer('sentences', 25, seed=0.0) )
-        self.assertEqual(len(res), 50)
-        self.assertEqual(len(res[0]), 2)
+        # Default select where mod_2=2 (every second document) with sentences sample size approx. 25% (seed 0.0)
+        res_00__1 = list( collection.select(layers=['sentences'],
+                                            query=JsonbMetadataQuery({'mod_2':'2'})).sample_from_layer('sentences', 25, seed=0.0) )
+        self.assertEqual(len(res_00__1[0]), 2)
         sent_locations = []
-        for (doc_id, dok) in res:
+        for (doc_id, dok) in res_00__1:
             self.assertTrue( dok.meta['mod_2'] == '2' )
             self.assertTrue( 'sentences' in dok.layers )
             self.assertTrue( 'words' in dok.layers )
-            for sent in dok['sentences']:
-                sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 319 )
         
-        # Default select where mod_3=3 (every third document) with return_index=False and sentences sample size approx. 75%
+        # Default select where mod_3=3 (every third document) with return_index=False and sentences sample size approx. 75% (seed 0.5)
         res = list( collection.select(layers=['sentences'],
                                       query=JsonbMetadataQuery({'mod_3':'3'}),
                                       return_index=False).sample_from_layer('sentences', 75, seed=0.5) )
-        self.assertEqual(len(res), 33)
+        self.assertLessEqual(30, len(res))
+        self.assertGreaterEqual(40, len(res))
         self.assertTrue( type(res[0]) is Text )
-        sent_locations = []
         for (doc_id, dok) in enumerate(res):
             self.assertTrue( dok.meta['mod_3'] == '3' )
             self.assertTrue( 'sentences' in dok.layers )
             self.assertTrue( 'words' in dok.layers )
+        
+        # Check that repeating a query with the same seed gives the same result as before
+        # Default select where mod_2=2 (every second document) with sentences sample size approx. 25% (seed 0.0)
+        res_00__2 = list( collection.select(layers=['sentences'],
+                                            query=JsonbMetadataQuery({'mod_2':'2'})).sample_from_layer('sentences', 25, seed=0.0) )
+        self.assertEqual(len(res_00__1), len(res_00__2))
+        sent_locations_1 = []
+        for (doc_id, dok) in res_00__1:
+            self.assertTrue( dok.meta['mod_2'] == '2' )
             for sent in dok['sentences']:
-                sent_locations.append( (doc_id, sent.start, sent.end) )
-        self.assertEqual( len(sent_locations), 626 )
+                sent_locations_1.append( (doc_id, sent.start, sent.end) )
+        sent_locations_2 = []
+        for (doc_id, dok) in res_00__2:
+            self.assertTrue( dok.meta['mod_2'] == '2' )
+            for sent in dok['sentences']:
+                sent_locations_2.append( (doc_id, sent.start, sent.end) )
+        self.assertListEqual( sent_locations_1, sent_locations_2 )
         
         collection.delete()

@@ -80,12 +80,12 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
         return collection
 
     ##  
-    ##  Notes about testing PostgreSQL's SETSEED() and RANDOM():
+    ##  Notes about testing functionalities based PostgreSQL's SETSEED() and RANDOM():
     ##   -- we cannot test for concrete sequences of documents, because 
     ##      even if the seed is fixed, random gives different results
     ##      depending on server's platform (Windows or Linux);
     ##   -- this issue can be resolved by migrating to PostgreSQL's
-    ##      version 12.0 (or beyond), which provide uniform behaviour
+    ##      version 12.0 (or beyond), which provides uniform behaviour
     ##      for SETSEED() / RANDOM() across platforms;
     ##
 
