@@ -80,7 +80,7 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
         return collection
 
     ##  
-    ##  Notes about testing functionalities based PostgreSQL's SETSEED() and RANDOM():
+    ##  Notes about testing functionalities based on PostgreSQL's SETSEED() and RANDOM():
     ##   -- we cannot test for concrete sequences of documents, because 
     ##      even if the seed is fixed, random gives different results
     ##      depending on server's platform (Windows or Linux);

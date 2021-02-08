@@ -102,7 +102,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         return collection
 
     ##  
-    ##  Notes about testing functionalities based PostgreSQL's SETSEED() and RANDOM():
+    ##  Notes about testing functionalities based on PostgreSQL's SETSEED() and RANDOM():
     ##   -- at the moment, we cannot test for concrete sequences of 
     #       documents, because even if the seed is fixed, random gives 
     #       different results depending on server's platform (Windows 
@@ -144,7 +144,8 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
 
         # Default select sentences with collection_meta and return_index=False sample size approx. 75% (seed 0.0)
         res_seed_00_1 = list( collection.select(layers=['sentences'], return_index=False, collection_meta=['text_id']).sample_from_layer('sentences', 75, seed=0.0) )
-        self.assertEqual(len(res_seed_00_1), 100)
+        self.assertLessEqual(90, len(res_seed_00_1))
+        self.assertGreaterEqual(100, len(res_seed_00_1))
         self.assertEqual(len(res_seed_00_1[0]), 2)
         sent_locations = []
         for (doc_id, (dok, text_meta)) in enumerate(res_seed_00_1):
@@ -170,7 +171,8 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         # Check that repeating a query with the same seed gives the same result as before
         # Default select sentences with collection_meta sample size approx. 25% (seed 0.1)
         res_seed_0_1_2 = list( collection.select(layers=['sentences'], collection_meta=['text_id']).sample_from_layer('sentences', 25, seed=0.1) )
-        self.assertEqual(len(res_seed_0_1_2), 100)
+        self.assertLessEqual(70, len(res_seed_0_1_2))
+        self.assertGreaterEqual(100, len(res_seed_0_1_2))
         self.assertEqual(len(res_seed_0_1_2[0]), 3)
         sent_locations_1 = []
         for (doc_id, dok, meta) in res_seed_0_1_1:
