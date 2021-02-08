@@ -79,55 +79,62 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
                                 counter += 1
         return collection
 
-
+    ##  
+    ##  Notes about testing PostgreSQL's SETSEED() and RANDOM():
+    ##   -- we cannot test for concrete sequences of documents, because 
+    ##      even if the seed is fixed, random gives different results
+    ##      depending on server's platform (Windows or Linux);
+    ##   -- this issue can be resolved by migrating to PostgreSQL's
+    ##      version 12.0 (or beyond), which provide uniform behaviour
+    ##      for SETSEED() / RANDOM() across platforms;
+    ##
 
     def test_pgsubcollection_permutate_based_on_simple_select_and_query_constraints(self):
         # Create testing collection
         collection = self._create_test_collection_of_docs(size=100)
         
-        # Permutate simple select
-        res = list( collection.select().permutate(seed=0.0) )
-        self.assertEqual(len(res), 100)
-        self.assertEqual(len(res[0]), 2)
-        text_ids = [text_id for text_id, _ in res]
-        self.assertTrue( len(res), len(set(text_ids)) )
-        self.assertListEqual( text_ids[:10],  [36, 90, 98, 78, 97, 34, 19, 2, 70, 46] )
-        self.assertListEqual( text_ids[-10:], [53, 35, 67, 79, 71, 25, 63, 85, 80, 72] )
+        # Permutate simple select (seed 0.0)
+        seed_0_results_1 = list( collection.select().permutate(seed=0.0) )
+        self.assertEqual(len(seed_0_results_1), 100)
+        self.assertEqual(len(seed_0_results_1[0]), 2)
+        text_ids = [text_id for text_id, _ in seed_0_results_1]
+        self.assertTrue( len(seed_0_results_1), len(set(text_ids)) )
+        # Check that the order "appears randomized"
+        self.assertFalse( text_ids[:5] == [0,1,2,3,4] )
 
-        # Permutate simple select wo return_index
-        res = list( collection.select(return_index=False).permutate(seed=0.5) )
-        self.assertEqual(len(res), 100)
-        self.assertTrue( type(res[0]) is Text )
-        text_ids = [text.meta['text_id'] for text in res]
-        self.assertTrue( len(res), len(set(text_ids)) )
-        self.assertListEqual( text_ids[:10],  [66, 56, 91, 46, 15, 51, 27, 89, 94, 37] )
-        self.assertListEqual( text_ids[-10:], [41, 32, 40, 81, 52, 63, 78, 48, 28, 8] )
+        # Permutate simple select wo return_index (seed 0.5)
+        seed_0_5_results_1 = list( collection.select(return_index=False).permutate(seed=0.5) )
+        self.assertEqual(len(seed_0_5_results_1), 100)
+        self.assertTrue( type(seed_0_5_results_1[0]) is Text )
+        text_ids = [text.meta['text_id'] for text in seed_0_5_results_1]
+        self.assertTrue( len(seed_0_5_results_1), len(set(text_ids)) )
         
-        # Permutate simple select with metadata
-        res = list( collection.select(collection_meta=['text_id', 'text_name']).permutate(seed=-0.5) )
-        self.assertEqual(len(res), 100)
-        self.assertEqual(len(res[0]), 3)
-        text_ids_and_meta = [meta for (tid, text, meta) in res]
-        self.assertListEqual( text_ids_and_meta[:5],  [{'text_id': 60, 'text_name': 'text_60'}, \
-                                                       {'text_id': 81, 'text_name': 'text_81'}, \
-                                                       {'text_id': 58, 'text_name': 'text_58'}, \
-                                                       {'text_id': 67, 'text_name': 'text_67'}, \
-                                                       {'text_id': 39, 'text_name': 'text_39'}] )
-                                                       
-        self.assertListEqual( text_ids_and_meta[-5:], [{'text_id': 22, 'text_name': 'text_22'}, \
-                                                       {'text_id': 18, 'text_name': 'text_18'}, \
-                                                       {'text_id': 32, 'text_name': 'text_32'}, \
-                                                       {'text_id': 83, 'text_name': 'text_83'}, \
-                                                       {'text_id': 91, 'text_name': 'text_91'} ] )
+        # Permutate simple select with metadata (seed 0.0)
+        seed_0_results_2 = list( collection.select(collection_meta=['text_id', 'text_name']).permutate(seed=0.0) )
+        self.assertEqual(len(seed_0_results_2), 100)
+        self.assertEqual(len(seed_0_results_2[0]), 3)
+        
+        # Check that fixed seeds gave the same results
+        # 1) text_ids
+        text_ids_1 = [text_id for text_id, _    in seed_0_results_1]
+        text_ids_2 = [text_id for text_id, _, _ in seed_0_results_2]
+        self.assertListEqual( text_ids_1[:10], text_ids_2[:10])
+        self.assertListEqual( text_ids_1[-10:], text_ids_2[-10:])
+        # 2) text_ids + meta
+        text_ids_and_meta_1 = [ {'text_id': tid+1, 'text_name': 'text_{}'.format(tid+1)} for (tid, text) in seed_0_results_1 ]
+        text_ids_and_meta_2 = [ meta for (tid, text, meta) in seed_0_results_2 ]
+        self.assertListEqual( text_ids_and_meta_1[:5], text_ids_and_meta_2[:5] )
+        self.assertListEqual( text_ids_and_meta_1[-5:], text_ids_and_meta_2[-5:] )
 
-        # Permutate select with metadata constraining query
-        res = list( collection.select(query=JsonbMetadataQuery({'mod_2':'2'}) ).permutate(seed=0.25) )
-        self.assertEqual(len(res), 50)
-        self.assertEqual(len(res[0]), 2)
-        text_ids = [text_id for text_id, _ in res]
-        self.assertTrue( len(res), len(set(text_ids)) )
-        self.assertListEqual( text_ids[:5], [35, 93, 77, 71, 43] )
-        self.assertListEqual( text_ids[-5:], [41, 1, 25, 91, 5] )
+        # Permutate select with metadata constraining query (seed 0.25)
+        seed_0_5_results_2 = list( collection.select(query=JsonbMetadataQuery({'mod_2':'2'}) ).permutate(seed=0.25) )
+        self.assertEqual(len(seed_0_5_results_2), 50)
+        self.assertEqual(len(seed_0_5_results_2[0]), 2)
+        text_ids = [text_id for text_id, _ in seed_0_5_results_2]
+        self.assertTrue( len(seed_0_5_results_2), len(set(text_ids)) )
+        # Validate mod_2 values
+        for text_id, text_obj in seed_0_5_results_2:
+            self.assertTrue( text_obj.meta['mod_2'] == '2' )
         
         collection.delete()
 
@@ -149,29 +156,36 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
                                 row_mapper = vabamorf_row_mapper, 
                                 tagger=None, mode='overwrite')
         
-        # Select 'morph_analysis' with permutation
-        res = list( collection.select(layers=[ vabamorf_tagger.output_layer ]).permutate(seed=-0.25) )
-        self.assertEqual(len(res), 100)
-        self.assertEqual(len(res[0]), 2)
-        for text_id, text_obj in res:
+        # Select 'morph_analysis' with permutation (seed -0.25)
+        seed_0_25_results_1 = list( collection.select(layers=[ vabamorf_tagger.output_layer ]).permutate(seed=-0.25) )
+        self.assertEqual(len(seed_0_25_results_1), 100)
+        self.assertEqual(len(seed_0_25_results_1[0]), 2)
+        for text_id, text_obj in seed_0_25_results_1:
+            self.assertTrue( 0 <= text_id and text_id < 100 )
             self.assertTrue( vabamorf_tagger.output_layer in text_obj.layers )
             self.assertTrue( 'words' in text_obj.layers )
-        text_ids = [text_id for text_id, _ in res]
-        self.assertListEqual( text_ids[:5], [19, 51, 15, 74, 44])
-        self.assertListEqual( text_ids[-5:], [62, 16, 65, 70, 20])
+        text_ids_1 = [text_id for text_id, _ in seed_0_25_results_1]
+        # Check that the order "appears randomized"
+        self.assertFalse( text_ids_1[:5] == [0,1,2,3,4] )
 
-        # Select slice of documents from 25 to 75 with 'morph_analysis' and permutate
-        res = list( collection.select(query=SliceQuery(25,75), \
-                                      layers=[ vabamorf_tagger.output_layer ]).permutate(seed=-0.25) )
-        self.assertEqual(len(res), 50)
-        self.assertEqual(len(res[0]), 2)
-        for text_id, text_obj in res:
+        # Select slice of documents from 25 to 75 with 'morph_analysis' and permutate (seed -0.25)
+        seed_0_25_results_2 = list( collection.select(query=SliceQuery(25,75), \
+                                    layers=[ vabamorf_tagger.output_layer ]).permutate(seed=-0.25) )
+        self.assertEqual(len(seed_0_25_results_2), 50)
+        self.assertEqual(len(seed_0_25_results_2[0]), 2)
+        text_ids_2 = [text_id for text_id, _ in seed_0_25_results_2]
+        self.assertTrue( len(seed_0_25_results_2), len(set(text_ids_2)) )
+        for text_id, text_obj in seed_0_25_results_2:
+            self.assertTrue( 25 <= text_id and text_id < 75 )
             self.assertTrue( vabamorf_tagger.output_layer in text_obj.layers )
             self.assertTrue( 'words' in text_obj.layers )
-        text_ids = [text_id for text_id, _ in res]
-        self.assertTrue( len(res), len(set(text_ids)) )
-        self.assertListEqual( text_ids[:5],  [44, 40, 69, 55, 46])
-        self.assertListEqual( text_ids[-5:], [58, 38, 29, 41, 45])
+
+        # Select 'morph_analysis' with permutation (seed -0.25)
+        seed_0_25_results_3 = list( collection.select(layers=[ vabamorf_tagger.output_layer ]).permutate(seed=-0.25) )
+        text_ids_3 = [text_id for text_id, _ in seed_0_25_results_3]
+        # Check that fixed seeds gave the same results
+        self.assertListEqual( text_ids_1[:10], text_ids_3[:10])
+        self.assertListEqual( text_ids_1[-10:], text_ids_3[-10:])
 
         # Permutate without seed
         res = list( collection.select().permutate() )
@@ -182,6 +196,3 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
         
         collection.delete()
 
-
-
-        
