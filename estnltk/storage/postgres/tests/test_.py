@@ -208,8 +208,8 @@ class TestPgCollection(unittest.TestCase):
         id1 = 1
         id2 = 2
         # test select_by_id
-        self.assertEqual(collection._select_by_key(id1), text1)
-        self.assertEqual(collection._select_by_key(id2), text2)
+        self.assertEqual(collection[id1], text1)
+        self.assertEqual(collection[id2], text2)
 
         subcollection = collection.select()
         assert isinstance(subcollection, pg.PgSubCollection)

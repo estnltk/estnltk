@@ -503,22 +503,6 @@ class PgCollection:
     def __iter__(self):
         yield from self.select(layers=self.selected_layers, return_index=False)
 
-    def _select_by_key(self, key, return_as_dict=False):
-        """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
-        self.storage.conn.commit()
-        self.storage.conn.autocommit = True
-        with self.storage.conn.cursor() as c:
-            c.execute(SQL("SELECT * FROM {}.{} WHERE id = %s;").format(Identifier(self.storage.schema),
-                                                                       Identifier(self.name)),
-                      (key,))
-            res = c.fetchone()
-            if res is None:
-                raise PgCollectionException("Key not found: {!r}".format(key))
-            #key, text_dict = res
-            text_dict = res[1]
-            text = text_dict if return_as_dict is True else dict_to_text(text_dict)
-            return text
-
     def count_values(self, layer, attr, **kwargs):
         """Count attribute values in the collection."""
         counter = collections.Counter()
@@ -1148,10 +1132,6 @@ class PgCollection:
             lf_names.append(layer)
         return lf_names
 
-    # TODO: remove
-    def get_layer_names(self):
-        return self.layers
-
     def get_fragment_tables(self):
         fragment_tables = []
         for tbl in pg.get_all_table_names(self.storage):
@@ -1160,7 +1140,7 @@ class PgCollection:
         return fragment_tables
 
     def get_layer_meta(self, layer_name):
-        if layer_name not in self.get_layer_names():
+        if layer_name not in self.layers:
             raise PgCollectionException("Collection does not have the layer {!r}".format(layer_name))
 
         with self.storage.conn.cursor() as c:

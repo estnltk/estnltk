@@ -146,7 +146,7 @@ class PgSubCollection:
 
     @property
     def layers(self):
-        return self.collection.get_layer_names()
+        return self.collection.layers
 
     @property
     def detached_layers(self):
