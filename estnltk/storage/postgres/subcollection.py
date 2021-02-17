@@ -225,7 +225,16 @@ class PgSubCollection:
 
     @property
     def sql_count_query(self):
-        # TODO: Do not stress SQL analyzer write a flat query for it
+        # TODO: Do not stress SQL analyzer write a flat query for it.
+        # Note: making a flat count(*) query out of self.sql_query is not trivial:
+        # 1) construction of SELECTed columns, FROM clause and WHERE clause must be 
+        #    refactored out from self.sql_query -- in a way that FROM/WHERE clauses 
+        #    can be added to this query;
+        # 2) ORDER BY needs to be switched off in self.sql_query 
+        #    (because COUNT(*) and ORDER BY clause do not work together, 
+        #     e.g. see https://stackoverflow.com/q/45096178 )
+        # 3) The abstraction must be made in a way that it works also for 
+        #    self.sql_sample_texts_count_query and self.sql_sample_from_layer_count_query
         return SQL('SELECT count(*) FROM ({}) AS a').format(self.sql_query)
 
     @property
