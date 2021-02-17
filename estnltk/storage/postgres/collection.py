@@ -92,6 +92,7 @@ class PgCollection:
 
         self._buffered_insert_query_length = 0
         self._selected_layes = None
+        self._selected_key = None
         self._is_empty = not self.exists() or len(self) == 0
 
     def create(self, description=None, meta: dict = None, temporary=None):
@@ -472,14 +473,47 @@ class PgCollection:
     def __len__(self):
         return count_rows(self.storage, self.name)
 
+    @property
+    def select_by_key_query(self):
+        """ Returns a SQL select statement that uses self._selected_key to select a single text from the collection. 
+            Used in the __getitem__ method.
+        """
+        collection_identifier = pg.collection_table_identifier(self.storage, self.name)
+        # Condition: select by key
+        # Validate the key
+        if self._selected_key is None or not isinstance(self._selected_key, int):
+            raise ValueError('(!) Invalid _selected_key value: {!r}. Use integer'.format( self._selected_key ))
+        # Construct selection_criterion
+        select_by_key_sql = SQL('{table}."id" = {key}').format(table=collection_identifier, key=Literal(self._selected_key))
+        # Construct query
+        selected_detached_layers = [layer for layer in self.selected_layers if self.structure[layer]['layer_type'] == 'detached']
+        selected_columns = pg.SelectedColumns(collection=self, layers=selected_detached_layers, 
+                                              collection_meta=(), include_layer_ids=False)
+        if selected_detached_layers:
+            # Query includes detached_layers
+            required_layer_tables = [pg.layer_table_identifier(self.storage, self.name, layer)
+                                     for layer in sorted(set(selected_detached_layers)) ]
+            join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
+                                                                                    layer_table_identifier)
+                                               for layer_table_identifier in required_layer_tables)
+            required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
+            query = SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
+                                                                    required_tables,
+                                                                    join_condition,
+                                                                    select_by_key_sql)
+        else:
+            # No detached_layers
+            query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                             collection_identifier,
+                                                             select_by_key_sql)
+        return query
+
     def __getitem__(self, item):
 
         if isinstance(item, int):
-            # TODO: This is quite a big hack. It should work with a sub-collections. But good enough for now.
-            subcollection = self.select(query=IndexQuery(item), layers=self.selected_layers, collection_meta=None, return_index=False)
-
+            self._selected_key = item
             cursor = self.storage.conn.cursor()
-            cursor.execute(subcollection.sql_query)
+            cursor.execute( self.select_by_key_query )
             result = cursor.fetchone()
             cursor.close()
 

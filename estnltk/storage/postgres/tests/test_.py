@@ -157,6 +157,31 @@ class TestPgCollection(unittest.TestCase):
         # test __getitem__
         assert collection[1].text == text_1.text
         assert collection[2].text == text_2.text
+        
+        # test __getitem__ and attached layers
+        collection.selected_layers = ['sentences']
+        # attached layers included:
+        self.assertTrue('words' in collection[1].layers)
+        self.assertTrue('words' in collection[2].layers)
+        self.assertTrue('sentences' in collection[1].layers)
+        self.assertTrue('sentences' in collection[2].layers)
+        # detached layers excluded:
+        self.assertTrue('morph_analysis' not in collection[1].layers)
+        self.assertTrue('morph_analysis' not in collection[2].layers)
+        self.assertTrue('paragraphs' not in collection[1].layers)
+        self.assertTrue('paragraphs' not in collection[2].layers)
+
+        # test __getitem__ and detached layers
+        collection.selected_layers = ['morph_analysis', 'paragraphs']
+        self.assertTrue('words' in collection[1].layers)
+        self.assertTrue('words' in collection[2].layers)
+        self.assertTrue('sentences' in collection[1].layers)
+        self.assertTrue('sentences' in collection[2].layers)
+        self.assertTrue('paragraphs' in collection[1].layers)
+        self.assertTrue('paragraphs' in collection[2].layers)
+        self.assertTrue('morph_analysis' in collection[1].layers)
+        self.assertTrue('morph_analysis' in collection[2].layers)
+        
         with self.assertRaises(KeyError):
             collection[5]
         with self.assertRaises(KeyError):
@@ -236,7 +261,7 @@ class TestPgCollection(unittest.TestCase):
             collection_insert(text1, key=3)
             text2 = Text('palju kell on?').analyse('morphology')
             collection_insert(text2, key=4)
-
+        
         res = list(collection.select(query=Q('morph_analysis', lemma='mis')))
         self.assertEqual(len(res), 1)
 
