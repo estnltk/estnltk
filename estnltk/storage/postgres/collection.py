@@ -92,7 +92,6 @@ class PgCollection:
 
         self._buffered_insert_query_length = 0
         self._selected_layes = None
-        self._selected_key = None
         self._is_empty = not self.exists() or len(self) == 0
 
     def create(self, description=None, meta: dict = None, temporary=None):
@@ -473,18 +472,18 @@ class PgCollection:
     def __len__(self):
         return count_rows(self.storage, self.name)
 
-    @property
-    def select_by_key_query(self):
-        """ Returns a SQL select statement that uses self._selected_key to select a single text from the collection. 
+
+    def select_by_key_query(self, key):
+        """ Returns a SQL select statement that selects a single text by the given key from the collection. 
             Used in the __getitem__ method.
         """
         collection_identifier = pg.collection_table_identifier(self.storage, self.name)
-        # Condition: select by key
+        # Condition: select by the given key
         # Validate the key
-        if self._selected_key is None or not isinstance(self._selected_key, int):
-            raise ValueError('(!) Invalid _selected_key value: {!r}. Use integer'.format( self._selected_key ))
+        if key is None or not isinstance(key, int):
+            raise ValueError('(!) Invalid key value: {!r}. Use integer'.format( key ))
         # Construct selection_criterion
-        select_by_key_sql = SQL('{table}."id" = {key}').format(table=collection_identifier, key=Literal(self._selected_key))
+        select_by_key_sql = SQL('{table}."id" = {key}').format(table=collection_identifier, key=Literal(key))
         # Construct query
         selected_detached_layers = [layer for layer in self.selected_layers if self.structure[layer]['layer_type'] == 'detached']
         selected_columns = pg.SelectedColumns(collection=self, layers=selected_detached_layers, 
@@ -511,9 +510,8 @@ class PgCollection:
     def __getitem__(self, item):
 
         if isinstance(item, int):
-            self._selected_key = item
             cursor = self.storage.conn.cursor()
-            cursor.execute( self.select_by_key_query )
+            cursor.execute( self.select_by_key_query( item ) )
             result = cursor.fetchone()
             cursor.close()
 
