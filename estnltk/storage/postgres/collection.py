@@ -253,6 +253,49 @@ class PgCollection:
     # TODO: merge this with buffered_layer_insert
     @contextmanager
     def insert(self, buffer_size=10000, query_length_limit=5000000):
+        """Context manager for buffered insertion of Text objects into the collection.
+        Optionally, metadata and keys of insertable Text objects can be specified during
+        the insertion. 
+        
+        Notes about layers. 
+        1) Attached layers. After the first Text object has been inserted, its layers 
+        will be taken as the attached layers of the collection. Which means that other 
+        insertable Text objects must have exactly the same layers.
+        (and attached layers cannot be changed after the first insertion)
+        
+        2) Detached layers. If this collection already has detached layer(s), new Text 
+        objects cannot be inserted.
+        
+        Example usage 1. Insert Text objects with metadata, but wo annotation layers:
+            # Create collection w metadata
+            collection.create( meta=OrderedDict( [('my_meta', 'str')]) )
+            # Insert into the collection
+            with collection.insert() as collection_insert:
+                collection_insert( Text( ... ), key=0, meta_data={'my_meta':'A'} )
+                collection_insert( Text( ... ), key=1, meta_data={'my_meta':'B'} )
+                ...
+                
+        Example usage 2. Insert annotated Text objects:
+            # Create collection
+            collection.create()
+            # Insert into the collection
+            with collection.insert() as collection_insert:
+                collection_insert( Text( ... ).tag_layer('words') )
+                collection_insert( Text( ... ).tag_layer('words') )
+                ...
+        
+        Parameters:
+        
+        :param buffer_size: int
+            Maximum buffer size (in table rows) for the insert query. 
+            If the size is met or exceeded, the insert buffer will be flushed.
+            (Default: 10000)
+        :param query_length_limit: int
+            Soft approximate insert query length limit in unicode characters. 
+            If the limit is met or exceeded, the insert buffer will be flushed.
+            (Default: 5000000)
+
+        """
         buffer = []
         self._buffered_insert_query_length = 0
         self._insert_counter = 0
@@ -325,7 +368,42 @@ class PgCollection:
 
     @contextmanager
     def buffered_layer_insert(self, table_identifier, columns, buffer_size=10000, query_length_limit=5000000):
-        """General context manager for buffered insert
+        """General context manager for buffered insert.
+        
+        Use case 1: insert values into a detached layer table. Assumes that the table has 
+        already been created via  self._create_layer_table(...), and provides buffered insert
+        for populating the table. Note: caller of the method is responsible for converting 
+        values into literals before the insertion.
+        Example:
+        
+            layer = "my_sentences"
+            columns = ["id", "text_id", "data"]
+            with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer),
+                                            columns=columns) as buffered_insert:
+                ...
+                values = [Literal(text_id), Literal(text_id), Literal(layer_json)]
+                buffered_insert( values=values )
+        
+        Use case 2: "freeform" buffered insert into an existing table. This use case is exemplified 
+        in the method  self.export_layer(...). Basically, you can insert into any existing table (?), 
+        but you are responsible for converting values into literals before the insertion.
+            TODO: should we allow this use case or refactor it out ??
+         
+        Parameters:
+         
+        :param table_identifier:  psycopg2.sql.SQL
+            Identifier of the table where values will be inserted.
+            Must be an existing table.
+        :param columns: List[str]
+            Names of the table columns where values will be inserted.
+        :param buffer_size: int
+            Maximum buffer size (in table rows) for the insert query. 
+            If the size is met or exceeded, the insert buffer will be flushed. 
+            (Default: 10000)
+        :param query_length_limit: int
+            Soft approximate insert query length limit in unicode characters. 
+            If the limit is met or exceeded, the insert buffer will be flushed.
+            (Default: 5000000)
 
         """
         buffer = []
