@@ -473,7 +473,7 @@ class PgCollection:
         return count_rows(self.storage, self.name)
 
 
-    def select_by_key_query(self, key):
+    def _select_by_key_query(self, key):
         """ Returns a SQL select statement that selects a single text by the given key from the collection. 
             Used in the __getitem__ method.
         """
@@ -511,7 +511,7 @@ class PgCollection:
 
         if isinstance(item, int):
             cursor = self.storage.conn.cursor()
-            cursor.execute( self.select_by_key_query( item ) )
+            cursor.execute( self._select_by_key_query( item ) )
             result = cursor.fetchone()
             cursor.close()
 
