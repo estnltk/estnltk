@@ -39,6 +39,7 @@ from estnltk.storage.postgres.queries.index_query import IndexQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 
+from estnltk.storage.postgres.buffered_table_insert import BufferedTableInsert
 
 class PgCollectionException(Exception):
     pass
@@ -366,69 +367,6 @@ class PgCollection:
                                           buffer=buffer)
                 logger.info('inserted {self._insert_counter} texts into the collection {self.name!r}'.format(self=self))
 
-    @contextmanager
-    def buffered_layer_insert(self, table_identifier, columns, buffer_size=10000, query_length_limit=5000000):
-        """General context manager for buffered insert.
-        
-        Use case 1: insert values into a detached layer table. Assumes that the table has 
-        already been created via  self._create_layer_table(...), and provides buffered insert
-        for populating the table. Note: caller of the method is responsible for converting 
-        values into literals before the insertion.
-        Example:
-        
-            layer = "my_sentences"
-            columns = ["id", "text_id", "data"]
-            with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer),
-                                            columns=columns) as buffered_insert:
-                ...
-                values = [Literal(text_id), Literal(text_id), Literal(layer_json)]
-                buffered_insert( values=values )
-        
-        Use case 2: "freeform" buffered insert into an existing table. This use case is exemplified 
-        in the method  self.export_layer(...). Basically, you can insert into any existing table (?), 
-        but you are responsible for converting values into literals before the insertion.
-            TODO: should we allow this use case or refactor it out ??
-         
-        Parameters:
-         
-        :param table_identifier:  psycopg2.sql.SQL
-            Identifier of the table where values will be inserted.
-            Must be an existing table.
-        :param columns: List[str]
-            Names of the table columns where values will be inserted.
-        :param buffer_size: int
-            Maximum buffer size (in table rows) for the insert query. 
-            If the size is met or exceeded, the insert buffer will be flushed. 
-            (Default: 10000)
-        :param query_length_limit: int
-            Soft approximate insert query length limit in unicode characters. 
-            If the limit is met or exceeded, the insert buffer will be flushed.
-            (Default: 5000000)
-
-        """
-        buffer = []
-        column_identifiers = SQL(', ').join(map(Identifier, columns))
-
-        self._buffered_insert_query_length = get_query_length(column_identifiers)
-
-        with self.storage.conn.cursor() as cursor:
-            def buffered_insert(values):
-                q = SQL('({})').format(SQL(', ').join(values))
-                buffer.append(q)
-                self._buffered_insert_query_length += get_query_length(q)
-
-                if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
-                    self._flush_insert_buffer(cursor=cursor,
-                                              table_identifier=table_identifier,
-                                              column_identifiers=column_identifiers,
-                                              buffer=buffer)
-            try:
-                yield buffered_insert
-            finally:
-                self._flush_insert_buffer(cursor=cursor,
-                                          table_identifier=table_identifier,
-                                          column_identifiers=column_identifiers,
-                                          buffer=buffer)
 
     def _flush_insert_buffer(self, cursor, table_identifier, column_identifiers, buffer):
         if len(buffer) == 0:
@@ -827,9 +765,8 @@ class PgCollection:
                                          meta=meta)
 
                 structure_written = False
-                with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer_name),
-                                                columns=columns,
-                                                query_length_limit=query_length_limit) as buffered_insert:
+                with BufferedTableInsert( conn, layer_table_identifier(self.storage, self.name, layer_name),
+                                          columns=columns, query_length_limit=query_length_limit ) as buffered_inserter:
                     for row in self.select(layers=tagger.input_layers, progressbar=progressbar):
                         text_id, text = row[0], row[1]
 
@@ -842,9 +779,8 @@ class PgCollection:
                             if meta_columns:
                                 values.extend(fragment.meta[k] for k in meta_columns)
 
-                            values = list(map(Literal, values))
                             values[0] = DEFAULT
-                            buffered_insert(values=values)
+                            buffered_inserter.insert(values=values)
                             if not structure_written:
                                 self._structure.insert(layer=layer, layer_type='fragmented', meta=meta)
                                 structure_written = True
@@ -973,9 +909,8 @@ class PgCollection:
                 # insert data
                 structure_written = (mode == 'append')
                 logger.info('inserting data into the {!r} layer table'.format(layer_name))
-                with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer_name),
-                                                columns=columns,
-                                                query_length_limit=query_length_limit) as buffered_insert:
+                with BufferedTableInsert( conn, layer_table_identifier(self.storage, self.name, layer_name),
+                                          columns=columns, query_length_limit=query_length_limit ) as buffered_inserter:
                     for row in data_iterator:
                         collection_id, text = row[0], row[1]
 
@@ -994,8 +929,7 @@ class PgCollection:
                                                                          attribute=attr,
                                                                          n=ngram_index[attr])
                                           for attr in ngram_index_keys)
-                        values = list(map(Literal, values))
-                        buffered_insert(values=values)
+                        buffered_inserter.insert(values=values)
                         if not structure_written:
                             self._structure.insert(layer=layer, layer_type='detached', meta=meta)
                             structure_written = True
@@ -1040,9 +974,8 @@ class PgCollection:
 
         logger.info('inserting data into the {!r} layer table block {}'.format(layer_name, block))
 
-        with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer_name),
-                                        columns=columns,
-                                        query_length_limit=query_length_limit) as buffered_insert:
+        with BufferedTableInsert( self.storage.conn, layer_table_identifier(self.storage, self.name, layer_name),
+                                  columns=columns, query_length_limit=query_length_limit ) as buffered_inserter:
             layer_structure = None
             for collection_id, text in self.select(query=pg.BlockQuery(*block), layers=tagger.input_layers):
                 layer = tagger.make_layer(text=text, status=None)
@@ -1065,10 +998,10 @@ class PgCollection:
                 layer_dict = layer_to_dict(layer)
                 layer_json = json.dumps(layer_dict, ensure_ascii=False)
 
-                values = [Literal(collection_id), Literal(collection_id), Literal(layer_json)]
-                values.extend(Literal(layer.meta[k]) for k in meta_columns)
-
-                buffered_insert(values=values)
+                values = [ collection_id, collection_id, layer_json ]
+                values.extend( [layer.meta[k] for k in meta_columns] )
+                
+                buffered_inserter.insert(values=values)
 
         logger.info('block {} of {!r} layer created'.format(block, layer_name))
 
@@ -1297,18 +1230,17 @@ class PgCollection:
             self.storage.conn.commit()
 
         texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta)
-
-        with self.buffered_layer_insert(table_identifier=table_identifier,
-                                        columns=[c[0] for c in columns]) as insert:
+        
+        with BufferedTableInsert( self.storage.conn, table_identifier, columns=[c[0] for c in columns]) as buffered_inserter:
             i = 0
             for text_id, text, meta in texts:
                 for span_nr, span in enumerate(text[layer]):
                     for annotation in span.annotations:
                         i += 1
-                        values = [Literal(i), Literal(text_id), Literal(span_nr), Literal(span.start), Literal(span.end)]
-                        values.extend(Literal(annotation[attr]) for attr in attributes)
-                        values.extend(Literal(meta[k]) for k in collection_meta)
-                        insert(values)
+                        values = [ i, text_id, span_nr, span.start, span.end ]
+                        values.extend( [annotation[attr] for attr in attributes] )
+                        values.extend( [meta[k] for k in collection_meta] )
+                        buffered_inserter.insert( values )
 
         logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, table_name))
 
