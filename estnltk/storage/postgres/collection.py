@@ -47,22 +47,6 @@ class PgCollectionException(Exception):
 
 RowMapperRecord = collections.namedtuple("RowMapperRecord", ["layer", "meta"])
 
-
-def get_query_length(q):
-    """:returns
-    approximate number of characters in the psycopg2 SQL query
-    """
-    result = 0
-    if isinstance(q, Composed):
-        for r in q:
-            result += get_query_length(r)
-    elif isinstance(q, (SQL, Identifier)):
-        result += len(q.string)
-    else:
-        result += len(str(q.wrapped))
-    return result
-
-
 class PgCollection:
     """Convenience wrapper over PostgresStorage
 
@@ -91,7 +75,6 @@ class PgCollection:
 
         self.column_names = ['id', 'data'] + list(self.meta)
 
-        self._buffered_insert_query_length = 0
         self._selected_layes = None
         self._is_empty = not self.exists() or len(self) == 0
 
@@ -229,29 +212,7 @@ class PgCollection:
                           ).format(Literal(self.storage.schema), Literal(self.name)))
             return collections.OrderedDict(c.fetchall())
 
-    def _insert_first(self, text, key, meta_data, cursor, table_identifier, column_identifiers):
-        if key is None:
-            key = 0
 
-        row = [Literal(key), Literal(text_to_json(text))]
-        for k in self.column_names[2:]:
-            if k in meta_data:
-                m = Literal(meta_data[k])
-            else:
-                m = DEFAULT
-            row.append(m)
-
-        query = SQL('({})').format(SQL(', ').join(row))
-
-        self._flush_insert_buffer(cursor=cursor, table_identifier=table_identifier,
-                                  column_identifiers=column_identifiers, buffer=[query])
-
-        assert not self._structure, self._structure.structure
-        for layer in text.layers:
-            # TODO: meta = ???
-            self._structure.insert(layer=text[layer], layer_type='attached', meta={})
-
-    # TODO: merge this with buffered_layer_insert
     @contextmanager
     def insert(self, buffer_size=10000, query_length_limit=5000000):
         """Context manager for buffered insertion of Text objects into the collection.
@@ -297,23 +258,43 @@ class PgCollection:
             (Default: 5000000)
 
         """
-        buffer = []
-        self._buffered_insert_query_length = 0
-        self._insert_counter = 0
-        column_identifiers = SQL(', ').join(map(Identifier, self.column_names))
         table_identifier = pg.collection_table_identifier(self.storage, self.name)
 
         self.storage.conn.commit()
         self.storage.conn.autocommit = False
-        with self.storage.conn.cursor() as cursor:
-
+        insert_counter = 0
+        with BufferedTableInsert( self.storage.conn, 
+                                  table_identifier,
+                                  columns = self.column_names, 
+                                  query_length_limit = query_length_limit,
+                                  buffer_size = buffer_size ) as buffered_inserter:
+            
             def wrap_buffered_insert(text, key=None, meta_data=None):
+                cursor = buffered_inserter.cursor
+                assert cursor is not None
+                nonlocal insert_counter
                 if self._is_empty:
                     self._is_empty = False
                     cursor.execute(SQL('LOCK TABLE {}').format(table_identifier))
                     if len(self) == 0:
-                        self._insert_first(text=text, key=key, meta_data=meta_data, cursor=cursor,
-                                           table_identifier=table_identifier, column_identifiers=column_identifiers)
+                        # insert the first row
+                        if key is None:
+                            key = 0
+                        row = [ key, text_to_json(text) ]
+                        for k in self.column_names[2:]:
+                            if k in meta_data:
+                                m = meta_data[k]
+                            else:
+                                m = DEFAULT
+                            row.append(m)
+                        # insert the first row (and flush the buffer if required)
+                        buffered_inserter.insert( row )
+                        insert_counter += 1
+                        assert not self._structure, self._structure.structure
+                        # set attached layers of the collection
+                        for layer in text.layers:
+                            # TODO: meta = ???
+                            self._structure.insert(layer=text[layer], layer_type='attached', meta={})
                         return
                     self.storage.conn.commit()
                     self._structure.load()
@@ -336,57 +317,24 @@ class PgCollection:
                         assert layer_struct['serialisation_module'] == layer.serialisation_module
                 if key is None:
                     key = DEFAULT
-                else:
-                    key = Literal(key)
 
-                row = [key, Literal(text_to_json(text))]
+                row = [key, text_to_json(text)]
                 for k in self.column_names[2:]:
                     if k in meta_data:
-                        m = Literal(meta_data[k])
+                        m = meta_data[k]
                     else:
                         m = DEFAULT
                     row.append(m)
-
-                q = SQL('({})').format(SQL(', ').join(row))
-                self._buffered_insert_query_length += get_query_length(q)
-                self._insert_counter += 1
-                buffer.append(q)
-
-                if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
-                    self._flush_insert_buffer(cursor=cursor, table_identifier=table_identifier,
-                                              column_identifiers=column_identifiers,
-                                              buffer=buffer)
-                    self._buffered_insert_query_length = 0
+                # insert next row (and flush the buffer if required)
+                buffered_inserter.insert( row )
+                insert_counter += 1
 
             try:
                 yield wrap_buffered_insert
             finally:
-                self._flush_insert_buffer(cursor=cursor,
-                                          table_identifier=table_identifier,
-                                          column_identifiers=column_identifiers,
-                                          buffer=buffer)
-                logger.info('inserted {self._insert_counter} texts into the collection {self.name!r}'.format(self=self))
+                buffered_inserter.close()
+                logger.info('inserted {} texts into the collection {!r}'.format(insert_counter, self.name))
 
-
-    def _flush_insert_buffer(self, cursor, table_identifier, column_identifiers, buffer):
-        if len(buffer) == 0:
-            return []
-
-        try:
-            cursor.execute(SQL('INSERT INTO {} ({}) VALUES {};').format(
-                           table_identifier,
-                           column_identifiers,
-                           SQL(', ').join(buffer)))
-            cursor.connection.commit()
-        except Exception:
-            logger.error('flush insert buffer failed')
-            logger.error('number of rows in the buffer: {}'.format(len(buffer)))
-            logger.error('estimated insert query length: {}'.format(self._buffered_insert_query_length))
-            raise
-        logger.debug('flush buffer: {} rows, {} bytes, {} estimated characters'.format(
-                     len(buffer), len(cursor.query), self._buffered_insert_query_length))
-        buffer.clear()
-        self._buffered_insert_query_length = get_query_length(column_identifiers)
 
     def exists(self):
         """Returns True if collection tables exist"""

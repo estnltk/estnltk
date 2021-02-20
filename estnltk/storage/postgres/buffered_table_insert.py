@@ -60,7 +60,7 @@ class BufferedTableInsert(object):
 
 
     def close(self):
-        '''Closes this insertion manager. 
+        '''Flushes the buffer and closes this insertion manager. 
            If you are initializing BufferedTableInsert outside 
            the with statement, you should call this method 
            after all insertions have been done.'''
