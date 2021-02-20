@@ -21,7 +21,9 @@ class BufferedTableInsert(object):
             psycopg2's connection
         :param table_identifier:  psycopg2.sql.SQL
             Identifier of the table where values will be inserted.
-            Must be an existing table.
+            Note: the table may be non-existent when the BufferedTableInsert
+            object is created, but it must exist before calling object's
+            insert(...) method.
         :param columns: List[str]
             Names of the table columns where values will be inserted.
         :param buffer_size: int
@@ -54,8 +56,19 @@ class BufferedTableInsert(object):
 
 
     def __exit__(self, type, value, traceback):
-        # Finally: flush the buffer at the end
+        self.close()
+
+
+    def close(self):
+        '''Closes this insertion manager. 
+           If you are initializing BufferedTableInsert outside 
+           the with statement, you should call this method 
+           after all insertions have been done.'''
+        # Final flushing of the buffer
         self._flush_insert_buffer()
+        if self.cursor is not None:
+            # Close the cursor
+            self.cursor.close()
 
 
     def insert(self, values):
@@ -64,6 +77,9 @@ class BufferedTableInsert(object):
            to literals.
            Exceptionally, a value can also be psycopg2.sql.DEFAULT, 
            in which case it will not be converted.
+           
+           Note: this method assumes that the table, where values
+           will be inserted, has already been created.
         """
         assert self.cursor is not None
         # Convert values to literals
