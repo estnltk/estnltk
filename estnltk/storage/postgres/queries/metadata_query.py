@@ -3,7 +3,7 @@ from typing import Union, List, Set, Dict
 
 from estnltk.storage.postgres import collection_table_identifier
 from estnltk.storage.postgres.queries.query import Query
-from estnltk.storage.postgres.collection import PgCollection
+#from estnltk.storage.postgres.collection import PgCollection
 
 
 def _validate_value_data_type( values, meta_values, data_type:type, data_type_name:str ):
@@ -73,12 +73,17 @@ class MetadataQuery(Query):
     """
     __slots__ = ['_meta_values']
 
-    def __init__(self, meta_values : Dict[str, Union[str, List[str]]], collection: PgCollection):
+    def __init__(self, meta_values : Dict[str, Union[str, List[str]]], collection: object ):
         # Check args
         if not isinstance(meta_values, dict) or len(meta_values.keys())==0:
             raise ValueError('(!) Invalid meta_values {!r}. Should be a non-empty dictionary listing conditions for metadata attributes/values.'.format( meta_values ))
         valid_meta_keys  = None
         if collection != None:
+            #
+            # TODO: currently, we can't validate that the collection must be of type 
+            #       pg.PgCollection, because imports are tangled in estnltk.storage.postgres.__init__ 
+            #       ( this needs to be resolved in future )
+            #
             # Get valid metadata column names
             column_meta = collection._collection_table_meta()
             if column_meta is not None:
