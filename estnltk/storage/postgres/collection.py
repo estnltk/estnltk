@@ -41,6 +41,7 @@ from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQue
 
 from estnltk.storage.postgres.buffered_table_insert import BufferedTableInsert
 from estnltk.storage.postgres.collection_text_object_inserter import CollectionTextObjectInserter
+from estnltk.storage.postgres.collection_detached_layer_inserter import CollectionDetachedLayerInserter
 
 class PgCollectionException(Exception):
     pass
@@ -589,7 +590,7 @@ class PgCollection:
                           mode='append')
 
     def create_fragmented_layer(self, tagger, fragmenter: callable, meta: Sequence = None, progressbar: str = None,
-                                query_length_limit: int = 5000000):
+                                      query_length_limit: int = 5000000):
         """
         Creates fragmented layer
 
@@ -629,10 +630,6 @@ class PgCollection:
         if meta is not None:
             meta_columns = tuple(meta)
 
-        columns = ["id", "text_id", "data"]
-        if meta_columns:
-            columns.extend(meta_columns)
-
         conn = self.storage.conn
         with conn.cursor() as c:
             try:
@@ -644,22 +641,19 @@ class PgCollection:
                                          meta=meta)
 
                 structure_written = False
-                with BufferedTableInsert( conn, layer_table_identifier(self.storage, self.name, layer_name),
-                                          columns=columns, query_length_limit=query_length_limit ) as buffered_inserter:
+                with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
+                                                      query_length_limit=query_length_limit ) as buffered_inserter:
+
                     for row in self.select(layers=tagger.input_layers, progressbar=progressbar):
                         text_id, text = row[0], row[1]
 
                         for fragment in fragmenter(tagger.make_layer(text, status={})):
                             layer = fragment.layer
-                            layer_json = layer_to_json(fragment)
-
-                            values = [None, text_id, layer_json]
-
+                            extra_data = []
                             if meta_columns:
-                                values.extend(fragment.meta[k] for k in meta_columns)
-
-                            values[0] = DEFAULT
-                            buffered_inserter.insert(values=values)
+                                extra_data.extend( fragment.meta[k] for k in meta_columns )
+                            buffered_inserter.insert(layer, text_id, key=DEFAULT, extra_data=extra_data)
+                            
                             if not structure_written:
                                 self._structure.insert(layer=layer, layer_type='fragmented', meta=meta)
                                 structure_written = True
@@ -762,13 +756,12 @@ class PgCollection:
         if meta is not None:
             meta_columns = tuple(meta)
 
-        columns = ["id", "text_id", "data"]
+        extra_columns = []
         if meta_columns:
-            columns.extend(meta_columns)
-
+            extra_columns.extend(meta_columns)
         if ngram_index is not None:
             ngram_index_keys = tuple(ngram_index.keys())
-            columns.extend(ngram_index_keys)
+            extra_columns.extend(ngram_index_keys)
 
         conn = self.storage.conn
         conn.commit()
@@ -788,27 +781,28 @@ class PgCollection:
                 # insert data
                 structure_written = (mode == 'append')
                 logger.info('inserting data into the {!r} layer table'.format(layer_name))
-                with BufferedTableInsert( conn, layer_table_identifier(self.storage, self.name, layer_name),
-                                          columns=columns, query_length_limit=query_length_limit ) as buffered_inserter:
+                
+                with CollectionDetachedLayerInserter( self, layer_name, extra_columns=extra_columns, 
+                                                      query_length_limit=query_length_limit ) as buffered_inserter:
+
                     for row in data_iterator:
-                        collection_id, text = row[0], row[1]
+                        collection_text_id, text = row[0], row[1]
 
                         record = row_mapper(row)
                         layer = record.layer
-                        layer_dict = layer_to_dict(layer)
-                        layer_json = json.dumps(layer_dict, ensure_ascii=False)
 
-                        values = [collection_id, collection_id, layer_json]
-
+                        extra_values = []
                         if meta_columns:
-                            values.extend(record.meta[k] for k in meta_columns)
+                            extra_values.extend(record.meta[k] for k in meta_columns)
 
                         if ngram_index is not None:
-                            values.extend(create_ngram_fingerprint_index(layer=layer,
+                            extra_values.extend(create_ngram_fingerprint_index(layer=layer,
                                                                          attribute=attr,
                                                                          n=ngram_index[attr])
                                           for attr in ngram_index_keys)
-                        buffered_inserter.insert(values=values)
+
+                        buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
+
                         if not structure_written:
                             self._structure.insert(layer=layer, layer_type='detached', meta=meta)
                             structure_written = True
@@ -848,15 +842,13 @@ class PgCollection:
         if meta is not None:
             meta_columns = tuple(meta)
 
-        columns = ["id", "text_id", "data"]
-        columns.extend(meta_columns)
-
         logger.info('inserting data into the {!r} layer table block {}'.format(layer_name, block))
 
-        with BufferedTableInsert( self.storage.conn, layer_table_identifier(self.storage, self.name, layer_name),
-                                  columns=columns, query_length_limit=query_length_limit ) as buffered_inserter:
+        with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
+                                              query_length_limit=query_length_limit ) as buffered_inserter:
+
             layer_structure = None
-            for collection_id, text in self.select(query=pg.BlockQuery(*block), layers=tagger.input_layers):
+            for collection_text_id, text in self.select(query=pg.BlockQuery(*block), layers=tagger.input_layers):
                 layer = tagger.make_layer(text=text, status=None)
 
                 if layer_structure is None:
@@ -874,13 +866,11 @@ class PgCollection:
 
                 assert layer_structure == (layer.name, layer.attributes, layer.ambiguous, layer.parent, layer.enveloping)
 
-                layer_dict = layer_to_dict(layer)
-                layer_json = json.dumps(layer_dict, ensure_ascii=False)
-
-                values = [ collection_id, collection_id, layer_json ]
-                values.extend( [layer.meta[k] for k in meta_columns] )
+                extra_values = []
+                if meta_columns:
+                    extra_values.extend( [layer.meta[k] for k in meta_columns] )
                 
-                buffered_inserter.insert(values=values)
+                buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
 
         logger.info('block {} of {!r} layer created'.format(block, layer_name))
 
