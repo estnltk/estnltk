@@ -40,6 +40,7 @@ from estnltk.storage.postgres.queries.slice_query import SliceQuery
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 
 from estnltk.storage.postgres.buffered_table_insert import BufferedTableInsert
+from estnltk.storage.postgres.collection_text_object_inserter import CollectionTextObjectInserter
 
 class PgCollectionException(Exception):
     pass
@@ -224,7 +225,6 @@ class PgCollection:
         will be taken as the attached layers of the collection. Which means that other 
         insertable Text objects must have exactly the same layers.
         (and attached layers cannot be changed after the first insertion)
-        
         2) Detached layers. If this collection already has detached layer(s), new Text 
         objects cannot be inserted.
         
@@ -258,82 +258,13 @@ class PgCollection:
             (Default: 5000000)
 
         """
-        table_identifier = pg.collection_table_identifier(self.storage, self.name)
-
-        self.storage.conn.commit()
-        self.storage.conn.autocommit = False
-        insert_counter = 0
-        with BufferedTableInsert( self.storage.conn, 
-                                  table_identifier,
-                                  columns = self.column_names, 
-                                  query_length_limit = query_length_limit,
-                                  buffer_size = buffer_size ) as buffered_inserter:
+        with CollectionTextObjectInserter(self, query_length_limit = query_length_limit,
+                                                buffer_size = buffer_size ) as text_inserter:
             
             def wrap_buffered_insert(text, key=None, meta_data=None):
-                cursor = buffered_inserter.cursor
-                assert cursor is not None
-                nonlocal insert_counter
-                if self._is_empty:
-                    self._is_empty = False
-                    cursor.execute(SQL('LOCK TABLE {}').format(table_identifier))
-                    if len(self) == 0:
-                        # insert the first row
-                        if key is None:
-                            key = 0
-                        row = [ key, text_to_json(text) ]
-                        for k in self.column_names[2:]:
-                            if k in meta_data:
-                                m = meta_data[k]
-                            else:
-                                m = DEFAULT
-                            row.append(m)
-                        # insert the first row (and flush the buffer if required)
-                        buffered_inserter.insert( row )
-                        insert_counter += 1
-                        assert not self._structure, self._structure.structure
-                        # set attached layers of the collection
-                        for layer in text.layers:
-                            # TODO: meta = ???
-                            self._structure.insert(layer=text[layer], layer_type='attached', meta={})
-                        return
-                    self.storage.conn.commit()
-                    self._structure.load()
+                text_inserter.insert(text, key=key, meta_data=meta_data)
 
-                if any(struct['layer_type'] == 'detached' for struct in self._structure.structure.values()):
-                    # TODO: solve this case in a better way
-                    raise PgCollectionException("this collection has detached layers, can't add new text objects")
-                else:
-                    assert set(text.layers) == set(self._structure), '{} != {}'.format(set(text.layers),
-                                                                                       set(self._structure))
-                    for layer_name in text.layers:
-                        layer = text[layer_name]
-                        layer_struct = self._structure[layer_name]
-                        assert layer_struct['layer_type'] == 'attached'
-                        assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
-                                layer_struct['attributes'], layer.attributes)
-                        assert layer_struct['ambiguous'] == layer.ambiguous
-                        assert layer_struct['parent'] == layer.parent
-                        assert layer_struct['enveloping'] == layer.enveloping
-                        assert layer_struct['serialisation_module'] == layer.serialisation_module
-                if key is None:
-                    key = DEFAULT
-
-                row = [key, text_to_json(text)]
-                for k in self.column_names[2:]:
-                    if k in meta_data:
-                        m = meta_data[k]
-                    else:
-                        m = DEFAULT
-                    row.append(m)
-                # insert next row (and flush the buffer if required)
-                buffered_inserter.insert( row )
-                insert_counter += 1
-
-            try:
-                yield wrap_buffered_insert
-            finally:
-                buffered_inserter.close()
-                logger.info('inserted {} texts into the collection {!r}'.format(insert_counter, self.name))
+            yield wrap_buffered_insert
 
 
     def exists(self):
