@@ -37,21 +37,18 @@ class BufferedTableInsert(object):
 
         """
         self.conn   = connection
-        self.cursor = None
         self.table_identifier = table_identifier
         self.column_identifiers = SQL(', ').join(map(Identifier, columns))
         self.buffer_size = buffer_size
         self.query_length_limit = query_length_limit
-        self._buffered_insert_query_length = 0
-        self.buffer = []
-
-
-    def __enter__(self):
         # Make new cursor for the insertion
         self.cursor = self.conn.cursor()
         # Initialize buffer
         self._buffered_insert_query_length = BufferedTableInsert.get_query_length(self.column_identifiers)
         self.buffer = []
+
+
+    def __enter__(self):
         return self
 
 
