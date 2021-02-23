@@ -11,20 +11,23 @@ class BufferedTableInsert(object):
        
        Usage example:  
        
+            # Connect to the storage
+            storage = PostgresStorage( ... )
+            
             # Create a simple table
-            table_identifier = pg.table_identifier(storage=self.storage, 
+            table_identifier = pg.table_identifier(storage=storage, 
                                                    table_name="testing_buffered_insert")
             columns = [ ('id', 'serial PRIMARY KEY'), ('text', 'text NOT NULL') ]
             columns_sql = SQL(",\n").join(SQL("{} {}").format(Identifier(n), SQL(t)) for n, t in columns)
             
-            self.storage.conn.commit()
-            with self.storage.conn.cursor() as c:
+            storage.conn.commit()
+            with storage.conn.cursor() as c:
                 c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
                                                               columns_sql))
-                self.storage.conn.commit()
+                storage.conn.commit()
             
             # Perform insertions
-            with BufferedTableInsert( self.storage.conn, 
+            with BufferedTableInsert( storage.conn, 
                                       table_identifier, 
                                       columns=[c[0] for c in columns] ) as buffered_inserter:
                 buffered_inserter.insert( [0, 'Tere!'] )
