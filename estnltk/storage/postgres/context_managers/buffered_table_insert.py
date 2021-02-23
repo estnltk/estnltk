@@ -9,7 +9,27 @@ class BufferedTableInsert(object):
        Use this for large database insertions, e.g. for inserting
        texts and layers.
        
-       Usage example:  TODO
+       Usage example:  
+       
+            # Create a simple table
+            table_identifier = pg.table_identifier(storage=self.storage, 
+                                                   table_name="testing_buffered_insert")
+            columns = [ ('id', 'serial PRIMARY KEY'), ('text', 'text NOT NULL') ]
+            columns_sql = SQL(",\n").join(SQL("{} {}").format(Identifier(n), SQL(t)) for n, t in columns)
+            
+            self.storage.conn.commit()
+            with self.storage.conn.cursor() as c:
+                c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
+                                                              columns_sql))
+                self.storage.conn.commit()
+            
+            # Perform insertions
+            with BufferedTableInsert( self.storage.conn, 
+                                      table_identifier, 
+                                      columns=[c[0] for c in columns] ) as buffered_inserter:
+                buffered_inserter.insert( [0, 'Tere!'] )
+                buffered_inserter.insert( [1, 'Mis kell on?'] )
+       
     """
 
     def __init__(self, connection, table_identifier, columns, buffer_size=10000, query_length_limit=5000000):
