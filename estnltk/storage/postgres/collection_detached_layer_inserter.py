@@ -6,15 +6,9 @@ from estnltk import logger
 from estnltk.layer.layer import Layer
 from estnltk.converters import layer_to_json
 
+from estnltk.storage import postgres as pg
 from estnltk.storage.postgres.pg_operations import layer_table_identifier
-from estnltk.storage.postgres.buffered_table_insert import BufferedTableInsert
-
-
-# TODO: this is a duplicate, but we can't import PgCollectionException 
-#       from estnltk.storage.postgres. 
-#       the issue with tangled imports needs to be solved
-class PgCollectionException(Exception):
-    pass
+from estnltk.storage.postgres import BufferedTableInsert
 
 
 class CollectionDetachedLayerInserter(object):
@@ -43,14 +37,10 @@ class CollectionDetachedLayerInserter(object):
             If the limit is met or exceeded, the insert buffer will be flushed.
             (Default: 5000000)
         """
-        if collection is None: # or (isinstance(collection, PgCollection) and not collection.exists()):
-            raise PgCollectionException("collection does not exist, can't create inserter")
-        #elif not isinstance(collection, PgCollection):
-        #    raise TypeError('collection must be an instance of PgCollection')
-        #
-        # TODO: can't import PgCollection from estnltk.storage.postgres
-        #       resolve the issue with tangled imports
-        #
+        if collection is None or (isinstance(collection, pg.PgCollection) and not collection.exists()):
+            raise pg.PgCollectionException("collection does not exist, can't create inserter")
+        elif not isinstance(collection, pg.PgCollection):
+            raise TypeError('collection must be an instance of PgCollection')
         self.collection = collection
         self.columns = ["id", "text_id", "data"]
         if extra_columns:

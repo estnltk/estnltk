@@ -39,9 +39,9 @@ from estnltk.storage.postgres.queries.index_query import IndexQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 
-from estnltk.storage.postgres.buffered_table_insert import BufferedTableInsert
-from estnltk.storage.postgres.collection_text_object_inserter import CollectionTextObjectInserter
-from estnltk.storage.postgres.collection_detached_layer_inserter import CollectionDetachedLayerInserter
+from estnltk.storage.postgres import BufferedTableInsert
+from estnltk.storage.postgres import CollectionTextObjectInserter
+from estnltk.storage.postgres import CollectionDetachedLayerInserter
 
 class PgCollectionException(Exception):
     pass

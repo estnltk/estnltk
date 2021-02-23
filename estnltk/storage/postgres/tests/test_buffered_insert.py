@@ -18,8 +18,8 @@ from estnltk.storage import postgres as pg
 
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import create_schema, delete_schema
-from estnltk.storage.postgres.buffered_table_insert import BufferedTableInsert
-from estnltk.storage.postgres.collection_text_object_inserter import CollectionTextObjectInserter
+from estnltk.storage.postgres import BufferedTableInsert
+from estnltk.storage.postgres import CollectionTextObjectInserter
 
 logger.setLevel('DEBUG')
 

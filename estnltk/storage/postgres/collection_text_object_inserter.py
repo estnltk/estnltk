@@ -6,15 +6,9 @@ from estnltk import logger
 from estnltk.text import Text
 from estnltk.converters import text_to_json
 
+from estnltk.storage import postgres as pg
 from estnltk.storage.postgres.pg_operations import collection_table_identifier
-from estnltk.storage.postgres.buffered_table_insert import BufferedTableInsert
-
-
-# TODO: this is a duplicate, but we can't import PgCollectionException 
-#       from estnltk.storage.postgres. 
-#       the issue with tangled imports needs to be solved
-class PgCollectionException(Exception):
-    pass
+from estnltk.storage.postgres import BufferedTableInsert
 
 
 class CollectionTextObjectInserter(object):
@@ -65,14 +59,10 @@ class CollectionTextObjectInserter(object):
             If the limit is met or exceeded, the insert buffer will be flushed.
             (Default: 5000000)
         """
-        if collection is None: # or (isinstance(collection, PgCollection) and not collection.exists()):
-            raise PgCollectionException("collection does not exist, can't create inserter")
-        #elif not isinstance(collection, PgCollection):
-        #    raise TypeError('collection must be an instance of PgCollection')
-        #
-        # TODO: can't import PgCollection from estnltk.storage.postgres
-        #       resolve the issue with tangled imports
-        #
+        if collection is None or ( isinstance(collection, pg.PgCollection) and not collection.exists() ):
+            raise pg.PgCollectionException("collection does not exist, can't create inserter")
+        elif not isinstance(collection, pg.PgCollection):
+            raise TypeError('collection must be an instance of PgCollection')
         self.collection = collection
         self.table_identifier = collection_table_identifier( self.collection.storage, self.collection.name )
         self.buffer_size = buffer_size
@@ -98,11 +88,11 @@ class CollectionTextObjectInserter(object):
             # There should be no structure if the collection is empty
             # ( CollectionStructureBase should return None )
             if self.collection.structure:
-                raise PgCollectionException("collection already has structure {!r}, can't create another".format( self.collection.structure.structure ))
+                raise pg.PgCollectionException("collection already has structure {!r}, can't create another".format( self.collection.structure.structure ))
         # Check for existing detached layers
         if self.collection.structure:
             if any(struct['layer_type'] == 'detached' for struct in self.collection.structure.structure.values()):
-                raise PgCollectionException("this collection has detached layers, can't add new text objects")
+                raise pg.PgCollectionException("this collection has detached layers, can't add new text objects")
         # Lock the table
         cursor.execute(SQL('LOCK TABLE {}').format(self.table_identifier))
         # Note 1: "There is no UNLOCK TABLE command; locks are always 

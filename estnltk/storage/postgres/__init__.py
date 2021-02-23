@@ -73,6 +73,10 @@ from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
 from estnltk.storage.postgres.queries.metadata_query import JsonbMetadataQuery
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 
+from estnltk.storage.postgres.buffered_table_insert import BufferedTableInsert
+from estnltk.storage.postgres.collection_text_object_inserter import CollectionTextObjectInserter
+from estnltk.storage.postgres.collection_detached_layer_inserter import CollectionDetachedLayerInserter
+
 from .structure.base.collection_structure_base import CollectionStructureBase
 from .structure import v00
 from .structure import v10
