@@ -93,23 +93,23 @@ class CollectionTextObjectInserter(object):
                                                       buffer_size = self.buffer_size )
         cursor = self.buffered_inserter.cursor
         assert cursor is not None
-        # Check for existing detached layers
-        if any(struct['layer_type'] == 'detached' for struct in self.collection.structure.structure.values()):
-            raise PgCollectionException("this collection has detached layers, can't add new text objects")
-        # Validate emptiness of the collection
+        # Validate the empty collection
         if self.collection._is_empty and len(self.collection) == 0:
-            # Lock the table
-            cursor.execute(SQL('LOCK TABLE {}').format(self.table_identifier))
-            # Note: "There is no UNLOCK TABLE command; locks are always 
-            # released at transaction end."
-            # see more: https://www.postgresql.org/docs/9.4/sql-lock.html
-            # TODO: the old implementation only locked the table iff it
-            #       was empty. But shouldn't we always lock it?
-            #
             # There should be no structure if the collection is empty
             # ( CollectionStructureBase should return None )
-            if self.collection.structure is None:
-                raise PgCollectionException("collection already has structure {}, can't create another".format( self.collection.structure.structure ))
+            if self.collection.structure:
+                raise PgCollectionException("collection already has structure {!r}, can't create another".format( self.collection.structure.structure ))
+        # Check for existing detached layers
+        if self.collection.structure:
+            if any(struct['layer_type'] == 'detached' for struct in self.collection.structure.structure.values()):
+                raise PgCollectionException("this collection has detached layers, can't add new text objects")
+        # Lock the table
+        cursor.execute(SQL('LOCK TABLE {}').format(self.table_identifier))
+        # Note 1: "There is no UNLOCK TABLE command; locks are always 
+        # released at transaction end."
+        # see more: https://www.postgresql.org/docs/9.4/sql-lock.html
+        # Note 2: the old implementation only locked the table iff it
+        # was empty. But now we are locking it before any insertion.
         return self
 
 
@@ -136,6 +136,9 @@ class CollectionTextObjectInserter(object):
                     key = 0
                 row = [ key, text_to_json(text) ]
                 for k in self.collection.column_names[2:]:
+                    if meta_data is None:
+                        raise ValueError(('(!) Metadata columns exist, but meta_data is None. '+\
+                                          'Please use meta_data={} if you want to leave metadata columns empty.'))
                     if k in meta_data:
                         m = meta_data[k]
                     else:
@@ -169,6 +172,9 @@ class CollectionTextObjectInserter(object):
             key = DEFAULT
         row = [key, text_to_json(text)]
         for k in self.collection.column_names[2:]:
+            if meta_data is None:
+                raise ValueError(('(!) Metadata columns exist, but meta_data is None. '+\
+                                  'Please use meta_data={} if you want to leave metadata columns empty.'))
             if k in meta_data:
                 m = meta_data[k]
             else:
