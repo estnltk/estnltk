@@ -55,7 +55,6 @@ class Trainer(object):
                 xseq = [t.ner_features.F for t in snt]
 
                 new_xseq = []
-                #change format of lists
                 for word in xseq:
                     new_xseq.append(list(word)[0])
                 trainer.append(new_xseq, correct_labels[idx][i])

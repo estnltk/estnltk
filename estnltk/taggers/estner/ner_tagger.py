@@ -38,10 +38,10 @@ class NerTagger(Tagger):
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         # prepare input for nertagger
         self.fex.process([text])
-        snt_labels = self.crf_model.tag(text, self.input_layers) # SEEEE MUUDETUD!!!!!!
+        snt_labels = self.crf_model.tag(text, self.input_layers)
         flattened = (word for snt in snt_labels for word in snt)
 
-        words = self.input_layers[1]  ## MUUDETUUUUUD
+        words = self.input_layers[1]
 
         # add the labels
         nerlayer = Layer(name=self.output_layer, attributes=self.output_attributes, text_object=text,
@@ -49,7 +49,7 @@ class NerTagger(Tagger):
         entity_spans = []
         entity_type = None
 
-        for span, label in zip(getattr(text, words), flattened): ### MUUUDEEEETUUUUUUUUDDDDD
+        for span, label in zip(getattr(text, words), flattened):
             if entity_type is None:
                 entity_type = label[2:]
             if label == "O":

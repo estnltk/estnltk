@@ -252,7 +252,6 @@ class NerLocalFeatureTagger(Retagger):
         morph_layer = self.input_layers[1]
         for token in text.ner_features:
             morph = getattr(token, morph_layer)
-            #LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
             LEM = '_'.join(morph.root_tokens[0]) + ('+' + morph.ending[0] if morph.ending[0] else '')
             if not LEM:
                 LEM = token.text
@@ -395,8 +394,6 @@ class NerGazetteerFeatureTagger(Retagger):
                     lemmas = []
                     for token in tokens[i:j]:
                         morph = getattr(token, morph_layer)
-                        #LEM = '_'.join(token.root_tokens[0]) + (
-                        #'+' + token.ending[0] if token.ending[0] else '').lower()
                         LEM = '_'.join(morph.root_tokens[0]) + (
                             '+' + morph.ending[0] if morph.ending[0] else '').lower()
                         if not LEM:
@@ -436,7 +433,6 @@ class NerGlobalContextFeatureTagger(Retagger):
         ui_lems = set()
         for i, token in enumerate(text.ner_features):
             morph = getattr(token, morph_layer)
-            #LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
             LEM = '_'.join(morph.root_tokens[0]) + ('+' + morph.ending[0] if morph.ending[0] else '')
             if not LEM:
                 LEM = token.text
@@ -447,7 +443,6 @@ class NerGlobalContextFeatureTagger(Retagger):
         sametoks_index_dict = defaultdict(list)
         for i, token in enumerate(layer):
             morph = getattr(token, morph_layer)
-            #LEM = '_'.join(token.root_tokens[0]) + ('+' + token.ending[0] if token.ending[0] else '')
             LEM = '_'.join(morph.root_tokens[0]) + ('+' + morph.ending[0] if morph.ending[0] else '')
             if not LEM:
                 LEM = token.text
