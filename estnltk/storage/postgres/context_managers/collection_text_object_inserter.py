@@ -110,6 +110,10 @@ class CollectionTextObjectInserter(object):
             logger.info('inserted {} texts into the collection {!r}'.format(self.insert_counter, self.collection.name))
 
 
+    def __call__(self, text, key=None, meta_data=None): 
+        self.insert(text, key=key, meta_data=meta_data)
+
+
     def insert(self, text, key=None, meta_data=None):
         """Inserts given Text object into the collection.
            Optionally, metadata and key of insertable Text 

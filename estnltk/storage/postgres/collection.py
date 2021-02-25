@@ -261,11 +261,7 @@ class PgCollection:
         """
         with CollectionTextObjectInserter(self, query_length_limit = query_length_limit,
                                                 buffer_size = buffer_size ) as text_inserter:
-            
-            def wrap_buffered_insert(text, key=None, meta_data=None):
-                text_inserter.insert(text, key=key, meta_data=meta_data)
-
-            yield wrap_buffered_insert
+            yield text_inserter
 
 
     def exists(self):
