@@ -118,7 +118,8 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
-        'nltk>=3.0.4',             # NLTK mainly used for English
+        'nltk>=3.4.1 ; python_version >= "3.6"', # NLTK mainly required for tokenization
+        'nltk>=3.0.4 ; python_version <  "3.6"', # NLTK mainly required for tokenization
         'regex>=2015.07.19',       # improved Python regular expressions
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
