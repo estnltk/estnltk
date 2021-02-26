@@ -38,13 +38,18 @@ class And(BinaryOperation):
     def eval(self, storage, collection_name):
         return SQL("({} AND {})").format(self.left.eval(storage, collection_name),
                                          self.right.eval(storage, collection_name))
+    @property
+    def required_layers(self) -> Set[str]:
+        return (self.left.required_layers).union( self.right.required_layers )
 
 
 class Or(BinaryOperation):
     def eval(self, storage, collection_name):
         return SQL("({} OR {})").format(self.left.eval(storage, collection_name),
                                         self.right.eval(storage, collection_name))
-
+    @property
+    def required_layers(self) -> Set[str]:
+        return (self.left.required_layers).union( self.right.required_layers )
 
 class Query(Node):
     def eval(self, storage, collection_name):
