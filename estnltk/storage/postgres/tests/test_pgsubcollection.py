@@ -143,10 +143,9 @@ class TestPgSubCollection(unittest.TestCase):
         assert len(list(subcollection_4)) == 4
 
         selection_criterion = pg.WhereClause(collection=self.collection,
-                                             layer_query={'morph_analysis': pg.JsonbLayerQuery('morph_analysis', lemma='esimene') |
-                                                                            pg.JsonbLayerQuery('morph_analysis', lemma='ööbik') |
-                                                                            pg.JsonbLayerQuery('morph_analysis', lemma='mis')
-                                                          }
+                                             query=pg.JsonbLayerQuery(layer_name='morph_analysis', lemma='esimene') | \
+                                                   pg.JsonbLayerQuery(layer_name='morph_analysis', lemma='ööbik') | \
+                                                   pg.JsonbLayerQuery(layer_name='morph_analysis', lemma='mis')
                                              )
         subcollection_5 = subcollection_4.select(additional_constraint=selection_criterion)
         assert isinstance(subcollection_5, pg.PgSubCollection)
@@ -155,7 +154,7 @@ class TestPgSubCollection(unittest.TestCase):
         assert len(list(subcollection_5)) == 3
 
         selection_criterion = pg.WhereClause(collection=self.collection,
-                                             keys=[0, 1, 2])
+                                             query=pg.IndexQuery(keys=[0, 1, 2]))
         subcollection_6 = subcollection_5.select(additional_constraint=selection_criterion)
         assert isinstance(subcollection_6, pg.PgSubCollection)
         assert subcollection_6.selected_layers == ['words', 'sentences']

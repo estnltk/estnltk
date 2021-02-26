@@ -30,6 +30,7 @@ class WhereClause(Composed):
         # WhereClause is specified by SQL fragment
         if seq is not None:
             assert query is None, "SQL sequence and query can not be set simultaneously"
+            self._required_layers = sorted(set(required_layers or ()))
             super().__init__(seq)
             return
 
