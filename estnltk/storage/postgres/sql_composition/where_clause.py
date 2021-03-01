@@ -86,6 +86,9 @@ class WhereClause(Composed):
         storage = collection.storage
 
         if query is not None:
+            # validate the query (an exception will be risen if the query is invalid for the collection)
+            if isinstance(query, Query):
+                query.validate( collection )
             # build constraint on the main text table
             q = query.eval(storage, collection_name)
             sql_parts.append(q)
