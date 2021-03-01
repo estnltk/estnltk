@@ -278,47 +278,70 @@ class TestPgCollection(unittest.TestCase):
                                            Q('morph_analysis', lemma='kell')))
         self.assertEqual(len(res), 2)
 
-        # test find_fingerprint
-        q = {"layer": "morph_analysis", "field": "lemma", "ambiguous": True}
-
-        q["query"] = ["mis", "palju"]  # mis OR palju
-        res = list(collection.find_fingerprint(q))
+        #
+        # Note: the following tests previously targeted find_fingerprint,
+        #       which is a deprecated method and will be removed.
+        #       But we'll keep the tests to check that the same queries
+        #       can be made via select().
+        #
+        #q["query"] = ["mis", "palju"]  # mis OR palju  (duplicate test)
+        q = Q(layer_name="morph_analysis", lemma='mis') | \
+            Q(layer_name="morph_analysis", lemma='palju')
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 2)
 
-        q["query"] = [["mis"], ["palju"]]  # mis OR palju
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [["mis"], ["palju"]]  # mis OR palju  (duplicate test)
+        q = Q(layer_name="morph_analysis", lemma="mis") | \
+            Q(layer_name="morph_analysis", lemma="palju")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 2)
 
-        q["query"] = [["mis", "palju"]]  # mis AND palju
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [["mis", "palju"]]  # mis AND palju  (duplicate test)
+        q = Q(layer_name="morph_analysis", lemma="mis") & \
+            Q(layer_name="morph_analysis", lemma="palju")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 0)
 
-        q["query"] = [{'miss1', 'miss2'}, {'miss3'}]
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [{'miss1', 'miss2'}, {'miss3'}]
+        q = (Q(layer_name="morph_analysis", lemma="miss1") & \
+             Q(layer_name="morph_analysis", lemma="miss2")) | \
+             Q(layer_name="morph_analysis", lemma="miss3")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 0)
 
-        q["query"] = [{'miss1', 'miss2'}, {'palju'}]
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [{'miss1', 'miss2'}, {'palju'}]
+        q = (Q(layer_name="morph_analysis", lemma="miss1") & \
+             Q(layer_name="morph_analysis", lemma="miss2")) | \
+             Q(layer_name="morph_analysis", lemma="palju")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 1)
 
-        q["query"] = [{'mis', 'miss2'}, {'palju'}]
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [{'mis', 'miss2'}, {'palju'}]
+        q = (Q(layer_name="morph_analysis", lemma="mis") & \
+             Q(layer_name="morph_analysis", lemma="miss2")) | \
+             Q(layer_name="morph_analysis", lemma="palju")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 1)
 
-        q["query"] = [{'mis', 'kell'}, {'miss'}]
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [{'mis', 'kell'}, {'miss'}]
+        q = (Q(layer_name="morph_analysis", lemma="mis") & \
+             Q(layer_name="morph_analysis", lemma="kell")) | \
+             Q(layer_name="morph_analysis", lemma="miss")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 1)
 
-        q["query"] = [{'mis', 'kell'}, {'palju'}]
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [{'mis', 'kell'}, {'palju'}]
+        q = (Q(layer_name="morph_analysis", lemma="mis") & \
+             Q(layer_name="morph_analysis", lemma="kell")) | \
+             Q(layer_name="morph_analysis", lemma="palju")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 2)
 
-        q["query"] = []
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = []
+        res = list(collection.select())
         self.assertEqual(len(res), 2)
 
         # test keys_query
-
         res = list(collection.select(pg.IndexQuery(keys=[])))
         self.assertEqual(len(res), 0)
 
@@ -555,51 +578,36 @@ class TestLayer(unittest.TestCase):
         collection.create_layer(tagger=tagger1)
         collection.create_layer(tagger=tagger2)
 
+        #
+        # Note: the following tests previously targeted find_fingerprint,
+        #       which is a deprecated method and will be removed.
+        #       But we'll keep the tests to check that the same queries
+        #       can be made via select().
+        #
         # test one layer
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": ["ööbik"],
-                "ambiguous": True
-            }})
+        # "query": ["ööbik"]
+        res = collection.select( query = JsonbLayerQuery(layer1, lemma="ööbik") )
         self.assertEqual(len(list(res)), 1)
 
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": ["ööbik", "mis"],  # ööbik OR mis
-                "ambiguous": True
-            }})
+        # "query": ["ööbik", "mis"],  # ööbik OR mis
+        res = collection.select( query = JsonbLayerQuery(layer1, lemma="ööbik") | 
+                                         JsonbLayerQuery(layer1, lemma="mis") )
         self.assertEqual(len(list(res)), 2)
 
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": [["ööbik", "mis"]],  # ööbik AND mis
-                "ambiguous": True
-            }})
+        # "query": [["ööbik", "mis"]],  # ööbik AND mis
+        res = collection.select( query = JsonbLayerQuery(layer1, lemma="ööbik") & 
+                                         JsonbLayerQuery(layer1, lemma="mis") )
         self.assertEqual(len(list(res)), 0)
 
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": [["ööbik", "laulma"]],  # ööbik AND laulma
-                "ambiguous": True
-            }})
+        # "query": [["ööbik", "laulma"]],  # ööbik AND laulma
+        res = collection.select( query = JsonbLayerQuery(layer1, lemma="ööbik") & 
+                                         JsonbLayerQuery(layer1, lemma="laulma") )
         self.assertEqual(len(list(res)), 1)
 
         # test multiple layers
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": ["ööbik"],
-                "ambiguous": True
-            },
-            layer2: {
-                "field": "lemma",
-                "query": ["ööbik"],
-                "ambiguous": True
-            }})
+        # layer1: "query": ["ööbik"]; layer2: "query": ["ööbik"];
+        res = collection.select( query = JsonbLayerQuery(layer1, lemma="ööbik") & 
+                                         JsonbLayerQuery(layer2, lemma="ööbik") )
         self.assertEqual(len(list(res)), 1)
 
 
