@@ -109,3 +109,27 @@ class TestLayerNgramQuery(unittest.TestCase):
         self.assertEqual(len(res), 1)
 
         collection.delete()
+
+
+
+    def test_layer_ngram_query_on_layer_wo_ngram_index(self):
+        # Test an invalid query: LayerNgramQuery on a layer that does not have ngram_index columns
+        collection = self.storage[get_random_collection_name()]
+        collection.create()
+        
+        with collection.insert() as collection_insert:
+            text1 = Text("Kass tiksus mansardkorrusel.").tag_layer(["sentences"])
+            collection_insert(text1)
+            text2 = Text("Kas kuubik kerib pinget ?").tag_layer(["sentences"])
+            collection_insert(text2)
+        
+        collection.create_layer( tagger=VabamorfTagger(disambiguate=False) )
+        
+        # Attempt to make LayerNgramQuery on a layer that misses ngram_index
+        # This should rise an Exception
+        with self.assertRaises( Exception ):
+            res = list( collection.select( query = LayerNgramQuery( {'morph_analysis': {"lemma": [("kass",)]}} ) ) )
+        
+        collection.delete()
+
+

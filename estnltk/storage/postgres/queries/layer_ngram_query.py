@@ -1,7 +1,7 @@
-import json
+import json, collections
 from psycopg2.sql import SQL, Identifier, Literal
 
-from estnltk.storage.postgres import collection_table_identifier, layer_table_identifier
+from estnltk.storage.postgres import collection_table_identifier, layer_table_identifier, layer_table_name
 from estnltk.storage.postgres.queries.query import Query
 from typing import Mapping, Set, Any
 
@@ -45,7 +45,34 @@ class LayerNgramQuery(Query):
 
     @property
     def required_layers(self) -> Set[str]:
-        return {*self.layer_ngram_query}
+        return { *self.layer_ngram_query }
+
+
+    def validate( self, collection: 'PgCollection' ):
+        """ Validates that this collection has detached layer table with appropriate ngram columns.
+        """
+        assert collection is not None
+        collection_name = collection.name
+        storage = collection.storage
+        
+        def _fetch_table_column_names( storage, collection_name, layer_name ):
+            # Fetches column names for given detached layer
+            table_name = layer_table_name( collection_name, layer_name )
+            with storage.conn.cursor() as c:
+                c.execute(SQL('SELECT column_name, data_type from information_schema.columns '
+                              'WHERE table_schema={} and table_name={} '
+                              'ORDER BY ordinal_position'
+                              ).format(Literal(storage.schema), Literal(table_name)))
+                return collections.OrderedDict( c.fetchall() )
+        
+        for layer_name in self.layer_ngram_query:
+            columns = [column for column, _ in self.layer_ngram_query[layer_name].items()]
+            existing_columns_dict = _fetch_table_column_names( storage, collection_name, layer_name )
+            for c in columns:
+                if c not in existing_columns_dict.keys():
+                    existing_columns = [k for k in existing_columns_dict.keys()]
+                    raise ValueError('(!) The layer {!r} does not contain ngram index column {!r}. Available columns: {!r}'.format(layer_name, c, existing_columns))
+
 
     def eval(self, storage, collection_name):
         sql_parts = []
