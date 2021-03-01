@@ -61,25 +61,25 @@ class TestMetadataQuery(unittest.TestCase):
             meta['type'] = 'artikkel'
             collection_insert(text4, meta_data=meta)
 
-        res = list(collection.select( MetadataQuery( {'subcorpus':'argivestlused'}, collection ) ) )
+        res = list(collection.select( MetadataQuery( {'subcorpus':'argivestlused'} ) ) )
         self.assertEqual(len(res), 3)
 
-        res = list(collection.select( MetadataQuery( {'subcorpus':'argivestlused', 'type':'kõnekoosolek'}, collection  ) ) )
+        res = list(collection.select( MetadataQuery( {'subcorpus':'argivestlused', 'type':'kõnekoosolek'}  ) ) )
         self.assertEqual(len(res), 2)
 
-        res = list(collection.select( MetadataQuery( {'type':'kiirkoosolek'}, collection  ) ) )
+        res = list(collection.select( MetadataQuery( {'type':'kiirkoosolek'}  ) ) )
         self.assertEqual(len(res), 1)
 
-        res = list(collection.select( MetadataQuery( {'subcorpus':'argivestlused', 'type':'artikkel'}, collection  ) ) )
+        res = list(collection.select( MetadataQuery( {'subcorpus':'argivestlused', 'type':'artikkel'}  ) ) )
         self.assertEqual(len(res), 0)
 
-        res = list(collection.select( MetadataQuery( {'subcorpus':'ajaleheartiklid', 'type':'artikkel'}, collection  ) ) )
+        res = list(collection.select( MetadataQuery( {'subcorpus':'ajaleheartiklid', 'type':'artikkel'}  ) ) )
         self.assertEqual(len(res), 1)
 
-        res = list(collection.select( MetadataQuery( {'subcorpus':['ajaleheartiklid','argivestlused']}, collection ) ) )
+        res = list(collection.select( MetadataQuery( {'subcorpus':['ajaleheartiklid','argivestlused']} ) ) )
         self.assertEqual(len(res), 4)
         
-        res = list(collection.select( MetadataQuery( {'type':['kõnekoosolek', 'kiirkoosolek', 'artikkel']}, collection ) ) )
+        res = list(collection.select( MetadataQuery( {'type':['kõnekoosolek', 'kiirkoosolek', 'artikkel']} ) ) )
         self.assertEqual(len(res), 4)
 
         collection.delete()
@@ -110,22 +110,39 @@ class TestMetadataQuery(unittest.TestCase):
             meta['tyyp_nr'] = 2
             collection_insert(text4, meta_data=meta)
 
-        res = list(collection.select( MetadataQuery( {'tyyp_nr':4}, collection ) ) )
+        res = list(collection.select( MetadataQuery( {'tyyp_nr':4} ) ) )
         self.assertEqual(len(res), 2)
 
-        res = list(collection.select( MetadataQuery( {'tyyp_nr':[4,3]}, collection  ) ) )
+        res = list(collection.select( MetadataQuery( {'tyyp_nr':[4,3]}  ) ) )
         self.assertEqual(len(res), 3)
 
-        res = list(collection.select( MetadataQuery( {'tyyp_nr':[2]}, collection  ) ) )
+        res = list(collection.select( MetadataQuery( {'tyyp_nr':[2]} ) ) )
         self.assertEqual(len(res), 1)
 
-        res = list(collection.select( MetadataQuery( {'tyyp_nr':5}, collection  ) ) )
+        res = list(collection.select( MetadataQuery( {'tyyp_nr':5} ) ) )
         self.assertEqual(len(res), 0)
 
-        res = list(collection.select( MetadataQuery( {'tyyp_nr':4, 'jrknr':3}, collection  ) ) )
+        res = list(collection.select( MetadataQuery( {'tyyp_nr':4, 'jrknr':3} ) ) )
         self.assertEqual(len(res), 1)
 
-        res = list(collection.select( MetadataQuery( {'jrknr':[1,2,3,4]}, collection ) ) )
+        res = list(collection.select( MetadataQuery( {'jrknr':[1,2,3,4]} ) ) )
         self.assertEqual(len(res), 4)
+
+        collection.delete()
+
+
+    def test_metadata_query_on_missing_metadata_columns(self):
+        # Test an invalid query: MetadataQuery on a collection that misses appropriate metadata columns
+        collection = self.storage[get_random_collection_name()]
+        # Create a collection w/o metadata columns
+        collection.create()
+        
+        with collection.insert() as collection_insert:
+            text1 = Text("Kas kuubik kerib pinget ?").tag_layer(["sentences"])
+            collection_insert(text1)
+        
+        # Attempt to make a MetadataQuery. This should rise an Exception
+        with self.assertRaises( Exception ):
+            res = list( collection.select( query = MetadataQuery( {'tyyp_nr':4, 'jrknr':3} ) ) )
 
         collection.delete()

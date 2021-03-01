@@ -3,7 +3,7 @@ from typing import Union, List, Set, Dict
 
 from estnltk.storage.postgres import collection_table_identifier
 from estnltk.storage.postgres.queries.query import Query
-#from estnltk.storage.postgres.collection import PgCollection
+
 
 
 def _validate_value_data_type( values, meta_values, data_type:type, data_type_name:str ):
@@ -71,46 +71,56 @@ class MetadataQuery(Query):
     Note: this is a very simple query based on metadata key-value pairs that 
           need to be matching. If there are multiple pairs, all must match.
     """
-    __slots__ = ['_meta_values']
+    __slots__ = ['_raw_meta_values', '_meta_values']
 
-    def __init__(self, meta_values : Dict[str, Union[str, List[str]]], collection: object ):
+    def __init__( self, meta_values : Dict[str, Union[str, List[str]]] ):
         # Check args
         if not isinstance(meta_values, dict) or len(meta_values.keys())==0:
             raise ValueError('(!) Invalid meta_values {!r}. Should be a non-empty dictionary listing conditions for metadata attributes/values.'.format( meta_values ))
-        valid_meta_keys  = None
-        if collection != None:
-            #
-            # TODO: currently, we can't validate that the collection must be of type 
-            #       pg.PgCollection, because imports are tangled in estnltk.storage.postgres.__init__ 
-            #       ( this needs to be resolved in future )
-            #
-            # Get valid metadata column names
-            column_meta = collection._collection_table_meta()
-            if column_meta is not None:
-                column_meta.pop('id')
-                column_meta.pop('data')
-                valid_meta_keys = column_meta
-        for key in meta_values.keys():
+        # Store unvalidated data at first
+        self._raw_meta_values = meta_values
+        self._meta_values = None
+
+
+    def validate(self, collection: 'PgCollection'):
+        """ Validates that this collection has metadata columns required for the query.
+            This should be always called before calling eval() method.
+        """
+        assert collection is not None
+        # Get valid metadata column names
+        valid_meta_keys = None
+        column_meta = collection._collection_table_meta()
+        if column_meta is not None:
+            column_meta.pop('id')
+            column_meta.pop('data')
+            valid_meta_keys = column_meta
+        # Check for keys and value types
+        for key in self._raw_meta_values.keys():
             if not isinstance(key, str):
-                raise ValueError('(!) Unexpected key {!r} in {!r}. String is expected.'.format(key, meta_values))
+                raise ValueError('(!) Unexpected key {!r} in {!r}. String is expected.'.format(key, self._raw_meta_values))
             valid_meta_type = None
             if valid_meta_keys is not None:
                 if key not in valid_meta_keys.keys():
-                    raise ValueError('(!) Unexpected key {!r} in {!r}. Valid meta keys for the collection: {!r}.'.format(key, meta_values, valid_meta_keys))
+                    if len(valid_meta_keys.keys()) == 0:
+                        raise ValueError('(!) Unexpected meta key {!r} in {!r}. This collection has no metadata columns.'.format(key, self._raw_meta_values))
+                    else:
+                        raise ValueError('(!) Unexpected meta key {!r} in {!r}. Valid meta keys for the collection are: {!r}.'.format( key, self._raw_meta_values, list(valid_meta_keys.keys()) ) )
                 valid_meta_type = valid_meta_keys[key]
-            values = meta_values[key]
+            values = self._raw_meta_values[key]
             if valid_meta_type is None or valid_meta_type in ['str', 'text']:
-                _validate_value_data_type( values, meta_values, str, 'string' )
+                _validate_value_data_type( values, self._raw_meta_values, str, 'string' )
             elif valid_meta_type in ['int']:
-                _validate_value_data_type( values, meta_values, int, 'integer' )
-        # Store args
-        self._meta_values = meta_values
+                _validate_value_data_type( values, self._raw_meta_values, int, 'integer' )
+        # Store validated data
+        self._meta_values = self._raw_meta_values
+
 
     @property
     def required_layers(self) -> Set[str]:
         return set()
 
     def eval(self, storage, collection_name):
+        assert self._meta_values is not None
         table = collection_table_identifier(storage, collection_name)
         meta_conditions = []
         for meta_key in sorted( self._meta_values.keys() ):
