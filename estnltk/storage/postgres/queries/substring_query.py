@@ -1,3 +1,4 @@
+from typing import Set
 from psycopg2.sql import SQL, Literal
 
 from estnltk.storage.postgres import collection_table_identifier
@@ -12,6 +13,10 @@ class SubstringQuery(Query):
 
     def __init__(self, substring):
         self.substring = substring
+
+    @property
+    def required_layers(self) -> Set[str]:
+        return set()
 
     def eval(self, storage, collection_name):
         table = collection_table_identifier(storage, collection_name)
