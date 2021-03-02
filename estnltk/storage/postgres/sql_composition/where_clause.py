@@ -93,6 +93,5 @@ class WhereClause(Composed):
             q = query.eval(storage, collection_name)
             sql_parts.append(q)
         if sql_parts:
-            print(SQL(" AND ").join(sql_parts))
             return SQL(" AND ").join(sql_parts)
         return []
