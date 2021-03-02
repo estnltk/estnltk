@@ -34,8 +34,16 @@ def build_column_ngram_query(storage, collection_name, query, column, layer_name
 
 
 class LayerNgramQuery(Query):
-    """Constructs database query to search `text` objects with provided key.
+    """Constructs database query to search `text` objects that have specific N-grams in specific layers.
+       Note: this query only works on detached layers that have appropriate ngram_index.
 
+       Example. Search ("üks","kaks" AND "kolm","neli") OR "viis","kuus":
+       
+       collection.select(query=LayerNgramQuery({
+            "some_layer": {
+                "some_field": [[("üks", "kaks"), ("kolm", "neli")], [("viis", "kuus")]],
+       }}))
+       
     """
     __slots__ = ['layer_ngram_query', 'kwargs']
 

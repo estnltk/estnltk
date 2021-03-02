@@ -8,7 +8,14 @@ from typing import Set
 
 class JsonbLayerQuery(Query):
     """Constructs database query to search `layer` objects stored in jsonb format.
-
+       Search conditions only apply on detached layers of `text` objects.
+       
+       Example. Search lemmas "kes" OR "kus":
+       
+       q = JsonbLayerQuery('morph_analysis', lemma='kes') | \
+           JsonbLayerQuery('morph_analysis', lemma='kus')
+       collection.select( query=q )
+       
     """
     __slots__ = ['layer_name', 'kwargs']
 

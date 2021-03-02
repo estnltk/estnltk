@@ -8,7 +8,14 @@ from estnltk.storage.postgres.queries.query import Query
 
 class JsonbTextQuery(Query):
     """Constructs database query to search `text` objects stored in jsonb format.
-
+       Search conditions only apply on attached layers of `text` objects.
+       
+       Example. Search lemmas "mis" OR "palju":
+       
+       q = JsonbTextQuery('morph_analysis', lemma='mis') | \
+           JsonbTextQuery('morph_analysis', lemma='palju')
+       collection.select( query=q )
+       
     """
     __slots__ = ['layer_name', 'kwargs']
 
