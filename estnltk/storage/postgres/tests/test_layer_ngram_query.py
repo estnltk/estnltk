@@ -9,6 +9,8 @@ from estnltk.storage import postgres as pg
 from estnltk.taggers import VabamorfTagger
 from estnltk.finite_grammar import ngram_fingerprint, phrase_list_generator
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
+from estnltk.storage.postgres.queries.jsonb_layer_query import JsonbLayerQuery
+from estnltk.storage.postgres.queries.jsonb_text_query import JsonbTextQuery
 
 logger.setLevel('DEBUG')
 
@@ -133,3 +135,69 @@ class TestLayerNgramQuery(unittest.TestCase):
         collection.delete()
 
 
+
+    def test_layer_ngram_query_in_combination_with_jsonb_text_and_layer_query(self):
+        # Test combinations of LayerNgramQuery, JsonbLayerQuery and JsonbTextQuery 
+        collection = self.storage[get_random_collection_name()]
+        collection.create()
+
+        with collection.insert() as collection_insert:
+            text1 = Text("Kass tiksus mansardkorrusel.").tag_layer(["morph_analysis"])
+            text1.meta['insert_id'] = 1
+            collection_insert(text1)
+
+            text2 = Text("Kas kuubik kerib pinget ?").tag_layer(["morph_analysis"])
+            text2.meta['insert_id'] = 2
+            collection_insert(text2)
+            
+            text3 = Text("Koomik paarutab perimeetril.").tag_layer(["morph_analysis"])
+            text3.meta['insert_id'] = 3
+            collection_insert(text3)
+
+        layer_w_lemma_ngrams   = "layer1"
+        layer_pos_lemma_ngrams = "layer2"
+
+        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer_w_lemma_ngrams)
+        tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer_pos_lemma_ngrams)
+
+        collection.create_layer(tagger=tagger1, ngram_index={"lemma": 2})
+        collection.create_layer(tagger=tagger2, ngram_index={"partofspeech": 3})
+        
+        self.assertEqual(
+            count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer_w_lemma_ngrams)), 3)
+        self.assertEqual(
+            count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer_pos_lemma_ngrams)), 3)
+        
+        # Q1 : lemma='mansardkorrus' AND lemma=("kass", "tiksuma")
+        res = list(collection.select( query = JsonbTextQuery(layer_name="morph_analysis", lemma='mansardkorrus') & \
+                                              LayerNgramQuery( {layer_w_lemma_ngrams: {"lemma": [("kass", "tiksuma")]}} )  ) )
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0][1].meta['insert_id'], 1)
+
+        # Q2 : lemma='pinge' OR lemma=("paarutama", "perimeeter")
+        res = list(collection.select( query = JsonbTextQuery(layer_name="morph_analysis", lemma='pinge') | \
+                                              LayerNgramQuery( {layer_w_lemma_ngrams: {"lemma": [("paarutama", "perimeeter")]}} )  ) )
+        self.assertEqual(len(res), 2)
+        self.assertSetEqual( { text.meta['insert_id'] for id, text in res }, {2, 3} )
+
+        # Q3 : lemma='.' AND partofspeech=("S", "V")
+        res = list(collection.select( query = JsonbLayerQuery(layer_name=layer_w_lemma_ngrams, lemma='.') & \
+                                              LayerNgramQuery( {layer_pos_lemma_ngrams: {"partofspeech": [("S", "V")]}} )  ) )
+        self.assertEqual(len(res), 2)
+        self.assertSetEqual( { text.meta['insert_id'] for id, text in res }, {1, 3} )
+        
+        # Q4 : lemma='.' AND partofspeech=("S", "V")
+        res = list(collection.select( query = JsonbLayerQuery(layer_name=layer_w_lemma_ngrams, lemma='.') | \
+                                              LayerNgramQuery( {layer_pos_lemma_ngrams: {"partofspeech": [("D", "S")]}} )  ) )
+        self.assertEqual(len(res), 3)
+        self.assertSetEqual( { text.meta['insert_id'] for id, text in res }, {1, 2, 3} )
+        
+        # Q5 : lemma='pinge' AND lemma='kas' AND partofspeech=("S", "V")
+        res = list(collection.select( query = JsonbTextQuery(layer_name="morph_analysis", lemma='pinge') & \
+                                              JsonbLayerQuery(layer_name=layer_w_lemma_ngrams, lemma='kas') & \
+                                              LayerNgramQuery( {layer_pos_lemma_ngrams: {"partofspeech": [("D", "S")]}} )  ) )
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0][1].meta['insert_id'], 2)
+        
+        collection.delete()
+        
