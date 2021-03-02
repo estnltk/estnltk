@@ -6,7 +6,7 @@ from estnltk.storage.postgres.queries.query import Query
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery, build_column_ngram_query
 from estnltk.storage.postgres.queries.jsonb_layer_query import JsonbLayerQuery
 
-logger.setLevel('DEBUG')
+#logger.setLevel('DEBUG')
 
 
 class WhereClause(Composed):
