@@ -143,9 +143,9 @@ class TestPgSubCollection(unittest.TestCase):
         assert len(list(subcollection_4)) == 4
 
         selection_criterion = pg.WhereClause(collection=self.collection,
-                                             query=pg.JsonbLayerQuery(layer_name='morph_analysis', lemma='esimene') | \
-                                                   pg.JsonbLayerQuery(layer_name='morph_analysis', lemma='ööbik') | \
-                                                   pg.JsonbLayerQuery(layer_name='morph_analysis', lemma='mis')
+                                             query=pg.LayerQuery(layer_name='morph_analysis', lemma='esimene') | \
+                                                   pg.LayerQuery(layer_name='morph_analysis', lemma='ööbik') | \
+                                                   pg.LayerQuery(layer_name='morph_analysis', lemma='mis')
                                              )
         subcollection_5 = subcollection_4.select(additional_constraint=selection_criterion)
         assert isinstance(subcollection_5, pg.PgSubCollection)

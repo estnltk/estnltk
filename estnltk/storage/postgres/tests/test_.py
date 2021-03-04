@@ -13,8 +13,7 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import ParagraphTokenizer
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import JsonbTextQuery as Q
-from estnltk.storage.postgres import JsonbLayerQuery
+from estnltk.storage.postgres import LayerQuery
 from estnltk.storage.postgres import RowMapperRecord
 from estnltk.storage.postgres import create_schema, delete_schema, count_rows
 from estnltk.storage.postgres import create_collection_table
@@ -255,27 +254,27 @@ class TestPgCollection(unittest.TestCase):
         collection = self.storage[get_random_collection_name()]
         collection.create()
 
-        # test select
+        # test select (on attached layers)
         with collection.insert() as collection_insert:
             text1 = Text('mis kell on?').analyse('morphology')
             collection_insert(text1, key=3)
             text2 = Text('palju kell on?').analyse('morphology')
             collection_insert(text2, key=4)
         
-        res = list(collection.select(query=Q('morph_analysis', lemma='mis')))
+        res = list(collection.select(query=LayerQuery('morph_analysis', lemma='mis')))
         self.assertEqual(len(res), 1)
 
-        res = list(collection.select(query=Q('morph_analysis', lemma='kell')))
+        res = list(collection.select(query=LayerQuery('morph_analysis', lemma='kell')))
         self.assertEqual(len(res), 2)
 
-        res = list(collection.select(query=Q('morph_analysis', lemma='mis') | Q('morph_analysis', lemma='palju')))
+        res = list(collection.select(query=LayerQuery('morph_analysis', lemma='mis') | LayerQuery('morph_analysis', lemma='palju')))
         self.assertEqual(len(res), 2)
 
-        res = list(collection.select(query=Q('morph_analysis', lemma='mis') & Q('morph_analysis', lemma='palju')))
+        res = list(collection.select(query=LayerQuery('morph_analysis', lemma='mis') & LayerQuery('morph_analysis', lemma='palju')))
         self.assertEqual(len(res), 0)
 
-        res = list(collection.select(query=(Q('morph_analysis', lemma='mis') | Q('morph_analysis', lemma='palju')) &
-                                           Q('morph_analysis', lemma='kell')))
+        res = list(collection.select(query=(LayerQuery('morph_analysis', lemma='mis') | LayerQuery('morph_analysis', lemma='palju')) &
+                                           LayerQuery('morph_analysis', lemma='kell')))
         self.assertEqual(len(res), 2)
 
         #
@@ -284,56 +283,38 @@ class TestPgCollection(unittest.TestCase):
         #       But we'll keep the tests to check that the same queries
         #       can be made via select().
         #
-        #q["query"] = ["mis", "palju"]  # mis OR palju  (duplicate test)
-        q = Q(layer_name="morph_analysis", lemma='mis') | \
-            Q(layer_name="morph_analysis", lemma='palju')
-        res = list(collection.select(query = q))
-        self.assertEqual(len(res), 2)
-
-        #q["query"] = [["mis"], ["palju"]]  # mis OR palju  (duplicate test)
-        q = Q(layer_name="morph_analysis", lemma="mis") | \
-            Q(layer_name="morph_analysis", lemma="palju")
-        res = list(collection.select(query = q))
-        self.assertEqual(len(res), 2)
-
-        #q["query"] = [["mis", "palju"]]  # mis AND palju  (duplicate test)
-        q = Q(layer_name="morph_analysis", lemma="mis") & \
-            Q(layer_name="morph_analysis", lemma="palju")
-        res = list(collection.select(query = q))
-        self.assertEqual(len(res), 0)
-
         #q["query"] = [{'miss1', 'miss2'}, {'miss3'}]
-        q = (Q(layer_name="morph_analysis", lemma="miss1") & \
-             Q(layer_name="morph_analysis", lemma="miss2")) | \
-             Q(layer_name="morph_analysis", lemma="miss3")
+        q = (LayerQuery(layer_name="morph_analysis", lemma="miss1") & \
+             LayerQuery(layer_name="morph_analysis", lemma="miss2")) | \
+             LayerQuery(layer_name="morph_analysis", lemma="miss3")
         res = list(collection.select(query = q))
         self.assertEqual(len(res), 0)
 
         #q["query"] = [{'miss1', 'miss2'}, {'palju'}]
-        q = (Q(layer_name="morph_analysis", lemma="miss1") & \
-             Q(layer_name="morph_analysis", lemma="miss2")) | \
-             Q(layer_name="morph_analysis", lemma="palju")
+        q = (LayerQuery(layer_name="morph_analysis", lemma="miss1") & \
+             LayerQuery(layer_name="morph_analysis", lemma="miss2")) | \
+             LayerQuery(layer_name="morph_analysis", lemma="palju")
         res = list(collection.select(query = q))
         self.assertEqual(len(res), 1)
 
         #q["query"] = [{'mis', 'miss2'}, {'palju'}]
-        q = (Q(layer_name="morph_analysis", lemma="mis") & \
-             Q(layer_name="morph_analysis", lemma="miss2")) | \
-             Q(layer_name="morph_analysis", lemma="palju")
+        q = (LayerQuery(layer_name="morph_analysis", lemma="mis") & \
+             LayerQuery(layer_name="morph_analysis", lemma="miss2")) | \
+             LayerQuery(layer_name="morph_analysis", lemma="palju")
         res = list(collection.select(query = q))
         self.assertEqual(len(res), 1)
 
         #q["query"] = [{'mis', 'kell'}, {'miss'}]
-        q = (Q(layer_name="morph_analysis", lemma="mis") & \
-             Q(layer_name="morph_analysis", lemma="kell")) | \
-             Q(layer_name="morph_analysis", lemma="miss")
+        q = (LayerQuery(layer_name="morph_analysis", lemma="mis") & \
+             LayerQuery(layer_name="morph_analysis", lemma="kell")) | \
+             LayerQuery(layer_name="morph_analysis", lemma="miss")
         res = list(collection.select(query = q))
         self.assertEqual(len(res), 1)
 
         #q["query"] = [{'mis', 'kell'}, {'palju'}]
-        q = (Q(layer_name="morph_analysis", lemma="mis") & \
-             Q(layer_name="morph_analysis", lemma="kell")) | \
-             Q(layer_name="morph_analysis", lemma="palju")
+        q = (LayerQuery(layer_name="morph_analysis", lemma="mis") & \
+             LayerQuery(layer_name="morph_analysis", lemma="kell")) | \
+             LayerQuery(layer_name="morph_analysis", lemma="palju")
         res = list(collection.select(query = q))
         self.assertEqual(len(res), 2)
 
@@ -558,7 +539,7 @@ class TestLayer(unittest.TestCase):
 
         collection.delete()
 
-    def test_layer_fingerprint_query(self):
+    def test_detached_layer_query(self):
         collection_name = get_random_collection_name()
         collection = self.storage[collection_name]
         collection.create()
@@ -586,28 +567,28 @@ class TestLayer(unittest.TestCase):
         #
         # test one layer
         # "query": ["ööbik"]
-        res = collection.select( query = JsonbLayerQuery(layer1, lemma="ööbik") )
+        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") )
         self.assertEqual(len(list(res)), 1)
 
         # "query": ["ööbik", "mis"],  # ööbik OR mis
-        res = collection.select( query = JsonbLayerQuery(layer1, lemma="ööbik") | 
-                                         JsonbLayerQuery(layer1, lemma="mis") )
+        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") | 
+                                         LayerQuery(layer1, lemma="mis") )
         self.assertEqual(len(list(res)), 2)
 
         # "query": [["ööbik", "mis"]],  # ööbik AND mis
-        res = collection.select( query = JsonbLayerQuery(layer1, lemma="ööbik") & 
-                                         JsonbLayerQuery(layer1, lemma="mis") )
+        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") & 
+                                         LayerQuery(layer1, lemma="mis") )
         self.assertEqual(len(list(res)), 0)
 
         # "query": [["ööbik", "laulma"]],  # ööbik AND laulma
-        res = collection.select( query = JsonbLayerQuery(layer1, lemma="ööbik") & 
-                                         JsonbLayerQuery(layer1, lemma="laulma") )
+        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") & 
+                                         LayerQuery(layer1, lemma="laulma") )
         self.assertEqual(len(list(res)), 1)
 
         # test multiple layers
         # layer1: "query": ["ööbik"]; layer2: "query": ["ööbik"];
-        res = collection.select( query = JsonbLayerQuery(layer1, lemma="ööbik") & 
-                                         JsonbLayerQuery(layer2, lemma="ööbik") )
+        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") & 
+                                         LayerQuery(layer2, lemma="ööbik") )
         self.assertEqual(len(list(res)), 1)
 
 
