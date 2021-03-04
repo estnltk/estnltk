@@ -1,45 +1,37 @@
 import collections
 import json
-import operator as op
-import pandas
 import re
-from typing import Sequence
-from functools import reduce
+import time
 from contextlib import contextmanager
+from typing import Sequence
 
+import pandas
 import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
-from psycopg2.sql import SQL, Identifier, Literal, DEFAULT, Composed
-import time
+from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
 from estnltk import logger
-from estnltk.converters import layer_to_dict
-from estnltk.converters import layer_to_json
-from estnltk.converters import dict_to_text
 from estnltk.converters import dict_to_layer
-from estnltk.converters import text_to_json
+from estnltk.converters import dict_to_text
+from estnltk.converters import layer_to_dict
 from estnltk.layer_operations import create_ngram_fingerprint_index
-
-from estnltk.storage.postgres import structure_table_identifier
-from estnltk.storage.postgres import fragment_table_identifier
-from estnltk.storage.postgres import layer_table_identifier
-from estnltk.storage.postgres import table_exists
-from estnltk.storage.postgres import layer_table_exists
-from estnltk.storage.postgres import structure_table_exists
-from estnltk.storage.postgres import drop_layer_table
-from estnltk.storage.postgres import drop_fragment_table
-from estnltk.storage.postgres import count_rows
-from estnltk.storage.postgres import fragment_table_name
-from estnltk.storage.postgres import layer_table_name
 from estnltk.storage import postgres as pg
-
-from estnltk.storage.postgres.queries.index_query import IndexQuery
-from estnltk.storage.postgres.queries.slice_query import SliceQuery
-from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
-
 from estnltk.storage.postgres import BufferedTableInsert
-from estnltk.storage.postgres import CollectionTextObjectInserter
 from estnltk.storage.postgres import CollectionDetachedLayerInserter
+from estnltk.storage.postgres import CollectionTextObjectInserter
+from estnltk.storage.postgres import count_rows
+from estnltk.storage.postgres import drop_fragment_table
+from estnltk.storage.postgres import drop_layer_table
+from estnltk.storage.postgres import fragment_table_identifier
+from estnltk.storage.postgres import fragment_table_name
+from estnltk.storage.postgres import layer_table_exists
+from estnltk.storage.postgres import layer_table_identifier
+from estnltk.storage.postgres import layer_table_name
+from estnltk.storage.postgres import structure_table_exists
+from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
+from estnltk.storage.postgres.queries.slice_query import SliceQuery
+
 
 class PgCollectionException(Exception):
     pass

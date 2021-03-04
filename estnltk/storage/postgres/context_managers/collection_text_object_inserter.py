@@ -1,14 +1,11 @@
-import psycopg2
 from psycopg2.sql import SQL, DEFAULT
 
 from estnltk import logger
-
-from estnltk.text import Text
 from estnltk.converters import text_to_json
-
 from estnltk.storage import postgres as pg
-from estnltk.storage.postgres.pg_operations import collection_table_identifier
 from estnltk.storage.postgres import BufferedTableInsert
+from estnltk.storage.postgres.pg_operations import collection_table_identifier
+from estnltk.text import Text
 
 
 class CollectionTextObjectInserter(object):

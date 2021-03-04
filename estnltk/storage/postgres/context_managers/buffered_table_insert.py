@@ -1,4 +1,3 @@
-import psycopg2
 from psycopg2.sql import SQL, Identifier, Literal, Composed
 from psycopg2.sql import DEFAULT as SQL_DEFAULT
 

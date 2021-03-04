@@ -1,14 +1,11 @@
-import psycopg2
-from psycopg2.sql import SQL, DEFAULT
+from psycopg2.sql import DEFAULT
 
 from estnltk import logger
-
-from estnltk.layer.layer import Layer
 from estnltk.converters import layer_to_json
-
+from estnltk.layer.layer import Layer
 from estnltk.storage import postgres as pg
-from estnltk.storage.postgres.pg_operations import layer_table_identifier
 from estnltk.storage.postgres import BufferedTableInsert
+from estnltk.storage.postgres.pg_operations import layer_table_identifier
 
 
 class CollectionDetachedLayerInserter(object):
