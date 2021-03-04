@@ -82,7 +82,9 @@ class LayerNgramQuery(Query):
                     raise ValueError('(!) The layer {!r} does not contain ngram index column {!r}. Available columns: {!r}'.format(layer_name, c, existing_columns))
 
 
-    def eval(self, storage, collection_name):
+    def eval(self, collection: 'PgCollection'):
+        collection_name = collection.name
+        storage = collection.storage
         sql_parts = []
 
         for layer_name in self.layer_ngram_query:

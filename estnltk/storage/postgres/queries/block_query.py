@@ -24,7 +24,9 @@ class BlockQuery(Query):
         self.module = module
         self.reminder = reminder
 
-    def eval(self, storage, collection_name):
+    def eval(self, collection: 'PgCollection'):
+        collection_name = collection.name
+        storage = collection.storage
         return SQL('{table}."id" % {module} = {reminder}').format(
                     table=pg.collection_table_identifier(storage, collection_name),
                     module=Literal(self.module), reminder=Literal(self.reminder))

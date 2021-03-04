@@ -29,7 +29,9 @@ class JsonbLayerQuery(Query):
     def required_layers(self) -> Set[str]:
         return {self.layer_name}
 
-    def eval(self, storage, collection_name):
+    def eval(self, collection: 'PgCollection'):
+        collection_name = collection.name
+        storage = collection.storage
         table = layer_table_identifier(storage, collection_name, self.layer_name)
         pat = SQL("""{table}.data @> '{{"spans": [{{"annotations": [{condition}]}}]}}'""")
 

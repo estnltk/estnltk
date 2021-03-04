@@ -49,7 +49,9 @@ class JsonbMetadataQuery(Query):
     def required_layers(self) -> Set[str]:
         return set()
 
-    def eval(self, storage, collection_name):
+    def eval(self, collection: 'PgCollection'):
+        collection_name = collection.name
+        storage = collection.storage
         table = collection_table_identifier(storage, collection_name)
         meta_conditions = []
         for meta_key in sorted( self._meta_values.keys() ):
@@ -119,7 +121,9 @@ class MetadataQuery(Query):
     def required_layers(self) -> Set[str]:
         return set()
 
-    def eval(self, storage, collection_name):
+    def eval(self, collection: 'PgCollection'):
+        collection_name = collection.name
+        storage = collection.storage
         assert self._meta_values is not None
         table = collection_table_identifier(storage, collection_name)
         meta_conditions = []

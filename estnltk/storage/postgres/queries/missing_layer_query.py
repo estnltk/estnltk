@@ -15,7 +15,9 @@ class MissingLayerQuery(Query):
     def __init__(self, missing_layer, ambiguous=True):
         self.missing_layer = missing_layer
 
-    def eval(self, storage, collection_name):
+    def eval(self, collection: 'PgCollection'):
+        collection_name = collection.name
+        storage = collection.storage
         table = layer_table_identifier(storage, collection_name, self.missing_layer)
         pat = SQL('{collection_name}."id" NOT IN (SELECT "text_id" FROM {table})').format(
             collection_name = Identifier(collection_name),

@@ -18,7 +18,9 @@ class SubstringQuery(Query):
     def required_layers(self) -> Set[str]:
         return set()
 
-    def eval(self, storage, collection_name):
+    def eval(self, collection: 'PgCollection'):
+        collection_name = collection.name
+        storage = collection.storage
         table = collection_table_identifier(storage, collection_name)
 
         pat = SQL("position({substring} in {table}.data->>'text')>0")
