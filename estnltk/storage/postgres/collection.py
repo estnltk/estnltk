@@ -31,8 +31,6 @@ from estnltk.storage.postgres import drop_fragment_table
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import fragment_table_name
 from estnltk.storage.postgres import layer_table_name
-from estnltk.storage.postgres import JsonbLayerQuery
-from estnltk.storage.postgres import JsonbTextQuery
 from estnltk.storage import postgres as pg
 
 from estnltk.storage.postgres.queries.index_query import IndexQuery

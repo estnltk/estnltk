@@ -4,7 +4,6 @@ from estnltk.storage import postgres as pg
 from estnltk import logger
 from estnltk.storage.postgres.queries.query import Query
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery, build_column_ngram_query
-from estnltk.storage.postgres.queries.jsonb_layer_query import JsonbLayerQuery
 
 #logger.setLevel('DEBUG')
 
@@ -20,9 +19,6 @@ class WhereClause(Composed):
     def __init__(self,
                  collection,
                  query: Query = None,
-                 # layer_query: JsonbLayerQuery = None,
-                 # keys: list = None,
-                 # missing_layer: str = None,
                  seq=None,
                  required_layers=None):
         self.collection = collection
