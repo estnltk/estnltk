@@ -83,6 +83,9 @@ class LayerNgramQuery(Query):
 
 
     def eval(self, collection: 'PgCollection'):
+        # Check that the collection has ngram_index columns
+        self.validate( collection )
+        # Construct the query
         collection_name = collection.name
         storage = collection.storage
         sql_parts = []

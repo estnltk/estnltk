@@ -10,8 +10,6 @@ Supports nested disjunctive ("|") and conjunction ("&") queries, e.g.
 
 Client code is expected to subclass a base query class `Query` and implement `eval` method.
 See `SimpleQuery` for example.
-Note: if you need to validate that the query can be made on the given collection, implement 
-the `validate` method, which will be called before the `eval` method.
 """
 
 
@@ -63,13 +61,16 @@ class Query(Node):
         """Returns list of detached collection layers used in query"""
         raise NotImplemented()
 
-    def validate(self, collection: 'PgCollection'):
-        """Validates that the query can be made on the given collection. 
-           Should raise an Exception describing the problem if the query is 
-           invalid. Example use case: check if the table misses some of the 
-           column(s) required by the query. 
-           This method is always called before calling the eval() method. 
-           
-           The default implementation does no validation (pass).
-        """
-        pass
+
+# TODO: test or remove
+class SimpleQuery(Query):
+    """Example implementation of `Query`.
+        >>> SimpleQuery(city='London', country='UK').eval()
+        >>> "city='London' AND country='UK'"
+    """
+
+    def _init__(self, **kwargs):
+        self.kwargs = kwargs
+
+    def eval(self, collection: 'PgCollection'):
+        return SQL(' AND '.join("%s = '%s'" % (k, v) for k, v in self.kwargs.items()))

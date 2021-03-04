@@ -122,6 +122,9 @@ class MetadataQuery(Query):
         return set()
 
     def eval(self, collection: 'PgCollection'):
+        # Check that the collection has metadata columns
+        self.validate( collection )
+        # Construct the query
         collection_name = collection.name
         storage = collection.storage
         assert self._meta_values is not None
