@@ -73,6 +73,8 @@ class PgSubCollectionLayer:
                             SQL('{}."data"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.detached_layer))]
 
         required_layers = sorted({self.detached_layer, *self._selection_criterion.required_layers})
+        # TODO: _selection_criterion.required_layers can return attached layers (from LayerQuery) -- do we need to remove these here?
+        
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
         # Required layers are part of the main collection
