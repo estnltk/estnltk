@@ -43,9 +43,13 @@ class WhereClause(Composed):
     def __bool__(self):
         return bool(self.seq)
 
+    def _non_attached_required_layers(self):
+        """Returns self._required_layers without attached layers."""
+        return [layer for layer in self._required_layers if self.collection.structure[layer]['layer_type'] != 'attached']
+
     @property
     def required_layers(self):
-        return list(self._required_layers)
+        return self._non_attached_required_layers()
 
     def __and__(self, other):
         if not isinstance(other, WhereClause):

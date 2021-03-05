@@ -174,9 +174,6 @@ class PgSubCollection:
 
         required_layers = sorted(set(self._detached_layers + self._selection_criterion.required_layers))
         
-        # Require only detached layers, remove attached layer requirements (these should be included in Text objects)
-        required_layers = [layer for layer in required_layers if self.collection.structure[layer]['layer_type'] == 'detached']
-        
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
         # Required layers are part of the main collection
