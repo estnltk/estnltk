@@ -7,8 +7,7 @@ from psycopg2.errors import DuplicateSchema
 from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema, count_rows
-from estnltk.storage import postgres as pg
+from estnltk.storage.postgres import create_schema, delete_schema
 
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 

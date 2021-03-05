@@ -10,7 +10,6 @@ from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
 from estnltk.storage.postgres import create_schema, delete_schema
-from estnltk.storage import postgres as pg
 
 from estnltk.storage.postgres.queries.metadata_query import JsonbMetadataQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery

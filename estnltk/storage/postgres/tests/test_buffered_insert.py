@@ -25,10 +25,10 @@ logger.setLevel('DEBUG')
 
 
 class TestBufferedTableInsert(unittest.TestCase):
-    ''' A small test for the basic functionality of BufferedTableInsert.
+    """ A small test for the basic functionality of BufferedTableInsert.
         ( we do not cover all the aspects of the class, because most of 
           the insertion functionality flows through it, and so it is 
-          already heavily used in other tests ) '''
+          already heavily used in other tests ) """
 
     def setUp(self):
         schema = "test_schema"
@@ -105,7 +105,7 @@ def get_random_collection_name():
 
 
 class TestCollectionTextObjectInserter(unittest.TestCase):
-    '''Smoke testing for CollectionTextObjectInserter.'''
+    """Smoke testing for CollectionTextObjectInserter."""
 
     def setUp(self):
         schema = "test_schema"

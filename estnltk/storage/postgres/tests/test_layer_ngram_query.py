@@ -5,9 +5,7 @@ from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage, layer_table_identifier
 from estnltk.storage.postgres import create_schema, delete_schema, count_rows
-from estnltk.storage import postgres as pg
 from estnltk.taggers import VabamorfTagger
-from estnltk.finite_grammar import ngram_fingerprint, phrase_list_generator
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
 

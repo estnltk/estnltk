@@ -1,9 +1,7 @@
-from psycopg2.sql import Composed, Literal, SQL
+from psycopg2.sql import Composed, SQL
 
-from estnltk.storage import postgres as pg
-from estnltk import logger
 from estnltk.storage.postgres.queries.query import Query
-from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery, build_column_ngram_query
+
 
 #logger.setLevel('DEBUG')
 

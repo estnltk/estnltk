@@ -1,9 +1,10 @@
-import json, collections
+import collections
+from typing import Mapping, Set, Any
+
 from psycopg2.sql import SQL, Identifier, Literal
 
-from estnltk.storage.postgres import collection_table_identifier, layer_table_identifier, layer_table_name
+from estnltk.storage.postgres import layer_table_identifier, layer_table_name
 from estnltk.storage.postgres.queries.query import Query
-from typing import Mapping, Set, Any
 
 
 def build_column_ngram_query(storage, collection_name, query, column, layer_name):

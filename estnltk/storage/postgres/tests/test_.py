@@ -4,28 +4,27 @@ Requires ~/.pgpass file with database connection settings to `test_db` database.
 Schema/table creation and read/write rights are required.
 
 """
-import unittest
 import random
+import unittest
 
-from estnltk import logger
 from estnltk import Layer
 from estnltk import Text
-from estnltk.taggers import VabamorfTagger
-from estnltk.taggers import ParagraphTokenizer
-from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import LayerQuery
-from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema, count_rows
-from estnltk.storage.postgres import create_collection_table
-from estnltk.storage.postgres import collection_table_exists
-from estnltk.storage.postgres import drop_collection_table
-from estnltk.storage.postgres import table_exists
-from estnltk.storage.postgres import layer_table_exists
-from estnltk.storage.postgres import layer_table_identifier
-from estnltk.storage.postgres import fragment_table_exists
-from estnltk.storage.postgres import PgCollectionException
-from estnltk.storage.postgres import PgCollection
+from estnltk import logger
 from estnltk.storage import postgres as pg
+from estnltk.storage.postgres import LayerQuery
+from estnltk.storage.postgres import PgCollection
+from estnltk.storage.postgres import PgCollectionException
+from estnltk.storage.postgres import PostgresStorage
+from estnltk.storage.postgres import RowMapperRecord
+from estnltk.storage.postgres import collection_table_exists
+from estnltk.storage.postgres import create_collection_table
+from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import drop_collection_table
+from estnltk.storage.postgres import fragment_table_exists
+from estnltk.storage.postgres import layer_table_exists
+from estnltk.storage.postgres import table_exists
+from estnltk.taggers import ParagraphTokenizer
+from estnltk.taggers import VabamorfTagger
 
 logger.setLevel('DEBUG')
 

@@ -1,6 +1,6 @@
-import json
-from psycopg2.sql import SQL, Identifier, Literal
 from typing import Set
+
+from psycopg2.sql import SQL, Identifier
 
 from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres.queries.query import Query

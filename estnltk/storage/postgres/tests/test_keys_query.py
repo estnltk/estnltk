@@ -4,7 +4,7 @@ import random
 from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema, count_rows
+from estnltk.storage.postgres import create_schema, delete_schema
 from estnltk.storage import postgres as pg
 
 logger.setLevel('DEBUG')
