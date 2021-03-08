@@ -17,6 +17,8 @@ logger.setLevel('DEBUG')
 def get_random_collection_name():
     return 'collection_{}'.format(random.randint(1, 1000000))
 
+
+# Test metadata queries with meta_type = 'COLLECTION' (default)
 class TestMetadataQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
@@ -145,3 +147,76 @@ class TestMetadataQuery(unittest.TestCase):
             res = list( collection.select( query = MetadataQuery( {'tyyp_nr':4, 'jrknr':3} ) ) )
 
         collection.delete()
+
+
+# Test metadata queries with meta_type = 'TEXT'
+class TestTextLevelMetadataQuery(unittest.TestCase):
+    def setUp(self):
+        schema = "test_schema"
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+        try:
+            create_schema(self.storage)
+        except DuplicateSchema as ds_error:
+            # TODO: for some reason we get DuplicateSchema error. Unexpected?
+            delete_schema(self.storage)
+            create_schema(self.storage)
+        except:
+            raise
+
+    def tearDown(self):
+        delete_schema(self.storage)
+        self.storage.close()
+
+    def test_jsonb_metadata_query(self):
+        collection = self.storage[get_random_collection_name()]
+        collection.create()
+
+        with collection.insert() as collection_insert:
+            text1 = Text('mis kell on?').tag_layer()
+            text1.meta['subcorpus'] = 'argivestlused'
+            text1.meta['type'] = 'kõnekoosolek'
+            collection_insert(text1, key=3)
+            text2 = Text('palju kell on?').tag_layer()
+            text2.meta['subcorpus'] = 'argivestlused'
+            text2.meta['type'] = 'kiirkoosolek'
+            collection_insert(text2, key=4)
+            text3 = Text('kus kell on?').tag_layer()
+            text3.meta['subcorpus'] = 'argivestlused'
+            text3.meta['type'] = 'kõnekoosolek'
+            collection_insert(text3, key=5)
+            text4 = Text('kes Kell on?').tag_layer()
+            text4.meta['subcorpus'] = 'ajaleheartiklid'
+            text4.meta['type'] = 'artikkel'
+            collection_insert(text4, key=6)
+
+        res = list(collection.select( MetadataQuery( {'subcorpus':'argivestlused'}, 
+                                                     meta_type='TEXT' ) ) )
+        self.assertEqual(len(res), 3)
+
+        res = list(collection.select( MetadataQuery( {'subcorpus':'argivestlused', 'type':'kõnekoosolek'}, 
+                                                     meta_type='TEXT' ) ) )
+        self.assertEqual(len(res), 2)
+
+        res = list(collection.select( MetadataQuery( {'type':'kiirkoosolek'}, 
+                                                     meta_type='TEXT' ) ) )
+        self.assertEqual(len(res), 1)
+
+        res = list(collection.select( MetadataQuery( {'subcorpus':'argivestlused', 'type':'artikkel'}, 
+                                                     meta_type='TEXT' ) ) )
+        self.assertEqual(len(res), 0)
+
+        res = list(collection.select( MetadataQuery( {'subcorpus':'ajaleheartiklid', 'type':'artikkel'}, 
+                                                     meta_type='TEXT' ) ) )
+        self.assertEqual(len(res), 1)
+
+        res = list(collection.select( MetadataQuery( {'subcorpus':['ajaleheartiklid','argivestlused']}, 
+                                                     meta_type='TEXT') ) )
+        self.assertEqual(len(res), 4)
+        
+        res = list(collection.select( MetadataQuery( {'type':['kõnekoosolek', 'kiirkoosolek', 'artikkel']}, 
+                                                     meta_type='TEXT') ) )
+        self.assertEqual(len(res), 4)
+
+        collection.delete()
+
+

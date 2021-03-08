@@ -11,7 +11,7 @@ from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
 from estnltk.storage.postgres import create_schema, delete_schema
 
-from estnltk.storage.postgres.queries.metadata_query import JsonbMetadataQuery
+from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 
 logger.setLevel('DEBUG')
@@ -126,7 +126,7 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
         self.assertListEqual( text_ids_and_meta_1[-5:], text_ids_and_meta_2[-5:] )
 
         # Permutate select with metadata constraining query (seed 0.25)
-        seed_0_5_results_2 = list( collection.select(query=JsonbMetadataQuery({'mod_2':'2'}) ).permutate(seed=0.25) )
+        seed_0_5_results_2 = list( collection.select(query=MetadataQuery({'mod_2':'2'}, meta_type='TEXT') ).permutate(seed=0.25) )
         self.assertEqual(len(seed_0_5_results_2), 50)
         self.assertEqual(len(seed_0_5_results_2[0]), 2)
         text_ids = [text_id for text_id, _ in seed_0_5_results_2]

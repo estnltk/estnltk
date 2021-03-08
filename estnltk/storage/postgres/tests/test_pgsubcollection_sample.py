@@ -11,7 +11,7 @@ from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
 from estnltk.storage.postgres import create_schema, delete_schema
 
-from estnltk.storage.postgres.queries.metadata_query import JsonbMetadataQuery
+from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 
 logger.setLevel('DEBUG')
@@ -281,8 +281,8 @@ class TestPgSubCollectionSample(unittest.TestCase):
         self.assertEqual(len(res[0]), 2)
         self.assertListEqual([t[1].meta['text_id'] for t in res], [38, 77])
         # Construction type: default
-        # Select with 'morph_analysis' and JsonbMetadataQuery(text_id=20...39) and sample size approx. 50%
-        res = list( collection.select(query=JsonbMetadataQuery( {'text_id':[ str(20+i) for i in range(10) ]} ), 
+        # Select with 'morph_analysis' and MetadataQuery(text_id=20...39) and sample size approx. 50%
+        res = list( collection.select(query=MetadataQuery( {'text_id':[ str(20+i) for i in range(10) ]}, meta_type='TEXT' ), 
                                       layers=[ vabamorf_tagger.output_layer ]).sample(50, seed=55, method='BERNOULLI') )
         self.assertEqual(len(res), 6)
         self.assertEqual(len(res[0]), 2)

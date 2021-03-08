@@ -11,7 +11,7 @@ from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
 from estnltk.storage.postgres import create_schema, delete_schema
 
-from estnltk.storage.postgres.queries.metadata_query import JsonbMetadataQuery
+from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 
 logger.setLevel('DEBUG')
 
@@ -321,7 +321,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         # amount_type='PERCENTAGE' (default)
         # Default select where mod_2=2 (every second document) with sentences sample size approx. 25% (seed 0.0)
         res_00__1 = list( collection.select(layers=['sentences'],
-                                            query=JsonbMetadataQuery({'mod_2':'2'})).sample_from_layer('sentences', 25, seed=0.0) )
+                                            query=MetadataQuery({'mod_2':'2'}, meta_type='TEXT')).sample_from_layer('sentences', 25, seed=0.0) )
         self.assertEqual(len(res_00__1[0]), 2)
         sent_locations = []
         for (doc_id, dok) in res_00__1:
@@ -331,7 +331,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         
         # Default select where mod_3=3 (every third document) with return_index=False and sentences sample size approx. 75% (seed 0.5)
         res = list( collection.select(layers=['sentences'],
-                                      query=JsonbMetadataQuery({'mod_3':'3'}),
+                                      query=MetadataQuery({'mod_3':'3'}, meta_type='TEXT'),
                                       return_index=False).sample_from_layer('sentences', 75, seed=0.5) )
         self.assertLessEqual(30, len(res))
         self.assertGreaterEqual(40, len(res))
@@ -344,7 +344,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         # Check that repeating a query with the same seed gives the same result as before
         # Default select where mod_2=2 (every second document) with sentences sample size approx. 25% (seed 0.0)
         res_00__2 = list( collection.select(layers=['sentences'],
-                                            query=JsonbMetadataQuery({'mod_2':'2'})).sample_from_layer('sentences', 25, seed=0.0) )
+                                            query=MetadataQuery({'mod_2':'2'}, meta_type='TEXT')).sample_from_layer('sentences', 25, seed=0.0) )
         self.assertEqual(len(res_00__1), len(res_00__2))
         sent_locations_1 = []
         for (doc_id, dok) in res_00__1:
