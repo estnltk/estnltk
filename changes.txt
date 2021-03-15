@@ -1,0 +1,39 @@
+
+This heavily stripped down version of the EstNLTK v1.6 package is based on EstNLTK's devel_1.6 branch commit:
+ https://github.com/estnltk/estnltk/tree/1a2754611feec84cdef597a7f74a2cc806964d60 (from 2021-03-08)
+
+Changes and removals:
+
+estnltk/converters:
+    * removed CG3_exporter.py, CG3_importer.py, TCF_exporter.py, TCF_importer.py, cg3_annotation_parser.py, conll_exporter.py, conll_importer.py, conll_ner_exporter.py, conll_ner_importer.py, texta_exporter.py, serialisation_modules/syntax_v0.py;
+    * changed serialisation_modules/serialisation_map.py -- removed syntax_v0 import and syntax_v0 entry from layer_converter_collection;
+    * changed layer_dict_converter.py -- fixed imports of serialisation_modules.default and serialisation_modules.legacy_v0;
+
+estnltk/layer:
+    * removed to_html.py;
+    * changed ambiguous_attribute_tuple_list.py: removed methods to_html() and _repr_html_ from AmbiguousAttributeTupleList (and removed pandas import);
+    * changed ambiguous_attribute_tuple_list.py: removed type checking if isinstance(value, re.regex.Pattern) from to_str() function, and removed regex import;
+    * changed layer.py: removed methods display(), metadata(), _repr_html_, and variable print_start_end from Layer (and removed pandas import);
+    * changed span.py: removed methods _to_html and _repr_html_ from Span (and removed html_table import);
+
+estnltk/layer_operations:
+    * changed layer_operations.py: removed function dict_to_df(), and removed pandas import;
+    * changed __init__.py: removed dict_to_df() import;
+
+estnltk/taggers:
+    * removed all the sub-packages and files, except tagger.py and retagger.py;
+    * changed tagger.py: removed methods _repr_html_ and _repr_html from Tagger;
+    * changed retagger.py: removed method _repr_html_ from Retagger;
+    * cleaned up __init__.py so that only Tagger and Retagger imports remained;
+
+estnltk/text.py:
+    * removed methods tag_layer(), analyse() and _repr_html_ from Text (and removed pandas import);
+
+estnltk/:
+    * removed resolve_layer_dag.py;
+    * remove all the sub-packages, except converters, layer, layer_operations and taggers;
+    * changed __init__.py accordingly;
+
+setup.py:
+    * removed all the unnecessary requirements and building steps;
+
