@@ -95,7 +95,7 @@ class StanzaSyntaxTagger(Tagger):
                 self.model_path = os.path.join(RESOURCES, 'et', 'depparse', 'stanza_depparse.pt')
 
         if not os.path.isfile(self.model_path) or not os.path.isfile(os.path.join(RESOURCES, 'et', 'pretrain', 'edt.pt')):
-            raise FileNotFoundError('Necessary models missing, download from https://entu.keeleressursid.ee/api2/file-24505 '
+            raise FileNotFoundError('Necessary models missing, download from https://entu.keeleressursid.ee/public-document/entity-9791 '
                              'and extract folders `depparse` and `pretrain` to root directory defining '
                              'StanzaSyntaxTagger under the subdirectory `stanza_resources/et`')
 
