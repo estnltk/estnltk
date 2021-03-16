@@ -19,6 +19,7 @@ class Text:
         'diff',
         'layers',
         'list_layers',
+        'tag_layer',
         'topological_sort',
     } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
