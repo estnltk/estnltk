@@ -17,6 +17,12 @@ The package is based on the EstNLTK v1.6 commit [1a2754611f](https://github.com/
 
 For details, see [changes.txt](changes.txt). 
 
+Installation:
+
+```
+   pip install estnltk-light
+```
+
 The source code of the light package: [https://github.com/estnltk/estnltk/tree/version\_1.6\_light](https://github.com/estnltk/estnltk/tree/version_1.6_light)
 
 The full package: [https://github.com/estnltk/estnltk](https://github.com/estnltk/estnltk)
