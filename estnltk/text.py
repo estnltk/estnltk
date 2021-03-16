@@ -255,6 +255,12 @@ class Text:
 
         return result
 
+    def tag_layer(self, layer_names: Union[str, Sequence[str]] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
+        raise NotImplementedError('(!) The NLP pipeline is not available in estnltk-light. Please use the full EstNLTK package for the pipeline.')
+
+    def analyse(self, t: str, resolver=None) -> 'Text':
+        raise NotImplementedError('(!) The NLP pipeline is not available in estnltk-light. Please use the full EstNLTK package for the pipeline.')
+
     @staticmethod
     def topological_sort(layers: Mapping[str, Layer]) -> List[Layer]:
         """

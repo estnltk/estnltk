@@ -27,7 +27,8 @@ estnltk/taggers:
     * cleaned up __init__.py so that only Tagger and Retagger imports remained;
 
 estnltk/text.py:
-    * removed methods tag_layer(), analyse() and _repr_html_ from Text (and removed pandas import);
+    * removed method _repr_html_ from Text (and removed pandas import);
+    * changed methods tag_layer() and analyse() to raise NotImplementedError (due to the missing NLP pipeline).
 
 estnltk/:
     * removed resolve_layer_dag.py;
