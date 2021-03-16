@@ -10,7 +10,7 @@ setup(
     author="University of Tartu",
     author_email="siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description="EstNLTK light — core components of the EstNLTK v1.6 library",
-    long_description=open('README.md').read(),
+    long_description=open('description.txt').read(),
     license="GPLv2",
     url="https://github.com/estnltk/estnltk",
     install_requires=[
