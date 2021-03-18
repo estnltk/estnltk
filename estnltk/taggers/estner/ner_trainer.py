@@ -10,7 +10,7 @@ from estnltk import Text
 class NerTrainer(object):
     """The class for training NER models. Uses crfsuite implementation."""
 
-    def __init__(self, nersettings, morph_layer_input=('morph_analysis',)):
+    def __init__(self, nersettings, morph_layer_input='morph_analysis', words_layer_input='words', sentences_layer_input='sentences'):
         """Initialize a new NerTrainer.
 
         Parameters
@@ -19,9 +19,11 @@ class NerTrainer(object):
             NER settings module.
         """
         self.settings = nersettings
-        self.fex = FeatureExtractor(nersettings,morph_layer_input)
+        self.input_layers = (morph_layer_input, words_layer_input, sentences_layer_input)
+        self.fex = FeatureExtractor(nersettings, self.input_layers)
         self.trainer = CrfsuiteTrainer(algorithm=nersettings.CRFSUITE_ALGORITHM,
-                                       c2=nersettings.CRFSUITE_C2)
+                                       c2=nersettings.CRFSUITE_C2,
+                                       input_sentences_layer=sentences_layer_input)
 
     def train(self, texts, labels=None, layer='wordner', model_dir='ner_model'):
         """ Train a NER model using given documents.
@@ -51,6 +53,8 @@ class NerTrainer(object):
         modelUtil.makedir()
         modelUtil.copy_settings(self.settings)
 
+        sentences_layer_name = self.input_layers[2]
+        
         if isinstance(texts, Text):
             texts = [texts]
 
@@ -63,7 +67,7 @@ class NerTrainer(object):
                     raise Exception("Error in text {}: expected unambiguous NER layer, but found ambiguous NER layer instead.".format(i))
                 text_labels = []
                 cur = 0
-                for snt in texts[i].sentences:
+                for snt in texts[i][sentences_layer_name]:
                     text_labels.append(list(t[layer].nertag[cur:len(snt)+cur]))
                     cur += len(snt)
                 labels_list.append(text_labels)
@@ -74,7 +78,7 @@ class NerTrainer(object):
             raise Exception("Number of text objects isn't equal to number of NER-layers.")
 
         for i, text in enumerate(texts):
-            sentences = text.sentences
+            sentences = text[sentences_layer_name]
             if len(sentences) != len(labels[i]):
                 raise Exception("Number of sentences in text {} doesn't match number of sentences in NER-layer {}.".format(i, i))
             for idx, sentence in enumerate(sentences):

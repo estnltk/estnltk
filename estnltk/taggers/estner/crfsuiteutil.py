@@ -7,7 +7,7 @@ import pycrfsuite
 class Trainer(object):
     """Trains a crfsuite model."""
 
-    def __init__(self, algorithm='l2sgd', c2=0.001, verbose=True):
+    def __init__(self, algorithm='l2sgd', c2=0.001, verbose=True, input_sentences_layer='sentences'):
         """Initialize the trainer.
 
         Parameters
@@ -22,6 +22,7 @@ class Trainer(object):
         self.algorithm = algorithm
         self.c2 = c2
         self.verbose = verbose
+        self.input_sentences_layer = input_sentences_layer
 
     def train(self, texts, correct_labels, mode_filename):
         """Train a CRF model using given Text objects and NER labels.
@@ -50,8 +51,8 @@ class Trainer(object):
 
         trainer = pycrfsuite.Trainer(algorithm=self.algorithm, params={'c2': self.c2}, verbose=self.verbose)
 
-        for idx, text in enumerate(texts):
-            for i,snt in enumerate(text.sentences):
+        for idx, text in enumerate( texts ):
+            for i,snt in enumerate( text[self.input_sentences_layer] ):
                 xseq = [t.ner_features.F for t in snt]
 
                 new_xseq = []
