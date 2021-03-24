@@ -31,12 +31,12 @@ class MaltParserTagger(Tagger):
 
         if input_type == 'morph_analysis':
             if version == 'conllu':
-                self._maltparser_inst = MaltParser(model_name='model_an_pos')
+                self._maltparser_inst = MaltParser(model_name='morph_analysis_conllu')
             else:
                 self._maltparser_inst = MaltParser(model_name='model_morph')
         elif input_type == 'morph_extended':
             if version == 'conllu':
-                self._maltparser_inst = MaltParser(model_name='model_ext_pos')
+                self._maltparser_inst = MaltParser(model_name='morph_extended_conllu')
             else:
                 self._maltparser_inst = MaltParser(model_name='model_morph_ext')
         else:

@@ -2,11 +2,11 @@ import os
 from os import linesep as OS_NEWLINE
 from collections import OrderedDict
 from conllu.parser import parse_nullable_value
+from estnltk.converters.conll_exporter import sentence_to_conll
 from estnltk.core import PACKAGE_PATH
 from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 from estnltk.taggers import SyntaxDependencyRetagger
-from estnltk.converters.conll_exporter import sentence_to_conll
 import subprocess
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'udpipe_tagger', 'resources')
@@ -60,9 +60,9 @@ class UDPipeTagger(Tagger):
                     model = os.path.join(RESOURCES, 'model_0.output')
             elif version == 'conllu':
                 if input_type == 'morph_analysis':
-                    model = os.path.join(RESOURCES, 'conllu', 'model_0.output')
+                    model = os.path.join(RESOURCES, 'conllu', 'ud_morph_analysis.output')
                 elif input_type == 'morph_extended':
-                    model = os.path.join(RESOURCES, 'conllu', 'model_1.output')
+                    model = os.path.join(RESOURCES, 'conllu', 'ud_morph_extended.output')
                 else:
                     model = os.path.join(RESOURCES, 'model_1.output')
             else:
@@ -103,7 +103,7 @@ class UDPipeTagger(Tagger):
         cmd = "%s --parse %s" % (self.udpipe_cmd, self.model)
         process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, stderr=subprocess.PIPE, shell=True)
         for sentence in sentences_layer:
-            output = sentence_to_conll(sentence, layers[self.input_layers[1]])
+            output = sentence_to_conll(sentence, layers[self.input_layers[1]],True)
             output = output.replace('\t\t', '\t_\t')
             process.stdin.write(output.encode())
 
@@ -141,3 +141,4 @@ class UDPipeTagger(Tagger):
 
     def __doc__(self):
         print('Udpipe parser for syntactic analysis.')
+

@@ -3,7 +3,7 @@ from conllu import TokenList
 from collections import OrderedDict
 
 
-def sentence_to_conll(sentence_span, conll_layer):
+def sentence_to_conll(sentence_span, conll_layer, udpipe=False):
     get_conll = conll_layer.get
     tokens = []
     for word in sentence_span:
@@ -19,6 +19,7 @@ def sentence_to_conll(sentence_span, conll_layer):
                              ('deps', a.deps),
                              ('misc', a.misc)])
         tokens.append(token)
-
     result = TokenList(tokens).serialize()
+    if udpipe:
+        return result
     return result.replace('=|', '|').replace('=\t', '\t')
