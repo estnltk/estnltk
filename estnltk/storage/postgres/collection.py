@@ -956,7 +956,7 @@ class PgCollection:
             data = c.fetchall()
             return pandas.DataFrame(data=data, columns=columns)
 
-    def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None):
+    def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None, append=False):
         if collection_meta is None:
             collection_meta = []
 
@@ -976,24 +976,42 @@ class PgCollection:
         columns.extend((attr, 'text') for attr in attributes)
         columns.extend((attr, 'text') for attr in collection_meta)
 
-        columns_sql = SQL(",\n").join(SQL("{} {}").format(Identifier(n), SQL(t)) for n, t in columns)
+        # Check for the existence of the table
+        create_table = True
+        if table_exists(self.storage, table_name):
+            if not append:
+                raise PgCollectionException( ('Exported layer table {!r} already exists. Please use '+
+                                              'append=True to append to the existing table.').format(table_name) )
+            else:
+                logger.info('appending to an existing export table')
+                create_table = False
+                # TODO: check that the old export table has the approriate columns
 
-        self.storage.conn.commit()
-        with self.storage.conn.cursor() as c:
-            logger.debug(c.query)
-            c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
-                                                          columns_sql))
-            logger.debug(c.query)
-            c.execute(SQL("COMMENT ON TABLE {} IS {};").format(table_identifier,
-                                                               Literal('created by {} on {}'.format(self.storage.user,
-                                                                                                    time.asctime()))))
-            logger.debug(c.query)
+        if create_table:
+            # Create new table
+            columns_sql = SQL(",\n").join(SQL("{} {}").format(Identifier(n), SQL(t)) for n, t in columns)
+
             self.storage.conn.commit()
+            with self.storage.conn.cursor() as c:
+                logger.debug(c.query)
+                c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
+                                                              columns_sql))
+                logger.debug(c.query)
+                c.execute(SQL("COMMENT ON TABLE {} IS {};").format(table_identifier,
+                                                                   Literal('created by {} on {}'.format(self.storage.user,
+                                                                                                        time.asctime()))))
+                logger.debug(c.query)
+                self.storage.conn.commit()
 
         texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta)
-        
+        i = 0
+        initial_rows = 0
+        if append:
+            # Get the number of inserted rows so far
+            initial_rows = count_rows(self.storage, table_identifier=table_identifier)
+            # Shift id to the last inserted row
+            i = initial_rows
         with BufferedTableInsert( self.storage.conn, table_identifier, columns=[c[0] for c in columns]) as buffered_inserter:
-            i = 0
             for text_id, text, meta in texts:
                 for span_nr, span in enumerate(text[layer]):
                     for annotation in span.annotations:
@@ -1003,7 +1021,7 @@ class PgCollection:
                         values.extend( [meta[k] for k in collection_meta] )
                         buffered_inserter.insert( values )
 
-        logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, table_name))
+        logger.info('{} annotations exported to "{}"."{}"'.format(i-initial_rows, self.storage.schema, table_name))
 
     def _repr_html_(self):
         if self._is_empty:
