@@ -360,7 +360,6 @@ class Wordnet:
 
         return (2.0 * lcs_depth) / (self_depth + other_depth)
 
-    @property
     def all_relation_types(self) -> List[str]:
         """
         Finds and returns all relation types used in this Wordnet.
