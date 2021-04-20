@@ -2,7 +2,7 @@ import sqlite3
 import os.path
 import math
 import networkx as nx
-from typing import Union
+from typing import Union, List
 from estnltk.wordnet.synset import Synset
 
 MAX_TAXONOMY_DEPTHS = {'a': 2, 'n': 13, 'r': 0, 'v': 10}
@@ -359,6 +359,19 @@ class Wordnet:
             return None
 
         return (2.0 * lcs_depth) / (self_depth + other_depth)
+
+    @property
+    def all_relation_types(self) -> List[str]:
+        """
+        Finds and returns all relation types used in this Wordnet.
+        
+        Returns
+        -------
+        A list of strings: relation types used in this Wordnet.
+        """
+        self.cur.execute("SELECT DISTINCT relation FROM wordnet_relation")
+        wn_all_relation_types = self.cur.fetchall()
+        return [r[0] for r in wn_all_relation_types]
 
     def __str__(self):
         return "Wordnet version {}".format(self.version)
