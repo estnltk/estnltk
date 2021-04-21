@@ -1006,7 +1006,7 @@ class PgCollection:
             (and throws an expection if the table does not exist).
         """
         if not isinstance(mode, str) or mode.upper() not in ['NEW', 'APPEND']:
-            raise ValueError('(!) Mode {!r} not supported. Use {!r} or {!r}.'.format( method, 'NEW', 'APPEND' ))
+            raise ValueError('(!) Mode {!r} not supported. Use {!r} or {!r}.'.format( mode, 'NEW', 'APPEND' ))
         mode = mode.upper()
         
         if collection_meta is None:
