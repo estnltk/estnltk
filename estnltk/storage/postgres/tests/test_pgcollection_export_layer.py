@@ -1,4 +1,4 @@
-"""Test postgres PgCollection's export_layer functionality.
+"""Test PgCollection's export_layer functionality.
 
 Requires ~/.pgpass file with database connection settings to `test_db` database.
 Schema/table creation and read/write rights are required.
@@ -9,15 +9,13 @@ import unittest
 from collections import OrderedDict
 
 from psycopg2.sql import SQL, Identifier
+from psycopg2.errors import DuplicateSchema
 
-from estnltk import Layer
 from estnltk import Text
 from estnltk import logger
 
 from estnltk.storage import postgres as pg
-from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import RowMapperRecord
 from estnltk.storage.postgres import create_schema, delete_schema
 
 logger.setLevel('DEBUG')
