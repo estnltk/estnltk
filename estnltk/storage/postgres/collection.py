@@ -956,7 +956,59 @@ class PgCollection:
             data = c.fetchall()
             return pandas.DataFrame(data=data, columns=columns)
 
-    def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None, append=False):
+    def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None, mode='NEW'):
+        """
+        Exports annotations from the given layer to a separate table.
+        
+        At minimum, the exported layer table has the following columns:
+        * id -- annotation id (unique in the whole collection);
+        * text_id -- text's id in the collection;
+        * span_nr -- span's index in the layer;
+        * span_start -- span's start index in the text;
+        * span_end   -- span's end index in the text;
+        Optionally, if attributes is set, then there will be a separate 
+        column for each layer attribute. And if collection_meta is set, 
+        then there will be an additional column for each metadata field.
+        
+        Mode=='APPEND' can be used to append to an existing table. 
+        However, it is responsibility of the user to ensure that the 
+        existing export table has correct structure / columns, and 
+        that the import will not produce any duplicate entries 
+        (technically, you can create duplicates, because there is no 
+         duplicate checking).
+
+        Parameters:
+        
+        :param layer: str
+            Name of the layer to be exported. 
+            Must be an existing layer of this collection.
+        :param attributes: List[str]
+            Attributes of the layer which will be exported.
+            For each attribute, a separate table column will
+            be created.
+        :param collection_meta: List[str]
+            Collection's metadata fields to be exported. 
+            For each metadata field, a separate table column 
+            will be created.
+            Default: None
+        :param table_name: str
+            (Optional) Name for the export table. If not provided,
+            then table name will be formatted as:
+             '{}__{}__export'.format(collection_name, layer_name)
+            Default: None
+        :param progressbar: str
+            Whether the progressbar is used on iteration.
+            Possible values: [None, 'ascii', 'notebook']
+        :param  mode: str
+            If mode=='NEW', then creates a new export table (and
+            throws an expection if the table already exists). 
+            If mode=='APPEND', then appends to an existing table 
+            (and throws an expection if the table does not exist).
+        """
+        if not isinstance(mode, str) or mode.upper() not in ['NEW', 'APPEND']:
+            raise ValueError('(!) Mode {!r} not supported. Use {!r} or {!r}.'.format( method, 'NEW', 'APPEND' ))
+        mode = mode.upper()
+        
         if collection_meta is None:
             collection_meta = []
 
@@ -979,13 +1031,18 @@ class PgCollection:
         # Check for the existence of the table
         create_table = True
         if table_exists(self.storage, table_name):
-            if not append:
+            if mode == 'NEW':
                 raise PgCollectionException( ('Exported layer table {!r} already exists. Please use '+
-                                              'append=True to append to the existing table.').format(table_name) )
+                                              'mode="APPEND" to append to the existing table.').format(table_name) )
             else:
                 logger.info('appending to an existing export table')
                 create_table = False
                 # TODO: check that the old export table has the approriate columns
+        else:
+            if mode == 'APPEND':
+                raise PgCollectionException( ('Exported layer table {!r} does not exist, cannot use '+
+                                              'mode="APPEND". Please use mode="NEW" to create a new '+
+                                              'table.').format(table_name) )
 
         if create_table:
             # Create new table
@@ -1006,7 +1063,7 @@ class PgCollection:
         texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta)
         i = 0
         initial_rows = 0
-        if append:
+        if mode == 'APPEND':
             # Get the number of inserted rows so far
             initial_rows = count_rows(self.storage, table_identifier=table_identifier)
             # Shift id to the last inserted row
