@@ -1069,7 +1069,11 @@ class PgCollection:
             # Shift id to the last inserted row
             i = initial_rows
         with BufferedTableInsert( self.storage.conn, table_identifier, columns=[c[0] for c in columns]) as buffered_inserter:
-            for text_id, text, meta in texts:
+            for entry in texts:
+                if len( collection_meta ) > 0:
+                    text_id, text, meta = entry
+                else: 
+                    text_id, text = entry
                 for span_nr, span in enumerate(text[layer]):
                     for annotation in span.annotations:
                         i += 1
