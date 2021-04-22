@@ -1,13 +1,13 @@
 import os
+import unittest
 from collections import OrderedDict
 
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
-from estnltk.core import PACKAGE_PATH
 from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
 from stanza import Document
 
-MODEL_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources', 'et', 'depparse')
+STANZA_SYNTAX_MODELS_PATH = os.environ.get('STANZA_SYNTAX_MODELS_PATH')
 
 stanza_dict_sentences = {
     'name': 'stanza_syntax',
@@ -266,16 +266,19 @@ stanza_dict_morph_analysis = {
                                 'misc': '_'}]}]}
 
 
+@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
+                   "Environment variable STANZA_SYNTAX_MODELS_PATH is not defined. .")
 def test_stanza_syntax_tagger():
-
     text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
 
     text.tag_layer('sentences')
-    stanza_tagger = StanzaSyntaxTagger(input_type='sentences', depparse_path=os.path.join(MODEL_PATH, 'stanza_depparse.pt'))
+    stanza_tagger = StanzaSyntaxTagger(input_type='sentences',
+                                       depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH, 'stanza_depparse.pt'))
     stanza_tagger.tag(text)
 
     text.tag_layer('morph_analysis')
-    stanza_tagger_ma = StanzaSyntaxTagger(output_layer='stanza_ma', input_type='morph_analysis')
+    stanza_tagger_ma = StanzaSyntaxTagger(output_layer='stanza_ma', input_type='morph_analysis',
+                                          depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH, 'morph_analysis.pt'))
     stanza_tagger_ma.tag(text)
 
     # stanza pipeline (on tokenized unambigous input)
@@ -285,6 +288,9 @@ def test_stanza_syntax_tagger():
     assert stanza_dict_morph_analysis == layer_to_dict(text.stanza_ma), text.stanza_ma.diff(
         dict_to_layer(stanza_dict_morph_analysis))
 
+
+@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
+                   reason="Environment variable STANZA_SYNTAX_MODELS_PATH is not defined. .")
 def test_stanza_ambiguous():
     """Testing randomness on ambigous analysis"""
     text = Text('Vaata kaotatud ja leitud asjade nurgast')
@@ -293,14 +299,14 @@ def test_stanza_ambiguous():
     stanza_tagger_me = StanzaSyntaxTagger(input_type='morph_extended',
                                           input_morph_layer='morph_extended',
                                           output_layer='stanza_me',
-                                          depparse_path=os.path.join(MODEL_PATH, 'morph_extended.pt'))
+                                          depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH, 'morph_extended.pt'))
 
     ambiguous_spans = [i for i, span in enumerate(text.morph_extended) if len(span.annotations) > 1]
 
     assert ambiguous_spans is not None
 
     ambiguous_deprels = [[] for _ in range(len(ambiguous_spans))]
-    
+
     # Tag multiple times to check ambiguous pos-tags
     for i in range(10):
         stanza_tagger_me.tag(text)
