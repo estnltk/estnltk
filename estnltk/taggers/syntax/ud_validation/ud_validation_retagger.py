@@ -85,7 +85,7 @@ def ud_validation_errors(conll_str):
 
     error_lines = list()
     error_messages = list()
-    temp_output = tempfile.NamedTemporaryFile('w+', encoding='utf-8', delete=False)
+    temp_output = tempfile.NamedTemporaryFile('w+', delete=False)
     subprocess.run('python ' + VALIDATION_PATH + '/validate.py --lang et --max-err=0 --level 3 ' + temp_input.name,
                    stderr=temp_output)
     temp_output.seek(0)
@@ -97,7 +97,6 @@ def ud_validation_errors(conll_str):
             if 'upos' not in error:
                 error_lines.append(int(row))
                 error_messages.append(error_message)
-
     temp_output.close()
     os.remove(temp_output.name)
 
