@@ -9,13 +9,15 @@ from estnltk.layer.layer import Layer
 import numpy as np
 
 
-class BertTagger(Tagger):
-    """Tags BERT embeddings."""
+class BertTransformer(Tagger):
+    """Tags BERT embeddings: token/word and sentence."""
 
     def __init__(self, bert_location: str, sentences_layer: str = 'sentences',
                  token_level: bool = True,
-                 output_layer: str = 'bert_embeddings', bert_layers: List[int] = None, method='concatenate'):
+                 output_layers=None, bert_layers: List[int] = None, method='concatenate'):
 
+        if output_layers is None:
+            output_layers = ['bert_word_embeddings', 'bert_sentence_embeddings']
         if bert_layers is None:
             bert_layers = [-4, -3, -2, -1]
         else:
@@ -25,7 +27,9 @@ class BertTagger(Tagger):
                           "is reasonable to choose layers from the last layers, for example [-4, -3, -2, -1]: last 4 " \
                           "layers. "
                     raise Exception(msg)
-        self.conf_param = ('bert_location', 'bert_model', 'tokenizer', 'method', 'token_level', 'bert_layers')
+        self.conf_param = (
+            'bert_location', 'bert_model', 'output_layers', 'tokenizer', 'method', 'token_level', 'bert_layers',
+            'sentence_emb_attributes')
         if bert_location is None:
             msg = "Directory containing BERT model must be specified."
             raise Exception(msg)
@@ -34,22 +38,29 @@ class BertTagger(Tagger):
         if method not in ('concatenate', 'add', 'all'):
             msg = "Method can be 'concatenate', 'add' or 'all'."
             raise Exception(msg)
+        self.output_layers = output_layers
+        self.output_layer = self.output_layers[0]
         self.method = method
-        self.output_layer = output_layer
+
         self.input_layers = [sentences_layer]
 
         self.bert_model = BertModel.from_pretrained(bert_location, output_hidden_states=True)
+
         self.tokenizer = BertTokenizer.from_pretrained(self.bert_location)
 
-        self.output_attributes = ['token', 'bert_embedding']
+        self.output_attributes = ['token', 'bert_token_embedding']
+        self.sentence_emb_attributes = ['sentence', 'bert_sentence_embedding']
 
         self.token_level = token_level
         self.bert_layers = bert_layers
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         sentences_layer = layers[self.input_layers[0]]
-        embeddings_layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
+        embeddings_layer = Layer(name=self.output_layers[0], text_object=text, attributes=self.output_attributes,
                                  ambiguous=True)
+        sentence_embedding_layer = Layer(name=self.output_layers[1], text_object=text,
+                                         attributes=self.sentence_emb_attributes,
+                                         ambiguous=True)
 
         start, i = 0, 0
         word_spans = []
@@ -60,8 +71,12 @@ class BertTagger(Tagger):
                 word_spans.append((word.start, word.end, word.text))
             sent_text = sentence.enclosing_text
 
-            embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, self.method, self.bert_layers)[
-                         1:-1]  # first one is cls token, and last one is sep token
+            embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, self.method, self.bert_layers)
+            sent_embedding = embeddings[0]
+            embeddings = embeddings[1:-1]
+            sent_attributes = {'sentence': sentence.enclosing_text, 'bert_sentence_embedding': sent_embedding}
+            sentence_embedding_layer.add_annotation((sentence.start, sentence.end), **sent_attributes)
+
             tokens = self.tokenizer.tokenize(sent_text)
             assert len(tokens) == len(embeddings)
             if k != 0:  # move the start manually when next sentence starts
@@ -86,14 +101,14 @@ class BertTagger(Tagger):
                     else:
                         embedding = [float(t) for t in token_emb]
 
-                    attributes = {'token': token_init, 'bert_embedding': embedding}
+                    attributes = {'token': token_init, 'bert_token_embedding': embedding}
                     token = token_init.strip()
                     embeddings_layer.add_annotation((start, start + len(token.replace('#', ''))), **attributes)
                     start += len(token.replace('#', ''))  # adding token length to the current pointer
 
                 i += 1  # move the pointer manually
 
-            else:  # annotates full words, adding the token level embeddings together
+            else:  # annotates full words, adding the token level embedding together
                 collected_tokens = []
                 collected_embeddings = []
                 counter = 0
@@ -104,7 +119,7 @@ class BertTagger(Tagger):
                     length = span[1] - span[0]
 
                     if length == len(token_init) or token_init == '[UNK]':  # Full word token or UNK token
-                        attributes = {'token': token_init, 'bert_embedding': token_emb}
+                        attributes = {'token': token_init, 'bert_token_embedding': token_emb}
                         embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                         **attributes)
 
@@ -123,7 +138,8 @@ class BertTagger(Tagger):
                         collected_tokens.append(token_init)
                         counter += len(token_init.replace('#', ''))
 
-                        if counter == span[1] or counter + span[2].count(' ') == span[1]: # check if in the end of the word
+                        if counter == span[1] or counter + span[2].count(' ') == span[
+                            1]:  # check if in the end of the word
                             if self.method == 'all':
                                 embedding = []
                                 for tok_embs in collected_embeddings:
@@ -137,7 +153,7 @@ class BertTagger(Tagger):
                             else:
                                 embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
 
-                            attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                            attributes = {'token': collected_tokens, 'bert_token_embedding': embedding}
                             embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                             **attributes)
                             collected_embeddings = []
@@ -147,6 +163,7 @@ class BertTagger(Tagger):
                             if len(word_spans) > i:
                                 counter = word_spans[i][0]
 
+        text.add_layer(sentence_embedding_layer)
         return embeddings_layer
 
 
@@ -196,3 +213,4 @@ def get_embeddings(sentence: str, model, tokenizer, method, bert_layers):
                 token_vecs_cat.append(layers)
 
     return token_vecs_cat
+
