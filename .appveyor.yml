@@ -20,6 +20,14 @@ environment:
       PYTHON_VERSION: 3.6
       CONDA: "C:\\Miniconda36-x64"
 
+    - TARGET_ARCH: "x64"
+      PYTHON_VERSION: 3.7
+      CONDA: "C:\\Miniconda37-x64"
+      
+    - TARGET_ARCH: "x64"
+      PYTHON_VERSION: 3.8
+      CONDA: "C:\\Miniconda38-x64"
+
 version: '{build}'
 image: Visual Studio 2019
 
@@ -58,7 +66,7 @@ install:
     - conda update -q conda
 
     # Install build tools
-    - conda install conda-build anaconda-client swig cython
+    - conda install conda-build conda-verify anaconda-client swig cython
     - conda update conda-build
 
     # Show conda info for debugging
@@ -82,7 +90,7 @@ on_success:
     # Based on: https://github.com/astropy/conda-build-tools/blob/master/appveyor.yml 
     # Write the output file location to a file...cannot simply use conda build --output
     # because astropy_helpers prints out a message when it is freezing the version number during setup.
-    - python -c "from conda_build.api import get_output_file_paths; p=get_output_file_paths('conda-recipe/windows')[0]; f=open('to_upload.txt', 'w');f.write(p)"
+    - python -c "from conda_build.api import get_output_file_paths; p=get_output_file_paths('conda-recipe/windows')[0]; f=open('to_upload.txt', 'w');f.write(p);f.close()"
     # ...so that we can set a variable to the name of that output file.
     - set /P BUILT_PACKAGE=<to_upload.txt
     - echo %BUILT_PACKAGE%
