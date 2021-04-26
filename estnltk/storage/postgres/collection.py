@@ -973,7 +973,7 @@ class PgCollection:
         Mode=='APPEND' can be used to append to an existing table. 
         However, it is responsibility of the user to ensure that the 
         existing export table has correct structure / columns, and 
-        that the import will not produce any duplicate entries 
+        that the export will not produce any duplicate entries 
         (technically, you can create duplicates, because there is no 
          duplicate checking).
 
@@ -997,13 +997,15 @@ class PgCollection:
              '{}__{}__export'.format(collection_name, layer_name)
             Default: None
         :param progressbar: str
-            Whether the progressbar is used on iteration.
+            (Optional) Whether the progressbar is used on iteration.
             Possible values: [None, 'ascii', 'notebook']
+            Default: None
         :param  mode: str
             If mode=='NEW', then creates a new export table (and
             throws an expection if the table already exists). 
             If mode=='APPEND', then appends to an existing table 
             (and throws an expection if the table does not exist).
+            Default: 'NEW'
         """
         if not isinstance(mode, str) or mode.upper() not in ['NEW', 'APPEND']:
             raise ValueError('(!) Mode {!r} not supported. Use {!r} or {!r}.'.format( mode, 'NEW', 'APPEND' ))
