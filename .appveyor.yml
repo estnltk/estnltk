@@ -79,7 +79,7 @@ artifacts:
   - path: 'conda-bld\win-*\*.tar.bz2'
 
 on_success:
-    # Based on: https://github.com/astropy/conda-build-tools/blob/master/appveyor.yml
+    # Based on: https://github.com/astropy/conda-build-tools/blob/master/appveyor.yml 
     # Write the output file location to a file...cannot simply use conda build --output
     # because astropy_helpers prints out a message when it is freezing the version number during setup.
     - python -c "from conda_build.api import get_output_file_paths; p=get_output_file_paths('conda-recipe/windows')[0]; f=open('to_upload.txt', 'w');f.write(p)"
