@@ -62,15 +62,12 @@ class BertTransformer(Tagger):
                                          attributes=self.sentence_emb_attributes,
                                          ambiguous=True)
 
-        start, i = 0, 0
-        word_spans = []
-
         for k, sentence in enumerate(sentences_layer):
-
+            word_spans = []
             for word in sentence:
                 word_spans.append((word.start, word.end, word.text))
             sent_text = sentence.enclosing_text
-
+            start, i, end, word_span, word = word_spans[0][0], 0, word_spans[0][1], word_spans[0], word_spans[0][2]
             embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, self.method, self.bert_layers)
             sent_embedding = embeddings[0]
             embeddings = embeddings[1:-1]
@@ -83,14 +80,10 @@ class BertTransformer(Tagger):
                 start = word_spans[i][0]
 
             if self.token_level:  # annotates tokens
+
                 for j, packed in enumerate(zip(embeddings, tokens)):
                     token_emb, token_init = packed[0], packed[1]
 
-                    if not token_init.startswith("#") and j != 0:  # move to next word
-                        if start == word_spans[i][1]:  # BERT's wordpiece tokenizer can tokenize differently
-                            i += 1  # next word starts
-                            word_span = word_spans[i]
-                            start = word_span[0]  # the start id of this word
                     if self.method == 'all':
                         embedding = []
                         for tok_emb in token_emb:
@@ -102,27 +95,44 @@ class BertTransformer(Tagger):
                         embedding = [float(t) for t in token_emb]
 
                     attributes = {'token': token_init, 'bert_token_embedding': embedding}
-                    token = token_init.strip()
-                    embeddings_layer.add_annotation((start, start + len(token.replace('#', ''))), **attributes)
-                    start += len(token.replace('#', ''))  # adding token length to the current pointer
 
-                i += 1  # move the pointer manually
+                    if token_init == '[UNK]':
+                        token_end = end
+                    else:
+                        token = token_init.strip()
+                        token_end = start + len(token.replace('#', ''))
+                        word = word.replace(token.replace('#', ''), '', 1)
+
+                    if len(word) != 0:
+                        if word[0] == ' ' and end > token_end + 1:  # check if is multiword
+                            token_end += 1
+                            word = word[1:]
+                    embeddings_layer.add_annotation((start, token_end), **attributes)
+                    start = token_end  # adding token length to the current pointer
+                    if start == end:  # new word starts
+                        i += 1
+                        if len(word_spans) > i:
+                            word_span = word_spans[i]
+                            start = word_span[0]
+                            end = word_span[1]
+                            word = word_span[2]
 
             else:  # annotates full words, adding the token level embedding together
                 collected_tokens = []
                 collected_embeddings = []
-                counter = 0
+                counter = word_spans[0][0]
 
                 for j, packed in enumerate(zip(embeddings, tokens)):
                     token_emb, token_init = packed[0], packed[1]
                     span = word_spans[i]
                     length = span[1] - span[0]
 
-                    if length == len(token_init) or token_init == '[UNK]':  # Full word token or UNK token
+                    if length == len(
+                            token_init.replace('#', '')) or token_init == '[UNK]':  # Full word token or UNK token
                         attributes = {'token': token_init, 'bert_token_embedding': token_emb}
                         embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                         **attributes)
-
+                        collected_tokens, collected_embeddings = [], []
                         i += 1
                         if len(word_spans) > i:
                             counter = word_spans[i][0]
@@ -131,9 +141,11 @@ class BertTransformer(Tagger):
                         collected_embeddings.append(token_emb)
                         collected_tokens.append(token_init)
                         counter += len(token_init)
-                    elif (length > len(token_init) and token_init.startswith('#') and counter > span[0]) or (
-                            length > len(token_init) and not token_init.startswith('#') and counter > span[
-                        0]):  # in the middle
+                    elif (length > len(token_init.replace('#', '')) and token_init.startswith('#') and counter > span[
+                        0]) or (
+                            length > len(token_init.replace('#', '')) and not token_init.startswith('#') and counter >
+                            span[
+                                0]):  # in the middle
                         collected_embeddings.append(token_emb)
                         collected_tokens.append(token_init)
                         counter += len(token_init.replace('#', ''))
@@ -152,7 +164,6 @@ class BertTransformer(Tagger):
                                     embedding.append(token_embs)
                             else:
                                 embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
-
                             attributes = {'token': collected_tokens, 'bert_token_embedding': embedding}
                             embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                             **attributes)
@@ -213,4 +224,3 @@ def get_embeddings(sentence: str, model, tokenizer, method, bert_layers):
                 token_vecs_cat.append(layers)
 
     return token_vecs_cat
-
