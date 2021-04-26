@@ -61,7 +61,7 @@ build: false
 
 test_script:
   # Build the package
-  - conda build -c conda-forge --py $PYTHON_VERSION conda-recipe/windows"
+  - conda build -c conda-forge --py %PYTHON_VERSION% conda-recipe/windows
 
 after_test:
   # Copy the conda build to the home dir, such that it can be registered as an artifact
