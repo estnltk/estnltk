@@ -48,8 +48,6 @@ init:
   - ps: Write-Host $Env:APPVEYOR_REPO_NAME
 
 install:
-    # Make sure the compiler is accessible
-    - '"%VS140COMNTOOLS%\..\..\VC\vcvarsall.bat" %PLATFORM%'
     # Set up the build/compiler/linker environment
     # based on: https://help.appveyor.com/discussions/problems/28883-link-fatal-error-lnk1158-cannot-run-rcexe
     - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64 8.1
