@@ -1,4 +1,4 @@
-# Test EstNLTK Appveyor building
+# Test building EstNLTK with Appveyor
 # Based on examples: 
 #     https://github.com/theochem/python-cython-ci-example/blob/master/.appveyor.yml 
 #     https://github.com/jjhelmus/appveyor-build-conda-pyart/blob/master/appveyor.yml 
@@ -30,9 +30,6 @@ environment:
 
 version: '{build}'
 image: Visual Studio 2019
-
-# For testing only...
-#skip_non_tags: true
 
 matrix:
   # Immediately finish build once one of the jobs fails.
@@ -88,8 +85,7 @@ artifacts:
 
 on_success:
     # Based on: https://github.com/astropy/conda-build-tools/blob/master/appveyor.yml 
-    # Write the output file location to a file...cannot simply use conda build --output
-    # because astropy_helpers prints out a message when it is freezing the version number during setup.
+    # Write the output file location to a file...
     - python -c "from conda_build.api import get_output_file_paths; p=get_output_file_paths('conda-recipe/windows')[0]; f=open('to_upload.txt', 'w');f.write(p);f.close()"
     # ...so that we can set a variable to the name of that output file.
     - set /P BUILT_PACKAGE=<to_upload.txt
