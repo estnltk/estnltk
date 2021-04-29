@@ -47,8 +47,9 @@ class NerTrainer(object):
         model_dir: str
             A directory where the model will be saved.
         """
-        assert not os.path.samefile(model_dir, DEFAULT_PY3_NER_MODEL_DIR), \
-                   '(!) Error: Do not overwrite the default NER model.'
+        if os.path.exists(model_dir):
+            assert not os.path.samefile(model_dir, DEFAULT_PY3_NER_MODEL_DIR), \
+                       '(!) Error: Do not overwrite the default NER model.'
         modelUtil = ModelStorageUtil(model_dir)
         modelUtil.makedir()
         modelUtil.copy_settings(self.settings)
