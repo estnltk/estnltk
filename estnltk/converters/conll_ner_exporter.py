@@ -4,7 +4,7 @@ from collections import OrderedDict
 from estnltk import Text, Layer
 
 
-def ner_labelling_to_conll(text: Text, ner_layer: Layer) -> str:
+def ner_labelling_to_conll(text: Text, ner_layer: Layer, merge_pos_and_form: bool=True) -> str:
     """
     Converts the provided Text object and NER-layer into CONLL-format.
     The converted string includes all words in the text with necessary attributes (lemma, POS-tag, form, NER-tag).
@@ -15,8 +15,13 @@ def ner_labelling_to_conll(text: Text, ner_layer: Layer) -> str:
     ----------
     text: EstNLTK Text object
         The text that is converted to CONLL-format
-    ner_layer:
+    ner_layer: Layer
         The layer with NER labels. Layer must include tags for all words in the text (wordner layer)
+    merge_pos_and_form: boolean
+        If True, then POS-tag and form attributes will be joined into one attribute, so that the 
+        export format is compatible with the import format. Otherwise, POS-tag and form will be 
+        separate attributes.
+        (Default: True)
     Returns
     -------
     String in CONLL-format.
@@ -35,13 +40,18 @@ def ner_labelling_to_conll(text: Text, ner_layer: Layer) -> str:
         if postag == 'Z':
             lemma = root[i][0]
             nertag += '\n'
-        token = OrderedDict([('word', t[i][0]),
-                             ('lemma', lemma),
-                             ('partofspeech', '_{}_'.format(pos[i][0])),
-                             ('form', form[i][0]),
-                             ('nertag', nertag)])
-
-        tokens.append(token)
+        if merge_pos_and_form:
+            fields = [('word', t[i][0]),
+                      ('lemma', lemma),
+                      ('partofspeech_and_form', '_{}_ {}'.format(pos[i][0], form[i][0])),
+                      ('nertag', nertag)]
+        else:
+            fields = [('word', t[i][0]),
+                      ('lemma', lemma),
+                      ('partofspeech', '_{}_'.format(pos[i][0])),
+                      ('form', form[i][0]),
+                      ('nertag', nertag)]
+        tokens.append( OrderedDict( fields ) )
 
     result = TokenList(tokens).serialize()
     return result.replace('=|', '|').replace('=\t', '\t')
