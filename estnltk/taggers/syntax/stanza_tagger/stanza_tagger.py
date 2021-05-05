@@ -140,9 +140,6 @@ class StanzaSyntaxTagger(Tagger):
                     if annotation['form']:
                         feats = annotation['form']
 
-                    if self.input_type == 'morph_extended':
-                        feats = attributes_to_feats(feats, annotation)
-
                     if not feats:
                         feats = '_'
 
@@ -204,39 +201,6 @@ class StanzaSyntaxTagger(Tagger):
             self.agreement_error_retagger.change_layer(text, {self.output_layer: layer})
 
         return layer
-
-
-def add_punctuation_type(feats, annotation):
-    """ Adds value of `punctuation_type` field to feats """
-    if not annotation['punctuation_type']:
-        return feats
-    return feats + ' ' + annotation['punctuation_type']
-
-
-def add_pronoun_type(feats, annotation):
-    """ Adds values of `pronoun_type` field to feats. In case of personal pronoun, adds keyword 'pers' """
-    if not annotation['pronoun_type']:
-        return feats
-    pron_type = annotation['pronoun_type']
-    if 'ps1' in pron_type or 'ps2' in pron_type or 'ps3' in pron_type:
-        feats += ' pers'
-    if isinstance(annotation['pronoun_type'], str):
-        return feats + ' ' + annotation['pronoun_type']
-    for pron in annotation['pronoun_type']:
-        feats += ' ' + pron
-    return feats
-
-
-def attributes_to_feats(feats, annotation):
-    """Making input more similar to experiment models' input.
-    {'sup', 'Grt', 'ger', 'roman', 'partic', 'inf', 'digit'} are not used by VislTagger
-    but are used in morph_extended layer, so they are kept.
-    """
-    feats = add_pronoun_type(feats, annotation)
-    feats = add_punctuation_type(feats, annotation)
-    feats = feats.replace('_', '')
-    feats = feats.replace('<?>', '')
-    return feats.replace('invalid', '')
 
 
 def feats_to_ordereddict(feats_str):
