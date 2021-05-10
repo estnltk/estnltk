@@ -70,8 +70,13 @@ class BertTransformer(Tagger):
             start, i, end, word_span, word = word_spans[0][0], 0, word_spans[0][1], word_spans[0], word_spans[0][2]
             embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, self.method, self.bert_layers)
             sent_embedding = embeddings[0]
+            if self.method == 'all':
+                embedding = [[float(e) for e in le] for le in sent_embedding]
+            else:
+                embedding = [float(e) for e in sent_embedding]
+
             embeddings = embeddings[1:-1]
-            sent_attributes = {'sentence': sentence.enclosing_text, 'bert_sentence_embedding': sent_embedding}
+            sent_attributes = {'sentence': sentence.enclosing_text, 'bert_sentence_embedding': embedding}
             sentence_embedding_layer.add_annotation((sentence.start, sentence.end), **sent_attributes)
 
             tokens = self.tokenizer.tokenize(sent_text)
@@ -121,7 +126,6 @@ class BertTransformer(Tagger):
                 collected_tokens = []
                 collected_embeddings = []
                 counter = word_spans[0][0]
-
                 for j, packed in enumerate(zip(embeddings, tokens)):
                     token_emb, token_init = packed[0], packed[1]
                     span = word_spans[i]
@@ -129,7 +133,12 @@ class BertTransformer(Tagger):
 
                     if length == len(
                             token_init.replace('#', '')) or token_init == '[UNK]':  # Full word token or UNK token
-                        attributes = {'token': token_init, 'bert_token_embedding': token_emb}
+                        if self.method == 'all':
+                            embedding = [[float(e) for e in le] for le in token_emb]
+                        else:
+                            embedding = [float(e) for e in token_emb]
+
+                        attributes = {'token': token_init, 'bert_token_embedding': embedding}
                         embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                         **attributes)
                         collected_tokens, collected_embeddings = [], []

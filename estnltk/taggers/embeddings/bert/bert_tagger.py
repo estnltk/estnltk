@@ -117,8 +117,12 @@ class BertTagger(Tagger):
 
                     if length == len(
                             token_init.replace('#', '')) or token_init == '[UNK]':  # Full word token or UNK token
-                        attributes = {'token': token_init, 'bert_embedding': token_emb}
 
+                        if self.method == 'all':
+                            embedding = [[float(e) for e in le] for le in token_emb]
+                        else:
+                            embedding = [float(e) for e in token_emb]
+                        attributes = {'token': token_init, 'bert_embedding': embedding}
                         embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
                                                         **attributes)
                         collected_tokens, collected_embeddings = [], []
