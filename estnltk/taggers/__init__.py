@@ -95,3 +95,5 @@ from estnltk.taggers.web_taggers.v01.web_tagger import WebTagger
 from estnltk.taggers.web_taggers.v01.bert_embeddings_web_tagger import BertEmbeddingsWebTagger
 from estnltk.taggers.web_taggers.v01.softmax_emb_tag_sum_web_tagger import SoftmaxEmbTagSumWebTagger
 from estnltk.taggers.web_taggers.v01.vabamorf_web_tagger import VabamorfWebTagger
+from estnltk.taggers.web_taggers.v01.stanza_syntax_web_tagger import StanzaSyntaxWebTagger
+from estnltk.taggers.web_taggers.v01.stanza_syntax_ensemble_web_tagger import StanzaSyntaxEnsembleWebTagger
