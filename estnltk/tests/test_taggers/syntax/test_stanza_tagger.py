@@ -268,7 +268,7 @@ stanza_dict_morph_analysis = {
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
                    "Environment variable STANZA_SYNTAX_MODELS_PATH is not defined. .")
-def test_stanza_syntax_tagger():
+def test_stanza_syntax_tagger_sentences():
     text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
 
     text.tag_layer('sentences')
@@ -276,23 +276,30 @@ def test_stanza_syntax_tagger():
                                        depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH, 'stanza_depparse.pt'))
     stanza_tagger.tag(text)
 
-    text.tag_layer('morph_analysis')
+    # stanza pipeline (on tokenized unambigous input)
+    assert stanza_dict_sentences == layer_to_dict(text.stanza_syntax), text.stanza_syntax.diff(
+        dict_to_layer(stanza_dict_sentences))
+
+
+@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
+                   "Environment variable STANZA_SYNTAX_MODELS_PATH is not defined. .")
+def test_stanza_syntax_tagger_analysis():
+    text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
+
+    text.tag_layer(['sentences', 'morph_analysis'])
     stanza_tagger_ma = StanzaSyntaxTagger(output_layer='stanza_ma', input_type='morph_analysis',
                                           depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH, 'morph_analysis.pt'))
     stanza_tagger_ma.tag(text)
 
     # stanza pipeline (on tokenized unambigous input)
-    assert stanza_dict_sentences == layer_to_dict(text.stanza_syntax), text.stanza_syntax.diff(
-        dict_to_layer(stanza_dict_sentences))
-
     assert stanza_dict_morph_analysis == layer_to_dict(text.stanza_ma), text.stanza_ma.diff(
         dict_to_layer(stanza_dict_morph_analysis))
 
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
-                   reason="Environment variable STANZA_SYNTAX_MODELS_PATH is not defined. .")
+                   reason="Environment variable STANZA_SYNTAX_MODELS_PATH is not defined.")
 def test_stanza_ambiguous():
-    """Testing randomness on ambigous analysis"""
+    """Testing seed on ambigous analysis"""
     text = Text('Vaata kaotatud ja leitud asjade nurgast')
 
     text.tag_layer('morph_extended')
@@ -314,4 +321,4 @@ def test_stanza_ambiguous():
             ambiguous_deprels[idx].append(text.stanza_me[ambiguous_i].upostag)
         text.pop_layer('stanza_me')
 
-    assert any([True if len(set(ambiguous)) > 1 else False for ambiguous in ambiguous_deprels])
+    assert not any([True if len(set(ambiguous)) > 1 else False for ambiguous in ambiguous_deprels])
