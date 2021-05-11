@@ -1,6 +1,6 @@
 import os
-import random
 from collections import OrderedDict
+from random import Random
 
 import stanza
 from estnltk.core import PACKAGE_PATH
@@ -94,10 +94,17 @@ class StanzaSyntaxTagger(Tagger):
             if input_type == 'sentences':
                 self.model_path = os.path.join(RESOURCES, 'et', 'depparse', 'stanza_depparse.pt')
 
-        if not os.path.isfile(self.model_path) or not os.path.isfile(os.path.join(RESOURCES, 'et', 'pretrain', 'edt.pt')):
+        if not os.path.isfile(self.model_path):
             raise FileNotFoundError('Necessary models missing, download from https://entu.keeleressursid.ee/public-document/entity-9791 '
                              'and extract folders `depparse` and `pretrain` to root directory defining '
                              'StanzaSyntaxTagger under the subdirectory `stanza_resources/et`')
+
+        if input_type == 'sentences':
+            if not os.path.isfile(os.path.join(RESOURCES, 'et', 'pretrain', 'edt.pt')):
+                raise FileNotFoundError(
+                    'Necessary pretrain model missing, download from https://entu.keeleressursid.ee/public-document/entity-9791 '
+                    'and extract folder `pretrain` to root directory defining '
+                    'StanzaSyntaxTagger under the subdirectory `stanza_resources/et`')
 
         if self.input_type == 'sentences':
             self.input_layers = [sentences_layer, words_layer]
@@ -119,6 +126,8 @@ class StanzaSyntaxTagger(Tagger):
                                        logging_level='WARN')
 
     def _make_layer(self, text, layers, status=None):
+        rand = Random()
+        rand.seed(4)
 
         if self.input_type in ['morph_analysis', 'morph_extended']:
 
@@ -130,7 +139,7 @@ class StanzaSyntaxTagger(Tagger):
 
                 # TODO Replace sentence.__getattr__ with appropriate code
                 for i, span in enumerate(sentence.__getattr__(self.input_layers[1])):
-                    annotation = random.choice(span.annotations)
+                    annotation = rand.choice(span.annotations)
                     id = i + 1
                     wordform = span.text
                     lemma = annotation['lemma']
