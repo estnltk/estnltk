@@ -4,6 +4,8 @@ from estnltk.text import Text
 from estnltk.layer.layer import Layer
 from estnltk.taggers import WebTagger
 
+from estnltk.taggers.web_taggers.v01.web_tagger import WebTaggerRequestTooLargeError
+
 class StanzaSyntaxEnsembleWebTagger(WebTagger):
     """Tags dependency syntactic analysis using EstNLTK StanzaSyntaxEnsembleTagger's webservice.
 
@@ -19,5 +21,14 @@ class StanzaSyntaxEnsembleWebTagger(WebTagger):
         self.input_layers = ['sentences', 'morph_extended', 'words']
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
+        # Check the Text object size
+        # Currently, the size limit is set to 125 words
+        number_of_words = len([w for sentence in layers['sentences'] for w in sentence])
+        if number_of_words > 125:
+            raise WebTaggerRequestTooLargeError('(!) The request Text object exceeds the web service '+\
+            'limit 125 words per text. Please use EstNLTK\'s methods extract_sections or split_by to split '+\
+            'the Text object into smaller Texts, and proceed by processing smaller Texts with the web service. '+\
+            'More information about Text splitting: '+
+            'https://github.com/estnltk/estnltk/blob/version_1.6/tutorials/system/layer_operations.ipynb ')
         return super()._make_layer(text, layers, status)
 
