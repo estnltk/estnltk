@@ -4,8 +4,7 @@ from estnltk.text import Text
 from estnltk.layer.layer import Layer
 from estnltk.taggers import WebTagger
 
-class BertEmbeddingsRequestTooLarge(Exception):
-    pass
+from estnltk.taggers.web_taggers.v01.web_tagger import WebTaggerRequestTooLargeError
 
 class BertEmbeddingsWebTagger(WebTagger):
     """Tags BERT embeddings using EstNLTK web service.
@@ -25,7 +24,7 @@ class BertEmbeddingsWebTagger(WebTagger):
         # in Bert embedding sizes up to 20 MB (by a very rough estimation)
         number_of_words = len([w for sentence in layers['sentences'] for w in sentence])
         if number_of_words > 150:
-            raise BertEmbeddingsRequestTooLarge('(!) The request Text object exceeds the web service '+\
+            raise WebTaggerRequestTooLargeError('(!) The request Text object exceeds the web service '+\
             'limit 150 words per text. Please use EstNLTK\'s methods extract_sections or split_by to split '+\
             'the Text object into smaller Texts, and proceed by processing smaller Texts with the web service. '+\
             'More information about Text splitting: '+

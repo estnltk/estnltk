@@ -7,6 +7,10 @@ from estnltk.layer.layer import Layer
 from estnltk.converters import layers_to_json, dict_to_layer
 
 
+class WebTaggerRequestTooLargeError(Exception):
+    pass
+
+
 class Status:
     CONNECTION_ERROR = 'Webservice unreachable'
     OK = 'OK'
@@ -25,6 +29,7 @@ class WebTagger(Tagger):
             'output_layer': self.output_layer
         }
         resp = requests.post(self.url, json=data)
+        resp.raise_for_status()
         resp_json = resp.json()
         layer = dict_to_layer(resp_json, text)
         return layer
