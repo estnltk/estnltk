@@ -199,6 +199,31 @@ class Wordnet:
         for row in synset_entries:
             yield Synset(self, row)
 
+    def find_synset_by_name(self, synset_name: str):
+        """Finds Synset object by its name.
+
+        Parameters
+        ----------
+        synset_name: str
+          Format of the name must be: '{literal}.{pos}.{sense_index:%02d}'
+          Possible pos tags are: 'n' for noun, 'v' for verb, 'a' for adjective and 'r' for adverb.
+
+        Returns
+        ------
+        Synset object corresponding to the name, or None, if the object could not be found.
+        """
+        target_lemma = []
+        for c in synset_name:
+            if c == '.':
+                break
+            target_lemma.append( c )
+        target_lemma = ''.join( target_lemma )
+        if target_lemma:
+            for synset in self[target_lemma]:
+                if synset.name == synset_name:
+                    return synset
+        return None
+
     def _min_depth(self, synset) -> int:
         """Finds minimum path length from the root.
         Notes
