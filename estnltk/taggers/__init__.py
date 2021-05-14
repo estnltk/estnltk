@@ -64,6 +64,7 @@ from estnltk.taggers.miscellaneous.flesch_tagger import SentenceFleschScoreRetag
 from estnltk.taggers.verb_chains import VerbChainDetector
 
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
+from estnltk.taggers.text_segmentation.token_splitter import TokenSplitter
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger
 from estnltk.taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer
 from estnltk.taggers.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
