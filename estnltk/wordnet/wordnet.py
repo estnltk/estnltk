@@ -199,7 +199,7 @@ class Wordnet:
         for row in synset_entries:
             yield Synset(self, row)
 
-    def find_synset_by_name(self, synset_name: str):
+    def get_synset_by_name(self, synset_name: str):
         """Finds Synset object by its name.
 
         Parameters
