@@ -1,6 +1,6 @@
 #
-#  TokenSplitter tokens into smaller tokens based on regular 
-#  expression patterns. 
+#  TokenSplitter splits tokens into smaller tokens based on 
+#  regular expression patterns. 
 #  This is an optional tool that can be used to improve the 
 #  splitting results of the TokensTagger.
 # 
@@ -29,11 +29,18 @@ class TokenSplitter( Retagger ):
         Parameters
         ----------
         patterns: List[re.Pattern]
-            ...
+            A list of precompiled regular expression Patterns that 
+            describe locations inside tokens where splits should
+            be made. 
+            Each pattern must contain a named group (break_group_name), 
+            which marks a substring in the token after which the token 
+            will be split into two pieces. 
         output_layer: str (default: 'tokens')
             Name of the layer which contains tokenization results;
         break_group_name: str (default: 'end')
-            ...
+            Name of the group (in Patterns) which marks a place in 
+            the token string after which the token will be split 
+            into two pieces. Defaults to 'end'.
         """
         # Set input/output layers
         self.output_layer = output_layer
