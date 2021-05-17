@@ -17,7 +17,7 @@ class StanzaSyntaxWebTagger(WebTagger):
         self.url = url
         self.output_layer = output_layer
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
-        self.input_layers = ['words', 'sentences', 'morph_analysis', 'morph_extended']
+        self.input_layers = ['words', 'sentences', 'morph_extended']
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         # Check the Text object size
