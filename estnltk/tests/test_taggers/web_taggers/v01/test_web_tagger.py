@@ -1,3 +1,4 @@
+import pytest
 import json
 from estnltk import Text, Layer
 from estnltk.converters import layer_to_dict
@@ -18,6 +19,7 @@ class MyTestWebTagger(WebTagger):
         self.param_2 = param_2
 
 
+@pytest.fixture(scope="session")
 def test_web_tagger(httpserver):
     layer_dict = {
         'name': 'my_test',

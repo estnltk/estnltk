@@ -1,8 +1,9 @@
+import pytest
 from estnltk import Text
 from estnltk.converters import layer_to_dict
 from estnltk.taggers import VabamorfWebTagger
 
-
+@pytest.fixture(scope="session")
 def test_vabamorph_web_tagger(httpserver):
     layer_dict = {
         'name': 'morph_analysis',

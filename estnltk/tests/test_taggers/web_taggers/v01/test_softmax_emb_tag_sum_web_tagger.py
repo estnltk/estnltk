@@ -1,8 +1,9 @@
+import pytest
 from estnltk import Text
 from estnltk.converters import layer_to_dict
 from estnltk.taggers import SoftmaxEmbTagSumWebTagger
 
-
+@pytest.fixture(scope="session")
 def test_softmax_emb_tag_sum_web_tagger(httpserver):
     layer_dict = {
         'name': 'softmax_emb_tag_sum',
