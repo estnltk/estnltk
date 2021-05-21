@@ -34,13 +34,13 @@ ENV PATH=/udpipe-1.2.0-bin/bin-linux64:${PATH}
 #
 # Get & install dependency: libhfst
 #
-RUN wget -nv http://apertium.projectjj.com/apt/release/pool/main/h/hfst/libhfst53_3.15.3-1~bionic1_amd64.deb
-RUN apt install -y ./libhfst53_3.15.3-1~bionic1_amd64.deb
+RUN wget -nv http://apertium.projectjj.com/apt/release/pool/main/h/hfst/libhfst53_3.15.4-1~bionic1_amd64.deb
+RUN apt install -y ./libhfst53_3.15.4-1~bionic1_amd64.deb
 #
 # Get & install hfst command line tools
 #
-RUN wget -nv http://apertium.projectjj.com/apt/release/pool/main/h/hfst/hfst_3.15.3-1~bionic1_amd64.deb
-RUN apt install -y ./hfst_3.15.3-1~bionic1_amd64.deb
+RUN wget -nv http://apertium.projectjj.com/apt/release/pool/main/h/hfst/hfst_3.15.4-1~bionic1_amd64.deb
+RUN apt install -y ./hfst_3.15.4-1~bionic1_amd64.deb
 #
 # Check that command line tool is available
 #
@@ -66,14 +66,14 @@ RUN conda config --set always_yes yes && \
 RUN git clone --depth=25 --branch=devel_1.6 https://github.com/estnltk/estnltk.git estnltk_devel
 
 # ================================
-#   Python 3.6
+#   Python 3.7
 # ================================
-RUN echo " Python 3.6 " | figlet 
-RUN conda create -n py36 python=3.6
+RUN echo " Python 3.7 " | figlet 
+RUN conda create -n py37 python=3.7
 #
 # Make RUN commands use the new environment (https://pythonspeed.com/articles/activate-conda-dockerfile/)
 #
-SHELL ["conda", "run", "-n", "py36", "/bin/bash", "-c"]
+SHELL ["conda", "run", "-n", "py37", "/bin/bash", "-c"]
 RUN python --version
 #
 # Install packages required for testing
