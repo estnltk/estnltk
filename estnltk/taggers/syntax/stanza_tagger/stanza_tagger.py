@@ -2,14 +2,12 @@ import os
 from collections import OrderedDict
 from random import Random
 
-import stanza
 from estnltk.core import PACKAGE_PATH
 from estnltk.layer.layer import Layer
 from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
 from estnltk.taggers.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 from estnltk.taggers.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
 from estnltk.taggers.tagger import Tagger
-from stanza.models.common.doc import Document
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
 
@@ -54,6 +52,8 @@ class StanzaSyntaxTagger(Tagger):
                  mark_agreement_error=False,
                  use_gpu=False
                  ):
+        # Make an internal import to avoid explicit stanza dependency
+        import stanza
 
         self.add_parent_and_children = add_parent_and_children
         self.mark_syntax_error = mark_syntax_error
@@ -126,6 +126,9 @@ class StanzaSyntaxTagger(Tagger):
                                        logging_level='WARN')
 
     def _make_layer(self, text, layers, status=None):
+        # Make an internal import to avoid explicit stanza dependency
+        from stanza.models.common.doc import Document
+        
         rand = Random()
         rand.seed(4)
 

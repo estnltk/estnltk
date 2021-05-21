@@ -4,7 +4,6 @@ from decimal import Decimal, getcontext
 from random import Random
 from typing import Tuple
 
-import stanza
 from estnltk.core import PACKAGE_PATH
 from estnltk.layer.layer import Layer
 from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import feats_to_ordereddict
@@ -12,7 +11,6 @@ from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRe
 from estnltk.taggers.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 from estnltk.taggers.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
 from estnltk.taggers.tagger import Tagger
-from stanza import Document
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
 
@@ -56,6 +54,8 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                  use_gpu: bool = False,
                  dir=RESOURCES
                  ):
+        # Make an internal import to avoid explicit stanza dependency
+        import stanza
 
         self.output_layer = output_layer
         self.remove_fields = remove_fields
@@ -107,7 +107,9 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                 self.output_attributes += ('agreement_deprel',)
 
     def _make_layer(self, text, layers, status):
-
+        # Make an internal import to avoid explicit stanza dependency
+        from stanza import Document
+        
         sentences_layer = self.input_layers[0]
         morph_layer = self.input_layers[1]
 
