@@ -124,9 +124,9 @@ setup(
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
         'bs4', # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
-        'html5lib',   # for processing XML files of the Estonian Reference Corpus
-        'lxml',       # required for importing/exporting TCF format data
-        'networkx',   # building graphs: required for layers, WordNet and grammars
+        'html5lib',      # for processing XML files of the Estonian Reference Corpus
+        'lxml',          # required for importing/exporting TCF format data
+        'networkx==2.5', # building graphs: required for layers, WordNet and grammars
         'matplotlib>=3.3.4 ; python_version >  "3.6"', # required for visualizing layer graph (> py36)
         'matplotlib==3.3.4 ; python_version == "3.6"', # required for visualizing layer graph (= py36)
         'matplotlib==3.0.3 ; python_version <  "3.6"', # required for visualizing layer graph (< py36)
