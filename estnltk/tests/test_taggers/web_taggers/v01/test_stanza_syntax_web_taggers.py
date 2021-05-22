@@ -5,7 +5,12 @@ from estnltk.converters import layer_to_dict
 from estnltk.taggers import StanzaSyntaxWebTagger
 from estnltk.taggers import StanzaSyntaxEnsembleWebTagger
 
+# Fix for DeprecationWarning: httpserver_listen_address fixture will be converted to session scope in version 1.0.0
 @pytest.fixture(scope="session")
+def httpserver_listen_address():
+    return ("127.0.0.1", 8000)
+
+
 def test_stanza_syntax_web_tagger(httpserver):
     response_layer_dict = {'ambiguous': False,
                  'attributes': ('id',
@@ -78,7 +83,6 @@ def test_stanza_syntax_web_tagger(httpserver):
     assert layer_to_dict(text.stanza_syntax) == response_layer_dict
 
 
-@pytest.fixture(scope="session")
 def test_stanza_syntax_ensemble_web_tagger(httpserver):
     response_layer_dict = {'ambiguous': False,
                          'attributes': ('id',

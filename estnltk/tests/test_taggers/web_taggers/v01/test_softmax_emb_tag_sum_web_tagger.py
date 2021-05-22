@@ -3,7 +3,12 @@ from estnltk import Text
 from estnltk.converters import layer_to_dict
 from estnltk.taggers import SoftmaxEmbTagSumWebTagger
 
+# Fix for DeprecationWarning: httpserver_listen_address fixture will be converted to session scope in version 1.0.0
 @pytest.fixture(scope="session")
+def httpserver_listen_address():
+    return ("127.0.0.1", 8000)
+
+
 def test_softmax_emb_tag_sum_web_tagger(httpserver):
     layer_dict = {
         'name': 'softmax_emb_tag_sum',

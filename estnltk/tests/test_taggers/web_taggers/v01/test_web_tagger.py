@@ -19,7 +19,12 @@ class MyTestWebTagger(WebTagger):
         self.param_2 = param_2
 
 
+# Fix for DeprecationWarning: httpserver_listen_address fixture will be converted to session scope in version 1.0.0
 @pytest.fixture(scope="session")
+def httpserver_listen_address():
+    return ("127.0.0.1", 8000)
+
+
 def test_web_tagger(httpserver):
     layer_dict = {
         'name': 'my_test',

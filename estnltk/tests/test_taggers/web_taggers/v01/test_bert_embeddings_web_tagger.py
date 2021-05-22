@@ -3,7 +3,12 @@ from estnltk import Text
 from estnltk.converters import layer_to_dict
 from estnltk.taggers import BertEmbeddingsWebTagger
 
+# Fix for DeprecationWarning: httpserver_listen_address fixture will be converted to session scope in version 1.0.0
 @pytest.fixture(scope="session")
+def httpserver_listen_address():
+    return ("127.0.0.1", 8000)
+
+
 def test_vabamorph_web_tagger(httpserver):
     layer_dict = {
         'name': 'bert_embeddings',
