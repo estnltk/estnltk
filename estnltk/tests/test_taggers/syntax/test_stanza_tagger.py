@@ -4,8 +4,13 @@ from collections import OrderedDict
 
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
+from estnltk.core import PACKAGE_PATH
 from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
 
+
+RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
+
+# Variable must follow the structure of stanza_resources as in here:
 STANZA_SYNTAX_MODELS_PATH = os.environ.get('STANZA_SYNTAX_MODELS_PATH')
 
 stanza_dict_sentences = {
@@ -261,7 +266,9 @@ def test_stanza_syntax_tagger_sentences():
 
     text.tag_layer('sentences')
     stanza_tagger = StanzaSyntaxTagger(input_type='sentences',
-                                       depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH, 'stanza_depparse.pt'))
+                                       resources_path=STANZA_SYNTAX_MODELS_PATH,
+                                       depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH,
+                                                                  'et', 'depparse', 'stanza_depparse.pt'))
     stanza_tagger.tag(text)
 
     # stanza pipeline (on tokenized unambigous input)
@@ -276,7 +283,7 @@ def test_stanza_syntax_tagger_analysis():
 
     text.tag_layer(['sentences', 'morph_analysis'])
     stanza_tagger_ma = StanzaSyntaxTagger(output_layer='stanza_ma', input_type='morph_analysis',
-                                          depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH, 'morph_analysis.pt'))
+                                          resources_path=STANZA_SYNTAX_MODELS_PATH)
     stanza_tagger_ma.tag(text)
 
     # stanza pipeline (on tokenized unambigous input)
@@ -294,7 +301,9 @@ def test_stanza_ambiguous():
     stanza_tagger_me = StanzaSyntaxTagger(input_type='morph_extended',
                                           input_morph_layer='morph_extended',
                                           output_layer='stanza_me',
-                                          depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH, 'morph_extended.pt'))
+                                          resources_path=STANZA_SYNTAX_MODELS_PATH,
+                                          depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH, 'et', 'depparse',
+                                                                     'morph_extended.pt'))
 
     ambiguous_spans = [i for i, span in enumerate(text.morph_extended) if len(span.annotations) > 1]
 

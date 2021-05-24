@@ -48,6 +48,7 @@ class StanzaSyntaxTagger(Tagger):
                  input_type='morph_analysis',  # or 'morph_extended', 'sentences'
                  add_parent_and_children=False,
                  depparse_path=None,
+                 resources_path=None,
                  mark_syntax_error=False,
                  mark_agreement_error=False,
                  use_gpu=False
@@ -61,8 +62,12 @@ class StanzaSyntaxTagger(Tagger):
         self.output_layer = output_layer
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.input_type = input_type
-        self.dir = RESOURCES
         self.use_gpu = use_gpu
+
+        if not resources_path:
+            self.dir = RESOURCES
+        else:
+            self.dir = resources_path
 
         if add_parent_and_children:
             self.syntax_dependency_retagger = SyntaxDependencyRetagger(conll_syntax_layer=output_layer)
@@ -88,19 +93,19 @@ class StanzaSyntaxTagger(Tagger):
             self.model_path = depparse_path
         else:
             if input_type == 'morph_analysis':
-                self.model_path = os.path.join(RESOURCES, 'et', 'depparse', 'morph_analysis.pt')
+                self.model_path = os.path.join(self.dir, 'et', 'depparse', 'morph_analysis.pt')
             if input_type == 'morph_extended':
-                self.model_path = os.path.join(RESOURCES, 'et', 'depparse', 'morph_extended.pt')
+                self.model_path = os.path.join(self.dir, 'et', 'depparse', 'morph_extended.pt')
             if input_type == 'sentences':
-                self.model_path = os.path.join(RESOURCES, 'et', 'depparse', 'stanza_depparse.pt')
+                self.model_path = os.path.join(self.dir, 'et', 'depparse', 'stanza_depparse.pt')
 
         if not os.path.isfile(self.model_path):
             raise FileNotFoundError('Necessary models missing, download from https://entu.keeleressursid.ee/public-document/entity-9791 '
                              'and extract folders `depparse` and `pretrain` to root directory defining '
-                             'StanzaSyntaxTagger under the subdirectory `stanza_resources/et`')
+                             'StanzaSyntaxTagger under the subdirectory `stanza_resources/et (or set )`')
 
         if input_type == 'sentences':
-            if not os.path.isfile(os.path.join(RESOURCES, 'et', 'pretrain', 'edt.pt')):
+            if not os.path.isfile(os.path.join(self.dir, 'et', 'pretrain', 'edt.pt')):
                 raise FileNotFoundError(
                     'Necessary pretrain model missing, download from https://entu.keeleressursid.ee/public-document/entity-9791 '
                     'and extract folder `pretrain` to root directory defining '
