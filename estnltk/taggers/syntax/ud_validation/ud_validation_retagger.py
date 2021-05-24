@@ -87,12 +87,13 @@ def ud_validation_errors(conll_str):
     error_messages = list()
 
     cmd = 'python ' + VALIDATION_PATH + '/validate.py --lang et --max-err=0 --level 3 ' + temp_input.name
+
     process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, stderr=subprocess.PIPE,
-                               shell=True)
+                               shell=True, universal_newlines=True)
 
     result, err = process.communicate()
 
-    for line in err.decode().strip().splitlines():
+    for line in err.strip().splitlines():
         finds = re.findall(r"^\[Line ([0-9]+) Node [0-9]+\]: \[L3 Syntax ([^\]]+\]) (.*)$", line)
         for row, error, error_message in finds:
             # Syntax errors concerning UPOS-tags are not of interest as StanzaSyntaxTagger returns
