@@ -5,7 +5,6 @@ from collections import OrderedDict
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
 from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
-#from stanza import Document
 
 STANZA_SYNTAX_MODELS_PATH = os.environ.get('STANZA_SYNTAX_MODELS_PATH')
 
@@ -137,18 +136,6 @@ stanza_dict_sentences = {
                                 'deprel': 'punct',
                                 'deps': '_',
                                 'misc': '_'}]}]}
-
-# TODO: is this required?
-#stanza_morph_analysis_pretagged = Document(
-#    [[{'id': 1, 'text': 'Väike', 'lemma': 'väike', 'upos': 'A', 'xpos': 'A', 'feats': 'sg=sg|n=n'},
-#      {'id': 2, 'text': 'jänes', 'lemma': 'jänes', 'upos': 'S', 'xpos': 'S', 'feats': 'sg=sg|n=n'},
-#      {'id': 3, 'text': 'jooksis', 'lemma': 'jooksma', 'upos': 'V', 'xpos': 'V', 'feats': 's=s'},
-#      {'id': 4, 'text': 'metsa', 'lemma': 'mets', 'upos': 'S', 'xpos': 'S', 'feats': 'adt=adt'},
-#      {'id': 5, 'text': '!', 'lemma': '!', 'upos': 'Z', 'xpos': 'Z', 'feats': '_', }],
-#     [{'id': 1, 'text': 'Mina', 'lemma': 'mina', 'upos': 'P', 'xpos': 'P', 'feats': 'sg=sg|n=n'},
-#      {'id': 2, 'text': 'ei', 'lemma': 'ei', 'upos': 'V', 'xpos': 'V', 'feats': 'neg=neg'},
-#      {'id': 3, 'text': 'jookse', 'lemma': 'jooksma', 'upos': 'V', 'xpos': 'V', 'feats': 'o=o'},
-#      {'id': 4, 'text': '.', 'lemma': '.', 'upos': 'Z', 'xpos': 'Z', 'feats': '_'}]])
 
 stanza_dict_morph_analysis = {
     'name': 'stanza_ma',
