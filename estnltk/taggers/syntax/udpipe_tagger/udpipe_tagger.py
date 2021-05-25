@@ -33,7 +33,7 @@ class UDPipeTagger(Tagger):
     Tags dependency syntactic analysis with UDPipe.
     """
     conf_param = ['model', 'version', 'add_parent_and_children', 'syntax_dependency_retagger',
-                  'udpipe_cmd']
+                  'udpipe_cmd', 'resources_path']
 
     def __init__(self,
                  model=None,
@@ -43,28 +43,38 @@ class UDPipeTagger(Tagger):
                  version='conllx',
                  add_parent_and_children=False,
                  udpipe_cmd=None,
-                 input_type='visl_morph'): # can be morph_analysis, morph_extended, visl_morph
+                 input_type='visl_morph', # can be morph_analysis, morph_extended, visl_morph
+                 resources_path=None):    # default location of the models; only used iff model is None
 
+        if not resources_path:
+            self.resources_path = RESOURCES
+        else:
+            self.resources_path = resources_path
+        
         if udpipe_cmd is None:
             self.udpipe_cmd = 'udpipe'
         else:
             self.udpipe_cmd = udpipe_cmd
 
         if model is None:
+            # Check for existence of the models path
+            if not os.path.exists( self.resources_path ):
+                msg = " Could not find UDPipe's models directory: " + str(self.resources_path) + "!\n"
+                raise Exception( msg )
             if version == 'conllx':
                 if input_type == 'morph_analysis':
-                    model = os.path.join(RESOURCES, 'conllx', 'model_2.output')
+                    model = os.path.join(self.resources_path, 'conllx', 'model_2.output')
                 elif input_type == 'morph_extended':
-                    model = os.path.join(RESOURCES, 'conllx', 'model_3.output')
+                    model = os.path.join(self.resources_path, 'conllx', 'model_3.output')
                 else:
-                    model = os.path.join(RESOURCES, 'model_0.output')
+                    model = os.path.join(self.resources_path, 'model_0.output')
             elif version == 'conllu':
                 if input_type == 'morph_analysis':
-                    model = os.path.join(RESOURCES, 'conllu', 'ud_morph_analysis.output')
+                    model = os.path.join(self.resources_path, 'conllu', 'ud_morph_analysis.output')
                 elif input_type == 'morph_extended':
-                    model = os.path.join(RESOURCES, 'conllu', 'ud_morph_extended.output')
+                    model = os.path.join(self.resources_path, 'conllu', 'ud_morph_extended.output')
                 else:
-                    model = os.path.join(RESOURCES, 'model_1.output')
+                    model = os.path.join(self.resources_path, 'model_1.output')
             else:
                 raise Exception('Version should be conllu or conllx. ')
 
@@ -103,7 +113,7 @@ class UDPipeTagger(Tagger):
         cmd = "%s --parse %s" % (self.udpipe_cmd, self.model)
         process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, stderr=subprocess.PIPE, shell=True)
         for sentence in sentences_layer:
-            output = sentence_to_conll(sentence, layers[self.input_layers[1]],True)
+            output = sentence_to_conll(sentence, layers[self.input_layers[1]], True)
             output = output.replace('\t\t', '\t_\t')
             process.stdin.write(output.encode())
 
