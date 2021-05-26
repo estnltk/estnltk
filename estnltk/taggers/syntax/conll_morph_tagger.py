@@ -30,6 +30,7 @@ class ConllMorphTagger(Tagger):
                       parent=morph_layer.name, ambiguous=True)
 
         if self.no_visl:
+            random.seed(7)
             track = 0
             for sentence in sentences_layer:
                 for i, word in enumerate(sentence):
