@@ -1,3 +1,4 @@
+import os
 from collections import OrderedDict
 import pkgutil
 
@@ -10,6 +11,8 @@ from estnltk.taggers.syntax.maltparser_tagger.maltparser_tagger import MaltParse
 
 from estnltk.taggers.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
 
+MALTPARSER_SYNTAX_MODELS_PATH = os.environ.get('MALTPARSER_SYNTAX_MODELS_PATH')
+
 def check_if_conllu_is_available():
     # Check if conllu is available
     return pkgutil.find_loader("conllu") is not None
@@ -21,12 +24,150 @@ def simplify_syntax_layer( layer ):
         simpler.append( (ann.text, ann['upostag'], ann['deprel'], ann['id'], ann['head']) )
     return simpler
 
+
+@pytest.mark.skipif(not check_if_conllu_is_available(),
+                    reason="package conllu is required for this test")
+def test_maltparser_tagger_default_model():
+    # Case 1
+    conll_morph_tagger = ConllMorphTagger( no_visl=True,  morph_extended_layer='morph_analysis' )
+    text = Text('Autojuhi lapitekk pälvis linna koduleheküljel palju tähelepanu.').tag_layer('morph_analysis')
+    conll_morph_tagger.tag(text)
+    assert 'conll_morph' in text.layers
+    # Apply Maltparser's model based on Vabamorf
+    tagger = MaltParserTagger( add_parent_and_children=False )
+    tagger.tag( text )
+    simpler_output = simplify_syntax_layer( text.maltparser_syntax )
+    #from pprint import pprint
+    #pprint( simpler_output )
+    assert simpler_output == \
+        [('Autojuhi', 'S', 'nmod', 1, 2),
+         ('lapitekk', 'S', 'nsubj', 2, 3),
+         ('pälvis', 'V', 'root', 3, 0),
+         ('linna', 'S', 'nmod', 4, 5),
+         ('koduleheküljel', 'S', 'obl', 5, 3),
+         ('palju', 'D', 'advmod', 6, 7),
+         ('tähelepanu', 'S', 'obj', 7, 3),
+         ('.', 'Z', 'punct', 8, 3)]
+    
+    # Case 2
+    # Use ConllMorphTagger to prepare text for MaltParser
+    conll_morph_tagger = ConllMorphTagger( no_visl=True,  morph_extended_layer='morph_analysis' )
+    text = Text('Ilus suur karvane kass nurrus punasel diivanil.').tag_layer('morph_analysis')
+    conll_morph_tagger.tag(text)
+    assert 'conll_morph' in text.layers
+    # Apply Maltparser's model based on Vabamorf
+    tagger = MaltParserTagger( input_conll_morph_layer='conll_morph', input_type='morph_analysis', version='conllu', add_parent_and_children=False )
+    tagger.tag( text )
+    #from pprint import pprint
+    #pprint( layer_to_dict(text.maltparser_syntax) )
+    expected_layer_dict = \
+        {'ambiguous': False,
+         'attributes': ('id',
+                        'lemma',
+                        'upostag',
+                        'xpostag',
+                        'feats',
+                        'head',
+                        'deprel',
+                        'deps',
+                        'misc'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'maltparser_syntax',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'deprel': 'amod',
+                                     'deps': None,
+                                     'feats': {'n': '', 'sg': ''},
+                                     'head': 4,
+                                     'id': 1,
+                                     'lemma': 'ilus',
+                                     'misc': None,
+                                     'upostag': 'A',
+                                     'xpostag': 'A'}],
+                    'base_span': (0, 4)},
+                   {'annotations': [{'deprel': 'amod',
+                                     'deps': None,
+                                     'feats': {'n': '', 'sg': ''},
+                                     'head': 4,
+                                     'id': 2,
+                                     'lemma': 'suur',
+                                     'misc': None,
+                                     'upostag': 'A',
+                                     'xpostag': 'A'}],
+                    'base_span': (5, 9)},
+                   {'annotations': [{'deprel': 'amod',
+                                     'deps': None,
+                                     'feats': {'n': '', 'sg': ''},
+                                     'head': 4,
+                                     'id': 3,
+                                     'lemma': 'karvane',
+                                     'misc': None,
+                                     'upostag': 'A',
+                                     'xpostag': 'A'}],
+                    'base_span': (10, 17)},
+                   {'annotations': [{'deprel': 'nsubj',
+                                     'deps': None,
+                                     'feats': {'n': '', 'sg': ''},
+                                     'head': 5,
+                                     'id': 4,
+                                     'lemma': 'kass',
+                                     'misc': None,
+                                     'upostag': 'S',
+                                     'xpostag': 'S'}],
+                    'base_span': (18, 22)},
+                   {'annotations': [{'deprel': 'root',
+                                     'deps': None,
+                                     'feats': {'s': ''},
+                                     'head': 0,
+                                     'id': 5,
+                                     'lemma': 'nurruma',
+                                     'misc': None,
+                                     'upostag': 'V',
+                                     'xpostag': 'V'}],
+                    'base_span': (23, 29)},
+                   {'annotations': [{'deprel': 'amod',
+                                     'deps': None,
+                                     'feats': {'ad': '', 'sg': ''},
+                                     'head': 7,
+                                     'id': 6,
+                                     'lemma': 'punane',
+                                     'misc': None,
+                                     'upostag': 'A',
+                                     'xpostag': 'A'}],
+                    'base_span': (30, 37)},
+                   {'annotations': [{'deprel': 'obl',
+                                     'deps': None,
+                                     'feats': {'ad': '', 'sg': ''},
+                                     'head': 5,
+                                     'id': 7,
+                                     'lemma': 'diivan',
+                                     'misc': None,
+                                     'upostag': 'S',
+                                     'xpostag': 'S'}],
+                    'base_span': (38, 46)},
+                   {'annotations': [{'deprel': 'punct',
+                                     'deps': None,
+                                     'feats': None,
+                                     'head': 5,
+                                     'id': 8,
+                                     'lemma': '.',
+                                     'misc': None,
+                                     'upostag': 'Z',
+                                     'xpostag': 'Z'}],
+                    'base_span': (46, 47)} ]}
+    assert expected_layer_dict == layer_to_dict( text.maltparser_syntax )
+
+
+
 @pytest.mark.skipif(not check_if_conllu_is_available(),
                     reason="package conllu is required for this test")
 @pytest.mark.skipif(not check_if_vislcg_is_in_path('vislcg3'),
                     reason="a directory containing vislcg3 executable must be inside the system PATH")
-def test_maltparser_tagger_1():
-    # Use ConllMorphTagger to prepare text for MaltParser
+@pytest.mark.skipif(MALTPARSER_SYNTAX_MODELS_PATH is None,
+                    reason="Environment variable MALTPARSER_SYNTAX_MODELS_PATH is not defined.")
+def test_maltparser_tagger_vislcg3_model():
+    # Use ConllMorphTagger to prepare text for MaltParser (requires visl)
     conll_morph_tagger = ConllMorphTagger()
     # Case 1
     text = Text('Ilus suur karvane kass nurrus punasel diivanil. Ta on ise tee esimesel poolel. Valge jänes jooksis metsa!').tag_layer(['morph_extended'])
@@ -268,7 +409,7 @@ def test_maltparser_tagger_1():
                                      'upostag': 'Z',
                                      'xpostag': 'Z'}],
                     'base_span': (104, 105)}]}
-    tagger = MaltParserTagger()
+    tagger = MaltParserTagger( resources_path = MALTPARSER_SYNTAX_MODELS_PATH, input_type='visl_morph', version='conllx' )
     tagger.tag( text )
     #from pprint import pprint
     #pprint( layer_to_dict(text.maltparser_syntax) )

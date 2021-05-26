@@ -13,15 +13,26 @@ from estnltk.taggers.syntax.maltparser_tagger.maltparser import MaltParser
 
 class MaltParserTagger(Tagger):
     """Tags dependency syntactic analysis with MaltParser."""
-    conf_param = ['_maltparser_inst', 'add_parent_and_children', 'syntax_dependency_retagger']
+    conf_param = ['_maltparser_inst', 'add_parent_and_children', 'syntax_dependency_retagger', 'resources_path']
 
     def __init__(self, input_words_layer='words',
                  input_sentences_layer='sentences',
                  input_conll_morph_layer='conll_morph',
                  output_layer='maltparser_syntax',
                  add_parent_and_children=True,
-                 input_type='visl_morph',
-                 version='conllx'): # can be morph_analysis, morph_extended, visl_morph
+                 input_type='morph_analysis',  # can be morph_analysis, morph_extended, visl_morph
+                 resources_path=None,          # location of Maltparser's models (must also contain maltparser jar)
+                 version='conllu'):            # conllu or conllx
+
+        maltparser_kwargs = {}
+        if resources_path is not None:
+            # Override the default location of models
+            if not os.path.isdir(resources_path):
+                raise ValueError('(!) resources_path must be a directory containing maltparser\'s models')
+            self.resources_path = resources_path
+            maltparser_kwargs['maltparser_dir'] = resources_path
+        else:
+            self.resources_path = None
 
         self.input_layers = [input_words_layer,
                              input_sentences_layer,
@@ -31,16 +42,16 @@ class MaltParserTagger(Tagger):
 
         if input_type == 'morph_analysis':
             if version == 'conllu':
-                self._maltparser_inst = MaltParser(model_name='morph_analysis_conllu')
+                self._maltparser_inst = MaltParser(model_name='morph_analysis_conllu', **maltparser_kwargs)
             else:
-                self._maltparser_inst = MaltParser(model_name='model_morph')
+                self._maltparser_inst = MaltParser(model_name='model_morph', **maltparser_kwargs)
         elif input_type == 'morph_extended':
             if version == 'conllu':
-                self._maltparser_inst = MaltParser(model_name='morph_extended_conllu')
+                self._maltparser_inst = MaltParser(model_name='morph_extended_conllu', **maltparser_kwargs)
             else:
-                self._maltparser_inst = MaltParser(model_name='model_morph_ext')
+                self._maltparser_inst = MaltParser(model_name='model_morph_ext', **maltparser_kwargs)
         else:
-            self._maltparser_inst = MaltParser()
+            self._maltparser_inst = MaltParser(**maltparser_kwargs)
 
         self.add_parent_and_children = add_parent_and_children
         if self.add_parent_and_children:
