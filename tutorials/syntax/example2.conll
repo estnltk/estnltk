@@ -1,7 +1,7 @@
-1	Ta	tema	P	Ppers	ps3|sg|nom	2	@SUBJ	_	_
-2	on	ole	V	V	indic|pres|ps3|sg	0	ROOT	_	_
-3	ise	ise	P	P	pos|det|refl|sg|nom	4	@NN>	_	_
-4	tee	tee	S	S	sg|nom	2	@PRD	_	_
-5	esimesel	esimene	N	A	ord|sg|ad|l	6	@AN>	_	_
+1	Ta	tema	P	P	sg|n	2	@ADVL	_	_
+2	on	olema	V	V	b	0	ROOT	_	_
+3	ise	ise	P	P	pl|n	4	@NN>	_	_
+4	tee	tee	S	S	sg|n	2	@ADVL	_	_
+5	esimesel	esimene	O	O	sg|ad	6	@DN>	_	_
 6	poolel	pool	S	S	sg|ad	2	@ADVL	_	_
-7	.	.	Z	Z	Fst	6	@Punc	_	_
+7	.	.	Z	Z	_	6	@Punc	_	_
