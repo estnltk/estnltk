@@ -37,7 +37,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
     """
 
     conf_param = ['model_path', 'model_name', 'add_parent_and_children', 'syntax_dependency_retagger',
-                  'dir', 'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
+                  'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
                   'ud_validation_retagger', 'use_gpu', 'model_paths', 'taggers', 'remove_fields', 'replace_fields']
 
     def __init__(self,
@@ -52,7 +52,6 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                  mark_syntax_error: bool = False,
                  mark_agreement_error: bool = False,
                  use_gpu: bool = False,
-                 dir=RESOURCES
                  ):
         # Make an internal import to avoid explicit stanza dependency
         import stanza
@@ -66,7 +65,6 @@ class StanzaSyntaxEnsembleTagger(Tagger):
         self.mark_agreement_error = mark_agreement_error
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.use_gpu = use_gpu
-        self.dir = dir
 
         if not model_paths:
             self.model_paths = list()
@@ -82,7 +80,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                 raise ValueError('Invalid model path: {}'.format(model_path))
 
             nlp = stanza.Pipeline(lang='et', processors='depparse',
-                                  dir=dir,
+                                  dir=RESOURCES,
                                   depparse_pretagged=True,
                                   depparse_model_path=model_path,
                                   use_gpu=self.use_gpu,
