@@ -66,6 +66,12 @@ RUN conda config --set always_yes yes && \
 RUN git clone --depth=25 --branch=devel_1.6 https://github.com/estnltk/estnltk.git estnltk_devel
 
 # ================================
+#   Set paths to syntax models 
+# ================================
+ENV UDPIPE_SYNTAX_MODELS_PATH=/estnltk_devel/estnltk/taggers/syntax/udpipe_tagger/resources
+ENV MALTPARSER_SYNTAX_MODELS_PATH=/estnltk_devel/estnltk/taggers/syntax/maltparser_tagger/java-res/maltparser
+
+# ================================
 #   Python 3.7
 # ================================
 RUN echo " Python 3.7 " | figlet 
