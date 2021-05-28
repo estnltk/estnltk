@@ -63,6 +63,12 @@ All notable changes to this project will be documented in this file.
 
 * Possibility to append to an existing table with `PgCollection`'s `export_layer` method. Use the parameter `mode='append'` to switch on the appending mode. Read also [docstring of the method](https://github.com/estnltk/estnltk/blob/aadf87855f07b2a465eecdaebac95aef1caffeda/estnltk/storage/postgres/collection.py#L960-L1007).
 
+* `StanzaSyntaxTagger` and `StanzaSyntaxEnsembleTagger` -- the syntax taggers use models trained with [Stanza](https://stanfordnlp.github.io/stanza/). See [tutorial](https://github.com/estnltk/estnltk/blob/ba471626227238b2b83ef7a3479b315407c44807/tutorials/syntax/syntax.ipynb) for usage, performance scores and links to models;
+
+* `UDValidationRetagger` and `DeprelAgreementRetagger` -- retaggers for marking errors in parsed syntax. These only work for layers that make use of UD syntactic relations.
+See [tutorial](https://github.com/estnltk/estnltk/blob/ba471626227238b2b83ef7a3479b315407c44807/tutorials/syntax/syntax.ipynb) for details and usage.
+
+
 * WebTaggers -- taggers which annotate texts via webservices. Currently implemented web taggers: `VabamorfWebTagger`, `BertEmbeddingsWebTagger`, `SoftmaxEmbTagSumWebTagger`, `StanzaSyntaxWebTagger`, `StanzaSyntaxEnsembleWebTagger`. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/c5b30eb7b1c7eb6868ebda408a6c12a19f8dffa7/tutorials/taggers/web_taggers.ipynb);
 
 * Wordnet method `get_synset_by_name` which can be used to retrieve a synset by its name attribute, and method `all_relation_types` for retrieving all relation types. Details in [this tutorial](https://github.com/estnltk/estnltk/blob/c5b30eb7b1c7eb6868ebda408a6c12a19f8dffa7/tutorials/wordnet/wordnet.ipynb).
