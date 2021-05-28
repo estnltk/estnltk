@@ -87,12 +87,11 @@ artifacts:
 
 on_success:
     # Based on: https://github.com/astropy/conda-build-tools/blob/master/appveyor.yml 
-    # Write the output file location to a file...
-    - python -c "from conda_build.api import get_output_file_paths; p=get_output_file_paths('conda-recipe/windows')[0]; f=open('to_upload.txt', 'w');f.write(p);f.close()"
+    # Write the output file name to a file...
+    - python -c "from conda_build.api import get_output_file_paths; import os.path; p=get_output_file_paths('conda-recipe/windows')[0]; f=open('to_upload.txt', 'w');f.write(os.path.split(p)[1]);f.close()"
     # ...so that we can set a variable to the name of that output file.
-    - set /P BUILT_PACKAGE=<to_upload.txt
-    - echo %BUILT_PACKAGE%
-    - dir %CONDA%\conda-bld\win-64
+    - set /P PACKAGE_FILE=<to_upload.txt
+    - echo %PACKAGE_FILE%
     - dir conda-bld\win-64
     # Upload the package
-    - anaconda -t %ANACONDA_TOKEN% upload -l main --force -u estnltk conda-bld\win-*\*.tar.bz2
+    - anaconda -t %ANACONDA_TOKEN% upload -l main --force -u estnltk conda-bld\win-64\%PACKAGE_FILE%
