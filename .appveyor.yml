@@ -92,7 +92,7 @@ on_success:
     # ...so that we can set a variable to the name of that output file.
     - set /P BUILT_PACKAGE=<to_upload.txt
     - echo %BUILT_PACKAGE%
-    - dir %CONDA%\conda-bld
+    - dir %CONDA%\conda-bld\win-64
     - dir conda-bld\win-64
     # Upload the package
-    - anaconda upload -t %ANACONDA_TOKEN% -l main --force -u estnltk conda-bld\win-*\*.tar.bz2
+    - anaconda -t %ANACONDA_TOKEN% upload -l main --force -u estnltk conda-bld\win-*\*.tar.bz2
