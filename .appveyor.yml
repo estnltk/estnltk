@@ -1,4 +1,4 @@
-# Test building EstNLTK with Appveyor
+# Building EstNLTK with Appveyor
 # Based on examples: 
 #     https://github.com/theochem/python-cython-ci-example/blob/master/.appveyor.yml 
 #     https://github.com/jjhelmus/appveyor-build-conda-pyart/blob/master/appveyor.yml 
@@ -10,6 +10,8 @@ environment:
   global:
     PROJECT_NAME: estnltk
     GITHUB_REPO_NAME: estnltk/estnltk
+    ANACONDA_TOKEN:
+      secure: gzcudzTLjXD/X5XJmB01767Q5hOIkGT6fIXz567m75Eda85cA4aOcMRJ59YvEAYy
 
   matrix:
     #
@@ -20,13 +22,13 @@ environment:
       PYTHON_VERSION: 3.6
       CONDA: "C:\\Miniconda36-x64"
 
-    - TARGET_ARCH: "x64"
-      PYTHON_VERSION: 3.7
-      CONDA: "C:\\Miniconda37-x64"
+    #- TARGET_ARCH: "x64"
+    #  PYTHON_VERSION: 3.7
+    #  CONDA: "C:\\Miniconda37-x64"
       
-    - TARGET_ARCH: "x64"
-      PYTHON_VERSION: 3.8
-      CONDA: "C:\\Miniconda38-x64"
+    #- TARGET_ARCH: "x64"
+    #  PYTHON_VERSION: 3.8
+    #  CONDA: "C:\\Miniconda38-x64"
 
 version: '{build}'
 image: Visual Studio 2019
@@ -90,3 +92,5 @@ on_success:
     # ...so that we can set a variable to the name of that output file.
     - set /P BUILT_PACKAGE=<to_upload.txt
     - echo %BUILT_PACKAGE%
+    # Upload the package
+    - anaconda upload -t %ANACONDA_TOKEN% -l main --force -u estnltk %BUILT_PACKAGE%
