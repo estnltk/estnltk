@@ -22,13 +22,13 @@ environment:
       PYTHON_VERSION: 3.6
       CONDA: "C:\\Miniconda36-x64"
 
-    #- TARGET_ARCH: "x64"
-    #  PYTHON_VERSION: 3.7
-    #  CONDA: "C:\\Miniconda37-x64"
+    - TARGET_ARCH: "x64"
+      PYTHON_VERSION: 3.7
+      CONDA: "C:\\Miniconda37-x64"
       
-    #- TARGET_ARCH: "x64"
-    #  PYTHON_VERSION: 3.8
-    #  CONDA: "C:\\Miniconda38-x64"
+    - TARGET_ARCH: "x64"
+      PYTHON_VERSION: 3.8
+      CONDA: "C:\\Miniconda38-x64"
 
 version: '{build}'
 image: Visual Studio 2019
@@ -94,4 +94,4 @@ on_success:
     - echo %PACKAGE_FILE%
     - dir conda-bld\win-64
     # Upload the package
-    - anaconda -t %ANACONDA_TOKEN% upload -l main --force -u estnltk conda-bld\win-64\%PACKAGE_FILE%
+    - anaconda -t %ANACONDA_TOKEN% upload -l dev --force -u estnltk conda-bld\win-64\%PACKAGE_FILE%
