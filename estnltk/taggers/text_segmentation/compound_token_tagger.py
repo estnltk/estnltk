@@ -28,6 +28,7 @@ from .patterns import email_and_www_patterns, emoticon_patterns, xml_patterns
 from .patterns import unit_patterns, number_patterns, abbreviations_before_initials_patterns
 from .patterns import initial_patterns, abbreviation_patterns
 from .patterns import case_endings_patterns, number_fixes_patterns
+from .patterns import hashtag_and_username_patterns
 
 # Pattern for checking whether the string contains any letters
 _letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
@@ -41,7 +42,7 @@ DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'taggers', 'text_segmentation'
 # By default, CompoundTokenTagger uses patterns from these lists
 ALL_1ST_LEVEL_PATTERNS = email_and_www_patterns + emoticon_patterns + xml_patterns + unit_patterns + \
                          number_patterns + abbreviations_before_initials_patterns + initial_patterns + \
-                         abbreviation_patterns
+                         abbreviation_patterns + hashtag_and_username_patterns
 ALL_2ND_LEVEL_PATTERNS = case_endings_patterns + number_fixes_patterns
 
 
@@ -52,8 +53,8 @@ class CompoundTokenTagger( Tagger ):
     input_layers = ['tokens']
     custom_abbreviations = []
     conf_param = ['custom_abbreviations', 'ignored_words', 'tag_numbers', 'tag_units',
-                  'tag_email_and_www', 'tag_emoticons', 'tag_xml', 'tag_initials',
-                  'tag_abbreviations', 'tag_case_endings', 'tag_hyphenations',
+                  'tag_email_and_www', 'tag_emoticons', 'tag_hashtags_and_usernames', 'tag_xml', 
+                  'tag_initials', 'tag_abbreviations', 'tag_case_endings', 'tag_hyphenations',
                   'use_custom_abbreviations', 'do_not_join_on_strings',
                   # Inner parameters
                   '_tokenization_hints_tagger_1', '_tokenization_hints_tagger_2',
@@ -67,6 +68,7 @@ class CompoundTokenTagger( Tagger ):
                  tag_units: bool = True,
                  tag_email_and_www: bool = True,
                  tag_emoticons: bool = True,
+                 tag_hashtags_and_usernames: bool = False,
                  tag_xml: bool = True,
                  tag_initials: bool = True,
                  tag_abbreviations: bool = True,
@@ -103,6 +105,9 @@ class CompoundTokenTagger( Tagger ):
         tag_emoticons: boolean (default: True)
             Most common emoticons will be detected and joined into 
             compound tokens.
+
+        tag_hashtags_and_usernames: boolean (default: False)
+            Twitter-style hashtags and username mentions.
 
         tag_xml: boolean (default: True)
             Symbols making up an XML tag will be joined into compound
@@ -176,6 +181,7 @@ class CompoundTokenTagger( Tagger ):
         self.tag_abbreviations = tag_abbreviations
         self.tag_case_endings = tag_case_endings
         self.tag_hyphenations = tag_hyphenations
+        self.tag_hashtags_and_usernames = tag_hashtags_and_usernames
         self.use_custom_abbreviations = bool(custom_abbreviations)
         self._conflict_resolving_strategy = conflict_resolving_strategy
         if custom_abbreviations and not tag_abbreviations:
@@ -210,6 +216,9 @@ class CompoundTokenTagger( Tagger ):
                     _vocabulary_1.append( pat )
             elif pattern_type in ['negative:temperature_unit', 'name_with_initial']:
                 if tag_initials:
+                    _vocabulary_1.append( pat )
+            elif pattern_type in ['hashtag', 'username_mention']:
+                if tag_hashtags_and_usernames:
                     _vocabulary_1.append( pat )
             else:
                 # There is always room for some extra user-defined patterns

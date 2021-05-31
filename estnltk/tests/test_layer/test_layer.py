@@ -278,8 +278,8 @@ def test_advanced_indexing():
                  ['text', 'lemma']] == layer[lambda span: len(span.annotations) > 1]['text', 'lemma']
     assert layer[[1, 3, 4], ['text', 'lemma']] == layer[[1, 3, 4]]['text', 'lemma']
     assert list(layer[0, 'lemma']) == ['mis', 'mis']
-    assert list(layer[0, ['lemma', 'form']][0]) == ['mis', 'pl n']
-    assert list(layer[0, ['lemma', 'form']][1]) == ['mis', 'sg n']
+    assert list(layer[0, ['lemma', 'form']][0]) == ['mis', 'sg n']
+    assert list(layer[0, ['lemma', 'form']][1]) == ['mis', 'pl n']
     with pytest.raises(IndexError):
         layer[[]]
 

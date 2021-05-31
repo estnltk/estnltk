@@ -1,14 +1,14 @@
 import unittest
 import random
 
-from psycopg2.sql import SQL, Identifier
+from psycopg2.sql import SQL
 
 from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema, count_rows
+from estnltk.storage.postgres import create_schema, delete_schema
 from estnltk.storage import postgres as pg
-from estnltk.taggers import VabamorfTagger, ParagraphTokenizer
+from estnltk.taggers import VabamorfTagger
 
 logger.setLevel('DEBUG')
 
@@ -29,7 +29,7 @@ class TestMissingLayerQuery(unittest.TestCase):
         delete_schema(self.storage)
         self.storage.close()
 
-    def test_layer_ngram_query(self):
+    def test_missing_layer_query(self):
         collection_name = get_random_collection_name()
         collection = self.storage[collection_name]
         collection.create()

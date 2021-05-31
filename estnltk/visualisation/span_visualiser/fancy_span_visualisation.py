@@ -23,14 +23,25 @@ class DisplaySpans:
 
     def html_output(self, layer):
 
-        segments, span_list = decompose_to_elementary_spans(layer, layer.text_object.text)
-
         outputs = [self.js()]
         outputs.append(self.css())
 
-        # put html together from js, css and html spans
-        for segment in segments:
-            outputs.append(self.span_decorator(segment, span_list).replace("\n","<br>"))
+        #
+        #  This is a hack to solve issue related to Layer.display() crashing
+        #  on empty layer. 
+        #  TODO: find a more elegant way for fixing the problem ...
+        #
+        decomposed = decompose_to_elementary_spans(layer, layer.text_object.text)
+        if len(decomposed) == 2:
+            # A) non-empty layer
+            segments, span_list = decomposed
+            # put html together from js, css and html spans
+            for segment in segments:
+                outputs.append(self.span_decorator(segment, span_list).replace("\n","<br>"))
+        elif len(decomposed) == 1:
+            # B) empty layer
+            segment, span_list = decomposed[0][0], []
+            outputs.append( segment.replace("\n","<br>") )
 
         return "".join(outputs)
 

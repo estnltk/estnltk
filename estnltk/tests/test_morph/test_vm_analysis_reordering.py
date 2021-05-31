@@ -6,6 +6,7 @@ from estnltk import Text, Annotation
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import VabamorfAnalyzer
 from estnltk.taggers import MorphAnalysisReorderer
+from estnltk.resolve_layer_dag import make_resolver
 
 # ----------------------------------
 
@@ -14,9 +15,11 @@ def test_morph_reorderer_empty_run():
     analysis_reorderer = MorphAnalysisReorderer(reorderings_csv_file=None,
                                                 postag_freq_csv_file=None,
                                                 form_freq_csv_file=None)
+    # Make default resolver without reorderer
+    resolver = make_resolver( use_reorderer=False )
     # Create text and retag it
     text=Text('Üks ütles, et 1. mail näidatakse palju maid.')
-    text.tag_layer(['words','sentences', 'morph_analysis'])
+    text.tag_layer(['words','sentences', 'morph_analysis'], resolver=resolver)
     analysis_reorderer.retag(text)
     # Collect ambiguous analyses
     ambiguous_analyses = []
@@ -209,10 +212,11 @@ def test_reorderer_with_customized_postag_freq_info():
     morph_reorderer = MorphAnalysisReorderer( reorderings_csv_file=None,
                                               postag_freq_csv_file=csv_dict_file_path,
                                               form_freq_csv_file=None )
-
+    # Make default resolver without reorderer
+    resolver = make_resolver( use_reorderer=False )
     # Create text with default morph analysis
     text=Text('Vaatan ja mõtlen, miks ühed pole kuidagi teistega seotud.')
-    text.tag_layer(['words','sentences', 'morph_analysis'])
+    text.tag_layer(['words','sentences', 'morph_analysis'],resolver=resolver)
     # Reorder analyses
     morph_reorderer.retag( text )
     # Collect ambiguous analyses

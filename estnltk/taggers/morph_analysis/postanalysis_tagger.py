@@ -37,8 +37,10 @@ class PostMorphAnalysisTagger(Retagger):
        layer before the disambiguation process.
        This tagger should be applied before VabamorfDisambiguator."""
     output_attributes = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
-    conf_param = ['ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials',
+    conf_param = ['ignore_emoticons', 'ignore_xml_tags', 'ignore_hashtags',
+                  'fix_names_with_initials',
                   'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses',
+                  'fix_hashtags_and_usernames',
                   'fix_abbreviations', 'fix_number_postags', 'remove_duplicates',
                   'fix_number_analyses_using_rules',
                   'fix_number_analyses_by_replacing',
@@ -57,12 +59,15 @@ class PostMorphAnalysisTagger(Retagger):
     def __init__(self,
                  output_layer='morph_analysis',
                  input_compound_tokens_layer='compound_tokens',
+                 input_words_layer='words',
                  ignore_emoticons:bool=True,
                  ignore_xml_tags:bool=True,
+                 ignore_hashtags:bool=True,
                  fix_names_with_initials:bool=True,
                  fix_emoticons:bool=True,
                  fix_www_addresses:bool=True,
                  fix_email_addresses:bool=True,
+                 fix_hashtags_and_usernames:bool=True,
                  fix_abbreviations:bool=True,
                  remove_duplicates:bool=True,
                  fix_number_postags:bool=True,
@@ -89,6 +94,10 @@ class PostMorphAnalysisTagger(Retagger):
         ignore_xml_tags: bool (default: True)
             If True, then xml tags will be marked as to 
             be ignored by morphological disambiguation.
+        
+        ignore_hashtags: bool (default: True)
+            If True, then hashtags will be marked as to 
+            be ignored by morphological disambiguation.
 
         fix_names_with_initials: bool (default: True)
             If True, then words that are of type 'name_with_initial'
@@ -110,7 +119,11 @@ class PostMorphAnalysisTagger(Retagger):
         fix_email_addresses: bool (default: True)
             If True, then postags of all email addresses will be 
             overwritten with 'H';
-        
+
+        fix_hashtags_and_usernames: bool (default: True)
+            If True, then Twitter-style hashtags and usernames
+            will have their postags overwritten with 'H'.
+
         fix_abbreviations: bool (default: True)
             If True, then abbreviations with postags 'S' & 'H' 
             will have their postags overwritten with 'Y';
@@ -165,6 +178,7 @@ class PostMorphAnalysisTagger(Retagger):
         self.output_layer = output_layer
         # Names of the input layers
         self.input_layers = [input_compound_tokens_layer,
+                             input_words_layer,
                              output_layer]
         self._input_cp_tokens_layer = input_compound_tokens_layer
         
@@ -182,23 +196,25 @@ class PostMorphAnalysisTagger(Retagger):
         
         self.ignore_emoticons = ignore_emoticons
         self.ignore_xml_tags = ignore_xml_tags
+        self.ignore_hashtags = ignore_hashtags
         self.fix_names_with_initials = fix_names_with_initials
         self.fix_emoticons = fix_emoticons
         self.fix_www_addresses = fix_www_addresses
         self.fix_email_addresses = fix_email_addresses
+        self.fix_hashtags_and_usernames = fix_hashtags_and_usernames
         self.fix_abbreviations = fix_abbreviations
         self.fix_number_postags = fix_number_postags
         self.remove_duplicates = remove_duplicates
         
         # Compile regexes
         self._pat_name_needs_underscore1 = \
-                re.compile('(\.)\s+([A-ZÖÄÜÕŽŠ])')
+                re.compile(r'(\.)\s+([A-ZÖÄÜÕŽŠ])')
         self._pat_name_needs_underscore2 = \
-                re.compile('([A-ZÖÄÜÕŽŠ]\.)([A-ZÖÄÜÕŽŠ])')
+                re.compile(r'([A-ZÖÄÜÕŽŠ]\.)([A-ZÖÄÜÕŽŠ])')
         self._pat_name_needs_uppercase = \
-                re.compile('(\.\s+_)([a-zöäüõšž])')
+                re.compile(r'(\.\s+_)([a-zöäüõšž])')
         self._pat_numeric = \
-                re.compile('^(?=\D*\d)[0-9.,\- ]+$')
+                re.compile(r'^(?=\D*\d)[0-9.,\- ]+$')
 
 
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
@@ -278,6 +294,9 @@ class PostMorphAnalysisTagger(Retagger):
                         ignore_spans = True
                     if self.ignore_xml_tags and \
                        'xml_tag' in comp_token.type:
+                        ignore_spans = True
+                    if self.ignore_hashtags and \
+                       'hashtag' in comp_token.type:
                         ignore_spans = True
                     if ignore_spans:
                         # Mark all spans as to be ignored
@@ -398,6 +417,16 @@ class PostMorphAnalysisTagger(Retagger):
                                     root = getattr(annotation, 'root')
                                     if self._pat_numeric.match(root):
                                         setattr(annotation, 'partofspeech', 'N')
+                    # 7) Fix hashtags and Twitter-style usernames
+                    if self.fix_hashtags_and_usernames and \
+                            ('hashtag' in comp_token.type or 
+                             'username_mention' in comp_token.type):
+                        # Set postags to 'H'
+                        for span in morph_spanlist.annotations:
+                            # Set partofspeech to H
+                            setattr(span, 'partofspeech', 'H')
+                            # TODO: some of these may be verbs, and 
+                            # thus require special corrections
                     # Next compound token
                     comp_token_id += 1
             else:
@@ -452,6 +481,7 @@ class PostMorphAnalysisTagger(Retagger):
         # Rewrite spans of the old layer
         morph_span_id = 0
         morph_spans = layers[self.output_layer].spans
+        words_layer = layers[self.input_layers[1]]
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s
             morph_annotations = morph_spans[morph_span_id].annotations
@@ -461,7 +491,7 @@ class PostMorphAnalysisTagger(Retagger):
                 morph_annotations = _remove_duplicate_morph_spans(morph_annotations)
             
             # A.2) Check for empty spans
-            word = morph_annotations[0].span.parent
+            word = words_layer[morph_spans[morph_span_id].base_span]
             is_empty = _is_empty_annotation(morph_annotations[0])
             if is_empty:
                 empty_morph_record = \
@@ -659,7 +689,7 @@ class PostMorphAnalysisTagger(Retagger):
            Returns corrected records, or an empty list, if no 
            corrections are available.
         '''
-        m = re.match('-?(\d+\.?)-?(\D*)$', token_str)
+        m = re.match(r'-?(\d+\.?)-?(\D*)$', token_str)
         if not m:
             return []
         number_str = m.group(1)

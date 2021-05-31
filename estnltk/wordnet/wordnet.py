@@ -2,7 +2,7 @@ import sqlite3
 import os.path
 import math
 import networkx as nx
-from typing import Union
+from typing import Union, List
 from estnltk.wordnet.synset import Synset
 
 MAX_TAXONOMY_DEPTHS = {'a': 2, 'n': 13, 'r': 0, 'v': 10}
@@ -18,8 +18,8 @@ class WordnetIterator:
         self._index = 1
 
     def __next__(self):
-        if self._index < len(self._wordnet._synsets_dict):
-            result = self._wordnet._synsets_dict[self._index]
+        if self._index < len(self._wordnet.iloc):
+            result = self._wordnet.iloc[self._index]
             self._index += 1
             return result
         raise StopIteration
@@ -32,7 +32,7 @@ class Wordnet:
     ----------
     version: str
         Version of Wordnet to use. Currently only version 2.3.2 (default) is supported
-    _graph: Networkx.MultiDiGraph
+    _relation_graph: Networkx.MultiDiGraph
         Graph where nodes are synset ids and edges are relations between nodes.
     '''
 
@@ -41,7 +41,8 @@ class Wordnet:
         self.cur = None
         self.version = version
         self._synsets_dict = dict()
-        self._graph = None
+        self._relation_graph = None
+        self._hyponym_graph = None
 
         wn_dir = '{}/data/estwn-et-{}'.format(os.path.dirname(os.path.abspath(__file__)), self.version)
         wn_entry = '{}/wordnet_entry.db'.format(wn_dir)
@@ -69,20 +70,36 @@ class Wordnet:
         except Exception as e:
             raise WordnetException("Unexpected error: {}: {}".format(type(e), e))
 
-        self.cur.execute(
-            "SELECT id, synset_name, estwn_id, pos, sense, literal FROM wordnet_entry WHERE is_name = 1")
-        synset_entries = self.cur.fetchall()
-        for row in synset_entries:
-            self._synsets_dict[row[0]] = Synset(self, row)
+        self.iloc
 
         if load_graph:
-            self.graph
+            self.relation_graph
+            self.hyponym_graph
 
     def __iter__(self):
         return WordnetIterator(self)
 
     @property
-    def graph(self) -> Union[None, nx.DiGraph]:
+    def iloc(self) -> dict:
+        """
+        If not created already, creates a dictionary of all synsets from the database. Keys are
+        synset ids and values are corresponding Synset objects.
+
+        Returns
+        -------
+        Dictionary of all synsets if it has been created beforehand, None otherwise.
+        """
+        if len(self._synsets_dict) == 0:
+            self.cur.execute(
+                "SELECT id, synset_name, estwn_id, pos, sense, literal FROM wordnet_entry WHERE is_name = 1")
+            synset_entries = self.cur.fetchall()
+            for row in synset_entries:
+                self._synsets_dict[row[0]] = Synset(self, row)
+        else:
+            return self._synsets_dict
+
+    @property
+    def relation_graph(self) -> nx.MultiDiGraph:
         """
         If not created already, creates Networkx graph from the database. The graph includes
         Synset id's as nodes and relations as edges between them. Otherwise returns the graph.
@@ -91,14 +108,35 @@ class Wordnet:
         -------
         Networkx graph if it has been created beforehand, None otherwise.
         """
-        if self._graph is None:
+        if self._relation_graph is None:
             self.cur.execute("SELECT start_vertex, end_vertex, relation FROM wordnet_relation")
             wn_relations = self.cur.fetchall()
-            self._graph = nx.MultiDiGraph()
+            self._relation_graph = nx.MultiDiGraph()
             for i, r in enumerate(wn_relations):
-                self._graph.add_edge(r[0], r[1], relation=r[2])
+                self._relation_graph.add_edge(r[0], r[1], relation=r[2])
         else:
-            return self._graph
+            return self._relation_graph
+
+    @property
+    def hyponym_graph(self) -> nx.Graph:
+        """
+        If not created already, creates Networkx graph from the database. The graph includes
+        Synset id's as nodes and relations as edges between them. Edges are only added, if two
+        nodes are connected in a hyponym-hypernym relationship.
+
+        Returns
+        -------
+        Networkx graph if it has been created beforehand, None otherwise.
+        """
+        if self._hyponym_graph is None:
+            self.cur.execute("SELECT start_vertex, end_vertex, relation FROM wordnet_relation")
+            wn_relations = self.cur.fetchall()
+            self._hyponym_graph = nx.Graph()
+            for i, r in enumerate(wn_relations):
+                if r[2] == 'hyponym' or r[2] == 'hypernym':
+                    self._hyponym_graph.add_edge(r[0], r[1])
+        else:
+            return self._hyponym_graph
 
     def __del__(self) -> None:
         self.conn.close()
@@ -161,64 +199,32 @@ class Wordnet:
         for row in synset_entries:
             yield Synset(self, row)
 
-    def _shortest_path_distance(self, start_synset: Synset, target_synset: Synset) -> int:
-        """Finds minimum path length from the target synset.
-
-        Notes
-        -----
-          Internal method. Do not call directly.
+    def get_synset_by_name(self, synset_name: str):
+        """Finds Synset object by its name.
 
         Parameters
         ----------
-          target_synset : Synset
-        Synset from where the shortest path length is calculated.
+        synset_name: str
+          Format of the name must be: '{literal}.{pos}.{sense_index:%02d}'
+          Possible pos tags are: 'n' for noun, 'v' for verb, 'a' for adjective and 'r' for adverb.
 
         Returns
-        -------
-          int
-        Shortest path distance from `target_synset`. Distance to the synset itself is 0, -1 if no path exists between the two synsets,
-        >0 otherwise.
-
+        ------
+        Synset object corresponding to the name, or None, if the object could not be found.
         """
+        target_lemma = []
+        for c in synset_name:
+            if c == '.':
+                break
+            target_lemma.append( c )
+        target_lemma = ''.join( target_lemma )
+        if target_lemma:
+            for synset in self[target_lemma]:
+                if synset.name == synset_name:
+                    return synset
+        return None
 
-        if self._graph is None:
-            self.graph
-
-        if "distances" not in start_synset.__dict__:
-            start_synset.__dict__["distances"] = {}
-
-        if "distances" not in target_synset.__dict__:
-            target_synset.__dict__["distances"] = {}
-
-        if target_synset in start_synset.__dict__["distances"]:
-            return start_synset.__dict__["distances"][target_synset]
-
-        graph = self._graph
-        distance = 0
-        visited = set()
-        neighbor_synsets = set([start_synset.id])
-
-        while len(neighbor_synsets) > 0:
-            neighbor_synsets_next_level = set()
-
-            for synset in neighbor_synsets:
-                if synset in visited:
-                    continue
-
-                if synset == target_synset.id:
-                    return distance
-                relations = list(graph.in_edges(synset, data=True))
-                hypernyms = [r[0] for r in relations if r[2]['relation'] == 'hypernym']
-                hyponyms = [r[0] for r in relations if r[2]['relation'] == 'hyponym']
-                neighbor_synsets_next_level |= set(hypernyms)
-                neighbor_synsets_next_level |= set(hyponyms)
-                visited.add(synset)
-            distance += 1
-            neighbor_synsets = set(neighbor_synsets_next_level)
-
-        return -1
-
-    def _min_depth(self, synset):
+    def _min_depth(self, synset) -> int:
         """Finds minimum path length from the root.
         Notes
         -----
@@ -230,14 +236,14 @@ class Wordnet:
         Minimum path length from the root.
         """
 
-        if self._graph is None:
-            self.graph
+        if self._relation_graph is None:
+            self.relation_graph
 
-        if type(synset) is not int:     # vt üle see (ehk et vb muuda et synset oleks hoopis synset id)
+        if type(synset) is not int:
             synset = synset.id
 
         min_depth = 0
-        relations = self.graph.in_edges(synset, data=True)
+        relations = self.relation_graph.in_edges(synset, data=True)
         hypernyms = [r[0] for r in relations if r[2]['relation'] == 'hypernym']
         if hypernyms:
             min_depth = 1 + min(self._min_depth(h) for h in hypernyms)
@@ -311,18 +317,14 @@ class Wordnet:
 
         """
 
-        """if self._graph is None:
-            self.graph
+        if self._hyponym_graph is None:
+            self.hyponym_graph
 
         try:
-            distance = nx.shortest_path_length(self.graph, start_synset.id, target_synset.id)
+            distance = nx.shortest_path_length(self.hyponym_graph, start_synset.id, target_synset.id)
             return 1.0 / (distance + 1)
         except:
-            return None"""
-        distance = self._shortest_path_distance(start_synset, target_synset)
-        if distance >= 0:
-            return 1.0 / (distance + 1)
-        return None
+            return None
 
     def lch_similarity(self, start_synset: Synset, target_synset: Synset) -> Union[float, None]:
         """Calculates Leacock and Chodorow's similarity between the two synsets.
@@ -341,8 +343,8 @@ class Wordnet:
 
         """
 
-        """if self._graph is None:
-            self.graph
+        if self._hyponym_graph is None:
+            self.hyponym_graph
 
         if start_synset.pos != target_synset.pos:
             return None
@@ -350,21 +352,10 @@ class Wordnet:
         depth = MAX_TAXONOMY_DEPTHS[start_synset.pos]
 
         try:
-            distance = nx.shortest_path_length(self.graph, start_synset.id, target_synset.id)
+            distance = nx.shortest_path_length(self.hyponym_graph, start_synset.id, target_synset.id)
             return -math.log((distance + 1) / (2.0 * depth))
         except:
-            return None"""
-
-        if start_synset.pos != target_synset.pos:
             return None
-
-        depth = MAX_TAXONOMY_DEPTHS[start_synset.pos]
-
-        distance = self._shortest_path_distance(start_synset, target_synset)
-
-        if distance >= 0:
-            return -math.log((distance + 1) / (2.0 * depth))
-        return None
 
     def wup_similarity(self, start_synset: Synset, target_synset: Synset) -> Union[float, None]:
         """Calculates Wu and Palmer's similarity between the two synsets.
@@ -393,6 +384,18 @@ class Wordnet:
             return None
 
         return (2.0 * lcs_depth) / (self_depth + other_depth)
+
+    def all_relation_types(self) -> List[str]:
+        """
+        Finds and returns all relation types used in this Wordnet.
+        
+        Returns
+        -------
+        A list of strings: relation types used in this Wordnet.
+        """
+        self.cur.execute("SELECT DISTINCT relation FROM wordnet_relation")
+        wn_all_relation_types = self.cur.fetchall()
+        return [r[0] for r in wn_all_relation_types]
 
     def __str__(self):
         return "Wordnet version {}".format(self.version)

@@ -16,10 +16,12 @@ from .json_converter import from_json_file
 from .json_exporter import annotation_to_json
 from .json_exporter import text_to_json
 from .json_exporter import layer_to_json
+from .json_exporter import layers_to_json
 
+from .json_importer import json_to_annotation
 from .json_importer import json_to_text
 from .json_importer import json_to_layer
-from .json_importer import json_to_annotation
+from .json_importer import json_to_layers
 
 from .TCF_exporter import export_TCF
 from .TCF_importer import import_TCF

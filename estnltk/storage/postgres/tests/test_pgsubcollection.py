@@ -115,7 +115,7 @@ class TestPgSubCollection(unittest.TestCase):
                                           'FROM "test_schema"."{collection_name}" '
                                           'ORDER BY "test_schema"."{collection_name}"."id") AS a'
                     ).format(collection_name=self.collection_name)
-        print(subcollection.sql_count_query_text)
+        logger.debug( str(subcollection.sql_count_query_text) )
         assert subcollection.sql_count_query_text == expected
 
     def test_select(self):
@@ -143,10 +143,9 @@ class TestPgSubCollection(unittest.TestCase):
         assert len(list(subcollection_4)) == 4
 
         selection_criterion = pg.WhereClause(collection=self.collection,
-                                             layer_query={'morph_analysis': pg.JsonbLayerQuery('morph_analysis', lemma='esimene') |
-                                                                            pg.JsonbLayerQuery('morph_analysis', lemma='ööbik') |
-                                                                            pg.JsonbLayerQuery('morph_analysis', lemma='mis')
-                                                          }
+                                             query=pg.LayerQuery(layer_name='morph_analysis', lemma='esimene') | \
+                                                   pg.LayerQuery(layer_name='morph_analysis', lemma='ööbik') | \
+                                                   pg.LayerQuery(layer_name='morph_analysis', lemma='mis')
                                              )
         subcollection_5 = subcollection_4.select(additional_constraint=selection_criterion)
         assert isinstance(subcollection_5, pg.PgSubCollection)
@@ -155,7 +154,7 @@ class TestPgSubCollection(unittest.TestCase):
         assert len(list(subcollection_5)) == 3
 
         selection_criterion = pg.WhereClause(collection=self.collection,
-                                             keys=[0, 1, 2])
+                                             query=pg.IndexQuery(keys=[0, 1, 2]))
         subcollection_6 = subcollection_5.select(additional_constraint=selection_criterion)
         assert isinstance(subcollection_6, pg.PgSubCollection)
         assert subcollection_6.selected_layers == ['words', 'sentences']
@@ -215,20 +214,30 @@ class TestPgSubCollection(unittest.TestCase):
     def test_head(self):
         subcollection = pg.PgSubCollection(self.collection)
 
-        head = subcollection.head(0)
+        head = list(subcollection.head(0))
         assert head == []
 
-        head = subcollection.head(2)
+        head = list(subcollection.head(2))
         assert len(head) == 2
         assert head[0][1].text == 'Esimene lause. Teine lause. Kolmas lause.'
         assert head[1][1].text == 'Teine tekst'
 
-        head = subcollection.head(20)
+        head = list(subcollection.head(20))
         assert len(head) == 4
 
     def test_tail(self):
-        with self.assertRaises(NotImplementedError):
-            self.subcollection.tail()
+        subcollection = pg.PgSubCollection(self.collection)
+
+        tail = list(subcollection.tail(0))
+        assert tail == []
+        
+        tail = list(subcollection.tail(2))
+        assert len(tail) == 2
+        assert tail[0][1].text == 'Ööbik laulab. Öökull ei laula.'
+        assert tail[1][1].text == 'Mis kell on?'
+
+        tail = list(subcollection.tail(20))
+        assert len(tail) == 4
 
     def test_select_all(self):
         subcollection_0 = pg.PgSubCollection(self.collection)

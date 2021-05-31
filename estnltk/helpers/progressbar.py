@@ -1,5 +1,5 @@
-from tqdm import tqdm, tqdm_notebook
-
+from tqdm import tqdm
+from tqdm.notebook import tqdm as notebook_tqdm
 
 class Progressbar:
     def __init__(self, iterable, total, initial, progressbar_type):
@@ -15,7 +15,7 @@ class Progressbar:
                                       ascii=progressbar_type == 'ascii',
                                       smoothing=0)
         elif progressbar_type == 'notebook':
-            self.data_iterator = tqdm_notebook(iterable,
+            self.data_iterator = notebook_tqdm(iterable,
                                                total=total,
                                                initial=initial,
                                                unit='doc',

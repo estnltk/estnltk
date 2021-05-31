@@ -3,6 +3,97 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.6.8-beta] - 2021-05-31
+
+## Changed
+
+* `HfstEstMorphAnalyser` was renamed to `HfstClMorphAnalyser` and it's engine was changed. It is no longer dependent on the PyPI `hfst` package, but uses [HFST command line tools](https://github.com/hfst/hfst/wiki/Command-Line-Tools) instead. Both file-based and stream-based communication modes are supported. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/hfst/morph_analysis_with_hfst_analyser.ipynb);
+
+* `UserDictTagger`: dictionary entries should now be passed only via the constructor. Using methods `add_word()` and `add_words_from_csv_file()` directly is deprecated. [Tutorial](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/nlp_pipeline/B_07a_morph_analysis_with_user_dict.ipynb);
+
+* `CorpusBasedMorphDisambiguator`: the interface was changed in a way that  the disambiguator now works with detached layers. The interface similar to  `Retagger`'s `_change_layer` is provided by methods `_predisambiguate_detached_layers` and ` _postdisambiguate_detached_layers`. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/nlp_pipeline/B_07b_morph_analysis_with_corpus-based_disambiguation.ipynb);
+
+* Statistical syntactic parsers:
+    * `MaltParserTagger` now uses a model trained on `morph_analysis` layer by default. This is also the only model that is distributed with the package, other models need to be downloaded from the [github](https://github.com/estnltk/estnltk/tree/ba471626227238b2b83ef7a3479b315407c44807/estnltk/taggers/syntax/maltparser_tagger/java-res/maltparser);
+    * `UDPipeTagger`-s models now need to be downloaded separately from github. See [this tutorial](https://github.com/estnltk/estnltk/blob/ba471626227238b2b83ef7a3479b315407c44807/tutorials/syntax/syntax.ipynb) for details;
+
+* Refactored `VabamorfTagger` & other morphology components: 
+	* removed `re_sort_analyses` parameter, which is no longer relevant;
+	* added `use_reorderer` parameter, which turns on applying [`MorphAnalysisReorderer`](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/nlp_pipeline/B_07c_morph_analysis_reordering.ipynb) as the last correction step. Note: the parameter is switched on by default, so that ambiguous morphological analyses are now always reordered (by their corpus frequency);
+
+* `Layer.groupby` now accepts a string argument if you need to group by a single attribute. So, instead of `text.morph_analysis.groupby(['partofspeech'])`, you can write `text.morph_analysis.groupby('partofspeech')`. In addition, an attached layer can be grouped by other layer of the `Text` object simply by giving the name of the layer, e.g. `text.morph_analysis.groupby('sentences')`.
+
+* `TIMEXES_RESOLVER`, which provides a pipeline for `TimeTagger` along with required tokenization fixes (which improve the quality of timex detection). For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/taggers/temporal_expression_tagger.ipynb);
+
+* PostgreSQL interface was refactored:
+	*  Removed `_select_by_key`, `get_layer_names` and `find_fingerprint` from `PgCollection`;
+	*  Tabel insertion logic was moved from `PgCollection` to separate context manager classes: `BufferedTableInsert`, `CollectionTextObjectInserter` and `CollectionDetachedLayerInserter`;
+	*  Refactored `Query.eval()` interface: `PgCollection` is now used as an input;
+	* `JsonbTextQuery` and `JsonbLayerQuery` were replaced by **`LayerQuery`**, which now works both on attached and detached layers. [Tutorial](https://github.com/estnltk/estnltk/blob/7efc7a60eb15be5775c6790c0b8ca5a06259e2ae/tutorials/storage/storing_text_objects_in_postgres.ipynb);
+
+* Dropped Python 3.5 support, and added Python 3.8 support. 
+
+## Added
+
+* Function `make_userdict()` for automatically creating `UserDictTagger` based on a dictionary of mappings from incorrect spellings to correct spellings. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/nlp_pipeline/B_07a_morph_analysis_with_user_dict.ipynb);
+
+* Function `split_by_clauses`, which properly splits text into clauses,
+  considering all the discontinuous spans (embedded clauses) of the clauses layer. For this, a supporting function `extract_discontinuous_sections` was implemented, which allows to extract discontinuous sections from the `Text`. The function `split_by` was updated in a way that it applies `split_by_clauses` on the clauses layer by default. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/system/layer_operations.ipynb);
+
+* Added parameters `predisambiguate` and `postdisambiguate` to `VabamorfTagger`, which can be used to turn on _text-based morphological disambiguation_ provided by `CorpusBasedMorphDisambiguator`. Note: by default, the parameters are not turned on. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/nlp_pipeline/B_07b_morph_analysis_with_corpus-based_disambiguation.ipynb);
+
+* Parameter `force_resolving_by_priority` to `GrammarParsingTagger`. This applies (experimental) post-resolving all conflicts by priority attributes of grammar rules. Details in [this tutorial](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/finite_grammar/introduction_to_finite_grammar.ipynb); 
+
+* `TokenSplitter` -- a retagger which can be used to make rule-based post-corrections to the tokens layer. Details are given in [this tutorial](https://github.com/estnltk/estnltk/blob/c5b30eb7b1c7eb6868ebda408a6c12a19f8dffa7/tutorials/nlp_pipeline/B_01_segmentation_tokens.ipynb);
+
+* Added patterns for detecting hashtags and Twitter username mentions to `CompoundTokenTagger`. Can be switched on by the flag `tag_hashtags_and_usernames`. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/nlp_pipeline/B_02_segmentation_compound_tokens.ipynb). Also, `PostMorphAnalysisTagger` was updated to provide some post-corrections on  the corresponding tokens, see details [here](https://github.com/estnltk/estnltk/blob/2b47a4ce8e3a08b85b23b73a281836a23e20ac68/tutorials/nlp_pipeline/B_06_morphological_analysis.ipynb).
+
+* The following new query types were added to PostgreSQL interface: 
+   * `IndexQuery`, `SliceQuery` -- for querying `Text` objects by their collection indexes;
+   * `MetadataQuery` -- for querying `Text` objects by their metadata (collection or text metadata, for details, see this [tutorial](https://github.com/estnltk/estnltk/blob/7efc7a60eb15be5775c6790c0b8ca5a06259e2ae/tutorials/storage/storing_text_objects_in_postgres.ipynb);
+   * Updated `LayerNgramQuery`: added validation for the existence of `ngram_index` columns;
+
+* Shuffling and sampling methods were added to `PgSubCollection`:
+   * method `permutate()` -- iterates texts in random order;
+   * method `sample()` -- selects a random sample of texts from the collection;
+   * method `sample_from_layer()` -- selects a random sample of spans from a specific layer of the collection;
+   * for details, see [this tutorial](https://github.com/estnltk/estnltk/blob/7efc7a60eb15be5775c6790c0b8ca5a06259e2ae/tutorials/storage/sampling_texts_and_layers_in_postgres.ipynb) 
+
+* Proper implementations of `head` and `tail` methods were added to `PgSubCollection`. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/7efc7a60eb15be5775c6790c0b8ca5a06259e2ae/tutorials/storage/storing_text_objects_in_postgres.ipynb);
+
+* Possibility to append to an existing table with `PgCollection`'s `export_layer` method. Use the parameter `mode='append'` to switch on the appending mode. Read also [docstring of the method](https://github.com/estnltk/estnltk/blob/aadf87855f07b2a465eecdaebac95aef1caffeda/estnltk/storage/postgres/collection.py#L960-L1007).
+
+* `StanzaSyntaxTagger` and `StanzaSyntaxEnsembleTagger` -- the syntax taggers use models trained with [Stanza](https://stanfordnlp.github.io/stanza/). See [tutorial](https://github.com/estnltk/estnltk/blob/ba471626227238b2b83ef7a3479b315407c44807/tutorials/syntax/syntax.ipynb) for usage, performance scores and links to models;
+
+* `UDValidationRetagger` and `DeprelAgreementRetagger` -- retaggers for marking errors in parsed syntax. These only work for layers that make use of UD syntactic relations.
+See [tutorial](https://github.com/estnltk/estnltk/blob/ba471626227238b2b83ef7a3479b315407c44807/tutorials/syntax/syntax.ipynb) for details and usage.
+
+
+* WebTaggers -- taggers which annotate texts via webservices. Currently implemented web taggers: `VabamorfWebTagger`, `BertEmbeddingsWebTagger`, `SoftmaxEmbTagSumWebTagger`, `StanzaSyntaxWebTagger`, `StanzaSyntaxEnsembleWebTagger`. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/c5b30eb7b1c7eb6868ebda408a6c12a19f8dffa7/tutorials/taggers/web_taggers.ipynb);
+
+* Wordnet method `get_synset_by_name` which can be used to retrieve a synset by its name attribute, and method `all_relation_types` for retrieving all relation types. Details in [this tutorial](https://github.com/estnltk/estnltk/blob/c5b30eb7b1c7eb6868ebda408a6c12a19f8dffa7/tutorials/wordnet/wordnet.ipynb).
+
+## Fixed
+
+* `PostMorphAnalysisTagger`: added `input_words_layer` parameter, because it was required for checking `morph_analysis` parent;
+
+* `Layer.display()` crashing on an empty layer;
+
+* `extract_sections` crashing on discontinouos spans & `trim_overlapping=True`;
+
+* estner `Trainer`: 
+	* `trainer.train` is now called after features from all documents have been extracted (makes training much faster if the number of training documents is large);
+	* `ModelStorageUtil` now allows to save a newly trained model to the directory from which the settings were loaded. An exception is the default model dir, which should not be used.
+
+
+* PostgreSQL interface:
+    * `pgpass_parsing`: reading password from the `pgpass_file` should work now;
+	* Fixed `PgCollection.create_layer`: missing\_layer is now properly specified in the data\_iterator;
+	* Fix in `SubstringQuery`: added missig `required_layers` property;
+	* Fix in `WhereClause`: added missing `_required_layers` for conjunction of `WhereClauses`;
+	* Fixes for `And` & `Or` queries: added missing `required_layers` properties;
+
+
 # [1.6.7-beta] - 2020-09-02
 ## Changed
 

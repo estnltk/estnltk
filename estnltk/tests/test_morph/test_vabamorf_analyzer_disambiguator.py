@@ -4,7 +4,6 @@ from estnltk import Text
 from estnltk import Annotation
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.morf import IGNORE_ATTR
-from estnltk.taggers.morph_analysis.morf import SORT_VM_MORPH_ANALYSES
 from estnltk.layer import AmbiguousAttributeList
 
 
@@ -541,7 +540,7 @@ def test_ordering_of_ambiguous_morph_analyses():
     #for a in ambiguous_analyses:
     #    print(a)
     # ==============
-    #  ordering A: when VabamorfAnalyzer & VabamorfDisambiguator do not sort ambiguous analyses
+    #  ordering when VabamorfAnalyzer & VabamorfDisambiguator do not sort ambiguous analyses
     # ==============
     ordering_a = [ \
        ['ühed', ('üks', 'N', 'pl n'), ('üks', 'P', 'pl n')],
@@ -552,22 +551,8 @@ def test_ordering_of_ambiguous_morph_analyses():
        ['kogunenud', ('kogune', 'V', 'nud'), ('kogune=nud', 'A', ''), ('kogune=nud', 'A', 'sg n'), ('kogune=nud', 'A', 'pl n')]
     ]
     # ==============
-    #  ordering B: when VabamorfAnalyzer & VabamorfDisambiguator are sorting ambiguous analyses
-    # ==============
-    ordering_b = [ \
-        ['ühed', ('üks', 'N', 'pl n'), ('üks', 'P', 'pl n')],
-        ['sattunud', ('sattu=nud', 'A', ''), ('sattu=nud', 'A', 'sg n'), ('sattu=nud', 'A', 'pl n'), ('sattu', 'V', 'nud')],
-        ['jutustatud', ('jutusta=tud', 'A', ''), ('jutusta=tud', 'A', 'sg n'), ('jutusta=tud', 'A', 'pl n'), ('jutusta', 'V', 'tud')],
-        ['on', ('ole', 'V', 'b'), ('ole', 'V', 'vad')],
-        ['vähenenud', ('vähene=nud', 'A', ''), ('vähene=nud', 'A', 'sg n'), ('vähene=nud', 'A', 'pl n'), ('vähene', 'V', 'nud')],
-        ['kogunenud', ('kogune=nud', 'A', ''), ('kogune=nud', 'A', 'sg n'), ('kogune=nud', 'A', 'pl n'), ('kogune', 'V', 'nud')]
-    ]
-    # ==============
     #  validate the current ordering
     # ==============
-    if not SORT_VM_MORPH_ANALYSES:
-        assert ordering_a == ambiguous_analyses
-    else:
-        assert ordering_b == ambiguous_analyses
+    assert ordering_a == ambiguous_analyses
 
 

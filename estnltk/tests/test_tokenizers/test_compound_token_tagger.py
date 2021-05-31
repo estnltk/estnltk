@@ -97,6 +97,34 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             self.assertListEqual(test_text['expected_words'], word_segmentation)
 
 
+    def test_detect_hashtags_and_usernames(self):
+        # Test tagging Twitter-style hashtags and username mentions
+        test_texts = [ 
+            { 'text': 'Rõuge Veepeo Rannalaval ainult #dnb #dubstep', \
+              'expected_words': ['Rõuge', 'Veepeo', 'Rannalaval', 'ainult', '#dnb', '#dubstep'] }, \
+            { 'text': '@6elushunnik @kanafilee jah, väga deep, jube lausa #naerma#ajab', \
+              'expected_words': ['@6elushunnik', '@kanafilee', 'jah', ',', 'väga', 'deep', ',', 'jube', 'lausa', '#naerma', '#ajab'] }, \
+            { 'text': 'RT @Kanaburger: semudega kummituslinna tsekkima :) #Udu#öö#Kummituslinn', \
+              'expected_words': ['RT', '@Kanaburger', ':', 'semudega', 'kummituslinna', 'tsekkima', ':)', '#Udu', '#öö', '#Kummituslinn'] }, \
+        ]
+        cp_tagger_3 = CompoundTokenTagger(tag_hashtags_and_usernames=True)
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            text.tag_layer(['tokens'])
+            cp_tagger_3.tag(text)
+            text.tag_layer(['words'])
+            words_layer = text['words']
+            # Fetch results
+            word_segmentation = [] 
+            for wid, word in enumerate(words_layer):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
+
+
     def test_detect_xml_tags(self):
         test_texts = [ 
             { 'text': '<u>Kirjavahemärgid, hingamiskohad</u>.', \

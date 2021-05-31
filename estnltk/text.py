@@ -4,7 +4,7 @@ import networkx as nx
 
 from copy import copy, deepcopy
 from collections import defaultdict
-from typing import List, Sequence, Set, Union, Any
+from typing import List, Sequence, Set, Union, Any, Mapping
 from typing import DefaultDict
 
 from estnltk.layer.layer import Layer
@@ -22,7 +22,8 @@ class Text:
         'diff',
         'layers',
         'list_layers',
-        'tag_layer'
+        'tag_layer',
+        'topological_sort',
     } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
     # attribute_mapping_for_elementary_layers: Mapping[str, str]
@@ -290,12 +291,16 @@ class Text:
             self.pop_layer('tokens')
         return self
 
-    def list_layers(self) -> List[Layer]:
+    @staticmethod
+    def topological_sort(layers: Mapping[str, Layer]) -> List[Layer]:
         """
-        Returns a list of all layers of this text object in order of dependencies and layer names.
+        Returns a list of all layers of the given dict of layers in order of dependencies and layer names.
         The order is uniquely determined.
+
+        ayers: Mapping[str, Layer]
+            maps layer name to layer
         """
-        layer_list = sorted(self.__dict__.values(), key=lambda l: l.name)
+        layer_list = sorted(layers.values(), key=lambda l: l.name)
         sorted_layers = []
         sorted_layer_names = set()
         while layer_list:
@@ -307,6 +312,13 @@ class Text:
                     layer_list.remove(layer)
                     break
         return sorted_layers
+
+    def list_layers(self) -> List[Layer]:
+        """
+        Returns a list of all layers of this text object in order of dependencies and layer names.
+        The order is uniquely determined.
+        """
+        return self.topological_sort(self.__dict__)
 
     def diff(self, other):
         """

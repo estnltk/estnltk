@@ -1,11 +1,11 @@
 import bisect
-import collections
+from collections.abc import Sequence
 from typing import Union, Any, Hashable, List
 
 from estnltk import BaseSpan, Span
 
 
-class SpanList(collections.Sequence):
+class SpanList(Sequence):
     """
     # TODO replace with SortedDict
     """

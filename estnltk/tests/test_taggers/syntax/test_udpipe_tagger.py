@@ -1,3 +1,4 @@
+import os
 from collections import OrderedDict
 
 import pytest
@@ -5,6 +6,9 @@ from estnltk import Text
 from estnltk.converters import dict_to_layer
 from estnltk.taggers import ConllMorphTagger
 from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import check_if_udpipe_is_in_path
+from estnltk.taggers.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
+
+UDPIPE_SYNTAX_MODELS_PATH = os.environ.get('UDPIPE_SYNTAX_MODELS_PATH')
 
 udpipe_dict = {
     'name': 'udpipe_syntax',
@@ -193,13 +197,17 @@ udpipe_dict = {
 
 @pytest.mark.skipif(not check_if_udpipe_is_in_path('udpipe'),
                     reason="a directory containing udpipe executable must be inside the system PATH")
+@pytest.mark.skipif(UDPIPE_SYNTAX_MODELS_PATH is None,
+                    reason="Environment variable UDPIPE_SYNTAX_MODELS_PATH is not defined.")
+@pytest.mark.skipif(not check_if_vislcg_is_in_path('vislcg3'),
+                    reason="a directory containing vislcg3 executable must be inside the system PATH")
 def test_udpipe_tagger():
     from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
     text = Text(
         'Nuriseti , et hääbuvale kultuurile rõhumine mõjus pigem masendavalt ega omanud seost etnofuturismiga .')
     text.analyse('all')
-    conll = ConllMorphTagger()
+    conll = ConllMorphTagger() # requires vislcg3
     conll.tag(text)
-    tagger = UDPipeTagger()
+    tagger = UDPipeTagger( resources_path = UDPIPE_SYNTAX_MODELS_PATH )
     tagger.tag(text)
     assert dict_to_layer(udpipe_dict) == text.udpipe_syntax, text.udpipe_syntax.diff(dict_to_layer(udpipe_dict))

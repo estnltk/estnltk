@@ -187,7 +187,7 @@ def _make_postfixes_1( analysis ):
     ''' Provides some post-fixes. '''
     assert 'form' in analysis, '(!) The input analysis does not contain "form" key.'
     if 'neg' in analysis['form']:
-        analysis['form'] = re.sub( '^\s*neg ([^,]*)$',  '\\1 Neg',  analysis['form'] )
+        analysis['form'] = re.sub( r'^\s*neg ([^,]*)$',  '\\1 Neg',  analysis['form'] )
     analysis['form'] = re.sub( ' Neg Neg$',  ' Neg',  analysis['form'] )
     analysis['form'] = re.sub( ' Aff Neg$',  ' Neg',  analysis['form'] )
     analysis['form'] = re.sub( 'neg',  'Neg',  analysis['form'] )

@@ -1,5 +1,4 @@
 from estnltk.text import Text
-from estnltk.taggers.morph_analysis.morf import SORT_VM_MORPH_ANALYSES
 from estnltk.taggers.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
 from estnltk.tests.test_morph.test_cb_disambiguator import count_analyses
 
@@ -191,6 +190,40 @@ def test_ordering_of_ambiguous_morph_analyses():
     Hästi jutustatud ja korraliku ideega.
     Kuna peamine põhjus vähendada suitsugaaside kardinaid osatähtsus on vähenenud läbipääsu toru kogunenud tahm seintel.
     '''
+    #
+    # 1) Ordering without the reordering step
+    #
+    text=Text(text_str)
+    text.tag_layer(['words','sentences'])
+    vm_corpus_tagger = VabamorfCorpusTagger(use_reorderer=False)
+    vm_corpus_tagger.tag([text])
+    # Collect ambiguous analyses
+    ambiguous_analyses = []
+    for morph_word in text.morph_analysis:
+        annotations = morph_word.annotations
+        #ambiguous_analyses.append( [morph_word.text]+[(a['root'], a['partofspeech'], a['form'] ) for a in annotations] )
+        if len( annotations ) > 1:
+            ambiguous_analyses.append( [morph_word.text]+[(a['root'], a['partofspeech'], a['form'] ) for a in annotations] )
+    # ==============
+    #print()
+    #for a in ambiguous_analyses:
+    #    print(a)
+    # ==============
+    ordering_a = [ \
+       ['ühed', ('üks', 'N', 'pl n'), ('üks', 'P', 'pl n')],
+       ['sattunud', ('sattu', 'V', 'nud'), ('sattu=nud', 'A', ''), ('sattu=nud', 'A', 'sg n'), ('sattu=nud', 'A', 'pl n')],
+       ['jutustatud', ('jutusta', 'V', 'tud'), ('jutusta=tud', 'A', ''), ('jutusta=tud', 'A', 'sg n'), ('jutusta=tud', 'A', 'pl n')],
+       ['on', ('ole', 'V', 'b'), ('ole', 'V', 'vad')],
+       ['vähenenud', ('vähene', 'V', 'nud'), ('vähene=nud', 'A', ''), ('vähene=nud', 'A', 'sg n'), ('vähene=nud', 'A', 'pl n')],
+       ['kogunenud', ('kogune', 'V', 'nud'), ('kogune=nud', 'A', ''), ('kogune=nud', 'A', 'sg n'), ('kogune=nud', 'A', 'pl n')]
+    ]
+    # ==============
+    #  validate the current ordering
+    # ==============
+    assert ordering_a == ambiguous_analyses
+    #
+    # 2) Ordering with the reordering step (default)
+    #
     text=Text(text_str)
     text.tag_layer(['words','sentences'])
     vm_corpus_tagger = VabamorfCorpusTagger()
@@ -207,32 +240,16 @@ def test_ordering_of_ambiguous_morph_analyses():
     #for a in ambiguous_analyses:
     #    print(a)
     # ==============
-    #  ordering A: when VabamorfAnalyzer & VabamorfDisambiguator do not sort ambiguous analyses
-    # ==============
-    ordering_a = [ \
-       ['ühed', ('üks', 'N', 'pl n'), ('üks', 'P', 'pl n')],
+    ordering_b = [ \
+       ['ühed', ('üks', 'P', 'pl n'), ('üks', 'N', 'pl n')],
        ['sattunud', ('sattu', 'V', 'nud'), ('sattu=nud', 'A', ''), ('sattu=nud', 'A', 'sg n'), ('sattu=nud', 'A', 'pl n')],
        ['jutustatud', ('jutusta', 'V', 'tud'), ('jutusta=tud', 'A', ''), ('jutusta=tud', 'A', 'sg n'), ('jutusta=tud', 'A', 'pl n')],
        ['on', ('ole', 'V', 'b'), ('ole', 'V', 'vad')],
-       ['vähenenud', ('vähene', 'V', 'nud'), ('vähene=nud', 'A', ''), ('vähene=nud', 'A', 'sg n'), ('vähene=nud', 'A', 'pl n')],
-       ['kogunenud', ('kogune', 'V', 'nud'), ('kogune=nud', 'A', ''), ('kogune=nud', 'A', 'sg n'), ('kogune=nud', 'A', 'pl n')]
-    ]
-    # ==============
-    #  ordering B: when VabamorfAnalyzer & VabamorfDisambiguator are sorting ambiguous analyses
-    # ==============
-    ordering_b = [ \
-        ['ühed', ('üks', 'N', 'pl n'), ('üks', 'P', 'pl n')],
-        ['sattunud', ('sattu=nud', 'A', ''), ('sattu=nud', 'A', 'sg n'), ('sattu=nud', 'A', 'pl n'), ('sattu', 'V', 'nud')],
-        ['jutustatud', ('jutusta=tud', 'A', ''), ('jutusta=tud', 'A', 'sg n'), ('jutusta=tud', 'A', 'pl n'), ('jutusta', 'V', 'tud')],
-        ['on', ('ole', 'V', 'b'), ('ole', 'V', 'vad')],
-        ['vähenenud', ('vähene=nud', 'A', ''), ('vähene=nud', 'A', 'sg n'), ('vähene=nud', 'A', 'pl n'), ('vähene', 'V', 'nud')],
-        ['kogunenud', ('kogune=nud', 'A', ''), ('kogune=nud', 'A', 'sg n'), ('kogune=nud', 'A', 'pl n'), ('kogune', 'V', 'nud')]
+       ['vähenenud', ('vähene', 'V', 'nud'), ('vähene=nud', 'A', ''), ('vähene=nud', 'A', 'pl n'), ('vähene=nud', 'A', 'sg n')],
+       ['kogunenud', ('kogune=nud', 'A', ''), ('kogune', 'V', 'nud'), ('kogune=nud', 'A', 'pl n'), ('kogune=nud', 'A', 'sg n')]
     ]
     # ==============
     #  validate the current ordering
     # ==============
-    if not SORT_VM_MORPH_ANALYSES:
-        assert ordering_a == ambiguous_analyses
-    else:
-        assert ordering_b == ambiguous_analyses
+    assert ordering_b == ambiguous_analyses
 
