@@ -57,19 +57,47 @@ create_caches()
 
 setup(
     name="estnltk",
-    version="1.6.7beta",
+    version="1.6.8b0",
 
     packages=find_packages(exclude=exclude_package_dirs),
     include_package_data=True,
     package_data={
-        'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java/res/*.*'],
-        'estnltk.taggers': ['miscellaneous/*.csv', 'syntax/files/*.*', 'syntax/files/LICENSE', 'syntax/java-res/maltparser/*.*', 'syntax/java-res/maltparser/lib/*.*', 'syntax/udpipe_tagger/resources/*.*', 'morph_analysis/hfst/models/*.*', 'morph_analysis/number_fixes/*.*', 'morph_analysis/reorderings/*.*', 'verb_chains/v1_4_1/res/*.*', 'syntax_preprocessing/rules_files/*.*', 'text_segmentation/*.csv', 'estner/gazetteer/*', 'estner/models/py3_default/*'],
-        'estnltk.tests': ['test_morph/*.csv', 'test_corpus_processing/*.vert', 'test_taggers/test_dict_taggers/*.csv', 'test_taggers/miscellaneous/*.json', 'test_taggers/test_standard_taggers/*.json', 'test_taggers/*.txt', 'test_visualisation/expected_outputs/direct_plain_span_visualiser_outputs/*.txt', 'test_visualisation/expected_outputs/indirect_plain_span_visualiser_outputs/*.txt', 'test_visualisation/expected_outputs/attribute_visualiser_outputs/*.txt', 'test_converters/*.conll', 'test_syntax_preprocessing/*.txt',],
-        'estnltk.vabamorf': ['dct/2020-01-22_nosp/*.dct', 'dct/2020-01-22_sp/*.dct'],
+        'estnltk.java': [ 'res/*.*'],
+        'estnltk.taggers.estner': ['gazetteer/*', 'models/py3_default/*'],
+        'estnltk.taggers.miscellaneous':  ['*.csv'],
+        'estnltk.taggers.morph_analysis': ['hfst/models/*.*', 
+                                           'number_fixes/*.*', 
+                                           'reorderings/*.*'],
+        'estnltk.taggers.syntax': ['files/*.*', 
+                                   'files/LICENSE', 
+                                   'maltparser_tagger/java-res/maltparser/maltparser-1.9.0.jar', 
+                                   'maltparser_tagger/java-res/maltparser/MaltParser_LICENSE.txt', 
+                                   'maltparser_tagger/java-res/maltparser/morph_analysis_conllu.mco', 
+                                   'maltparser_tagger/java-res/maltparser/lib/*.*', 
+                                   'stanza_tagger/stanza_resources/*.*',
+                                   'ud_validation/agreement_resources/*.*',
+                                   'ud_validation/data/*.*'],
+        'estnltk.taggers.syntax_preprocessing': ['rules_files/*.*'], 
+        'estnltk.taggers.text_segmentation': ['*.csv'], 
+        'estnltk.taggers.verb_chains': ['v1_4_1/res/*.*'],
+        'estnltk.tests.test_converters': ['*.conll'], 
+        'estnltk.tests.test_corpus_processing': ['*.vert'], 
+        'estnltk.tests.test_morph': ['*.csv'], 
+        'estnltk.tests.test_syntax_preprocessing': ['*.txt'], 
+        'estnltk.tests.test_taggers': ['*.txt', 
+                                       'test_dict_taggers/*.csv', 
+                                       'miscellaneous/*.json',
+                                       'test_standard_taggers/*.json',], 
+        'estnltk.tests.test_visualisation': ['expected_outputs/direct_plain_span_visualiser_outputs/*.txt',
+                                             'expected_outputs/indirect_plain_span_visualiser_outputs/*.txt',
+                                             'expected_outputs/attribute_visualiser_outputs/*.txt'], 
+        'estnltk.vabamorf': ['dct/2020-01-22_nosp/*.dct', 
+                             'dct/2020-01-22_sp/*.dct'],
         'estnltk.wordnet': ['data/estwn-et-2.3.2/*.*'],
-        'estnltk.mw_verbs': ['res/*'],
-        'estnltk.converters': ['*.mrf'],
-        'estnltk.visualisation': ['attribute_visualiser/*.css', 'attribute_visualiser/*.js', 'span_visualiser/*.css', 'span_visualiser/*.js']
+        'estnltk.visualisation': ['attribute_visualiser/*.css', 
+                                  'attribute_visualiser/*.js', 
+                                  'span_visualiser/*.css', 
+                                  'span_visualiser/*.js']
     },
 
     author="University of Tartu",
@@ -88,24 +116,51 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
-        'nltk>=3.0.4',  # NLTK mainly used for English
-        'regex>=2015.07.19',  # improved Python regular expressions
-        'pandas>=0.16.2',  # Panel Data Analysis library for Python
+        'nltk>=3.4.1 ; python_version >= "3.6"', # NLTK mainly required for tokenization
+        'nltk>=3.0.4 ; python_version <  "3.6"', # NLTK mainly required for tokenization
+        'regex>=2015.07.19',       # improved Python regular expressions
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
-        'conllu==3.1.1',           # CONLLU for syntax (use conllu 3 because 4 does not support py35)
         'bs4', # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
-        'html5lib', # for processing XML files of the Estonian Reference Corpus
-        'lxml',
-        'networkx',
+        'html5lib',      # for processing XML files of the Estonian Reference Corpus
+        'lxml',          # required for importing/exporting TCF format data
+        'networkx==2.5', # building graphs: required for layers, WordNet and grammars
+        'matplotlib>=3.3.4 ; python_version >  "3.6"', # required for visualizing layer graph (> py36)
+        'matplotlib==3.3.4 ; python_version == "3.6"', # required for visualizing layer graph (= py36)
+        'matplotlib==3.0.3 ; python_version <  "3.6"', # required for visualizing layer graph (< py36)
+        'requests',   # required for TextA export and WebTagger
+        'tqdm',       # progressbar: for showing progress on time-hungry operations
+        'ipython>=7.17.0 ; python_version >  "3.6"', # required for integration with Jupyter Notebook-s (> py36)
+        'ipython< 7.17.0 ; python_version == "3.6"', # required for integration with Jupyter Notebook-s (= py36)
+        # Specific package requirements for specific Python versions
+        'conllu>=3.1.1 ; python_version >= "3.6"', # CONLLU for syntax
+        'conllu==3.1.1 ; python_version == "3.5"', # CONLLU for syntax (use conllu 3 because 4 does not support py35)
+        'numpy==1.19.4 ; python_version == "3.6"', # This is the last numpy version that supports py36
+        'pandas>=1.1.5 ; python_version >  "3.6"', # Panel Data Analysis library for Python (> py36)
+        'pandas<=1.1.5 ; python_version == "3.6"', # Panel Data Analysis library for Python (= py36)
+        'pandas<1.0.0  ; python_version <  "3.6"', # Panel Data Analysis library for Python (< py36)
     ],
-
+    #
+    #  Note: if you need to build and install for Python 3.5, you need 
+    #  the following fixed package versions:
+    #     parso==0.7.0 
+    #     matplotlib==3.0.3 
+    #     pandas==0.25.3 
+    #     regex==2018.08.29 
+    #     networkx==2.4 
+    #     ipython==7.9.0
+    #     conllu==3.1.1
+    #  ( tested on Ubuntu 18.04 )
+    #
     classifiers=['Intended Audience :: Developers',
                  'Intended Audience :: Education',
                  'Intended Audience :: Science/Research',
                  'Intended Audience :: Information Technology',
                  'Operating System :: OS Independent',
                  'Programming Language :: Python :: 3.5',
+                 'Programming Language :: Python :: 3.6',
+                 'Programming Language :: Python :: 3.7',
+                 'Programming Language :: Python :: 3.8',
                  'Topic :: Scientific/Engineering',
                  'Topic :: Scientific/Engineering :: Artificial Intelligence',
                  'Topic :: Scientific/Engineering :: Information Analysis',

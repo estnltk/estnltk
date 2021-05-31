@@ -1,4 +1,5 @@
 from psycopg2.sql import SQL
+from typing import Set
 
 """
 The module provides tools to compose boolean queries.
@@ -23,7 +24,7 @@ class Node:
         """Or operation with "|" operator"""
         return Or(self, other)
 
-    def eval(self, storage, collection_name):
+    def eval(self, collection: 'PgCollection'):
         """Operations and leaf nodes should implement it"""
         raise NotImplemented()
 
@@ -34,34 +35,42 @@ class BinaryOperation(Node):
 
 
 class And(BinaryOperation):
-    def eval(self, storage, collection_name):
-        return SQL("({} AND {})").format(self.left.eval(storage, collection_name),
-                                         self.right.eval(storage, collection_name))
+    def eval(self, collection: 'PgCollection'):
+        return SQL("({} AND {})").format(self.left.eval(collection),
+                                         self.right.eval(collection))
+    @property
+    def required_layers(self) -> Set[str]:
+        return (self.left.required_layers).union( self.right.required_layers )
 
 
 class Or(BinaryOperation):
-    def eval(self, storage, collection_name):
-        return SQL("({} OR {})").format(self.left.eval(storage, collection_name),
-                                        self.right.eval(storage, collection_name))
-
+    def eval(self, collection: 'PgCollection'):
+        return SQL("({} OR {})").format(self.left.eval(collection),
+                                        self.right.eval(collection))
+    @property
+    def required_layers(self) -> Set[str]:
+        return (self.left.required_layers).union( self.right.required_layers )
 
 class Query(Node):
-    def eval(self, storage, collection_name):
+    def eval(self, collection: 'PgCollection'):
         """Returns string representation of a (leaf) node"""
+        raise NotImplemented()
+
+    @property
+    def required_layers(self) -> Set[str]:
+        """Returns list of detached collection layers used in query"""
         raise NotImplemented()
 
 
 # TODO: test or remove
 class SimpleQuery(Query):
     """Example implementation of `Query`.
-
         >>> SimpleQuery(city='London', country='UK').eval()
         >>> "city='London' AND country='UK'"
-
     """
 
     def _init__(self, **kwargs):
         self.kwargs = kwargs
 
-    def eval(self, storage, collection_name):
+    def eval(self, collection: 'PgCollection'):
         return SQL(' AND '.join("%s = '%s'" % (k, v) for k, v in self.kwargs.items()))

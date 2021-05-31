@@ -33,6 +33,7 @@ from estnltk.taggers.morph_analysis.gt_morf import GTMorphConverter
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf import VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.userdict_tagger import UserDictTagger
+from estnltk.taggers.morph_analysis.make_userdict import make_userdict
 from estnltk.taggers.morph_analysis.vm_analysis_reorderer import MorphAnalysisReorderer
 from estnltk.taggers.morph_analysis.vm_est_cat_names import VabamorfEstCatConverter
 
@@ -40,6 +41,8 @@ from estnltk.taggers.morph_analysis.vm_spellcheck import SpellCheckRetagger
 
 from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 from estnltk.taggers.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
+
+from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
 
 from estnltk.taggers.sequential_tagger import SequentialTagger
 
@@ -61,6 +64,7 @@ from estnltk.taggers.miscellaneous.flesch_tagger import SentenceFleschScoreRetag
 from estnltk.taggers.verb_chains import VerbChainDetector
 
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
+from estnltk.taggers.text_segmentation.token_splitter import TokenSplitter
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger
 from estnltk.taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer
 from estnltk.taggers.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
@@ -81,9 +85,16 @@ from estnltk.taggers.syntax_preprocessing.morph_extended_tagger import MorphExte
 from estnltk.taggers.syntax.visl_tagger import VislTagger
 from estnltk.taggers.syntax.conll_morph_tagger import ConllMorphTagger
 from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
-from estnltk.taggers.syntax.maltparser_tagger import MaltParserTagger
+from estnltk.taggers.syntax.maltparser_tagger.maltparser_tagger import MaltParserTagger
 from estnltk.taggers.syntax.syntax_diff_retagger import SyntaxDiffRetagger
-from estnltk.taggers.syntax.syntax_las_tagger import SyntaxLasTagger
+from estnltk.taggers.syntax.scoring.syntax_las_tagger import SyntaxLasTagger
 from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
 
 from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
+
+from estnltk.taggers.web_taggers.v01.web_tagger import WebTagger
+from estnltk.taggers.web_taggers.v01.bert_embeddings_web_tagger import BertEmbeddingsWebTagger
+from estnltk.taggers.web_taggers.v01.softmax_emb_tag_sum_web_tagger import SoftmaxEmbTagSumWebTagger
+from estnltk.taggers.web_taggers.v01.vabamorf_web_tagger import VabamorfWebTagger
+from estnltk.taggers.web_taggers.v01.stanza_syntax_web_tagger import StanzaSyntaxWebTagger
+from estnltk.taggers.web_taggers.v01.stanza_syntax_ensemble_web_tagger import StanzaSyntaxEnsembleWebTagger

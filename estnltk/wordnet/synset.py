@@ -53,22 +53,26 @@ class Synset:
 
         if self.wordnet is None:
             return []
-        if self.wordnet._graph is None:
-            self.wordnet.graph
+        if self.wordnet._relation_graph is None:
+            self.wordnet.relation_graph
 
-        graph = self.wordnet.graph
+        graph = self.wordnet.relation_graph
+
+        if not graph.has_node(self.id):
+            return []
+
         relations = graph.in_edges(self.id, data=True)
         related_synsets = []
 
         if relation is None:
             for r in relations:
-                ss = self.wordnet._synsets_dict[r[0]]
+                ss = self.wordnet.iloc[r[0]]
                 related_synsets.append((ss, r[2]['relation']))
             return related_synsets
         if relation:
             with_relation = [r[0] for r in relations if r[2]['relation'] == relation]
             for r in with_relation:
-                ss = self.wordnet._synsets_dict[r]
+                ss = self.wordnet.iloc[r]
                 related_synsets.append(ss)
             return related_synsets
 

@@ -4,30 +4,27 @@ Requires ~/.pgpass file with database connection settings to `test_db` database.
 Schema/table creation and read/write rights are required.
 
 """
-import unittest
 import random
+import unittest
 
-from estnltk import logger
 from estnltk import Layer
 from estnltk import Text
-from estnltk.taggers import VabamorfTagger
-from estnltk.taggers import ParagraphTokenizer
-from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import JsonbTextQuery as Q
-from estnltk.storage.postgres import JsonbLayerQuery
-from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema, count_rows
-from estnltk.storage.postgres import create_collection_table
-from estnltk.storage.postgres import collection_table_exists
-from estnltk.storage.postgres import drop_collection_table
-from estnltk.storage.postgres import table_exists
-from estnltk.storage.postgres import layer_table_exists
-from estnltk.storage.postgres import layer_table_identifier
-from estnltk.storage.postgres import fragment_table_exists
-from estnltk.storage.postgres import PgCollectionException
-from estnltk.storage.postgres import PgCollection
+from estnltk import logger
 from estnltk.storage import postgres as pg
-
+from estnltk.storage.postgres import LayerQuery
+from estnltk.storage.postgres import PgCollection
+from estnltk.storage.postgres import PgCollectionException
+from estnltk.storage.postgres import PostgresStorage
+from estnltk.storage.postgres import RowMapperRecord
+from estnltk.storage.postgres import collection_table_exists
+from estnltk.storage.postgres import create_collection_table
+from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import drop_collection_table
+from estnltk.storage.postgres import fragment_table_exists
+from estnltk.storage.postgres import layer_table_exists
+from estnltk.storage.postgres import table_exists
+from estnltk.taggers import ParagraphTokenizer
+from estnltk.taggers import VabamorfTagger
 
 logger.setLevel('DEBUG')
 
@@ -158,14 +155,39 @@ class TestPgCollection(unittest.TestCase):
         # test __getitem__
         assert collection[1].text == text_1.text
         assert collection[2].text == text_2.text
+        
+        # test __getitem__ and attached layers
+        collection.selected_layers = ['sentences']
+        # attached layers included:
+        self.assertTrue('words' in collection[1].layers)
+        self.assertTrue('words' in collection[2].layers)
+        self.assertTrue('sentences' in collection[1].layers)
+        self.assertTrue('sentences' in collection[2].layers)
+        # detached layers excluded:
+        self.assertTrue('morph_analysis' not in collection[1].layers)
+        self.assertTrue('morph_analysis' not in collection[2].layers)
+        self.assertTrue('paragraphs' not in collection[1].layers)
+        self.assertTrue('paragraphs' not in collection[2].layers)
+
+        # test __getitem__ and detached layers
+        collection.selected_layers = ['morph_analysis', 'paragraphs']
+        self.assertTrue('words' in collection[1].layers)
+        self.assertTrue('words' in collection[2].layers)
+        self.assertTrue('sentences' in collection[1].layers)
+        self.assertTrue('sentences' in collection[2].layers)
+        self.assertTrue('paragraphs' in collection[1].layers)
+        self.assertTrue('paragraphs' in collection[2].layers)
+        self.assertTrue('morph_analysis' in collection[1].layers)
+        self.assertTrue('morph_analysis' in collection[2].layers)
+        
         with self.assertRaises(KeyError):
             collection[5]
         with self.assertRaises(KeyError):
             next(collection['bla'])
 
-        #result = collection[1, 'paragraphs']
-        #assert isinstance(result, Layer)
-        #assert result.name == 'paragraphs'
+        # result = collection[1, 'paragraphs']
+        # assert isinstance(result, Layer)
+        # assert result.name == 'paragraphs'
 
     def test_create_and_drop_collection_table(self):
         collection_name = get_random_collection_name()
@@ -190,18 +212,6 @@ class TestPgCollection(unittest.TestCase):
         drop_collection_table(self.storage, normal_collection_name)
         drop_collection_table(self.storage, injected_collection_name)
 
-    def test_select_by_key(self):
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
-        self.assertRaises(PgCollectionException, lambda: collection._select_by_key(1))
-
-        text = Text("Mingi tekst")
-        with collection.insert() as collection_insert:
-            collection_insert(text, 1)
-        res = collection._select_by_key(1)
-        self.assertEqual(text, res)
-        collection.delete()
-
     def test_select(self):
         not_existing_collection = self.storage['not_existing']
         with self.assertRaises(pg.PgCollectionException):
@@ -221,8 +231,8 @@ class TestPgCollection(unittest.TestCase):
         id1 = 1
         id2 = 2
         # test select_by_id
-        self.assertEqual(collection._select_by_key(id1), text1)
-        self.assertEqual(collection._select_by_key(id2), text2)
+        self.assertEqual(collection[id1], text1)
+        self.assertEqual(collection[id2], text2)
 
         subcollection = collection.select()
         assert isinstance(subcollection, pg.PgSubCollection)
@@ -243,75 +253,83 @@ class TestPgCollection(unittest.TestCase):
         collection = self.storage[get_random_collection_name()]
         collection.create()
 
-        # test select
+        # test select (on attached layers)
         with collection.insert() as collection_insert:
             text1 = Text('mis kell on?').analyse('morphology')
             collection_insert(text1, key=3)
             text2 = Text('palju kell on?').analyse('morphology')
             collection_insert(text2, key=4)
-
-        res = list(collection.select(query=Q('morph_analysis', lemma='mis')))
+        
+        res = list(collection.select(query=LayerQuery('morph_analysis', lemma='mis')))
         self.assertEqual(len(res), 1)
 
-        res = list(collection.select(query=Q('morph_analysis', lemma='kell')))
+        res = list(collection.select(query=LayerQuery('morph_analysis', lemma='kell')))
         self.assertEqual(len(res), 2)
 
-        res = list(collection.select(query=Q('morph_analysis', lemma='mis') | Q('morph_analysis', lemma='palju')))
+        res = list(collection.select(query=LayerQuery('morph_analysis', lemma='mis') | LayerQuery('morph_analysis', lemma='palju')))
         self.assertEqual(len(res), 2)
 
-        res = list(collection.select(query=Q('morph_analysis', lemma='mis') & Q('morph_analysis', lemma='palju')))
+        res = list(collection.select(query=LayerQuery('morph_analysis', lemma='mis') & LayerQuery('morph_analysis', lemma='palju')))
         self.assertEqual(len(res), 0)
 
-        res = list(collection.select(query=(Q('morph_analysis', lemma='mis') | Q('morph_analysis', lemma='palju')) &
-                                    Q('morph_analysis', lemma='kell')))
+        res = list(collection.select(query=(LayerQuery('morph_analysis', lemma='mis') | LayerQuery('morph_analysis', lemma='palju')) &
+                                           LayerQuery('morph_analysis', lemma='kell')))
         self.assertEqual(len(res), 2)
 
-        # test find_fingerprint
-        q = {"layer": "morph_analysis", "field": "lemma", "ambiguous": True}
-
-        q["query"] = ["mis", "palju"]  # mis OR palju
-        res = list(collection.find_fingerprint(q))
-        self.assertEqual(len(res), 2)
-
-        q["query"] = [["mis"], ["palju"]]  # mis OR palju
-        res = list(collection.find_fingerprint(q))
-        self.assertEqual(len(res), 2)
-
-        q["query"] = [["mis", "palju"]]  # mis AND palju
-        res = list(collection.find_fingerprint(q))
+        #
+        # Note: the following tests previously targeted find_fingerprint,
+        #       which is a deprecated method and will be removed.
+        #       But we'll keep the tests to check that the same queries
+        #       can be made via select().
+        #
+        #q["query"] = [{'miss1', 'miss2'}, {'miss3'}]
+        q = (LayerQuery(layer_name="morph_analysis", lemma="miss1") & \
+             LayerQuery(layer_name="morph_analysis", lemma="miss2")) | \
+             LayerQuery(layer_name="morph_analysis", lemma="miss3")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 0)
 
-        q["query"] = [{'miss1', 'miss2'}, {'miss3'}]
-        res = list(collection.find_fingerprint(q))
-        self.assertEqual(len(res), 0)
-
-        q["query"] = [{'miss1', 'miss2'}, {'palju'}]
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [{'miss1', 'miss2'}, {'palju'}]
+        q = (LayerQuery(layer_name="morph_analysis", lemma="miss1") & \
+             LayerQuery(layer_name="morph_analysis", lemma="miss2")) | \
+             LayerQuery(layer_name="morph_analysis", lemma="palju")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 1)
 
-        q["query"] = [{'mis', 'miss2'}, {'palju'}]
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [{'mis', 'miss2'}, {'palju'}]
+        q = (LayerQuery(layer_name="morph_analysis", lemma="mis") & \
+             LayerQuery(layer_name="morph_analysis", lemma="miss2")) | \
+             LayerQuery(layer_name="morph_analysis", lemma="palju")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 1)
 
-        q["query"] = [{'mis', 'kell'}, {'miss'}]
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [{'mis', 'kell'}, {'miss'}]
+        q = (LayerQuery(layer_name="morph_analysis", lemma="mis") & \
+             LayerQuery(layer_name="morph_analysis", lemma="kell")) | \
+             LayerQuery(layer_name="morph_analysis", lemma="miss")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 1)
 
-        q["query"] = [{'mis', 'kell'}, {'palju'}]
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = [{'mis', 'kell'}, {'palju'}]
+        q = (LayerQuery(layer_name="morph_analysis", lemma="mis") & \
+             LayerQuery(layer_name="morph_analysis", lemma="kell")) | \
+             LayerQuery(layer_name="morph_analysis", lemma="palju")
+        res = list(collection.select(query = q))
         self.assertEqual(len(res), 2)
 
-        q["query"] = []
-        res = list(collection.find_fingerprint(q))
+        #q["query"] = []
+        res = list(collection.select())
         self.assertEqual(len(res), 2)
 
-        res = list(collection.select(keys=[]))
+        # test keys_query
+        res = list(collection.select(pg.IndexQuery(keys=[])))
         self.assertEqual(len(res), 0)
 
-        res = list(collection.select(keys=[1, 3]))
+        res = list(collection.select(pg.IndexQuery(keys=[1, 3])))
         self.assertEqual(len(res), 1)
 
         collection.delete()
+
 
 class TestLayerFragment(unittest.TestCase):
     def setUp(self):
@@ -405,10 +423,10 @@ class TestFragment(unittest.TestCase):
                     {'fragment': layer, 'parent_id': parent_id}]
 
         collection.create_fragment(fragment_name,
-                            data_iterator=collection.select().fragmented_layer(name=layer_fragment_name),
-                            row_mapper=row_mapper,
-                            create_index=False,
-                            ngram_index=None)
+                                   data_iterator=collection.select().fragmented_layer(name=layer_fragment_name),
+                                   row_mapper=row_mapper,
+                                   create_index=False,
+                                   ngram_index=None)
 
         rows = list(collection.select_fragment_raw(fragment_name, layer_fragment_name))
         self.assertEqual(len(rows), 4)
@@ -520,57 +538,7 @@ class TestLayer(unittest.TestCase):
 
         collection.delete()
 
-    def test_layer_query(self):
-        collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
-
-        with collection.insert() as collection_insert:
-            text1 = Text('Ööbik laulab.').tag_layer(["sentences"])
-            collection_insert(text1)
-
-            text2 = Text('Mis kell on?').tag_layer(["sentences"])
-            collection_insert(text2)
-
-        # test ambiguous layer
-        layer1_name = "layer1"
-        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1_name)
-
-        collection.create_layer(tagger=tagger1)
-
-        q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik', form='sg n')
-        self.assertEqual(len(list(collection.select(layer_query={layer1_name: q}))), 1)
-
-        q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik') | JsonbLayerQuery(layer_name=layer1_name,
-                                                                                     lemma='mis')
-        self.assertEqual(len(list(collection.select(layer_query={layer1_name: q}))), 2)
-
-        q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik') & JsonbLayerQuery(layer_name=layer1_name,
-                                                                                     lemma='mis')
-        self.assertEqual(len(list(collection.select(layer_query={layer1_name: q}))), 0)
-
-        q = JsonbLayerQuery(layer_name=layer1_name, lemma='ööbik')
-        text = [text for key, text in collection.select(layer_query={layer1_name: q})][0]
-        self.assertTrue(layer1_name not in text.layers)
-
-        text = list(collection.select(layer_query={layer1_name: q}, layers=[layer1_name]))[0][1]
-        self.assertTrue(layer1_name in text.layers)
-
-        # test with 2 layers
-        layer2 = "layer2"
-        layer2_table = layer2
-        tagger2 = VabamorfTagger(disambiguate=True, output_layer=layer2)
-
-        collection.create_layer(tagger=tagger2)
-
-        q = JsonbLayerQuery(layer_name=layer2_table, lemma='ööbik', form='sg n')
-        self.assertEqual(len(list(collection.select(layer_query={layer2: q}))), 1)
-
-        text = list(collection.select(layer_query={layer2: q}, layers=[layer1_name, layer2]))[0][1]
-        self.assertTrue(layer1_name in text.layers)
-        self.assertTrue(layer2 in text.layers)
-
-    def test_layer_fingerprint_query(self):
+    def test_detached_layer_query(self):
         collection_name = get_random_collection_name()
         collection = self.storage[collection_name]
         collection.create()
@@ -590,142 +558,37 @@ class TestLayer(unittest.TestCase):
         collection.create_layer(tagger=tagger1)
         collection.create_layer(tagger=tagger2)
 
+        #
+        # Note: the following tests previously targeted find_fingerprint,
+        #       which is a deprecated method and will be removed.
+        #       But we'll keep the tests to check that the same queries
+        #       can be made via select().
+        #
         # test one layer
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": ["ööbik"],
-                "ambiguous": True
-            }})
+        # "query": ["ööbik"]
+        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") )
         self.assertEqual(len(list(res)), 1)
 
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": ["ööbik", "mis"],  # ööbik OR mis
-                "ambiguous": True
-            }})
+        # "query": ["ööbik", "mis"],  # ööbik OR mis
+        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") | 
+                                         LayerQuery(layer1, lemma="mis") )
         self.assertEqual(len(list(res)), 2)
 
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": [["ööbik", "mis"]],  # ööbik AND mis
-                "ambiguous": True
-            }})
+        # "query": [["ööbik", "mis"]],  # ööbik AND mis
+        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") & 
+                                         LayerQuery(layer1, lemma="mis") )
         self.assertEqual(len(list(res)), 0)
 
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": [["ööbik", "laulma"]],  # ööbik AND laulma
-                "ambiguous": True
-            }})
+        # "query": [["ööbik", "laulma"]],  # ööbik AND laulma
+        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") & 
+                                         LayerQuery(layer1, lemma="laulma") )
         self.assertEqual(len(list(res)), 1)
 
         # test multiple layers
-        res = collection.find_fingerprint(layer_query={
-            layer1: {
-                "field": "lemma",
-                "query": ["ööbik"],
-                "ambiguous": True
-            },
-            layer2: {
-                "field": "lemma",
-                "query": ["ööbik"],
-                "ambiguous": True
-            }})
+        # layer1: "query": ["ööbik"]; layer2: "query": ["ööbik"];
+        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") & 
+                                         LayerQuery(layer2, lemma="ööbik") )
         self.assertEqual(len(list(res)), 1)
-
-    def test_layer_ngramm_index(self):
-        collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
-
-        id1 = 1
-        id2 = 2
-
-        with collection.insert() as collection_insert:
-            text1 = Text("Ööbik laulab puu otsas.").tag_layer(["sentences"])
-            collection_insert(text1, key=id1)
-
-            text2 = Text("Mis kell on?").tag_layer(["sentences"])
-            collection_insert(text2, key=id2)
-
-        layer1 = "layer1"
-        layer2 = "layer2"
-        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
-        tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
-
-        collection.create_layer(tagger=tagger1, ngram_index={"lemma": 2})
-        collection.create_layer(tagger=tagger2, ngram_index={"partofspeech": 3})
-
-        self.assertEqual(count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer1)), 2)
-        self.assertEqual(count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer2)), 2)
-
-        res = list(collection.find_fingerprint(layer_ngram_query={
-            layer1: {"lemma": [("otsas", ".")]}}))
-        self.assertEqual(len(res), 1)
-        self.assertEqual(res[0][0], id1)
-
-        res = list(collection.find_fingerprint(layer_ngram_query={
-            layer1: {"lemma": [("mis", "kell")]}}))
-        self.assertEqual(len(res), 1)
-        self.assertEqual(res[0][0], id2)
-
-        res = list(collection.find_fingerprint(layer_ngram_query={
-            layer1: {"lemma": [("mis",)]}}))
-        self.assertEqual(len(res), 1)
-
-        res = list(collection.find_fingerprint(layer_ngram_query={
-            layer1: {
-                "lemma": [[("mis", "kell")],  # "mis-kell" OR "otsas-."
-                          [("otsas", ".")]]
-            }}))
-        self.assertEqual(len(res), 2)
-
-        res = list(collection.find_fingerprint(layer_ngram_query={
-            layer1: {
-                "lemma": [[("mis", "kell"),  # "mis-kell" AND "otsas-."
-                           ("otsas", ".")]]
-            }}))
-        self.assertEqual(len(res), 0)
-
-        # "Ööbik laulab puu otsas." ->[['H', 'S'], ['V'], ['S', 'S'], ['D', 'K', 'V', 'S'], ['Z']]
-        # "Mis kell on?" -> [['P', 'P'], ['S'], ['V', 'V'], ['Z']]
-        res = list(collection.find_fingerprint(layer_ngram_query={
-            layer2: {"partofspeech": [("S", "V", "S")]}}))  # Ööbik laulab puu
-        self.assertEqual(len(res), 1)
-
-        res = list(collection.find_fingerprint(layer_ngram_query={
-            layer2: {"partofspeech": [("S", "V")]}}))  # 2-grams are also indexed
-        self.assertEqual(len(res), 2)
-
-        res = list(collection.find_fingerprint(layer_ngram_query={
-            layer2: {"partofspeech": [[("S", "V", "S")],  # "Ööbik laulab puu" OR "Mis kell on"
-                                      [("P", "S", "V")]]}}))
-        self.assertEqual(len(res), 2)
-
-        res = list(collection.find_fingerprint(layer_ngram_query={
-            layer2: {"partofspeech": [[("S", "V", "S"), ("S", "D", "Z")]]}}))  # "Ööbik laulab puu" AND "puu otsas ."
-        self.assertEqual(len(res), 1)
-
-        res = list(collection.find_fingerprint(layer_ngram_query={
-            layer1: {"lemma": [("puu", "otsas")]},
-            layer2: {"partofspeech": [("S", "V", "S")]},  # "laulma-puu-otsas"
-        }))
-        self.assertEqual(len(res), 1)
-
-        res = list(collection.find_fingerprint(
-            layer_ngram_query={
-                layer1: {"lemma": [("mis", "kell")]}},
-            layers=[layer1, layer2]
-        ))
-        t1 = res[0][1]
-        self.assertTrue(layer1 in t1.layers)
-        self.assertTrue(layer2 in t1.layers)
-
-        collection.delete()
 
 
 if __name__ == '__main__':

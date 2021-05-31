@@ -1,39 +1,36 @@
 import collections
 import json
-import operator as op
-import pandas
 import re
-from typing import Sequence
-from functools import reduce
+import time
 from contextlib import contextmanager
+from typing import Sequence
 
+import pandas
 import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
-from psycopg2.sql import SQL, Identifier, Literal, DEFAULT, Composed
-import time
+from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
 from estnltk import logger
-from estnltk.converters import layer_to_dict
-from estnltk.converters import layer_to_json
-from estnltk.converters import dict_to_text
 from estnltk.converters import dict_to_layer
-from estnltk.converters import text_to_json
+from estnltk.converters import dict_to_text
+from estnltk.converters import layer_to_dict
 from estnltk.layer_operations import create_ngram_fingerprint_index
-
-from estnltk.storage.postgres import structure_table_identifier
-from estnltk.storage.postgres import fragment_table_identifier
-from estnltk.storage.postgres import layer_table_identifier
-from estnltk.storage.postgres import table_exists
-from estnltk.storage.postgres import layer_table_exists
-from estnltk.storage.postgres import structure_table_exists
-from estnltk.storage.postgres import drop_layer_table
-from estnltk.storage.postgres import drop_fragment_table
-from estnltk.storage.postgres import count_rows
-from estnltk.storage.postgres import fragment_table_name
-from estnltk.storage.postgres import layer_table_name
-from estnltk.storage.postgres import JsonbLayerQuery
-from estnltk.storage.postgres import JsonbTextQuery
 from estnltk.storage import postgres as pg
+from estnltk.storage.postgres import BufferedTableInsert
+from estnltk.storage.postgres import CollectionDetachedLayerInserter
+from estnltk.storage.postgres import CollectionTextObjectInserter
+from estnltk.storage.postgres import count_rows
+from estnltk.storage.postgres import drop_fragment_table
+from estnltk.storage.postgres import drop_layer_table
+from estnltk.storage.postgres import fragment_table_identifier
+from estnltk.storage.postgres import fragment_table_name
+from estnltk.storage.postgres import layer_table_exists
+from estnltk.storage.postgres import layer_table_identifier
+from estnltk.storage.postgres import layer_table_name
+from estnltk.storage.postgres import structure_table_exists
+from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
+from estnltk.storage.postgres.queries.slice_query import SliceQuery
 
 
 class PgCollectionException(Exception):
@@ -41,22 +38,6 @@ class PgCollectionException(Exception):
 
 
 RowMapperRecord = collections.namedtuple("RowMapperRecord", ["layer", "meta"])
-
-
-def get_query_length(q):
-    """:returns
-    approximate number of characters in the psycopg2 SQL query
-    """
-    result = 0
-    if isinstance(q, Composed):
-        for r in q:
-            result += get_query_length(r)
-    elif isinstance(q, (SQL, Identifier)):
-        result += len(q.string)
-    else:
-        result += len(str(q.wrapped))
-    return result
-
 
 class PgCollection:
     """Convenience wrapper over PostgresStorage
@@ -86,7 +67,6 @@ class PgCollection:
 
         self.column_names = ['id', 'data'] + list(self.meta)
 
-        self._buffered_insert_query_length = 0
         self._selected_layes = None
         self._is_empty = not self.exists() or len(self) == 0
 
@@ -224,149 +204,55 @@ class PgCollection:
                           ).format(Literal(self.storage.schema), Literal(self.name)))
             return collections.OrderedDict(c.fetchall())
 
-    def _insert_first(self, text, key, meta_data, cursor, table_identifier, column_identifiers):
-        if key is None:
-            key = 0
 
-        row = [Literal(key), Literal(text_to_json(text))]
-        for k in self.column_names[2:]:
-            if k in meta_data:
-                m = Literal(meta_data[k])
-            else:
-                m = DEFAULT
-            row.append(m)
-
-        query = SQL('({})').format(SQL(', ').join(row))
-
-        self._flush_insert_buffer(cursor=cursor, table_identifier=table_identifier,
-                                  column_identifiers=column_identifiers, buffer=[query])
-
-        assert not self._structure, self._structure.structure
-        for layer in text.layers:
-            # TODO: meta = ???
-            self._structure.insert(layer=text[layer], layer_type='attached', meta={})
-
-    # TODO: merge this with buffered_layer_insert
     @contextmanager
     def insert(self, buffer_size=10000, query_length_limit=5000000):
-        buffer = []
-        self._buffered_insert_query_length = 0
-        self._insert_counter = 0
-        column_identifiers = SQL(', ').join(map(Identifier, self.column_names))
-        table_identifier = pg.collection_table_identifier(self.storage, self.name)
-
-        self.storage.conn.commit()
-        self.storage.conn.autocommit = False
-        with self.storage.conn.cursor() as cursor:
-
-            def wrap_buffered_insert(text, key=None, meta_data=None):
-                if self._is_empty:
-                    self._is_empty = False
-                    cursor.execute(SQL('LOCK TABLE {}').format(table_identifier))
-                    if len(self) == 0:
-                        self._insert_first(text=text, key=key, meta_data=meta_data, cursor=cursor,
-                                           table_identifier=table_identifier, column_identifiers=column_identifiers)
-                        return
-                    self.storage.conn.commit()
-                    self._structure.load()
-
-                if any(struct['layer_type'] == 'detached' for struct in self._structure.structure.values()):
-                    # TODO: solve this case in a better way
-                    raise PgCollectionException("this collection has detached layers, can't add new text objects")
-                else:
-                    assert set(text.layers) == set(self._structure), '{} != {}'.format(set(text.layers),
-                                                                                       set(self._structure))
-                    for layer_name in text.layers:
-                        layer = text[layer_name]
-                        layer_struct = self._structure[layer_name]
-                        assert layer_struct['layer_type'] == 'attached'
-                        assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
-                                layer_struct['attributes'], layer.attributes)
-                        assert layer_struct['ambiguous'] == layer.ambiguous
-                        assert layer_struct['parent'] == layer.parent
-                        assert layer_struct['enveloping'] == layer.enveloping
-                        assert layer_struct['serialisation_module'] == layer.serialisation_module
-                if key is None:
-                    key = DEFAULT
-                else:
-                    key = Literal(key)
-
-                row = [key, Literal(text_to_json(text))]
-                for k in self.column_names[2:]:
-                    if k in meta_data:
-                        m = Literal(meta_data[k])
-                    else:
-                        m = DEFAULT
-                    row.append(m)
-
-                q = SQL('({})').format(SQL(', ').join(row))
-                self._buffered_insert_query_length += get_query_length(q)
-                self._insert_counter += 1
-                buffer.append(q)
-
-                if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
-                    self._flush_insert_buffer(cursor=cursor, table_identifier=table_identifier,
-                                              column_identifiers=column_identifiers,
-                                              buffer=buffer)
-                    self._buffered_insert_query_length = 0
-
-            try:
-                yield wrap_buffered_insert
-            finally:
-                self._flush_insert_buffer(cursor=cursor,
-                                          table_identifier=table_identifier,
-                                          column_identifiers=column_identifiers,
-                                          buffer=buffer)
-                logger.info('inserted {self._insert_counter} texts into the collection {self.name!r}'.format(self=self))
-
-    @contextmanager
-    def buffered_layer_insert(self, table_identifier, columns, buffer_size=10000, query_length_limit=5000000):
-        """General context manager for buffered insert
+        """Context manager for buffered insertion of Text objects into the collection.
+        Optionally, metadata and keys of insertable Text objects can be specified during
+        the insertion. 
+        
+        Notes about layers. 
+        1) Attached layers. After the first Text object has been inserted, its layers 
+        will be taken as the attached layers of the collection. Which means that other 
+        insertable Text objects must have exactly the same layers.
+        (and attached layers cannot be changed after the first insertion)
+        2) Detached layers. If this collection already has detached layer(s), new Text 
+        objects cannot be inserted.
+        
+        Example usage 1. Insert Text objects with metadata, but wo annotation layers:
+            # Create collection w metadata
+            collection.create( meta=OrderedDict( [('my_meta', 'str')]) )
+            # Insert into the collection
+            with collection.insert() as collection_insert:
+                collection_insert( Text( ... ), key=0, meta_data={'my_meta':'A'} )
+                collection_insert( Text( ... ), key=1, meta_data={'my_meta':'B'} )
+                ...
+                
+        Example usage 2. Insert annotated Text objects:
+            # Create collection
+            collection.create()
+            # Insert into the collection
+            with collection.insert() as collection_insert:
+                collection_insert( Text( ... ).tag_layer('words') )
+                collection_insert( Text( ... ).tag_layer('words') )
+                ...
+        
+        Parameters:
+        
+        :param buffer_size: int
+            Maximum buffer size (in table rows) for the insert query. 
+            If the size is met or exceeded, the insert buffer will be flushed.
+            (Default: 10000)
+        :param query_length_limit: int
+            Soft approximate insert query length limit in unicode characters. 
+            If the limit is met or exceeded, the insert buffer will be flushed.
+            (Default: 5000000)
 
         """
-        buffer = []
-        column_identifiers = SQL(', ').join(map(Identifier, columns))
+        with CollectionTextObjectInserter(self, query_length_limit = query_length_limit,
+                                                buffer_size = buffer_size ) as text_inserter:
+            yield text_inserter
 
-        self._buffered_insert_query_length = get_query_length(column_identifiers)
-
-        with self.storage.conn.cursor() as cursor:
-            def buffered_insert(values):
-                q = SQL('({})').format(SQL(', ').join(values))
-                buffer.append(q)
-                self._buffered_insert_query_length += get_query_length(q)
-
-                if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
-                    self._flush_insert_buffer(cursor=cursor,
-                                              table_identifier=table_identifier,
-                                              column_identifiers=column_identifiers,
-                                              buffer=buffer)
-            try:
-                yield buffered_insert
-            finally:
-                self._flush_insert_buffer(cursor=cursor,
-                                          table_identifier=table_identifier,
-                                          column_identifiers=column_identifiers,
-                                          buffer=buffer)
-
-    def _flush_insert_buffer(self, cursor, table_identifier, column_identifiers, buffer):
-        if len(buffer) == 0:
-            return []
-
-        try:
-            cursor.execute(SQL('INSERT INTO {} ({}) VALUES {};').format(
-                           table_identifier,
-                           column_identifiers,
-                           SQL(', ').join(buffer)))
-            cursor.connection.commit()
-        except Exception:
-            logger.error('flush insert buffer failed')
-            logger.error('number of rows in the buffer: {}'.format(len(buffer)))
-            logger.error('estimated insert query length: {}'.format(self._buffered_insert_query_length))
-            raise
-        logger.debug('flush buffer: {} rows, {} bytes, {} estimated characters'.format(
-                     len(buffer), len(cursor.query), self._buffered_insert_query_length))
-        buffer.clear()
-        self._buffered_insert_query_length = get_query_length(column_identifiers)
 
     def exists(self):
         """Returns True if collection tables exist"""
@@ -436,19 +322,19 @@ class PgCollection:
                 fragment_layer = dict_to_layer(fragment_dict, text)
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
-    def select(self, query=None, layer_query=None, layer_ngram_query=None, layers: Sequence[str] = None,
-               keys: Sequence[int] = None, collection_meta: Sequence[str] = None, progressbar: str = None,
-               missing_layer: str = None, return_index: bool = True):
+    def select(self,
+               query=None,
+               layers: Sequence[str] = None,
+               collection_meta: Sequence[str] = None,
+               progressbar: str = None,
+               return_index: bool = True,
+               itersize: int= 10):
         """
 
         :param query:
-        :param layer_query:
-        :param layer_ngram_query:
         :param layers:
-        :param keys:
         :param collection_meta:
         :param progressbar:
-        :param missing_layer:
         :param return_index:
         :return: PgSubCollection
 
@@ -456,55 +342,80 @@ class PgCollection:
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
 
-        where_clause = pg.WhereClause(collection=self,
-                                      query=query,
-                                      layer_query=layer_query
-                                      #layer_ngram_query=layer_ngram_query
-                                      #keys=keys,
-                                      #missing_layer=missing_layer
-                                      )
-
         return pg.PgSubCollection(collection=self,
-                                  selection_criterion=where_clause,
+                                  selection_criterion=pg.WhereClause(collection=self, query=query),
                                   selected_layers=layers,
                                   meta_attributes=collection_meta,
                                   progressbar=progressbar,
-                                  return_index=return_index
+                                  return_index=return_index,
+                                  itersize=itersize
                                   )
 
     def __len__(self):
         return count_rows(self.storage, self.name)
 
+
+    def _select_by_key_query(self, key):
+        """ Returns a SQL select statement that selects a single text by the given key from the collection. 
+            Used in the __getitem__ method.
+        """
+        collection_identifier = pg.collection_table_identifier(self.storage, self.name)
+        # Condition: select by the given key
+        # Validate the key
+        if key is None or not isinstance(key, int):
+            raise ValueError('(!) Invalid key value: {!r}. Use integer'.format( key ))
+        # Construct selection_criterion
+        select_by_key_sql = SQL('{table}."id" = {key}').format(table=collection_identifier, key=Literal(key))
+        # Construct query
+        selected_detached_layers = [layer for layer in self.selected_layers if self.structure[layer]['layer_type'] == 'detached']
+        selected_columns = pg.SelectedColumns(collection=self, layers=selected_detached_layers, 
+                                              collection_meta=(), include_layer_ids=False)
+        if selected_detached_layers:
+            # Query includes detached_layers
+            required_layer_tables = [pg.layer_table_identifier(self.storage, self.name, layer)
+                                     for layer in sorted(set(selected_detached_layers)) ]
+            join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
+                                                                                    layer_table_identifier)
+                                               for layer_table_identifier in required_layer_tables)
+            required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
+            query = SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
+                                                                    required_tables,
+                                                                    join_condition,
+                                                                    select_by_key_sql)
+        else:
+            # No detached_layers
+            query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                             collection_identifier,
+                                                             select_by_key_sql)
+        return query
+
     def __getitem__(self, item):
+
         if isinstance(item, int):
-            result = list(self.select(layers=self.selected_layers, keys=[item]))
+            cursor = self.storage.conn.cursor()
+            cursor.execute( self._select_by_key_query( item ) )
+            result = cursor.fetchone()
+            cursor.close()
+
             if result:
-                return result[0][1]
-            raise KeyError(item)
+                return pg.PgSubCollection.assemble_text_object(
+                    text_dict=result[1], layer_dicts=result[2:],
+                    selected_layers=self.selected_layers, structure=self.structure)
+            else:
+                raise KeyError("Index {!r} is outside of the collection".format(item))
+
         if isinstance(item, slice):  # TODO
-            if item.step not in {1, None}:
-                raise NotImplementedError('slicing step not supported: {}'.format(item.step))
-            raise NotImplementedError('slicing not implemented')
+            if item.step is not None:
+                raise KeyError("Invalid index slice {!r}".format(item))
+
+            return self.select(
+                query=SliceQuery(item.start, item.stop), layers=self.selected_layers,
+                collection_meta=None, return_index=False)
 
         raise KeyError(item)
 
     def __iter__(self):
         yield from self.select(layers=self.selected_layers, return_index=False)
-
-    def _select_by_key(self, key, return_as_dict=False):
-        """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
-        self.storage.conn.commit()
-        self.storage.conn.autocommit = True
-        with self.storage.conn.cursor() as c:
-            c.execute(SQL("SELECT * FROM {}.{} WHERE id = %s;").format(Identifier(self.storage.schema),
-                                                                       Identifier(self.name)),
-                      (key,))
-            res = c.fetchone()
-            if res is None:
-                raise PgCollectionException("Key not found: {!r}".format(key))
-            key, text_dict = res
-            text = text_dict if return_as_dict is True else dict_to_text(text_dict)
-            return text
 
     def count_values(self, layer, attr, **kwargs):
         """Count attribute values in the collection."""
@@ -512,97 +423,6 @@ class PgCollection:
         for i, t in self.select(layers=[layer], **kwargs):
             counter.update(t[layer].count_values(attr))
         return counter
-
-    def find_fingerprint(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
-        """A wrapper over `select` method, which enables to conveniently build composite AND/OR queries.
-
-        Args:
-            table: str
-                collection table name
-            query: dict
-                Query applied to collection table
-            layer_query: dict
-                Query applied to layer table
-            order_by_key: bool
-                Sort results by key in ascending order
-        Returns:
-            iterator of tuples (key, text)
-
-        Example `layer_ngramm_query`:
-
-            Search ("üks,kaks" AND "kolm,neli") OR "viis,kuus":
-
-            q = {
-                "some_layer": {
-                     "field": "some_field",
-                     "query": [[("üks", "kaks"), ("kolm", "neli")], [("viis", "kuus")]],
-                },
-                ...
-
-        Example `query`:
-
-            q = {
-                 "layer": "morph_analysis",
-                 "field": "lemma",
-                 "ambiguous": True,
-                 "query": ["mis", "palju"],  # mis OR palju
-                 }
-
-        Example `layer_query`:
-
-            q = {
-                layer1: {
-                    "field": "lemma",
-                    "query": ["ööbik"],
-                    "ambiguous": True
-                },
-                layer2: {
-                    "field": "lemma",
-                    "query": ["ööbik"],
-                    "ambiguous": True
-                }}
-
-        """
-        if query is None and layer_query is None and layer_ngram_query is None:
-            raise PgCollectionException("One of 'query', 'layer_query' or 'layer_ngramm_query' should be specified.")
-
-        def build_text_query(q):
-            or_query_list = []
-            for and_terms in q["query"]:
-                if not isinstance(and_terms, (list, tuple, set)):
-                    and_terms = [and_terms]
-                if and_terms:
-                    and_query = reduce(op.__and__, (JsonbTextQuery(q["layer"], q["ambiguous"], **{q["field"]: term})
-                                                    for term in and_terms))
-                    or_query_list.append(and_query)
-            if len(or_query_list) > 0:
-                jsonb_query = reduce(op.__or__, or_query_list)
-            else:
-                jsonb_query = None
-            return jsonb_query
-
-        def build_layer_query(layer_name, q):
-            or_query_list = []
-            for and_terms in q["query"]:
-                if not isinstance(and_terms, (list, tuple, set)):
-                    and_terms = [and_terms]
-                if and_terms:
-                    and_query = reduce(op.__and__,
-                                       (JsonbLayerQuery(layer_name, q["ambiguous"], **{q["field"]: term})
-                                        for term in and_terms))
-                    or_query_list.append(and_query)
-            if len(or_query_list) > 0:
-                jsonb_query = reduce(op.__or__, or_query_list)
-            else:
-                jsonb_query = None
-            return jsonb_query
-
-        jsonb_text_query = build_text_query(query) if query is not None else None
-        jsonb_layer_query = {layer: build_layer_query(layer, q) for layer, q in
-                             layer_query.items()} if layer_query is not None else None
-
-        return self.select(query=jsonb_text_query, layer_query=jsonb_layer_query,
-                           layer_ngram_query=layer_ngram_query, layers=layers)
 
     def create_fragment(self, fragment_name, data_iterator, row_mapper,
                         create_index=False, ngram_index=None):
@@ -662,7 +482,7 @@ class PgCollection:
                           mode='append')
 
     def create_fragmented_layer(self, tagger, fragmenter: callable, meta: Sequence = None, progressbar: str = None,
-                                query_length_limit: int = 5000000):
+                                      query_length_limit: int = 5000000):
         """
         Creates fragmented layer
 
@@ -702,10 +522,6 @@ class PgCollection:
         if meta is not None:
             meta_columns = tuple(meta)
 
-        columns = ["id", "text_id", "data"]
-        if meta_columns:
-            columns.extend(meta_columns)
-
         conn = self.storage.conn
         with conn.cursor() as c:
             try:
@@ -717,24 +533,19 @@ class PgCollection:
                                          meta=meta)
 
                 structure_written = False
-                with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer_name),
-                                                columns=columns,
-                                                query_length_limit=query_length_limit) as buffered_insert:
+                with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
+                                                      query_length_limit=query_length_limit ) as buffered_inserter:
+
                     for row in self.select(layers=tagger.input_layers, progressbar=progressbar):
                         text_id, text = row[0], row[1]
 
                         for fragment in fragmenter(tagger.make_layer(text, status={})):
                             layer = fragment.layer
-                            layer_json = layer_to_json(fragment)
-
-                            values = [None, text_id, layer_json]
-
+                            extra_data = []
                             if meta_columns:
-                                values.extend(fragment.meta[k] for k in meta_columns)
-
-                            values = list(map(Literal, values))
-                            values[0] = DEFAULT
-                            buffered_insert(values=values)
+                                extra_data.extend( fragment.meta[k] for k in meta_columns )
+                            buffered_inserter.insert(layer, text_id, key=DEFAULT, extra_data=extra_data)
+                            
                             if not structure_written:
                                 self._structure.insert(layer=layer, layer_type='fragmented', meta=meta)
                                 structure_written = True
@@ -805,7 +616,7 @@ class PgCollection:
 
         missing_layer = layer_name if mode == 'append' else None
         data_iterator = data_iterator or self.select(layers=tagger.input_layers, progressbar=progressbar,
-                                                     missing_layer=missing_layer)
+                                                     query=MissingLayerQuery(missing_layer=missing_layer) if missing_layer is not None else None)
 
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
@@ -837,13 +648,12 @@ class PgCollection:
         if meta is not None:
             meta_columns = tuple(meta)
 
-        columns = ["id", "text_id", "data"]
+        extra_columns = []
         if meta_columns:
-            columns.extend(meta_columns)
-
+            extra_columns.extend(meta_columns)
         if ngram_index is not None:
             ngram_index_keys = tuple(ngram_index.keys())
-            columns.extend(ngram_index_keys)
+            extra_columns.extend(ngram_index_keys)
 
         conn = self.storage.conn
         conn.commit()
@@ -863,29 +673,28 @@ class PgCollection:
                 # insert data
                 structure_written = (mode == 'append')
                 logger.info('inserting data into the {!r} layer table'.format(layer_name))
-                with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer_name),
-                                                columns=columns,
-                                                query_length_limit=query_length_limit) as buffered_insert:
+                
+                with CollectionDetachedLayerInserter( self, layer_name, extra_columns=extra_columns, 
+                                                      query_length_limit=query_length_limit ) as buffered_inserter:
+
                     for row in data_iterator:
-                        collection_id, text = row[0], row[1]
+                        collection_text_id, text = row[0], row[1]
 
                         record = row_mapper(row)
                         layer = record.layer
-                        layer_dict = layer_to_dict(layer)
-                        layer_json = json.dumps(layer_dict, ensure_ascii=False)
 
-                        values = [collection_id, collection_id, layer_json]
-
+                        extra_values = []
                         if meta_columns:
-                            values.extend(record.meta[k] for k in meta_columns)
+                            extra_values.extend(record.meta[k] for k in meta_columns)
 
                         if ngram_index is not None:
-                            values.extend(create_ngram_fingerprint_index(layer=layer,
+                            extra_values.extend(create_ngram_fingerprint_index(layer=layer,
                                                                          attribute=attr,
                                                                          n=ngram_index[attr])
                                           for attr in ngram_index_keys)
-                        values = list(map(Literal, values))
-                        buffered_insert(values=values)
+
+                        buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
+
                         if not structure_written:
                             self._structure.insert(layer=layer, layer_type='detached', meta=meta)
                             structure_written = True
@@ -925,16 +734,13 @@ class PgCollection:
         if meta is not None:
             meta_columns = tuple(meta)
 
-        columns = ["id", "text_id", "data"]
-        columns.extend(meta_columns)
-
         logger.info('inserting data into the {!r} layer table block {}'.format(layer_name, block))
 
-        with self.buffered_layer_insert(table_identifier=layer_table_identifier(self.storage, self.name, layer_name),
-                                        columns=columns,
-                                        query_length_limit=query_length_limit) as buffered_insert:
+        with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
+                                              query_length_limit=query_length_limit ) as buffered_inserter:
+
             layer_structure = None
-            for collection_id, text in self.select(query=pg.BlockQuery(*block), layers=tagger.input_layers):
+            for collection_text_id, text in self.select(query=pg.BlockQuery(*block), layers=tagger.input_layers):
                 layer = tagger.make_layer(text=text, status=None)
 
                 if layer_structure is None:
@@ -952,13 +758,11 @@ class PgCollection:
 
                 assert layer_structure == (layer.name, layer.attributes, layer.ambiguous, layer.parent, layer.enveloping)
 
-                layer_dict = layer_to_dict(layer)
-                layer_json = json.dumps(layer_dict, ensure_ascii=False)
-
-                values = [Literal(collection_id), Literal(collection_id), Literal(layer_json)]
-                values.extend(Literal(layer.meta[k]) for k in meta_columns)
-
-                buffered_insert(values=values)
+                extra_values = []
+                if meta_columns:
+                    extra_values.extend( [layer.meta[k] for k in meta_columns] )
+                
+                buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
 
         logger.info('block {} of {!r} layer created'.format(block, layer_name))
 
@@ -1132,10 +936,6 @@ class PgCollection:
             lf_names.append(layer)
         return lf_names
 
-    # TODO: remove
-    def get_layer_names(self):
-        return self.layers
-
     def get_fragment_tables(self):
         fragment_tables = []
         for tbl in pg.get_all_table_names(self.storage):
@@ -1144,7 +944,7 @@ class PgCollection:
         return fragment_tables
 
     def get_layer_meta(self, layer_name):
-        if layer_name not in self.get_layer_names():
+        if layer_name not in self.layers:
             raise PgCollectionException("Collection does not have the layer {!r}".format(layer_name))
 
         with self.storage.conn.cursor() as c:
@@ -1156,7 +956,61 @@ class PgCollection:
             data = c.fetchall()
             return pandas.DataFrame(data=data, columns=columns)
 
-    def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None):
+    def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None, mode='NEW'):
+        """
+        Exports annotations from the given layer to a separate table.
+        
+        At minimum, the exported layer table has the following columns:
+        * id -- annotation id (unique in the whole collection);
+        * text_id -- text's id in the collection;
+        * span_nr -- span's index in the layer;
+        * span_start -- span's start index in the text;
+        * span_end   -- span's end index in the text;
+        Optionally, if attributes is set, then there will be a separate 
+        column for each layer attribute. And if collection_meta is set, 
+        then there will be an additional column for each metadata field.
+        
+        Mode=='APPEND' can be used to append to an existing table. 
+        However, it is responsibility of the user to ensure that the 
+        existing export table has correct structure / columns, and 
+        that the export will not produce any duplicate entries 
+        (technically, you can create duplicates, because there is no 
+         duplicate checking).
+
+        Parameters:
+        
+        :param layer: str
+            Name of the layer to be exported. 
+            Must be an existing layer of this collection.
+        :param attributes: List[str]
+            Attributes of the layer which will be exported.
+            For each attribute, a separate table column will
+            be created.
+        :param collection_meta: List[str]
+            Collection's metadata fields to be exported. 
+            For each metadata field, a separate table column 
+            will be created.
+            Default: None
+        :param table_name: str
+            (Optional) Name for the export table. If not provided,
+            then table name will be formatted as:
+             '{}__{}__export'.format(collection_name, layer_name)
+            Default: None
+        :param progressbar: str
+            (Optional) Whether the progressbar is used on iteration.
+            Possible values: [None, 'ascii', 'notebook']
+            Default: None
+        :param  mode: str
+            If mode=='NEW', then creates a new export table (and
+            throws an expection if the table already exists). 
+            If mode=='APPEND', then appends to an existing table 
+            (and throws an expection if the table does not exist).
+            Default: 'NEW'
+        """
+        if not isinstance(mode, str) or mode.upper() not in ['NEW', 'APPEND']:
+            raise ValueError('(!) Mode {!r} not supported. Use {!r} or {!r}.'.format( mode, 'NEW', 'APPEND' ))
+        mode = mode.upper()
+        
         if collection_meta is None:
             collection_meta = []
 
@@ -1176,35 +1030,61 @@ class PgCollection:
         columns.extend((attr, 'text') for attr in attributes)
         columns.extend((attr, 'text') for attr in collection_meta)
 
-        columns_sql = SQL(",\n").join(SQL("{} {}").format(Identifier(n), SQL(t)) for n, t in columns)
+        # Check for the existence of the table
+        create_table = True
+        if table_exists(self.storage, table_name):
+            if mode == 'NEW':
+                raise PgCollectionException( ('Exported layer table {!r} already exists. Please use '+
+                                              'mode="APPEND" to append to the existing table.').format(table_name) )
+            else:
+                logger.info('appending to an existing export table')
+                create_table = False
+                # TODO: check that the old export table has the approriate columns
+        else:
+            if mode == 'APPEND':
+                raise PgCollectionException( ('Exported layer table {!r} does not exist, cannot use '+
+                                              'mode="APPEND". Please use mode="NEW" to create a new '+
+                                              'table.').format(table_name) )
 
-        self.storage.conn.commit()
-        with self.storage.conn.cursor() as c:
-            logger.debug(c.query)
-            c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
-                                                          columns_sql))
-            logger.debug(c.query)
-            c.execute(SQL("COMMENT ON TABLE {} IS {};").format(table_identifier,
-                                                               Literal('created by {} on {}'.format(self.storage.user,
-                                                                                                    time.asctime()))))
-            logger.debug(c.query)
+        if create_table:
+            # Create new table
+            columns_sql = SQL(",\n").join(SQL("{} {}").format(Identifier(n), SQL(t)) for n, t in columns)
+
             self.storage.conn.commit()
+            with self.storage.conn.cursor() as c:
+                logger.debug(c.query)
+                c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
+                                                              columns_sql))
+                logger.debug(c.query)
+                c.execute(SQL("COMMENT ON TABLE {} IS {};").format(table_identifier,
+                                                                   Literal('created by {} on {}'.format(self.storage.user,
+                                                                                                        time.asctime()))))
+                logger.debug(c.query)
+                self.storage.conn.commit()
 
         texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta)
-
-        with self.buffered_layer_insert(table_identifier=table_identifier,
-                                        columns=[c[0] for c in columns]) as insert:
-            i = 0
-            for text_id, text, meta in texts:
+        i = 0
+        initial_rows = 0
+        if mode == 'APPEND':
+            # Get the number of inserted rows so far
+            initial_rows = count_rows(self.storage, table_identifier=table_identifier)
+            # Shift id to the last inserted row
+            i = initial_rows
+        with BufferedTableInsert( self.storage.conn, table_identifier, columns=[c[0] for c in columns]) as buffered_inserter:
+            for entry in texts:
+                if len( collection_meta ) > 0:
+                    text_id, text, meta = entry
+                else: 
+                    text_id, text = entry
                 for span_nr, span in enumerate(text[layer]):
                     for annotation in span.annotations:
                         i += 1
-                        values = [Literal(i), Literal(text_id), Literal(span_nr), Literal(span.start), Literal(span.end)]
-                        values.extend(Literal(annotation[attr]) for attr in attributes)
-                        values.extend(Literal(meta[k]) for k in collection_meta)
-                        insert(values)
+                        values = [ i, text_id, span_nr, span.start, span.end ]
+                        values.extend( [annotation[attr] for attr in attributes] )
+                        values.extend( [meta[k] for k in collection_meta] )
+                        buffered_inserter.insert( values )
 
-        logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, table_name))
+        logger.info('{} annotations exported to "{}"."{}"'.format(i-initial_rows, self.storage.schema, table_name))
 
     def _repr_html_(self):
         if self._is_empty:

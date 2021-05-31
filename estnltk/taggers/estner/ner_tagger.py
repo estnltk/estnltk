@@ -1,6 +1,6 @@
 from estnltk.taggers import Tagger
 from estnltk.core import DEFAULT_PY3_NER_MODEL_DIR
-from estnltk.taggers.estner.refac.ner import ModelStorageUtil
+from estnltk.taggers.estner.model_storage_util import ModelStorageUtil
 from estnltk.taggers.estner.fex import FeatureExtractor
 from estnltk.taggers.estner import CrfsuiteModel
 from estnltk.layer.layer import Layer
@@ -13,7 +13,7 @@ class NerTagger(Tagger):
     """The class for tagging named entities."""
     conf_param = ['modelUtil', 'nersettings', 'fex', 'crf_model']
 
-    def __init__(self, model_dir=DEFAULT_PY3_NER_MODEL_DIR, output_layer='ner', morph_layer_input=('morph_analysis',)):
+    def __init__(self, model_dir=DEFAULT_PY3_NER_MODEL_DIR, output_layer='ner', morph_layer_input='morph_analysis', words_layer_input='words', sentences_layer_input='sentences'):
         """Initialize a new NerTagger instance.
 
         Parameters
@@ -30,7 +30,7 @@ class NerTagger(Tagger):
         self.output_attributes = ["nertag"]
         self.modelUtil = ModelStorageUtil(model_dir)
         self.nersettings = self.modelUtil.load_settings()
-        self.input_layers = morph_layer_input
+        self.input_layers = (morph_layer_input, words_layer_input, sentences_layer_input)
         self.fex = FeatureExtractor(self.nersettings, self.input_layers)
         self.crf_model = CrfsuiteModel(settings=self.nersettings,
                                        model_filename=self.modelUtil.model_filename)
@@ -38,15 +38,18 @@ class NerTagger(Tagger):
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         # prepare input for nertagger
         self.fex.process([text])
-        snt_labels = self.crf_model.tag(text)
+        snt_labels = self.crf_model.tag(text, self.input_layers)
         flattened = (word for snt in snt_labels for word in snt)
+
+        words = self.input_layers[1]
 
         # add the labels
         nerlayer = Layer(name=self.output_layer, attributes=self.output_attributes, text_object=text,
-                         enveloping="words")
+                         enveloping=words)
         entity_spans = []
         entity_type = None
-        for span, label in zip(text.words, flattened):
+
+        for span, label in zip(getattr(text, words), flattened):
             if entity_type is None:
                 entity_type = label[2:]
             if label == "O":

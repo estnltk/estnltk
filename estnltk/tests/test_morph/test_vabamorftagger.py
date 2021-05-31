@@ -281,6 +281,95 @@ def test_default_morph_analysis_with_different_input_layer_names():
         assert layer in text.layers
 
 
+def test_default_morph_analysis_on_detached_layers():
+    # Should be able to use a different input layer names
+    # and work only on detached layers 
+    # 1) Initialize taggers with custom names 
+    cp_tagger = CompoundTokenTagger(output_layer='my_compounds')
+    word_tagger = WordTagger( input_compound_tokens_layer='my_compounds',
+                              output_layer='my_words' )
+    sentence_tokenizer = SentenceTokenizer( 
+                              input_compound_tokens_layer='my_compounds',
+                              input_words_layer='my_words',
+                              output_layer='my_sentences' )
+    morph_analyser = VabamorfTagger(
+                              output_layer='my_morph',
+                              input_words_layer='my_words',
+                              input_sentences_layer='my_sentences',
+                              input_compound_tokens_layer='my_compounds' )
+    # 2) Make detached layers
+    text = Text('Tere, maailm! Kuidas siis on?')
+    text.tag_layer('tokens')
+    cp_tokens_layer = cp_tagger.make_layer(text, {'tokens':text['tokens']})
+    words_layer = word_tagger.make_layer(text,   {'tokens':text['tokens'],\
+                                                  'my_compounds' :cp_tokens_layer})
+    sentences_layer = sentence_tokenizer.make_layer(text, {'my_words' : words_layer,
+                                                           'my_compounds' :cp_tokens_layer})
+    morph_layer = morph_analyser.make_layer(text, {'my_words' : words_layer,\
+                                                   'my_compounds' : cp_tokens_layer,\
+                                                   'my_sentences' : sentences_layer})
+    # Check results
+    raw_analyses = []
+    for span in morph_layer:
+        raw_analyses.append( [(a.text, a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    #print( raw_analyses )
+    expected_raw_analyses = \
+        [ [('Tere', 'tere', 'I', '')], 
+          [(',', ',', 'Z', '')], 
+          [('maailm', 'maa_ilm', 'S', 'sg n')], 
+          [('!', '!', 'Z', '')], 
+          [('Kuidas', 'kuidas', 'D', '')], 
+          [('siis', 'siis', 'D', '')], 
+          [('on', 'ole', 'V', 'b'), ('on', 'ole', 'V', 'vad')], 
+          [('?', '?', 'Z', '')] ]
+    assert expected_raw_analyses == raw_analyses
+
+
+def test_default_morph_analysis_with_textbased_disambiguation():
+    text = Text('Ott sai teise koha ja tahab nüüd ka Kuldgloobust. Mis koht see on? '+\
+                'Kas Otil jätkub tarmukust teisest kohast kõrgemale tõusta? Ott lubas pingutada. '+\
+                'Võib-olla tuleks siiski teha Kuldgloobuse eesti variant.')
+    text.tag_layer(['words', 'sentences'])
+    #
+    # 1) Add morph analysis without text-based disambiguation
+    #
+    morph_tagger_no_textbased_disamb = VabamorfTagger(predisambiguate=False,
+                                                      postdisambiguate=False)
+    morph_tagger_no_textbased_disamb.tag( text )
+    no_tbd_raw_analyses = []
+    for span in text['morph_analysis']:
+        no_tbd_raw_analyses.append( [(a.text, a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    #
+    # 2) Add morph analysis with text-based disambiguation
+    #
+    morph_tagger_textbased_disamb = VabamorfTagger(output_layer='morph_analysis_textbased_disamb',
+                                                   predisambiguate =True,
+                                                   postdisambiguate=True)
+    morph_tagger_textbased_disamb.tag( text )
+    tbd_raw_analyses = []
+    for span in text['morph_analysis_textbased_disamb']:
+        tbd_raw_analyses.append( [(a.text, a['root'],a['partofspeech'],a['form']) for a in span.annotations] )
+    #
+    # Get differences
+    #
+    textbased_corrections = []
+    for no_tbd_analysis, tbd_analysis in zip(no_tbd_raw_analyses, tbd_raw_analyses):
+        if no_tbd_analysis != tbd_analysis:
+            textbased_corrections.append( {'old':no_tbd_analysis, 'new': tbd_analysis} )
+    #print( textbased_corrections )
+    #
+    # Validate differences
+    #
+    expected_textbased_corrections = [ \
+       {'old': [('Ott', 'ott', 'S', 'sg n')], 'new': [('Ott', 'Ott', 'H', 'sg n')]}, \
+       {'old': [('koha', 'koht', 'S', 'sg g'), ('koha', 'koha', 'S', 'sg g')], 'new': [('koha', 'koht', 'S', 'sg g')]}, \
+       {'old': [('Kuldgloobust', 'kuld_gloobus', 'S', 'sg p')], 'new': [('Kuldgloobust', 'Kuld_gloobus', 'H', 'sg p')]}, \
+       {'old': [('Otil', 'ott', 'S', 'sg ad')], 'new': [('Otil', 'Ott', 'H', 'sg ad')]}, \
+       {'old': [('kohast', 'koht', 'S', 'sg el'), ('kohast', 'koha', 'S', 'sg el')], 'new': [('kohast', 'koht', 'S', 'sg el')]}, \
+       {'old': [('Ott', 'ott', 'S', 'sg n')], 'new': [('Ott', 'Ott', 'H', 'sg n')]}, \
+       {'old': [('Kuldgloobuse', 'kuld_gloobus', 'S', 'sg g')], 'new': [('Kuldgloobuse', 'Kuld_gloobus', 'H', 'sg g')]} ]
+    assert expected_textbased_corrections == textbased_corrections
+
 
 def test_default_morph_with_vm_src_update_2020_04_07():
     # Test effects of the Vabamorf's source update from 2020_04_07

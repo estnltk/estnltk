@@ -1,7 +1,9 @@
-from psycopg2.sql import Composed, Literal, SQL
+from psycopg2.sql import Composed, SQL
 
-from estnltk.storage import postgres as pg
 from estnltk.storage.postgres.queries.query import Query
+
+
+#logger.setLevel('DEBUG')
 
 
 class WhereClause(Composed):
@@ -11,42 +13,41 @@ class WhereClause(Composed):
     The main usecase for the class is as a selection criterion for selecting data from a collection.
 
     """
+
     def __init__(self,
                  collection,
-                 query=None,
-                 layer_query: dict = None,
-                 # layer_ngram_query: dict = None,
-                 # keys: list = None,
-                 # missing_layer: str = None,
+                 query: Query = None,
                  seq=None,
                  required_layers=None):
         self.collection = collection
 
-        if seq is None:
-            seq = self.where_clause(collection,
-                                    query=query,
-                                    layer_query=layer_query)
-            # layer_ngram_query=layer_ngram_query
-            # keys=keys,
-            # missing_layer=missing_layer
+        # WhereClause is specified by SQL fragment
+        if seq is not None:
+            assert query is None, "SQL sequence and query can not be set simultaneously"
+            self._required_layers = sorted(set(required_layers or ()))
+            super().__init__(seq)
+            return
 
+        # No restrictions are placed, empty WhereClause
+        if query is None:
+            self._required_layers = sorted(set(required_layers or ()))
+            super().__init__([])
+            return
 
+        self._required_layers = query.required_layers
 
-        # We omit layers inside a Text object.
-        if required_layers is None:
-            self._required_layers = sorted(set(layer_query or ()))
-        else:
-            self._required_layers = required_layers
-
-        # Initialization of composed object
-        super().__init__(seq)
+        super().__init__(self.where_clause(collection, query=query))
 
     def __bool__(self):
         return bool(self.seq)
 
+    def _non_attached_required_layers(self):
+        """Returns self._required_layers without attached layers."""
+        return [layer for layer in self._required_layers if self.collection.structure[layer]['layer_type'] != 'attached']
+
     @property
     def required_layers(self):
-        return self._required_layers
+        return self._non_attached_required_layers()
 
     def __and__(self, other):
         if not isinstance(other, WhereClause):
@@ -65,15 +66,10 @@ class WhereClause(Composed):
         return WhereClause(collection=self.collection, seq=seq, required_layers=required_layers)
 
     @staticmethod
-    def where_clause(collection,
-                     query: Query = None,
-                     layer_query: dict = None
-                     # layer_ngram_query: dict = None
-                     # keys: list = None,
-                     # missing_layer: str = None
-                     ):
+    def where_clause(collection, query: Query = None):
         """
 
+        :param layer_ngram_query:
         :param collection:
             instance of the EstNLTK PostgreSQL collection
         :param query:
@@ -84,18 +80,11 @@ class WhereClause(Composed):
             composed SQL query following "WHERE" statement based on queries given as parameters, joined by AND operator
         """
         sql_parts = []
-        collection_name = collection.name
-        storage = collection.storage
 
         if query is not None:
             # build constraint on the main text table
-            q = query.eval(storage, collection_name)
+            q = query.eval( collection )
             sql_parts.append(q)
-        if layer_query:
-            # build constraint on related layer tables
-            q = SQL(" AND ").join(query.eval(storage, collection_name) for query in layer_query)
-            sql_parts.append(q)
-
         if sql_parts:
             return SQL(" AND ").join(sql_parts)
         return []

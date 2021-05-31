@@ -63,13 +63,17 @@ from .pg_operations import drop_layer_table
 
 from .pg_operations import count_rows
 
-from estnltk.storage.postgres.queries.jsonb_layer_query import JsonbLayerQuery
-from estnltk.storage.postgres.queries.jsonb_text_query import JsonbTextQuery
+from estnltk.storage.postgres.queries.layer_query import LayerQuery
 from estnltk.storage.postgres.queries.substring_query import SubstringQuery
 from estnltk.storage.postgres.queries.block_query import BlockQuery
-from estnltk.storage.postgres.queries.keys_query import KeysQuery
+from estnltk.storage.postgres.queries.index_query import IndexQuery
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
+from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
+
+from estnltk.storage.postgres.context_managers.buffered_table_insert import BufferedTableInsert
+from estnltk.storage.postgres.context_managers.collection_text_object_inserter import CollectionTextObjectInserter
+from estnltk.storage.postgres.context_managers.collection_detached_layer_inserter import CollectionDetachedLayerInserter
 
 from .structure.base.collection_structure_base import CollectionStructureBase
 from .structure import v00

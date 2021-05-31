@@ -9,5 +9,5 @@ Once you have obtained estnltk `.whl` file for Python 3.6, follow the instructio
 
 The last version of EstNLTK can be installed in Google Colab via command:
 
-	!pip install conllu estnltk==1.6.6b0
+	!pip install estnltk==1.6.7b0
 

@@ -322,7 +322,14 @@ class Vocabulary:
         columns = tuple(self.attributes)
         style = DataFrame.from_records(res, columns=columns).style
         style = style.applymap(self.color_value_types).format(lambda v: to_str(v, escape_html=True)).hide_index()
-        style = style.set_table_styles(dict(selector="tr:hover", props=[("background-color", "%s" % "#11ff99")]))
+        try:
+            # pandas < 1.2.0; python <= 3.6
+            style = style.set_table_styles( dict(selector="tr:hover", props=[("background-color", "%s" % "#11ff99")]) )
+        except TypeError:
+            # pandas >= 1.2.0; python > 3.6
+            style = style.set_table_styles( [dict(selector="tr:hover", props=[("background-color", "%s" % "#11ff99")])] )
+        except:
+            raise
         table = style.render()
 
         return '\n'.join(('<h4>' + 'Vocabulary' + '</h4>', 'key: '+repr(self.key), table))

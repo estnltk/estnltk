@@ -38,11 +38,6 @@ def test_lemmas():
     assert ss.lemmas == ['üllatamine']
 
 
-def test_shortest_path_distance_with_self():
-    synset = ss_koer
-    assert wn._shortest_path_distance(synset, synset) == 0
-
-
 def test_path_similarity_with_self():
     synset = ss_koer
     assert wn.path_similarity(synset, synset) == 1

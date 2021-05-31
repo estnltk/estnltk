@@ -115,10 +115,11 @@ def test_gt_conversion_3_ambiguous():
         [{'normalized_text': 'Sellist', 'start': 0, 'ending': 't', 'clitic': '', 'end': 7, 'lemma': 'selline', 'form': 'Sg Par', 'root': 'selline', 'partofspeech': 'P', 'root_tokens': ('selline',)}], \
         [{'normalized_text': 'asja', 'start': 8, 'ending': '0', 'clitic': '', 'end': 12, 'lemma': 'asi', 'form': 'Sg Par', 'root': 'asi', 'partofspeech': 'S', 'root_tokens': ('asi',)}], \
         [{'normalized_text': 'ei', 'start': 13, 'ending': '0', 'clitic': '', 'end': 15, 'lemma': 'ei', 'form': 'Neg', 'root': 'ei', 'partofspeech': 'V', 'root_tokens': ('ei',)}], \
-        [{'normalized_text': 'olnud', 'start': 16, 'ending': '0', 'clitic': '', 'end': 21, 'lemma': 'olnud', 'form': '', 'root': 'ol=nud', 'partofspeech': 'A', 'root_tokens': ('olnud',)}, \
+        [{'normalized_text': 'olnud', 'start': 16, 'ending': 'nud', 'clitic': '', 'end': 21, 'lemma': 'olema', 'form': 'Pers Prt Ind Neg', 'root': 'ole', 'partofspeech': 'V', 'root_tokens': ('ole',)}, \
+         {'normalized_text': 'olnud', 'start': 16, 'ending': '0', 'clitic': '', 'end': 21, 'lemma': 'olnud', 'form': '', 'root': 'ol=nud', 'partofspeech': 'A', 'root_tokens': ('olnud',)}, \
          {'normalized_text': 'olnud', 'start': 16, 'ending': '0', 'clitic': '', 'end': 21, 'lemma': 'olnud', 'form': 'Sg Nom', 'root': 'ol=nud', 'partofspeech': 'A', 'root_tokens': ('olnud',)}, \
-         {'normalized_text': 'olnud', 'start': 16, 'ending': 'd', 'clitic': '', 'end': 21, 'lemma': 'olnud', 'form': 'Pl Nom', 'root': 'ol=nud', 'partofspeech': 'A', 'root_tokens': ('olnud',)}, \
-         {'normalized_text': 'olnud', 'start': 16, 'ending': 'nud', 'clitic': '', 'end': 21, 'lemma': 'olema', 'form': 'Pers Prt Ind Neg', 'root': 'ole', 'partofspeech': 'V', 'root_tokens': ('ole',)}], \
+         {'normalized_text': 'olnud', 'start': 16, 'ending': 'd', 'clitic': '', 'end': 21, 'lemma': 'olnud', 'form': 'Pl Nom', 'root': 'ol=nud', 'partofspeech': 'A', 'root_tokens': ('olnud',)} 
+        ], \
         [{'normalized_text': '.', 'start': 21, 'ending': '', 'clitic': '', 'end': 22, 'lemma': '.', 'form': '', 'root': '.', 'partofspeech': 'Z', 'root_tokens': ('.',)}] \
     ]
     assert expected_records == text['gt_morph_analysis'].to_records()

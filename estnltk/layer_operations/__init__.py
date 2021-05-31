@@ -22,5 +22,6 @@ from .splitting import extract_section
 from .splitting import extract_sections
 from .splitting import split_by
 from .splitting import split_by_sentences
+from .splitting_discontinuous import split_by_clauses
 from .rebase import rebase
 from .layer_indexing import create_ngram_fingerprint_index

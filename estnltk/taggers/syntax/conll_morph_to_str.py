@@ -20,9 +20,12 @@ Example:
 """
 
 
-def conll_to_str(text):
+def conll_to_str(text, conll_morph_layer=None):
     conll_str = ''
-    text_conll_morph_get = text.conll_morph.get
+    if conll_morph_layer is not None:
+        text_conll_morph_get = text[conll_morph_layer].get
+    else:
+        text_conll_morph_get = text.conll_morph.get
     for sent in text.sentences:
         for i, word in enumerate(sent.words):
             annotation = text_conll_morph_get(word.base_span).annotations[0]

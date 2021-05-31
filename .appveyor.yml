@@ -1,0 +1,97 @@
+# Building EstNLTK with Appveyor
+# Based on examples: 
+#     https://github.com/theochem/python-cython-ci-example/blob/master/.appveyor.yml 
+#     https://github.com/jjhelmus/appveyor-build-conda-pyart/blob/master/appveyor.yml 
+#     https://github.com/astropy/conda-build-tools/blob/master/appveyor.yml 
+#     https://github.com/python-lz4/python-lz4/blob/add-python39-wheel/appveyor.yml
+#
+
+environment:
+  global:
+    PROJECT_NAME: estnltk
+    GITHUB_REPO_NAME: estnltk/estnltk
+    ANACONDA_TOKEN:
+      secure: gzcudzTLjXD/X5XJmB01767Q5hOIkGT6fIXz567m75Eda85cA4aOcMRJ59YvEAYy
+
+  matrix:
+    #
+    # Note: There are pre-installed Miniconda versions on Windows build VMs:
+    #       https://www.appveyor.com/docs/windows-images-software/#miniconda
+    #
+    - TARGET_ARCH: "x64"
+      PYTHON_VERSION: 3.6
+      CONDA: "C:\\Miniconda36-x64"
+
+    - TARGET_ARCH: "x64"
+      PYTHON_VERSION: 3.7
+      CONDA: "C:\\Miniconda37-x64"
+      
+    - TARGET_ARCH: "x64"
+      PYTHON_VERSION: 3.8
+      CONDA: "C:\\Miniconda38-x64"
+
+version: '{build}'
+image: Visual Studio 2019
+
+matrix:
+  # Immediately finish build once one of the jobs fails.
+  fast_finish: true
+
+platform:
+- x64
+
+branches:
+  only:
+    - version_1.6
+
+init:
+  # Environment variables:
+  #  https://www.appveyor.com/docs/environment-variables/
+  - ps: if ($Env:PLATFORM -eq "x64") { $Env:CONDA = "${Env:CONDA}" }
+  - ps: Write-Host $Env:PYTHON_VERSION
+  - ps: Write-Host $Env:CONDA
+  - ps: Write-Host $Env:GITHUB_REPO_NAME
+  - ps: Write-Host $Env:PLATFORM
+  - ps: Write-Host $Env:APPVEYOR_REPO_NAME
+
+install:
+    # Set up the build/compiler/linker environment
+    # based on: https://help.appveyor.com/discussions/problems/28883-link-fatal-error-lnk1158-cannot-run-rcexe
+    - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64 8.1
+
+    # Load the conda root environment, configure and install some packages
+    - '"%CONDA%\Scripts\activate.bat"'
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+
+    # Install build tools
+    - conda install conda-build conda-verify anaconda-client swig cython
+    - conda update conda-build
+
+    # Show conda info for debugging
+    - conda info -a
+
+build: false
+
+test_script:
+  # Build the package
+  - conda build -c conda-forge --py %PYTHON_VERSION% conda-recipe/windows
+
+after_test:
+  # Copy the conda build to the home dir, such that it can be registered as an artifact
+  - move %CONDA%\conda-bld .
+
+artifacts:
+  # Files to be uploaded
+  - path: 'conda-bld\win-*\*.tar.bz2'
+
+on_success:
+    # Based on: https://github.com/astropy/conda-build-tools/blob/master/appveyor.yml 
+    # Write the output file name to a file...
+    - python -c "from conda_build.api import get_output_file_paths; import os.path; p=get_output_file_paths('conda-recipe/windows')[0]; f=open('to_upload.txt', 'w');f.write(os.path.split(p)[1]);f.close()"
+    # ...so that we can set a variable to the name of that output file.
+    - set /P PACKAGE_FILE=<to_upload.txt
+    - echo %PACKAGE_FILE%
+    - dir conda-bld\win-64
+    # Upload the package
+    - anaconda -t %ANACONDA_TOKEN% upload -l dev --force -u estnltk conda-bld\win-64\%PACKAGE_FILE%

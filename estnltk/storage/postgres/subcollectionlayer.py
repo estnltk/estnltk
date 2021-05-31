@@ -73,6 +73,7 @@ class PgSubCollectionLayer:
                             SQL('{}."data"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.detached_layer))]
 
         required_layers = sorted({self.detached_layer, *self._selection_criterion.required_layers})
+        
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
         # Required layers are part of the main collection

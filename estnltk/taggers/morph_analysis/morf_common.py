@@ -8,6 +8,7 @@ from functools import reduce
 
 from typing import MutableMapping, Any
 
+from estnltk.layer.layer import Annotation
 from estnltk.layer.span import Span
 from estnltk.layer import AttributeList
 
@@ -38,16 +39,6 @@ NORMALIZED_TEXT = 'normalized_text'
 # disambiguation, all spans of "morph_analysis" that have 
 # ignore attribute set to True will be skipped;
 IGNORE_ATTR = '_ignore'
-
-# In brief:
-# SORT_VM_MORPH_ANALYSES=True  -- VM analyses ordering used in EstNLTK versions 
-#                                 1.6.0 - 1.6.4 beta;
-# SORT_VM_MORPH_ANALYSES=False -- VM analyses ordering used in EstNLTK versions 
-#                                 prior 1.6.0, and the ordering that will likely 
-#                                 be used in future versions (after v1.6.4b);
-# Note: regardless which ordering is used, Vabamorf's ambiguous analyses are 
-#       **not** ordered by likelihood/probability;
-SORT_VM_MORPH_ANALYSES = False
 
 # =================================
 #    Helper functions
@@ -126,19 +117,18 @@ def _create_empty_morph_record( word = None, layer_attributes = None ):
     return record
 
 
-def _create_empty_morph_span(word, layer_attributes=None):
-    """Creates an empty 'morph_analysis' span that will
-    have word as its parent span.
-    All attribute values of the span will be set
-    to None.
+def _create_empty_morph_span(word, layer):
+    """Creates an empty 'morph_analysis' for the given 
+    morph layer that will have given word as its parent. 
+    All attribute values of the span will be set to 
+    None.
         
     Returns the Span.
 
     """
-    current_attributes = layer_attributes or ESTNLTK_MORPH_ATTRIBUTES
-    annotation = {attr: None for attr in current_attributes}
-    span = Span(base_span=word.base_span, parent=word)
-    span.add_annotation(**annotation)
+    annotation = {attr: None for attr in layer.attributes}
+    span = Span(base_span=word.base_span, layer=layer)
+    span.add_annotation( Annotation(span, **annotation) )
     return span
 
 

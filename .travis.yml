@@ -15,9 +15,9 @@ env:
     - GIT_DESCRIBE_NUMBER=$TRAVIS_BUILD_NUMBER
     - GIT_BUILD_STR=$TRAVIS_COMMIT
   matrix:
-    - PYTHON_TARGET=3.5
     - PYTHON_TARGET=3.6
     - PYTHON_TARGET=3.7
+    - PYTHON_TARGET=3.8
 
 before_install:
   - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"

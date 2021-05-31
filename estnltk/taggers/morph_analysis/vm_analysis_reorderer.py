@@ -9,7 +9,7 @@ from estnltk.text import Layer, Text
 from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
-from estnltk.taggers.morph_analysis.morf import VabamorfTagger
+from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 
 
 # Default dict of word-to-analysis reorderings 
@@ -50,7 +50,7 @@ class MorphAnalysisReorderer(Retagger):
         first one (the increase from ~50% --> ~70%).
     """
     
-    output_attributes = VabamorfTagger.output_attributes
+    output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
     conf_param = [ # reorderings & statistics files
                    'word_reorderings_file',
                    'postag_freq_file',
@@ -222,6 +222,7 @@ class MorphAnalysisReorderer(Retagger):
         
         word_to_reorderings = {}
         header = []
+        vm_tagger_output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
         with open(input_csv_file, 'r', newline='', encoding=encoding) as csvfile:
             fle_reader = csv.reader(csvfile, dialect=dialect, **fmtparams)
             header = next(fle_reader)
@@ -239,7 +240,7 @@ class MorphAnalysisReorderer(Retagger):
             redundant = []
             for attr in header:
                 if attr not in ['text', 'freq', 'prob']:
-                    if attr not in VabamorfTagger.output_attributes:
+                    if attr not in vm_tagger_output_attributes:
                         redundant.append( attr )
             assert not redundant, \
                 '(!) CSV file header contains unexpected "morph_analysis" attributes: '+str(redundant)

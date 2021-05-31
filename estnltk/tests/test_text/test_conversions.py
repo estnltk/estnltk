@@ -87,14 +87,14 @@ def test_to_records():
 
     # ambiguous
     assert (text['morph_analysis'].to_records()) == [
-        [{'normalized_text': 'Olnud', 'root': 'ol=nud', 'lemma': 'olnud', 'form': '', 'ending': '0', 'root_tokens': ['olnud'], 'partofspeech': 'A',
+        [{'normalized_text': 'Olnud', 'root': 'ole', 'lemma': 'olema', 'form': 'nud', 'ending': 'nud', 'root_tokens': ['ole'], 'partofspeech': 'V',
+          'start': 0, 'end': 5, 'clitic': ''}, 
+         {'normalized_text': 'Olnud', 'root': 'ol=nud', 'lemma': 'olnud', 'form': '', 'ending': '0', 'root_tokens': ['olnud'], 'partofspeech': 'A',
           'start': 0, 'end': 5, 'clitic': ''},
          {'normalized_text': 'Olnud', 'root': 'ol=nud', 'lemma': 'olnud', 'form': 'sg n', 'ending': '0', 'root_tokens': ['olnud'],
           'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
          {'normalized_text': 'Olnud', 'root': 'ol=nud', 'lemma': 'olnud', 'form': 'pl n', 'ending': 'd', 'root_tokens': ['olnud'],
-          'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
-         {'normalized_text': 'Olnud', 'root': 'ole', 'lemma': 'olema', 'form': 'nud', 'ending': 'nud', 'root_tokens': ['ole'], 'partofspeech': 'V',
-          'start': 0, 'end': 5, 'clitic': ''}],
+          'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''}],
         [{'normalized_text': 'aeg', 'root': 'aeg', 'lemma': 'aeg', 'form': 'sg n', 'ending': '0', 'root_tokens': ['aeg'], 'partofspeech': 'S',
           'start': 6, 'end': 9, 'clitic': ''}],
         [{'normalized_text': '.', 'root': '.', 'lemma': '.', 'form': '', 'ending': '', 'root_tokens': ['.'], 'partofspeech': 'Z', 'start': 9,

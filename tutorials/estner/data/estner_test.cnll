@@ -1,0 +1,503 @@
+Riigi	riik+0	_S_ sg g	O
+kutsekoolidest	kutse_kool+dest	_S_ pl el	O
+sai	saa+i	_V_ s	O
+kõige	kõige+0	_D_	O
+viletsama	viletsam+0	_C_ sg g	O
+tulemuse	tulemus+0	_S_ sg g	O
+Põltsamaa	Põltsa_maa+0	_H_ sg g	B-ORG
+Kodu	kodu+0	_S_ sg n	I-ORG
+-	-	_Z_	O
+ja	ja+0	_J_	O
+Põllumajanduskool	põllu_majandus_kool+0	_S_ sg n	B-ORG
+,	,	_Z_	O
+kus	kus+0	_D_	O
+kvaliteedistandarditele	kvaliteedi_standard+tele	_S_ pl all	O
+ei	ei+0	_V_ neg	O
+vastanud	vasta+nud	_V_ nud	O
+33	33+0	_N_ ?	O
+protsenti	protsent+0	_S_ sg p	O
+kutseõpetajatest	kutse_õpetaja+test	_S_ pl el	O
+ja	ja+0	_J_	O
+27	27+0	_N_ ?	O
+protsenti	protsent+0	_S_ sg p	O
+üldharidusainete	üld_haridus_aine+te	_S_ pl g	O
+õpetajatest	õpetaja+test	_S_ pl el	O
+.	.	_Z_	O
+
+Kooli	kool+0	_S_ sg g	O
+direktori	direktor+0	_S_ sg g	O
+asetäitja	ase_täitja+0	_S_ sg n	O
+Tambet	Tambet+0	_H_ sg n	B-PER
+Valdma	Valdma+0	_H_ sg g	I-PER
+sõnul	sõna+ul	_S_ pl ad	O
+peetakse	pida+takse	_V_ takse	O
+nende	tema+de	_P_ pl g	O
+koolis	kool+s	_S_ sg in	O
+õpetajatena	õpetaja+tena	_S_ pl es	O
+lugu	lugu+0	_S_ sg n	O
+ka	ka+0	_D_	O
+väga	väga+0	_D_	O
+headest	hea+dest	_A_ pl el	O
+oma	oma+0	_P_ sg g	O
+ala	ala+0	_S_ sg g	O
+spetsialistidest	spetsialist+dest	_S_ pl el	O
+ja	ja+0	_J_	O
+praktikutest	praktik+test	_S_ pl el	O
+,	,	_Z_	O
+kel	kes+l	_P_ sg ad	O
+ei	ei+0	_V_ neg	O
+pruugi	pruuki+0	_V_ o	O
+vastava	vastav+0	_A_ sg g	O
+ainevaldkonna	aine_valdkond+0	_S_ sg g	O
+paberit	paber+t	_S_ sg p	O
+taskus	tasku+s	_S_ sg in	O
+olla	ole+a	_V_ da	O
+.	.	_Z_	O
+
+Vajadust	vajadus+t	_S_ sg p	O
+kaasata	kaasa+ta	_V_ da	O
+praktikuid	praktik+id	_S_ pl p	O
+kinnitas	kinnita+s	_V_ s	O
+ka	ka+0	_D_	O
+tööandjate	töö_andja+te	_S_ pl g	O
+keskliidu	kesk_liit+0	_S_ sg g	O
+tööturunõunik	töö_turu_nõunik+0	_S_ sg n	O
+Thor-Sten	Thor-Sten+0	_H_ sg n	B-PER
+Vertmann	Vertmann+0	_H_ sg n	I-PER
+.	.	_Z_	O
+
+Tema	tema+0	_P_ sg g	O
+sõnul	sõna+ul	_S_ pl ad	O
+on	ole+0	_V_ b	O
+kutsekoolides	kutse_kool+des	_S_ pl in	O
+erialasid	eri_ala+sid	_S_ pl p	O
+,	,	_Z_	O
+mis	mis+0	_P_ pl n	O
+jääksid	jää+ksid	_V_ ksid	O
+kõigilt	kõik+lt	_P_ pl abl	O
+õpetajatelt	õpetaja+telt	_S_ pl abl	O
+erialast	eri_alane+t	_A_ sg p	O
+kõrgharidust	kõrg_haridus+t	_S_ sg p	O
+nõudes	nõud+es	_V_ des	O
+täielikult	täielikult+0	_D_	O
+ajast	aeg+st	_S_ sg el	O
+maha	maha+0	_D_	O
+.	.	_Z_	O
+
+Haridusministeeriumi	haridus_ministeerium+0	_S_ sg g	B-ORG
+kutse	kutse+0	_S_ sg n	O
+-	-	_Z_	O
+ja	ja+0	_J_	O
+täiskasvanuhariduse	täis_kasvanu_haridus+0	_S_ sg g	O
+osakonna	osakond+0	_S_ sg g	O
+juhataja	juhataja+0	_S_ sg n	O
+Andres	Andres+0	_H_ sg n	B-PER
+Pung	Pung+0	_H_ sg n	I-PER
+märkis	märki+s	_V_ s	O
+,	,	_Z_	O
+et	et+0	_J_	O
+kutsekooliõpetajate	kutse_kooli_õpetaja+te	_S_ pl g	O
+hindamise	hindamine+0	_S_ sg g	O
+kriteeriume	kriteerium+e	_S_ pl p	O
+senisest	senine+st	_A_ sg el	O
+leebemaks	leebem+ks	_C_ sg tr	O
+muutmine	muutmine+0	_S_ sg n	O
+tooks	too+ks	_V_ ks	O
+koolidesse	kool+desse	_S_ pl ill	O
+rohkem	rohkem+0	_D_	O
+oma	oma+0	_P_ sg g	O
+ala	ala+0	_S_ sg g	O
+praktikuid	praktik+id	_S_ pl p	O
+.	.	_Z_	O
+
+Kehtiva	Kehtiv+0	_H_ sg g	O
+korra	kord+0	_S_ sg g	O
+järgi	järgi+0	_K_	O
+võib	või+b	_V_ b	O
+praktik	praktik+0	_S_ sg n	O
+küll	küll+0	_D_	O
+koolis	kool+s	_S_ sg in	O
+töötada	tööta+da	_V_ da	O
+,	,	_Z_	O
+kui	kui+0	_D_	O
+ta	tema+0	_P_ sg n	O
+on	ole+0	_V_ b	O
+vähemalt	vähemalt+0	_D_	O
+kolm	kolm+0	_N_ sg n	O
+aastat	aasta+t	_S_ sg p	O
+töötanud	tööta+nud	_V_ nud	O
+oma	oma+0	_P_ sg g	O
+erialal	eri_ala+l	_S_ sg ad	O
+ja	ja+0	_J_	O
+jätkab	jätka+b	_V_ b	O
+põhitööd	põhi_töö+d	_S_ sg p	O
+ka	ka+0	_D_	O
+kooli	kool+0	_S_ sg g	O
+kõrvalt	kõrvalt+0	_K_	O
+.	.	_Z_	O
+
+Põhikohaga	põhi_koht+ga	_S_ sg kom	O
+tööd	töö+d	_S_ sg p	O
+tegevad	tegev+d	_A_ pl n	O
+õpetajad	õpetaja+d	_S_ pl n	O
+,	,	_Z_	O
+kel	kes+l	_P_ sg ad	O
+pole	ole+0	_V_ neg o	O
+pedagoogilist	pedagoogiline+t	_A_ sg p	O
+haridus	haridus+0	_S_ sg n	O
+,	,	_Z_	O
+peavad	pida+vad	_V_ vad	O
+läbima	läbi+ma	_V_ ma	O
+320	320+0	_N_ ?	O
+tunni	tund+0	_S_ sg g	O
+pikkuse	pikkune+0	_A_ sg g	O
+õpetajakoolituse	õpetaja_koolitus+0	_S_ sg g	O
+.	.	_Z_	O
+
+“	“	_Z_	O
+Tundub	tundu+b	_V_ b	O
+,	,	_Z_	O
+et	et+0	_J_	O
+see	see+0	_P_ sg n	O
+osa	osa+0	_S_ sg n	O
+on	ole+0	_V_ b	O
+küll	küll+0	_D_	O
+natuke	natuke+0	_D_	O
+ülepingutatud	üle_pingutatud+0	_A_	O
+ning	ning+0	_J_	O
+neid	see+d	_P_ pl p	O
+mahtusid	maht+sid	_S_ pl p	O
+saaks	saa+ks	_V_ ks	O
+kindlasti	kindlasti+0	_D_	O
+vähendada	vähenda+da	_V_ da	O
+,	,	_Z_	O
+”	”	_Z_	O
+sõnas	sõna+s	_V_ s	O
+Pung	Pung+0	_H_ sg n	B-PER
+.	.	_Z_	O
+--
+
+15-aastase	15_aastane+0	_A_ sg g	O
+Leedu	Leedu+0	_H_ sg g	B-LOC
+poisi	poiss+0	_S_ sg g	O
+tapjad	tapja+d	_S_ pl n	O
+on	ole+0	_V_ b	O
+tabatud	taba+tud	_V_ tud	O
+.	.	_Z_	O
+
+Leedu	Leedu+0	_H_ sg g	B-LOC
+linnas	linn+s	_S_ sg in	O
+Visaginases	Visaginas+s	_H_ sg in	B-LOC
+võttis	võt+is	_V_ s	O
+politsei	politsei+0	_S_ sg n	O
+kinni	kinni+0	_D_	O
+kaks	kaks+0	_N_ sg n	O
+noormeest	noor_mees+t	_S_ sg p	O
+,	,	_Z_	O
+keda	kes+da	_P_ pl p	O
+kahtlustatakse	kahtlusta+takse	_V_ takse	O
+15-aastase	15_aastane+0	_A_ sg g	O
+koolipoisi	kooli_poiss+0	_S_ sg g	O
+tapmises	tapmine+s	_S_ sg in	O
+.	.	_Z_	O
+
+Kaheksanda	Kaheksanda+0	_H_ sg g	O
+klassi	klass+0	_S_ sg g	O
+õpilase	õpilane+0	_S_ sg g	O
+Aleksei	Aleksei+0	_H_ sg n	B-PER
+Selivanovi	Selivanov+0	_H_ sg g	I-PER
+läbilõigatud	läbi_lõiga=tud+0	_A_	O
+kõri	kõri+0	_S_ sg n	O
+ning	ning+0	_J_	O
+rohkete	rohke+te	_A_ pl g	O
+torke	torge+0	_S_ sg g	O
+-	-	_Z_	O
+ja	ja+0	_J_	O
+lõikehaavadega	lõike_haav+dega	_S_ pl kom	O
+laip	laip+0	_S_ sg n	O
+leiti	leid+ti	_V_ ti	O
+kolmapäeva	kolma_päev+0	_S_ sg g	O
+õhtul	õhtu+l	_S_ sg ad	O
+.	.	_Z_	O
+
+Poiss	poiss+0	_S_ sg n	O
+oli	ole+i	_V_ s	O
+tapetud	tap+tud	_V_ tud	O
+oma	oma+0	_P_ sg g	O
+kodu	kodu+0	_S_ sg g	O
+lähedal	lähedal+0	_K_	O
+.	.	_Z_	O
+
+Politsei	politsei+0	_S_ sg n	O
+pidas	pida+s	_V_ s	O
+neljapäeval	nelja_päev+l	_S_ sg ad	O
+mõrvas	mõrv+s	_S_ sg in	O
+kahtlustatutena	kahtlustatud+tena	_A_ pl es	O
+kinni	kinni+0	_D_	O
+kaks	kaks+0	_N_ sg n	O
+17-aastast	17_aastane+t	_A_ sg p	O
+Visaginase	Visaginas+0	_H_ sg g	B-LOC
+elanikku	elanik+0	_S_ sg p	O
+.	.	_Z_	O
+
+Üks	üks+0	_N_ sg n	O
+neist	tema+st	_P_ pl el	O
+oli	ole+i	_V_ s	O
+nähtavasti	nähtavasti+0	_D_	O
+mõrva	mõrv+0	_S_ sg g	O
+tellija	tellija+0	_S_ sg n	O
+,	,	_Z_	O
+teine	teine+0	_O_ sg n	O
+aga	aga+0	_J_	O
+täideviija	täide_viija+0	_S_ sg n	O
+.	.	_Z_	O
+
+Kinnipeetud	kinni_peetud+0	_A_	O
+on	ole+0	_V_ b	O
+oma	oma+0	_P_ sg g	O
+süü	süü+0	_S_ sg g	O
+üles	üles+0	_D_	O
+tunnistanud	tunnista+nud	_V_ nud	O
+.	.	_Z_	O
+
+Visaginase	Visaginas+0	_H_ sg g	B-ORG
+politsei	politsei+0	_S_ sg n	I-ORG
+otsib	otsi+b	_V_ b	O
+taga	taga+0	_D_	O
+veel	veel+0	_D_	O
+kaht	kaks+0	_N_ sg p	O
+mõrvas	mõrv+s	_S_ sg in	O
+osalenut	osalenu+t	_S_ sg p	O
+.	.	_Z_	O
+
+Esialgsetel	esi_algne+tel	_A_ pl ad	O
+andmetel	andmed+tel	_S_ pl ad	O
+tapeti	tap+ti	_V_ ti	O
+15-aastane	15_aastane+0	_A_ sg n	O
+poiss	poiss+0	_S_ sg n	O
+ühe	üks+0	_N_ sg g	O
+tüdruku	tüdruk+0	_S_ sg g	O
+pärast	pärast+0	_K_	O
+.	.	_Z_	O
+
+Pärast	pärast+0	_K_	O
+kuriteo	kuri_tegu+0	_S_ sg g	O
+avastamist	avastamine+t	_S_ sg p	O
+on	ole+0	_V_ b	O
+Visaginase	Visaginas+0	_H_ sg g	B-LOC
+linna	linn+0	_S_ adt	O
+haaranud	haara+nud	_V_ nud	O
+paanika	paanika+0	_S_ sg n	O
+.	.	_Z_	O
+
+Vanemad	vanem+d	_S_ pl n	O
+kardavad	kart+vad	_V_ vad	O
+oma	oma+0	_P_ sg g	O
+lapsi	laps+i	_S_ pl p	O
+kooli	kool+0	_S_ adt	O
+saata	saat+a	_V_ da	O
+.	.	_Z_	O
+
+Leedu	Leedu+0	_H_ sg g	B-LOC
+noores	noor+s	_A_ sg in	O
+linnas	linn+s	_S_ sg in	O
+Visaginases	Visaginas+s	_H_ sg in	B-LOC
+,	,	_Z_	O
+mis	mis+0	_P_ pl n	O
+ehitati	ehita+ti	_V_ ti	O
+20	20+0	_N_ ?	O
+aastat	aasta+t	_S_ sg p	O
+tagasi	tagasi+0	_K_	O
+koos	koos+0	_K_	O
+Ignalina	Ignalina+0	_H_ sg g	B-LOC
+aatomielektrijaamaga	aatomi_elektri_jaam+ga	_S_ sg kom	O
+,	,	_Z_	O
+oli	ole+i	_V_ s	O
+see	see+0	_P_ sg n	O
+esimene	esimene+0	_O_ sg n	O
+alaealise	ala_ealine+0	_A_ sg g	O
+mõrv	mõrv+0	_S_ sg n	O
+.	.	_Z_	O
+--
+
+Kümned	Kümne+d	_H_ pl n	O
+kalamehed	kala_mees+d	_S_ pl n	O
+jäid	jää+id	_V_ sid	O
+taas	taas+0	_D_	O
+Peipsil	Peipsi+l	_H_ sg ad	B-LOC
+hätta	häda+0	_S_ adt	O
+.	.	_Z_	O
+
+Peipsil	Peipsi+l	_H_ sg ad	B-LOC
+jäid	jää+id	_V_ sid	O
+pühapäeval	püha_päev+l	_S_ sg ad	O
+taas	taas+0	_D_	O
+hätta	häda+0	_S_ adt	O
+kümned	kümme+d	_N_ pl n	O
+kalamehed	kala_mees+d	_S_ pl n	O
+,	,	_Z_	O
+kes	kes+0	_P_ pl n	O
+kaldale	kallas+le	_S_ sg all	O
+saamiseks	saamine+ks	_S_ sg tr	O
+abi	abi+0	_S_ sg p	O
+vajasid	vaja+sid	_V_ sid	O
+.	.	_Z_	O
+
+Järvejäässe	Järvejäässe+0	_H_ sg n	O
+tekkis	tekki+s	_V_ s	O
+läänetuulega	lääne_tuul+ga	_S_ sg kom	O
+Peipsi	Peipsi+0	_H_ sg g	B-LOC
+Eesti	Eesti+0	_H_ sg g	I-LOC
+poolele	pool+le	_S_ sg all	O
+kümne	kümme+0	_N_ sg g	O
+kuni	kuni+0	_K_	O
+200	200+0	_N_ ?	O
+meetri	meeter+0	_S_ sg g	O
+laiune	laiune+0	_A_ sg n	O
+lõhe	lõhe+0	_S_ sg n	O
+,	,	_Z_	O
+mis	mis+0	_P_ pl n	O
+jääb	jää+b	_V_ b	O
+400	400+0	_N_ ?	O
+meetri	meeter+0	_S_ sg g	O
+kuni	kuni+0	_K_	O
+kahe	kaks+0	_N_ sg g	O
+kilomeetri	kilo_meeter+0	_S_ sg g	O
+kaugusele	kaugus+le	_S_ sg all	O
+kaldast	kallas+st	_S_ sg el	O
+.	.	_Z_	O
+
+Piirivalveameti	piiri_valve_amet+0	_S_ sg g	B-ORG
+pressiesindaja	pressi_esindaja+0	_S_ sg n	O
+ütles	ütle+s	_V_ s	O
+BNS-ile	BNS+ile	_Y_ sg all	B-ORG
+,	,	_Z_	O
+et	et+0	_J_	O
+ennelõunal	enne_lõuna+l	_S_ sg ad	O
+tõi	too+i	_V_ s	O
+piirivalve	piiri_valve+0	_S_ sg g	O
+hõljuk	hõljuk+0	_S_ sg n	O
+Kauksi	Kauks+0	_H_ sg g	B-LOC
+alt	alt+0	_K_	O
+ära	ära+0	_D_	O
+neli	neli+0	_N_ sg n	O
+kalurit	kalur+t	_S_ sg p	O
+,	,	_Z_	O
+kuid	kuid+0	_J_	O
+12.30	12.30+0	_N_ ?	O
+paiku	paiku+0	_K_	O
+tuli	tule+i	_V_ s	O
+teade	teade+0	_S_ sg n	O
+suuremast	suurem+st	_C_ sg el	O
+hulgast	hulgast+0	_K_	O
+hädalistest	hädaline+test	_S_ pl el	O
+.	.	_Z_	O
+
+Pala	Pala+0	_H_ sg g	B-LOC
+vallas	vald+s	_S_ sg in	I-LOC
+Ranna	rand+0	_S_ sg g	B-LOC
+asula	asula+0	_S_ sg g	I-LOC
+juures	juures+0	_K_	O
+olid	ole+id	_V_ sid	O
+teisele	teine+le	_O_ sg all	O
+poole	poole+0	_K_	O
+jääpragu	jää_pragu+0	_S_ sg p	O
+jäänud	jää+nud	_V_ nud	O
+hinnanguliselt	hinnangu=liselt+0	_D_	O
+50-60	50-60+0	_N_ ?	O
+kalameest	kala_mees+t	_S_ sg p	O
+.	.	_Z_	O
+
+Kella	kell+0	_S_ sg g	O
+16	16+0	_N_ ?	O
+oli	ole+i	_V_ s	O
+piirivalve	piiri_valve+0	_S_ sg n	O
+ja	ja+0	_J_	O
+kohalikud	kohalik+d	_A_ pl n	O
+elanikud	elanik+d	_S_ pl n	O
+oma	oma+0	_P_ sg g	O
+paatidega	paat+dega	_S_ pl kom	O
+neist	see+st	_P_ pl el	O
+paarkümmend	paar_kümmend+0	_N_ sg n	O
+maale	maal+e	_S_ pl p	O
+toimetanud	toimeta+nud	_V_ nud	O
+.	.	_Z_	O
+
+Pressiesindaja	pressi_esindaja+0	_S_ sg g	O
+sõnul	sõna+ul	_S_ pl ad	O
+ohtlikku	ohtlik+0	_A_ sg p	O
+olukorda	olu_kord+0	_S_ sg p	O
+kalameeste	kala_mees+te	_S_ pl g	O
+jaoks	jaoks+0	_K_	O
+tekkinud	tekki+nud	_V_ nud	O
+ei	ei+0	_V_ neg	O
+ole	ole+0	_V_ o	O
+ja	ja+0	_J_	O
+päästetööd	pääste_töö+d	_S_ sg p	O
+sujuvad	sujuv+d	_A_ pl n	O
+plaanipäraselt	plaani_päraselt+0	_D_	O
+.	.	_Z_	O
+--
+
+“	“	_Z_	O
+Täiesti	Täiest+0	_H_ adt	O
+võimatu	võimatu+0	_A_ sg n	O
+oleks	ole+ks	_V_ ks	O
+kustutada	kustuta+da	_V_ da	O
+põlevaid	põlev+id	_A_ pl p	O
+kütusemahuteid	kütuse_mahuti+id	_S_ pl p	O
+ning	ning+0	_J_	O
+tuleks	tule+ks	_V_ ks	O
+oodata	oota+ta	_V_ da	O
+kuni	kuni+0	_K_	O
+kütuse	kütus+0	_S_ sg g	O
+täieliku	täielik+0	_A_ sg g	O
+väljapõlemiseni	välja_põlemine+ni	_S_ sg ter	O
+mahutitest	mahuti+test	_S_ pl el	O
+.	.	_Z_	O
+
+Bensiini	bensiin+0	_S_ sg g	O
+ja	ja+0	_J_	O
+muude	muu+de	_P_ pl g	O
+vedelkütuste	vedel_kütus+te	_S_ pl g	O
+mahutite	mahuti+te	_S_ pl g	O
+plahvatuste	plahvatus+te	_S_ pl g	O
+juhul	juht+l	_S_ sg ad	O
+ei	ei+0	_V_ neg	O
+oleks	ole+ks	_V_ ks	O
+võimalik	võimalik+0	_A_ sg n	O
+päästa	pääst+a	_V_ da	O
+terminalide	terminal+de	_S_ pl g	O
+töötajaid	töötaja+id	_S_ pl p	O
+ega	ega+0	_J_	O
+ka	ka+0	_D_	O
+terminalis	terminal+s	_S_ sg in	O
+olevate	olev+te	_A_ pl g	O
+laevade	laev+de	_S_ pl g	O
+meeskonnaliikmeid	meeskonna_liige+id	_S_ pl p	O
+,	,	_Z_	O
+rääkimata	rääki+mata	_V_ mata	O
+juba	juba+0	_D_	O
+kahjustavast	kahjustav+st	_A_ sg el	O
+mõjust	mõju+st	_S_ sg el	O
+ümbritsevale	ümbritsev+le	_A_ sg all	O
+keskkonnale	keskkond+le	_S_ sg all	O
+,	,	_Z_	O
+Eesti	Eesti+0	_H_ sg g	B-LOC
+majandusele	majandus+le	_S_ sg all	O
+ja	ja+0	_J_	O
+rahvusvahelisele	rahvus_vaheline+le	_A_ sg all	O
+mainele	maine+le	_S_ sg all	O
+,	,	_Z_	O
+”	”	_Z_	O
+hoiatab	hoiata+b	_V_ b	O
+turvafirma	turva_firma+0	_S_ sg g	O
+juhatuse	juhatus+0	_S_ sg g	O
+esimees	esi_mees+0	_S_ sg n	O
+Aleksander	Aleksander+0	_H_ sg n	B-PER
+Kaspin	Kaspin+0	_H_ sg n	I-PER
+riigikantseleile	riigi_kantselei+le	_S_ sg all	O
+saadetud	saadetud+0	_A_	O
+kirjas	kiri+s	_S_ sg in	O
+.	.	_Z_	O
+

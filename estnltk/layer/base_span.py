@@ -56,6 +56,9 @@ class ElementaryBaseSpan(BaseSpan):
             return self
         raise ValueError(level)
 
+    def __len__(self):
+        return self.end - self.start
+
     def __hash__(self):
         return self._hash
 

@@ -72,6 +72,7 @@ class PgSubCollectionFragments:
                             SQL('{}."data"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.fragmented_layer))]
 
         required_layers = sorted({self.fragmented_layer, *self._selection_criterion.required_layers})
+
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
         # Required layers are part of the main collection

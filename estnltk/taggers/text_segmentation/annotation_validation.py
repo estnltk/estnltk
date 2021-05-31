@@ -9,26 +9,26 @@ import re
 
 from estnltk.text import Text
 
-_parentheses_content = re.compile('(\([^()]+?\))')
+_parentheses_content = re.compile(r'(\([^()]+?\))')
 
-_abbrev_pattern      = re.compile('\s([a-zöäüõšž\-.]+\.[a-zöäüõšž\-]+|[a-zöäüõšž\-]+[.])$')
-_abbrev_caps_pattern = re.compile('\s([A-ZÖÄÜÕŠŽ\-.]+\.[A-ZÖÄÜÕŠŽ\-]+|[A-ZÖÄÜÕŠŽ\-]+[.])$')
-_unlikely_sent_start = re.compile('^([a-zöäüõšž\-,;]).*')
-_hyphenation_end     = re.compile('(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|'+
-                                  '\u2010|\u2011|\u2012|\u2013|\u2014|\u2015)$')
+_abbrev_pattern      = re.compile(r'\s([a-zöäüõšž\-.]+\.[a-zöäüõšž\-]+|[a-zöäüõšž\-]+[.])$')
+_abbrev_caps_pattern = re.compile(r'\s([A-ZÖÄÜÕŠŽ\-.]+\.[A-ZÖÄÜÕŠŽ\-]+|[A-ZÖÄÜÕŠŽ\-]+[.])$')
+_unlikely_sent_start = re.compile(r'^([a-zöäüõšž\-,;]).*')
+_hyphenation_end     = re.compile(r'(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|'+
+                                  r'\u2010|\u2011|\u2012|\u2013|\u2014|\u2015)$')
 
 
-_camel_case_pattern  = re.compile('([a-zöäüõšž][A-ZÖÄÜÕŠŽ])')
+_camel_case_pattern  = re.compile(r'([a-zöäüõšž][A-ZÖÄÜÕŠŽ])')
 
-_three_lc_words = '[a-zöäüõšž\-]+\s+[a-zöäüõšž\-]+\s+[a-zöäüõšž\-]+'
+_three_lc_words = r'[a-zöäüõšž\-]+\s+[a-zöäüõšž\-]+\s+[a-zöäüõšž\-]+'
 _three_lc_words_compiled = re.compile(_three_lc_words)
 
 _double_quotes_patterns = [ # ""
-                            re.compile('("[^"]+?")'), \
+                            re.compile(r'("[^"]+?")'), \
                             # «» 
-                            re.compile('(\u00AB[^\u00AB\u00BB]+?\u00BB)'), \
+                            re.compile(r'(\u00AB[^\u00AB\u00BB]+?\u00BB)'), \
                             # “”
-                            re.compile('([“\u201C][^“”\u201C\u201D]+?[”\u201D])'), \
+                            re.compile(r'([“\u201C][^“”\u201C\u201D]+?[”\u201D])'), \
                           ]
 
 
