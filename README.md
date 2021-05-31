@@ -8,32 +8,32 @@ The project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](https://
 
 Currently, there are two branches of EstNLTK:
 
-* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.7beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). Due to the beta status, some of the tools are limited or incomplete. Supported Python versions are 3.5, 3.6 and 3.7. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
+* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.8beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). Due to the beta status, some of the tools are limited or incomplete. Supported Python versions are 3.6, 3.7 and 3.8. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
   
 * version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4, 3.5 and 2.7. Python versions 3.6, 3.7 and beyond are not supported;
 
 ## Version 1.6
 
 ### Installation
-The recommended way of installing EstNLTK is by using the [anaconda python distribution](https://www.anaconda.com/download) and python 3.5+.
+The recommended way of installing EstNLTK is by using the [anaconda python distribution](https://www.anaconda.com/download) and python 3.6+.
 
 Installable packages have been built for osx, windows-64, and linux-64.
 
-As some of the EstNLTK's dependencies are not yet compatible with the newest version of python (3.8), we recommend to install EstNLTK inside a conda environment that contains python 3.7:
+As some of the EstNLTK's dependencies are not yet compatible with the newest version of python (3.9), we recommend to install EstNLTK inside a conda environment that contains python 3.8:
 
-1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.7, for instance:
+1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.8, for instance:
 ```
-conda create -n py37 python=3.7
+conda create -n py38 python=3.8
 ```
 
 2. [activate the environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment), for instance:
 ```
-conda activate py37
+conda activate py38
 ```
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.6.7b
+conda install -c estnltk -c conda-forge estnltk=1.6.8b
 ```
 
 The alternative way for installing if you are unable to use the anaconda distribution is:
@@ -50,7 +50,7 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.6.7b0
+!pip install estnltk==1.6.8b0
 ```
 
 _Note_: the PyPI package, which installation is shown above, has been specifically created for Colab. For other platforms/environments, please use our conda packages. 
@@ -58,6 +58,10 @@ _Note_: the PyPI package, which installation is shown above, has been specifical
 ### Documentation
 
 Documentation for 1.6 currently comes in the form of [jupyter notebooks](http://jupyter.org), which are available here: https://github.com/estnltk/estnltk/tree/version_1.6/tutorials
+
+Additional educational materials on EstNLTK version 1.6 are available on web pages of an NLP course taught at the University of Tartu:
+
+  * [https://github.com/d009/EstNLP](https://github.com/d009/EstNLP) (in Estonian)
 
 Note: if you have trouble viewing jupyter notebooks in github (you get an error message _Sorry, something went wrong. Reload?_ at loading a notebook), then try to open notebooks with the help of [https://nbviewer.jupyter.org](https://nbviewer.jupyter.org)
 
