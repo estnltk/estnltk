@@ -42,7 +42,7 @@ platform:
 
 branches:
   only:
-    - version_1.6
+    - version_1.6_travis
 
 init:
   # Environment variables:
