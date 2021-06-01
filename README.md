@@ -55,6 +55,10 @@ You can install EstNLTK on [Google Colab](https://colab.research.google.com) env
 
 _Note_: the PyPI package, which installation is shown above, has been specifically created for Colab. For other platforms/environments, please use our conda packages. 
 
+### Neural models
+
+Neural models of EstNLTK are not distributed with the package, but must be downloaded separately from the repository [https://entu.keeleressursid.ee/entity/folder/7510](https://entu.keeleressursid.ee/entity/folder/7510). Neural models for syntactic parsing can be downloaded from [https://entu.keeleressursid.ee/entity/folder/9785](https://entu.keeleressursid.ee/entity/folder/9785) (see also the [tutorial](https://github.com/estnltk/estnltk/blob/version_1.6/tutorials/syntax/syntax.ipynb) of syntactic parsers).
+
 ### Documentation
 
 Documentation for 1.6 currently comes in the form of [jupyter notebooks](http://jupyter.org), which are available here: https://github.com/estnltk/estnltk/tree/version_1.6/tutorials
