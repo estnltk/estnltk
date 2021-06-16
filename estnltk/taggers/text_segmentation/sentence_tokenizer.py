@@ -489,6 +489,14 @@ class SentenceTokenizer( Tagger ):
                 yield (words[first_token].start, words[last_token].end)
                 i += len(sentence_words)
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the sentences layer."""
+        return Layer(enveloping=self._input_words_layer,
+                     name=self.output_layer,
+                     attributes=self.output_attributes,
+                     text_object=None,
+                     ambiguous=False)
+
     def _make_layer(self, text, layers, status: dict):
         """Creates the sentences layer.
         
