@@ -3,7 +3,7 @@ import json
 import re
 import time
 from contextlib import contextmanager
-from typing import Sequence
+from typing import Sequence, Dict
 
 import pandas
 import psycopg2
@@ -11,6 +11,7 @@ from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
 from estnltk import logger
+from estnltk import Layer
 from estnltk.converters import dict_to_layer
 from estnltk.converters import dict_to_text
 from estnltk.converters import layer_to_dict
@@ -707,6 +708,78 @@ class PgCollection:
                     conn.commit()
 
         logger.info('layer created: {!r}'.format(layer_name))
+
+    def add_layer(self, layer_template: Layer,
+                        fragmented_layer: bool = False,
+                        meta: Dict[str, str] = None,
+                        create_index: bool = False,
+                        ngram_index=None) -> None:
+        """
+        Adds detached or fragmented layer to the collection. You can use this 
+        method to add an empty layer to the collection that will be filled with
+        data later. Note, however, that the collection must already contain some
+        documents before the layer can be added, and after adding the layer, 
+        new documents can no longer be inserted.
+
+        Layer must be specified by a template layer. The function fails only if 
+        the layer is already present or the database schema is in an inconsistent 
+        state. 
+        One should set create_index only if one plans to search specific elements 
+        from the layer. The ngram index speeds up search of element combinations. 
+        This is useful when one uses phase grammars.
+        
+        Args:
+            layer_template: Layer
+                A template which is used as a basis on creating the new layer
+            fragmented_layer: bool
+                Whether a fragmented layer will be created (default: False)
+            meta: dict of str -> str
+                Specifies table column names and data types to create for storing additional
+                meta information. E.g. meta={"sum": "int", "average": "float"}.
+                See `pytype2dbtype` in `pg_operations` for supported types.
+            create_index: bool
+                Whether to create an index on json column (default: False)
+            ngram_index: list
+                A list of attributes for which to create an ngram index (default: None)
+        """
+        if not isinstance( layer_template, Layer ):
+            raise TypeError('(!) layer_template must be an instance of Layer')
+
+        if self.layers is not None and layer_template.name in self.layers:
+            raise PgCollectionException("The {!r} layer already exists.".format(layer_template.name))
+
+        if self._is_empty:
+            raise PgCollectionException("can't add layer {!r}, the collection is empty".format(layer_template.name))
+
+        layer_table = layer_table_name(self.name, layer_template.name)
+        if table_exists(self.storage, layer_table):
+            raise PgCollectionException(
+                "The table {!r} for the layer {!r} already exists.".format(layer_table, layer_template.name))
+
+        layer_type = 'detached' if not fragmented_layer else 'fragmented'
+        conn = self.storage.conn
+        with conn.cursor() as cur:
+            try:
+                self._create_layer_table(
+                    cursor=cur,
+                    layer_name=layer_template.name,
+                    is_fragment=fragmented_layer,
+                    create_index=create_index,
+                    ngram_index=ngram_index,
+                    overwrite=False,
+                    meta=meta)
+
+                self._structure.insert(layer=layer_template, layer_type=layer_type, meta=meta)
+
+            except Exception:
+                conn.rollback()
+                raise
+            finally:
+                if conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    conn.commit()
+
+        logger.info('{} layer {!r} created from template'.format(layer_type, layer_template.name))
 
     def create_layer_block(self, tagger, block, meta=None, query_length_limit=5000000):
         """Creates a layer block
