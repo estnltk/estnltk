@@ -44,6 +44,11 @@ class TestPgCollection(unittest.TestCase):
         delete_schema(self.storage)
         self.storage.close()
 
+    def test_storage_get_collections(self):
+        # Test that the collections list can be accessed
+        # even before it is filled in with collections 
+        self.assertTrue( len( self.storage.collections ) == 0 )
+
     def test_create_collection(self):
         collection_name = get_random_collection_name()
         collection = self.storage[collection_name]
