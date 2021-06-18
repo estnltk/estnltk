@@ -39,6 +39,10 @@ class WhiteSpaceTokensTagger(Tagger):
         self.input_layers = []
         self.output_attributes = ()
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer, text_object=None)
+
     def _make_layer(self, text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         """Segments given Text into tokens. 
            Returns tokens layer.
@@ -58,9 +62,11 @@ class WhiteSpaceTokensTagger(Tagger):
         assert text.text is not None, '(!) {} has no textual content to be analysed.'.format(text)
         raw_text = text.text
         spans = list(tokenizer.span_tokenize(raw_text))
-        return Layer(name=self.output_layer, text_object=text).from_records(
+        layer = (self._make_layer_template()).from_records(
                                                 [{
                                                    'start': start,
                                                    'end': end
                                                   } for start, end in spans],
                                                  rewriting=True)
+        layer.text_object = text
+        return layer

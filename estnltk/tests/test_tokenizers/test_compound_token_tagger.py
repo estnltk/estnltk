@@ -772,6 +772,21 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         self.assertListEqual(['LED-infotabloo', 'cd/m²'], compound_tokens)
 
 
+    def test_create_an_empty_compoundtokens_layer_via_make_layer_template(self):
+        # Tests that an empty compound tokens layer can be created via _make_layer_template
+        # ( technically, this means for skipping compound tokens altogether )
+        text = Text('Mis lil-li müüs Tiit 10e krooniga?').tag_layer('tokens')
+        cp_tagger = CompoundTokenTagger()
+        # add empty compound tokens layer
+        cp_layer  = cp_tagger._make_layer_template()
+        cp_layer.text_object = text
+        text.add_layer( cp_layer )
+        # add words layer upon it
+        text.tag_layer('words')
+        # check the words 
+        word_texts = [text.text[sp.start:sp.end] for sp in text.words.spans]
+        self.assertListEqual(['Mis', 'lil', '-', 'li', 'müüs', 'Tiit', '10e', 'krooniga', '?'], word_texts)
+
 
 from estnltk.taggers.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
 from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
