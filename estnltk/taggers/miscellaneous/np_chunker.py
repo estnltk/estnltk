@@ -110,6 +110,14 @@ class NounPhraseChunker( Tagger ):
                 '(!) np_chunker should be an instance of NounPhraseChunkerV1_4!'
             self._np_chunker = np_chunker
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     enveloping=self._input_words_layer,
+                     text_object=None,
+                     attributes=self.output_attributes,
+                     ambiguous=False)
+
     def _make_layer(self, text, layers, status: dict):
         """Tags noun phrase chunks layer.
         
@@ -128,11 +136,8 @@ class NounPhraseChunker( Tagger ):
            This can be used to store metadata on layer tagging.
 
         """
-        layer = Layer(name=self.output_layer,
-                      enveloping=self._input_words_layer,
-                      text_object=text,
-                      attributes=self.output_attributes,
-                      ambiguous=False)
+        layer = self._make_layer_template()
+        layer.text_object = text
 
         word_spans   = layers[ self._input_words_layer ]
         morph_spans  = layers[ self._input_morph_analysis_layer ]
