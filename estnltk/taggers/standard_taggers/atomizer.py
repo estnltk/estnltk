@@ -22,6 +22,11 @@ class Atomizer(Tagger):
         self.output_attributes = tuple(output_attributes)
         self.enveloping = enveloping
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        raise NotImplementedError( '(!) Unable to create the template layer. '+\
+                                  ('Exact configuration of the new layer depends on the input layer {!r}').format(self.input_layers[0]) )
+
     def _make_layer(self, text, layers, status):
         layer = layers[self.input_layers[0]]
         if self.output_attributes is None:

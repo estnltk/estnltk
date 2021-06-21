@@ -33,10 +33,14 @@ class TextSegmentsTagger(Tagger):
         self.validator = validator
         self.include_header = include_header
 
+    def _make_layer_template(self):
+        return Layer(self.output_layer, attributes=self.output_attributes, text_object=None)
+
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         headers_layer = layers[self.input_layers[0]]
 
-        layer = Layer(self.output_layer, attributes=self.output_attributes, text_object=text)
+        layer = self._make_layer_template()
+        layer.text_object = text
         conflict_counter = 0
 
         last_span = None

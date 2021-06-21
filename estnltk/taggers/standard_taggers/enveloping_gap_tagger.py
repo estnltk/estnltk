@@ -29,18 +29,20 @@ class EnvelopingGapTagger(Tagger):
         self.output_attributes = tuple(output_attributes)
         self.decorator = decorator or default_decorator
 
+    def _make_layer_template(self):
+        return Layer( name=self.output_layer,
+                      attributes=self.output_attributes,
+                      text_object=None,
+                      parent=None,
+                      enveloping=self.enveloped_layer,
+                      ambiguous=False )
+
     def _make_layer(self, text, layers, status):
         layers_with_gaps = [layers[name] for name in self.layers_with_gaps]
         assert all(layer.enveloping == self.enveloped_layer for layer in layers_with_gaps)
         enveloped = layers[self.enveloped_layer]
-        layer = Layer(
-            name=self.output_layer,
-            attributes=self.output_attributes,
-            text_object=text,
-            parent=None,
-            enveloping=self.enveloped_layer,
-            ambiguous=False
-            )
+        layer = self._make_layer_template()
+        layer.text_object = text
         decorator = self.decorator
         for gap in enveloping_gaps(layers_with_gaps, enveloped):
             layer.add_annotation(gap, **decorator(gap))
