@@ -35,6 +35,11 @@ class NerTagger(Tagger):
         self.crf_model = CrfsuiteModel(settings=self.nersettings,
                                        model_filename=self.modelUtil.model_filename)
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer, attributes=self.output_attributes, text_object=None,
+                     enveloping=self.input_layers[1])
+
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         # prepare input for nertagger
         self.fex.process([text])
@@ -44,8 +49,8 @@ class NerTagger(Tagger):
         words = self.input_layers[1]
 
         # add the labels
-        nerlayer = Layer(name=self.output_layer, attributes=self.output_attributes, text_object=text,
-                         enveloping=words)
+        nerlayer = self._make_layer_template()
+        nerlayer.text_object=text
         entity_spans = []
         entity_type = None
 

@@ -210,8 +210,13 @@ class NerMorphFeatureTagger(Tagger):
         self.output_attributes = output_attributes
         self.input_layers = input_layers
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(self.output_layer, ambiguous=True, attributes=self.output_attributes, text_object=None)
+
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
-        layer = Layer(self.output_layer, ambiguous=True, attributes=self.output_attributes, text_object=text)
+        layer = self._make_layer_template()
+        layer.text_object = text
         morph_layer = self.input_layers[0]
         words = text[self.input_layers[1]]
         for token in words:
