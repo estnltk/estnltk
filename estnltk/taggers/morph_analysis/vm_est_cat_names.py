@@ -153,6 +153,14 @@ class VabamorfEstCatConverter(Tagger):
         self.input_layers = [input_morph_analysis_layer]
         self.output_layer = output_layer
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     parent=self.input_layers[0],
+                     text_object=None,
+                     ambiguous=True,
+                     attributes=self.output_attributes)
+
     def _make_layer(self, text: Text, layers, status: dict):
         """Converts 'morph_analysis' layer of given Text object 
            to Estonian category names.
@@ -171,11 +179,8 @@ class VabamorfEstCatConverter(Tagger):
               This can be used to store metadata on layer tagging.
         """
         original_morph_layer = layers[self.input_layers[0]]
-        translated_morph_layer = Layer(name=self.output_layer,
-                                       parent=self.input_layers[0],
-                                       text_object=text,
-                                       ambiguous=True,
-                                       attributes=self.output_attributes)
+        translated_morph_layer = self._make_layer_template()
+        translated_morph_layer.text_object = text
         for morph_span in original_morph_layer:
             if not _is_empty_annotation( morph_span.annotations[0] ):
                 # Convert existing annotations

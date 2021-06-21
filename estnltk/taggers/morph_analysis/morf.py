@@ -315,6 +315,11 @@ class VabamorfTagger(Tagger):
                         self.output_attributes += (extra_attribute, )
 
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return self._vabamorf_analyser._make_layer_template() 
+
+
     def _make_layer(self, text: Text, layers, status: dict):
         """Analyses given Text object morphologically.
 
@@ -526,6 +531,16 @@ class VabamorfAnalyzer(Tagger):
         self.compound = compound
         self.phonetic = phonetic
 
+
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     parent=self._input_morph_analysis_layer,
+                     text_object=None,
+                     ambiguous=True,
+                     attributes=self.output_attributes)
+
+
     def _make_layer(self, text: Text, layers, status: dict):
         """Analyses given Text object morphologically. 
         
@@ -610,13 +625,10 @@ class VabamorfAnalyzer(Tagger):
         #   Store analysis results in a new layer     
         # --------------------------------------------
         # A) Create layer
-        morph_attributes   = self.output_attributes
-        current_attributes = morph_attributes
-        morph_layer = Layer(name  =self.output_layer,
-                            parent=self._input_words_layer,
-                            text_object=text,
-                            ambiguous=True,
-                            attributes=current_attributes )
+        morph_layer = self._make_layer_template()
+        morph_layer.text_object = text
+        current_attributes = morph_layer.attributes
+
         # B) Populate layer
         for word, analyses_dict in zip(layers[ self._input_words_layer ], analysis_results):
             # Convert from Vabamorf dict to a list of Spans

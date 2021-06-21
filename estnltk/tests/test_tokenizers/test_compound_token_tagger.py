@@ -774,7 +774,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
 
     def test_create_an_empty_compoundtokens_layer_via_make_layer_template(self):
         # Tests that an empty compound tokens layer can be created via _make_layer_template
-        # ( technically, this means for skipping compound tokens altogether )
+        # ( technically, this means skipping compound token detection )
         text = Text('Mis lil-li müüs Tiit 10e krooniga?').tag_layer('tokens')
         cp_tagger = CompoundTokenTagger()
         # add empty compound tokens layer
