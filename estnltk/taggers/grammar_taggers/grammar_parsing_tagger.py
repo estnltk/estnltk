@@ -48,6 +48,21 @@ class GrammarParsingTagger(Tagger):
         self.debug = debug
         self.ambiguous = output_ambiguous
 
+    def _make_layer_template(self):
+        layer_attributes = self.output_attributes
+        layer_is_ambiguous = self.ambiguous
+        if self.force_resolving_by_priority:
+            # If self.force_resolving_by_priority, then we'll always create an ambigouos 
+            # layer ( to allow maximum ambiguities )
+            layer_is_ambiguous = True
+            # Add priority attribute to layer
+            if self.priority_attribute not in layer_attributes:
+                layer_attributes += (self.priority_attribute, )
+        return Layer(name=self.output_layer,
+                     text_object=None,
+                     enveloping=self.input_layers[0],
+                     attributes=layer_attributes,
+                     ambiguous=layer_is_ambiguous )
 
     def _make_layer(self, text, layers, status):
         graph = layer_to_graph(layer=layers[self.input_layers[0]],
@@ -62,20 +77,14 @@ class GrammarParsingTagger(Tagger):
                             debug=self.debug)
         
         layer_attributes = self.output_attributes
-        layer_is_ambiguous = self.ambiguous
         if self.force_resolving_by_priority:
             # If self.force_resolving_by_priority, then we'll always create an ambigouos 
             # layer ( to allow maximum ambiguities )
-            layer_is_ambiguous = True
             # Add priority attribute to layer
             if self.priority_attribute not in layer_attributes:
                 layer_attributes += (self.priority_attribute, )
-        layer = Layer(name=self.output_layer,
-                      text_object=text,
-                      enveloping=self.input_layers[0],
-                      attributes=layer_attributes,
-                      ambiguous=layer_is_ambiguous
-                      )
+        layer = self._make_layer_template()
+        layer.text_object = text
         try:
             for node in graph:
                 if isinstance(node, GrammarNode) and node.name in self.output_nodes:
