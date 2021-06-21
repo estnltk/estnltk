@@ -116,6 +116,9 @@ class AdjectivePhrasePartTagger(Tagger):
                                         input_layers=['adv_', 'adv2_', 'adj_', 'conj_', 'gaps'],
                                         output_attributes=['grammar_symbol'])
 
+    def _make_layer_template(self):
+        return self.merge_tagger._make_layer_template()
+
     def _make_layer(self, text, layers, status):
         tmp_layers = layers.copy()
         tmp_layers['adv'] = self.adv_tagger.make_layer(text, tmp_layers, status)
@@ -155,6 +158,9 @@ class AdjectivePhraseGrammarTagger(Tagger):
                                       propername=False,
                                       phonetic=False,
                                       compound=True)
+
+    def _make_layer_template(self):
+        return self.tagger._make_layer_template()
 
     def _make_layer(self, text, layers, status):
         return self.tagger.make_layer(text, layers, status)
