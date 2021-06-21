@@ -546,6 +546,14 @@ class SyntaxIgnoreTagger( Tagger ):
                                                  output_layer='syntax_ignore_hints',
                                                  )
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     enveloping=self._input_words_layer,
+                     attributes=self.output_attributes,
+                     text_object=None,
+                     ambiguous=False)
+
     def _make_layer(self, text: 'Text', layers, status: dict):
         """Creates syntax_ignore layer.
         
@@ -564,11 +572,8 @@ class SyntaxIgnoreTagger( Tagger ):
            This can be used to store metadata on layer tagging.
 
         """
-        layer = Layer(name=self.output_layer,
-                      enveloping=self._input_words_layer,
-                      attributes=self.output_attributes,
-                      text_object=text,
-                      ambiguous=False)
+        layer = self._make_layer_template()
+        layer.text_object = text
 
         # A) Apply RegexTagger to find text snippets that should be ignored
         conflict_status = {}
