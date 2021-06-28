@@ -2,7 +2,9 @@
 
 """
 
+from estnltk import Text
 from estnltk.converters import dict_to_text, dict_to_layer
+from estnltk.converters import layer_to_dict
 from estnltk.taggers import MorphExtendedTagger
 
 
@@ -429,3 +431,16 @@ def test_morph_extended_tagger():
     # TODO remove hack:
     expected.serialisation_module = text.morph_extended.serialisation_module
     assert expected == text.morph_extended, expected.diff(text.morph_extended)
+
+
+
+def test_morph_extended_tagger_empty_layer_and_layer_template():
+    tagger = MorphExtendedTagger()
+    empty_text = Text('').tag_layer('morph_analysis')
+    tagger.tag( empty_text )
+    layer = empty_text[ tagger.output_layer ]
+    layer_template = tagger.get_layer_template()
+    layer1 = layer_to_dict(layer)
+    layer2 = layer_to_dict(layer_template)
+    assert layer1 == layer2
+

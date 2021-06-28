@@ -1,5 +1,7 @@
 import os
 
+from estnltk.layer.layer import Layer
+
 from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger
 from estnltk.core import abs_path
@@ -85,6 +87,14 @@ class MorphExtendedTagger(Tagger):
         self.finite_form_retagger = FiniteFormRetagger()
         self.verb_extension_suffix_retagger = VerbExtensionSuffixRetagger('morph_extended')
         self.subcat_retagger = SubcatRetagger(subcat_rules_file=subcat_rules_file)
+
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     attributes=self.output_attributes,
+                     text_object=None,
+                     parent=self.input_layers[0],
+                     ambiguous=True)
 
     def _make_layer(self, text, layers, status=None):
         morph_layer = layers[self.input_layers[0]]
