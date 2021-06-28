@@ -1050,6 +1050,9 @@ class PgCollection:
         (technically, you can create duplicates, because there is no 
          duplicate checking).
 
+        The layer table will be created in the self.storage.schema.
+        TODO: add a possibility to use a different schema 
+
         Parameters:
         
         :param layer: str
