@@ -17,7 +17,7 @@ from estnltk.converters.CG3_exporter import export_CG3
 
 from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
 
-def create_single_token_text(token, analyses):
+def create_single_token_text(token, analyses, morph_layer_name='morph_analysis'):
     """Construct a Text object containing one word, words layer, sentences layer and morph_analysis layer.
 
     """
@@ -32,7 +32,7 @@ def create_single_token_text(token, analyses):
     text.add_layer(sentences)
 
     morph_attributes = list( VabamorfTagger.output_attributes )
-    morph = Layer('morph_analysis', attributes=morph_attributes, text_object=text, parent='words', ambiguous=True)
+    morph = Layer(morph_layer_name, attributes=morph_attributes, text_object=text, parent='words', ambiguous=True)
     for analysis in analyses:
         morph.add_annotation(base_span, **analysis)
     text.add_layer(morph)
@@ -80,6 +80,36 @@ def test_syntax_preprocessing_on_tokens():
 
             result = export_CG3(text)
             assert result == cg3, (result, cg3)
+
+
+def test_syntax_preprocessing_with_customized_layer_names():
+    fs_to_synt_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/tmorftrtabel.txt')
+    subcat_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/abileksikon06utf.lx')
+    allow_to_remove_all = False
+
+    tagger = MorphExtendedTagger(output_layer='my_morph_extended',
+                                 input_morph_analysis_layer='my_morph_analysis',
+                                 fs_to_synt_rules_file=fs_to_synt_rules_file,
+                                 subcat_rules_file=subcat_rules_file,
+                                 allow_to_remove_all=allow_to_remove_all)
+    analysed_tokens_file = abs_path('tests/test_syntax_preprocessing/analysed_tokens.txt')
+    expected_cg3_file = abs_path('tests/test_syntax_preprocessing/expected_cg3.txt')
+
+    with open(expected_cg3_file, 'r', encoding='utf-8') as expected_cg3:
+        token_tests_passed = 0
+        for (token_a, analysis), expected in zip(yield_tokens_analysis(analysed_tokens_file), expected_cg3):
+            token_b, cg3 = json.loads(expected)
+            assert token_a == token_b, (token_a, token_b)
+            text = create_single_token_text(token_a, analysis, morph_layer_name='my_morph_analysis')
+            tagger.tag(text)
+
+            result = export_CG3(text, morph_layer='my_morph_extended')
+            assert result == cg3, (result, cg3)
+            token_tests_passed += 1
+            if token_tests_passed > 99:
+                # Test only on 100 first tokens 
+                # ( the rest will be covered in test_syntax_preprocessing_on_tokens() )
+                break
 
 
 if __name__ == '__main__':
