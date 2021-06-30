@@ -130,7 +130,7 @@ class BufferedTableInsert(object):
                            self.column_identifiers,
                            SQL(', ').join(self.buffer)))
             self.cursor.connection.commit()
-        except Exception:
+        except:
             logger.error('flush insert buffer failed')
             logger.error('number of rows in the buffer: {}'.format(len(self.buffer)))
             logger.error('estimated insert query length: {}'.format(self._buffered_insert_query_length))
