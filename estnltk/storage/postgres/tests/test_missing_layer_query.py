@@ -43,6 +43,12 @@ class TestMissingLayerQuery(unittest.TestCase):
 
             text3 = Text('Auto sõidab.').tag_layer(["sentences"])
             collection_insert(text3)
+            
+            text4 = Text('Kägu kukub.').tag_layer(["sentences"])
+            collection_insert(text4)
+            
+            text5 = Text('Aga kella ikka ei ole...').tag_layer(["sentences"])
+            collection_insert(text5)
 
         layer1 = "layer1"
         layer2 = "layer2"
@@ -60,7 +66,7 @@ class TestMissingLayerQuery(unittest.TestCase):
                 SQL(self.schema),
                 SQL(collection_name)))
 
-            c.execute(SQL("DELETE FROM {}.{}__layer3__layer WHERE id = 0 OR id = 1;").format(
+            c.execute(SQL("DELETE FROM {}.{}__layer3__layer WHERE id = 0 OR id = 1 OR id = 4;").format(
                 SQL(self.schema),
                 SQL(collection_name)))
 
@@ -71,6 +77,6 @@ class TestMissingLayerQuery(unittest.TestCase):
         self.assertEqual(len(res), 0)
 
         res = list(collection.select(query=pg.MissingLayerQuery(missing_layer=layer3)))
-        self.assertEqual(len(res), 2)
+        self.assertEqual(len(res), 3)
 
         collection.delete()
