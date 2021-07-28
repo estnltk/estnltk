@@ -36,7 +36,7 @@ def shift_span( span, layer: Layer, positions: int ):
 
 
 def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
-    '''Joins given list of layers into one layer. 
+    '''Joins (concatenates) given list of layers into one layer. 
        All layers must have same names, parents, enveloping layers and 
        attributes. 
        
