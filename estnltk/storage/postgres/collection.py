@@ -790,11 +790,14 @@ class PgCollection:
 
         logger.info('{} layer {!r} created from template'.format(layer_type, layer_template.name))
 
-    def create_layer_block(self, tagger, block, meta=None, query_length_limit=5000000):
-        """Creates a layer block
+    def create_layer_block(self, tagger, block, meta=None, query_length_limit=5000000, mode=None):
+        """Creates a layer block.
+        
+        Note: before the layer block can be created, the layer table must already exist.
+        You can use the method add_layer() to create an empty layer (table).
 
         :param tagger: Tagger
-
+            tagger to be applied on collection's texts
         :param block: Tuple[int, int]
             pair of integers `(module, remainder)`. Only texts with `id % module = remainder` are tagged.
         :param meta: dict of str -> str
@@ -804,8 +807,15 @@ class PgCollection:
         :param query_length_limit: int
             soft approximate query length limit in unicode characters, can be exceeded by the length of last buffer
             insert
-
+        :param mode: str 
+            Specifies how layer creation should handle existing layers inside the block. 
+            Possible modes:
+            * None / 'new' - attempts to tag all texts inside the block 
+                             (creates a new block);
+            * 'append'     - finds untagged texts inside the block and only tags untagged texts;
+                             (continues a block which tagging has not been finished)
         """
+        mode = 'new' if mode is None else mode
         layer_name = tagger.output_layer
 
         if not self.exists():
@@ -822,7 +832,10 @@ class PgCollection:
                                               query_length_limit=query_length_limit ) as buffered_inserter:
 
             layer_structure = None
-            for collection_text_id, text in self.select(query=pg.BlockQuery(*block), layers=tagger.input_layers):
+            block_query = pg.BlockQuery(*block)
+            if mode.lower() == 'append':
+                block_query &= MissingLayerQuery( missing_layer = tagger.output_layer )
+            for collection_text_id, text in self.select(query=block_query, layers=tagger.input_layers):
                 layer = tagger.make_layer(text=text, status=None)
 
                 if layer_structure is None:
