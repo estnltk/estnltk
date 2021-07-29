@@ -596,6 +596,15 @@ class PgCollection:
             query_length_limit: int
                 soft approximate query length limit in unicode characters, can be exceeded by the length of last buffer
                 insert
+            mode: str 
+                Specifies how layer creation should handle existing layers. 
+                Possible modes:
+                * None / 'new' - creates a new layer. If the layer already exists in the collection, raises an exception.
+                * 'append'     - appends to an existing layer; annotates only those documents that are missing the layer.
+                                 raises an exception if the collection does not have the layer;
+                * 'overwrite'  - deletes the old layer and creates a new layer in its place; 
+                                 if the collection does not have the layer, then adds the new layer to the collection,
+                                 and fills with data;
         """
         assert (layer_name is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
                'either tagger ({}) must be None or layer_name ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_name, data_iterator, row_mapper)
