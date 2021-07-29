@@ -21,7 +21,6 @@ import estnltk.layer_operations as layer_operations
 from estnltk import logger
 
 class BatchProcessingWebTagger( WebTagger ):
-    __slots__ = []
     conf_param = ['url', 'batch_layer', 'batch_layer_max_size', 'batch_enveloping_layer']
 
     def post_request(self, text: Text, layers: MutableMapping[str, Layer], parameters=None):
@@ -123,8 +122,11 @@ class BatchProcessingWebTagger( WebTagger ):
                     if chunks[-1][0] == env_layer.start:
                         # Remove mistakenly added new chunk
                         chunks.pop(-1)
+                    if chunks[-1][0] == 0 and chunks[-1][1] == -1:
+                        # Remove mistakenly added first chunk
+                        chunks.pop(-1)
                     sub_words = 0
-                    last_chunk_start = env_layer.start
+                    last_chunk_start = env_layer.start if chunks else 0
                     for wid, word in enumerate( env_layer ):
                         sub_words += 1
                         if sub_words == self.batch_layer_max_size:
