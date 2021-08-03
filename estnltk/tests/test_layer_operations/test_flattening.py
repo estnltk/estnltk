@@ -2,7 +2,7 @@ from estnltk import Text, Layer
 from estnltk.layer_operations import flatten
 
 
-def test_flatten():
+def test_flatten_no_disambiguation():
     text = Text('Aias sadas saia.')
 
     layer_1 = Layer('test_1', attributes=['attr_1', 'attr_2'], text_object=text)
@@ -40,3 +40,27 @@ def test_flatten():
     assert span.start == 0
     assert span.end == 15
     assert len(span.annotations) == 3
+
+
+
+def test_flatten_pick_first_disambiguation():
+    text = Text('Aias sadas saia.')
+
+    layer_1 = Layer('test_1', attributes=['lemma', 'pos'], \
+                    text_object=text, ambiguous=True)
+    layer_1.add_annotation((0, 4), lemma='aed', pos='S')
+    layer_1.add_annotation((0, 4), lemma='Aed', pos='H')
+    layer_1.add_annotation((5, 10), lemma='sadama', pos='V')
+    layer_1.add_annotation((11, 15), lemma='sai', pos='S1')
+    layer_1.add_annotation((11, 15), lemma='sai', pos='S2')
+    
+    result = flatten( layer_1, 'test_disambiguated_out', \
+                      disambiguation_strategy='pick_first' )
+    assert result.ambiguous is False
+    assert len(result) == 3
+    assert len(result[0].annotations) == 1
+    assert result[0].annotations[0]['pos'] == 'S'
+    assert result[0].annotations[0]['lemma'] == 'aed'
+    assert len(result[1].annotations) == 1
+    assert len(result[2].annotations) == 1
+
