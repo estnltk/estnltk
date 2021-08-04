@@ -16,7 +16,7 @@ from typing import MutableMapping
 from estnltk.text import Text
 from estnltk.layer.layer import Layer
 from estnltk.taggers import WebTagger
-import estnltk.layer_operations as layer_operations
+#import estnltk.layer_operations as layer_operations
 
 from estnltk import logger
 
@@ -42,6 +42,9 @@ class BatchProcessingWebTagger( WebTagger ):
         return super().post_request( text, layers, parameters=parameters )
 
     def batch_process(self, text: Text, layers: MutableMapping[str, Layer], parameters=None):
+        # TODO: because estnltk.layer_operations contains some tangled 
+        #       imports, we have to use inner-import-hack (for python 36)
+        from estnltk.layer_operations import join_layers
         assert self.batch_layer is not None and \
                     isinstance(self.batch_layer, str) and \
                     self.batch_layer in layers
@@ -77,7 +80,7 @@ class BatchProcessingWebTagger( WebTagger ):
                 resulting_layers.append( new_layer )
             logger.debug( 'Batch processing completed.'.format() )
             # Join/concatenate results
-            new_layer = layer_operations.join_layers( resulting_layers, separators )
+            new_layer = join_layers( resulting_layers, separators )
             # Set Text object and return newly created layer
             new_layer.text_object = text
             return new_layer
@@ -95,6 +98,9 @@ class BatchProcessingWebTagger( WebTagger ):
            layer while splitting. 
            Returns smaller text objects and string separators between texts (for later joining).
         '''
+        # TODO: because estnltk.layer_operations contains some tangled 
+        #       imports, we have to use inner-import-hack (for python 36)
+        from estnltk.layer_operations import extract_sections
         assert self.batch_layer in large_text.layers
         if self.batch_enveloping_layer is not None:
             assert self.batch_enveloping_layer in large_text.layers
@@ -163,8 +169,8 @@ class BatchProcessingWebTagger( WebTagger ):
             last_chunk = [c_start, c_end]
         assert len(chunk_separators) == len(chunks) - 1
         # Exctract chunks
-        return ( layer_operations.extract_sections(text=large_text, sections=chunks, layers_to_keep=large_text.layers, \
-                                                   trim_overlapping=trimming_required), chunk_separators )                
+        return ( extract_sections(text=large_text, sections=chunks, layers_to_keep=large_text.layers, \
+                                  trim_overlapping=trimming_required), chunk_separators )
 
     def _repr_html_(self):
         return self._repr_html('BatchProcessingWebTagger', self.about)
