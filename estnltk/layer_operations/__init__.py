@@ -25,5 +25,6 @@ from .splitting import split_by_sentences
 from .splitting_discontinuous import split_by_clauses
 from .join import join_texts
 from .join import join_layers
+from .join import join_layers_while_reusing_spans
 from .rebase import rebase
 from .layer_indexing import create_ngram_fingerprint_index

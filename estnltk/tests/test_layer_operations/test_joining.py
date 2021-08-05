@@ -5,6 +5,7 @@ from estnltk.converters import dict_to_layer
 
 from estnltk.layer_operations import join_texts
 from estnltk.layer_operations.join import join_layers
+from estnltk.layer_operations.join import join_layers_while_reusing_spans
 from estnltk.layer_operations import split_by, split_by_sentences
 
 def test_join_layers():
@@ -221,5 +222,76 @@ def test_join_texts():
     assert layer_to_dict( joined_text['words'] ) == words_layer_dict
     assert layer_to_dict( joined_text['sentences'] ) == sentences_layer_dict
     assert layer_to_dict( joined_text['morph_analysis'] ) == morph_layer_dict
-    
-    
+
+
+def test_join_layers_while_reusing_spans():
+    # Create test text and layers
+    text = Text('See on üks väike lause')
+    full_words_layer = \
+        {'name': 'words',
+         'attributes': ('normalized_form',),
+         'parent': None,
+         'enveloping': None,
+         'ambiguous': True,
+         'serialisation_module': None,
+         'meta': {},
+         'spans': [{'base_span': (0, 3), 'annotations': [{'normalized_form': None}]},
+          {'base_span': (4, 6), 'annotations': [{'normalized_form': None}]},
+          {'base_span': (7, 10), 'annotations': [{'normalized_form': None}]},
+          {'base_span': (11, 16), 'annotations': [{'normalized_form': None}]},
+          {'base_span': (17, 22), 'annotations': [{'normalized_form': None}]}]}
+    text.add_layer( dict_to_layer(full_words_layer) )
+    split_words_layers = [ \
+        {'ambiguous': True,
+         'attributes': ('normalized_form',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'words',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 3)}]},
+        {'ambiguous': True,
+         'attributes': ('normalized_form',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'words',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 2)}]},
+        {'ambiguous': True,
+         'attributes': ('normalized_form',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'words',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 3)}]},
+        {'ambiguous': True,
+         'attributes': ('normalized_form',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'words',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 5)}]},
+        {'ambiguous': True,
+         'attributes': ('normalized_form',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'words',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 5)}]} ]
+    split_texts = [t for t in split_by(text, 'words', layers_to_keep=text.layers)]
+    layers = [ dict_to_layer(layer_dict) for layer_dict in split_words_layers ]
+    # Add Text objects to layers (join_layers* needs texts to determine span shifts)
+    for i, layer in enumerate(layers):
+        layer.text_object = split_texts[i]
+    # Join layers
+    joined_layer = join_layers_while_reusing_spans(layers, [' ', ' ', ' ', ' '])
+    # Check the results
+    new_text = Text( text.text )
+    new_text.add_layer( joined_layer )
+    assert layer_to_dict( joined_layer ) == full_words_layer
+    assert layer_to_dict( new_text['words'] ) == full_words_layer
+

@@ -4,6 +4,7 @@ from estnltk.layer.span import Span
 from estnltk.layer.span_list import SpanList
 from estnltk.layer.annotation import Annotation
 from estnltk.layer.layer import Layer, to_base_span
+from estnltk.layer.base_span import ElementaryBaseSpan
 from estnltk.layer.base_span import EnvelopingBaseSpan
 from estnltk.layer.enveloping_span import EnvelopingSpan
 
@@ -12,8 +13,8 @@ from estnltk.text import Text
 
 def shift_span( span, layer: Layer, positions: int ):
     '''Shifts span's start and end indices by the given amount of positions.
-       The positions can be both negative (shift backward) and positive 
-       (shift forward). 
+       The positions can be negative (shift backward) or positive (shift 
+       forward). 
        Returns a new Span or EnvelopingSpan that copies all annotations of 
        the given span, but has start and end positions shifted.
     '''
@@ -37,6 +38,9 @@ def shift_span( span, layer: Layer, positions: int ):
 
 def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
     '''Joins (concatenates) given list of layers into one layer. 
+       This method creates new spans for the new layer, thus input 
+       layers (and their corresponding texts) will not be affected. 
+       
        All layers must have same names, parents, enveloping layers and 
        attributes. 
        
@@ -65,9 +69,9 @@ def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
         return new_layer
     else:
         # 0) Validate input layers
-        assert len(layers) == len(separators)+1, \
-               ('(!) The number of layers ({}) does not meet the number of separators ({}).'+
-                ' Expecting {} separators.').format( len(layers), len(separators), len(layers)-1 )
+        if len(layers) != len(separators) + 1:
+             raise ValueError('(!) The number of layers ({}) does not meet the number of separators ({}).'+
+                              ' Expecting {} separators.').format( len(layers), len(separators), len(layers)-1 )
         name = layers[0].name
         parent = layers[0].parent
         enveloping = layers[0].enveloping
@@ -85,12 +89,12 @@ def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
             if layer.ambiguous != ambiguous:
                 raise Exception( "Not all layers have the same state of ambiguity: " + str([l.ambiguous for l in layers]) )
         # 1) Make a new detached layer
-        new_layer = Layer( name=layers[0].name,
-                           attributes=layers[0].attributes,
+        new_layer = Layer( name=name,
+                           attributes=attributes,
                            text_object=None,
-                           parent=layers[0].parent,
-                           enveloping=layers[0].enveloping,
-                           ambiguous=layers[0].ambiguous,
+                           parent=parent,
+                           enveloping=enveloping,
+                           ambiguous=ambiguous,
                            default_values=layers[0].default_values.copy(),
                            serialisation_module=layers[0].serialisation_module )
         # 2) Find shifts (cumulatively)
@@ -110,6 +114,94 @@ def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
                 joined_spanlist.add_span( shifted_span )
         # 4) Attach joined spanlist to the new layer
         new_layer._span_list = joined_spanlist
+        return new_layer
+
+
+def join_layers_while_reusing_spans( layers: Sequence[Layer], separators: Sequence[str] ):
+    '''Joins (concatenates) given list of layers into one layer. 
+       This method reuses spans of input layers in the new layer, thus 
+       saves up space and provides faster performance. 
+       (!) Warning: this joining is also destructive to input layers
+       (and their Text objects), as their layer structure will be broken 
+       and they will be no longer functional.
+       
+       All layers must have same names, parents, enveloping layers and 
+       attributes. 
+       
+       Upon joining layers, it is assumed that their respective Text
+       objects are joined by string separators -- a separator placed 
+       between each two Texts. Therefore, separators are used to 
+       determine the distance/space between two consecutive layers, 
+       and len(separators) must be len(layers) - 1.
+       
+       The list of layers must contain at least one layer, otherwise an 
+       exception will be thrown. 
+       
+       Returns a new Layer, which contains all spans from given layers 
+       in the order of the layers in the input. The new Layer is not 
+       attached to any Text object. 
+       
+       Note: this function does not attempt to join or merge layer 
+       metadata. It responsibility of the user to carry metadata from
+       input layers to the new Layer (if required).
+    '''
+    if len(layers) == 0:
+        raise ValueError('(!) Cannot join layers on an empty list of layers. ')
+    if len(layers) == 1:
+        new_layer = layers[0]
+        new_layer.text_object = None
+        return new_layer
+    else:
+        # 0) Validate input layers
+        if len(layers) != len(separators) + 1:
+             raise ValueError('(!) The number of layers ({}) does not meet the number of separators ({}).'+
+                              ' Expecting {} separators.').format( len(layers), len(separators), len(layers)-1 )
+        name = layers[0].name
+        parent = layers[0].parent
+        enveloping = layers[0].enveloping
+        attributes = layers[0].attributes
+        ambiguous = layers[0].ambiguous
+        for layer in layers:
+            if layer.name != name:
+                raise Exception( "Not all layers have the same name: " + str([l.name for l in layers] ) )
+            if layer.parent != parent:
+                raise Exception( "Not all layers have the same parent: " + str([l.parent for l in layers]) )
+            if layer.enveloping != enveloping:
+                raise Exception( "Not all layers are enveloping the same layer: " + str([l.enveloping for l in layers]) )
+            if layer.attributes != attributes:
+                raise Exception( "Not all layers have the same attributes: " + str([l.attributes for l in layers]) )
+            if layer.ambiguous != ambiguous:
+                raise Exception( "Not all layers have the same state of ambiguity: " + str([l.ambiguous for l in layers]) )
+        # 1) Make a new detached layer
+        new_layer = Layer( name=name,
+                           attributes=attributes,
+                           text_object=None,
+                           parent=parent,
+                           enveloping=enveloping,
+                           ambiguous=ambiguous,
+                           default_values=layers[0].default_values.copy(),
+                           serialisation_module=layers[0].serialisation_module )
+        # 2) Add spans from the old list of layers to the new layer.
+        #    Texts of the old layers will be broken (hence destructivity of the approach)
+        last_shift = 0
+        for i, layer in enumerate(layers):
+            layer_original_text = layer.text_object.text
+            for span in layer:
+                # Set new layer
+                span._layer = new_layer
+                # Create new base spans
+                if type( span._base_span ) == ElementaryBaseSpan:
+                    span._base_span = ElementaryBaseSpan( span.start + last_shift, \
+                                                          span.end   + last_shift )
+                elif type( span._base_span ) == EnvelopingBaseSpan:
+                    new_base_spans = \
+                        [ElementaryBaseSpan(bs.start+last_shift, bs.end+last_shift) for bs in span._base_span ]
+                    span._base_span = EnvelopingBaseSpan( new_base_spans )
+                # Add span to the new layer
+                new_layer.add_span( span )
+            # Calculate new shift
+            if i < len(layers) - 1:
+                last_shift += len(layer_original_text) + len(separators[i])
         return new_layer
 
 
