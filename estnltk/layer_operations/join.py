@@ -38,8 +38,9 @@ def shift_span( span, layer: Layer, positions: int ):
 
 def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
     '''Joins (concatenates) given list of layers into one layer. 
-       This method creates new spans for the new layer, thus input 
-       layers (and their corresponding texts) will not be affected. 
+       This function creates new spans for the new layer, thus input 
+       layers (and their corresponding texts) will not be affected
+       by joining.
        
        All layers must have same names, parents, enveloping layers and 
        attributes. 
@@ -97,39 +98,35 @@ def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
                            ambiguous=ambiguous,
                            default_values=layers[0].default_values.copy(),
                            serialisation_module=layers[0].serialisation_module )
-        # 2) Find shifts (cumulatively)
-        shifts = []
-        for i, layer in enumerate(layers):
-            if i < len(layers) - 1:
-                assert layer.text_object is not None
-                layer_text = layer.text_object.text
-                last_shift = 0 if not shifts else shifts[-1]
-                shifts.append( last_shift + len(layer_text) + len(separators[i]) )
-        # 3) Compose joined layer's spanlist
+        # 2) Compose joined layer's spanlist
+        last_shift = 0
         joined_spanlist = SpanList()
-        for i, layer in enumerate( layers ):
-            shift = 0 if i == 0 else shifts[i-1]
+        for i, layer in enumerate(layers):
+            layer_original_text = layer.text_object.text
+            # Make new (shifted) versions from the spans
             for span in layer._span_list.spans:
-                shifted_span = shift_span( span, new_layer, shift )
+                shifted_span = shift_span( span, new_layer, last_shift )
                 joined_spanlist.add_span( shifted_span )
-        # 4) Attach joined spanlist to the new layer
+            if i < len(layers) - 1:
+                # Calculate new shift
+                last_shift += len(layer_original_text) + len(separators[i])
+        # 3) Attach joined spanlist to the new layer
         new_layer._span_list = joined_spanlist
         return new_layer
 
 
 def join_layers_while_reusing_spans( layers: Sequence[Layer], separators: Sequence[str] ):
     '''Joins (concatenates) given list of layers into one layer. 
-       This method reuses spans of input layers in the new layer, thus 
-       saves up space and provides faster performance. 
+       This function reuses spans of input layers in the new layer, 
+       and thus is more efficient than join_layers(). 
        (!) Warning: this joining is also destructive to input layers
-       (and their Text objects), as their layer structure will be broken 
-       and they will be no longer functional.
+       (and their Text objects), as their content will be broken.
        
        All layers must have same names, parents, enveloping layers and 
        attributes. 
        
        Upon joining layers, it is assumed that their respective Text
-       objects are joined by string separators -- a separator placed 
+       objects are joinable by string separators -- a separator placed 
        between each two Texts. Therefore, separators are used to 
        determine the distance/space between two consecutive layers, 
        and len(separators) must be len(layers) - 1.
