@@ -130,7 +130,7 @@ setup(
         'matplotlib==3.0.3 ; python_version <  "3.6"', # required for visualizing layer graph (< py36)
         'requests',   # required for TextA export and WebTagger
         'tqdm',       # progressbar: for showing progress on time-hungry operations
-        'ipython>=7.17.0 ; python_version >  "3.6"', # required for integration with Jupyter Notebook-s (> py36)
+        'ipython ; python_version >  "3.6"',         # required for integration with Jupyter Notebook-s (> py36)
         'ipython< 7.17.0 ; python_version == "3.6"', # required for integration with Jupyter Notebook-s (= py36)
         # Specific package requirements for specific Python versions
         'conllu>=3.1.1 ; python_version >= "3.6"', # CONLLU for syntax
