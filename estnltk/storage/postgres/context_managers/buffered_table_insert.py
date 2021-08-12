@@ -110,12 +110,15 @@ class BufferedTableInsert(object):
             else:
                 converted.append( Literal(val) )
         q = SQL('({})').format(SQL(', ').join( converted ))
+        # Find out how much the query length and the buffer size will increase
+        added_query_length = BufferedTableInsert.get_query_length( q )
+        # Do we need to flush the buffer before appending?
+        if len(self.buffer) + 1 >= self.buffer_size or \
+           self._buffered_insert_query_length + added_query_length >= self.query_length_limit:
+            self._flush_insert_buffer()
         # Add to the buffer
         self.buffer.append( q )
-        self._buffered_insert_query_length += BufferedTableInsert.get_query_length( q )
-        # Do we need to flush the buffer?
-        if len(self.buffer) >= self.buffer_size or self._buffered_insert_query_length >= self.query_length_limit:
-            self._flush_insert_buffer()
+        self._buffered_insert_query_length += added_query_length
 
 
     def _flush_insert_buffer(self):
@@ -130,7 +133,7 @@ class BufferedTableInsert(object):
                            self.column_identifiers,
                            SQL(', ').join(self.buffer)))
             self.cursor.connection.commit()
-        except:
+        except Exception as ex:
             logger.error('flush insert buffer failed')
             logger.error('number of rows in the buffer: {}'.format(len(self.buffer)))
             logger.error('estimated insert query length: {}'.format(self._buffered_insert_query_length))
