@@ -98,12 +98,15 @@ class RegexTagger(Tagger):
         self.priority_attribute = priority_attribute
         self.ambiguous = ambiguous
 
+    def _make_layer_template(self):
+        return Layer(name=self.output_layer,
+                     attributes=self.output_attributes,
+                     text_object=None,
+                     ambiguous=True)
+
     def _make_layer(self, text, layers=None, status=None):
-        layer = Layer(name=self.output_layer,
-                      attributes=self.output_attributes,
-                      text_object=text,
-                      ambiguous=True
-                      )
+        layer = self._make_layer_template()
+        layer.text_object=text
         for record in self._match(text.text):
             layer.add_annotation((record['start'], record['end']), **record)
         layer = resolve_conflicts(layer=layer,

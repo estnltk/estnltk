@@ -1,3 +1,5 @@
+from typing import Set
+
 from psycopg2.sql import SQL, Literal
 
 from estnltk.storage import postgres as pg
@@ -23,6 +25,10 @@ class BlockQuery(Query):
 
         self.module = module
         self.reminder = reminder
+
+    @property
+    def required_layers(self) -> Set[str]:
+        return set()
 
     def eval(self, collection: 'PgCollection'):
         collection_name = collection.name

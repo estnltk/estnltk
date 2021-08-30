@@ -168,6 +168,9 @@ class AddressPartTagger(Tagger):
                                             #'gaps'],
                                         output_attributes=self.output_attributes)
 
+    def _make_layer_template(self):
+        return self.merge_tagger._make_layer_template()
+
     def _make_layer(self, text, layers, status):
         raw_text = text.text
         tmp_layers = layers.copy()
@@ -311,6 +314,9 @@ class AddressGrammarTagger(Tagger):
             output_ambiguous=True)
         self.input_layers = [input_layer]
         self.output_layer = output_layer
+
+    def _make_layer_template(self):
+        return self.tagger._make_layer_template()
 
     def _make_layer(self, text, layers, status):
         return self.tagger.make_layer(text=text, layers=layers, status=status)

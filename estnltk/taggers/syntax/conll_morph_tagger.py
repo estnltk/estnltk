@@ -23,11 +23,19 @@ class ConllMorphTagger(Tagger):
         self.output_attributes = ['id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps',
                                   'misc']
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer, 
+                     text_object=None, 
+                     attributes=self.output_attributes,
+                     parent=self.input_layers[1], 
+                     ambiguous=True)
+
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         morph_layer = layers[self.input_layers[1]]
         sentences_layer = layers[self.input_layers[0]]
-        layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
-                      parent=morph_layer.name, ambiguous=True)
+        layer = self._make_layer_template()
+        layer.text_object = text
 
         if self.no_visl:
             random.seed(7)

@@ -98,14 +98,17 @@ class PhraseTagger(Tagger):
         for phrase in self.vocabulary:
             self._heads[phrase[0]].append(phrase[1:])
 
+    def _make_layer_template(self):
+        return Layer( name=self.output_layer,
+                      attributes=self.output_attributes,
+                      text_object=None,
+                      enveloping=self.input_layers[0],
+                      ambiguous=self.output_ambiguous )
+
     def _make_layer(self, text, layers: dict, status=None):
         input_layer = layers[self.input_layers[0]]
-        layer = Layer(
-            name=self.output_layer,
-            attributes=self.output_attributes,
-            text_object=text,
-            enveloping=input_layer.name,
-            ambiguous=self.output_ambiguous)
+        layer = self._make_layer_template()
+        layer.text_object=text
 
         if self.ignore_case:
             if self.input_attribute == 'text':

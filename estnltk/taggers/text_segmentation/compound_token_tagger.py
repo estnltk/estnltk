@@ -258,6 +258,14 @@ class CompoundTokenTagger( Tagger ):
         # Load words that should be ignored during normalization of words with hyphens
         self.ignored_words = self._load_ignore_words_from_csv( DEFAULT_IGNORE_LIST )
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     attributes=self.output_attributes,
+                     text_object=None,
+                     enveloping=self._input_tokens_layer,
+                     ambiguous=True)
+
     def _make_layer(self, text, layers, status: dict):
         """Creates compound_tokens layer.
         
@@ -276,11 +284,8 @@ class CompoundTokenTagger( Tagger ):
            This can be used to store metadata on layer tagging.
 
         """
-        layer = Layer(name=self.output_layer,
-                      attributes=self.output_attributes,
-                      text_object=text,
-                      enveloping=self._input_tokens_layer,
-                      ambiguous=True)
+        layer = self._make_layer_template()
+        layer.text_object = text
 
         raw_text = text.text
         compound_tokens_lists = []

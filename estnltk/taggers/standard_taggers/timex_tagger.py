@@ -361,6 +361,14 @@ class TimexTagger( Tagger ):
                ordered_timex_dict[attrib] = timex['endPoint']
         return ordered_timex_dict
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer, 
+                     text_object=None,
+                     enveloping=self._input_words_layer, 
+                     attributes=self.output_attributes, 
+                     ambiguous=False)
+
     def _make_layer(self, text, layers, status: dict):
         """Creates timexes layer.
         
@@ -507,10 +515,8 @@ class TimexTagger( Tagger ):
         #
         # C.2) Create a new layer and populated with collected timexes
         #
-        layer = Layer(name=self.output_layer, text_object=text,
-                      enveloping=self._input_words_layer, 
-                      attributes=self.output_attributes, 
-                      ambiguous=False)
+        layer = self._make_layer_template()
+        layer.text_object = text
         marked_timex_word_ids = set()
         for tid in timexes_dict.keys():
             timex = timexes_dict[tid]

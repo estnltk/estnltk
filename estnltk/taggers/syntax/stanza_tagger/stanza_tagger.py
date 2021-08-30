@@ -9,6 +9,8 @@ from estnltk.taggers.syntax.ud_validation.deprel_agreement_retagger import Depre
 from estnltk.taggers.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
 from estnltk.taggers.tagger import Tagger
 
+from estnltk.converters.serialisation_modules import syntax_v0
+
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
 
 
@@ -130,6 +132,17 @@ class StanzaSyntaxTagger(Tagger):
                                        use_gpu=self.use_gpu,
                                        logging_level='WARN')
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        layer = Layer(name=self.output_layer,
+                      text_object=None,
+                      attributes=self.output_attributes,
+                      parent=self.input_layers[1],
+                      ambiguous=False )
+        if self.add_parent_and_children:
+            layer.serialisation_module = syntax_v0.__version__
+        return layer
+
     def _make_layer(self, text, layers, status=None):
         # Make an internal import to avoid explicit stanza dependency
         from stanza.models.common.doc import Document
@@ -178,12 +191,8 @@ class StanzaSyntaxTagger(Tagger):
 
         parent_layer = layers[self.input_layers[1]]
 
-        layer = Layer(name=self.output_layer,
-                      text_object=text,
-                      attributes=self.output_attributes,
-                      parent=self.input_layers[1],
-                      ambiguous=False,
-                      )
+        layer = self._make_layer_template()
+        layer.text_object=text
 
         doc = self.nlp(document)
 

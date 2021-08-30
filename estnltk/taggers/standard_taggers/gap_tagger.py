@@ -27,15 +27,17 @@ class GapTagger(Tagger):
         self.decorator = decorator
         self.ambiguous = ambiguous
 
+    def _make_layer_template(self):
+        return Layer( name=self.output_layer,
+                      attributes=self.output_attributes,
+                      text_object=None,
+                      parent=None,
+                      enveloping=None,
+                      ambiguous=self.ambiguous )
+
     def _make_layer(self, text, layers, status):
-        layer = Layer(
-            name=self.output_layer,
-            attributes=self.output_attributes,
-            text_object=text,
-            parent=None,
-            enveloping=None,
-            ambiguous=self.ambiguous
-            )
+        new_layer = self._make_layer_template()
+        new_layer.text_object = text
         raw_text = text.text
         layers = [layers[layer] for layer in self.input_layers]
         for start, end in find_gaps(layers, len(raw_text)):
@@ -51,8 +53,8 @@ class GapTagger(Tagger):
                 decorations = {}
                 if self.decorator:
                     decorations = self.decorator(raw_text[start:end])
-                layer.add_annotation((start, end), **decorations)
-        return layer
+                new_layer.add_annotation((start, end), **decorations)
+        return new_layer
 
 
 def find_gaps(layers, text_length):

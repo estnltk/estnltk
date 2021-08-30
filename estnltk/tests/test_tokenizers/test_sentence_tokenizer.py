@@ -5,6 +5,7 @@ from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers.text_segmentation.sentence_tokenizer import merge_patterns
 
+
 def test_merge_mistakenly_split_sentences_1():
     # Tests that mistakenly split sentences have been properly merged
     # 1: splits related to numeric ranges, dates and times
@@ -942,6 +943,15 @@ def test_layer_names_can_be_changed():
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
+
+
+
+def test_make_sentences_template_layer():
+    sentence_tokenizer = SentenceTokenizer()
+    layer_template = sentence_tokenizer.get_layer_template()
+    assert len(layer_template) == 0
+    assert sentence_tokenizer.output_layer == layer_template.name
+    assert sentence_tokenizer.output_attributes == layer_template.attributes
 
 
 

@@ -8,7 +8,7 @@ The project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](https://
 
 Currently, there are two branches of EstNLTK:
 
-* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.8beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). Due to the beta status, some of the tools are limited or incomplete. Supported Python versions are 3.6, 3.7 and 3.8. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
+* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.9beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). Due to the beta status, some of the tools are limited or incomplete. Supported Python versions are 3.6, 3.7 and 3.8. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
   
 * version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4, 3.5 and 2.7. Python versions 3.6, 3.7 and beyond are not supported;
 
@@ -33,7 +33,7 @@ conda activate py38
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.6.8b
+conda install -c estnltk -c conda-forge estnltk=1.6.9b
 ```
 
 The alternative way for installing if you are unable to use the anaconda distribution is:
@@ -50,10 +50,14 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.6.8b0
+!pip install estnltk==1.6.9b0
 ```
 
 _Note_: the PyPI package, which installation is shown above, has been specifically created for Colab. For other platforms/environments, please use our conda packages. 
+
+### Neural models
+
+Neural models of EstNLTK are not distributed with the package, but must be downloaded separately from the repository [https://entu.keeleressursid.ee/entity/folder/7510](https://entu.keeleressursid.ee/entity/folder/7510). Neural models for syntactic parsing can be downloaded from [https://entu.keeleressursid.ee/entity/folder/9785](https://entu.keeleressursid.ee/entity/folder/9785) (see also the [tutorial](https://github.com/estnltk/estnltk/blob/version_1.6/tutorials/syntax/syntax.ipynb) of syntactic parsers).
 
 ### Documentation
 

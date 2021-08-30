@@ -283,6 +283,14 @@ class GTMorphConverter( Tagger ):
             self.input_layers.append( input_clauses_layer )
 
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     parent=self._input_words_layer,
+                     text_object=None,
+                     ambiguous=True,
+                     attributes=self.output_attributes)
+
 
     def _make_layer(self, text, layers, status: dict):
         """Creates gt_morph_analysis layer.
@@ -302,12 +310,9 @@ class GTMorphConverter( Tagger ):
         status: dict
            This can be used to store metadata on layer tagging.
         """
-        gt_morph = Layer(name=self.output_layer,
-                         parent=self._input_morph_analysis_layer,
-                         text_object=text,
-                         ambiguous=True,
-                         attributes=self.output_attributes
-                   )
+        # 0) Create an empty layer
+        gt_morph = self._make_layer_template()
+        gt_morph.text_object = text
 
         # 1) Perform the conversion
         new_morph_dicts = self._convert_analysis( text, layers, status )

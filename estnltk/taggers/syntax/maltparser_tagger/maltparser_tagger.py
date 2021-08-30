@@ -6,6 +6,7 @@ import os, os.path
 from estnltk.text import Text
 from estnltk.layer.layer import Layer
 from estnltk.taggers.retagger import Tagger
+from estnltk.converters.serialisation_modules import syntax_v0
 
 from estnltk.taggers import SyntaxDependencyRetagger
 from estnltk.taggers.syntax.maltparser_tagger.maltparser import MaltParser
@@ -60,6 +61,16 @@ class MaltParserTagger(Tagger):
         else:
             self.syntax_dependency_retagger = None
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        layer = Layer(name=self.output_layer,
+                      text_object=None,
+                      attributes=self.output_attributes,
+                      ambiguous=False)
+        if self.add_parent_and_children:
+            layer.serialisation_module = syntax_v0.__version__
+        return layer
+
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         # Import from conllu only if we know for sure that MaltParser is going to be applied
         from conllu import parse_incr
@@ -74,11 +85,9 @@ class MaltParserTagger(Tagger):
                                                                      conll_morph_layer,
                                                                      return_type='temp_output_file' )
         # Construct syntax layer
-        syntax_layer = Layer(name=self.output_layer,
-                             text_object=text,
-                             attributes=self.output_attributes,
-                             ambiguous=False
-                             )
+        syntax_layer = self._make_layer_template()
+        syntax_layer.text_object=text
+        
         assert os.path.exists( temp_file_name )
         with open(temp_file_name, "r", encoding="utf-8") as data_file:
             word_index = 0

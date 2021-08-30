@@ -84,15 +84,19 @@ class SpanTagger(Tagger):
                 'ambiguous==False but vocabulary contains ambiguous keywords: '\
                 + str([k for k, v in self._vocabulary.items() if len(v) > 1])
 
+    def _make_layer_template(self):
+        return Layer( name=self.output_layer,
+                      attributes=self.output_attributes,
+                      text_object=None,
+                      parent=self.input_layers[0],
+                      ambiguous=self.ambiguous )
+
     def _make_layer(self, text, layers: dict, status: dict):
         raw_text = text.text
         input_layer = layers[self.input_layers[0]]
-        layer = Layer(
-            name=self.output_layer,
-            attributes=self.output_attributes,
-            text_object=text,
-            parent=input_layer.name,
-            ambiguous=self.ambiguous)
+        layer = self._make_layer_template()
+        layer.text_object = text
+
         vocabulary = self._vocabulary
         input_attribute = self.input_attribute
         validator_key = self.validator_attribute

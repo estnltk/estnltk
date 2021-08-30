@@ -3,7 +3,7 @@ import json
 import re
 import time
 from contextlib import contextmanager
-from typing import Sequence
+from typing import Sequence, Dict
 
 import pandas
 import psycopg2
@@ -11,6 +11,7 @@ from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
 from estnltk import logger
+from estnltk import Layer
 from estnltk.converters import dict_to_layer
 from estnltk.converters import dict_to_text
 from estnltk.converters import layer_to_dict
@@ -595,6 +596,15 @@ class PgCollection:
             query_length_limit: int
                 soft approximate query length limit in unicode characters, can be exceeded by the length of last buffer
                 insert
+            mode: str 
+                Specifies how layer creation should handle existing layers. 
+                Possible modes:
+                * None / 'new' - creates a new layer. If the layer already exists in the collection, raises an exception.
+                * 'append'     - appends to an existing layer; annotates only those documents that are missing the layer.
+                                 raises an exception if the collection does not have the layer;
+                * 'overwrite'  - deletes the old layer and creates a new layer in its place; 
+                                 if the collection does not have the layer, then adds the new layer to the collection,
+                                 and fills with data;
         """
         assert (layer_name is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
                'either tagger ({}) must be None or layer_name ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_name, data_iterator, row_mapper)
@@ -708,11 +718,86 @@ class PgCollection:
 
         logger.info('layer created: {!r}'.format(layer_name))
 
-    def create_layer_block(self, tagger, block, meta=None, query_length_limit=5000000):
-        """Creates a layer block
+    def add_layer(self, layer_template: Layer,
+                        fragmented_layer: bool = False,
+                        meta: Dict[str, str] = None,
+                        create_index: bool = False,
+                        ngram_index=None) -> None:
+        """
+        Adds detached or fragmented layer to the collection. You can use this 
+        method to add an empty layer to the collection that will be filled with
+        data later. Note, however, that the collection must already contain some
+        documents before the layer can be added, and after adding the layer, 
+        new documents can no longer be inserted.
+
+        Layer must be specified by a template layer. The function fails only if 
+        the layer is already present or the database schema is in an inconsistent 
+        state. 
+        One should set create_index only if one plans to search specific elements 
+        from the layer. The ngram index speeds up search of element combinations. 
+        This is useful when one uses phase grammars.
+        
+        Args:
+            layer_template: Layer
+                A template which is used as a basis on creating the new layer
+            fragmented_layer: bool
+                Whether a fragmented layer will be created (default: False)
+            meta: dict of str -> str
+                Specifies table column names and data types to create for storing additional
+                meta information. E.g. meta={"sum": "int", "average": "float"}.
+                See `pytype2dbtype` in `pg_operations` for supported types.
+            create_index: bool
+                Whether to create an index on json column (default: False)
+            ngram_index: list
+                A list of attributes for which to create an ngram index (default: None)
+        """
+        if not isinstance( layer_template, Layer ):
+            raise TypeError('(!) layer_template must be an instance of Layer')
+
+        if self.layers is not None and layer_template.name in self.layers:
+            raise PgCollectionException("The {!r} layer already exists.".format(layer_template.name))
+
+        if self._is_empty:
+            raise PgCollectionException("can't add layer {!r}, the collection is empty".format(layer_template.name))
+
+        layer_table = layer_table_name(self.name, layer_template.name)
+        if table_exists(self.storage, layer_table):
+            raise PgCollectionException(
+                "The table {!r} for the layer {!r} already exists.".format(layer_table, layer_template.name))
+
+        layer_type = 'detached' if not fragmented_layer else 'fragmented'
+        conn = self.storage.conn
+        with conn.cursor() as cur:
+            try:
+                self._create_layer_table(
+                    cursor=cur,
+                    layer_name=layer_template.name,
+                    is_fragment=fragmented_layer,
+                    create_index=create_index,
+                    ngram_index=ngram_index,
+                    overwrite=False,
+                    meta=meta)
+
+                self._structure.insert(layer=layer_template, layer_type=layer_type, meta=meta)
+
+            except Exception:
+                conn.rollback()
+                raise
+            finally:
+                if conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    conn.commit()
+
+        logger.info('{} layer {!r} created from template'.format(layer_type, layer_template.name))
+
+    def create_layer_block(self, tagger, block, meta=None, query_length_limit=5000000, mode=None):
+        """Creates a layer block.
+        
+        Note: before the layer block can be created, the layer table must already exist.
+        You can use the method add_layer() to create an empty layer (table).
 
         :param tagger: Tagger
-
+            tagger to be applied on collection's texts
         :param block: Tuple[int, int]
             pair of integers `(module, remainder)`. Only texts with `id % module = remainder` are tagged.
         :param meta: dict of str -> str
@@ -722,8 +807,15 @@ class PgCollection:
         :param query_length_limit: int
             soft approximate query length limit in unicode characters, can be exceeded by the length of last buffer
             insert
-
+        :param mode: str 
+            Specifies how layer creation should handle existing layers inside the block. 
+            Possible modes:
+            * None / 'new' - attempts to tag all texts inside the block 
+                             (creates a new block);
+            * 'append'     - finds untagged texts inside the block and only tags untagged texts;
+                             (continues a block which tagging has not been finished)
         """
+        mode = 'new' if mode is None else mode
         layer_name = tagger.output_layer
 
         if not self.exists():
@@ -740,7 +832,10 @@ class PgCollection:
                                               query_length_limit=query_length_limit ) as buffered_inserter:
 
             layer_structure = None
-            for collection_text_id, text in self.select(query=pg.BlockQuery(*block), layers=tagger.input_layers):
+            block_query = pg.BlockQuery(*block)
+            if mode.lower() == 'append':
+                block_query &= MissingLayerQuery( missing_layer = tagger.output_layer )
+            for collection_text_id, text in self.select(query=block_query, layers=tagger.input_layers):
                 layer = tagger.make_layer(text=text, status=None)
 
                 if layer_structure is None:
@@ -976,6 +1071,9 @@ class PgCollection:
         that the export will not produce any duplicate entries 
         (technically, you can create duplicates, because there is no 
          duplicate checking).
+
+        The layer table will be created in the self.storage.schema.
+        TODO: add a possibility to use a different schema 
 
         Parameters:
         

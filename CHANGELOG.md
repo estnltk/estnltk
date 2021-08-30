@@ -3,6 +3,45 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.6.9-beta] - 2021-08-30
+
+## Changed
+
+* `Tagger` API: added methods `get_layer_template` (returns an empty detached layer that contains all the proper attribute initializations), and `_make_layer_template` (a concrete implementation of `get_layer_template` in a derived class). New taggers should now provide `_make_layer_template` implementations in addition to `_make_layer` implementations, and it is recommended that `_make_layer` also uses `_make_layer_template` whenever it needs to create a new layer. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/f45ca4b546703b8e069c398403d81e825be5c186/tutorials/taggers/base_tagger.ipynb)
+
+	* Most `estnltk.taggers` were updated so that they have `_make_layer_template` implementations. However, in some system taggers (e.g. in `DiffTagger` and `DisambiguatingTagger`), the exact configuration of layer's  attributes is not known before `_make_layer()` has been called, and thus `_make_layer_template` functionality is not supported;
+	
+    * An important usage of layer templates is `PgCollection`'s new `add_layer` method, see [this tutorial](https://github.com/estnltk/estnltk/blob/3776a140b542855b5fef0b38a80828067e7b2022/tutorials/storage/storing_text_objects_in_postgres.ipynb);
+
+* `PgCollection`'s method `create_layer_block`: an existing (unfinished) block can now be continued if  `mode='append'` is passed to the method. For details about using `create_layer_block`, see [this tutorial](https://github.com/estnltk/estnltk/blob/3776a140b542855b5fef0b38a80828067e7b2022/tutorials/storage/storing_text_objects_in_postgres.ipynb)
+
+* `layer_operations` function `flatten`: added parameter `disambiguation_strategy`. If  `disambiguation_strategy='pick_first'` then the resulting layer will be disambiguated by preserving only the first annotation of every span. By default, the resulting layer will remain ambiguous.  
+ 
+
+## Added
+
+* method `add_layer` to `PgCollection` -- adds a new detached or fragmented layer to the collection. The method initializes a new empty layer before filling it with data. [Tutorial](https://github.com/estnltk/estnltk/blob/c7e093303566ce7691ffbf899841d741d654bc46/tutorials/storage/storing_text_objects_in_postgres.ipynb)
+
+* new `layer_operations`: function `join_layers` concatenates a list of layers into one layer, and function `join_texts` concatenates a list of Text objects into a single Text object (roughly a reverse of `split_by` and `extract_sections` functionalities). Function `join_layers_while_reusing_spans` joins layers efficiently by reusing spans of the input layers (but as a result, the input layers will be broken). Details about `join_texts` are given in the [tutorial](https://github.com/estnltk/estnltk/blob/7256c8c692f7b718d7b6dee8504fcb705bd71997/tutorials/system/layer_operations.ipynb).
+
+* `BatchProcessingWebTagger` -- a web tagger which processes the input via small batches ( splits large requests into smaller ones ). More detailed usage information [here](https://github.com/estnltk/estnltk/blob/7256c8c692f7b718d7b6dee8504fcb705bd71997/estnltk/taggers/web_taggers/v01/batch_processing_web_tagger.py).
+
+	* `BertEmbeddingsWebTagger`, `StanzaSyntaxEnsembleWebTagger` and `StanzaSyntaxWebTagger` were refactored in a way that they no longer throw `WebTaggerRequestTooLargeError` upon large requests, but use batch processing instead;
+
+
+## Fixed
+
+* `MorphExtendedTagger`: now it is possible to customize input and output layer names. Also added unit tests for syntax preprocessing with customized layer names;
+
+* `PostgresStorage` `collections` property: now collections list can be accessed even if it is empty;
+
+* `MissingLayerQuery`: removed a major speed bottleneck;
+
+* `BlockQuery`: added missing `required_layers` property and an unit test;
+
+* `BufferedTableInsert`: buffer size limits are now checked before the insertion (to avoid large buffer limit exceedings);
+
+
 # [1.6.8-beta] - 2021-05-31
 
 ## Changed

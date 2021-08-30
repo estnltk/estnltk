@@ -11,7 +11,7 @@ environment:
     PROJECT_NAME: estnltk
     GITHUB_REPO_NAME: estnltk/estnltk
     ANACONDA_TOKEN:
-      secure: gzcudzTLjXD/X5XJmB01767Q5hOIkGT6fIXz567m75Eda85cA4aOcMRJ59YvEAYy
+      secure: jnH9s6a0t72Og9EPLa2gZfxFyYkq3XDoW18UrLCp1npqrAhQz7TYi2uvvq5GSjzy
 
   matrix:
     #
@@ -42,7 +42,7 @@ platform:
 
 branches:
   only:
-    - version_1.6
+    - version_1.6_travis
 
 init:
   # Environment variables:
