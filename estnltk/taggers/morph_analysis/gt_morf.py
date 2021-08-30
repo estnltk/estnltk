@@ -286,7 +286,7 @@ class GTMorphConverter( Tagger ):
     def _make_layer_template(self):
         """Creates and returns a template of the layer."""
         return Layer(name=self.output_layer,
-                     parent=self._input_words_layer,
+                     parent=self._input_morph_analysis_layer,
                      text_object=None,
                      ambiguous=True,
                      attributes=self.output_attributes)
