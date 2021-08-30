@@ -13,6 +13,7 @@ from collections import OrderedDict
 
 from estnltk.text import Text
 from estnltk.taggers import Retagger
+from estnltk.layer.layer import Layer
 
 from estnltk.layer.ambiguous_attribute_tuple_list import to_str
 
@@ -314,6 +315,19 @@ class VabamorfCorpusTagger( object ):
         # If the default disambiguation is switched off, reordering will also be switched off
         if not use_vabamorf_disambiguator:
             self._use_reordering = False
+
+
+    def _make_layer_template(self) -> Layer:
+        """Creates and returns a template of the layer."""
+        return self._vabamorf_analyser._make_layer_template() 
+
+
+    def get_layer_template(self) -> Layer:
+        """
+        Returns an empty detached layer that contains all parameters 
+        of the output layer.
+        """
+        return self._make_layer_template()
 
 
     def tag(self, docs: list):

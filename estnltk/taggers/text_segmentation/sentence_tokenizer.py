@@ -489,6 +489,14 @@ class SentenceTokenizer( Tagger ):
                 yield (words[first_token].start, words[last_token].end)
                 i += len(sentence_words)
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the sentences layer."""
+        return Layer(enveloping=self._input_words_layer,
+                     name=self.output_layer,
+                     attributes=self.output_attributes,
+                     text_object=None,
+                     ambiguous=False)
+
     def _make_layer(self, text, layers, status: dict):
         """Creates the sentences layer.
         
@@ -620,11 +628,8 @@ class SentenceTokenizer( Tagger ):
             sentences_list, sentence_fixes_list = \
                 self._counting_corrections_to_double_quotes(raw_text, sentences_list, sentence_fixes_list)
         # H) Create the layer and attach sentences
-        layer = Layer(enveloping=self._input_words_layer,
-                      name=self.output_layer,
-                      attributes=self.output_attributes,
-                      text_object=text,
-                      ambiguous=False)
+        layer = self._make_layer_template()
+        layer.text_object = text
         for sid, sentence_span_list in enumerate(sentences_list):
             if self.record_fix_types:
                 # Add information about which types of fixes 

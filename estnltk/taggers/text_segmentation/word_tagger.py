@@ -59,6 +59,11 @@ class WordTagger(Tagger):
         self.input_layers = [input_tokens_layer, input_compound_tokens_layer]
         self.make_ambiguous = make_ambiguous
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer, attributes=self.output_attributes,
+                     text_object=None, ambiguous=self.make_ambiguous)
+
     def _make_layer(self, text, layers, status: dict):
         """Creates words layer.
         
@@ -81,10 +86,8 @@ class WordTagger(Tagger):
         #    'tokens' and 'compound_tokens';
         #    ( include 'normalized' word forms from 
         #      previous layers if available )
-        words = Layer(name=self.output_layer,
-                      attributes=self.output_attributes,
-                      text_object=text,
-                      ambiguous=self.make_ambiguous)
+        words = self._make_layer_template()
+        words.text_object = text
 
         compounds = set()
         for spl in layers[self._input_compound_tokens_layer]:

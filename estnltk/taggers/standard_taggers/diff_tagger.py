@@ -43,6 +43,10 @@ class DiffTagger(Tagger):
         self.input_layer_attribute = input_layer_attribute
         self.span_status_attribute = span_status_attribute
 
+    def _make_layer_template(self):
+        raise NotImplementedError( '(!) Unable to create the template layer. '+\
+                                  ('Exact configuration of the new layer depends on the input layer {!r}').format(self.input_layers[0]) )
+
     def _make_layer(self, text, layers, status):
         name_a, name_b = self.input_layers
         layer_a = layers[name_a]

@@ -9,6 +9,8 @@ from estnltk.taggers import Tagger
 from estnltk.taggers import SyntaxDependencyRetagger
 import subprocess
 
+from estnltk.converters.serialisation_modules import syntax_v0
+
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'udpipe_tagger', 'resources')
 
 
@@ -104,11 +106,22 @@ class UDPipeTagger(Tagger):
                       " argument 'udpipe_cmd'. "
                 raise Exception(msg)
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        layer = Layer( name=self.output_layer, 
+                       text_object=None, 
+                       attributes=self.output_attributes, 
+                       ambiguous=True, 
+                       parent=self.input_layers[1] )
+        if self.add_parent_and_children:
+            layer.serialisation_module = syntax_v0.__version__
+        return layer
+
     def _make_layer(self, text, layers, status=None):
         sentences_layer = layers[self.input_layers[0]]
         conll_layer = layers[self.input_layers[1]]
-        layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes, ambiguous=True,
-                      parent=self.input_layers[1])
+        layer = self._make_layer_template()
+        layer.text_object = text
 
         cmd = "%s --parse %s" % (self.udpipe_cmd, self.model)
         process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, stderr=subprocess.PIPE, shell=True)

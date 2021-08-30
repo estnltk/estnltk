@@ -24,6 +24,7 @@ from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import table_exists
 from estnltk.taggers import ParagraphTokenizer
+from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import VabamorfTagger
 
 logger.setLevel('DEBUG')
@@ -42,6 +43,11 @@ class TestPgCollection(unittest.TestCase):
     def tearDown(self):
         delete_schema(self.storage)
         self.storage.close()
+
+    def test_storage_get_collections(self):
+        # Test that the collections list can be accessed
+        # even before it is filled in with collections 
+        self.assertTrue( len( self.storage.collections ) == 0 )
 
     def test_create_collection(self):
         collection_name = get_random_collection_name()
@@ -497,6 +503,59 @@ class TestLayer(unittest.TestCase):
         collection.delete()
         self.assertFalse(layer_table_exists(self.storage, collection.name, layer1))
         self.assertFalse(layer_table_exists(self.storage, collection.name, layer2))
+
+    def test_add_layer(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+        
+        # Test case 1: Add layer from user-defined layer template
+        layer_template = Layer('test_layer', ['attr_1', 'attr_2'], ambiguous=True)
+
+        # Test that add_layer() cannot be applied on an empty collection
+        with self.assertRaises(pg.PgCollectionException):
+            collection.add_layer( layer_template )
+        
+        # Add some documents to the collection
+        with collection.insert() as collection_insert:
+            text1 = Text('see on esimene lause').tag_layer('words')
+            collection_insert(text1)
+            text2 = Text('see on teine lause').tag_layer('words')
+            collection_insert(text2)
+        
+        # Add layer from the template (creates an empty layer)
+        collection.add_layer( layer_template )
+        
+        self.assertTrue( layer_table_exists(self.storage, collection.name, layer_template.name) )
+        self.assertTrue( layer_template.name in collection.layers )
+        
+        # Add some annotations to the layer
+        def row_mapper_x(row):
+            text_id, text = row[0], row[1]
+            layer = layer_template.copy()
+            layer.add_annotation( (0, 3), attr_1='a', attr_2='b' )
+            return RowMapperRecord( layer=layer, meta={} )
+
+        collection.create_layer(layer_template.name,
+                                data_iterator=collection.select(),
+                                row_mapper=row_mapper_x,
+                                mode='overwrite')
+        
+        # Check added data
+        res = collection.select( query = LayerQuery(layer_template.name, attr_1='a') )
+        self.assertEqual(len(list(res)), 2)
+        
+        # 2) Add layer from Tagger's layer template
+        sent_tokenizer = SentenceTokenizer()
+        layer_template_2 = sent_tokenizer.get_layer_template()
+        collection.add_layer( layer_template_2 )
+        
+        self.assertTrue( layer_table_exists(self.storage, collection.name, layer_template_2.name) )
+        self.assertTrue( layer_template_2.name in collection.layers )
+        
+        collection.create_layer(tagger=sent_tokenizer, mode='overwrite')
+        
+        collection.delete()
 
     def test_layer_meta(self):
         collection_name = get_random_collection_name()

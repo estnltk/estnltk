@@ -29,5 +29,8 @@ class RobustDateNumberTagger(Tagger):
                                   ambiguous = True,
                                   output_layer=output_layer)
 
+    def _make_layer_template(self):
+        return self.tagger._make_layer_template()
+
     def _make_layer(self, text, layers, status):
         return self.tagger.make_layer(text=text, layers=layers, status=status)

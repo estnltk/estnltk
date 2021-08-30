@@ -3,6 +3,7 @@ import codecs
 import regex as re
 from collections import defaultdict
 
+from estnltk.layer.layer import Layer
 from estnltk.layer.annotation import Annotation
 from estnltk.taggers import Retagger
 from estnltk.taggers import VabamorfTagger
@@ -39,6 +40,14 @@ class MorphToSyntaxMorphRetagger(Retagger):
                 'Missing default *fs_to_synt_rules_file* ' + fs_to_synt_rules_file
         self.fs_to_synt_rules = \
             self.load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file)
+
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     attributes=self.output_attributes,
+                     text_object=None,
+                     parent=self.input_layers[0],
+                     ambiguous=True)
 
     def _make_layer(self, text, layers, status=None):
         morph_layer = layers[self.input_layers[0]]

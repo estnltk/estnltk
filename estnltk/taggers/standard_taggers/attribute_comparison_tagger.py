@@ -35,9 +35,14 @@ class AttributeComparisonTagger(Tagger):
             self.output_attributes.append(attr)
             self.output_attributes.extend("{}_{}".format(attr, i + 1) for i in range(len(input_layers)))
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer, text_object=None,
+                     attributes=list(self.output_attributes))
+
     def _make_layer(self, text, layers, status):
-        layer = Layer(name=self.output_layer, text_object=text,
-                      attributes=list(self.output_attributes))
+        layer = self._make_layer_template()
+        layer.text_object = text
 
         for spans in zip(*layers.values()):
             base_span = spans[0].base_span

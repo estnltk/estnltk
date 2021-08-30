@@ -9,6 +9,11 @@
 #     empty 'compound_tokens' layer -- this is the case when
 #     you want to follow exactly the original whitespace 
 #     tokenization;
+#
+#     TODO: this is obsolete: you can now also make an empty
+#           compound_tokens layer via calling
+#              CompoundTokenTagger()._make_layer_template()
+#
 #  2) Use PretokenizedTextCompoundTokensTagger to create a
 #     'compound_tokens' layer that preserves specific multi-
 #     word units from the original text.
@@ -75,17 +80,23 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
         # Attach units
         self._multiword_units = multiword_units
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     text_object=None,
+                     enveloping =self._input_tokens_layer,
+                     attributes =self.output_attributes,
+                     ambiguous=False)
+
     def _make_layer(self, text, layers, status: dict):
         """ Creates an empty 'compound_tokens' layer, or a 
             'compound_tokens' layer filled with multiword units 
             from the list _multiword_units.
         """
         # Create an empty layer 
-        layer = Layer(name=self.output_layer,
-                      text_object=text,
-                      enveloping =self._input_tokens_layer,
-                      attributes =self.output_attributes,
-                      ambiguous=False)
+        layer = self._make_layer_template()
+        layer.text_object = text
+        
         if self._multiword_units:
            # If the text has some multiword units that need to 
            # be preserved, find the multiword units from the 

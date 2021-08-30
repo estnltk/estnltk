@@ -44,6 +44,7 @@ class Tagger(metaclass=TaggerChecker):
     input_layers
     __init__(...)
     _make_layer(...)
+    _make_layer_template
 
     """
     __slots__ = ['_initialized', 'conf_param', 'output_layer', 'output_attributes', 'input_layers']
@@ -144,6 +145,20 @@ class Tagger(metaclass=TaggerChecker):
         """
         text.add_layer(self.make_layer(text=text, layers=text.layers, status=status))
         return text
+
+    def _make_layer_template(self) -> Layer:
+        """ Returns an empty detached layer that contains all parameters of 
+            the output layer.
+            This method needs to be implemented in a derived class.
+        """
+        raise NotImplementedError('_make_layer_template method not implemented in ' + self.__class__.__name__)
+
+    def get_layer_template(self) -> Layer:
+        """
+        Returns an empty detached layer that contains all parameters 
+        of the output layer.
+        """
+        return self._make_layer_template()
 
     def __call__(self, text: Text, status: dict = None) -> Text:
         return self.tag(text, status)

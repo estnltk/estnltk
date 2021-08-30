@@ -53,6 +53,10 @@ class TokensTagger(Tagger):
         self._punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
         self.output_attributes = ()
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer, text_object=None)
+
     def _make_layer(self, text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         """Segments given Text into tokens. 
            Returns tokens layer.
@@ -85,11 +89,11 @@ class TokensTagger(Tagger):
                     spans_to_split.append( (start, end) )
             if spans_to_split:
                 spans = self._split_into_symbols( spans, spans_to_split )
-        layer = Layer(name=self.output_layer, text_object=text).from_records([{
-                                                                   'start': start,
-                                                                   'end': end
-                                                                  } for start, end in spans],
-                                                                 rewriting=True)
+        layer = (self._make_layer_template()).from_records([ { 'start': start,
+                                                               'end': end
+                                                             } for start, end in spans],
+                                                             rewriting=True)
+        layer.text_object = text
         return layer
 
     def _split_into_symbols( self, spans, spans_to_split ):

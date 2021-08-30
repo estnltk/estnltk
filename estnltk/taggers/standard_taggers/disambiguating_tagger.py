@@ -22,6 +22,11 @@ class DisambiguatingTagger(Tagger):
         self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        raise NotImplementedError( '(!) Unable to create the template layer. '+\
+                                  ('Exact configuration of the new layer depends on the input layer {!r}').format(self.input_layers[0]) )
+
     def _make_layer(self, text, layers, status):
         input_layer = layers[self.input_layers[0]]
         assert input_layer.ambiguous, 'the input layer is not ambguous'

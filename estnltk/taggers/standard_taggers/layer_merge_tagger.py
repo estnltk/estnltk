@@ -18,6 +18,10 @@ class MergeTagger(Tagger):
         self.output_layer = output_layer
         self.output_attributes = tuple(output_attributes)
 
+    def _make_layer_template(self):
+        raise NotImplementedError( '(!) Unable to create the template layer. '+\
+                                  ('Exact configuration of the new layer depends on the input layer {!r}').format(self.input_layers[0]) )
+
     def _make_layer(self, text, layers, status):
         layers = [layers[layer] for layer in self.input_layers]
         return merge_layers(layers=layers,

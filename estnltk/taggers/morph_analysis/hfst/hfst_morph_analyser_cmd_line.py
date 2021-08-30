@@ -342,6 +342,15 @@ class HfstClMorphAnalyser(Tagger):
             return line_clean
 
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     parent=self._input_words_layer,
+                     text_object=None,
+                     ambiguous=True,
+                     attributes=self.output_attributes )
+
+
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
         """Applies HFST-based morphological analyser on the words layer, 
            captures the output of analyser with output_extractor,  and  
@@ -381,12 +390,8 @@ class HfstClMorphAnalyser(Tagger):
         assert self._hfst_process.poll() is None, \
            '(!) The tagger cannot be used anymore, '+\
            'because its hfst process has been terminated.'
-        new_layer = Layer(name=self.output_layer,
-                               parent=self._input_words_layer,
-                               text_object=text,
-                               ambiguous=True,
-                               attributes=self.output_attributes
-        )
+        new_layer = self._make_layer_template()
+        new_layer.text_object = text
         line_count = 0
         for wid, word in enumerate( layers[ self._input_words_layer ] ):
             # Analyse all normalized variants of the word
@@ -444,12 +449,8 @@ class HfstClMorphAnalyser(Tagger):
         # Remove temporary input file
         os.remove(temp_input_file.name)
         
-        new_layer = Layer(name=self.output_layer,
-                               parent=self._input_words_layer,
-                               text_object=text,
-                               ambiguous=True,
-                               attributes=self.output_attributes
-        )
+        new_layer = self._make_layer_template()
+        new_layer.text_object = text
         self._read_results_from_hfst_output( temp_output_file.name, line_2_word_map, 
                                              layers[ self._input_words_layer ],
                                              new_layer )

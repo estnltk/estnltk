@@ -31,13 +31,17 @@ class SegmentTagger(Tagger):
             raise ValueError('unexpected type of start_predicate: {}'.format(type(start_predicate)))
         self.start_predicate = start_predicate
 
+    def _make_layer_template(self):
+        return Layer(name=self.output_layer,
+                     attributes=self.output_attributes,
+                     text_object=None,
+                     parent=None,
+                     enveloping=None,
+                     ambiguous=False)
+
     def _make_layer(self, text, layers, status):
-        layer = Layer(name=self.output_layer,
-                      attributes=self.output_attributes,
-                      text_object=text,
-                      parent=None,
-                      enveloping=None,
-                      ambiguous=False)
+        layer = self._make_layer_template()
+        layer.text_object = text
 
         input_layer = layers[self.input_layers[0]]
         last_start_span = None

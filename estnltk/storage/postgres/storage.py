@@ -79,6 +79,7 @@ class PostgresStorage:
 
     @property
     def collections(self):
+        self._load()
         return sorted(self._collections)
 
     def __getitem__(self, name: str):

@@ -1,5 +1,7 @@
 import os
 
+from estnltk.layer.layer import Layer
+
 from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger
 from estnltk.core import abs_path
@@ -35,6 +37,8 @@ class MorphExtendedTagger(Tagger):
                   'verb_extension_suffix_retagger', 'subcat_retagger']
 
     def __init__(self,
+                 output_layer='morph_extended',
+                 input_morph_analysis_layer:str='morph_analysis',
                  fs_to_synt_rules_file=None,
                  allow_to_remove_all=False,
                  subcat_rules_file=None):
@@ -42,6 +46,12 @@ class MorphExtendedTagger(Tagger):
 
             Parameters
             -----------
+            output_layer : str (default: 'morph_extended')
+                Name of the output layer.
+            
+            input_morph_analysis_layer: str (default: 'morph_analysis')
+                Name of the input morph_analysis layer;
+            
             fs_to_synt_rules_file : str
                 Name of the file containing rules for mapping from Filosoft's
                 old mrf format to syntactic analyzer's preprocessing mrf format;
@@ -60,20 +70,31 @@ class MorphExtendedTagger(Tagger):
                 Default: False
 
         """
+        self.output_layer = output_layer
+        self.input_layers = [ input_morph_analysis_layer ]
+
         if fs_to_synt_rules_file is None:
             fs_to_synt_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/tmorftrtabel.txt')
         if subcat_rules_file is None:
             subcat_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/abileksikon06utf.lx')
 
         self.punctuation_type_retagger = PunctuationTypeRetagger()
-        self.morph_to_syntax_morph_retagger = MorphToSyntaxMorphRetagger(input_layer='morph_analysis',
+        self.morph_to_syntax_morph_retagger = MorphToSyntaxMorphRetagger(input_layer = self.input_layers[0],
                                                                          fs_to_synt_rules_file=fs_to_synt_rules_file)
         self.pronoun_type_retagger = PronounTypeRetagger()
         self.letter_case_retagger = LetterCaseRetagger()
         self.remove_adposition_analyses_retagger = RemoveAdpositionAnalysesRetagger(allow_to_remove_all)
         self.finite_form_retagger = FiniteFormRetagger()
-        self.verb_extension_suffix_retagger = VerbExtensionSuffixRetagger(self.output_layer)
+        self.verb_extension_suffix_retagger = VerbExtensionSuffixRetagger('morph_extended')
         self.subcat_retagger = SubcatRetagger(subcat_rules_file=subcat_rules_file)
+
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer,
+                     attributes=self.output_attributes,
+                     text_object=None,
+                     parent=self.input_layers[0],
+                     ambiguous=True)
 
     def _make_layer(self, text, layers, status=None):
         morph_layer = layers[self.input_layers[0]]
@@ -97,4 +118,7 @@ class MorphExtendedTagger(Tagger):
                 if annotation['subcat'] is not None:
                     annotation['subcat'] = list(annotation['subcat'])
                 annotation['verb_extension_suffix'] = list(annotation['verb_extension_suffix'])
+
+        # Fix layer name
+        layer.name = self.output_layer
         return layer
