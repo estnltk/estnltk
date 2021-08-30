@@ -125,7 +125,7 @@ setup(
         'html5lib',      # for processing XML files of the Estonian Reference Corpus
         'lxml',          # required for importing/exporting TCF format data
         'networkx==2.5', # building graphs: required for layers, WordNet and grammars
-        'matplotlib>=3.3.4 ; python_version >  "3.6"', # required for visualizing layer graph (> py36)
+        'matplotlib ; python_version >  "3.6"',        # required for visualizing layer graph (> py36)
         'matplotlib==3.3.4 ; python_version == "3.6"', # required for visualizing layer graph (= py36)
         'matplotlib==3.0.3 ; python_version <  "3.6"', # required for visualizing layer graph (< py36)
         'requests',   # required for TextA export and WebTagger
