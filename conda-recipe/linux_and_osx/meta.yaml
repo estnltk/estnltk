@@ -27,7 +27,7 @@ requirements:
     - cached-property >=1.2.0
     - beautifulsoup4 >=4.4.0
     - html5lib
-    - networkx==2.5
+    - networkx
     - lxml
   run:
     - python
@@ -40,7 +40,7 @@ requirements:
     - cached-property >=1.2.0
     - beautifulsoup4 >=4.4.0
     - html5lib
-    - networkx==2.5
+    - networkx
     - lxml
     - tqdm
     - IPython
