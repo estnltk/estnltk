@@ -325,7 +325,7 @@ def test_iterate_intersecting_spans_2():
 def test_iterate_intersecting_spans_3():
     # Example text:
     text = Text('üks kaks kolmneli viiskuus seitse')
-    text.tag_layer(['words'])
+    #text.tag_layer(['words'])
     
     # Test Spans
     layer = Layer(name='test_layer')
