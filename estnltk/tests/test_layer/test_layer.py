@@ -261,8 +261,83 @@ def test_ambiguous_layer_indexing():
 
 
 def test_advanced_indexing():
-    text = Text('Mis on Sinu nimi?').analyse('morphology')
-    layer = text.morph_analysis
+    # 1) Set up test data
+    # Create example text with 'morph_analysis' layer
+    text = Text('Mis on Sinu nimi?')
+    morph_layer = Layer(name='morph_analysis',
+                        attributes=('normalized_text',
+                                    'lemma',
+                                    'root',
+                                    'root_tokens',
+                                    'ending',
+                                    'clitic',
+                                    'form',
+                                    'partofspeech'),
+                        text_object=text,
+                        enveloping=None,
+                        parent=None,
+                        ambiguous=True)
+    # Populate layer with annotations
+    morph_layer.add_annotation( (0, 3), **{'clitic': '',
+                                           'ending': '0',
+                                           'form': 'sg n',
+                                           'lemma': 'mis',
+                                           'normalized_text': 'Mis',
+                                           'partofspeech': 'P',
+                                           'root': 'mis',
+                                           'root_tokens': ['mis']} )
+    morph_layer.add_annotation( (0, 3), **{'clitic': '',
+                                           'ending': '0',
+                                           'form': 'pl n',
+                                           'lemma': 'mis',
+                                           'normalized_text': 'Mis',
+                                           'partofspeech': 'P',
+                                           'root': 'mis',
+                                           'root_tokens': ['mis']} )
+    morph_layer.add_annotation( (4, 6), **{'clitic': '',
+                                           'ending': '0',
+                                           'form': 'b',
+                                           'lemma': 'olema',
+                                           'normalized_text': 'on',
+                                           'partofspeech': 'V',
+                                           'root': 'ole',
+                                           'root_tokens': ['ole']} )
+    morph_layer.add_annotation( (4, 6), **{'clitic': '',
+                                           'ending': '0',
+                                           'form': 'vad',
+                                           'lemma': 'olema',
+                                           'normalized_text': 'on',
+                                           'partofspeech': 'V',
+                                           'root': 'ole',
+                                           'root_tokens': ['ole']} )
+    morph_layer.add_annotation( (7, 11), **{'clitic': '',
+                                            'ending': '0',
+                                            'form': 'sg g',
+                                            'lemma': 'sina',
+                                            'normalized_text': 'Sinu',
+                                            'partofspeech': 'P',
+                                            'root': 'sina',
+                                            'root_tokens': ['sina']} )
+    morph_layer.add_annotation( (12, 16), **{'clitic': '',
+                                            'ending': '0',
+                                            'form': 'sg n',
+                                            'lemma': 'nimi',
+                                            'normalized_text': 'nimi',
+                                            'partofspeech': 'S',
+                                            'root': 'nimi',
+                                            'root_tokens': ['nimi']} )
+    morph_layer.add_annotation( (16, 17), **{'clitic': '',
+                                             'ending': '',
+                                             'form': '',
+                                             'lemma': '?',
+                                             'normalized_text': '?',
+                                             'partofspeech': 'Z',
+                                             'root': '?',
+                                             'root_tokens': ['?']} )
+    text.add_layer( morph_layer )
+    
+    # 2) Test layer access via indexing
+    layer = text['morph_analysis']
 
     assert layer[:] == layer
     assert layer[2:10:2].text == ['Sinu', '?']
@@ -285,10 +360,102 @@ def test_advanced_indexing():
 
 
 def test_check_layer_consistency():
-    other_morph_layer = \
-        Text('Kas?').analyse('morphology')['morph_analysis']
-    text = Text('Kes ja kus?').analyse('morphology')
-    morph_layer = text['morph_analysis']
+    # 0) Set up test data
+    # Create example texts with 'morph_analysis' layers
+    # Create text 1
+    text1 = Text('Kas?')
+    morph_layer1 = Layer(name='morph_analysis',
+                        attributes=('normalized_text',
+                                    'lemma',
+                                    'root',
+                                    'root_tokens',
+                                    'ending',
+                                    'clitic',
+                                    'form',
+                                    'partofspeech'),
+                        text_object=text1,
+                        enveloping=None,
+                        parent=None,
+                        ambiguous=True)
+    # Populate layer with annotations
+    morph_layer1.add_annotation( (0, 3), **{'clitic': '',
+                                           'ending': '0',
+                                           'form': '',
+                                           'lemma': 'kas',
+                                           'normalized_text': 'Kas',
+                                           'partofspeech': 'D',
+                                           'root': 'kas',
+                                           'root_tokens': ['kas']} )
+    morph_layer1.add_annotation( (3, 4), **{'clitic': '',
+                                           'ending': '',
+                                           'form': '',
+                                           'lemma': '?',
+                                           'normalized_text': '?',
+                                           'partofspeech': 'Z',
+                                           'root': '?',
+                                           'root_tokens': ['?']} )
+    text1.add_layer( morph_layer1 )
+    # Create text 2
+    text2 = Text('Kes ja kus?')
+    morph_layer2 = Layer(name='morph_analysis',
+                        attributes=('normalized_text',
+                                    'lemma',
+                                    'root',
+                                    'root_tokens',
+                                    'ending',
+                                    'clitic',
+                                    'form',
+                                    'partofspeech'),
+                        text_object=text2,
+                        enveloping=None,
+                        parent=None,
+                        ambiguous=True)
+    # Populate layer with annotations
+    morph_layer2.add_annotation( (0, 3), **{'clitic': '',
+                                            'ending': '0',
+                                            'form': 'sg n',
+                                            'lemma': 'kes',
+                                            'normalized_text': 'Kes',
+                                            'partofspeech': 'P',
+                                            'root': 'kes',
+                                            'root_tokens': ['kes']} )
+    morph_layer2.add_annotation( (0, 3), **{'clitic': '',
+                                            'ending': '0',
+                                            'form': 'pl n',
+                                            'lemma': 'kes',
+                                            'normalized_text': 'Kes',
+                                            'partofspeech': 'P',
+                                            'root': 'kes',
+                                            'root_tokens': ['kes']} )
+    morph_layer2.add_annotation( (4, 6), **{'clitic': '',
+                                            'ending': '0',
+                                            'form': '',
+                                            'lemma': 'ja',
+                                            'normalized_text': 'ja',
+                                            'partofspeech': 'J',
+                                            'root': 'ja',
+                                            'root_tokens': ['ja']} )
+    morph_layer2.add_annotation( (7, 10), **{'clitic': '',
+                                             'ending': '0',
+                                             'form': '',
+                                             'lemma': 'kus',
+                                             'normalized_text': 'kus',
+                                             'partofspeech': 'D',
+                                             'root': 'kus',
+                                             'root_tokens': ['kus']} )
+    morph_layer2.add_annotation( (10, 11), **{'clitic': '',
+                                              'ending': '',
+                                              'form': '',
+                                              'lemma': '?',
+                                              'normalized_text': '?',
+                                              'partofspeech': 'Z',
+                                              'root': '?',
+                                              'root_tokens': ['?']} )
+    text2.add_layer( morph_layer2 )
+    
+    # Fetch layers for consistency testing 
+    other_morph_layer = text1['morph_analysis']
+    morph_layer = text2['morph_analysis']
 
     # 1) Change first span, assign it to different layer
     old_first_span = morph_layer.spans[0]
