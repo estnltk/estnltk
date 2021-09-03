@@ -114,7 +114,7 @@ def count_by(layer: Layer, attributes, counter=None):
     attributes: list of str or str
         Name of *layer*'s key or list of *layer*'s key names.
         If *attributes* contains 'text', then the *layer*'s text is found using spans.
-    table: collections.defaultdict(int), None, default: None
+    table: collections.Counter, None, default: None
         If table==None, then new 
         If table!=None, then the table is updated and returned.
     
@@ -124,6 +124,8 @@ def count_by(layer: Layer, attributes, counter=None):
         The keys are tuples of values of attributes. 
         The values are corresponding counts.
     """
+    if isinstance(attributes, str):
+        attributes = [attributes]
 
     if counter is None:
         counter = Counter()
@@ -134,7 +136,8 @@ def count_by(layer: Layer, attributes, counter=None):
             if a == 'text':
                 key.append(span.text)
             else:
-                key.append(getattr(span, a))
+                for annotation in span.annotations:
+                    key.append(getattr(annotation, a))
         key = tuple(key)
         counter[key] += 1
 
