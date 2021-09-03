@@ -9,8 +9,8 @@ from estnltk.layer_operations import drop_annotations
 from estnltk.layer_operations import keep_annotations
 from estnltk.layer_operations import diff_layer
 from estnltk.layer_operations import count_by
-
 from estnltk.layer_operations import unique_texts
+
 from estnltk.layer_operations import apply_simple_filter
 from estnltk.layer_operations import conflicts
 from estnltk.layer_operations import count_by_document
@@ -92,7 +92,7 @@ def test_keep_annotations():
     assert text.layer_1['attr', 'attr_1'] == expected
 
 
-def test_count_by():
+def test_layer_count_by():
     text_1 = Text('Üks kaks kolm neli kaks.')
     layer_1 = Layer('test', attributes=['label'], text_object=text_1, ambiguous=True)
     layer_1.add_annotation( ElementaryBaseSpan(0, 3), label=1 )
@@ -124,6 +124,43 @@ def test_count_by():
     counter = count_by( text_2['test'], ['text', 'label'], counter=counter )
     expected = {('üks', 1): 1, ('Üks', 1): 1, ('kaks', 2): 4, ('kolm', 3): 2, ('neli', 4): 1, ('Neli', 4): 1}
     assert counter == expected
+
+
+def test_layer_unique_texts():
+    text = Text('Üks kaks kolm neli. Neli kolm kaks üks.')
+    layer_1 = Layer('words', attributes=[], text_object=text, ambiguous=False)
+    layer_1.add_annotation( ElementaryBaseSpan(0, 3) )
+    layer_1.add_annotation( ElementaryBaseSpan(4, 8) )
+    layer_1.add_annotation( ElementaryBaseSpan(9, 13) )
+    layer_1.add_annotation( ElementaryBaseSpan(14, 18) )
+    layer_1.add_annotation( ElementaryBaseSpan(18, 19) )
+    layer_1.add_annotation( ElementaryBaseSpan(20, 24) )
+    layer_1.add_annotation( ElementaryBaseSpan(25, 29) )
+    layer_1.add_annotation( ElementaryBaseSpan(30, 34) )
+    layer_1.add_annotation( ElementaryBaseSpan(35, 38) )
+    layer_1.add_annotation( ElementaryBaseSpan(38, 39) )
+    text.add_layer( layer_1 )
+    
+    result = unique_texts( text['words'], order=None )
+    expected = {'.', 'kaks', 'kolm', 'neli', 'Neli', 'üks', 'Üks'}
+    assert set(result) == expected
+
+    text = Text('Üks kaks kolm neli.')
+    layer_2 = Layer('words', attributes=[], text_object=text, ambiguous=False)
+    layer_2.add_annotation( ElementaryBaseSpan(0, 3) )
+    layer_2.add_annotation( ElementaryBaseSpan(4, 8) )
+    layer_2.add_annotation( ElementaryBaseSpan(9, 13) )
+    layer_2.add_annotation( ElementaryBaseSpan(14, 18) )
+    layer_2.add_annotation( ElementaryBaseSpan(18, 19) )
+    text.add_layer( layer_2 )
+
+    result = unique_texts( text['words'], order='asc' )
+    expected = ['.', 'kaks', 'kolm', 'neli', 'Üks']
+    assert result == expected
+
+    result = unique_texts( text['words'], order='desc' )
+    expected = ['Üks', 'neli', 'kolm', 'kaks', '.']
+    assert result, expected
 
 
 
@@ -290,27 +327,6 @@ class TestLayerOperation():
         assert ('text' in text)
         processed_text = apply_simple_filter(text, 'named_entities')
         assert text_apply_simple_filter_without_restriction() == processed_text
-
-    # TODO: fix
-    def broken_test_unique_texts(self):
-        text = Text('Üks kaks kolm neli. Neli kolm kaks üks.')
-        text.tokenize_words()
-
-        result = unique_texts(text, 'words', sep=' ', order=None)
-        expected = {'.', 'kaks', 'kolm', 'neli', 'Neli', 'üks', 'Üks'}
-        assert set(result) == expected
-
-        text = Text('Üks kaks kolm neli.')
-        text.tokenize_words()
-
-        result = unique_texts(text, 'words', sep=' ', order='asc')
-        expected = ['.', 'kaks', 'kolm', 'neli', 'Üks']
-        assert result == expected
-
-        result = unique_texts(text, 'words', sep=' ', order='desc')
-        expected = ['Üks', 'neli', 'kolm', 'kaks', '.']
-        assert result, expected
-
 
     # TODO: fix
     def broken_test_count_by_document(self):
