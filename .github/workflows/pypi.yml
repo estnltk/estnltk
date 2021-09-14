@@ -22,6 +22,11 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.1.1
         env:
+          # Run `build_ext` before creating the wheel, because `pip wheel`
+          # runs `build_ext` as the last command and then the package will
+          # be missing auto-generated `vabamorf.py`.
+          CIBW_BEFORE_BUILD: python setup.py build_ext
+
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
           CIBW_SKIP: pp*
