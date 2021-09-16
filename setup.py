@@ -112,12 +112,10 @@ setup(
                   swig_opts=swig_opts,
                   include_dirs=include_dirs)
     ],
-
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
         'nltk>=3.4.1 ; python_version >= "3.6"', # NLTK mainly required for tokenization
-        'nltk>=3.0.4 ; python_version <  "3.6"', # NLTK mainly required for tokenization
         'regex>=2015.07.19',       # improved Python regular expressions
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
@@ -128,18 +126,15 @@ setup(
         'networkx==2.5 ; python_version == "3.6"', # building graphs: required for layers, WordNet and grammars (= py36)
         'matplotlib ; python_version >  "3.6"',        # required for visualizing layer graph (> py36)
         'matplotlib==3.3.4 ; python_version == "3.6"', # required for visualizing layer graph (= py36)
-        'matplotlib==3.0.3 ; python_version <  "3.6"', # required for visualizing layer graph (< py36)
         'requests',   # required for TextA export and WebTagger
         'tqdm',       # progressbar: for showing progress on time-hungry operations
         'ipython ; python_version >  "3.6"',         # required for integration with Jupyter Notebook-s (> py36)
         'ipython< 7.17.0 ; python_version == "3.6"', # required for integration with Jupyter Notebook-s (= py36)
         # Specific package requirements for specific Python versions
         'conllu>=3.1.1 ; python_version >= "3.6"', # CONLLU for syntax
-        'conllu==3.1.1 ; python_version == "3.5"', # CONLLU for syntax (use conllu 3 because 4 does not support py35)
         'numpy==1.19.4 ; python_version == "3.6"', # This is the last numpy version that supports py36
         'pandas>=1.1.5 ; python_version >  "3.6"', # Panel Data Analysis library for Python (> py36)
         'pandas<=1.1.5 ; python_version == "3.6"', # Panel Data Analysis library for Python (= py36)
-        'pandas<1.0.0  ; python_version <  "3.6"', # Panel Data Analysis library for Python (< py36)
     ],
     #
     #  Note: if you need to build and install for Python 3.5, you need 
@@ -158,10 +153,10 @@ setup(
                  'Intended Audience :: Science/Research',
                  'Intended Audience :: Information Technology',
                  'Operating System :: OS Independent',
-                 'Programming Language :: Python :: 3.5',
                  'Programming Language :: Python :: 3.6',
                  'Programming Language :: Python :: 3.7',
                  'Programming Language :: Python :: 3.8',
+                 'Programming Language :: Python :: 3.9',
                  'Topic :: Scientific/Engineering',
                  'Topic :: Scientific/Engineering :: Artificial Intelligence',
                  'Topic :: Scientific/Engineering :: Information Analysis',
