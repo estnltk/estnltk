@@ -61,6 +61,7 @@ setup(
 
     packages=find_packages(exclude=exclude_package_dirs),
     include_package_data=True,
+    # TODO: package_data duplicates MANIFEST.in; if there is no need for package_data, remove it
     package_data={
         'estnltk.java': [ 'res/*.*'],
         'estnltk.taggers.estner': ['gazetteer/*', 'models/py3_default/*'],
