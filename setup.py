@@ -104,6 +104,7 @@ setup(
     author_email="siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description="Estnltk — open source tools for Estonian natural language processing",
     long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     license="GPLv2",
     url="https://github.com/estnltk/estnltk",
     ext_modules=[
