@@ -28,7 +28,7 @@ jobs:
           # be missing auto-generated `vabamorf.py`.
           CIBW_BEFORE_BUILD: python setup.py build_ext
 
-          CIBW_BUILD: cp36-win_amd64
+          CIBW_BUILD: cp37-win_amd64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
