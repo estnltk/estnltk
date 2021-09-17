@@ -33,3 +33,4 @@ graft estnltk/tests/test_taggers/miscellaneous
 graft estnltk/tests/test_taggers/test_standard_taggers
 include estnltk/tests/test_taggers/neural_test_sentences.txt
 graft estnltk/tests/test_visualisation/expected_outputs
+prune scribbles
