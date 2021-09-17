@@ -8,7 +8,7 @@ The project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](https://
 
 Currently, there are two branches of EstNLTK:
 
-* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.9beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). Due to the beta status, some of the tools are limited or incomplete. Supported Python versions are 3.6, 3.7 and 3.8. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
+* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.9beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). More recently, [PyPI wheels](https://pypi.org/project/estnltk/#history) have also been created and made available under the version 1.6.9.1beta. Due to the beta status, some of the tools are limited or incomplete. Supported Python versions are 3.6, 3.7 and 3.8. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
   
 * version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4, 3.5 and 2.7. Python versions 3.6, 3.7 and beyond are not supported;
 
@@ -19,7 +19,7 @@ The recommended way of installing EstNLTK is by using the [anaconda python distr
 
 Installable packages have been built for osx, windows-64, and linux-64.
 
-As some of the EstNLTK's dependencies are not yet compatible with the newest version of python (3.9), we recommend to install EstNLTK inside a conda environment that contains python 3.8:
+Installation steps with conda:
 
 1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.8, for instance:
 ```
@@ -36,12 +36,15 @@ conda activate py38
 conda install -c estnltk -c conda-forge estnltk=1.6.9b
 ```
 
-The alternative way for installing if you are unable to use the anaconda distribution is:
+Alternatively, you can install EstNLTK's via PyPI wheel.  
+Wheels are available for windows-64, linux-64 and osx_64, covering Python versions 3.6 - 3.9. 
+The latest wheel can be installed via command:
+
 ```
-python -m pip install estnltk
+pip install estnltk==1.6.9.1b0
 ```
 
-This is slower, more error-prone and requires you to have the appropriate compilers for building the scientific computation packages for your platform.
+_Note_: While there are also earlier EstNLTK versions available in PyPI, not all Python versions and platforms are covered. We therefore recommend to install only the latest version. If you need to use earlier versions, please use Anaconda packages that have a better coverage. 
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 
@@ -50,10 +53,8 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.6.9b0
+!pip install estnltk==1.6.9.1b0
 ```
-
-_Note_: the PyPI package, which installation is shown above, has been specifically created for Colab. For other platforms/environments, please use our conda packages. 
 
 ### Neural models
 
@@ -76,7 +77,7 @@ The source of the latest release is available at the branch [version_1.6](https:
 ## Version 1.4.1
 
 ### Installation
-The recommended way of installing estnltk is by using the [anaconda python distribution](https://www.anaconda.com/download) and python 3.5.
+The recommended way of installing estnltk v1.4 is by using the [anaconda python distribution](https://www.anaconda.com/download) and python 3.5.
 
 We have installable packages built for osx, windows-64, and linux-64. Installation steps:
 
