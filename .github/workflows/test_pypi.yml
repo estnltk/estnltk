@@ -1,8 +1,9 @@
 name: Build and upload to TestPyPI
 
-on: push
-  branches:
-    - devel_1.6
+on: 
+  push:
+    branches:
+      - devel_1.6
 
 jobs:
   build_wheels:
