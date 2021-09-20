@@ -38,13 +38,15 @@ conda install -c estnltk -c conda-forge estnltk=1.6.9b
 
 Alternatively, you can install EstNLTK's via PyPI wheel.  
 Wheels are available for windows-64, linux-64 and osx_64, covering Python versions 3.6 - 3.9. 
-The latest wheel can be installed via command:
+The corresponding version is 1.6.9.1beta, and it can be installed via command:
 
 ```
 pip install estnltk==1.6.9.1b0
 ```
 
-_Note_: While there are also earlier EstNLTK versions available in PyPI, not all Python versions and platforms are covered. We therefore recommend to install only the latest version. If you need to use earlier versions, please use Anaconda packages that have a better coverage. 
+_Note_: The version 1.6.9b0 (conda) and 1.6.9.1b0 (PyPI) are equal considering the main functionalities. 
+While the version 1.6.9b0 (and earlier EstNLTK's versions) are also  available in PyPI, the support for different platforms and Python versions is very limited in earlier PyPI releases.
+If you need to use earlier versions of EstNLTK, please use our Anaconda packages. 
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 

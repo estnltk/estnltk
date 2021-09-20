@@ -132,7 +132,6 @@ setup(
         'tqdm',       # progressbar: for showing progress on time-hungry operations
         'ipython ; python_version >  "3.6"',         # required for integration with Jupyter Notebook-s (> py36)
         'ipython< 7.17.0 ; python_version == "3.6"', # required for integration with Jupyter Notebook-s (= py36)
-        # Specific package requirements for specific Python versions
         'conllu>=3.1.1 ; python_version >= "3.6"', # CONLLU for syntax
         'numpy==1.19.4 ; python_version == "3.6"', # This is the last numpy version that supports py36
         'pandas>=1.1.5 ; python_version >  "3.6"', # Panel Data Analysis library for Python (> py36)

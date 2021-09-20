@@ -3,9 +3,9 @@
 
 All notable changes to this project will be documented in this file.
 
-# [1.6.9.1-beta] - 2021-09-XX
+# [1.6.9.1-beta] - 2021-09-20
 
-This is an intermediate release of PyPI packages. No conda packages will be generated. The list of changes will be documented in the next release.
+This is an intermediate release of PyPI packages. The version 1.6.9b0  and 1.6.9.1b0 are equal considering the main functionalities, so no conda packages will be generated. The list of changes will be documented in the next release.
 
 # [1.6.9-beta] - 2021-08-30
 
