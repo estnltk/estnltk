@@ -36,9 +36,9 @@ conda activate py38
 conda install -c estnltk -c conda-forge estnltk=1.6.9b
 ```
 
-Alternatively, you can install EstNLTK's via PyPI wheel.  
+Alternatively, you can install EstNLTK via PyPI wheel.  
 Wheels are available for windows-64, linux-64 and osx_64, covering Python versions 3.6 - 3.9. 
-The corresponding version is 1.6.9.1beta, and it can be installed via command:
+The corresponding version is 1.6.9.1beta, and it can be installed with command:
 
 ```
 pip install estnltk==1.6.9.1b0
