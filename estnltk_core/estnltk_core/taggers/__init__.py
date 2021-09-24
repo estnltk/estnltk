@@ -1,0 +1,4 @@
+from estnltk_core.taggers.tagger import Tagger
+from estnltk_core.taggers.retagger import Retagger
+
+from estnltk_core.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
