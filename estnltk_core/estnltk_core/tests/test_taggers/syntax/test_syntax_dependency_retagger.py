@@ -1,5 +1,5 @@
-from estnltk.converters import dict_to_text
-from estnltk.taggers import SyntaxDependencyRetagger
+from estnltk_core.converters import dict_to_text
+from estnltk_core.taggers import SyntaxDependencyRetagger
 
 
 def test_syntax_dependency_retagger():

@@ -1,8 +1,6 @@
 from estnltk import Span, Layer, Text, ElementaryBaseSpan
 from estnltk.converters import export_CG3
-from estnltk.converters import text_to_json, json_to_text
 from estnltk.converters import export_TCF, import_TCF
-from estnltk.converters import annotation_to_json, json_to_annotation
 from estnltk.tests import new_text
 
 
@@ -40,58 +38,6 @@ T_1 = "Tere, maailm!"
 T_2 = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
 
 Teine lõik.'''
-
-
-def test_json_export_import():
-    text = Text('')
-    json_text = text_to_json(text)
-    text_import = json_to_text(json_text)
-    assert text_import == text
-    assert json_text == text_to_json(text_import)
-    
-    text = Text(T_2).tag_layer(['morph_analysis', 'paragraphs'])
-    text.meta['year'] = 2017
-    json_text = text_to_json(text)
-    text_import = json_to_text(json_text)
-    assert text_import == text, text.diff(text_import)
-    # the following line randomly breaks in Python 3.5
-    # assert json_text == text_to_json(text_import)
-
-    text = Text(T_2)
-
-    text = json_to_text(text_to_json(text))
-    text.tag_layer(['tokens'])
-
-    text = json_to_text(text_to_json(text))
-    text.tag_layer(['compound_tokens'])
-
-    text = json_to_text(text_to_json(text))
-    text.tag_layer(['words'])
-
-    text = json_to_text(text_to_json(text))
-    text.tag_layer(['morph_analysis'])
-
-    text = json_to_text(text_to_json(text))
-    text.tag_layer(['sentences'])
-
-    text = json_to_text(text_to_json(text))
-    text.tag_layer(['paragraphs'])
-
-    text = json_to_text(text_to_json(text))
-    text.tag_layer(['morph_extended'])
-
-    text = json_to_text(text_to_json(text))
-    assert text == Text(T_2).tag_layer(['morph_extended', 'paragraphs'])
-
-
-def test_annotation_json_export_import():
-    layer = Layer('my_layer', attributes=['attr', 'attr_0'])
-    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
-
-    annotation = new_text(5).layer_0[0].annotations[0]
-
-    a = json_to_annotation(span, annotation_to_json(annotation))
-    assert a == annotation
 
 
 def test_TCF_export_import():
