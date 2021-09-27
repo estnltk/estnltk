@@ -1,7 +1,7 @@
 from typing import List
 from os import path
 
-from estnltk.text import Text, Layer
+from estnltk import Text, Layer
 from estnltk.taggers import Tagger
 from estnltk.converters import to_json_file, from_json_file
 from estnltk.converters import layer_to_dict, dict_to_layer

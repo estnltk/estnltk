@@ -5,8 +5,8 @@ import tempfile
 from typing import MutableMapping
 
 from estnltk.core import PACKAGE_PATH
-from estnltk.layer.layer import Layer
-from estnltk.taggers.retagger import Retagger
+from estnltk import Layer
+from estnltk.taggers import Retagger
 
 VALIDATION_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'ud_validation')
 

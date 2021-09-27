@@ -1,11 +1,11 @@
 from estnltk import Text
 
-from estnltk.layer import AmbiguousAttributeList, AttributeList
+from estnltk_core.layer import AmbiguousAttributeList, AttributeList
 
 from estnltk.corpus_processing.parse_koondkorpus import reconstruct_text
 
 from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
-from estnltk.layer_operations import split_by
+from estnltk_core.layer_operations import split_by
 
 # ===========================================================
 #    Koondkorpus processing:

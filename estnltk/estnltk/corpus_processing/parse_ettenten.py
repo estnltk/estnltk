@@ -11,7 +11,7 @@
 
 import re
 
-from estnltk.text import Text, Layer
+from estnltk import Text, Layer
 from estnltk.taggers import ParagraphTokenizer
 
 # =================================================

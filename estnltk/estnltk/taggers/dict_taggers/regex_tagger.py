@@ -1,8 +1,8 @@
 from typing import Sequence, Union
 
 from estnltk.taggers import Tagger
-from estnltk.layer.layer import Layer
-from estnltk.layer_operations import resolve_conflicts
+from estnltk import Layer
+from estnltk_core.layer_operations import resolve_conflicts
 from estnltk.taggers import Vocabulary
 
 

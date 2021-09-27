@@ -8,8 +8,8 @@
 from typing import MutableMapping, List
 import regex as re
 
-from estnltk.text import Text
-from estnltk.layer.layer import Layer
+from estnltk import Text
+from estnltk import Layer
 from estnltk.taggers import Retagger
 
 

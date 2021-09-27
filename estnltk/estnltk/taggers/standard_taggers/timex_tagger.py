@@ -17,8 +17,8 @@ import datetime
 
 from collections import OrderedDict
 
-from estnltk.text import Text, Layer
-from estnltk.layer.enveloping_span import EnvelopingSpan
+from estnltk import Text, Layer
+from estnltk import EnvelopingSpan
 
 from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict

@@ -1,6 +1,6 @@
 from lxml import etree
 from estnltk import ElementaryBaseSpan
-from estnltk.text import Layer, Text
+from estnltk import Layer, Text
 
 from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS
 from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT, ESTNLTK_MORPH_ATTRIBUTES

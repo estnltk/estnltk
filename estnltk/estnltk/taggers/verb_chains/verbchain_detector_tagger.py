@@ -11,7 +11,7 @@
 import os.path
 
 # Interface of the version 1.6
-from estnltk.text import Text, Layer
+from estnltk import Text, Layer
 from estnltk.taggers import Tagger
 
 # Converting morphological analysis structures from v1.6 to v1.4.1

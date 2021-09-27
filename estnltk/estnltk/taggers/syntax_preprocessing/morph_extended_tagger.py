@@ -1,6 +1,6 @@
 import os
 
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 
 from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger

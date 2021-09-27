@@ -3,12 +3,12 @@ import tempfile
 
 from estnltk import Text
 
-from estnltk.layer import AmbiguousAttributeList, AttributeList
+from estnltk_core.layer import AmbiguousAttributeList, AttributeList
 
 from estnltk.corpus_processing.parse_ettenten import parse_ettenten_corpus_file_content_iterator
 from estnltk.corpus_processing.parse_ettenten import extract_doc_ids_from_corpus_file
 
-from estnltk.layer_operations import split_by
+from estnltk_core.layer_operations import split_by
 
 # ===========================================================
 #    Loading etTenTen corpus files

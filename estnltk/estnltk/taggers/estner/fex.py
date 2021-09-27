@@ -1,9 +1,8 @@
-from estnltk.layer.layer import Layer
+from estnltk import Text, Layer
+from estnltk.taggers import Tagger, Retagger
 from collections import defaultdict
 import codecs
-from estnltk.taggers import Tagger, Retagger
 from typing import MutableMapping
-from estnltk.text import Text
 from itertools import product
 import re
 

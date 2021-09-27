@@ -16,9 +16,9 @@
 # XML TEI files. Note that all punctuation has been separated from words in the TEI files. 
 # 
 
-from estnltk.text import Text
-from estnltk.layer.layer import Layer
-from estnltk.converters import json_to_text
+from estnltk import Text
+from estnltk import Layer
+from estnltk_core.converters import json_to_text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
 

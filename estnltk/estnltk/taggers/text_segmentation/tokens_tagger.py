@@ -9,7 +9,7 @@
 from typing import MutableMapping
 import re
 
-from estnltk.text import Layer
+from estnltk import Layer
 from estnltk.taggers import Tagger
 from nltk.tokenize.regexp import WordPunctTokenizer
 

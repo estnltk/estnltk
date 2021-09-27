@@ -1,6 +1,6 @@
 import pytest
 
-from estnltk.text import Text
+from estnltk import Text
 from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import ClauseSegmenter

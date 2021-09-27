@@ -7,7 +7,7 @@
 
 import json
 
-from estnltk.text import Layer
+from estnltk import Layer
 
 from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict

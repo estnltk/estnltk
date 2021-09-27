@@ -4,12 +4,12 @@ from collections import OrderedDict
 from conllu.parser import parse_nullable_value
 from estnltk.converters.conll_exporter import sentence_to_conll
 from estnltk.core import PACKAGE_PATH
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 from estnltk.taggers import Tagger
 from estnltk.taggers import SyntaxDependencyRetagger
 import subprocess
 
-from estnltk.converters.serialisation_modules import syntax_v0
+from estnltk_core.converters.serialisation_modules import syntax_v0
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'udpipe_tagger', 'resources')
 

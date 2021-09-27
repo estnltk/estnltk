@@ -7,7 +7,7 @@
 
 import re
 
-from estnltk.text import Text
+from estnltk import Text
 
 _parentheses_content = re.compile(r'(\([^()]+?\))')
 

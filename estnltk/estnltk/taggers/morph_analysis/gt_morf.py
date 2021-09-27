@@ -10,7 +10,7 @@
 import regex as re
 from collections import OrderedDict
 
-from estnltk.text import Layer, Text
+from estnltk import Layer, Text
 
 from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger

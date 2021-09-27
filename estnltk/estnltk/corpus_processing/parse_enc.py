@@ -27,7 +27,7 @@ from sys import stderr
 from tqdm import tqdm
 from tqdm.notebook import tqdm as notebook_tqdm
 
-from estnltk.text import Text, Layer
+from estnltk import Text, Layer
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 

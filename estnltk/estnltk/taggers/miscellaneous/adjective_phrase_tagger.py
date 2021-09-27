@@ -1,5 +1,5 @@
+from estnltk import Text
 from estnltk.taggers import SpanTagger
-from estnltk.text import Text
 from estnltk.finite_grammar import Rule, Grammar
 from estnltk.taggers import Tagger
 from estnltk.taggers import Atomizer

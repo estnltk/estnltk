@@ -9,7 +9,7 @@ import subprocess
 import atexit
 import os
 
-from estnltk.core import as_unicode, as_binary
+from estnltk_core.converters import as_unicode, as_binary
 
 # keep track of started java processes
 _STARTED_JAVA_PROCESSES = []

@@ -1,7 +1,7 @@
 from copy import copy
 from typing import Sequence, Iterable
 
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 from estnltk.taggers import Tagger
 
 class AttributeComparisonTagger(Tagger):

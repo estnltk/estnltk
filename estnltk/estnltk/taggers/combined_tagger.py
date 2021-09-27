@@ -1,6 +1,6 @@
 from typing import Sequence, List
 from estnltk.taggers import Tagger
-from estnltk.layer_operations import merge_layers, resolve_conflicts
+from estnltk_core.layer_operations import merge_layers, resolve_conflicts
 
 
 class CombinedTagger(Tagger):

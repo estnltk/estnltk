@@ -1,7 +1,7 @@
 from typing import MutableMapping
 
-from estnltk.layer.layer import Layer
-from estnltk.taggers.retagger import Retagger
+from estnltk import Layer
+from estnltk.taggers import Retagger
 
 
 class SyntaxDiffRetagger(Retagger):

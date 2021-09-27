@@ -1,6 +1,6 @@
 from estnltk.taggers import EnvelopingGapTagger
 from estnltk import Text
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 
 
 def test_enveloping_gaps_tagger():

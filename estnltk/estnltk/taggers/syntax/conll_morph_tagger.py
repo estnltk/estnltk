@@ -2,8 +2,8 @@ import re
 import random
 from typing import MutableMapping
 from estnltk.taggers import Tagger
-from estnltk.text import Text
-from estnltk.layer.layer import Layer
+from estnltk import Text
+from estnltk import Layer
 from estnltk.converters.CG3_exporter import export_CG3
 from estnltk.taggers.syntax.vislcg3_syntax import VISLCG3Pipeline, convert_cg3_to_conll
 from estnltk.core import abs_path

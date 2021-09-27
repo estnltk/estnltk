@@ -13,7 +13,7 @@ import pickle
 from typing import MutableMapping
 
 from estnltk import Annotation
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 
 from estnltk.taggers import Retagger
 

@@ -1,7 +1,7 @@
 from typing import MutableMapping
 
-from estnltk.text import Text
-from estnltk.layer.layer import Layer
+from estnltk import Text
+from estnltk import Layer
 from estnltk.taggers import BatchProcessingWebTagger
 
 class StanzaSyntaxEnsembleWebTagger( BatchProcessingWebTagger ):

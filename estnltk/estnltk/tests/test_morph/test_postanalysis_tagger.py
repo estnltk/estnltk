@@ -4,7 +4,7 @@ from estnltk.taggers import PostMorphAnalysisTagger
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 
-from estnltk.layer import AmbiguousAttributeTupleList
+from estnltk_core.layer import AmbiguousAttributeTupleList
 
 # ----------------------------------
 #   Helper functions

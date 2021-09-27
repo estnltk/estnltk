@@ -6,8 +6,8 @@ from typing import MutableMapping
 
 import re
 
-from estnltk.layer.span_list import SpanList
-from estnltk.layer.layer import Layer
+from estnltk import SpanList
+from estnltk import Layer
 from estnltk.taggers import Tagger
 
 _hyphen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'

@@ -4,7 +4,7 @@ from estnltk.taggers import CompoundTokenTagger
 from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
 from estnltk.resolve_layer_dag import make_resolver
-from estnltk.layer import AmbiguousAttributeList
+from estnltk_core.layer import AmbiguousAttributeList
 
 # ----------------------------------
 

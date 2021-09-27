@@ -5,7 +5,7 @@
 import pytest
 
 from estnltk import Annotation
-from estnltk.text import Text
+from estnltk import Text
 
 from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import check_if_hfst_is_in_path
 from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser

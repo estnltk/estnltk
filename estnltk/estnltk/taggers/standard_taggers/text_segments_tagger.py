@@ -1,8 +1,8 @@
 from typing import MutableMapping, List
 
 from estnltk import ElementaryBaseSpan
-from estnltk.layer.layer import Layer
-from estnltk.text import Text
+from estnltk import Layer
+from estnltk import Text
 from estnltk.taggers import Tagger
 
 

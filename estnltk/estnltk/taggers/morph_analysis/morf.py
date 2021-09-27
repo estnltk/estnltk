@@ -11,8 +11,8 @@
 from typing import MutableMapping
 
 from estnltk import Annotation
-from estnltk.text import Layer, Text
-from estnltk.layer.span import Span
+from estnltk import Layer, Text
+from estnltk import Span
 
 from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf

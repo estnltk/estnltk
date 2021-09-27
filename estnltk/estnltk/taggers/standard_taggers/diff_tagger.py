@@ -7,11 +7,11 @@ import random
 from operator import eq
 import pandas as pd
 
-from estnltk.layer.layer import Layer
-from estnltk.layer_operations import diff_layer
+from estnltk import Layer
 from estnltk.taggers import Tagger
-from estnltk.layer.span_operations import symm_diff_ambiguous_spans
-from estnltk.layer_operations import iterate_conflicting_spans
+from estnltk_core.layer_operations import diff_layer
+from estnltk_core.layer.span_operations import symm_diff_ambiguous_spans
+from estnltk_core.layer_operations import iterate_conflicting_spans
 
 
 class DiffTagger(Tagger):

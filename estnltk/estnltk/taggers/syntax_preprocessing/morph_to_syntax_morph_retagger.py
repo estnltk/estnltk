@@ -3,8 +3,8 @@ import codecs
 import regex as re
 from collections import defaultdict
 
-from estnltk.layer.layer import Layer
-from estnltk.layer.annotation import Annotation
+from estnltk import Layer
+from estnltk import Annotation
 from estnltk.taggers import Retagger
 from estnltk.taggers import VabamorfTagger
 

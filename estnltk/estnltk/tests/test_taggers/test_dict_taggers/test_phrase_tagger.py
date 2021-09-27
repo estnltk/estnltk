@@ -1,8 +1,8 @@
 from os import path
 
 from estnltk.taggers import PhraseTagger
-from estnltk.tests.helpers.text_objects import new_text
-from estnltk.layer import AmbiguousAttributeList
+from estnltk_core.tests.helpers.text_objects import new_text
+from estnltk_core.layer import AmbiguousAttributeList
 from estnltk import Annotation
 
 

@@ -11,11 +11,11 @@
 
 from collections import OrderedDict
 
-from estnltk.text import Text
+from estnltk import Text
+from estnltk import Layer
 from estnltk.taggers import Retagger
-from estnltk.layer.layer import Layer
 
-from estnltk.layer.ambiguous_attribute_tuple_list import to_str
+from estnltk_core.layer.ambiguous_attribute_tuple_list import to_str
 
 from estnltk.vabamorf.morf import Vabamorf
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer

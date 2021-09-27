@@ -8,8 +8,8 @@ import re
 
 from typing import MutableMapping
 
-from estnltk.text import Text
-from estnltk.layer.layer import Annotation, Span, Layer
+from estnltk import Text
+from estnltk import Annotation, Span, Layer
 
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation

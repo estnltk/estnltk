@@ -11,7 +11,7 @@ import warnings
 
 from typing import MutableMapping
 
-from estnltk.layer.layer import Annotation, Span, Layer
+from estnltk import Annotation, Span, Layer
 from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES

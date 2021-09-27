@@ -3,13 +3,13 @@ from collections import OrderedDict
 from random import Random
 
 from estnltk.core import PACKAGE_PATH
-from estnltk.layer.layer import Layer
-from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
+from estnltk import Layer
+from estnltk_core.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
 from estnltk.taggers.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 from estnltk.taggers.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
-from estnltk.taggers.tagger import Tagger
+from estnltk.taggers import Tagger
 
-from estnltk.converters.serialisation_modules import syntax_v0
+from estnltk_core.converters.serialisation_modules import syntax_v0
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
 

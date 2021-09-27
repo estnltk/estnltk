@@ -3,12 +3,12 @@
 from typing import MutableMapping
 import os, os.path
 
-from estnltk.text import Text
-from estnltk.layer.layer import Layer
-from estnltk.taggers.retagger import Tagger
-from estnltk.converters.serialisation_modules import syntax_v0
+from estnltk import Text
+from estnltk import Layer
+from estnltk.taggers import Tagger
+from estnltk_core.converters.serialisation_modules import syntax_v0
 
-from estnltk.taggers import SyntaxDependencyRetagger
+from estnltk_core.taggers import SyntaxDependencyRetagger
 from estnltk.taggers.syntax.maltparser_tagger.maltparser import MaltParser
 
 

@@ -3,8 +3,8 @@ import os
 from typing import MutableMapping
 
 from estnltk.core import PACKAGE_PATH
-from estnltk.layer.layer import Layer
-from estnltk.taggers.retagger import Retagger
+from estnltk import Layer
+from estnltk.taggers import Retagger
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'ud_validation', 'agreement_resources')
 

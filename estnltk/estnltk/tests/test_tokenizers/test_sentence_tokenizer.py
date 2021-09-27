@@ -1,6 +1,6 @@
 import regex as re
 
-from estnltk.text import Text
+from estnltk import Text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers.text_segmentation.sentence_tokenizer import merge_patterns

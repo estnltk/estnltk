@@ -5,7 +5,7 @@
     estnltk/koondkorpus-experiments/syntax_preprocessing_diff
 """
 
-from estnltk.text import Text
+from estnltk import Text
 from estnltk.converters.CG3_exporter import export_CG3
 
 def test():

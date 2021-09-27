@@ -14,10 +14,10 @@ import tempfile
 import subprocess
 import atexit
 
-from estnltk.text import Layer, Text
+from estnltk import Layer, Text
 from estnltk.taggers import Tagger
 
-from estnltk.core import as_unicode, as_binary
+from estnltk_core.converters import as_unicode, as_binary
 
 from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 

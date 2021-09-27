@@ -8,7 +8,7 @@
 from typing import MutableMapping
 
 from estnltk import ElementaryBaseSpan
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 from estnltk.taggers import Tagger
 
 # Whether the words layer should be made ambiguous?

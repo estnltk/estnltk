@@ -1,4 +1,4 @@
-from estnltk.text import Text
+from estnltk import Text
 from estnltk.taggers import ParagraphTokenizer
 
 def test_apply_paragraph_tokenizer_on_empty_text():

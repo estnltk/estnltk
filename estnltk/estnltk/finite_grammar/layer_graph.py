@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pandas
 
 from estnltk import Span
-from estnltk.layer_operations.consecutive import iterate_consecutive_spans
+from estnltk_core.layer_operations.consecutive import iterate_consecutive_spans
 
 
 class Node:

@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from estnltk.taggers import Tagger
-from estnltk.layer_operations import merge_layers
+from estnltk_core.layer_operations import merge_layers
 
 
 class MergeTagger(Tagger):

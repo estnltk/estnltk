@@ -1,6 +1,6 @@
 from typing import Sequence
 from estnltk.taggers import Tagger
-from estnltk.layer_operations import resolve_conflicts
+from estnltk_core.layer_operations import resolve_conflicts
 
 
 class SequentialTagger(Tagger):

@@ -1,7 +1,7 @@
 import importlib
 import os
 
-from estnltk.text import Layer
+from estnltk import Layer
 from estnltk.taggers import Tagger
 from estnltk.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
 from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags

@@ -1,7 +1,7 @@
 """ Test detecting parts of text that should be ignored by the syntactic analyser;
 """
 
-from estnltk.text import Text
+from estnltk import Text
 from estnltk.taggers import WordTagger, SentenceTokenizer
 from estnltk.taggers.syntax_preprocessing.syntax_ignore_tagger import SyntaxIgnoreTagger
 

@@ -10,7 +10,7 @@
 #
 
 # Interface of the version 1.6
-from estnltk.text import Text, Layer
+from estnltk import Text, Layer
 
 from estnltk.taggers import Tagger
 

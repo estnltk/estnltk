@@ -8,9 +8,9 @@ from functools import reduce
 
 from typing import MutableMapping, Any
 
-from estnltk.layer.layer import Annotation
-from estnltk.layer.span import Span
-from estnltk.layer import AttributeList
+from estnltk import Annotation
+from estnltk import Span
+from estnltk_core.layer import AttributeList
 
 from estnltk.vabamorf.morf import get_group_tokens
 from estnltk.vabamorf.morf import get_lemma

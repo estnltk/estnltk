@@ -10,7 +10,7 @@
 
 from typing import MutableMapping
 
-from estnltk.text import Layer
+from estnltk import Layer
 from estnltk.taggers import Tagger
 from nltk.tokenize.regexp import WhitespaceTokenizer
 

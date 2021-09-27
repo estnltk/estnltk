@@ -1,4 +1,4 @@
-from estnltk.text import Text
+from estnltk import Text
 from estnltk.taggers import VabamorfAnalyzer
 from estnltk.taggers import GTMorphConverter
 

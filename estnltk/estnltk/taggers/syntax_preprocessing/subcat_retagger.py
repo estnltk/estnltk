@@ -1,7 +1,7 @@
 import os
 from collections import defaultdict
 
-from estnltk.layer.annotation import Annotation
+from estnltk import Annotation
 from estnltk.taggers import Retagger
 
 

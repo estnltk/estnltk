@@ -13,7 +13,7 @@ from typing import Set
 import re
 from collections import defaultdict
 
-from estnltk.text import Text, Layer
+from estnltk import Text, Layer
 from estnltk.taggers import Tagger, Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES

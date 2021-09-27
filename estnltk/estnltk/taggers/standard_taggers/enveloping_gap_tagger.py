@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 from estnltk.taggers import Tagger
 
 

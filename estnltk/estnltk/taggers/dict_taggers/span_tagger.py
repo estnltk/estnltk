@@ -1,10 +1,10 @@
 from typing import Sequence, Union
 
 from estnltk.taggers import Tagger, Vocabulary
-from estnltk.layer.span import Span
-from estnltk.layer.layer import Layer
-from estnltk.layer.annotation import Annotation
-from estnltk.layer_operations import resolve_conflicts
+from estnltk import Span
+from estnltk import Layer
+from estnltk import Annotation
+from estnltk_core.layer_operations import resolve_conflicts
 
 
 class SpanTagger(Tagger):

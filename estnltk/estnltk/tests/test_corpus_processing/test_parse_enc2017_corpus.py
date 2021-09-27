@@ -7,7 +7,7 @@ from estnltk.corpus_processing.parse_enc import ENCTextReconstructor
 
 from estnltk.corpus_processing.parse_enc import parse_enc_file_iterator
 
-from estnltk.layer_operations import split_by
+from estnltk_core.layer_operations import split_by
 
 inputfile_1 = 'test_enc2017_excerpt_1.vert'
 inputfile_2 = 'test_enc2017_excerpt_2.vert'

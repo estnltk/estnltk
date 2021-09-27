@@ -7,7 +7,7 @@
 from estnltk.vabamorf.morf import Vabamorf
 
 from estnltk import Annotation
-from estnltk.text import Layer, Text
+from estnltk import Layer, Text
 from estnltk.taggers import Retagger
 from estnltk.taggers.morph_analysis.morf_common import _get_word_texts
 

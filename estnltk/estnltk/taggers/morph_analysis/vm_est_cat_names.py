@@ -7,7 +7,7 @@
 # 
 
 from estnltk import Annotation
-from estnltk.text import Layer, Text
+from estnltk import Layer, Text
 from estnltk.taggers import Tagger
 
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation

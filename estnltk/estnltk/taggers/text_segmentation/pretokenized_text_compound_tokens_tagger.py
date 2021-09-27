@@ -22,7 +22,7 @@
 #     exactly in the same order as the appear in the text.
 # 
 
-from estnltk.text import Layer
+from estnltk import Layer
 from estnltk.taggers import Tagger
 
 

@@ -15,13 +15,13 @@ from pandas.errors import EmptyDataError
 from estnltk.core import PACKAGE_PATH
 
 from estnltk import EnvelopingSpan
-from estnltk.layer.span_list import SpanList
-from estnltk.layer.layer import Layer
+from estnltk import SpanList
+from estnltk import Layer
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.taggers import DisambiguatingTagger
 from estnltk.taggers.morph_analysis.proxy import MorphAnalyzedToken
-from estnltk.layer_operations import resolve_conflicts
+from estnltk_core.layer_operations import resolve_conflicts
 
 from .patterns import MACROS
 from .patterns import email_and_www_patterns, emoticon_patterns, xml_patterns

@@ -1,9 +1,9 @@
 from estnltk.taggers import Tagger
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 from estnltk.finite_grammar.layer_graph import GrammarNode, layer_to_graph, get_spans
 from estnltk.finite_grammar import parse_graph
 
-from estnltk.layer_operations import resolve_conflicts
+from estnltk_core.layer_operations import resolve_conflicts
 
 
 class GrammarParsingTagger(Tagger):
