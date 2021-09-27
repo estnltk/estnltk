@@ -163,6 +163,62 @@ def test_layer_unique_texts():
     assert result, expected
 
 
+def test_diff_layer():
+    layer_1 = Layer('layer_1')
+    layer_2 = Layer('layer_2')
+    result = list(diff_layer(layer_1, layer_2))
+    expected = []
+    assert result == expected
+
+    layer_1 = Layer('layer_1')
+    layer_1.add_annotation(ElementaryBaseSpan(0, 3))
+    layer_2 = Layer('layer_2')
+    result = list(diff_layer(layer_1, layer_2))
+    expected = [(layer_1[0], None)]
+    assert result == expected
+
+    layer_1 = Layer('layer_1')
+    layer_1.add_annotation((0, 3))
+    layer_1.add_annotation((6, 9))
+    layer_1.add_annotation((12, 15))
+    layer_1.add_annotation((18, 21))
+    layer_2 = Layer('layer_2')
+    layer_2.add_annotation((1, 3))
+    layer_2.add_annotation((6, 9))
+    layer_2.add_annotation((12, 15))
+    layer_2.add_annotation((18, 20))
+    result = list(diff_layer(layer_1, layer_2))
+    expected = [(layer_1[0], None),
+                (None, layer_2[0]),
+                (None, layer_2[3]),
+                (layer_1[3], None)]
+    assert result == expected
+
+    layer_1 = Layer('layer_1', attributes=['label'])
+    layer_1.add_annotation((0, 3), label=1)
+    layer_2 = Layer('layer_2', attributes=['label'])
+    layer_2.add_annotation((0, 3), label=2)
+    result = list(diff_layer(layer_1, layer_2))
+    expected = [(layer_1[0], layer_2[0])]
+    assert result == expected
+
+    def fun(x, y):
+        return True
+
+    layer_1 = Layer('layer_1', attributes=['label'])
+    layer_1.add_annotation((0, 3), label=1)
+    layer_1.add_annotation((5, 7), label=1)
+    layer_2 = Layer('layer_2', attributes=['label'])
+    layer_2.add_annotation((0, 3), label=2)
+    layer_2.add_annotation((6, 7), label=1)
+    result = list(diff_layer(layer_1, layer_2, fun))
+    expected = [(layer_1[1], None),
+                (None, layer_2[1])]
+    assert result == expected
+
+
+
+# TODO: tests below are probably obsolete. To be confirmed and removed
 
 def first_text():
     return 'Üle oja jõele. Läbi oru mäele. Usjas kaslane ründas künklikul maanteel tünjat Tallinnfilmi režissööri.'
@@ -368,59 +424,6 @@ class TestLayerOperation():
 
         result = dict_to_df(counter, table_type='cross').to_dict()
         expected = {3: {2: 4.0, 5: 0.0}, 6: {2: 0.0, 5: 7.0}}
-        assert result == expected
-
-    def test_diff_layer(self):
-        layer_1 = Layer('layer_1')
-        layer_2 = Layer('layer_2')
-        result = list(diff_layer(layer_1, layer_2))
-        expected = []
-        assert result == expected
-
-        layer_1 = Layer('layer_1')
-        layer_1.add_annotation(ElementaryBaseSpan(0, 3))
-        layer_2 = Layer('layer_2')
-        result = list(diff_layer(layer_1, layer_2))
-        expected = [(layer_1[0], None)]
-        assert result == expected
-
-        layer_1 = Layer('layer_1')
-        layer_1.add_annotation((0, 3))
-        layer_1.add_annotation((6, 9))
-        layer_1.add_annotation((12, 15))
-        layer_1.add_annotation((18, 21))
-        layer_2 = Layer('layer_2')
-        layer_2.add_annotation((1, 3))
-        layer_2.add_annotation((6, 9))
-        layer_2.add_annotation((12, 15))
-        layer_2.add_annotation((18, 20))
-        result = list(diff_layer(layer_1, layer_2))
-        expected = [(layer_1[0], None),
-                    (None, layer_2[0]),
-                    (None, layer_2[3]),
-                    (layer_1[3], None)]
-        assert result == expected
-
-        layer_1 = Layer('layer_1', attributes=['label'])
-        layer_1.add_annotation((0, 3), label=1)
-        layer_2 = Layer('layer_2', attributes=['label'])
-        layer_2.add_annotation((0, 3), label=2)
-        result = list(diff_layer(layer_1, layer_2))
-        expected = [(layer_1[0], layer_2[0])]
-        assert result == expected
-
-        def fun(x, y):
-            return True
-
-        layer_1 = Layer('layer_1', attributes=['label'])
-        layer_1.add_annotation((0, 3), label=1)
-        layer_1.add_annotation((5, 7), label=1)
-        layer_2 = Layer('layer_2', attributes=['label'])
-        layer_2.add_annotation((0, 3), label=2)
-        layer_2.add_annotation((6, 7), label=1)
-        result = list(diff_layer(layer_1, layer_2, fun))
-        expected = [(layer_1[1], None),
-                    (None, layer_2[1])]
         assert result == expected
 
     def test_group_by_spans(self):
