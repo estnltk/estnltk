@@ -53,7 +53,7 @@
 #
 
 from estnltk.core import abs_path
-from estnltk.core import as_unicode
+from estnltk_core.converters import as_unicode
 from os import linesep as OS_NEWLINE
 import re
 import os, os.path, sys
