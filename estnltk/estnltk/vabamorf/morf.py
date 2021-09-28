@@ -26,11 +26,9 @@ phonetic_regex: regex
 compound_regex: regex
     Regular expression matching any compound marker.
 """
-from __future__ import unicode_literals, print_function, absolute_import
 
 from . import vabamorf as vm
 import os
-import six
 import re
 import operator
 from functools import reduce
@@ -73,24 +71,16 @@ compound_regex = regex_from_markers(compound_markers)
 def convert(word):
     """This method converts given `word` to UTF-8 encoding and `bytes` type for the
        SWIG wrapper."""
-    if six.PY2:
-        if isinstance(word, unicode):
-            return word.encode('utf-8')
-        else:
-            return word.decode('utf-8').encode('utf-8') # make sure it is real utf8, otherwise complain
-    else: # ==> Py3
-        if isinstance(word, bytes):
-            return word.decode('utf-8') # bytes must be in utf8
-        return word
+    if isinstance(word, bytes):
+        return word.decode('utf-8') # bytes must be in utf8
+    return word
 
 
 def deconvert(word):
     """This method converts back the output from wrapper.
        Result should be `unicode` for Python2 and `str` for Python3"""
-    if six.PY2:
-        return word.decode('utf-8')
-    else:
-        return word
+    # TODO: Is this method required at all? Nothing to do here in Python 3
+    return word
 
 
 # =============================================================================
@@ -208,7 +198,7 @@ class Vabamorf(object):
             List of analysis for each word in input.
         """
         # if input is a string, then tokenize it
-        if isinstance(words, six.string_types):
+        if isinstance(words, str):
             words = words.split()
 
         # convert words to native strings
@@ -264,7 +254,7 @@ class Vabamorf(object):
                 'spelling': True, if the word was spelled correctly
                 'suggestions': list of suggested strings in case of incorrect spelling
         """
-        if isinstance(words, six.string_types):
+        if isinstance(words, str):
             words = words.split()
 
         # convert words to native strings

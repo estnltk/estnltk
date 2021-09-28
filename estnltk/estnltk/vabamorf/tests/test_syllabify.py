@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from ..morf import syllabify_word
 from ..morf import _split_word_for_syllabification

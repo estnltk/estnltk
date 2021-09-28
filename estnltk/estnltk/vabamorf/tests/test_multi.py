@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from ..morf import analyze
 from multiprocessing import Pool
 import unittest
-import six
 import os
 
 
 class MultithreadingTest(unittest.TestCase):
     
     def test_multi(self):
-        if os.name == 'nt' and six.PY2: # do not run the test. avoid this Python bug http://bugs.python.org/issue10845
-            return
         self.assertListEqual(self.compute_multi(), self.compute_single())
     
     def compute_single(self):
