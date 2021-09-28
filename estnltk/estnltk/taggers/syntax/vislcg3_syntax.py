@@ -52,7 +52,7 @@
 #      print( results2 )
 #
 
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from estnltk_core.converters import as_unicode
 from os import linesep as OS_NEWLINE
 import re

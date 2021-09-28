@@ -1,6 +1,6 @@
 import os.path
 
-from estnltk.core import DEFAULT_PY3_NER_MODEL_DIR
+from estnltk.common import DEFAULT_PY3_NER_MODEL_DIR
 from estnltk.taggers.estner.fex import FeatureExtractor
 from estnltk.taggers.estner import CrfsuiteTrainer
 from estnltk.taggers.estner.model_storage_util import ModelStorageUtil

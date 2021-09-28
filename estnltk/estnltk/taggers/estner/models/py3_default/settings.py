@@ -4,7 +4,7 @@
 from __future__ import unicode_literals, print_function
 import os
 
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 
 
 NER_PACKAGE_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'estner')

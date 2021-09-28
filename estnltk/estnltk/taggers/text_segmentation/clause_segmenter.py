@@ -14,7 +14,7 @@ from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_s
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation, _get_word_text
 
 from estnltk.java.javaprocess import JavaProcess
-from estnltk.core import JAVARES_PATH
+from estnltk.common import JAVARES_PATH
 
 
 class ClauseSegmenter(Tagger):

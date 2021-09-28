@@ -4,7 +4,7 @@ from estnltk import Layer
 
 from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from .punctuation_type_retagger import PunctuationTypeRetagger
 from .morph_to_syntax_morph_retagger import MorphToSyntaxMorphRetagger
 from .pronoun_type_retagger import PronounTypeRetagger

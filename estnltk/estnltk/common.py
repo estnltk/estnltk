@@ -1,6 +1,5 @@
 #    
 #    This module contains constants, paths and functions commonly used in the EstNLTK library.
-#    TODO: consider renaming the module 'core' --> 'base_utils' or 'common_utils'
 #
 import os
 

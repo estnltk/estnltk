@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
 
 

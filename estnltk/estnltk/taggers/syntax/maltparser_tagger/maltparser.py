@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals, print_function
 
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 import os, os.path
 import codecs
 import tempfile

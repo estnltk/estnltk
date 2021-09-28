@@ -3,7 +3,7 @@ import pytest
 from estnltk import Text
 from estnltk import Layer
 from estnltk.taggers import GapTagger
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from estnltk.taggers import TaggerTester
 
 text = Text('Üks kaks kolm neli viis kuus seitse.')

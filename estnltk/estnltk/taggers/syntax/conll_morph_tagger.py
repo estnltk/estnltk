@@ -6,7 +6,7 @@ from estnltk import Text
 from estnltk import Layer
 from estnltk.converters.CG3_exporter import export_CG3
 from estnltk.taggers.syntax.vislcg3_syntax import VISLCG3Pipeline, convert_cg3_to_conll
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 
 
 class ConllMorphTagger(Tagger):

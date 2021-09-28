@@ -8,7 +8,7 @@ The data files for testing are created with the script in the bottom of this fil
 """
 import json
 
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from estnltk import Text
 from estnltk import Layer
 from estnltk.taggers import MorphExtendedTagger

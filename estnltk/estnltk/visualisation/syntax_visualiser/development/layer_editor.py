@@ -3,7 +3,7 @@ import json
 from typing import List
 from IPython.display import display_html
 
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from estnltk.layer.span import Span
 from estnltk.converters import layer_to_dict, dict_to_layer
 from estnltk.visualisation.core import format_tag_attributes

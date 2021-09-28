@@ -4,7 +4,7 @@ from decimal import Decimal, getcontext
 from random import Random
 from typing import Tuple
 
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 from estnltk import Layer
 from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import feats_to_ordereddict
 from estnltk_core.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger

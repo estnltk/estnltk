@@ -12,7 +12,7 @@ from typing import Union
 from pandas import read_csv
 from pandas.errors import EmptyDataError
 
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 
 from estnltk import EnvelopingSpan
 from estnltk import SpanList

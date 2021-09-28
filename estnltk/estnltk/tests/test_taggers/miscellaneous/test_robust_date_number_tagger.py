@@ -1,4 +1,4 @@
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from estnltk.taggers import TaggerTester
 from estnltk.taggers import RobustDateNumberTagger
 

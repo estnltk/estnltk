@@ -2,7 +2,7 @@ import csv
 import os
 from typing import MutableMapping
 
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 from estnltk import Layer
 from estnltk.taggers import Retagger
 

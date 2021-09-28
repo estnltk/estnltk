@@ -1,4 +1,4 @@
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 from estnltk.helpers.logger import logger
 from estnltk.helpers.progressbar import Progressbar
 

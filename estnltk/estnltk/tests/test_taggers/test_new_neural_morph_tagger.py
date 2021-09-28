@@ -3,7 +3,7 @@ import unittest
 from unittest import TestCase
 
 from estnltk import Text
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 from estnltk.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger

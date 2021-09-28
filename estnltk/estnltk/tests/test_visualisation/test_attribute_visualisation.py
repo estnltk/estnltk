@@ -1,6 +1,6 @@
 from estnltk_core.tests import new_text
 from estnltk.visualisation.attribute_visualiser.attribute_visualisation import DisplayAttributes
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from estnltk import Text, Layer, ElementaryBaseSpan
 
 

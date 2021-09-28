@@ -23,7 +23,7 @@ from estnltk.taggers.verb_chains.v1_4_1.verbchain_detector import VerbChainDetec
 from estnltk.taggers.verb_chains.v1_4_1.vcd_common_names import CLAUSE_IDX
 
 # Path to the verb chain detector's resources
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 VERB_CHAIN_RES_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'verb_chains', 'v1_4_1', 'res')
 
 

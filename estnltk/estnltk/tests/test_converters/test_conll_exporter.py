@@ -1,7 +1,7 @@
 import pkgutil
 import pytest
 
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 
 def check_if_conllu_is_available():
     # Check if conllu is available

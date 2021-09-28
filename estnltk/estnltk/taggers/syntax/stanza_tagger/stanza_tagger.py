@@ -2,7 +2,7 @@ import os
 from collections import OrderedDict
 from random import Random
 
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 from estnltk import Layer
 from estnltk_core.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
 from estnltk.taggers.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger

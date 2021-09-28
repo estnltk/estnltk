@@ -2,7 +2,7 @@ from collections import OrderedDict
 import pkgutil
 import pytest
 
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from estnltk.converters import text_to_dict
 from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
 

@@ -1,5 +1,5 @@
 from estnltk.visualisation.core.span_visualiser import SpanVisualiser
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 import html
 from estnltk.converters import to_json
 import copy

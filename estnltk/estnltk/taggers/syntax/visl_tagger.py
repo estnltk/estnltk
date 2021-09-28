@@ -1,6 +1,6 @@
 from os import linesep as OS_NEWLINE
 
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from estnltk.taggers import Tagger
 from estnltk import Layer
 from estnltk.converters.CG3_exporter import export_CG3

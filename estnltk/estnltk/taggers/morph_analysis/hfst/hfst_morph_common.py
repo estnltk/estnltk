@@ -14,7 +14,7 @@ from estnltk import Layer, Text
 from estnltk import Span
 from estnltk.taggers import Tagger
 
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 
 #
 # About the HFST model:

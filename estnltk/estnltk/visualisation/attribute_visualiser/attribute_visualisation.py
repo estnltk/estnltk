@@ -1,7 +1,7 @@
 from IPython.display import display_html
 from estnltk.visualisation.attribute_visualiser.direct_attribute_visualiser import DirectAttributeVisualiser
 from estnltk.visualisation.core.span_decomposition import decompose_to_elementary_spans
-from estnltk.core import abs_path
+from estnltk.common import abs_path
 from estnltk_core.layer_operations import merge_layers
 import warnings
 

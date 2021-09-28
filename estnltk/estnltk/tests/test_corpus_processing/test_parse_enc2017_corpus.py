@@ -1,6 +1,6 @@
 import os, os.path
 
-from estnltk.core import PACKAGE_PATH
+from estnltk.common import PACKAGE_PATH
 
 from estnltk.corpus_processing.parse_enc import VertXMLFileParser
 from estnltk.corpus_processing.parse_enc import ENCTextReconstructor
