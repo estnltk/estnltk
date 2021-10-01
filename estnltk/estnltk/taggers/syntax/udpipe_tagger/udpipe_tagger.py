@@ -9,7 +9,7 @@ from estnltk.taggers import Tagger
 from estnltk.taggers import SyntaxDependencyRetagger
 import subprocess
 
-from estnltk_core.converters.serialisation_modules import syntax_v0
+from estnltk.converters.serialisation_modules import syntax_v0
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'udpipe_tagger', 'resources')
 

@@ -3,7 +3,7 @@ from typing import MutableMapping
 
 from estnltk_core.layer.layer import Layer
 from estnltk_core.taggers.retagger import Retagger
-from estnltk_core.converters.serialisation_modules import syntax_v0
+from estnltk.converters.serialisation_modules import syntax_v0
 
 
 class SyntaxDependencyRetagger(Retagger):

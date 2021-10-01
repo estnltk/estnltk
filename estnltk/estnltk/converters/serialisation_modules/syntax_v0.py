@@ -1,4 +1,4 @@
-from . import default
+from estnltk_core.converters.serialisation_modules import default
 
 __version__ = 'syntax_v0'
 
@@ -25,7 +25,7 @@ def layer_to_dict(layer):
 
 
 def dict_to_layer(layer_dict: dict, text_object=None):
-    from estnltk_core.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
+    from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
     layer = default.dict_to_layer(layer_dict, text_object)
 
     retagger = SyntaxDependencyRetagger(layer.name)

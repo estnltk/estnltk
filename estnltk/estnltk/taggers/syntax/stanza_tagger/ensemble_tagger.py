@@ -7,12 +7,12 @@ from typing import Tuple
 from estnltk.common import PACKAGE_PATH
 from estnltk import Layer
 from estnltk.taggers.syntax.stanza_tagger.stanza_tagger import feats_to_ordereddict
-from estnltk_core.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
+from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
 from estnltk.taggers.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 from estnltk.taggers.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
 from estnltk.taggers import Tagger
 
-from estnltk_core.converters.serialisation_modules import syntax_v0
+from estnltk.converters.serialisation_modules import syntax_v0
 
 RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
 

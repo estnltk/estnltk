@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from estnltk_core.converters import dict_to_text
-from estnltk_core.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
+from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
 from estnltk.taggers.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 
 

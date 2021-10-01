@@ -22,3 +22,11 @@ if LooseVersion(pandas.__version__) < LooseVersion('1'):
     pandas.set_option('display.max_colwidth', -1)
 else:
     pandas.set_option('display.max_colwidth', None)
+
+# Update serialization map: add syntax serialization module
+from estnltk_core.converters.serialisation_modules.serialisation_map import layer_converter_collection
+from estnltk.converters.serialisation_modules import syntax_v0
+
+if 'syntax_v0' not in layer_converter_collection:
+    layer_converter_collection['syntax_v0'] = syntax_v0
+    
