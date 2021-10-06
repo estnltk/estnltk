@@ -2,15 +2,16 @@ from copy import deepcopy
 
 from estnltk_core import ElementaryBaseSpan
 from estnltk_core import Layer
-from estnltk_core import Text
 
+# Create text object based on currently available packages
+from estnltk_core.common import create_text_object
 
 # empty text
-text_0 = Text('')
+text_0 = create_text_object('')
 text_0.meta['description'] = 'empty text, no layers'
 
 # empty text with all kinds of empty layers
-text_1 = Text('')
+text_1 = create_text_object('')
 text_1.meta['description'] = 'empty text with empty layers'
 
 layer_0 = Layer('layer_0', attributes=['attr', 'attr_0'])
@@ -27,9 +28,9 @@ text_1.add_layer(layer_4)
 text_1.add_layer(layer_5)
 
 # short text
-text_2 = Text('Tere, maailm!')
+text_2 = create_text_object('Tere, maailm!')
 # short text with all kinds of layers
-text_3 = Text('Tere, maailm!')
+text_3 = create_text_object('Tere, maailm!')
 layer_0 = Layer('layer_0', attributes=['attr', 'attr_0'], text_object=text_3)
 layer_0.add_annotation(ElementaryBaseSpan(0,   4), attr='L0-0',  attr_0='A')
 layer_0.add_annotation(ElementaryBaseSpan(4,   5), attr='L0-1',  attr_0='B')
@@ -60,10 +61,10 @@ text_3.add_layer(layer_5)
 
 t = 'Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.'
 # text
-text_4 = Text(t)
+text_4 = create_text_object(t)
 
 # text with layers
-text_5 = Text(t)
+text_5 = create_text_object(t)
 text_5.meta['description'] = 'short text with layers'
 
 layer_0 = Layer('layer_0', attributes=['attr', 'attr_0'])
