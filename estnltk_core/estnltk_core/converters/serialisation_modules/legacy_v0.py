@@ -1,4 +1,3 @@
-from estnltk_core.text import Text
 from estnltk_core.layer.layer import Layer
 from estnltk_core.layer.span import Span
 from estnltk_core.layer.annotation import Annotation
@@ -58,7 +57,7 @@ def layer_to_dict(layer: Layer) -> dict:
     return layer_dict
 
 
-def dict_to_layer(layer_dict: dict, text: Text) -> Layer:
+def dict_to_layer(layer_dict: dict, text: 'Text') -> Layer:
     layer = Layer(name=layer_dict['name'],
                   attributes=layer_dict['attributes'],
                   text_object=text,
