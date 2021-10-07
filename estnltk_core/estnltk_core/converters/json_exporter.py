@@ -27,7 +27,7 @@ def annotation_to_json(annotation: Union['Annotation', Sequence['Annotation']], 
         json.dump(d, fp=out_f, ensure_ascii=False)
 
 
-def text_to_json(text: 'Text', file: str = None, file_encoding: str = 'utf-8'):
+def text_to_json(text: Union['BaseText', 'Text'], file: str = None, file_encoding: str = 'utf-8'):
     """Exports Text object to json.
     If file is None, returns json string,
     otherwise dumps json string to file and returns None.

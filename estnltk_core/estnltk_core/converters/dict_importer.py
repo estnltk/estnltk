@@ -1,4 +1,4 @@
-from typing import Container
+from typing import Container, Union
 
 from estnltk_core.common import create_text_object
 from estnltk_core.layer.annotation import Annotation
@@ -9,7 +9,7 @@ def dict_to_annotation(span, annotation_dict: dict):
     return Annotation(span, **annotation_dict)
 
 
-def dict_to_text(text_dict: dict, layers: Container = None) -> 'Text':
+def dict_to_text(text_dict: dict, layers: Container = None) -> Union['BaseText', 'Text']:
     text = create_text_object( text_dict['text'] )
     text.meta = text_dict['meta']
     for layer_dict in text_dict['layers']:
