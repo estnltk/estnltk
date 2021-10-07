@@ -59,7 +59,7 @@ class Text:
         return result
 
     def __deepcopy__(self, memo={}):
-        print(memo)
+        #print(memo)
         text = copy(self.text)
         result = self.__class__( text )
         memo[id(self)] = result
