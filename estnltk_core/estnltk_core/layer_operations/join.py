@@ -1,4 +1,4 @@
-from typing import Sequence, List
+from typing import Sequence, List, Union
 
 from estnltk_core.layer.span import Span
 from estnltk_core.layer.span_list import SpanList
@@ -202,7 +202,7 @@ def join_layers_while_reusing_spans( layers: Sequence[Layer], separators: Sequen
         return new_layer
 
 
-def join_texts( texts: Sequence['Text'], separators: Sequence[str] = None ):
+def join_texts( texts: Sequence[Union['Text', 'BaseText']], separators: Sequence[str] = None ):
     '''Joins (concatenates) list of Text objects into a single Text object. 
        All Texts must have the same layers. 
        

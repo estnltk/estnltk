@@ -7,7 +7,7 @@
 #      Optimization is desirable.
 #
 
-from typing import Iterable, Sequence, List
+from typing import Iterable, Sequence, List, Union
 from estnltk_core import ElementaryBaseSpan
 from estnltk_core.layer.span import Span
 from estnltk_core.layer.layer import Layer
@@ -15,7 +15,7 @@ from estnltk_core.common import create_text_object
 
 import networkx as nx
 
-def extract_discontinuous_sections(text: 'Text',
+def extract_discontinuous_sections(text: Union['Text', 'BaseText'],
                                    sections: Iterable,
                                    layers_to_keep: Sequence = None,
                                    trim_overlapping: bool = False):
@@ -261,8 +261,8 @@ def group_consecutive_spans( text_str, spans, reduce_spans=True, correct_left_bo
 
 
 
-def _split_by_discontinuous_layer(text: 'Text', layer: str, layers_to_keep: Sequence[str]=None, 
-                                  trim_overlapping: bool=False, _post_chk: bool=False ) -> List['Text']:
+def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequence[str]=None, 
+                                  trim_overlapping: bool=False, _post_chk: bool=False ) -> List[Union['Text', 'BaseText']]:
     """Split text into a list of texts by a discontinuous layer.
        This splitting method should handle correctly layers with 
        discontinuous annotation spans, such as the clauses 

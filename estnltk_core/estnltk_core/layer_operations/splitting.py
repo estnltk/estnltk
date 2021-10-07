@@ -1,4 +1,4 @@
-from typing import Iterable, Sequence, List
+from typing import Iterable, Sequence, List, Union
 from estnltk_core import ElementaryBaseSpan
 from estnltk_core.layer.span import Span
 from estnltk_core.layer.layer import Layer
@@ -10,7 +10,7 @@ from estnltk_core.layer_operations.splitting_discontinuous import split_by_claus
 import networkx as nx
 
 
-def extract_sections(text: 'Text',
+def extract_sections(text: Union['Text', 'BaseText'],
                      sections: Iterable,
                      layers_to_keep: Sequence = None,
                      trim_overlapping: bool = False):
@@ -150,8 +150,8 @@ def layers_to_keep_default(text, layer):
     return nx.descendants(graph, layer) | {layer}
 
 
-def split_by(text: 'Text', layer: str, layers_to_keep: Sequence[str] = None, trim_overlapping: bool = False
-             ) -> List['Text']:
+def split_by(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequence[str] = None, trim_overlapping: bool = False
+             ) -> List[ Union['Text', 'BaseText'] ]:
     """Split text into a list of texts by layer.
 
     This method is slow on long texts.
