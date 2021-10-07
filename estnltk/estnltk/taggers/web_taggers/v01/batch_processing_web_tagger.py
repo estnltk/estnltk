@@ -42,9 +42,9 @@ class BatchProcessingWebTagger( WebTagger ):
         return super().post_request( text, layers, parameters=parameters )
 
     def batch_process(self, text: Text, layers: MutableMapping[str, Layer], parameters=None):
-        # TODO: because estnltk.layer_operations contains some tangled 
+        # TODO: because estnltk_core.layer_operations contains some tangled 
         #       imports, we have to use inner-import-hack (for python 36)
-        from estnltk.layer_operations import join_layers_while_reusing_spans
+        from estnltk_core.layer_operations import join_layers_while_reusing_spans
         assert self.batch_layer is not None and \
                     isinstance(self.batch_layer, str) and \
                     self.batch_layer in layers
@@ -98,9 +98,9 @@ class BatchProcessingWebTagger( WebTagger ):
            layer while splitting. 
            Returns smaller text objects and string separators between texts (for later joining).
         '''
-        # TODO: because estnltk.layer_operations contains some tangled 
+        # TODO: because estnltk_core.layer_operations contains some tangled 
         #       imports, we have to use inner-import-hack (for python 36)
-        from estnltk.layer_operations import extract_sections
+        from estnltk_core.layer_operations import extract_sections
         assert self.batch_layer in large_text.layers
         if self.batch_enveloping_layer is not None:
             assert self.batch_enveloping_layer in large_text.layers
