@@ -1,6 +1,7 @@
 #    
 #    This module contains constants, paths and functions commonly used in the EstNLTK core library.
 #
+from typing import Union
 import os
 import importlib, importlib.util
 
@@ -60,7 +61,7 @@ def load_text_class() -> 'type':
         raise
 
 
-def create_text_object(text: str = None) -> 'Text':
+def create_text_object(text: str = None) -> Union['BaseText', 'Text']:
     """ Uses importlib to create a Text object based on currently available packages. 
         First tries to create the full-fledged Text object from the package path "estnltk.text.Text".
         If this fails (the "estnltk" not installed), then falls back to creating Text object 
