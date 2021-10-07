@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="estnltk_core",
-    version="1.7.0b0",
+    version="1.6.10b0",
     packages=find_packages(),
     author="University of Tartu",
     author_email="siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
