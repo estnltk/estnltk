@@ -129,7 +129,7 @@ class Text:
             return getattr(self.__dict__[attributes[item][0]], item)
 
         # Nothing else to resolve
-        raise AttributeError("'Text' object has no layer {!r}".format(item))
+        raise AttributeError("'{}' object has no layer {!r}".format( self.__class__.__name__, item ))
 
     def __setitem__(self, key, value):
         raise TypeError('layers cannot be assigned directly, use add_layer(...) function instead')
@@ -141,18 +141,23 @@ class Text:
             return self._shadowed_layers[item]
 
     def __delattr__(self, item):
-        raise TypeError("'Text' object does not support attribute deletion, use pop_layer(...) function instead")
+        raise TypeError("'{}' object does not support attribute deletion, use pop_layer(...) function instead".format( self.__class__.__name__ ))
 
     def __delitem__(self, key):
-        raise TypeError("'Text' object does not support item deletion, use pop_layer(...) function instead")
+        raise TypeError("'{}' object does not support item deletion, use pop_layer(...) function instead".format( self.__class__.__name__ ))
 
     def __eq__(self, other):
         return self.diff(other) is None
 
     def __str__(self):
         if self.text is None:
-            return 'Text()'
-        return 'Text(text={self.text!r})'.format(self=self)
+            return '{}()'.format( self.__class__.__name__ )
+        text_string = self.text
+        if len(text_string) > 10000:
+            text_string = '{}\n\n<skipping {} characters>\n\n{}'.format(text_string[:8000],
+                                                                        len(text) - 9000,
+                                                                        text_string[-1000:])
+        return '{classname}(text={text_string!r})'.format(classname=self.__class__.__name__, text_string=text_string)
 
     def __repr__(self):
         return str(self)
@@ -198,13 +203,13 @@ class Text:
 
         name = layer.name
 
-        assert name not in self.__dict__, 'this Text object already has a layer with name {!r}'.format(name)
+        assert name not in self.__dict__, 'this {} object already has a layer with name {!r}'.format(self.__class__.__name__, name)
 
         if layer.text_object is None:
             layer.text_object = self
         else:
             assert layer.text_object is self, \
-                "can't add layer {!r}, this layer is already bound to another Text object".format(name)
+                "can't add layer {!r}, this layer is already bound to another {} object".format(name, self.__class__.__name__)
 
         if layer.parent:
             assert layer.parent in self.__dict__, 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
@@ -230,7 +235,7 @@ class Text:
         returned if given, otherwise KeyError is raised.
         """
         if name not in self.layers and default is Ellipsis:
-            raise KeyError('{layer!r} is not a valid layer in this Text object'.format(layer=name))
+            raise KeyError('{layer!r} is not a valid layer in this {classname} object'.format(layer=name,classname=self.__class__.__name__))
 
         if not cascading:
             result = self.__dict__.pop(name, None)
@@ -314,7 +319,7 @@ class Text:
         if self is other:
             return None
         if not isinstance(other, Text):
-            return 'Not a Text object.'
+            return 'Not a {} object.'.format( self.__class__.__name__ )
         if self.text != other.text:
             return 'The raw text is different.'
         if set(self.__dict__) != set(other.layers):
@@ -329,7 +334,7 @@ class Text:
 
     def _repr_html_(self):
         if self.text is None:
-            table = '<h4>Empty Text object</h4>'
+            table = '<h4>Empty {} object</h4>'.format( self.__class__.__name__ )
         else:
             text = self.text
             if len(text) > 10000:
