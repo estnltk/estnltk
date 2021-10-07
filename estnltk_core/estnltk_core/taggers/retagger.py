@@ -1,4 +1,4 @@
-from estnltk_core.text import Layer, Text
+from estnltk_core.text import Layer
 from estnltk_core.taggers import Tagger
 
 from typing import MutableMapping, Union, Set
@@ -28,10 +28,10 @@ class Retagger(Tagger):
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
-    def _change_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> None:
+    def _change_layer(self, text: Union['BaseText', 'Text'], layers: MutableMapping[str, Layer], status: dict) -> None:
         raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
 
-    def change_layer(self, text: Text, layers: Union[MutableMapping[str, Layer], Set[str]], status: dict = None) -> None:
+    def change_layer(self, text: Union['BaseText', 'Text'], layers: Union[MutableMapping[str, Layer], Set[str]], status: dict = None) -> None:
         """
         # QUICK FIXES:
         layers should be a dictionary of layers but due to the changes in the Text object signature, it is actually a
@@ -73,7 +73,7 @@ class Retagger(Tagger):
             # Validate changed layer: check span consistency
             target_layers[self.output_layer].check_span_consistency()
 
-    def retag(self, text: Text, status: dict = None ) -> Text:
+    def retag(self, text: Union['BaseText', 'Text'], status: dict = None ) -> Union['BaseText', 'Text']:
         """
         Modifies output_layer of given Text object.
         
@@ -88,7 +88,7 @@ class Retagger(Tagger):
         self.change_layer(text, text.layers, status)
         return text
 
-    def __call__(self, text: Text, status: dict = None) -> Text:
+    def __call__(self, text: Union['BaseText', 'Text'], status: dict = None) -> Union['BaseText', 'Text']:
         return self.retag(text, status)
 
     def _repr_html_(self):

@@ -1,6 +1,5 @@
 from typing import MutableMapping, Sequence, Set, Union
 
-from estnltk_core.text import Text
 from estnltk_core.layer.layer import Layer
 from estnltk_core.layer.ambiguous_attribute_tuple_list import to_str
 
@@ -68,12 +67,12 @@ class Tagger(metaclass=TaggerChecker):
 
     # TODO: rename layers -> detached_layers ?
     # TODO: remove status parameter, use Layer.meta instead
-    def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
+    def _make_layer(self, text: Union['BaseText', 'Text'], layers: MutableMapping[str, Layer], status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
     # TODO: rename layers -> detached_layers ?
     # TODO: change argument type layers: Set[str]
-    def make_layer(self, text: Text, layers: Union[MutableMapping[str, Layer], Set[str]] = None, status: dict = None) -> Layer:
+    def make_layer(self, text: Union['BaseText', 'Text'], layers: Union[MutableMapping[str, Layer], Set[str]] = None, status: dict = None) -> Layer:
         """
         # TODO: Add documentation
         :param text:
@@ -137,7 +136,7 @@ class Tagger(metaclass=TaggerChecker):
 
         return layer
 
-    def tag(self, text: Text, status: dict = None) -> Text:
+    def tag(self, text: Union['BaseText', 'Text'], status: dict = None) -> Union['BaseText', 'Text']:
         """
         text: Text object to be tagged
         status: dict, default {}
@@ -160,7 +159,7 @@ class Tagger(metaclass=TaggerChecker):
         """
         return self._make_layer_template()
 
-    def __call__(self, text: Text, status: dict = None) -> Text:
+    def __call__(self, text: Union['BaseText', 'Text'], status: dict = None) -> Union['BaseText', 'Text']:
         return self.tag(text, status)
 
     def _repr_html_(self):
