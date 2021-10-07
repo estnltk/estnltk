@@ -10,8 +10,8 @@ from typing import DefaultDict
 from estnltk_core.layer.layer import Layer
 
 
-class Text:
-    # All methods for Text object
+class BaseText:
+    # All methods for BaseText/Text object
     # methods: Set[str]
     methods = {
         '_repr_html_',
@@ -122,7 +122,7 @@ class Text:
         if item in self.__class__.methods:
             return self.__getattribute__(item)
 
-        # Resolve attributes that uniquely determine a layer, e.g. Text.lemmas ==> Text.morph_layer.lemmas
+        # Resolve attributes that uniquely determine a layer, e.g. BaseText/Text.lemmas ==> BaseText/Text.morph_layer.lemmas
         attributes = self.__getattribute__('attributes')
 
         if len(attributes[item]) == 1:
@@ -306,7 +306,7 @@ class Text:
 
     def diff(self, other):
         """
-        Returns a brief diagnostic message that explains why two Text objects are different.
+        Returns a brief diagnostic message that explains why two BaseText/Text objects are different.
 
         # TODO: Make it nicer for the Jupyter environment
         # TODO: Use memo dict to break infinite loops
@@ -377,5 +377,4 @@ class Text:
             layer_table = layer_table.to_html(index=False, escape=False)
             return '\n'.join((table, layer_table))
         return table
-
 
