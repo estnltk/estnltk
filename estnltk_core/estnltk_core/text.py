@@ -50,7 +50,7 @@ class Text:
         super().__setattr__('meta', {})
 
     def __copy__(self):
-        result = Text(self.text)
+        result = self.__class__( self.text )
         result.meta = self.meta
         for layer_name in self.layers:
             layer = copy(self[layer_name])
@@ -61,7 +61,7 @@ class Text:
     def __deepcopy__(self, memo={}):
         print(memo)
         text = copy(self.text)
-        result = Text(text)
+        result = self.__class__( text )
         memo[id(self)] = result
         memo[id(text)] = text
         result.meta = deepcopy(self.meta, memo)
@@ -115,11 +115,11 @@ class Text:
         # Function __getattr__ is never called on items in __dict__
 
         # Resolve slots
-        if item in Text.__slots__:
+        if item in self.__class__.__slots__:
             return self.__getattribute__(item)
 
         # Resolve all function calls
-        if item in Text.methods:
+        if item in self.__class__.methods:
             return self.__getattribute__(item)
 
         # Resolve attributes that uniquely determine a layer, e.g. Text.lemmas ==> Text.morph_layer.lemmas
@@ -218,7 +218,7 @@ class Text:
         if layer.enveloping:
             assert layer.enveloping in self.__dict__, "can't add an enveloping layer before adding the layer it envelops"
 
-        if name in Text.methods:
+        if name in self.__class__.methods:
             self._shadowed_layers[name] = layer
         else:
             self.__dict__[name] = layer
@@ -318,7 +318,7 @@ class Text:
         """
         if self is other:
             return None
-        if not isinstance(other, Text):
+        if not isinstance(other, self.__class__):
             return 'Not a {} object.'.format( self.__class__.__name__ )
         if self.text != other.text:
             return 'The raw text is different.'
