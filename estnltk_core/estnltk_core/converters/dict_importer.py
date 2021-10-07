@@ -1,6 +1,5 @@
 from typing import Container
 
-from estnltk_core.text import Text
 from estnltk_core.common import create_text_object
 from estnltk_core.layer.annotation import Annotation
 from estnltk_core.converters import layer_dict_converter
