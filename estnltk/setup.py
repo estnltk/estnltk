@@ -117,7 +117,7 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
-        'estnltk_core',                          # EstNLTK's basic datastructures and conversion methods
+        'estnltk-core',                          # EstNLTK's basic datastructures and conversion methods
         'nltk>=3.4.1 ; python_version >= "3.6"', # NLTK mainly required for tokenization
         'regex>=2015.07.19',       # improved Python regular expressions
         'python-crfsuite>=0.8.3',  # Conditional random fields library
