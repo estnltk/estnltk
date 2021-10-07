@@ -2,7 +2,7 @@ from typing import Iterable, Sequence, List
 from estnltk_core import ElementaryBaseSpan
 from estnltk_core.layer.span import Span
 from estnltk_core.layer.layer import Layer
-from estnltk_core.text import Text
+from estnltk_core.common import create_text_object
 
 from estnltk_core.layer_operations.splitting_discontinuous import _split_by_discontinuous_layer
 from estnltk_core.layer_operations.splitting_discontinuous import split_by_clauses
@@ -10,7 +10,7 @@ from estnltk_core.layer_operations.splitting_discontinuous import split_by_claus
 import networkx as nx
 
 
-def extract_sections(text: Text,
+def extract_sections(text: 'Text',
                      sections: Iterable,
                      layers_to_keep: Sequence = None,
                      trim_overlapping: bool = False):
@@ -43,7 +43,7 @@ def extract_sections(text: Text,
     result = []
     for start, end in sections:
         map_spans = {}
-        new_text = Text(text.text[start:end])
+        new_text = create_text_object( text.text[start:end] )
         for layer in text.list_layers():
             layer_name = layer.name
             if layers_to_keep is not None:
@@ -150,8 +150,8 @@ def layers_to_keep_default(text, layer):
     return nx.descendants(graph, layer) | {layer}
 
 
-def split_by(text: Text, layer: str, layers_to_keep: Sequence[str] = None, trim_overlapping: bool = False
-             ) -> List[Text]:
+def split_by(text: 'Text', layer: str, layers_to_keep: Sequence[str] = None, trim_overlapping: bool = False
+             ) -> List['Text']:
     """Split text into a list of texts by layer.
 
     This method is slow on long texts.

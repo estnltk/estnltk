@@ -11,11 +11,11 @@ from typing import Iterable, Sequence, List
 from estnltk_core import ElementaryBaseSpan
 from estnltk_core.layer.span import Span
 from estnltk_core.layer.layer import Layer
-from estnltk_core.text import Text
+from estnltk_core.common import create_text_object
 
 import networkx as nx
 
-def extract_discontinuous_sections(text: Text,
+def extract_discontinuous_sections(text: 'Text',
                                    sections: Iterable,
                                    layers_to_keep: Sequence = None,
                                    trim_overlapping: bool = False):
@@ -54,7 +54,7 @@ def extract_discontinuous_sections(text: Text,
     for subsections in sections:
         # Construct text str based on discontinuous list of spans
         text_str = ''.join( [ text.text[start:end] for start, end in subsections ] )
-        new_text = Text( text_str )
+        new_text = create_text_object( text_str )
         # Construct Layers
         map_spans = {}
         for layer in text.list_layers():
@@ -261,8 +261,8 @@ def group_consecutive_spans( text_str, spans, reduce_spans=True, correct_left_bo
 
 
 
-def _split_by_discontinuous_layer(text: Text, layer: str, layers_to_keep: Sequence[str]=None, 
-                                  trim_overlapping: bool=False, _post_chk: bool=False ) -> List[Text]:
+def _split_by_discontinuous_layer(text: 'Text', layer: str, layers_to_keep: Sequence[str]=None, 
+                                  trim_overlapping: bool=False, _post_chk: bool=False ) -> List['Text']:
     """Split text into a list of texts by a discontinuous layer.
        This splitting method should handle correctly layers with 
        discontinuous annotation spans, such as the clauses 

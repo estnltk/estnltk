@@ -8,7 +8,7 @@ from estnltk_core.layer.base_span import ElementaryBaseSpan
 from estnltk_core.layer.base_span import EnvelopingBaseSpan
 from estnltk_core.layer.enveloping_span import EnvelopingSpan
 
-from estnltk_core.text import Text
+from estnltk_core.common import create_text_object
 
 
 def shift_span( span, layer: Layer, positions: int ):
@@ -202,7 +202,7 @@ def join_layers_while_reusing_spans( layers: Sequence[Layer], separators: Sequen
         return new_layer
 
 
-def join_texts( texts: Sequence[Text], separators: Sequence[str] = None ):
+def join_texts( texts: Sequence['Text'], separators: Sequence[str] = None ):
     '''Joins (concatenates) list of Text objects into a single Text object. 
        All Texts must have the same layers. 
        
@@ -249,10 +249,10 @@ def join_texts( texts: Sequence[Text], separators: Sequence[str] = None ):
                 text_strings.append( sep )
             text_strings.append( text_obj.text )
         # 2) Construct new Text object
-        new_text = Text( ''.join(text_strings) )
+        new_text = create_text_object( ''.join(text_strings) )
         # 3) Join layers and add to the new Text
         first_text_layers = { layer:texts[0][layer] for layer in layers }
-        for layer in Text.topological_sort( first_text_layers ):
+        for layer in new_text.topological_sort( first_text_layers ):
             all_layers = [ text_obj[layer.name] for text_obj in texts ]
             joined_layer = join_layers( all_layers, separators )
             joined_layer.text_object = new_text
