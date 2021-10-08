@@ -11,11 +11,11 @@ from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
 from estnltk import logger
-from estnltk import Layer
+from estnltk_core import Layer
 from estnltk.converters import dict_to_layer
 from estnltk.converters import dict_to_text
 from estnltk.converters import layer_to_dict
-from estnltk.layer_operations import create_ngram_fingerprint_index
+from estnltk_core.layer_operations import create_ngram_fingerprint_index
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import BufferedTableInsert
 from estnltk.storage.postgres import CollectionDetachedLayerInserter

@@ -7,7 +7,7 @@ Schema/table creation and read/write rights are required.
 import random
 import unittest
 
-from estnltk import Layer
+from estnltk_core import Layer
 from estnltk import Text
 from estnltk import logger
 from estnltk.storage import postgres as pg

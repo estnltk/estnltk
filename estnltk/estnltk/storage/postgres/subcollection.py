@@ -6,10 +6,12 @@ from random import uniform, randint
 
 from estnltk import logger, Progressbar
 from estnltk import Text
-from estnltk.converters import serialisation_modules
+from estnltk.converters import layer_converter_collection
+from estnltk_core.converters.serialisation_modules import default as default_serialisation
+from estnltk_core.converters.serialisation_modules import legacy_v0 as legacy_serialisation
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres.collection import PgCollectionException
-from estnltk.converters.layer_dict_converter import layer_converter_collection
+
 
 
 class PgSubCollection:
@@ -1049,7 +1051,7 @@ class PgSubCollection:
         # Collections with structure versions < 2.0 are used same old serialisation module for all layers
         if structure is None or structure.version in {'0.0', '1.0'}:
 
-            dict_to_layer = serialisation_modules.legacy_v0.dict_to_layer
+            dict_to_layer = legacy_serialisation.dict_to_layer
             for layer_element in chain(text_dict['layers'], layer_dicts):
                 if layer_element['name'] in selected_layers:
                     text.add_layer(dict_to_layer(layer_element, text))
@@ -1057,7 +1059,7 @@ class PgSubCollection:
             return text
 
         # Otherwise each layer can be serialised differently
-        dict_to_layer = serialisation_modules.default.dict_to_layer
+        dict_to_layer = default_serialisation.dict_to_layer
         for layer_element in chain(text_dict['layers'], layer_dicts):
             layer_name = layer_element['name']
             if layer_name in selected_layers:
@@ -1077,12 +1079,13 @@ class PgSubCollection:
         """Deprecated to be removed"""
         # collections with structure versions <2.0 are used same old serialisation module for all layers
         if self.collection.structure.version in {'0.0', '1.0'}:
-            return serialisation_modules.legacy_v0.dict_to_layer(layer_dict, text_object)
+            return legacy_serialisation.dict_to_layer(layer_dict, text_object)
 
         serialisation_module = self.collection.structure[layer_dict['name']]['serialisation_module']
+        
         # use default serialisation if specification is missing
         if serialisation_module is None:
-            return serialisation_modules.default.dict_to_layer(layer_dict, text_object)
+            return default_serialisation.dict_to_layer(layer_dict, text_object)
 
         if serialisation_module in layer_converter_collection:
             return layer_converter_collection[serialisation_module].dict_to_layer(layer_dict, text_object)
