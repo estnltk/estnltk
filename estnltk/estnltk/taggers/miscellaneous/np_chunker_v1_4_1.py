@@ -336,7 +336,7 @@ class NounPhraseChunkerV1_4( object ):
                     #    [Eesti Tervishoiuprojekt] [2015 Lisaks]
                     #    [Prantsusmaa loobumine EXPO] [2004 korraldamisest]
                     # 
-                    yearCheck = re.match('.*\d\d\d\d.*', phrase[-2][TEXT])
+                    yearCheck = re.match(r'.*\d\d\d\d.*', phrase[-2][TEXT])
                     #
                     # Lisakontroll: kui eelneb rohkem kui yks arv, siis tuleb 
                     #    poolitamispunkti nihutada, nt:
@@ -507,7 +507,7 @@ class NounPhraseChunkerV1_4( object ):
                             while ( j <= i + parentRelativeLoc ):
                                 NPlabels[j] = 'I'
                                 j += 1
-                        elif re.match('^(pl\s.+|sg\s(ab|abl|ad|all|el|es|ill|in|kom|ter|tr))$', \
+                        elif re.match(r'^(pl\s.+|sg\s(ab|abl|ad|all|el|es|ill|in|kom|ter|tr))$', \
                              caseAgreement):
                             #
                             #    VI.f.  Eelnev s6na on k22ndes yhilduv keskv6rde omaduss6na, 
