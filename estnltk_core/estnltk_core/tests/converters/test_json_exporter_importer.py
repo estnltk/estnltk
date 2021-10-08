@@ -10,7 +10,8 @@ T_2 = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
 
 Teine lõik.'''
 
-@pytest.mark.xfail(reason="TODO fix this")
+@pytest.mark.xfail(reason='''Text to dict checks that the text matches the available Text version in the system.
+ Thus it gives an assertion error if you try to pass it estnltk_core Text but have estnltk installed''')
 def test_json_export_import():
     text = Text('')
     json_text = text_to_json(text)

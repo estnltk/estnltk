@@ -1,0 +1,11 @@
+*.pyc
+__pycache__/
+.idea/
+build/
+estnltk.egg-info/
+*.ipynb_checkpoints
+/estnltk/vabamorf/_vabamorf.cpython*
+/estnltk/vabamorf/vabamorf.py
+
+.cache
+.DS_Store

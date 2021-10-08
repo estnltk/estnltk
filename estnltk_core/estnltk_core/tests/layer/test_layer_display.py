@@ -4,7 +4,6 @@ from estnltk_core import Text
 from estnltk_core import Layer
 
 
-@pytest.mark.xfail(reason="TODO needs fixing.")
 def test_layer_display():
     t = Text("0123456789")
     layer = Layer(name='base', ambiguous=False)

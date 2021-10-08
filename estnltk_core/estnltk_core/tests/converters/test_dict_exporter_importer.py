@@ -2,6 +2,7 @@ import pytest
 
 from estnltk_core import Text
 from estnltk_core.converters import text_to_dict, dict_to_text
+from estnltk_core.converters import dict_to_layer
 
 from estnltk_core.tests import new_text
 
@@ -13,7 +14,8 @@ T_2 = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
 
 Teine lõik.'''
 
-@pytest.mark.xfail(reason="TODO fix this")
+@pytest.mark.xfail(reason='''Text to dict checks that the text matches the available Text version in the system.
+ Thus it gives an assertion error if you try to pass it estnltk_core Text but have estnltk installed''')
 def test_dict_export_import():
     text = Text('')
     dict_text = text_to_dict(text)
@@ -21,7 +23,28 @@ def test_dict_export_import():
     assert text_import == text
     assert dict_text == text_to_dict(text_import)
 
-    text = Text(T_2).tag_layer(['morph_analysis', 'paragraphs'])
+    text = Text(T_2)
+    words_layer = dict_to_layer({'name': 'words',
+     'attributes': ('normalized_form',),
+     'parent': None,
+     'enveloping': None,
+     'ambiguous': True,
+     'serialisation_module': None,
+     'meta': {},
+     'spans': [{'base_span': (0, 3), 'annotations': [{'normalized_form': None}]},
+      {'base_span': (4, 8), 'annotations': [{'normalized_form': None}]},
+      {'base_span': (9, 15), 'annotations': [{'normalized_form': 'sadas'}]},
+      {'base_span': (16, 19), 'annotations': [{'normalized_form': None}]},
+      {'base_span': (20, 25), 'annotations': [{'normalized_form': None}]},
+      {'base_span': (26, 32), 'annotations': [{'normalized_form': 'saia'}]},
+      {'base_span': (32, 33), 'annotations': [{'normalized_form': None}]},
+      {'base_span': (34, 39), 'annotations': [{'normalized_form': None}]},
+      {'base_span': (40, 45), 'annotations': [{'normalized_form': None}]},
+      {'base_span': (45, 46), 'annotations': [{'normalized_form': None}]},
+      {'base_span': (48, 53), 'annotations': [{'normalized_form': None}]},
+      {'base_span': (54, 58), 'annotations': [{'normalized_form': None}]},
+      {'base_span': (58, 59), 'annotations': [{'normalized_form': None}]}]})
+    text.add_layer(words_layer)
     text.meta['year'] = 2017
     dict_text = text_to_dict(text)
     text_import = dict_to_text(dict_text)
