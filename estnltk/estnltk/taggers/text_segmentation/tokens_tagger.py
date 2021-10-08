@@ -47,10 +47,10 @@ class TokensTagger(Tagger):
         self.apply_punct_postfixes = apply_punct_postfixes
         #  Pattern describing tokens that should be 
         #  retokenized and split into individual symbols
-        self._punct_split_patterns    = re.compile('^[!"#$%&\'()*+,-./:;<=>?@^_`{|}~\[\]«»”“]{2,}$')
+        self._punct_split_patterns    = re.compile(r'^[!"#$%&\'()*+,-./:;<=>?@^_`{|}~\[\]«»”“]{2,}$')
         #  Pattern describing tokens that match punct_split_patterns,
         #  but should not be split into individual symbols
-        self._punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
+        self._punct_no_split_patterns = re.compile(r'^(\.{2,}|[\?!]+)$')
         self.output_attributes = ()
 
     def _make_layer_template(self):
