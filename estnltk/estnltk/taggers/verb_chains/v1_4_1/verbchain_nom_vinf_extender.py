@@ -34,7 +34,7 @@ class VerbChainNomVInfExtender:
     verbToVinf = None
     
     wtNom = WordTemplate({POSTAG:'[SACP]'})
-    wtNomSemCase = WordTemplate({FORM:'^((sg|pl)\s(ab|abl|ad|all|el|es|ill|in|kom|ter|tr)|adt)$'})
+    wtNomSemCase = WordTemplate({FORM:r'^((sg|pl)\s(ab|abl|ad|all|el|es|ill|in|kom|ter|tr)|adt)$'})
     wtNotSyntAttrib = \
         WordTemplate({ROOT:'^(ka|samuti|aga|et|nüüd|praegu|varsti|siis(ki)?|ju|just|siin|kohe|veel|'+\
                                'seni|küll|hiljem|varem|ikka(gi)?|jälle(gi)?|vist|juba|isegi|seal|sageli|'+\
@@ -70,7 +70,7 @@ class VerbChainNomVInfExtender:
     def _loadSubcatRelations( self, inputFile ):
         ''' Laeb sisendfailist (inputFile) verb-nom/adv-vinf rektsiooniseoste mustrid.
             Iga muster peab olema failis eraldi real, kujul:
-                (verbikirjeldus)\TAB(nom/adv-kirjeldus)\TAB(vinfkirjeldus)
+                (verbikirjeldus)\\TAB(nom/adv-kirjeldus)\\TAB(vinfkirjeldus)
             nt
                 leid NEG	aeg;S;((sg|pl) (p)|adt)	da
                 leid POS	võimalus;S;(sg|pl) (n|p|g)	da

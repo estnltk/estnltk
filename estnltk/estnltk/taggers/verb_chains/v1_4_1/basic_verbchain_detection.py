@@ -34,7 +34,7 @@ from estnltk.taggers.verb_chains.v1_4_1.utils import addWordIDs
 _breakerJaNingEgaVoi = WordTemplate({ROOT:'^(ja|ning|ega|v[\u014D\u00F5]i)$',POSTAG:'[DJ]'})
 _breakerAgaKuidVaid  = WordTemplate({ROOT:'^(aga|kuid|vaid)$',POSTAG:'[DJ]'})
 _breakerKomaLopus    = WordTemplate({TEXT:'^.*,$'})
-_breakerPunktuats    = WordTemplate({TEXT:'^(\.\.\.|:|;|-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015)+$'})
+_breakerPunktuats    = WordTemplate({TEXT:r'^(\.\.\.|:|;|-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015)+$'})
 
 def _isSeparatedByPossibleClauseBreakers( tokens, wordID1, wordID2, punctForbidden = True, \
                                                                     commaForbidden = True, \
@@ -1186,7 +1186,7 @@ def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, 
                     addingCompleted = False
                     #  Kui on tegu vaieldava rektsiooniseosega: j2tame vahele v6i, kui vaieldavad
                     #  on lubatud, eemaldame vaieldavuse m2rgi 
-                    if re.match("^.+\?$", subcatForm):
+                    if re.match(r"^.+\?$", subcatForm):
                         if skipQuestionable:
                             continue
                         else:
