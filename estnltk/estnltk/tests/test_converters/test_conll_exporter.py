@@ -14,7 +14,7 @@ def test_sentence_to_conll():
     from estnltk.converters.conll_importer import conll_to_text
     from estnltk.converters.conll_exporter import sentence_to_conll
     
-    file = abs_path('tests/converters/test_conll.conll')
+    file = abs_path('tests/test_converters/test_conll.conll')
 
     text = conll_to_text(file, 'conll')
 

@@ -36,7 +36,7 @@ class TestPgCollectionStoreSyntaxV0Layer(unittest.TestCase):
         except DuplicateSchema as ds_error:
             # If some of the previous database tests failed and did not clean 
             # up the schema after the test, then we get a DuplicateSchema error.
-            # We can 'restart' be deleting the old schema and creating a new one
+            # We can 'restart' by deleting the old schema and creating a new one
             delete_schema(self.storage)
             create_schema(self.storage)
         except:
