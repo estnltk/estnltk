@@ -163,6 +163,68 @@ def test_layer_unique_texts():
     assert result, expected
 
 
+def test_layer_groupby_attributes():
+    text   = new_text( 5 )
+    groups = text.layer_1.groupby(['attr_1'], return_type='spans')
+    assert groups.count == {('SADA',): 3, \
+                            ('KAKS',): 2,
+                            ('KAKSKÜMMEND',): 1,
+                            ('KÜMME',): 6,
+                            ('KOLM',): 1,
+                            ('NELI',): 1,
+                            ('TUHAT',): 1,
+                            ('VIIS',): 2,
+                            ('VIISSADA',): 1,
+                            ('KUUS',): 2,
+                            ('KUUSKÜMMEND',): 1,
+                            ('SEITSE',): 1,
+                            ('KOMA',): 1,
+                            ('KAHEKSA',): 1,
+                            ('ÜHEKSA',): 2,
+                            ('ÜHEKSAKÜMMEND',): 1}
+    assert groups.groups[ ('KAHEKSA',) ] == [ text.layer_1[15] ]
+    assert groups.groups[ ('KAKS',) ] == [ text.layer_1[1], text.layer_1[2] ]
+    assert groups.groups[ ('KAKSKÜMMEND',) ] == [ text.layer_1[2] ]
+
+
+def test_layer_groupby_enveloping_layer():
+    text = new_text( 5 )
+    assert text.layer_4.enveloping == text.layer_0.name
+    grouped_spanlist_texts = []
+    for spanlist in text.layer_0.groupby( text.layer_4 ):
+        grouped_spanlist_texts.append( spanlist.text )
+    assert grouped_spanlist_texts == [ \
+       ['Sada', 'kakskümmend', 'kolm'],
+       [' Neli', 'tuhat', 'viissada', 'kuuskümmend', 'seitse'],
+       ['koma'],
+       ['kaheksa'],
+       ['Üheksakümmend', 'tuhat']
+    ]
+    grouped_annotations = []
+    for spanlist in text.layer_0.groupby( text.layer_4 ):
+        grouped_annotations.append( [] )
+        for span in spanlist:
+            for a in span.annotations:
+                ann_dict = {}
+                for attr in text.layer_0.attributes:
+                    ann_dict[attr] = a[attr]
+                grouped_annotations[-1].append( ann_dict )
+    assert grouped_annotations == [ \
+       [ {'attr': 'L0-0', 'attr_0': '100'},
+         {'attr': 'L0-2', 'attr_0': '20'},
+         {'attr': 'L0-4', 'attr_0': '3'} ],
+       [ {'attr': 'L0-5', 'attr_0': '4'},
+         {'attr': 'L0-6', 'attr_0': '1000'},
+         {'attr': 'L0-8', 'attr_0': '500'},
+         {'attr': 'L0-11', 'attr_0': '60'},
+         {'attr': 'L0-13', 'attr_0': '7'} ],
+       [ {'attr': 'L0-14', 'attr_0': ','} ],
+       [ {'attr': 'L0-15', 'attr_0': '8'} ],
+       [ {'attr': 'L0-17', 'attr_0': '90'},
+         {'attr': 'L0-19', 'attr_0': '1000'} ]
+    ]
+
+
 def test_diff_layer():
     layer_1 = Layer('layer_1')
     layer_2 = Layer('layer_2')
