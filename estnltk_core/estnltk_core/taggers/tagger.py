@@ -43,8 +43,11 @@ class Tagger(metaclass=TaggerChecker):
     input_layers
     __init__(...)
     _make_layer(...)
-    _make_layer_template
 
+    Optionally, you may also add implementations of:
+    _make_layer_template
+    __copy__
+    __deepcopy__
     """
     __slots__ = ['_initialized', 'conf_param', 'output_layer', 'output_attributes', 'input_layers']
 
@@ -55,6 +58,12 @@ class Tagger(metaclass=TaggerChecker):
 
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
+
+    def __copy__(self):
+        raise NotImplementedError('__copy__ method not implemented in ' + self.__class__.__name__)
+
+    def __deepcopy__(self, memo={}):
+        raise NotImplementedError('__deepcopy__ method not implemented in ' + self.__class__.__name__)
 
     def __setattr__(self, key, value):
         if self._initialized:
