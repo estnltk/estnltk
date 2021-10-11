@@ -353,6 +353,25 @@ class TestPgCollection(unittest.TestCase):
         collection.delete()
 
 
+    def test_insert_fails(self):
+        collection = self.storage['no_such_collection_exists']
+
+        # If the collection does not exist, Text insertion should rise PgCollectionException
+        with self.assertRaises( pg.PgCollectionException ):
+            with collection.insert() as collection_insert:
+                collection_insert( Text('Esimene tekst.') )
+
+        # If the collection does not exist, adding a layer template should rise PgCollectionException
+        with self.assertRaises( pg.PgCollectionException ):
+            collection.add_layer( ParagraphTokenizer().get_layer_template() )
+
+        # If the collection does not exist, creating a layer should rise PgCollectionException
+        with self.assertRaises( pg.PgCollectionException ):
+            collection.create_layer( tagger=ParagraphTokenizer() )
+
+        collection.delete()
+
+
 class TestLayerFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_layer_fragment"

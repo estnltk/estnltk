@@ -751,6 +751,9 @@ class PgCollection:
             ngram_index: list
                 A list of attributes for which to create an ngram index (default: None)
         """
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist, can't add layer".format(self.name))
+
         if not isinstance( layer_template, Layer ):
             raise TypeError('(!) layer_template must be an instance of Layer')
 
@@ -979,6 +982,10 @@ class PgCollection:
         logger.debug(cursor.query.decode())
 
     def delete_layer(self, layer_name, cascade=False):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist, can't delete layer {!r}".format(
+                self.name, layer_name))
+    
         if layer_name not in self._structure:
             raise PgCollectionException("collection does not have a layer {!r}".format(layer_name))
         if self._structure[layer_name]['layer_type'] == 'attached':
