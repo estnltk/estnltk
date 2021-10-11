@@ -340,6 +340,7 @@ class Layer:
         return collections.Counter(getattr(span, attribute) for span in self.spans)
 
     def groupby(self, by: Union[str, Sequence[str], 'Layer'], return_type: str = 'spans'):
+        import estnltk_core.layer_operations as layer_operations
         if isinstance(by, str):
             if by in self.attributes:
                 # Group by a single attribute of this Layer
@@ -357,6 +358,7 @@ class Layer:
         raise ValueError(by)
 
     def rolling(self, window: int, min_periods: int = None, inside: str = None):
+        import estnltk_core.layer_operations as layer_operations
         return layer_operations.Rolling(self, window=window,  min_periods=min_periods, inside=inside)
 
     def resolve_attribute(self, item):
@@ -594,6 +596,3 @@ class Layer:
 
     def __eq__(self, other):
         return self.diff(other) is None
-
-
-import estnltk_core.layer_operations as layer_operations
