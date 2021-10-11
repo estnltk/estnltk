@@ -17,7 +17,7 @@ vocabulary = [
  '_group_': 2,
  '_priority_': 1,
  '_validator_': lambda m: True,
- 'value': lambda m: re.sub('\s?[.,]\s?','.', m.group(2))},
+ 'value': lambda m: re.sub(r'\s?[.,]\s?','.', m.group(2))},
 
 {'grammar_symbol': 'NUMBER',
  'regex_type': 'int',

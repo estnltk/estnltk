@@ -66,10 +66,10 @@ class TextaExporter:
         if 'morph_analysis' in text.layers:
             # words may contain whitespace (eg '25 000') but there should be equal number of words, lemmas and POS
             words = ' '.join(
-                             sub('\s', '_', sp.text)
+                             sub(r'\s', '_', sp.text)
                              for sp in text.words)
             lemmas = ' '.join(
-                              sub('\s', '_',
+                              sub(r'\s', '_',
                                   '|'.join(sorted(set(sp.lemma))))
                               for sp in text.morph_analysis)
             partofspeech = ' '.join('|'.join(sorted(set(sp.partofspeech))) for sp in text.morph_analysis)

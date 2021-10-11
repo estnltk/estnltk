@@ -129,7 +129,7 @@ class AddressPartTagger(Tagger):
         
         def trim(t: str) -> str:
             # t = re.sub('[-\.,;!:? ]', '', t)
-            t = t.strip('[]-\.,;!:?\n\t ')
+            t = t.strip(r'[]-\.,;!:?\n\t ')
             return t
         
         self.gaps_tagger = GapTagger(output_layer='gaps',

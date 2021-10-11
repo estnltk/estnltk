@@ -17,7 +17,7 @@ class Vocabulary:
                  key: str,
                  attributes: Sequence[str],
                  ):
-        """
+        r"""
         Input data object for SpanTagger, PhraseTagger, RegexTagger.
 
         :param vocabulary:

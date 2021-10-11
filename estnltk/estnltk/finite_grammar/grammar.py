@@ -3,7 +3,7 @@ from collections import defaultdict
 import regex as re
 import networkx as nx
 
-_search_parenthesis = re.compile('\(|\)').search
+_search_parenthesis = re.compile(r'\(|\)').search
 
 
 def contains_parenthesis(s: str) -> bool:
@@ -11,13 +11,13 @@ def contains_parenthesis(s: str) -> bool:
 
 
 def match_SEQ_pattern(s: str) -> Union[str, None]:
-    m = re.compile('SEQ\((.*)\)$').match(s)
+    m = re.compile(r'SEQ\((.*)\)$').match(s)
     if m is not None:
         return m.group(1)
 
 
 def match_mseq_pattern(s: str) -> Union[str, None]:
-    m = re.compile('MSEQ\((.*)\)$').match(s)
+    m = re.compile(r'MSEQ\((.*)\)$').match(s)
     if m is not None:
         return m.group(1)
 
