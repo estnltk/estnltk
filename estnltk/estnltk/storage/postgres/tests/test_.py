@@ -63,6 +63,9 @@ class TestPgCollection(unittest.TestCase):
 
         self.assertIs(collection, self.storage[collection_name])
 
+        # In case of an empty collection, collection.layers should be []
+        self.assertTrue(collection.layers == [])
+
         collection.delete()
 
         collection = self.storage['not_existing']
@@ -84,6 +87,9 @@ class TestPgCollection(unittest.TestCase):
             collection_insert(text_1)
             collection_insert(text_2)
             collection_insert(text_3)
+
+        # If no layers have been added to collection, collection.layers should be []
+        self.assertTrue(collection.layers == [])
 
         assert len(collection) == 3
 
@@ -116,11 +122,21 @@ class TestPgCollection(unittest.TestCase):
         tagger2.tag(text_1)
         tagger2.tag(text_2)
 
+        # Assert that added layers appear in the collection
+        self.assertTrue('tokens' in collection.layers)
+        self.assertTrue('compound_tokens' in collection.layers)
+        self.assertTrue('words' in collection.layers)
+        self.assertTrue('sentences' in collection.layers)
+        self.assertTrue('paragraphs' in collection.layers)
+        self.assertTrue('morph_analysis' in collection.layers)
+
         for text_id, text in collection.select(layers=['compound_tokens', 'morph_analysis', 'paragraphs']):
             if text_id == 1:
                 assert text == text_1, text_1.diff(text)
             elif text_id == 2:
                 assert text == text_2, text_2.diff(text)
+
+        collection.delete()
 
     def test_collection_getitem_and_iter(self):
         # insert texts -> create layers -> select texts

@@ -99,7 +99,7 @@ class PgCollection:
     @property
     def layers(self):
         if self._is_empty:
-            return
+            return []
         return list(self._structure)
 
     @property
