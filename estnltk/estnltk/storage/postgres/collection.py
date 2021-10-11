@@ -105,6 +105,8 @@ class PgCollection:
     @property
     def selected_layers(self):
         if self._selected_layes is None:
+            if not self.exists():
+                raise PgCollectionException('collection {!r} does not exist'.format(self.name))
             if self._is_empty is None:
                 return []
             self._selected_layes = [layer for layer, properties in self._structure.structure.items()
@@ -126,6 +128,9 @@ class PgCollection:
 
            TODO: Complete description
         """
+        if not self.exists():
+            raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        
         layers_extended = []
 
         # TODO:
@@ -163,6 +168,9 @@ class PgCollection:
         """Create index for the collection table.
 
         """
+        if not self.exists():
+            raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        
         with self.storage.conn.cursor() as c:
             c.execute(
                 SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
@@ -171,8 +179,10 @@ class PgCollection:
 
     def drop_index(self):
         """Drop index of the collection table.
-
         """
+        if not self.exists():
+            raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        
         with self.storage.conn.cursor() as c:
             c.execute(
                 SQL("DROP INDEX {schema}.{index}").format(
@@ -181,6 +191,11 @@ class PgCollection:
 
     # TODO: make it work
     def extend(self, other: 'PgCollection'):
+        if not self.exists():
+            raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        if not other.exists():
+            raise PgCollectionException('collection {!r} does not exist'.format(other.name))
+        
         if self.column_names != other.column_names:
             raise PgCollectionException("can't extend: different collection meta")
         if self._structure != other._structure:
@@ -279,8 +294,10 @@ class PgCollection:
                 parent_layer
                 fragment_id
                 fragment_layer
-
         """
+        if not self.exists():
+            raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        
         # 1. Build query
         q = SQL("""
             SELECT
@@ -360,6 +377,9 @@ class PgCollection:
         """ Returns a SQL select statement that selects a single text by the given key from the collection. 
             Used in the __getitem__ method.
         """
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format(self.name))
+        
         collection_identifier = pg.collection_table_identifier(self.storage, self.name)
         # Condition: select by the given key
         # Validate the key
@@ -406,6 +426,7 @@ class PgCollection:
                 raise KeyError("Index {!r} is outside of the collection".format(item))
 
         if isinstance(item, slice):  # TODO
+            
             if item.step is not None:
                 raise KeyError("Invalid index slice {!r}".format(item))
 
@@ -442,6 +463,9 @@ class PgCollection:
             ngram_index:
 
         """
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format(self.name))
+        
         conn = self.storage.conn
         with conn.cursor() as c:
             try:
@@ -606,6 +630,10 @@ class PgCollection:
                                  if the collection does not have the layer, then adds the new layer to the collection,
                                  and fills with data;
         """
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist, can't create layer".format(
+                self.name))
+
         assert (layer_name is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
                'either tagger ({}) must be None or layer_name ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_name, data_iterator, row_mapper)
 
@@ -628,9 +656,6 @@ class PgCollection:
         data_iterator = data_iterator or self.select(layers=tagger.input_layers, progressbar=progressbar,
                                                      query=MissingLayerQuery(missing_layer=missing_layer) if missing_layer is not None else None)
 
-        if not self.exists():
-            raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
-                self.name, layer_name))
         logger.info('collection: {!r}'.format(self.name))
         if self._is_empty:
             raise PgCollectionException("can't add detached layer {!r}, the collection is empty".format(layer_name))
@@ -1005,11 +1030,15 @@ class PgCollection:
         logger.info('layer deleted: {!r}'.format(layer_name))
 
     def delete_fragment(self, fragment_name):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format(self.name))
         if fragment_name not in self.get_fragment_names():
             raise PgCollectionException("Collection does not have a layer fragment '%s'." % fragment_name)
         drop_fragment_table(self.storage, self.name, fragment_name)
 
     def delete_layer_fragment(self, layer_fragment_name):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format(self.name))
         lf_table = self.layer_fragment_name_to_table_name(layer_fragment_name)
         if layer_fragment_name not in self.get_layer_fragment_names():
             raise PgCollectionException("Collection does not have a layer fragment '%s'." % layer_fragment_name)
@@ -1025,12 +1054,19 @@ class PgCollection:
         self._is_empty = True
 
     def has_layer(self, layer_name):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
         return layer_name in self._structure
 
     def has_fragment(self, fragment_name):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
         return fragment_name in self.get_fragment_names()
 
     def get_fragment_names(self):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+        
         lf_names = []
         for tbl in self.get_fragment_tables():
             layer = re.sub("^%s__" % self.name, "", tbl)
@@ -1039,6 +1075,9 @@ class PgCollection:
         return lf_names
 
     def get_fragment_tables(self):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+        
         fragment_tables = []
         for tbl in pg.get_all_table_names(self.storage):
             if tbl.startswith("%s__" % self.name) and tbl.endswith("__fragment"):
@@ -1046,6 +1085,9 @@ class PgCollection:
         return fragment_tables
 
     def get_layer_meta(self, layer_name):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+        
         if layer_name not in self.layers:
             raise PgCollectionException("Collection does not have the layer {!r}".format(layer_name))
 
@@ -1112,6 +1154,10 @@ class PgCollection:
             (and throws an expection if the table does not exist).
             Default: 'NEW'
         """
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist, can't export layer {!r}".format(
+                self.name, layer))
+        
         if not isinstance(mode, str) or mode.upper() not in ['NEW', 'APPEND']:
             raise ValueError('(!) Mode {!r} not supported. Use {!r} or {!r}.'.format( mode, 'NEW', 'APPEND' ))
         mode = mode.upper()
@@ -1192,6 +1238,12 @@ class PgCollection:
         logger.info('{} annotations exported to "{}"."{}"'.format(i-initial_rows, self.storage.schema, table_name))
 
     def _repr_html_(self):
+        if not self.exists():
+            return ('<p style="color:red">{self.__class__.__name__} {self.name!r} does not exist!</p><br/> '+\
+                    'Use <b>create()</b> method to create a new collection with this name, or '+\
+                    'check if the collection name is correct.'
+                   ).format(self=self)
+        
         if self._is_empty:
             structure_html = '<br/>unknown'
         else:
