@@ -889,6 +889,7 @@ class PgCollection:
 
         logger.info('block {} of {!r} layer created'.format(block, layer_name))
 
+    # TODO: is this deprecated ?
     def create_layer_table(self, layer_name, meta=None):
         layer_table = pg.layer_table_name(self.name, layer_name)
 
