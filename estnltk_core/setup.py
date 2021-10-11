@@ -19,6 +19,7 @@ setup(
         'networkx==2.5 ; python_version == "3.6"', # building graphs: required for layers, WordNet and grammars (= py36)
         'pandas>=1.1.5 ; python_version >  "3.6"', # Panel Data Analysis library for Python (> py36)
         'pandas<=1.1.5 ; python_version == "3.6"', # Panel Data Analysis library for Python (= py36)
+        'numpy==1.19.4 ; python_version == "3.6"', # This is the last numpy version that supports py36
     ],
     classifiers=['Intended Audience :: Developers',
                  'Intended Audience :: Education',
