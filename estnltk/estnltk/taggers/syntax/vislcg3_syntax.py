@@ -304,8 +304,8 @@ def cleanup_lines( lines, **kwargs ):
         if argName in ['double_quotes', 'quotes'] and argVal and \
            argVal.lower() in ['esc', 'escape', 'unesc', 'unescape']:
            double_quotes = argVal.lower()
-    pat_token_line     = re.compile('^"<(.+)>"\s*$')
-    pat_analysis_start = re.compile('^(\s+)"(.+)"(\s[LZT].*)$')
+    pat_token_line     = re.compile(r'^"<(.+)>"\s*$')
+    pat_analysis_start = re.compile(r'^(\s+)"(.+)"(\s[LZT].*)$')
     i = 0
     to_delete = []
     while ( i < len(lines) ):
@@ -345,7 +345,7 @@ def cleanup_lines( lines, **kwargs ):
                     lines[i] = '"<'+token_cleaned+'>"'
         else:
            #  Normalize analysis line
-           lines[i] = re.sub('^\s{4,}', '\t', lines[i])
+           lines[i] = re.sub(r'^\s{4,}', '\t', lines[i])
            #  Remove clause boundary markings
            lines[i] = re.sub('(.*)" ([LZT].*) CLBC (.*)', '\\1" \\2 \\3', lines[i])
            #  Remove additional information that was added during the analysis
@@ -367,8 +367,8 @@ def cleanup_lines( lines, **kwargs ):
                  lines[i] = ''.join([start, '"', content, '"', end])
            #  Remove CLO CLC CLB markings
            if remove_clo and 'CL' in lines[i]:
-              lines[i] = re.sub('\sCL[OCB]', ' ', lines[i])
-              lines[i] = re.sub('\s{2,}', ' ', lines[i])
+              lines[i] = re.sub(r'\sCL[OCB]', ' ', lines[i])
+              lines[i] = re.sub(r'\s{2,}', ' ', lines[i])
            #  Fix sentence tags that mistakenly could have analysis (in EDT corpus)
            if fix_sent_tags:
               if i-1 > -1 and ('"</s>"' in lines[i-1] or '"<s>"' in lines[i-1]):
@@ -463,15 +463,15 @@ def convert_cg3_to_conll( lines, **kwargs ):
            unesc_quotes = argVal
         if argName in ['rep_spaces'] and argVal in [True, False]:
            rep_spaces = argVal
-    pat_empty_line    = re.compile('^\s+$')
-    pat_token_line    = re.compile('^"<(.+)>"$')
-    pat_analysis_line = re.compile('^\s+"(.+)"\s([^"]+)$')
+    pat_empty_line    = re.compile(r'^\s+$')
+    pat_token_line    = re.compile(r'^"<(.+)>"$')
+    pat_analysis_line = re.compile(r'^\s+"(.+)"\s([^"]+)$')
     # 3 types of analyses: 
-    pat_ending_pos_form = re.compile('^L\S+\s+\S\s+([^#@]+).+$')
-    pat_pos_form        = re.compile('^\S\s+([^#@]+).+$')
-    pat_ending_pos      = re.compile('^(L\S+\s+)?\S\s+[#@].+$')
-    pat_opening_punct   = re.compile('.+\s(Opr|Oqu|Quo)\s')
-    sentence_start = re.compile('^\s*$')
+    pat_ending_pos_form = re.compile(r'^L\S+\s+\S\s+([^#@]+).+$')
+    pat_pos_form        = re.compile(r'^\S\s+([^#@]+).+$')
+    pat_ending_pos      = re.compile(r'^(L\S+\s+)?\S\s+[#@].+$')
+    pat_opening_punct   = re.compile(r'.+\s(Opr|Oqu|Quo)\s')
+    sentence_start = re.compile(r'^\s*$')
     analyses_added = 0
     conll_lines = []
     word_id = 1
@@ -503,9 +503,9 @@ def convert_cg3_to_conll( lines, **kwargs ):
                   word = token_match.group(1)
                else:
                   raise Exception('(!) Unexpected token format: ', line)
-               if rep_spaces and re.search('\s', word):
+               if rep_spaces and re.search(r'\s', word):
                   # Replace spaces in the token with '_' symbols
-                  word = re.sub('\s+', '_', word)
+                  word = re.sub(r'\s+', '_', word)
                conll_lines.append( str(word_id) + '\t' + word )
                analyses_added = 0
                word_id += 1
@@ -523,9 +523,9 @@ def convert_cg3_to_conll( lines, **kwargs ):
                     postag = 'Z'
                 else:
                     postag = (cats.split())[1] if len(cats.split())>1 else 'X'
-                deprels = re.findall( '(@\S+)', cats )
+                deprels = re.findall( r'(@\S+)', cats )
                 deprel  = deprels[0] if deprels else 'xxx'
-                heads   = re.findall( '#\d+\s*->\s*(\d+)', cats )
+                heads   = re.findall( r'#\d+\s*->\s*(\d+)', cats )
                 head    = heads[0] if heads else str(word_id-2)
                 m1 = pat_ending_pos_form.match(cats)
                 m2 = pat_pos_form.match(cats)

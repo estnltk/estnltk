@@ -137,8 +137,8 @@ def fix_feats(xpostag: str, lemma: str, feats: str) -> str:
     if lemma == '"':
         feats = 'Quo'
 
-    feats = re.sub('partic\|past', 'ppast', feats)
-    feats = re.sub('\|ps$', '', re.sub('[^fm]ps[^\d]', '|', feats))
+    feats = re.sub(r'partic\|past', 'ppast', feats)
+    feats = re.sub(r'\|ps$', '', re.sub(r'[^fm]ps[^\d]', '|', feats))
     feats = re.sub('inter_rel', 'intrel', feats)
     feats = re.sub('^pre$', '', feats)
 
@@ -147,7 +147,7 @@ def fix_feats(xpostag: str, lemma: str, feats: str) -> str:
     for elem in unnecessary_info:
         feats = re.sub(elem, '', feats)
 
-    feats = re.sub('^\|', '', re.sub('\|+$', '', feats))
+    feats = re.sub(r'^\|', '', re.sub(r'\|+$', '', feats))
     if feats == '':
         return '_'
     else:

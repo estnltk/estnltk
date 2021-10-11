@@ -121,7 +121,7 @@ class MorphToSyntaxMorphRetagger(Retagger):
             Lines that have ¤ in the beginning of the line are skipped.
         '''
         rules = defaultdict(list)
-        rules_pattern = re.compile('(¤?)[^@]*@(_(.)_\s*([^@]*)|####)@[^@]*@_(.)_\s*([^@]*)')
+        rules_pattern = re.compile(r'(¤?)[^@]*@(_(.)_\s*([^@]*)|####)@[^@]*@_(.)_\s*([^@]*)')
         with codecs.open(fs_to_synt_rules_file, mode='r', encoding='utf-8') as in_f:
             for line in in_f:
                 m = rules_pattern.match(line)

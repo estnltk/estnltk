@@ -52,9 +52,9 @@ class CG3AnnotationParser:
          'partofspeech': 'S',
          'subtype': ['com']}
     """
-    pat_analysis_line = re.compile('^\s+"(?P<lemma>.+)" (?P<ending>L\w+)*(?P<cats>[^@#]*)(?P<syntax>[@#]*.*)$')
-    pat_pos_form = re.compile('^ *[A-Z]\s*(?P<form>[^#@]*).*$')
-    pat_form_pos = re.compile('^ *(?P<form>[a-z]+) (?P<postag>[A-Z]).*$')
+    pat_analysis_line = re.compile(r'^\s+"(?P<lemma>.+)" (?P<ending>L\w+)*(?P<cats>[^@#]*)(?P<syntax>[@#]*.*)$')
+    pat_pos_form = re.compile(r'^ *[A-Z]\s*(?P<form>[^#@]*).*$')
+    pat_form_pos = re.compile(r'^ *(?P<form>[a-z]+) (?P<postag>[A-Z]).*$')
 
     cats = {'case': {'nom', 'gen', 'part', 'ill', 'in', 'el', 'all', 'ad', 'abl',
                      'tr', 'term', 'es', 'abes', 'kom', 'adit'},
