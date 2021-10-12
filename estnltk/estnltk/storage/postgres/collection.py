@@ -889,35 +889,6 @@ class PgCollection:
 
         logger.info('block {} of {!r} layer created'.format(block, layer_name))
 
-    # TODO: is this deprecated ?
-    def create_layer_table(self, layer_name, meta=None):
-        layer_table = pg.layer_table_name(self.name, layer_name)
-
-        if pg.table_exists(self.storage, layer_table):
-            raise PgCollectionException("The table {!r} of the {!r} layer already exists.".format(layer_table, layer_name))
-
-        layer_identifier = pg.table_identifier(self.storage, pg.layer_table_name(self.name, layer_name))
-
-        columns = [('id', 'SERIAL PRIMARY KEY'), ('text_id', 'int NOT NULL'), ('data', 'jsonb')]
-        if meta is not None:
-            columns.extend([(name, pg.pytype2dbtype[py_type]) for name, py_type in meta.items()])
-
-        columns = SQL(', ').join(SQL('{} {}').format(Identifier(name), SQL(db_type)) for name, db_type in columns)
-        q = SQL('CREATE TABLE {layer_identifier} ({columns})').format(layer_identifier=layer_identifier,
-                                                                      columns=columns)
-
-        with self.storage.conn.cursor() as cursor:
-            cursor.execute(q)
-            logger.debug(cursor.query.decode())
-
-            q = SQL("COMMENT ON TABLE {} IS {};").format(
-                    layer_identifier,
-                    Literal('created by {} on {}'.format(self.storage.user, time.asctime())))
-            cursor.execute(q)
-            logger.debug(cursor.query.decode())
-
-        self.storage.conn.commit()
-
     def _create_layer_table(self, cursor, layer_name, is_fragment=False, create_index=True,
                             ngram_index=None, overwrite=False, meta=None):
         if is_fragment:
