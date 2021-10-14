@@ -6,11 +6,15 @@ from typing import MutableMapping, Union, Set
 
 class Retagger(Tagger):
     """
-    Base class for retaggers. Retagger modifies existing layer.
-    For the sake of simplicity, we currently just use Tagger as 
-    the super class.
-
-    The following needs to be implemented in a derived class:
+    Base class for retaggers. Retagger modifies an existing layer. 
+    The modification is done inside the _change_layer() method, 
+    which always returns None, indicating that the method does 
+    not produce a new layer, but changes the target layer.
+    
+    Retagger is a subclass of Tagger and inherits its parameters 
+    and methods. 
+    Retagger's derived class needs to implement the following: 
+    
     conf_param
     input_layers
     output_layer
@@ -18,7 +22,140 @@ class Retagger(Tagger):
     __init__(...)
     _change_layer(...)
 
+    The target layer that will be changed is the output_layer, 
+    which should be accessed as layers[self.output_layer] inside 
+    the _change_layer(...) method.
+    
+    Retagger can add or remove spans inside the target layer, or 
+    change annotations of the spans. In addition, it can also modify 
+    attributes of the layer: add new attributes, delete old ones,
+    or change attributes. 
+    
+    Changing annotations 
+    ==================== 
+    
+    This is the most common and simplest layer modification operation. 
+    Basically, you can iterate over spans of the layer, remove old 
+    annotations and add new ones: 
+    
+        from estnltk_core import Annotation 
+
+        for span in layers[self.output_layer]: 
+            span.clear_annotations()
+            span.add_annotation( Annotation(span, ...) )
+    
+    Note, however, that the new Annotation must have the same 
+    attributes as the old annotation(s) had.
+    Consult the tutorial "low_level_layer_operations.ipynb" for 
+    more information about creating Annotation objects. 
+    
+    Adding spans 
+    ============ 
+    
+    You can use layer's methods add_annotation(...) and add_span(...) 
+    to add new spans. The add_annotation(...) method is the most straight-
+    forward one. It takes two inputs: the location of the span (start,end), 
+    and the dictionary of an annotation (attributes-values), and adds 
+    annotations to the layer at the specified location:
+    
+        assert isinstance(annotations, dict)
+        
+        layers[self.output_layer].add_annotation( (start,end),**annotations )
+    
+    In case of an ambiguous layer, you can also add multiple annotations 
+    to the same location via layer.add_annotation(...).
+    
+    The add_span(...) method adds a new Span or EnvelopingSpan to the 
+    layer:
+    
+        from estnltk_core import Span
+
+        layers[self.output_layer].add_span( Span(...) )
+    
+    Initializing a new Span or EnvelopingSpan is a nuanced operation, 
+    please consult the tutorial "low_level_layer_operations.ipynb" for 
+    more information about that.
+    
+    Note that you cannot add two Spans (or EnvelopingSpan-s) that have 
+    exactly the same text location, however, partially overlapping spans
+    are allowed.
+    
+    Removing spans 
+    ============== 
+    
+    You can delete spans directly via the method remove_span( ... ), 
+    which takes the deletable Span or EnvelopingSpan as an input 
+    parameter. 
+    Be warned, however, that you should not delete spans while iterating 
+    over the layer, as this results in inconsistent deleting behaviour. 
+    Instead, you can first iterate over the layer and gather the deletable 
+    elements into a separate list, and then apply the deletion on the 
+    elements of that list:
+    
+        to_delete = []
+        for span in layers[self.output_layer]:
+            if must_be_deleted(span):
+                to_delete.append(span)
+        
+        for span in to_delete:
+            layers[self.output_layer].remove_span( span )
+    
+    Alaternatively, you can also delete spans by their index in the 
+    layer, using the del function. Example:
+    
+        to_delete = []
+        for span_id, span in enumerate( layers[self.output_layer] ):
+            if must_be_deleted(span):
+                to_delete.append( span_id )
+        
+        for span_id in to_delete:
+            del layers[self.output_layer][ span_id ]
+
+
+    Adding attributes 
+    ================= 
+    
+    New attributes can be added in the following way. First, update
+    layer's attributes tuple:
+    
+        layers[self.output_layer].attributes += ('new_attr_1', 'new_attr_2')
+    
+    Note that after this step the old annotations of the layer become 
+    partially broken (e.g. you cannot display them) until you've set all 
+    the missing attributes, but you can still read and change their 
+    data.
+    Second, update all missing attributes of the annotations:
+    
+        for span in layers[self.output_layer]: 
+            for annotation in span.annotations:
+                annotation['new_attr_1'] = ...
+                annotation['new_attr_2'] = ...
+    
+    Removing attributes 
+    =================== 
+    
+    First, update layer's attributes tuple by leaving deletable attributes
+    out:
+    
+        # leave out attributes ('old_attr_1', 'old_attr_2')
+        new_attribs = tuple( a for a in layers[self.output_layer].attributes if a not in ('old_attr_1', 'old_attr_2') )
+        # update layer's attributes
+        layers[self.output_layer].attributes = new_attribs
+    
+    Second, remove attributes from the annotations of the layer with the 
+    help of the delattr function:
+    
+        for span in layers[self.output_layer]: 
+            for annotation in span.annotations:
+                delattr(annotation, 'old_attr_1')
+                delattr(annotation, 'old_attr_2')
+    
+    
+    Varia
+    =====
+
     # TODO: text.layers will be Set[str]. Make sure that this does not cause problems
+    
     """
     # check_output_consistency:
     #    If set, then applies layer's method check_span_consistency()
