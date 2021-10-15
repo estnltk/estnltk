@@ -1,5 +1,3 @@
-import pytest
-
 from estnltk_core import Text
 from estnltk_core import Layer
 

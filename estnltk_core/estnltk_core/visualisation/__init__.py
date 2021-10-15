@@ -1,0 +1,1 @@
+from estnltk_core.visualisation.span_visualiser.fancy_span_visualisation import DisplaySpans

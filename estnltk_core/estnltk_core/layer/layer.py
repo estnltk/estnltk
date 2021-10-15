@@ -533,8 +533,7 @@ class Layer:
                                                       'ambiguous', 'span count'])
 
     def display(self, **kwargs):
-        # TODO !!!
-        from estnltk.visualisation import DisplaySpans
+        from estnltk_core.visualisation import DisplaySpans
         display_spans = DisplaySpans(**kwargs)
         display_spans(self)
 
