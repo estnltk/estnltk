@@ -26,7 +26,7 @@ def check_if_model_present():
 @pytest.mark.skipif(not check_if_model_present(),
                     reason="Model is not available in the models directory")
 def test_bert_tagger():
-    from estnltk.taggers.embeddings.bert.bert_tagger import BertTagger
+    from estnltk_neural.estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
     bert_tagger = BertTagger(MODEL_PATH)
     text = Text(
         'Ilus suur karvane kass nurrus punasel diivanil. Ta on ise tee esimesel poolel. Valge jänes jooksis metsa!')

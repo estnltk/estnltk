@@ -4,9 +4,9 @@ from unittest import TestCase
 
 from estnltk import Text
 from estnltk.common import abs_path
-from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
-from estnltk.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
-from estnltk.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
+from estnltk_neural.estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
+from estnltk_neural.estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
+from estnltk_neural.estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
 
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
 
@@ -68,13 +68,13 @@ def get_test_sentences(filename):
 
 if NEURAL_MORPH_TAGGER_CONFIG is not None:
     if "softmax_emb_tag_sum" in NEURAL_MORPH_TAGGER_CONFIG:
-        import estnltk.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
+        import estnltk_neural.estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
     elif "softmax_emb_cat_sum" in NEURAL_MORPH_TAGGER_CONFIG:
-        import estnltk.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
+        import estnltk_neural.estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
     elif "seq2seq_emb_tag_sum" in NEURAL_MORPH_TAGGER_CONFIG:
-        import estnltk.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
+        import estnltk_neural.estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
     else:
-        import estnltk.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
+        import estnltk_neural.estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
         
     tagger = NeuralMorphTagger(model_module=model_module)
 

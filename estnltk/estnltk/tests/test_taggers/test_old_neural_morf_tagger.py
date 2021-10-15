@@ -29,7 +29,7 @@ class DummyTagger:
 @unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow is required for this test")
 class TestDummyTagger(TestCase):
     def test(self):
-        from estnltk.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger
+        from estnltk_neural.estnltk_neural.taggers.neural_morph import NeuralMorphTagger
         dummy_tagger = DummyTagger()
         tagger = NeuralMorphTagger(base_tagger=dummy_tagger)
         text = Text("Ära mine sinna.")
@@ -88,7 +88,7 @@ class TestNeuralModel(TestCase):
 @unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow is required for this test")
 class TestNeuralTagger(TestCase):
     def setUp(self):
-        from estnltk.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger
+        from estnltk_neural.estnltk_neural.taggers.neural_morph import NeuralMorphTagger
         self.tagger = NeuralMorphTagger()
 
     def tearDown(self):
