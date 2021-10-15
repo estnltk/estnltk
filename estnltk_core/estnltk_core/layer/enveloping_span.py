@@ -5,6 +5,9 @@ from estnltk_core import BaseSpan, EnvelopingBaseSpan
 
 
 class EnvelopingSpan(Span):
+    '''
+    EnvelopingSpan is a Span which can be used to assign EnvelopingBaseSpans to a Layer.
+    '''
     __slots__ = ['_spans']
 
     def __init__(self, base_span: BaseSpan, layer):

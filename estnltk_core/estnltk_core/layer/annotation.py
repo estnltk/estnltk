@@ -5,6 +5,12 @@ from typing import Any, Mapping, Sequence
 class Annotation(Mapping):
     """Mapping for Span attribute values.
 
+    Annotation is the object that contains information about the attribute values. Annotations are
+    tied to a Span which hold the information about the location of the annotation. The attributes
+    of an Annotation are formatted as a dictionary and they can be passed as arguments to the
+    Annotation.
+
+    Once the Annotation has a Span, it can not be changed.
     """
     __slots__ = ['__dict__', '_span']
 

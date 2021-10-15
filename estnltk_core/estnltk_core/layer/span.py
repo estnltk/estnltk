@@ -11,6 +11,17 @@ from .to_html import html_table
 class Span:
     """Basic element of an EstNLTK layer.
 
+    A span is a container for a fragment of text that is meaningful in the analyzed context.
+    There can be several spans in one layer and each span can have many annotations which contain the
+    information about the span. However, if the layer is not ambiguous, a span can have only one
+    annotation.
+
+    When creating a span, it must be given two arguments: BaseSpan which defines the mandatory attributes
+    for a span (the exact attributes depend which kind of BaseSpan is given but minimally these are
+    start and end of the span) and the layer that the span is attached to.
+
+    Each annotation can have only one span.
+
     Span can exist without annotations. It is the responsibility of a programmer to remove such spans.
 
     """

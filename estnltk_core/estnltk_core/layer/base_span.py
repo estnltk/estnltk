@@ -2,6 +2,15 @@ from typing import Iterable
 
 
 class BaseSpan:
+    '''
+    BaseSpan is class that defines meta information about a Span and is used when creating a Span.
+    A BaseSpan can be given a level, start and end of a Span which then make sure that the Span is
+    in the right position in a Layer.
+
+    An ElementaryBaseSpan is a BaseSpan which has no level. An EnvelopingBaseSpan is a BaseSpan
+    that is made up of other BaseSpans.
+
+    '''
     __slots__ = ['_raw', '_hash', 'start', 'end', 'level']
 
     def __init__(self, raw, level: int, start: int, end: int):
