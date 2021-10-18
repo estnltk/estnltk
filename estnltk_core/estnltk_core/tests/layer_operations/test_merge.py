@@ -1,8 +1,11 @@
-from estnltk_core import Text, Layer, ElementaryBaseSpan
+from estnltk_core import Layer, ElementaryBaseSpan
 from estnltk_core.layer_operations import merge_layers
-
+from estnltk_core.common import load_text_class
 
 def test_1():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     t = 'Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.'
 
     text_5 = Text(t)

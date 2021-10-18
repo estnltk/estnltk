@@ -1,4 +1,4 @@
-from estnltk_core import Text, Layer, ElementaryBaseSpan
+from estnltk_core import Layer, ElementaryBaseSpan
 
 from estnltk_core.layer import AmbiguousAttributeTupleList
 from estnltk_core.tests import new_text
@@ -11,8 +11,12 @@ from estnltk_core.layer_operations import diff_layer
 from estnltk_core.layer_operations import count_by
 from estnltk_core.layer_operations import unique_texts
 
+from estnltk_core.common import load_text_class
 
 def test_apply_filter():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     def filter_function(layer, i, j):
         return layer[i].annotations[j].attr_1 in {'B', 'C', 'E', 'F'}
 
@@ -86,6 +90,9 @@ def test_keep_annotations():
 
 
 def test_layer_count_by():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text_1 = Text('Üks kaks kolm neli kaks.')
     layer_1 = Layer('test', attributes=['label'], text_object=text_1, ambiguous=True)
     layer_1.add_annotation( ElementaryBaseSpan(0, 3), label=1 )
@@ -120,6 +127,9 @@ def test_layer_count_by():
 
 
 def test_layer_unique_texts():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('Üks kaks kolm neli. Neli kolm kaks üks.')
     layer_1 = Layer('words', attributes=[], text_object=text, ambiguous=False)
     layer_1.add_annotation( ElementaryBaseSpan(0, 3) )

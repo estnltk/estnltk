@@ -1,4 +1,4 @@
-from estnltk_core import Text, Layer
+from estnltk_core import Layer
 
 from estnltk_core.layer_operations.splitting_discontinuous import group_consecutive_spans
 from estnltk_core.layer_operations.splitting_discontinuous import _split_by_discontinuous_layer
@@ -6,8 +6,12 @@ from estnltk_core.layer_operations.splitting_discontinuous import _split_by_disc
 from estnltk_core.converters import layer_to_dict
 from estnltk_core.converters import dict_to_layer
 
+from estnltk_core.common import load_text_class
+
 
 def test_group_consecutive_spans():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # Test grouping consecutive spans on the clauses layer
     text = Text('Mees, keda seal kohtasime, oli tuttav ja teretas meid (sic!).')
     words_layer = dict_to_layer( \
@@ -68,6 +72,8 @@ def test_group_consecutive_spans():
 
 
 def create_example_text_1():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     text = Text('Mees, keda seal kohtasime, oli tuttav ja teretas meid (sic!).')
     words_layer = dict_to_layer( \
         {'ambiguous': True,
@@ -375,6 +381,8 @@ def test_split_by_clauses_2():
 
 
 def test_split_by_clauses_3_verb_chains():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # Test split by clauses (trim overlapping layers) with verb chain annotations
     # A) Set up text and layers
     text = Text('Und pole, aga ma ei näe põhjust öö läbi üleval olla (sest magada on vaja!).')

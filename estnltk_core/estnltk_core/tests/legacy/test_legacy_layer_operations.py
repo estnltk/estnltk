@@ -2,7 +2,8 @@
 #  Tests for legacy layer operations, relocated from:
 #   https://github.com/estnltk/estnltk/blob/f2dbde4062cb103384b6949b722125543d3fe457/estnltk_core/estnltk_core/tests/test_layer_operations/test_layer_operations.py#L167-L496
 #
-from estnltk_core import Text
+
+from estnltk_core.common import load_text_class
 
 from estnltk_core.legacy.layer_operations import apply_simple_filter
 from estnltk_core.legacy.layer_operations import conflicts
@@ -60,18 +61,27 @@ def third_text():
 
 
 def text_tok():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text(first_text())
     text.tag_clauses().tag_named_entities()
     return text
 
 
 def text_sentences():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text(first_text())
     text.sentences
     return text
 
 
 def text_ner():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text(second_text())
     text.tag_named_entities()
     return text
@@ -181,6 +191,9 @@ class TestLayerOperation():
 
     # TODO: fix
     def broken_test_count_by_document(self):
+        # Load Text or BaseText class (depending on the available packages)
+        Text = load_text_class()
+        
         text_1 = Text('Üks kaks kolm neli kaks.')
         text_1['test'] = [{'start': 0, 'end': 3, 'label':1}, 
                           {'start': 4, 'end': 8, 'label':2},
@@ -252,6 +265,9 @@ class TestLayerOperation():
 
     # TODO: fix
     def broken_test_conflicts(self):
+        # Load Text or BaseText class (depending on the available packages)
+        Text = load_text_class()
+        
         text = Text('Üks kaks kolm neli viis kuus seitse.')
                     #012345678901234567890123456789012345
                     #          1         2         3

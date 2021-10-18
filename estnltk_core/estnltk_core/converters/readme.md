@@ -1,8 +1,8 @@
 # Converters
 
-## Text, Layer <-> dict
+## Text or BaseText, Layer <-> dict
 
-## Text, Layer <-> json
+## Text or BaseText, Layer <-> json
 
 ## unicode string <-> binary
 

@@ -1,4 +1,4 @@
-from estnltk_core import Text, Layer
+from estnltk_core import Layer
 
 from estnltk_core.converters import layer_to_dict
 from estnltk_core.converters import dict_to_layer
@@ -6,8 +6,12 @@ from estnltk_core.converters import dict_to_layer
 from estnltk_core.layer_operations import split_by_sentences, extract_sections
 from estnltk_core.layer_operations import split_by
 
+from estnltk_core.common import load_text_class
 
 def test_extract_sections():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     # recursive values k and m
     k = []
     k.append(k)
@@ -34,6 +38,8 @@ def test_extract_sections():
 
 
 def test_split_by_sentences():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # Set up
     # Create example text
     t = '''Esimene lause.
@@ -448,6 +454,8 @@ def test_split_by_sentences():
 
 
 def test_split_by_clauses__fix_empty_spans_error():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # Tests that split_by_clauses trim_overlapping=True 
     #       does not rise "ValueError: spans is empty"
     # Set up

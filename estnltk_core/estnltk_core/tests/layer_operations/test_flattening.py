@@ -1,8 +1,12 @@
-from estnltk_core import Text, Layer
+from estnltk_core import Layer
 from estnltk_core.layer_operations import flatten
 
+from estnltk_core.common import load_text_class
 
 def test_flatten_no_disambiguation():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('Aias sadas saia.')
 
     layer_1 = Layer('test_1', attributes=['attr_1', 'attr_2'], text_object=text)
@@ -44,6 +48,9 @@ def test_flatten_no_disambiguation():
 
 
 def test_flatten_pick_first_disambiguation():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('Aias sadas saia.')
 
     layer_1 = Layer('test_1', attributes=['lemma', 'pos'], \

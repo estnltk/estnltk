@@ -1,6 +1,5 @@
 import pytest
 
-from estnltk_core import Text
 from estnltk_core.converters import text_to_dict, dict_to_text
 from estnltk_core.converters import dict_to_layer
 
@@ -14,9 +13,10 @@ T_2 = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
 
 Teine lõik.'''
 
-@pytest.mark.xfail(reason='''Text to dict checks that the text matches the available Text version in the system.
- Thus it gives an assertion error if you try to pass it estnltk_core Text but have estnltk installed''')
 def test_dict_export_import():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('')
     dict_text = text_to_dict(text)
     text_import = dict_to_text(dict_text)

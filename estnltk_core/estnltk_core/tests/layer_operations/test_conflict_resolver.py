@@ -1,5 +1,5 @@
 import pytest
-from estnltk_core.text import Layer
+from estnltk_core.layer.layer import Layer
 from estnltk_core.layer_operations import resolve_conflicts
 
 

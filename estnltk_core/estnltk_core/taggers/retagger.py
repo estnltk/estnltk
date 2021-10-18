@@ -1,4 +1,4 @@
-from estnltk_core.text import Layer
+from estnltk_core.layer.layer import Layer
 from estnltk_core.taggers import Tagger
 
 from typing import MutableMapping, Union, Set

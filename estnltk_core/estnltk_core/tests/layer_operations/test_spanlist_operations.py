@@ -1,4 +1,4 @@
-from estnltk_core import ElementaryBaseSpan, Span, Layer, Text
+from estnltk_core import ElementaryBaseSpan, Span, Layer
 
 from estnltk_core.layer_operations.consecutive import iterate_consecutive_spans
 from estnltk_core.layer_operations.consecutive import iterate_touching_spans
@@ -9,6 +9,8 @@ from estnltk_core.layer_operations.consecutive import iterate_ending_spans
 from estnltk_core.layer_operations.intersections import iterate_intersecting_spans
 from estnltk_core.layer_operations.intersections import iterate_nested_spans
 from estnltk_core.layer_operations.intersections import iterate_overlapping_spans
+
+from estnltk_core.common import load_text_class
 
 # --------------------- Iterate over hovering spans in a layer or in a list of spans
 
@@ -323,6 +325,8 @@ def test_iterate_intersecting_spans_2():
 
 
 def test_iterate_intersecting_spans_3():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # Example text:
     text = Text('üks kaks kolmneli viiskuus seitse')
     #text.tag_layer(['words'])

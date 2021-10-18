@@ -1,7 +1,7 @@
 import pytest
 
 from estnltk_core import Layer
-from estnltk_core import Text
+from estnltk_core.common import load_text_class
 from estnltk_core.layer import AttributeList
 from estnltk_core.layer.base_span import ElementaryBaseSpan
 from estnltk_core.converters import dict_to_layer
@@ -9,6 +9,9 @@ from estnltk_core.converters import dict_to_layer
 
 def test_pickle():
     import pickle
+
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
 
     def save_restore(text: Text) -> Text:
         bytes = pickle.dumps(text)
@@ -76,6 +79,9 @@ def test_pickle():
     assert result['text'][1]['espan'] is result['nonempty_layer'][0]
 
 def test_to_records():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('Minu nimi on Uku.')
 
     words_layer = dict_to_layer({'name': 'words',
@@ -285,6 +291,9 @@ def test_to_records():
 
 
 def test_to_record():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     t = Text('Minu nimi on Uku.')
 
     words_layer = dict_to_layer({'name': 'words',
@@ -473,6 +482,9 @@ def test_to_record():
                                                'end': 17}]]
 
 def test_from_dict():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words', attributes=['lemma'])
     t.add_layer(words)
@@ -490,6 +502,9 @@ def test_from_dict():
 
 
 def test_ambiguous_from_dict():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words', attributes=['lemma'], ambiguous=True)
     t.add_layer(words)
@@ -508,6 +523,9 @@ def test_ambiguous_from_dict():
 
 
 def test_ambiguous_from_dict_unbound():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+
     words = Layer(name='words', attributes=['lemma'], ambiguous=True)
 
     # We create the layer

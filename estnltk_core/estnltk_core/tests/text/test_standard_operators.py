@@ -3,7 +3,7 @@ import pytest
 from copy import copy, deepcopy
 from types import MethodType
 
-from estnltk_core import Text
+from estnltk_core.common import load_text_class
 from estnltk_core import Layer
 from estnltk_core import ElementaryBaseSpan
 
@@ -14,6 +14,8 @@ from estnltk_core.converters import layer_to_dict, dict_to_layer
 
 
 def test_object_teardown():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # One cannot delete text object when layers are referenced!
     # This is a sad truth caused by reference counting memory model
     text = Text('Surematu Kašei')
@@ -24,6 +26,9 @@ def test_object_teardown():
 
 
 def test_copy_constructors():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text("Kihtideta teksti kopeerimine")
 
     s_copy = copy(text)
@@ -128,6 +133,9 @@ def test_copy_constructors():
 
 
 def test_attribute_assignment():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     # Attribute text is assignable under certain conditions
     with pytest.raises(AttributeError, match='raw text has already been set'):
         # noinspection PyPropertyAccess
@@ -165,6 +173,8 @@ def test_attribute_assignment():
 
 
 def test_item_assignment():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # No item is assignable
     text = Text()
     error_pattern = 'layers cannot be assigned directly, use add_layer\\(\\.\\.\\.\\) function instead'
@@ -179,6 +189,8 @@ def test_item_assignment():
 
 
 def test_abnormal_attribute_access():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # Test for shadowing errors
     text = Text('Äkksurm varjuteatris')
     text.add_layer(Layer(name='add_layer'))
@@ -201,6 +213,9 @@ def test_abnormal_attribute_access():
 
 
 def test_normal_layer_access():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''')
 
     # Accessing non-existent layer
@@ -236,6 +251,9 @@ def test_normal_layer_access():
 
 
 def test_access_of_shadowed_layers():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     # List of all attributes that can be potentially shadowed
     properties = ['attributes', 'layers']
     private_methods = {method for method in dir(object) if callable(getattr(object, method, None))}
@@ -299,6 +317,8 @@ def test_attribute_resolver():
 
 
 def test_add_layer():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # The only way to add a layer
     text = Text('test')
     layer = Layer(name='empty_layer', attributes=['attr'])
@@ -331,7 +351,7 @@ def test_add_layer():
     text = Text('test')
     layer = Layer(name='empty_layer', attributes=['attr'])
     text.add_layer(layer)
-    with pytest.raises(AssertionError, match="this Text object already has a layer with name 'empty_layer'"):
+    with pytest.raises(AssertionError, match="this (Text|BaseText) object already has a layer with name 'empty_layer'"):
         text.add_layer(layer)
 
     # Safety against double linking
@@ -341,7 +361,7 @@ def test_add_layer():
 
     text2 = Text('test2')
     with pytest.raises(AssertionError,
-                       match="can't add layer 'empty_layer', this layer is already bound to another Text object"):
+                       match="can't add layer 'empty_layer', this layer is already bound to another (Text|BaseText) object"):
         text2.add_layer(layer)
 
     # Other alternatives for layer assignment fail with reasonable error messages
@@ -358,6 +378,9 @@ def test_add_layer():
 
 
 def test_pop_layer():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('Minu nimi on Uku.')
     assert text.layers == set()
 
@@ -651,6 +674,9 @@ def test_pop_layer():
 
 
 def test_equal():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     # TODO: Make comparison secure against recursion!
 
     t_1 = Text('Tekst algab. Tekst lõpeb.')

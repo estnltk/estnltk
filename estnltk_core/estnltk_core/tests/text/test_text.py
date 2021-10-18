@@ -2,13 +2,16 @@ import pytest
 
 import itertools
 from estnltk_core import Layer
-from estnltk_core import Text
+from estnltk_core.common import load_text_class
 
 from estnltk_core.layer import AttributeList
 from estnltk_core.converters import dict_to_layer
 
 
 def test_new_span_hierarchy():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('Ilm on ilus. Päike paistab.')
 
     words_layer = dict_to_layer({'name': 'words',
@@ -77,6 +80,9 @@ def test_new_span_hierarchy():
 
 
 def test_layer_1():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('')
 
     layer = Layer(name='test', text_object=text)
@@ -99,6 +105,9 @@ def test_layer_1():
 
 
 def test_layer():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     # TODO: Merge this with test_add_layer function
     string = 'Öösel on kõik kassid hallid.'
 
@@ -144,6 +153,9 @@ def test_layer():
 
 
 def test_annotated_layer():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
     l = Layer(name='test', attributes=['test', 'asd'])
@@ -159,6 +171,9 @@ def test_annotated_layer():
 
 
 def test_count_by():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     def count_by(layer, attributes, counter=None):
         from collections import Counter
         if counter is None:
@@ -193,6 +208,9 @@ def test_count_by():
 
 
 def test_dependant_span():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words',
                   attributes=['lemma']
@@ -223,6 +241,9 @@ def test_dependant_span():
 
 
 def test_enveloping_layer():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(
             name='words',
@@ -274,6 +295,9 @@ def test_enveloping_layer():
 
 
 def test_various():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('Ilm on ilus. Päike paistab.')
 
     words_layer = dict_to_layer({'name': 'words',
@@ -340,6 +364,9 @@ def test_various():
 
 
 def test_ambiguous_layer():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     t = Text('Ilm on ilus. Päike paistab.')
 
     words_layer = dict_to_layer({'name': 'words',
@@ -397,6 +424,9 @@ def test_ambiguous_layer():
 
 
 def test_delete_annotation_in_ambiguous_span():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('''Ilm on ilus. Päike paistab.''')
 
     words_layer = dict_to_layer({'name': 'words',

@@ -36,11 +36,11 @@ def core_rel_path(repo_path: str) -> str:
 
 
 def load_text_class() -> 'type':
-    """ Uses importlib to load the Text class based on currently available packages. 
+    """ Uses importlib to load the Text or BaseText class based on currently available packages. 
         First tries to load the full-fledged Text class from the package path "estnltk.text.Text".
-        If this fails ("estnltk" is not installed), then falls back to loading Text class 
-        from "estnltk_core.text.Text".
-        Returns the Text class, which can be used to create new Text instances.
+        If this fails ("estnltk" is not installed), then falls back to loading BaseText class 
+        from "estnltk_core.base_text.BaseText".
+        Returns the Text or BaseText class, which can be used to create new text instances. 
     """
     try:
         # First: try to load the full-fledged Text class
@@ -53,20 +53,20 @@ def load_text_class() -> 'type':
         # Pass the exception: attempt to load in different way
         pass
     try:
-        # Second: try to load the Text class from EstNLTK core
-        module = importlib.import_module("estnltk_core.text")
-        partial_text_class = getattr(module, "Text")
+        # Second: try to load the BaseText class from EstNLTK core
+        module = importlib.import_module("estnltk_core.base_text")
+        partial_text_class = getattr(module, "BaseText")
         return partial_text_class
     except:
         raise
 
 
 def create_text_object(text: str = None) -> Union['BaseText', 'Text']:
-    """ Uses importlib to create a Text object based on currently available packages. 
+    """ Uses importlib to create a BaseText or Text object based on currently available packages. 
         First tries to create the full-fledged Text object from the package path "estnltk.text.Text".
-        If this fails (the "estnltk" not installed), then falls back to creating Text object 
-        from "estnltk_core.text.Text".
-        Returns created Text object. 
+        If this fails (the "estnltk" not installed), then falls back to creating BaseText object 
+        from "estnltk_core.base_text.BaseText".
+        Returns created BaseText or Text object. 
     """
     text_class = load_text_class()
     return text_class( text )

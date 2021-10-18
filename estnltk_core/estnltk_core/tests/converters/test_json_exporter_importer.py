@@ -1,18 +1,22 @@
 import pytest
 
-from estnltk_core import Span, Layer, Text, ElementaryBaseSpan
+from estnltk_core import Span, Layer, ElementaryBaseSpan
 from estnltk_core.converters import text_to_json, json_to_text
 from estnltk_core.converters import annotation_to_json, json_to_annotation
 from estnltk_core.tests import new_text
+
+from estnltk_core.common import load_text_class
 
 T_1 = "Tere, maailm!"
 T_2 = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
 
 Teine lõik.'''
 
-@pytest.mark.xfail(reason='''Text to dict checks that the text matches the available Text version in the system.
- Thus it gives an assertion error if you try to pass it estnltk_core Text but have estnltk installed''')
+@pytest.mark.xfail(reason='''TODO: needs to be fixed''')
 def test_json_export_import():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('')
     json_text = text_to_json(text)
     text_import = json_to_text(json_text)

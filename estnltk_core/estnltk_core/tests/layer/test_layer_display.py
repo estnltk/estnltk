@@ -1,8 +1,11 @@
-from estnltk_core import Text
 from estnltk_core import Layer
 
+from estnltk_core.common import load_text_class
 
 def test_layer_display():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     t = Text("0123456789")
     layer = Layer(name='base', ambiguous=False)
     layer.add_annotation((1, 3))

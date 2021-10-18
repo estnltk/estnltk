@@ -1,8 +1,8 @@
 import pytest
-from estnltk_core import EnvelopingSpan, Layer, Text, Annotation, EnvelopingBaseSpan
+from estnltk_core import EnvelopingSpan, Layer, Annotation, EnvelopingBaseSpan
+from estnltk_core.common import create_text_object
 
-
-text = Text('Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.')
+text = create_text_object('Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.')
 
 layer_0 = Layer('layer_0', attributes=['attr', 'attr_0'])
 layer_0.add_annotation(( 0,  4), attr='L0-0',  attr_0='100')

@@ -6,14 +6,18 @@ import pytest
 
 import itertools
 from estnltk_core import Layer
-from estnltk_core import Text
 from estnltk_core import Annotation
 from estnltk_core.layer import AmbiguousAttributeList, AttributeTupleList
 from estnltk_core.layer import AttributeList
 
+from estnltk_core.common import load_text_class
+
 example_text_str = '''Ilm on ilus. Päike paistab.'''
 
 def test_general_access():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     #
     # General test: analysis and access to Text
     #
@@ -88,6 +92,8 @@ from estnltk_core.converters import dict_to_layer, layer_to_dict
 
 
 def test_adding_layer():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     #
     # General test: adding a layer
     #

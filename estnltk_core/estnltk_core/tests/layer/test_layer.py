@@ -1,6 +1,5 @@
 import pytest
 
-from estnltk_core import Text
 from estnltk_core import Layer
 from estnltk_core import ElementaryBaseSpan
 from estnltk_core import Span
@@ -10,6 +9,8 @@ from estnltk_core.layer import AmbiguousAttributeList
 from estnltk_core.layer import AttributeTupleList
 from estnltk_core.layer import AttributeList
 from estnltk_core.tests import new_text
+
+from estnltk_core.common import load_text_class
 
 
 def test_attributes_and_default_values():
@@ -42,6 +43,9 @@ def test_attributes_and_default_values():
 
 
 def test_add_span():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('0123456789')
     layer = Layer(name='ambiguous', attributes=['a', 'b', 'c'], ambiguous=True)
 
@@ -144,6 +148,9 @@ def test_add_annotation():
 
 
 def test_layer_indexing():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     t = Text("0123456789")
     layer = Layer(name='base',
                   attributes=['a', 'b', 'c'],
@@ -204,6 +211,9 @@ def test_layer_indexing():
 
 
 def test_ambiguous_layer_indexing():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     t = Text("0123456789")
     layer = Layer(name='base',
                   attributes=['a', 'b', 'c'],
@@ -261,6 +271,9 @@ def test_ambiguous_layer_indexing():
 
 
 def test_advanced_indexing():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     # 1) Set up test data
     # Create example text with 'morph_analysis' layer
     text = Text('Mis on Sinu nimi?')
@@ -360,6 +373,9 @@ def test_advanced_indexing():
 
 
 def test_check_layer_consistency():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     # 0) Set up test data
     # Create example texts with 'morph_analysis' layers
     # Create text 1
@@ -736,6 +752,9 @@ def test_copy():
 
 
 def test_ancestor_layers():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('')
 
     layer_1 = Layer('layer_1', text_object=text)
@@ -774,6 +793,9 @@ def test_ancestor_layers():
 
 
 def test_descendant_layers():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
     text = Text('')
 
     layer_1 = Layer('layer_1', text_object=text)

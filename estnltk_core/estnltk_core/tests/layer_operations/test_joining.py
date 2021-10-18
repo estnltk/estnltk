@@ -1,4 +1,4 @@
-from estnltk_core import Text, Layer
+from estnltk_core import Layer
 
 from estnltk_core.converters import layer_to_dict
 from estnltk_core.converters import dict_to_layer
@@ -8,7 +8,11 @@ from estnltk_core.layer_operations.join import join_layers
 from estnltk_core.layer_operations.join import join_layers_while_reusing_spans
 from estnltk_core.layer_operations import split_by, split_by_sentences
 
+from estnltk_core.common import load_text_class
+
 def test_join_layers():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # Create test text and layers
     text = Text('See on üks väike lause')
     full_words_layer = \
@@ -81,6 +85,8 @@ def test_join_layers():
 
 
 def test_join_texts():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # Construct test Text obj
     text = Text('Esimene lause. Teine lause. Kolmas lause')
     words_layer_dict = \
@@ -225,6 +231,8 @@ def test_join_texts():
 
 
 def test_join_layers_while_reusing_spans():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
     # Create test text and layers
     text = Text('See on üks väike lause')
     full_words_layer = \
