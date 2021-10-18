@@ -42,7 +42,7 @@ class BaseText:
     __slots__ = ['text', 'meta', '__dict__', '_shadowed_layers']
 
     def __init__(self, text: str = None) -> None:
-        assert text is None or isinstance(text, str), "Text takes string as an argument!"
+        assert text is None or isinstance(text, str), "{} takes string as an argument!".format( self.__class__.__name__ )
         # self.text: str
         super().__setattr__('text', text)
         # self._shadowed_layers: Mapping[str, Layer]
