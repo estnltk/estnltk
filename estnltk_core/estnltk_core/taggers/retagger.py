@@ -5,8 +5,7 @@ from typing import MutableMapping, Union, Set
 
 
 class Retagger(Tagger):
-    """
-    Base class for retaggers. Retagger modifies an existing layer. 
+    """Base class for retaggers. Retagger modifies an existing layer. 
     The modification is done inside the _change_layer() method, 
     which always returns None, indicating that the method does 
     not produce a new layer, but changes the target layer.
@@ -124,7 +123,7 @@ class Retagger(Tagger):
     partially broken (e.g. you cannot display them) until you've set all 
     the missing attributes, but you can still read and change their 
     data.
-    Second, update all missing attributes of the annotations:
+    Second, update all annotations by adding new attributes:
     
         for span in layers[self.output_layer]: 
             for annotation in span.annotations:

@@ -34,9 +34,16 @@ class TaggerChecker(type):
 
 
 class Tagger(metaclass=TaggerChecker):
-    """Base class for taggers.
+    """Base class for taggers. Tagger creates a new layer. 
+    The new layer is created inside the _make_layer() method, 
+    which returns Layer object. Optionally, you can also 
+    implement _make_layer_template() method, which returns an 
+    empty layer that contains all the proper attribute 
+    initializations, but is not associated with any text 
+    object (this is required if you want to use EstNLTK's 
+    Postgres interface). 
 
-    The following needs to be implemented in a derived class:
+    Tagger's derived class needs to implement the following: 
     conf_param
     output_layer
     output_attributes
@@ -44,10 +51,105 @@ class Tagger(metaclass=TaggerChecker):
     __init__(...)
     _make_layer(...)
 
-    Optionally, you may also add implementations of:
+    Optionally, you may also add implementations of: 
     _make_layer_template
     __copy__
     __deepcopy__
+    
+    The name of the creatable layer is the output_layer, 
+    and the layers required for its creation are listed in 
+    input_layers. 
+    Note, inside the _make_layer(...) method, you should 
+    access input_layers via the layers parameter, e.g. 
+    layers[self.input_layers[0]], layers[self.input_layers[1]] 
+    etc., and NOT VIA THE INPUT TEXT OBJECT, because 
+    the input Text object is not guaranteed to have 
+    the input layers as attached layers. 
+    
+    The attributes of the creatable layer should be listed 
+    in self.output_attributes.
+
+    Creating a layer 
+    ================ 
+    
+    You can create a new layer in the following way:
+    
+        from estnltk_core import Layer
+        
+        new_layer = Layer(name=self.output_layer,
+                          text_object=text,
+                          attributes=self.output_attributes,
+                          parent=...,
+                          enveloping=...,
+                          ambiguous=...)
+    
+    If you have the _make_layer_template() method 
+    implemented, it is recommended to create a new 
+    layer only inside that method, and then call for 
+    the method inside the _make_layer(...):
+    
+        new_layer = self._make_layer_template()
+        new_layer.text_object = text
+    
+    Layer types 
+    =========== 
+    
+    Simple layer -- a layer that is not ambiguous, nor dependent 
+      of any other layer (is not enveloping and does not have a 
+      parent layer).
+    
+    Ambiguous layer -- a layer that can have multiple annotations 
+      on same location (same span).
+    
+    Enveloping layer -- a layer which spans envelop (wrap) around
+      spans of some other layer. E.g. 'sentences' layer can be 
+      defined as enveloping around 'words' layer.
+    
+    Child layer -- a layer that has a parent layer and its spans 
+      can only be at the same locations as spans of the parent 
+      layer. 
+    
+    A layer can be either enveloping or child, but not both at 
+    the same time. 
+    
+    For more information about layer types, and how to create and 
+    and populate different types of layers, see the tutorial 
+    "low_level_layer_operations.ipynb"
+    
+    Adding spans 
+    ============ 
+    
+    Once you've created the layer, you can populate it with data:
+    spans and corresponding annotations. 
+    
+    You can use layer's methods add_annotation(...) and add_span(...) 
+    to add new spans. The add_annotation(...) method is the most straight-
+    forward one. It takes two inputs: the location of the span (start,end), 
+    and the dictionary of an annotation (attributes-values), and adds 
+    annotations to the layer at the specified location:
+    
+        assert isinstance(annotations, dict)
+        
+        new_layer.add_annotation( (start,end),**annotations )
+    
+    In case of an ambiguous layer, you can also add multiple annotations 
+    to the same location via layer.add_annotation(...).
+    
+    The add_span(...) method adds a new Span or EnvelopingSpan to the 
+    layer:
+    
+        from estnltk_core import Span
+
+        new_layer.add_span( Span(...) )
+    
+    Initializing a new Span or EnvelopingSpan is a nuanced operation, 
+    please consult the tutorial "low_level_layer_operations.ipynb" for 
+    more information about that.
+    
+    Note that you cannot add two Spans (or EnvelopingSpan-s) that have 
+    exactly the same text location, however, partially overlapping spans
+    are allowed.
+
     """
     __slots__ = ['_initialized', 'conf_param', 'output_layer', 'output_attributes', 'input_layers']
 
