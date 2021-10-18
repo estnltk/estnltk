@@ -7,12 +7,13 @@ from . import dict_to_text
 
 
 def json_to_text(json_text: str = None, file: str = None, file_encoding: str = 'utf-8') -> Union['BaseText', 'Text']:
-    """Imports Text object from json.
+    """Imports Text or BaseText object from json.
     If file is None, then loads corresponding dictionary 
     from json_text, otherwise, loads the dictionary from 
     the json format file. 
     In both cases, the loaded dictionary is finally 
-    converted to a Text object, and returned.
+    converted to a Text (or BaseText) object, and 
+    returned.
     
     Note: on the Windows platform, loading a text file 
     without specifying the encoding likely raises 
@@ -49,7 +50,7 @@ def json_to_layer(texts, json_str: str = None, file: str = None, file_encoding: 
 
 
 def json_to_layers(text: Union['BaseText', 'Text'], json_str: str = None, file: str = None, file_encoding: str = 'utf-8'):
-    """Imports a dict of layers of the same Text object from json.
+    """Imports a dict of layers of the same Text or BaseText object from json.
     If file is None, then loads corresponding dictionary
     from json_str, otherwise, loads the dictionary from
     the `file` in json format.

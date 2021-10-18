@@ -28,7 +28,7 @@ def annotation_to_json(annotation: Union['Annotation', Sequence['Annotation']], 
 
 
 def text_to_json(text: Union['BaseText', 'Text'], file: str = None, file_encoding: str = 'utf-8'):
-    """Exports Text object to json.
+    """Exports Text or BaseText object to json.
     If file is None, returns json string,
     otherwise dumps json string to file and returns None.
     
@@ -69,7 +69,8 @@ def layers_to_json(layers: dict,
                    file_encoding: str = 'utf-8'):
     """Exports a dict of layers to json.
 
-    The dict of layers maps layer names to Layer objects of the same Text object.
+    The dict of layers maps layer names to Layer objects of the same Text 
+    (or BaseText) object.
 
     If file is None, returns json string,
     otherwise dumps json string to file and returns None.
