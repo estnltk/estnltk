@@ -1,0 +1,6 @@
+# the list of package data used by "sdist"
+include COPYRIGHT
+include LICENSE
+graft license_headers
+graft estnltk_core/visualisation/span_visualiser
+
