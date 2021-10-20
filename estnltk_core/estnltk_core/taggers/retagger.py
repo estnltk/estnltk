@@ -5,8 +5,11 @@ from typing import MutableMapping, Union, Set
 
 
 class Retagger(Tagger):
-    """Base class for retaggers. Retagger modifies an existing layer. 
-    The modification is done inside the _change_layer() method, 
+    """Base class for retaggers. A retagger modifies existing layer. 
+    Use this class as a superclass in creating concrete 
+    implementations of retaggers.
+    
+    Layer is modified inside the _change_layer() method, 
     which always returns None, indicating that the method does 
     not produce a new layer, but changes the target layer.
     

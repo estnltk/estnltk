@@ -34,7 +34,10 @@ class TaggerChecker(type):
 
 
 class Tagger(metaclass=TaggerChecker):
-    """Base class for taggers. Tagger creates a new layer. 
+    """Base class for taggers. A tagger creates new layer. 
+    Use this class as a superclass in creating concrete 
+    implementations of taggers.
+    
     The new layer is created inside the _make_layer() method, 
     which returns Layer object. Optionally, you can also 
     implement _make_layer_template() method, which returns an 
