@@ -25,6 +25,9 @@ class Taggers:
         assert nx.is_directed_acyclic_graph(graph)
         return graph
 
+    def create_layer_for_text(self, layer_name, text):
+        self.rules[layer_name].tag(text)
+
     def list_layers(self):
         return nx.topological_sort(self.graph)
 
@@ -63,7 +66,7 @@ class Resolver:
         for prerequisite in self.taggers.graph.predecessors(layer_name):
             self.apply(text, prerequisite)
 
-        self.taggers.rules[layer_name].tag(text)
+        self.taggers.create_layer_for_text( layer_name, text )
         return text
 
 

@@ -112,8 +112,8 @@ class Tagger(metaclass=TaggerChecker):
       can only be at the same locations as spans of the parent 
       layer. 
     
-    A layer can be either enveloping or child, but not both at 
-    the same time. 
+    A dependent layer can be either enveloping or child, but not 
+    both at the same time. 
     
     For more information about layer types, and how to create and 
     and populate different types of layers, see the tutorial 
