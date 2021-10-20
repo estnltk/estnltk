@@ -38,14 +38,6 @@ class Tagger(metaclass=TaggerChecker):
     Use this class as a superclass in creating concrete 
     implementations of taggers.
     
-    The new layer is created inside the _make_layer() method, 
-    which returns Layer object. Optionally, you can also 
-    implement _make_layer_template() method, which returns an 
-    empty layer that contains all the proper attribute 
-    initializations, but is not associated with any text 
-    object (this is required if you want to use EstNLTK's 
-    Postgres interface). 
-
     Tagger's derived class needs to implement the following: 
     conf_param
     output_layer
@@ -58,6 +50,14 @@ class Tagger(metaclass=TaggerChecker):
     _make_layer_template
     __copy__
     __deepcopy__
+    
+    The new layer is created inside the _make_layer(...) method, 
+    which returns Layer object. Optionally, you can also 
+    implement _make_layer_template() method, which returns an 
+    empty layer that contains all the proper attribute 
+    initializations, but is not associated with any text 
+    object (this is required if you want to use EstNLTK's 
+    Postgres interface). 
     
     The name of the creatable layer is the output_layer, 
     and the layers required for its creation are listed in 

@@ -9,24 +9,25 @@ class Retagger(Tagger):
     Use this class as a superclass in creating concrete 
     implementations of retaggers.
     
-    Layer is modified inside the _change_layer() method, 
-    which always returns None, indicating that the method does 
-    not produce a new layer, but changes the target layer.
-    
-    Retagger is a subclass of Tagger and inherits its parameters 
-    and methods. 
     Retagger's derived class needs to implement the following: 
-    
     conf_param
     input_layers
     output_layer
     output_attributes
     __init__(...)
     _change_layer(...)
-
+    
+    Optionally, you can also add implementations of: 
+    __copy__
+    __deepcopy__
+    
+    The layer is modified inside the _change_layer(...) method, 
+    which always returns None, indicating that the method does 
+    not produce a new layer, but only changes the target layer.
+    
     The target layer that will be changed is the output_layer, 
     which should be accessed as layers[self.output_layer] inside 
-    the _change_layer(...) method.
+    the _change_layer(...) method. 
     
     Retagger can add or remove spans inside the target layer, or 
     change annotations of the spans. In addition, it can also modify 
