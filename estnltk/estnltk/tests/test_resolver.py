@@ -1,5 +1,6 @@
 from estnltk.resolve_layer_dag import Resolver, Taggers, make_resolver
-from estnltk import Layer, Text
+from estnltk_core import Layer
+from estnltk import Text
 from estnltk.taggers import Tagger
 
 

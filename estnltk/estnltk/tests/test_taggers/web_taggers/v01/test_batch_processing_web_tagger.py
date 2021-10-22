@@ -2,7 +2,7 @@ import pytest
 
 from estnltk import Text, Layer
 from estnltk.converters import layer_to_dict
-from estnltk.taggers.web_taggers.v01.batch_processing_web_tagger import BatchProcessingWebTagger
+from estnltk.web_taggers.v01.batch_processing_web_tagger import BatchProcessingWebTagger
 
 # =========================================================
 #  Test batch processing guided by an enveloping layer     

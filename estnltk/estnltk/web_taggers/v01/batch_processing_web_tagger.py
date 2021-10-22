@@ -15,7 +15,7 @@ from typing import MutableMapping
 
 from estnltk import Text
 from estnltk import Layer
-from estnltk.taggers import WebTagger
+from estnltk.web_taggers import WebTagger
 
 from estnltk_core.layer_operations import join_layers_while_reusing_spans
 from estnltk_core.layer_operations import extract_sections

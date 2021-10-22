@@ -2,7 +2,7 @@ import pickle
 import numpy as np
 from pprint import pformat
 
-from estnltk.helpers.neural_morph_logger import neural_morph_logger
+from estnltk_neural.helpers.neural_morph_logger import neural_morph_logger
 
 UNK = "$UNK$"
 NUM = "$NUM$"

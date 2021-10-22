@@ -1,8 +1,8 @@
 from typing import Sequence
-from estnltk.taggers import Tagger
-from estnltk import Span
-from estnltk import SpanList
-from estnltk import Layer
+from estnltk_core.taggers import Tagger
+from estnltk_core import Span
+from estnltk_core import SpanList
+from estnltk_core import Layer
 
 
 class Atomizer(Tagger):

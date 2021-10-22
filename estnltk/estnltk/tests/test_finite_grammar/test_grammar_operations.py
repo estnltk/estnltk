@@ -1,7 +1,7 @@
-from estnltk.finite_grammar import Grammar
-from estnltk.finite_grammar import Rule
-from estnltk.finite_grammar import phrase_list_generator
-from estnltk.finite_grammar import ngram_fingerprint
+from estnltk.taggers.grammar_taggers.finite_grammar import Grammar
+from estnltk.taggers.grammar_taggers.finite_grammar import Rule
+from estnltk.taggers.grammar_taggers.finite_grammar import phrase_list_generator
+from estnltk.taggers.grammar_taggers.finite_grammar import ngram_fingerprint
 
 
 def test_phrase_list_generator():

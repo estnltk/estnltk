@@ -4,9 +4,9 @@ from unittest import TestCase
 
 from estnltk import Text
 from estnltk.common import abs_path
-from estnltk_neural.estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
-from estnltk_neural.estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
-from estnltk_neural.estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
+from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
+from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
+from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
 
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
 

@@ -2,8 +2,8 @@ import itertools
 from typing import Sequence
 
 from estnltk import logger
-from estnltk.finite_grammar import Grammar
-from estnltk.finite_grammar.layer_graph import LayerGraph, NonTerminalNode, PlusNode, MSeqNode
+from estnltk.taggers.grammar_taggers.finite_grammar import Grammar
+from estnltk.taggers.grammar_taggers.finite_grammar.layer_graph import LayerGraph, NonTerminalNode, PlusNode, MSeqNode
 
 
 def get_match_up(graph, nodes, names, pos):

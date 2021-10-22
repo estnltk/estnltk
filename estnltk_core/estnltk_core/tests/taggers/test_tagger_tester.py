@@ -3,7 +3,7 @@ import os
 import regex as re
 
 from estnltk import Text
-from estnltk.taggers import TaggerTester
+from estnltk_core.taggers.tagger_tester import TaggerTester
 
 from estnltk.taggers import Tagger
 from estnltk import Layer

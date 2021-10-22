@@ -4,7 +4,7 @@ from estnltk import Text
 from estnltk import Layer
 from estnltk.taggers import GapTagger
 from estnltk.common import abs_path
-from estnltk.taggers import TaggerTester
+from estnltk_core.taggers.tagger_tester import TaggerTester
 
 text = Text('Üks kaks kolm neli viis kuus seitse.')
 layer_1 = Layer('test_1')

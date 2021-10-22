@@ -18,11 +18,11 @@ to as a multiclass (MC).
 """
 import os
 
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 from estnltk.taggers import Tagger
-from estnltk.neural_morph.old_neural_morph.data_utils import ConfigHolder
-from estnltk.neural_morph.old_neural_morph.model import Model
-from estnltk.neural_morph.old_neural_morph.general_utils import load_config_from_file
+from estnltk_neural.taggers.neural_morph.old_neural_morph.data_utils import ConfigHolder
+from estnltk_neural.taggers.neural_morph.old_neural_morph.model import Model
+from estnltk_neural.taggers.neural_morph.old_neural_morph.general_utils import load_config_from_file
 
 # Environment variable which points to a configuration file
 NEURAL_MORPH_TAGGER_CONFIG = 'NEURAL_MORPH_TAGGER_CONFIG'

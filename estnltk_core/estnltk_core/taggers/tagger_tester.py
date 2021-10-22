@@ -1,15 +1,16 @@
 from typing import List
 from os import path
 
-from estnltk import Text, Layer
-from estnltk.taggers import Tagger
+from estnltk_core import Layer
+from estnltk_core.taggers import Tagger
 from estnltk.converters import to_json_file, from_json_file
 from estnltk.converters import layer_to_dict, dict_to_layer
 from estnltk.converters import text_to_dict, dict_to_text
 
+from typing import Union
 
 class Test:
-    def __init__(self, annotation: str, text: Text, tagger: Tagger, expected_layer: Layer):
+    def __init__(self, annotation: str, text: Union['BaseText', 'Text'], tagger: Tagger, expected_layer: Layer):
         self.annotation = annotation
         self.text = text
         self.tagger = tagger

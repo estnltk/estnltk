@@ -1,5 +1,5 @@
-from estnltk.finite_grammar import Grammar, Rule, parse_graph
-from estnltk.finite_grammar.layer_graph import layer_to_graph
+from estnltk.taggers.grammar_taggers.finite_grammar import Grammar, Rule, parse_graph
+from estnltk.taggers.grammar_taggers.finite_grammar.layer_graph import layer_to_graph
 from estnltk_core.tests.helpers.text_objects import text_3
 
 

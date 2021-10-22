@@ -1,5 +1,5 @@
 from estnltk.common import abs_path
-from estnltk.taggers import TaggerTester
+from estnltk_core.taggers.tagger_tester import TaggerTester
 from estnltk.taggers import AddressPartTagger
 
 # test data created by estnltk/dev_documentation/testing/test_data_for_address_taggers.ipynb

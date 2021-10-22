@@ -1,8 +1,8 @@
 from typing import Union
 from collections import defaultdict
 
-from estnltk.finite_grammar import Grammar
-from estnltk.finite_grammar.grammar import match_SEQ_pattern
+from estnltk.taggers.grammar_taggers.finite_grammar import Grammar
+from estnltk.taggers.grammar_taggers.finite_grammar.grammar import match_SEQ_pattern
 
 
 def phrase_list_generator(grammar: Grammar,

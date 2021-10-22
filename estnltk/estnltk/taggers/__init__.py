@@ -1,14 +1,9 @@
 from estnltk_core.taggers.tagger import Tagger
 from estnltk_core.taggers.retagger import Retagger
 
-from estnltk.taggers.tagger_tester import TaggerTester
-
 from estnltk.taggers.standard_taggers.atomizer import Atomizer
 from estnltk.taggers.standard_taggers.annotation_rewriter import AnnotationRewriter
-from estnltk.taggers.standard_taggers.span_rewriter import SpanRewriter
 from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
-
-from estnltk.taggers.combined_tagger import CombinedTagger
 
 from estnltk.taggers.dict_taggers.vocabulary import Vocabulary
 from estnltk.taggers.dict_taggers.phrase_tagger import PhraseTagger
@@ -43,8 +38,6 @@ from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisa
 from estnltk.taggers.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
 
 from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
-
-from estnltk.taggers.sequential_tagger import SequentialTagger
 
 from estnltk.taggers.standard_taggers.disambiguating_tagger import DisambiguatingTagger
 from estnltk.taggers.standard_taggers.enveloping_gap_tagger import EnvelopingGapTagger
@@ -92,10 +85,3 @@ from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
 
 from estnltk.taggers.standard_taggers.attribute_comparison_tagger import AttributeComparisonTagger
 
-from estnltk.taggers.web_taggers.v01.web_tagger import WebTagger
-from estnltk.taggers.web_taggers.v01.batch_processing_web_tagger import BatchProcessingWebTagger
-from estnltk.taggers.web_taggers.v01.bert_embeddings_web_tagger import BertEmbeddingsWebTagger
-from estnltk.taggers.web_taggers.v01.softmax_emb_tag_sum_web_tagger import SoftmaxEmbTagSumWebTagger
-from estnltk.taggers.web_taggers.v01.vabamorf_web_tagger import VabamorfWebTagger
-from estnltk.taggers.web_taggers.v01.stanza_syntax_web_tagger import StanzaSyntaxWebTagger
-from estnltk.taggers.web_taggers.v01.stanza_syntax_ensemble_web_tagger import StanzaSyntaxEnsembleWebTagger

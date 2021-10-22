@@ -2,7 +2,7 @@ from typing import MutableMapping
 
 from estnltk import Text
 from estnltk import Layer
-from estnltk.taggers import BatchProcessingWebTagger
+from estnltk.web_taggers import BatchProcessingWebTagger
 
 class StanzaSyntaxWebTagger( BatchProcessingWebTagger ):
     """Tags dependency syntactic analysis using EstNLTK StanzaSyntaxTagger's webservice.

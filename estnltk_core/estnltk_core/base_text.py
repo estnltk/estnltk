@@ -26,19 +26,6 @@ class BaseText:
         'topological_sort',
     } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
-    # attribute_mapping_for_elementary_layers: Mapping[str, str]
-    attribute_mapping_for_elementary_layers = {
-        'lemma': 'morph_analysis',
-        'root': 'morph_analysis',
-        'root_tokens': 'morph_analysis',
-        'ending': 'morph_analysis',
-        'clitic': 'morph_analysis',
-        'form': 'morph_analysis',
-        'partofspeech': 'morph_analysis'
-    }
-
-    attribute_mapping_for_enveloping_layers = attribute_mapping_for_elementary_layers
-
     __slots__ = ['text', 'meta', '__dict__', '_shadowed_layers']
 
     def __init__(self, text: str = None) -> None:
@@ -112,25 +99,6 @@ class BaseText:
         # Deny access to all other attributes (layer names)
         raise AttributeError('layers cannot be assigned directly, use add_layer(...) function instead')
 
-    def __getattr__(self, item):
-        # Function __getattr__ is never called on items in __dict__
-
-        # Resolve slots
-        if item in self.__class__.__slots__:
-            return self.__getattribute__(item)
-
-        # Resolve all function calls
-        if item in self.__class__.methods:
-            return self.__getattribute__(item)
-
-        # Resolve attributes that uniquely determine a layer, e.g. BaseText/Text.lemmas ==> BaseText/Text.morph_layer.lemmas
-        attributes = self.__getattribute__('attributes')
-
-        if len(attributes[item]) == 1:
-            return getattr(self.__dict__[attributes[item][0]], item)
-
-        # Nothing else to resolve
-        raise AttributeError("'{}' object has no layer {!r}".format( self.__class__.__name__, item ))
 
     def __setitem__(self, key, value):
         raise TypeError('layers cannot be assigned directly, use add_layer(...) function instead')

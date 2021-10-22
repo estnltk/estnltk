@@ -19,3 +19,4 @@ if LooseVersion(pandas.__version__) < LooseVersion('1'):
     pandas.set_option('display.max_colwidth', -1)
 else:
     pandas.set_option('display.max_colwidth', None)
+

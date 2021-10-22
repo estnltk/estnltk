@@ -2,8 +2,8 @@ import pytest
 
 from estnltk import Text
 from estnltk.converters import layer_to_dict
-from estnltk.taggers import StanzaSyntaxWebTagger
-from estnltk.taggers import StanzaSyntaxEnsembleWebTagger
+from estnltk.web_taggers import StanzaSyntaxWebTagger
+from estnltk.web_taggers import StanzaSyntaxEnsembleWebTagger
 
 # Fix for DeprecationWarning: httpserver_listen_address fixture will be converted to session scope in version 1.0.0
 @pytest.fixture(scope="session")

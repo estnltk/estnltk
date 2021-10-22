@@ -12,7 +12,6 @@ lxml
 matplotlib
 requests
 IPython
-tensorflow
 numpy
 tqdm
 conllu

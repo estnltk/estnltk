@@ -2,7 +2,7 @@ import pytest
 import json
 from estnltk import Text, Layer
 from estnltk.converters import layer_to_dict
-from estnltk.taggers.web_taggers.v01.web_tagger import WebTagger
+from estnltk.web_taggers.v01.web_tagger import WebTagger
 
 
 class MyTestWebTagger(WebTagger):

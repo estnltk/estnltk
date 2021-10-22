@@ -532,11 +532,6 @@ class Layer:
                                                       'parent', 'enveloping',
                                                       'ambiguous', 'span count'])
 
-    def display(self, **kwargs):
-        from estnltk_core.visualisation import DisplaySpans
-        display_spans = DisplaySpans(**kwargs)
-        display_spans(self)
-
     print_start_end = False
 
     def _repr_html_(self):

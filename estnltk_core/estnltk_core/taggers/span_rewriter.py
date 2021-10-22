@@ -1,7 +1,8 @@
 from estnltk import Annotation
 from estnltk.taggers import Retagger
 
-
+#TODO make sure in the documentation that this is used instead of retagger
+#for annotation rewriting
 class SpanRewriter(Retagger):
     """Rewrites span annotations.
 

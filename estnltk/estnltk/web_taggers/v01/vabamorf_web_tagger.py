@@ -1,4 +1,4 @@
-from estnltk.taggers import WebTagger
+from estnltk.web_taggers import WebTagger
 
 
 class VabamorfWebTagger(WebTagger):

@@ -1,6 +1,6 @@
 from estnltk import Text, Layer, Span
 from estnltk.taggers import Tagger
-from estnltk.taggers import CombinedTagger
+from estnltk_core.taggers.combined_tagger import CombinedTagger
 
 
 class Tagger_1(Tagger):

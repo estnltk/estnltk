@@ -3,9 +3,9 @@ from typing import MutableMapping, List
 from transformers import BertTokenizer, logging, BertModel
 
 logging.set_verbosity(30)
-from estnltk.text import Text
+from estnltk import Text
 from estnltk.taggers import Tagger
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 import numpy as np
 
 

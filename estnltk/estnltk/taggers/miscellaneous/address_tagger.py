@@ -1,6 +1,6 @@
 from estnltk.taggers import RegexTagger, SpanTagger, PhraseTagger
 import re
-from estnltk.finite_grammar import Rule, Grammar
+from estnltk.taggers.grammar_taggers.finite_grammar import Rule, Grammar
 from estnltk.taggers import Tagger
 from estnltk.taggers import Atomizer
 from estnltk.taggers import MergeTagger

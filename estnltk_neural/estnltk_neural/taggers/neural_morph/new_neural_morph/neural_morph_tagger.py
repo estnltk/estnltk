@@ -3,9 +3,9 @@ import os
 
 from estnltk import Layer
 from estnltk.taggers import Tagger
-from estnltk.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
-from estnltk.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
-from estnltk.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
+from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
+from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
+from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 
 MODEL_FILES = {"data": ["analysis.txt",
                         "chars.txt",
