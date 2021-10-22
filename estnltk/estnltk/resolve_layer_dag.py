@@ -5,16 +5,25 @@ from estnltk_core.taggers import Tagger, Retagger
 
 class Taggers:
     """
-    Registry for Taggers, Retaggers and their dependencies.
+    Registry for layers and taggers required for layer creation. 
     Maintains a graph of layers' dependencies, which gives 
-    information about prerequisite layers of each layer.
+    information about prerequisite layers of each layer,
+    and holds taggers (and retaggers) that are needed for 
+    layer creation. 
     
-    The registry contains two types of entries:
-    *) Regular entry  --  a tagger that creates a new layer;
+    Each entry (node in the graph) maps name of a layer to 
+    the components that required for making the layer. 
+    There are two types of entries:
+    *) Regular entry -- a layer created by a single tagger;
     
-    *) Composite entry -- a tagger that creates a new layer,
-                          followed by one or more retaggers 
-                          modifying the layer;
+    *) Composite entry -- a layer created by a tagger, and 
+                          then modified by one or more retaggers;
+    
+    Entries / nodes are organised as a directed acyclic graph, 
+    in which arcs point from prerequisite layers to dependent 
+    layers.
+    
+    TODO: rename: TaggerRegistry or LayerRegistry ?
     """
     def __init__(self, taggers: List) -> None:
         self.rules = {}
@@ -140,10 +149,12 @@ class Taggers:
         records = []
         for layer_name in self.list_layers():
             if layer_name in self.composite_rules:
+                # A tagger followed by retagger(s)
                 records.append( self.rules[layer_name][0].parameters() )
                 for retagger in self.rules[layer_name][1:]:
                     records.append( retagger.parameters() )
             else:
+                # A single tagger
                 records.append( self.rules[layer_name].parameters() )
         import pandas
         df = pandas.DataFrame.from_records(records, columns=['name',
