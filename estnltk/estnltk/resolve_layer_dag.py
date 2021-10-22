@@ -29,10 +29,10 @@ class Taggers:
                 self.rules[tagger_entry[0].output_layer] = tagger_entry
             else:
                 # Add a single tagger
-                if not isinstance(tagger_entry, Tagger) or not issubclass( tagger_entry.__class__, Tagger ):
-                    raise Exception('(!) Expected a subclass of Tagger, but got {}.'.format(type(tagger_entry)) )
-                if issubclass( tagger_entry.__class__, Retagger ):
-                    raise Exception('(!) Expected a Tagger, not Retagger ({}).'.format( tagger_entry.__class__.__name__ ) )
+                if not issubclass( type(tagger_entry), Tagger ):
+                    raise Exception('(!) Expected a subclass of Tagger, but got {}.'.format( type(tagger_entry) ) )
+                if issubclass( type(tagger_entry), Retagger ):
+                    raise Exception('(!) Expected a subclass of Tagger, not Retagger ({}).'.format( tagger_entry.__class__.__name__ ) )
                 self.rules[tagger_entry.output_layer] = tagger_entry
         self.graph = self._make_graph()
 
@@ -42,10 +42,10 @@ class Taggers:
            an exception will be raised if a retagger is passed. 
            TODO: find a better name for this method ?
         '''
-        if not isinstance(tagger, Tagger) or not issubclass( tagger.__class__, Tagger ):
-            raise Exception('(!) Expected a subclass of Tagger.' )
-        if issubclass( tagger.__class__, Retagger ):
-            raise Exception('(!) Expected a Tagger, not Retagger.' )
+        if not issubclass( type(tagger), Tagger ):
+            raise Exception('(!) Expected a subclass of Tagger, but got {}.'.format( type(tagger) ) )
+        if issubclass( type(tagger), Retagger ):
+            raise Exception('(!) Expected a subclass of Tagger, not Retagger ({}).'.format( tagger.__class__.__name__ ) )
         output_layer = tagger.output_layer
         if output_layer not in self.composite_rules:
             self.rules[output_layer] = tagger
@@ -62,8 +62,8 @@ class Taggers:
            the end of retaggers list (so that it will be applied lastly). 
            Raises an exception if there is no tagger for creating the 
            layer in the registry. '''
-        if not isinstance(tagger, Retagger) or not issubclass( retagger.__class__, Retagger ):
-            raise Exception('(!) Expected a subclass of Retagger.' )
+        if not issubclass( type(retagger), Retagger ):
+            raise Exception('(!) Expected a subclass of Retagger, but got {}.'.format( type(retagger) ) )
         output_layer = retagger.output_layer
         if output_layer not in self.rules:
             raise Exception( '(!) Cannot add a retagger for the layer {!r}: '+
@@ -106,13 +106,13 @@ class Taggers:
         if len(taggers) < 1:
             raise Exception('(!) Unexpected empty list! ' + expect_msg )
         first_tagger = taggers[0]
-        if not isinstance(first_tagger, Tagger) or not issubclass( first_tagger.__class__, Tagger ):
-            raise Exception('(!) Expected a subclass of Tagger for the first list entry.' )
-        if issubclass( first_tagger.__class__, Retagger ):
-            raise Exception('(!) The first entry in the taggers list should be Tagger, not Retagger.' )
+        if not issubclass( type(first_tagger), Tagger ):
+            raise Exception('(!) Expected a subclass of Tagger for the first list entry, but got {}.'.format( type(first_tagger) ) )
+        if issubclass( type(first_tagger), Retagger ):
+            raise Exception('(!) The first entry in the taggers list should be Tagger, not Retagger ({}).'.format( type(first_tagger) ) )
         target_layer = first_tagger.output_layer
         for tagger in taggers[1:]:
-            if not isinstance( tagger, Retagger ) or not issubclass( tagger.__class__, Retagger ):
+            if not issubclass( type(tagger), Retagger ):
                 raise Exception('(!) Expected a subclass of Retagger, but got {}'.format(type(tagger)))
             if tagger.output_layer != target_layer:
                 raise Exception('(!) Unexpected output_layer {!r} in {}!'+\
