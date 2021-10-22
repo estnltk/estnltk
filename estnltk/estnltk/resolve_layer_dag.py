@@ -46,11 +46,23 @@ class Taggers:
         self.graph = self._make_graph()
 
     def update(self, tagger):
-        '''Updates the registry with a new tagger. 
-           Note that this should be a tagger, not retagger: 
-           an exception will be raised if a retagger is passed. 
-           TODO: find a better name for this method ?
+        ''' Updates the registry with the given tagger or retagger.
         '''
+        if issubclass( type(tagger), Retagger ):
+            self.add_retagger( tagger )
+        elif issubclass( type(tagger), Tagger ):
+            self.add_tagger( tagger )
+        else:
+            raise Exception('(!) Expected a subclass of Tagger or Retagger, not {}.'.format(type(tagger)) )
+
+    def add_tagger(self, tagger):
+        '''Adds a tagger to the registry. 
+           If the registry already contains an entry for creating 
+           tagger's output_layer, then the old entry will be 
+           overwritten: this will be the new tagger for creating 
+           the layer. 
+           Note that the argument should be a tagger, not retagger: 
+           an exception will be raised if a retagger is passed. '''
         if not issubclass( type(tagger), Tagger ):
             raise Exception('(!) Expected a subclass of Tagger, but got {}.'.format( type(tagger) ) )
         if issubclass( type(tagger), Retagger ):
