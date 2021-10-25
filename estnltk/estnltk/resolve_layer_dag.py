@@ -94,12 +94,13 @@ class Taggers:
         self.rules[output_layer].append( retagger )
         self.graph = self._make_graph()
 
-    def clear_retaggers(self, layer):
-        '''Removes all the retaggers modifying the given layer.'''
-        if layer in self.rules and layer in self.composite_rules:
-            assert isinstance(self.rules[layer], list)
-            self.rules[layer] = self.rules[layer][0]
-            self.composite_rules.remove( layer )
+    def clear_retaggers(self, layer_name):
+        '''Removes all the retaggers modifying the given layer.
+           Note: the tagger creating the layer will remain. '''
+        if layer_name in self.rules and layer_name in self.composite_rules:
+            assert isinstance(self.rules[layer_name], list)
+            self.rules[layer_name] = self.rules[layer_name][0]
+            self.composite_rules.remove( layer_name )
             # Important: we also need to update the graph
             self.graph = self._make_graph()
 
@@ -202,6 +203,11 @@ class Resolver:
     def taggers(self):
         '''Returns the Taggers registry of this Resolver.'''
         return self.taggers
+
+    def clear_retaggers(self, layer_name):
+        '''Removes all the retaggers modifying the given layer.
+           Note: the tagger creating the layer will remain. '''
+        self.taggers.clear_retaggers(layer_name)
 
     def list_layers(self):
         '''Lists layers that can be created by this resolver in the order 

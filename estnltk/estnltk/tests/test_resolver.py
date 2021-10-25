@@ -124,6 +124,18 @@ def test_create_resolver_circular_dependencies():
                            StubTagger('words', input_layers=['compound_tokens', 'tokens']) ])
 
 
+def test_resolver_list_layers():
+    # Test that resolver's registered layers can be returned in the order of their dependencies
+    taggers = Taggers([StubTagger('compound_tokens', input_layers=['tokens']),
+                       StubTagger('words', input_layers=['compound_tokens']),
+                       StubTagger('morph_analysis', input_layers=['words', 'sentences']),
+                       StubTagger('sentences', input_layers=['words']),
+                       StubTagger('tokens', input_layers=[])
+                       ])
+    resolver = Resolver(taggers)
+    assert list(resolver.list_layers()) == ['tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'] 
+
+
 def test_resolver_add_and_remove_retaggers():
     # Test that the resolver can be updated with new retaggers
     # and that retaggers can also be removed
@@ -143,7 +155,7 @@ def test_resolver_add_and_remove_retaggers():
     assert text['morph_analysis'].meta['modified'] == 2
     
     # Remove retaggers
-    resolver.taggers.clear_retaggers('morph_analysis')
+    resolver.clear_retaggers('morph_analysis')
     text2 = Text('test')
     resolver.apply(text2, 'morph_analysis')
     assert set(text2.layers) == {'tokens','compound_tokens', 'words', 'morph_analysis'}
