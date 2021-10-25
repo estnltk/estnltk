@@ -2,13 +2,13 @@ from typing import Union
 
 from estnltk_core import Layer
 from estnltk_core.taggers import Tagger, Retagger
-from estnltk_core.resolve_layer_dag import Resolver, Taggers
+from estnltk_core.resolve_layer_dag import Resolver, TaggersRegistry
 from estnltk_core.common import create_text_object
 
 import pytest
 
 class StubTagger(Tagger):
-    """A stub tagger for testing Resolver and Taggers.
+    """A stub tagger for testing Resolver and TaggersRegistry.
     """
     conf_param = []
 
@@ -24,7 +24,7 @@ class StubTagger(Tagger):
 
 
 class StubRetagger(Retagger):
-    """A stub retagger for testing Resolver and Taggers.
+    """A stub retagger for testing Resolver and TaggersRegistry.
     """
     conf_param = []
 
@@ -43,7 +43,7 @@ def test_create_resolver():
     # Test that the resolver can be created in two ways:
     # 1) providing the list of taggers upon creation
     # 2) adding taggers one by one 
-    taggers = Taggers([StubTagger('tokens', input_layers=[]),
+    taggers = TaggersRegistry([StubTagger('tokens', input_layers=[]),
                        StubTagger('compound_tokens', input_layers=['tokens']),
                        StubTagger('words', input_layers=['compound_tokens']),
                        StubTagger('sentences', input_layers=['words']),
@@ -54,7 +54,7 @@ def test_create_resolver():
     resolver1.apply(text1, 'morph_analysis')
     assert set(text1.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
     
-    resolver2 = Resolver( Taggers([]) )
+    resolver2 = Resolver( TaggersRegistry([]) )
     resolver2.update( StubTagger('tokens', input_layers=[]) )
     resolver2.update( StubTagger('compound_tokens', input_layers=['tokens']) )
     resolver2.update( StubTagger('words', input_layers=['compound_tokens']) )
@@ -71,15 +71,15 @@ def test_create_resolver_exceptions():
     # Case 1: trying to initiate with non-taggers; trying to update non-taggers
     with pytest.raises(TypeError):
         # TypeError: (!) Expected a subclass of Tagger, but got <class 'int'>.
-        taggers = Taggers([ 55, StubTagger('words', input_layers=[]) ])
+        taggers = TaggersRegistry([ 55, StubTagger('words', input_layers=[]) ])
     with pytest.raises(TypeError):
-        taggers = Taggers([])
+        taggers = TaggersRegistry([])
         # TypeError: (!) Expected a subclass of Tagger or Retagger, not <class 'str'>.
         taggers.update( "Tere!" )
     
     # Case 2: missing dependencies and missing taggers
     # Note that the resolver can be created even if some layers are missing
-    taggers = Taggers([StubTagger('tokens', input_layers=[]),
+    taggers = TaggersRegistry([StubTagger('tokens', input_layers=[]),
                        StubTagger('compound_tokens', input_layers=['tokens']),
                        StubTagger('words', input_layers=['compound_tokens_v2']),
                        StubTagger('sentences', input_layers=['words']) ])
@@ -96,23 +96,23 @@ def test_create_resolver_exceptions():
     # Case 3: retaggers instead of taggers; adding retagger before tagger
     with pytest.raises(TypeError):
         # TypeError: (!) Expected a subclass of Tagger, not Retagger (StubRetagger).
-        taggers = Taggers([StubTagger('words', input_layers=[]),
+        taggers = TaggersRegistry([StubTagger('words', input_layers=[]),
                            StubRetagger('sentences', input_layers=['words', 'sentences']) ])
     with pytest.raises(Exception):
         # Exception: (!) Cannot add a retagger for the layer 'morph_analysis': no tagger for creating the layer!
         resolver1.update( StubRetagger('morph_analysis', input_layers=['words', 'morph_analysis']) )
     with pytest.raises(ValueError):
         #  ValueError: (!) Unexpected output_layer 'words_2' in StubRetagger! Expecting 'words' as the output_layer.
-        taggers = Taggers([ [StubTagger('words', input_layers=[]),
+        taggers = TaggersRegistry([ [StubTagger('words', input_layers=[]),
                              StubRetagger('words_2', input_layers=['words'])] ])
     with pytest.raises(TypeError):
         # TypeError: (!) The first entry in the taggers list should be a tagger, 
         # not retagger (<class 'StubRetagger'>).
-        taggers = Taggers([ [StubRetagger('words', input_layers=['words']),
+        taggers = TaggersRegistry([ [StubRetagger('words', input_layers=['words']),
                              StubTagger('words', input_layers=[])] ])
     with pytest.raises(TypeError):
         # TypeError: (!) Expected a subclass of Retagger, but got <class 'StubTagger'>
-        taggers = Taggers([ [StubTagger('words', input_layers=[]),
+        taggers = TaggersRegistry([ [StubTagger('words', input_layers=[]),
                              StubRetagger('words', input_layers=['words']),
                              StubTagger('words', input_layers=['words'])] ])
 
@@ -121,14 +121,14 @@ def test_create_resolver_circular_dependencies():
     # Test that an exception will be thrown if the layer graph contains circular dependencies
     with pytest.raises(Exception):
         # Exception: (!) The layer graph is not acyclic! Please eliminate circular dependencies between taggers/retaggers.
-        taggers = Taggers([StubTagger('tokens', input_layers=['words']),
+        taggers = TaggersRegistry([StubTagger('tokens', input_layers=['words']),
                            StubTagger('compound_tokens', input_layers=['tokens']),
                            StubTagger('words', input_layers=['compound_tokens', 'tokens']) ])
 
 
 def test_resolver_list_layers():
     # Test that resolver's registered layers can be returned in the order of their dependencies
-    taggers = Taggers([StubTagger('compound_tokens', input_layers=['tokens']),
+    taggers = TaggersRegistry([StubTagger('compound_tokens', input_layers=['tokens']),
                        StubTagger('words', input_layers=['compound_tokens']),
                        StubTagger('morph_analysis', input_layers=['words', 'sentences']),
                        StubTagger('sentences', input_layers=['words']),
@@ -141,7 +141,7 @@ def test_resolver_list_layers():
 def test_resolver_add_and_remove_retaggers():
     # Test that the resolver can be updated with new retaggers
     # and that retaggers can also be removed
-    taggers = Taggers([StubTagger('tokens', input_layers=[]),
+    taggers = TaggersRegistry([StubTagger('tokens', input_layers=[]),
                        StubTagger('compound_tokens', input_layers=['tokens']),
                        StubTagger('words', input_layers=['compound_tokens']),
                        StubTagger('sentences', input_layers=['words']),
@@ -172,7 +172,7 @@ def test_resolver_add_and_remove_retaggers():
 
 def test_redefine_resolver_with_new_taggers():
     # Test that the resolver can be updated with new taggers
-    taggers = Taggers([StubTagger('tokens', input_layers=[]),
+    taggers = TaggersRegistry([StubTagger('tokens', input_layers=[]),
                        StubTagger('compound_tokens', input_layers=['tokens']),
                        StubTagger('words', input_layers=['compound_tokens']),
                        StubTagger('sentences', input_layers=['words']),

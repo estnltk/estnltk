@@ -3,7 +3,7 @@ import networkx as nx
 
 from estnltk_core.taggers import Tagger, Retagger
 
-class Taggers:
+class TaggersRegistry:
     """Registry for layers and taggers required for layer creation. 
     Maintains a graph of layers' dependencies, which gives 
     information about prerequisite layers of each layer, 
@@ -19,9 +19,7 @@ class Taggers:
     
     Entries / nodes are organised as a directed acyclic graph, 
     in which arcs point from prerequisite layers to dependent 
-    layers.
-    
-    TODO: rename: TaggerRegistry or LayerRegistry ?
+    layers. 
     """
     def __init__(self, taggers: List):
         self.rules = {}
@@ -30,7 +28,7 @@ class Taggers:
             if isinstance(tagger_entry, list):
                 # Check the first entry is a tagger, 
                 # and others are retaggers
-                Taggers.validate_taggers_node_list( tagger_entry )
+                TaggersRegistry.validate_taggers_node_list( tagger_entry )
                 self.composite_rules.add( tagger_entry[0].output_layer )
                 # Add a composite entry: tagger followed by retaggers
                 self.rules[tagger_entry[0].output_layer] = tagger_entry
@@ -71,7 +69,7 @@ class Taggers:
         else:
             new_listing = self.rules[output_layer].copy()
             new_listing[0] = tagger
-            Taggers.validate_taggers_node_list( new_listing )
+            TaggersRegistry.validate_taggers_node_list( new_listing )
             self.rules[output_layer][0] = tagger
         self.graph = self._make_graph()
 
@@ -189,10 +187,10 @@ class Taggers:
 
 class Resolver:
     """Resolver resolves layer dependencies and handles layer creation. 
-       Upon creating a layer, it uses the Taggers registry to (recursively) 
+       Upon creating a layer, it uses the TaggersRegistry to (recursively) 
        find and create all the prerequisite layers of the target layer."""
 
-    def __init__(self, taggers: Taggers):
+    def __init__(self, taggers: TaggersRegistry):
         self.taggers = taggers
 
     def update(self, tagger: Union[Tagger, Retagger]) -> None:
@@ -200,7 +198,7 @@ class Resolver:
         self.taggers.update(tagger)
 
     def taggers(self):
-        '''Returns the Taggers registry of this Resolver.'''
+        '''Returns TaggersRegistry of this Resolver.'''
         return self.taggers
 
     def clear_retaggers(self, layer_name: str) -> None:

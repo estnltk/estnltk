@@ -17,7 +17,7 @@ from estnltk.taggers import MorphExtendedTagger
 from estnltk.taggers import ClauseSegmenter    # Requires Java
 from estnltk.taggers import TimexTagger        # Requires Java
 
-from estnltk.resolve_layer_dag import Taggers, Resolver
+from estnltk.resolve_layer_dag import TaggersRegistry, Resolver
 
 
 
@@ -74,7 +74,7 @@ def make_timexes_resolver():
        all the necessary preprocessing steps.
        Returns the resolver.
     '''
-    taggers = Taggers([TokensTagger(), WordTagger(), CP_TAGGER_ADAPTED,
+    taggers = TaggersRegistry([TokensTagger(), WordTagger(), CP_TAGGER_ADAPTED,
                        SentenceTokenizer(), ParagraphTokenizer(),
                        VabamorfTagger(),    MorphExtendedTagger(), 
                        ClauseSegmenter(),   TimexTagger()])
