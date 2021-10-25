@@ -4,10 +4,9 @@ import networkx as nx
 from estnltk_core.taggers import Tagger, Retagger
 
 class Taggers:
-    """
-    Registry for layers and taggers required for layer creation. 
+    """Registry for layers and taggers required for layer creation. 
     Maintains a graph of layers' dependencies, which gives 
-    information about prerequisite layers of each layer,
+    information about prerequisite layers of each layer, 
     and holds taggers (and retaggers) that are needed for 
     layer creation. 
     
@@ -30,8 +29,8 @@ class Taggers:
         self.composite_rules = set()
         for tagger_entry in taggers:
             if isinstance(tagger_entry, list):
-                # Check the first entry is Tagger, 
-                # and others are Retaggers
+                # Check the first entry is a tagger, 
+                # and others are retaggers
                 Taggers.validate_taggers_node_list( tagger_entry )
                 self.composite_rules.add( tagger_entry[0].output_layer )
                 # Add a composite entry: tagger followed by retaggers
@@ -46,7 +45,7 @@ class Taggers:
         self.graph = self._make_graph()
 
     def update(self, tagger):
-        ''' Updates the registry with the given tagger or retagger.
+        '''Updates the registry with the given tagger or retagger.
         '''
         if issubclass( type(tagger), Retagger ):
             self.add_retagger( tagger )
@@ -119,9 +118,12 @@ class Taggers:
 
     @staticmethod
     def validate_taggers_node_list( taggers: List ):
-        '''Validates that the taggers list is suitable for registry's entry.'''
-        expect_msg = 'Expected a list containing a Tagger creating a layer, '+\
-                     'followed by one or more Retaggers modifying the layer.'
+        '''Validates that the taggers list is suitable for registry's entry.
+           A suitable list contains either a single tagger, or a tagger 
+           followed by one or more retaggers modifying the same layer.
+        '''
+        expect_msg = 'Expected a list containing a tagger creating a layer, '+\
+                     'followed by one or more retaggers modifying the layer.'
         if not isinstance( taggers, list ):
             raise Exception('(!) '+expect_msg )
         if len(taggers) < 1:
@@ -130,7 +132,7 @@ class Taggers:
         if not issubclass( type(first_tagger), Tagger ):
             raise Exception('(!) Expected a subclass of Tagger for the first list entry, but got {}.'.format( type(first_tagger) ) )
         if issubclass( type(first_tagger), Retagger ):
-            raise Exception('(!) The first entry in the taggers list should be Tagger, not Retagger ({}).'.format( type(first_tagger) ) )
+            raise Exception('(!) The first entry in the taggers list should be a tagger, not retagger ({}).'.format( type(first_tagger) ) )
         target_layer = first_tagger.output_layer
         for tagger in taggers[1:]:
             if not issubclass( type(tagger), Retagger ):
@@ -143,7 +145,10 @@ class Taggers:
                                            target_layer ) )
 
     def create_layer_for_text(self, layer_name, text):
-        '''Creates given layer for the given text using the available taggers/retaggers.'''
+        '''Creates given layer for the given text using the available taggers/retaggers.
+           The method returns None, as the created layer will be attached to the given 
+           Text object.
+        '''
         if layer_name not in self.rules:
             raise Exception('(!) No tagger registered for creating layer {!r}.'.format( layer_name ) )
         if layer_name in self.composite_rules:
@@ -178,22 +183,31 @@ class Taggers:
 
 
 class Resolver:
-    """
-    Use Taggers to tag layers.
-    """
+    """Resolver resolves layer dependencies and handles layer creation. 
+       Upon creating a layer, it uses the Taggers registry to (recursively) 
+       find and create all the prerequisite layers of the target layer."""
+
     def __init__(self, taggers: Taggers) -> None:
         self.taggers = taggers
 
     def update(self, tagger):
+        '''Updates the Taggers registry with the given tagger or retagger.'''
         self.taggers.update(tagger)
 
     def taggers(self):
+        '''Returns the Taggers registry of this Resolver.'''
         return self.taggers
 
     def list_layers(self):
+        '''Lists layers that can be created by this resolver in the order 
+           in which they should be created.'''
         return self.taggers.list_layers()
 
     def apply(self, text: 'Text', layer_name: str) -> 'Text':
+        '''Creates the given layer along with all the prerequisite layers. 
+           The layers will be attached to the input Text object. 
+           Returns the input Text object.
+        '''
         if layer_name in text.layers:
             return text
         for prerequisite in self.taggers.graph.predecessors(layer_name):
@@ -201,6 +215,10 @@ class Resolver:
 
         self.taggers.create_layer_for_text( layer_name, text )
         return text
+
+    def _repr_html_(self):
+        if self.taggers:
+            return self.taggers._repr_html_()
 
 
 from .taggers.text_segmentation.tokens_tagger import TokensTagger
