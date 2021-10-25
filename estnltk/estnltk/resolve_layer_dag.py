@@ -100,6 +100,8 @@ class Taggers:
             assert isinstance(self.rules[layer], list)
             self.rules[layer] = self.rules[layer][0]
             self.composite_rules.remove( layer )
+            # Important: we also need to update the graph
+            self.graph = self._make_graph()
 
     def _make_graph(self):
         '''Builds a dependency graph from input/output layers of taggers (and retaggers).'''
