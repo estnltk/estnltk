@@ -107,7 +107,7 @@ def test_create_resolver_exceptions():
         # TypeError: (!) The first entry in the taggers list should be a tagger, 
         # not retagger (<class 'StubRetagger'>).
         taggers = Taggers([ [StubRetagger('words', input_layers=['words']),
-                             StubTagger('words', input_layers=['words'])] ])
+                             StubTagger('words', input_layers=[])] ])
     with pytest.raises(TypeError):
         # TypeError: (!) Expected a subclass of Retagger, but got <class 'StubTagger'>
         taggers = Taggers([ [StubTagger('words', input_layers=[]),
@@ -148,11 +148,17 @@ def test_resolver_add_and_remove_retaggers():
                         StubRetagger('morph_analysis', input_layers=['morph_analysis', 'compound_tokens'])],
                        ])
     resolver = Resolver(taggers)
-
     text = Text('test')
     resolver.apply(text, 'morph_analysis')
     assert set(text.layers) == {'tokens','compound_tokens', 'words', 'sentences', 'morph_analysis'}
     assert text['morph_analysis'].meta['modified'] == 2
+    
+    # Add one more retagger
+    resolver.update( StubRetagger('morph_analysis', input_layers=['morph_analysis']) )
+    text = Text('test')
+    resolver.apply(text, 'morph_analysis')
+    assert set(text.layers) == {'tokens','compound_tokens', 'words', 'sentences', 'morph_analysis'}
+    assert text['morph_analysis'].meta['modified'] == 3
     
     # Remove retaggers
     resolver.clear_retaggers('morph_analysis')

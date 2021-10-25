@@ -11,10 +11,9 @@ class Taggers:
     layer creation. 
     
     Each entry (node in the graph) maps name of a layer to 
-    the components that required for making the layer. 
+    the components that are required for making the layer. 
     There are two types of entries:
     *) Regular entry -- a layer created by a single tagger;
-    
     *) Composite entry -- a layer created by a tagger, and 
                           then modified by one or more retaggers;
     
