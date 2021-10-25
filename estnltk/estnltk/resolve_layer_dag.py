@@ -38,9 +38,9 @@ class Taggers:
             else:
                 # Add a single tagger
                 if not issubclass( type(tagger_entry), Tagger ):
-                    raise Exception('(!) Expected a subclass of Tagger, but got {}.'.format( type(tagger_entry) ) )
+                    raise TypeError('(!) Expected a subclass of Tagger, but got {}.'.format( type(tagger_entry) ) )
                 if issubclass( type(tagger_entry), Retagger ):
-                    raise Exception('(!) Expected a subclass of Tagger, not Retagger ({}).'.format( tagger_entry.__class__.__name__ ) )
+                    raise TypeError('(!) Expected a subclass of Tagger, not Retagger ({}).'.format( tagger_entry.__class__.__name__ ) )
                 self.rules[tagger_entry.output_layer] = tagger_entry
         self.graph = self._make_graph()
 
@@ -52,7 +52,7 @@ class Taggers:
         elif issubclass( type(tagger), Tagger ):
             self.add_tagger( tagger )
         else:
-            raise Exception('(!) Expected a subclass of Tagger or Retagger, not {}.'.format(type(tagger)) )
+            raise TypeError('(!) Expected a subclass of Tagger or Retagger, not {}.'.format(type(tagger)) )
 
     def add_tagger(self, tagger):
         '''Adds a tagger to the registry. 
@@ -63,9 +63,9 @@ class Taggers:
            Note that the argument should be a tagger, not retagger: 
            an exception will be raised if a retagger is passed. '''
         if not issubclass( type(tagger), Tagger ):
-            raise Exception('(!) Expected a subclass of Tagger, but got {}.'.format( type(tagger) ) )
+            raise TypeError('(!) Expected a subclass of Tagger, but got {}.'.format( type(tagger) ) )
         if issubclass( type(tagger), Retagger ):
-            raise Exception('(!) Expected a subclass of Tagger, not Retagger ({}).'.format( tagger.__class__.__name__ ) )
+            raise TypeError('(!) Expected a subclass of Tagger, not Retagger ({}).'.format( tagger.__class__.__name__ ) )
         output_layer = tagger.output_layer
         if output_layer not in self.composite_rules:
             self.rules[output_layer] = tagger
@@ -83,11 +83,11 @@ class Taggers:
            Raises an exception if there is no tagger for creating the 
            layer in the registry. '''
         if not issubclass( type(retagger), Retagger ):
-            raise Exception('(!) Expected a subclass of Retagger, but got {}.'.format( type(retagger) ) )
+            raise TypeError('(!) Expected a subclass of Retagger, but got {}.'.format( type(retagger) ) )
         output_layer = retagger.output_layer
         if output_layer not in self.rules:
-            raise Exception( ('(!) Cannot add a retagger for the layer {!r}: '+
-                              'no tagger for creating the layer!').format( output_layer ) )
+            raise ValueError( ('(!) Cannot add a retagger for the layer {!r}: '+
+                               'no tagger for creating the layer!').format( output_layer ) )
         if output_layer not in self.composite_rules:
             self.rules[output_layer] = [ self.rules[output_layer] ]
             self.composite_rules.add( output_layer )
@@ -130,21 +130,21 @@ class Taggers:
         expect_msg = 'Expected a list containing a tagger creating a layer, '+\
                      'followed by one or more retaggers modifying the layer.'
         if not isinstance( taggers, list ):
-            raise Exception('(!) '+expect_msg )
+            raise TypeError('(!) '+expect_msg )
         if len(taggers) < 1:
-            raise Exception('(!) Unexpected empty list! ' + expect_msg )
+            raise ValueError('(!) Unexpected empty list! ' + expect_msg )
         first_tagger = taggers[0]
         if not issubclass( type(first_tagger), Tagger ):
-            raise Exception('(!) Expected a subclass of Tagger for the first list entry, but got {}.'.format( type(first_tagger) ) )
+            raise TypeError('(!) Expected a subclass of Tagger for the first list entry, but got {}.'.format( type(first_tagger) ) )
         if issubclass( type(first_tagger), Retagger ):
-            raise Exception('(!) The first entry in the taggers list should be a tagger, not retagger ({}).'.format( type(first_tagger) ) )
+            raise TypeError('(!) The first entry in the taggers list should be a tagger, not retagger ({}).'.format( type(first_tagger) ) )
         target_layer = first_tagger.output_layer
         for tagger in taggers[1:]:
             if not issubclass( type(tagger), Retagger ):
-                raise Exception('(!) Expected a subclass of Retagger, but got {}'.format(type(tagger)))
+                raise TypeError('(!) Expected a subclass of Retagger, but got {}'.format(type(tagger)))
             if tagger.output_layer != target_layer:
-                raise Exception( ('(!) Unexpected output_layer {!r} in {}!'+\
-                                  ' Expecting {!r} as the output_layer.').format( \
+                raise ValueError( ('(!) Unexpected output_layer {!r} in {}!'+\
+                                   ' Expecting {!r} as the output_layer.').format( \
                                            tagger.output_layer, \
                                            tagger.__class__.__name__, \
                                            target_layer ) )

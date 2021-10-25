@@ -67,12 +67,12 @@ def test_create_resolver_exceptions():
     # Test that exceptions will be thrown upon problematic tagger registry & resolver creation
     
     # Case 1: trying to initiate with non-taggers; trying to update non-taggers
-    with pytest.raises(Exception):
-        # Exception: (!) Expected a subclass of Tagger, but got <class 'int'>.
+    with pytest.raises(TypeError):
+        # TypeError: (!) Expected a subclass of Tagger, but got <class 'int'>.
         taggers = Taggers([ 55, StubTagger('words', input_layers=[]) ])
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         taggers = Taggers([])
-        # Exception: (!) Expected a subclass of Tagger or Retagger, not <class 'str'>.
+        # TypeError: (!) Expected a subclass of Tagger or Retagger, not <class 'str'>.
         taggers.update( "Tere!" )
     
     # Case 2: missing dependencies and missing taggers
@@ -92,24 +92,24 @@ def test_create_resolver_exceptions():
         resolver1.apply(text1, 'morph_analysis')
     
     # Case 3: retaggers instead of taggers; adding retagger before tagger
-    with pytest.raises(Exception):
-        # Exception: (!) Expected a subclass of Tagger, not Retagger (StubRetagger).
+    with pytest.raises(TypeError):
+        # TypeError: (!) Expected a subclass of Tagger, not Retagger (StubRetagger).
         taggers = Taggers([StubTagger('words', input_layers=[]),
                            StubRetagger('sentences', input_layers=['words', 'sentences']) ])
     with pytest.raises(Exception):
         # Exception: (!) Cannot add a retagger for the layer 'morph_analysis': no tagger for creating the layer!
         resolver1.update( StubRetagger('morph_analysis', input_layers=['words', 'morph_analysis']) )
-    with pytest.raises(Exception):
-        #  Exception: (!) Unexpected output_layer 'words_2' in StubRetagger! Expecting 'words' as the output_layer.
+    with pytest.raises(ValueError):
+        #  ValueError: (!) Unexpected output_layer 'words_2' in StubRetagger! Expecting 'words' as the output_layer.
         taggers = Taggers([ [StubTagger('words', input_layers=[]),
                              StubRetagger('words_2', input_layers=['words'])] ])
-    with pytest.raises(Exception):
-        # Exception: (!) The first entry in the taggers list should be a tagger, 
+    with pytest.raises(TypeError):
+        # TypeError: (!) The first entry in the taggers list should be a tagger, 
         # not retagger (<class 'StubRetagger'>).
         taggers = Taggers([ [StubRetagger('words', input_layers=['words']),
                              StubTagger('words', input_layers=['words'])] ])
-    with pytest.raises(Exception):
-        # Exception: (!) Expected a subclass of Retagger, but got <class 'StubTagger'>
+    with pytest.raises(TypeError):
+        # TypeError: (!) Expected a subclass of Retagger, but got <class 'StubTagger'>
         taggers = Taggers([ [StubTagger('words', input_layers=[]),
                              StubRetagger('words', input_layers=['words']),
                              StubTagger('words', input_layers=['words'])] ])
