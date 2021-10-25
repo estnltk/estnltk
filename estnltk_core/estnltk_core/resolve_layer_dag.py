@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 import networkx as nx
 
 from estnltk_core.taggers import Tagger, Retagger
@@ -43,7 +43,7 @@ class Taggers:
                 self.rules[tagger_entry.output_layer] = tagger_entry
         self.graph = self._make_graph()
 
-    def update(self, tagger):
+    def update(self, tagger: Union[Tagger, Retagger] ) -> None:
         '''Updates the registry with the given tagger or retagger.
         '''
         if issubclass( type(tagger), Retagger ):
@@ -53,7 +53,7 @@ class Taggers:
         else:
             raise TypeError('(!) Expected a subclass of Tagger or Retagger, not {}.'.format(type(tagger)) )
 
-    def add_tagger(self, tagger):
+    def add_tagger(self, tagger: Tagger) -> None:
         '''Adds a tagger to the registry. 
            If the registry already contains an entry for creating 
            tagger's output_layer, then the old entry will be 
@@ -75,7 +75,7 @@ class Taggers:
             self.rules[output_layer][0] = tagger
         self.graph = self._make_graph()
 
-    def add_retagger(self, retagger):
+    def add_retagger(self, retagger: Retagger) -> None:
         '''Adds a new retagger to the registry. 
            If the layer already has retaggers, adds the given retagger to 
            the end of retaggers list (so that it will be applied lastly). 
@@ -93,7 +93,7 @@ class Taggers:
         self.rules[output_layer].append( retagger )
         self.graph = self._make_graph()
 
-    def clear_retaggers(self, layer_name):
+    def clear_retaggers(self, layer_name: str) -> None:
         '''Removes all the retaggers modifying the given layer.
            Note: the tagger creating the layer will remain. '''
         if layer_name in self.rules and layer_name in self.composite_rules:
@@ -103,7 +103,7 @@ class Taggers:
             # Important: we also need to update the graph
             self.graph = self._make_graph()
 
-    def _make_graph(self):
+    def _make_graph(self) -> None:
         '''Builds a dependency graph from input/output layers of taggers (and retaggers).'''
         graph = nx.DiGraph()
         graph.add_nodes_from(self.rules)
@@ -122,7 +122,7 @@ class Taggers:
         return graph
 
     @staticmethod
-    def validate_taggers_node_list( taggers: List ):
+    def validate_taggers_node_list( taggers: List[ Union[Tagger, Retagger] ] ) -> None:
         '''Validates that the taggers list is suitable for registry's entry.
            A suitable list contains either a single tagger, or a tagger 
            followed by one or more retaggers modifying the same layer.
@@ -149,7 +149,7 @@ class Taggers:
                                            tagger.__class__.__name__, \
                                            target_layer ) )
 
-    def create_layer_for_text(self, layer_name, text):
+    def create_layer_for_text(self,  layer_name: str,  text: Union['BaseText', 'Text']) -> None:
         '''Creates given layer for the given text using the available taggers/retaggers.
            The method returns None, as the created layer will be attached to the given 
            Text object.
@@ -163,7 +163,7 @@ class Taggers:
         else:
             self.rules[layer_name].tag(text)
 
-    def list_layers(self):
+    def list_layers(self) -> List[str]:
         '''Lists creatable layers in a topological order.'''
         return nx.topological_sort(self.graph)
 
@@ -195,7 +195,7 @@ class Resolver:
     def __init__(self, taggers: Taggers) -> None:
         self.taggers = taggers
 
-    def update(self, tagger):
+    def update(self, tagger: Union[Tagger, Retagger]) -> None:
         '''Updates the Taggers registry with the given tagger or retagger.'''
         self.taggers.update(tagger)
 
@@ -203,17 +203,17 @@ class Resolver:
         '''Returns the Taggers registry of this Resolver.'''
         return self.taggers
 
-    def clear_retaggers(self, layer_name):
+    def clear_retaggers(self, layer_name: str) -> None:
         '''Removes all the retaggers modifying the given layer.
            Note: the tagger creating the layer will remain. '''
         self.taggers.clear_retaggers(layer_name)
 
-    def list_layers(self):
+    def list_layers(self) -> List[str]:
         '''Lists layers that can be created by this resolver in the order 
            in which they should be created.'''
         return self.taggers.list_layers()
 
-    def apply(self, text: 'Text', layer_name: str) -> 'Text':
+    def apply(self, text: Union['BaseText', 'Text'], layer_name: str) -> Union['BaseText', 'Text']:
         '''Creates the given layer along with all the prerequisite layers. 
            The layers will be attached to the input Text object. 
            Returns the input Text object.
