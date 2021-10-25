@@ -23,7 +23,7 @@ class Taggers:
     
     TODO: rename: TaggerRegistry or LayerRegistry ?
     """
-    def __init__(self, taggers: List) -> None:
+    def __init__(self, taggers: List):
         self.rules = {}
         self.composite_rules = set()
         for tagger_entry in taggers:
@@ -192,7 +192,7 @@ class Resolver:
        Upon creating a layer, it uses the Taggers registry to (recursively) 
        find and create all the prerequisite layers of the target layer."""
 
-    def __init__(self, taggers: Taggers) -> None:
+    def __init__(self, taggers: Taggers):
         self.taggers = taggers
 
     def update(self, tagger: Union[Tagger, Retagger]) -> None:

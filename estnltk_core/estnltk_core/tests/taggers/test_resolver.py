@@ -1,7 +1,9 @@
-from estnltk_core.taggers import Tagger, Retagger
+from typing import Union
+
 from estnltk_core import Layer
-from estnltk.resolve_layer_dag import Resolver, Taggers
-from estnltk import Text
+from estnltk_core.taggers import Tagger, Retagger
+from estnltk_core.resolve_layer_dag import Resolver, Taggers
+from estnltk_core.common import create_text_object
 
 import pytest
 
@@ -15,7 +17,7 @@ class StubTagger(Tagger):
         self.input_layers = input_layers
         self.output_attributes = []
 
-    def _make_layer(self, text: Text, layers, status=None) -> Layer:
+    def _make_layer(self, text: Union['BaseText', 'Text'], layers, status=None) -> Layer:
         layer = Layer(self.output_layer, self.output_attributes, text_object=text)
         layer.meta['modified'] = 0
         return layer
@@ -31,7 +33,7 @@ class StubRetagger(Retagger):
         self.input_layers = input_layers
         self.output_attributes = []
 
-    def _change_layer(self, text: Text, layers, status=None) -> Layer:
+    def _change_layer(self, text: Union['BaseText', 'Text'], layers, status=None) -> None:
         target_layer = layers[self.output_layer]
         target_layer.meta['modified'] += 1
         return None
@@ -48,7 +50,7 @@ def test_create_resolver():
                        StubTagger('morph_analysis', input_layers=['words', 'sentences'])
                        ])
     resolver1 = Resolver(taggers)
-    text1 = Text('test')
+    text1 = create_text_object('test')
     resolver1.apply(text1, 'morph_analysis')
     assert set(text1.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
     
@@ -58,7 +60,7 @@ def test_create_resolver():
     resolver2.update( StubTagger('words', input_layers=['compound_tokens']) )
     resolver2.update( StubTagger('sentences', input_layers=['words']) )
     resolver2.update( StubTagger('morph_analysis', input_layers=['words', 'sentences']) )
-    text2 = Text('test')
+    text2 = create_text_object('test')
     resolver2.apply(text2, 'morph_analysis')
     assert set(text2.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
 
@@ -82,7 +84,7 @@ def test_create_resolver_exceptions():
                        StubTagger('words', input_layers=['compound_tokens_v2']),
                        StubTagger('sentences', input_layers=['words']) ])
     resolver1 = Resolver(taggers)
-    text1 = Text('test')
+    text1 = create_text_object('test')
     # But applying the resolver should throw an exception
     with pytest.raises(Exception):
         # Exception: (!) No tagger registered for creating layer 'compound_tokens_v2'.
@@ -148,21 +150,21 @@ def test_resolver_add_and_remove_retaggers():
                         StubRetagger('morph_analysis', input_layers=['morph_analysis', 'compound_tokens'])],
                        ])
     resolver = Resolver(taggers)
-    text = Text('test')
+    text = create_text_object('test')
     resolver.apply(text, 'morph_analysis')
     assert set(text.layers) == {'tokens','compound_tokens', 'words', 'sentences', 'morph_analysis'}
     assert text['morph_analysis'].meta['modified'] == 2
     
     # Add one more retagger
     resolver.update( StubRetagger('morph_analysis', input_layers=['morph_analysis']) )
-    text = Text('test')
+    text = create_text_object('test')
     resolver.apply(text, 'morph_analysis')
     assert set(text.layers) == {'tokens','compound_tokens', 'words', 'sentences', 'morph_analysis'}
     assert text['morph_analysis'].meta['modified'] == 3
     
     # Remove retaggers
     resolver.clear_retaggers('morph_analysis')
-    text2 = Text('test')
+    text2 = create_text_object('test')
     resolver.apply(text2, 'morph_analysis')
     assert set(text2.layers) == {'tokens','compound_tokens', 'words', 'morph_analysis'}
     assert text2['morph_analysis'].meta['modified'] == 0
@@ -181,13 +183,13 @@ def test_redefine_resolver_with_new_taggers():
 
     resolver = Resolver(taggers)
 
-    text = Text('test')
+    text = create_text_object('test')
     resolver.apply(text, 'sentences')
     assert set(text.layers) == {'tokens','compound_tokens', 'words', 'sentences'}
 
     resolver.update(StubTagger('words2', input_layers=['tokens']))
     resolver.update(StubTagger('sentences', input_layers=['words2']))
-    text = Text('test')
+    text = create_text_object('test')
     resolver.apply(text, 'sentences')
     assert set(text.layers) == {'tokens', 'words2', 'sentences'}
 
