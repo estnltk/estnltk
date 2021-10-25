@@ -64,7 +64,7 @@ def test_create_resolver():
 
 
 def test_create_resolver_exceptions():
-    # Test that exceptions will be thrown upon problematic layer creation
+    # Test that exceptions will be thrown upon problematic tagger registry & resolver creation
     
     # Case 1: trying to initiate with non-taggers; trying to update non-taggers
     with pytest.raises(Exception):
@@ -99,7 +99,29 @@ def test_create_resolver_exceptions():
     with pytest.raises(Exception):
         # Exception: (!) Cannot add a retagger for the layer 'morph_analysis': no tagger for creating the layer!
         resolver1.update( StubRetagger('morph_analysis', input_layers=['words', 'morph_analysis']) )
+    with pytest.raises(Exception):
+        #  Exception: (!) Unexpected output_layer 'words_2' in StubRetagger! Expecting 'words' as the output_layer.
+        taggers = Taggers([ [StubTagger('words', input_layers=[]),
+                             StubRetagger('words_2', input_layers=['words'])] ])
+    with pytest.raises(Exception):
+        # Exception: (!) The first entry in the taggers list should be a tagger, 
+        # not retagger (<class 'StubRetagger'>).
+        taggers = Taggers([ [StubRetagger('words', input_layers=['words']),
+                             StubTagger('words', input_layers=['words'])] ])
+    with pytest.raises(Exception):
+        # Exception: (!) Expected a subclass of Retagger, but got <class 'StubTagger'>
+        taggers = Taggers([ [StubTagger('words', input_layers=[]),
+                             StubRetagger('words', input_layers=['words']),
+                             StubTagger('words', input_layers=['words'])] ])
 
+
+def test_create_resolver_circular_dependencies():
+    # Test that an exception will be thrown if the layer graph contains circular dependencies
+    with pytest.raises(Exception):
+        # Exception: (!) The layer graph is not acyclic! Please eliminate circular dependencies between taggers/retaggers.
+        taggers = Taggers([StubTagger('tokens', input_layers=['words']),
+                           StubTagger('compound_tokens', input_layers=['tokens']),
+                           StubTagger('words', input_layers=['compound_tokens', 'tokens']) ])
 
 
 def test_resolver_add_and_remove_retaggers():

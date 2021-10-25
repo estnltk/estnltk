@@ -115,7 +115,10 @@ class Taggers:
                 for dep in tagger.input_layers:
                     if dep != tagger.output_layer:
                         graph.add_edge(dep, layer_name)
-        assert nx.is_directed_acyclic_graph(graph)
+        if not nx.is_directed_acyclic_graph(graph):
+            raise Exception('(!) The layer graph is not acyclic! '+\
+                            'Please eliminate circular dependencies '+\
+                            'between taggers/retaggers.')
         return graph
 
     @staticmethod
@@ -140,8 +143,8 @@ class Taggers:
             if not issubclass( type(tagger), Retagger ):
                 raise Exception('(!) Expected a subclass of Retagger, but got {}'.format(type(tagger)))
             if tagger.output_layer != target_layer:
-                raise Exception('(!) Unexpected output_layer {!r} in {}!'+\
-                                ' Expecting {!r} as the output_layer.'.format( \
+                raise Exception( ('(!) Unexpected output_layer {!r} in {}!'+\
+                                  ' Expecting {!r} as the output_layer.').format( \
                                            tagger.output_layer, \
                                            tagger.__class__.__name__, \
                                            target_layer ) )
