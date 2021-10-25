@@ -5,8 +5,8 @@ from estnltk import Text
 
 import pytest
 
-class TestTagger(Tagger):
-    """Tagger for testing Resolver and Taggers.
+class StubTagger(Tagger):
+    """A stub tagger for testing Resolver and Taggers.
     """
     conf_param = []
 
@@ -21,8 +21,8 @@ class TestTagger(Tagger):
         return layer
 
 
-class TestRetagger(Retagger):
-    """Retagger for testing Resolver and Taggers.
+class StubRetagger(Retagger):
+    """A stub retagger for testing Resolver and Taggers.
     """
     conf_param = []
 
@@ -41,11 +41,11 @@ def test_create_resolver():
     # Test that the resolver can be created in two ways:
     # 1) providing the list of taggers upon creation
     # 2) adding taggers one by one 
-    taggers = Taggers([TestTagger('tokens', input_layers=[]),
-                       TestTagger('compound_tokens', input_layers=['tokens']),
-                       TestTagger('words', input_layers=['compound_tokens']),
-                       TestTagger('sentences', input_layers=['words']),
-                       TestTagger('morph_analysis', input_layers=['words', 'sentences'])
+    taggers = Taggers([StubTagger('tokens', input_layers=[]),
+                       StubTagger('compound_tokens', input_layers=['tokens']),
+                       StubTagger('words', input_layers=['compound_tokens']),
+                       StubTagger('sentences', input_layers=['words']),
+                       StubTagger('morph_analysis', input_layers=['words', 'sentences'])
                        ])
     resolver1 = Resolver(taggers)
     text1 = Text('test')
@@ -53,11 +53,11 @@ def test_create_resolver():
     assert set(text1.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
     
     resolver2 = Resolver( Taggers([]) )
-    resolver2.update( TestTagger('tokens', input_layers=[]) )
-    resolver2.update( TestTagger('compound_tokens', input_layers=['tokens']) )
-    resolver2.update( TestTagger('words', input_layers=['compound_tokens']) )
-    resolver2.update( TestTagger('sentences', input_layers=['words']) )
-    resolver2.update( TestTagger('morph_analysis', input_layers=['words', 'sentences']) )
+    resolver2.update( StubTagger('tokens', input_layers=[]) )
+    resolver2.update( StubTagger('compound_tokens', input_layers=['tokens']) )
+    resolver2.update( StubTagger('words', input_layers=['compound_tokens']) )
+    resolver2.update( StubTagger('sentences', input_layers=['words']) )
+    resolver2.update( StubTagger('morph_analysis', input_layers=['words', 'sentences']) )
     text2 = Text('test')
     resolver2.apply(text2, 'morph_analysis')
     assert set(text2.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
@@ -66,30 +66,52 @@ def test_create_resolver():
 def test_create_resolver_exceptions():
     # Test that exceptions will be thrown upon problematic layer creation
     
-    # Note that the resolver can be created even if some input layers are missing
-    taggers = Taggers([TestTagger('tokens', input_layers=[]),
-                       TestTagger('compound_tokens', input_layers=['tokens']),
-                       TestTagger('words', input_layers=['compound_tokens_v2']),
-                       TestTagger('sentences', input_layers=['words']) 
-                      ])
+    # Case 1: trying to initiate with non-taggers; trying to update non-taggers
+    with pytest.raises(Exception):
+        # Exception: (!) Expected a subclass of Tagger, but got <class 'int'>.
+        taggers = Taggers([ 55, StubTagger('words', input_layers=[]) ])
+    with pytest.raises(Exception):
+        taggers = Taggers([])
+        # Exception: (!) Expected a subclass of Tagger or Retagger, not <class 'str'>.
+        taggers.update( "Tere!" )
+    
+    # Case 2: missing dependencies and missing taggers
+    # Note that the resolver can be created even if some layers are missing
+    taggers = Taggers([StubTagger('tokens', input_layers=[]),
+                       StubTagger('compound_tokens', input_layers=['tokens']),
+                       StubTagger('words', input_layers=['compound_tokens_v2']),
+                       StubTagger('sentences', input_layers=['words']) ])
     resolver1 = Resolver(taggers)
     text1 = Text('test')
     # But applying the resolver should throw an exception
     with pytest.raises(Exception):
         # Exception: (!) No tagger registered for creating layer 'compound_tokens_v2'.
         resolver1.apply(text1, 'sentences')
+    with pytest.raises(Exception):
+        # Exception: (!) No tagger registered for creating layer 'morph_analysis'.
+        resolver1.apply(text1, 'morph_analysis')
+    
+    # Case 3: retaggers instead of taggers; adding retagger before tagger
+    with pytest.raises(Exception):
+        # Exception: (!) Expected a subclass of Tagger, not Retagger (StubRetagger).
+        taggers = Taggers([StubTagger('words', input_layers=[]),
+                           StubRetagger('sentences', input_layers=['words', 'sentences']) ])
+    with pytest.raises(Exception):
+        # Exception: (!) Cannot add a retagger for the layer 'morph_analysis': no tagger for creating the layer!
+        resolver1.update( StubRetagger('morph_analysis', input_layers=['words', 'morph_analysis']) )
+
 
 
 def test_resolver_add_and_remove_retaggers():
     # Test that the resolver can be updated with new retaggers
     # and that retaggers can also be removed
-    taggers = Taggers([TestTagger('tokens', input_layers=[]),
-                       TestTagger('compound_tokens', input_layers=['tokens']),
-                       TestTagger('words', input_layers=['compound_tokens']),
-                       TestTagger('sentences', input_layers=['words']),
-                       [TestTagger('morph_analysis', input_layers=['words']),
-                        TestRetagger('morph_analysis', input_layers=['morph_analysis', 'sentences']),
-                        TestRetagger('morph_analysis', input_layers=['morph_analysis', 'compound_tokens'])],
+    taggers = Taggers([StubTagger('tokens', input_layers=[]),
+                       StubTagger('compound_tokens', input_layers=['tokens']),
+                       StubTagger('words', input_layers=['compound_tokens']),
+                       StubTagger('sentences', input_layers=['words']),
+                       [StubTagger('morph_analysis', input_layers=['words']),
+                        StubRetagger('morph_analysis', input_layers=['morph_analysis', 'sentences']),
+                        StubRetagger('morph_analysis', input_layers=['morph_analysis', 'compound_tokens'])],
                        ])
     resolver = Resolver(taggers)
 
@@ -100,7 +122,6 @@ def test_resolver_add_and_remove_retaggers():
     
     # Remove retaggers
     resolver.taggers.clear_retaggers('morph_analysis')
-    print( resolver.taggers.rules['morph_analysis'] )
     text2 = Text('test')
     resolver.apply(text2, 'morph_analysis')
     assert set(text2.layers) == {'tokens','compound_tokens', 'words', 'morph_analysis'}
@@ -109,13 +130,13 @@ def test_resolver_add_and_remove_retaggers():
 
 def test_redefine_resolver_with_new_taggers():
     # Test that the resolver can be updated with new taggers
-    taggers = Taggers([TestTagger('tokens', input_layers=[]),
-                       TestTagger('compound_tokens', input_layers=['tokens']),
-                       TestTagger('words', input_layers=['compound_tokens']),
-                       TestTagger('sentences', input_layers=['words']),
-                       TestTagger('paragraphs', input_layers=['sentences']),
-                       TestTagger('normalized_words', input_layers=['words']),
-                       TestTagger('morph_analysis', input_layers=['normalized_words'])
+    taggers = Taggers([StubTagger('tokens', input_layers=[]),
+                       StubTagger('compound_tokens', input_layers=['tokens']),
+                       StubTagger('words', input_layers=['compound_tokens']),
+                       StubTagger('sentences', input_layers=['words']),
+                       StubTagger('paragraphs', input_layers=['sentences']),
+                       StubTagger('normalized_words', input_layers=['words']),
+                       StubTagger('morph_analysis', input_layers=['normalized_words'])
                        ])
 
     resolver = Resolver(taggers)
@@ -124,8 +145,8 @@ def test_redefine_resolver_with_new_taggers():
     resolver.apply(text, 'sentences')
     assert set(text.layers) == {'tokens','compound_tokens', 'words', 'sentences'}
 
-    resolver.update(TestTagger('words2', input_layers=['tokens']))
-    resolver.update(TestTagger('sentences', input_layers=['words2']))
+    resolver.update(StubTagger('words2', input_layers=['tokens']))
+    resolver.update(StubTagger('sentences', input_layers=['words2']))
     text = Text('test')
     resolver.apply(text, 'sentences')
     assert set(text.layers) == {'tokens', 'words2', 'sentences'}

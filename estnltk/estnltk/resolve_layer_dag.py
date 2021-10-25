@@ -86,8 +86,8 @@ class Taggers:
             raise Exception('(!) Expected a subclass of Retagger, but got {}.'.format( type(retagger) ) )
         output_layer = retagger.output_layer
         if output_layer not in self.rules:
-            raise Exception( '(!) Cannot add a retagger for the layer {!r}: '+
-                             'no tagger for creating the layer!'.format( output_layer ) )
+            raise Exception( ('(!) Cannot add a retagger for the layer {!r}: '+
+                              'no tagger for creating the layer!').format( output_layer ) )
         if output_layer not in self.composite_rules:
             self.rules[output_layer] = [ self.rules[output_layer] ]
             self.composite_rules.add( output_layer )
@@ -212,6 +212,8 @@ class Resolver:
         '''
         if layer_name in text.layers:
             return text
+        if layer_name not in self.taggers.graph.nodes:
+            raise Exception('(!) No tagger registered for creating layer {!r}.'.format( layer_name ) )
         for prerequisite in self.taggers.graph.predecessors(layer_name):
             self.apply(text, prerequisite)
 
