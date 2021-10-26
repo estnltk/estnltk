@@ -182,13 +182,13 @@ class TaggersRegistry:
                                                              'attributes',
                                                              'depends_on',
                                                              'configuration'])
-        return df.to_html(index=False)
+        return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+df.to_html(index=False)
 
 
-class Resolver:
-    """Resolver resolves layer dependencies and handles layer creation. 
-       Upon creating a layer, it uses the TaggersRegistry to (recursively) 
-       find and create all the prerequisite layers of the target layer."""
+class LayerResolver:
+    """LayerResolver handles layer creation, and resolves layer dependencies automatically. 
+       Upon creating a layer, it uses the TaggersRegistry to (recursively) find 
+       and create all the prerequisite layers of the target layer."""
 
     def __init__(self, taggers: TaggersRegistry):
         self.taggers = taggers
@@ -228,4 +228,10 @@ class Resolver:
 
     def _repr_html_(self):
         if self.taggers:
-            return self.taggers._repr_html_()
+            creatable_layers = list(self.list_layers())
+            creatable_layers_str = "No creatable layers available. Update taggers registry to enable layer creation."
+            if len(creatable_layers) > 0:
+                creatable_layers_str = 'Creatable layers: '+(', '.join(creatable_layers))
+            return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+\
+                    creatable_layers_str+'\n</br>'+self.taggers._repr_html_()
+            

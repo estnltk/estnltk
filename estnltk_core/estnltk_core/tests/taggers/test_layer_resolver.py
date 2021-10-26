@@ -2,13 +2,13 @@ from typing import Union
 
 from estnltk_core import Layer
 from estnltk_core.taggers import Tagger, Retagger
-from estnltk_core.resolve_layer_dag import Resolver, TaggersRegistry
+from estnltk_core.resolve_layer_dag import LayerResolver, TaggersRegistry
 from estnltk_core.common import create_text_object
 
 import pytest
 
 class StubTagger(Tagger):
-    """A stub tagger for testing Resolver and TaggersRegistry.
+    """A stub tagger for testing LayerResolver and TaggersRegistry.
     """
     conf_param = []
 
@@ -24,7 +24,7 @@ class StubTagger(Tagger):
 
 
 class StubRetagger(Retagger):
-    """A stub retagger for testing Resolver and TaggersRegistry.
+    """A stub retagger for testing LayerResolver and TaggersRegistry.
     """
     conf_param = []
 
@@ -49,12 +49,12 @@ def test_create_resolver():
                        StubTagger('sentences', input_layers=['words']),
                        StubTagger('morph_analysis', input_layers=['words', 'sentences'])
                        ])
-    resolver1 = Resolver(taggers)
+    resolver1 = LayerResolver(taggers)
     text1 = create_text_object('test')
     resolver1.apply(text1, 'morph_analysis')
     assert set(text1.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
     
-    resolver2 = Resolver( TaggersRegistry([]) )
+    resolver2 = LayerResolver( TaggersRegistry([]) )
     resolver2.update( StubTagger('tokens', input_layers=[]) )
     resolver2.update( StubTagger('compound_tokens', input_layers=['tokens']) )
     resolver2.update( StubTagger('words', input_layers=['compound_tokens']) )
@@ -83,7 +83,7 @@ def test_create_resolver_exceptions():
                        StubTagger('compound_tokens', input_layers=['tokens']),
                        StubTagger('words', input_layers=['compound_tokens_v2']),
                        StubTagger('sentences', input_layers=['words']) ])
-    resolver1 = Resolver(taggers)
+    resolver1 = LayerResolver(taggers)
     text1 = create_text_object('test')
     # But applying the resolver should throw an exception
     with pytest.raises(Exception):
@@ -134,7 +134,7 @@ def test_resolver_list_layers():
                        StubTagger('sentences', input_layers=['words']),
                        StubTagger('tokens', input_layers=[])
                        ])
-    resolver = Resolver(taggers)
+    resolver = LayerResolver(taggers)
     assert list(resolver.list_layers()) == ['tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'] 
 
 
@@ -149,7 +149,7 @@ def test_resolver_add_and_remove_retaggers():
                         StubRetagger('morph_analysis', input_layers=['morph_analysis', 'sentences']),
                         StubRetagger('morph_analysis', input_layers=['morph_analysis', 'compound_tokens'])],
                        ])
-    resolver = Resolver(taggers)
+    resolver = LayerResolver(taggers)
     text = create_text_object('test')
     resolver.apply(text, 'morph_analysis')
     assert set(text.layers) == {'tokens','compound_tokens', 'words', 'sentences', 'morph_analysis'}
@@ -181,7 +181,7 @@ def test_redefine_resolver_with_new_taggers():
                        StubTagger('morph_analysis', input_layers=['normalized_words'])
                        ])
 
-    resolver = Resolver(taggers)
+    resolver = LayerResolver(taggers)
 
     text = create_text_object('test')
     resolver.apply(text, 'sentences')

@@ -1,6 +1,6 @@
 #
 #  * CompoundTokenTagger adapted to tokenization requirements of TimexTagger
-#  * Resolver that contains TimexTagger's preprocessing
+#  * LayerResolver that contains TimexTagger's preprocessing
 # 
 
 import regex as re
@@ -17,7 +17,7 @@ from estnltk.taggers import MorphExtendedTagger
 from estnltk.taggers import ClauseSegmenter    # Requires Java
 from estnltk.taggers import TimexTagger        # Requires Java
 
-from estnltk.resolve_layer_dag import TaggersRegistry, Resolver
+from estnltk.resolve_layer_dag import TaggersRegistry, LayerResolver
 
 
 
@@ -70,7 +70,7 @@ CP_TAGGER_ADAPTED = make_adapted_cp_tagger()
 
 
 def make_timexes_resolver():
-    '''Creates a resolver that contains TimexTagger along with 
+    '''Creates LayerResolver that contains TimexTagger along with 
        all the necessary preprocessing steps.
        Returns the resolver.
     '''
@@ -78,7 +78,7 @@ def make_timexes_resolver():
                        SentenceTokenizer(), ParagraphTokenizer(),
                        VabamorfTagger(),    MorphExtendedTagger(), 
                        ClauseSegmenter(),   TimexTagger()])
-    return Resolver( taggers )
+    return LayerResolver( taggers )
 
 TIMEXES_RESOLVER = make_timexes_resolver()
 
