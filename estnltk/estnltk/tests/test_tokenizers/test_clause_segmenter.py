@@ -199,7 +199,7 @@ def test_clause_segmenter_no_java_initialization_in_make_resolver():
     # initialized during the creation of the default resolver 
     # (the initialization should occur later, only after the tag() 
     #  method is called )
-    from estnltk.resolve_layer_dag import make_resolver
+    from estnltk.default_resolver import make_resolver
     new_default_resolver = make_resolver()
     for (layer, tagger) in new_default_resolver.taggers.rules.items():
         if isinstance(tagger, ClauseSegmenter):

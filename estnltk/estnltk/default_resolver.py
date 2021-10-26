@@ -1,7 +1,7 @@
-from typing import List
-import networkx as nx
-
-from estnltk_core.resolve_layer_dag import TaggersRegistry, LayerResolver
+#
+#  Default LayerResolver for EstNLTK v1.6
+#
+from estnltk_core.layer_resolver import TaggersRegistry, LayerResolver
 
 from .taggers.text_segmentation.tokens_tagger import TokensTagger
 from .taggers.text_segmentation.word_tagger import WordTagger

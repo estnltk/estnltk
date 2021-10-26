@@ -17,7 +17,7 @@ from estnltk.taggers import MorphExtendedTagger
 from estnltk.taggers import ClauseSegmenter    # Requires Java
 from estnltk.taggers import TimexTagger        # Requires Java
 
-from estnltk.resolve_layer_dag import TaggersRegistry, LayerResolver
+from estnltk_core.layer_resolver import TaggersRegistry, LayerResolver
 
 
 

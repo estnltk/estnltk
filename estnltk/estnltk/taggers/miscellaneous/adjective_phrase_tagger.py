@@ -152,7 +152,7 @@ class AdjectivePhraseGrammarTagger(Tagger):
         self.input_layers = [input_layer]
         self.output_layer = output_layer
 
-        from estnltk.resolve_layer_dag import make_resolver
+        from estnltk.default_resolver import make_resolver
         self.resolver = make_resolver(disambiguate=False,
                                       guess=False,
                                       propername=False,

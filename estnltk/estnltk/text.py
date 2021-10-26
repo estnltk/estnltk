@@ -6,7 +6,7 @@ from estnltk_core.base_text import Layer
 class Text( BaseText ):
 
     def tag_layer(self, layer_names: Union[str, Sequence[str]] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
-        from estnltk.resolve_layer_dag import DEFAULT_RESOLVER  # TODO: can we avoid inner import here?
+        from estnltk.default_resolver import DEFAULT_RESOLVER
         if resolver is None:
             resolver = DEFAULT_RESOLVER
         if isinstance(layer_names, str):
@@ -20,7 +20,7 @@ class Text( BaseText ):
         Analyses text by adding standard NLP layers. Analysis level specifies what layers must be present.
         # TODO: Complete documentation by explicitly stating what levels are present for which level
         """
-        from estnltk.resolve_layer_dag import DEFAULT_RESOLVER  # TODO: can we avoid inner import here?
+        from estnltk.default_resolver import DEFAULT_RESOLVER
         if resolver is None:
             resolver = DEFAULT_RESOLVER
         if t == 'segmentation':

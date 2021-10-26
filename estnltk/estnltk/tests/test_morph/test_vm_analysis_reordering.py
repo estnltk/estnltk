@@ -6,7 +6,7 @@ from estnltk import Text, Annotation
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import VabamorfAnalyzer
 from estnltk.taggers import MorphAnalysisReorderer
-from estnltk.resolve_layer_dag import make_resolver
+from estnltk.default_resolver import make_resolver
 
 # ----------------------------------
 

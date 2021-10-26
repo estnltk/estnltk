@@ -3,7 +3,7 @@ from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import CompoundTokenTagger
 from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
-from estnltk.resolve_layer_dag import make_resolver
+from estnltk.default_resolver import make_resolver
 from estnltk_core.layer import AmbiguousAttributeList
 
 # ----------------------------------

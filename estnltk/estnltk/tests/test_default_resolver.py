@@ -1,4 +1,4 @@
-from estnltk.resolve_layer_dag import make_resolver
+from estnltk.default_resolver import make_resolver
 from estnltk import Text
 
 def test_simple_resolver_update():
