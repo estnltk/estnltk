@@ -1,5 +1,6 @@
 from typing import List, Union
 import networkx as nx
+import warnings
 
 from estnltk_core.taggers import Tagger, Retagger
 
@@ -112,6 +113,11 @@ class TaggersRegistry:
             for tagger in taggers_listing:
                 for dep in tagger.input_layers:
                     if dep != tagger.output_layer:
+                        if dep not in graph.nodes:
+                            warning_msg = ("(!) {}'s input layer {!r} is missing from the layer graph. "+
+                                           "Layer {!r} cannot be created.").format( tagger.__class__.__name__, \
+                                                                                    dep, tagger.output_layer )
+                            warnings.warn( UserWarning(warning_msg) )
                         graph.add_edge(dep, layer_name)
         if not nx.is_directed_acyclic_graph(graph):
             raise Exception('(!) The layer graph is not acyclic! '+\

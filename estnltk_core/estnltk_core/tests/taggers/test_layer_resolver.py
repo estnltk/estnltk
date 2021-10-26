@@ -78,11 +78,15 @@ def test_create_resolver_exceptions():
         taggers.update( "Tere!" )
     
     # Case 2: missing dependencies and missing taggers
-    # Note that the resolver can be created even if some layers are missing
-    taggers = TaggersRegistry([StubTagger('tokens', input_layers=[]),
-                       StubTagger('compound_tokens', input_layers=['tokens']),
-                       StubTagger('words', input_layers=['compound_tokens_v2']),
-                       StubTagger('sentences', input_layers=['words']) ])
+    # Note that the resolver can be created even if some layers are missing. 
+    # But an UserWarning will be encountered
+    with pytest.warns(UserWarning, match=".+'compound_tokens_v2' is missing.+Layer 'words' cannot be created"):
+        # UserWarning: (!) StubTagger's input layer 'compound_tokens_v2' is missing from the layer graph. 
+        # Layer 'words' cannot be created.
+        taggers = TaggersRegistry([StubTagger('tokens', input_layers=[]),
+                           StubTagger('compound_tokens', input_layers=['tokens']),
+                           StubTagger('words', input_layers=['compound_tokens_v2']),
+                           StubTagger('sentences', input_layers=['words']) ])
     resolver1 = LayerResolver(taggers)
     text1 = create_text_object('test')
     # But applying the resolver should throw an exception
