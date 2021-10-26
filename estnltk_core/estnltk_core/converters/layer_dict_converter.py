@@ -1,5 +1,4 @@
 from estnltk_core.converters.serialisation_modules import default
-from estnltk_core.converters.serialisation_modules import legacy_v0
 from .serialisation_modules.serialisation_map import layer_converter_collection
 
 
@@ -19,10 +18,6 @@ def dict_to_layer(layer_dict: dict, text_object=None, serialisation_module=None)
 
     # nothing is specified, we run default
     if serialisation_module is None:
-        # check for legacy format
-        # TODO: to be removed by rewriting tests
-        if 'meta' not in layer_dict:
-            return legacy_v0.dict_to_layer(layer_dict, text_object)
         return default.dict_to_layer(layer_dict, text_object)
 
     if serialisation_module in layer_converter_collection:
