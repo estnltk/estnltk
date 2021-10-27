@@ -6,7 +6,7 @@ from random import uniform, randint
 
 from estnltk import logger, Progressbar
 from estnltk import Text
-from estnltk.converters import layer_converter_collection
+from estnltk_core.converters.serialisation_registry import SERIALISATION_REGISTRY
 from estnltk_core.converters import default_serialisation
 from estnltk.converters.serialisation_modules import legacy_v0 as legacy_serialisation
 from estnltk.storage import postgres as pg
@@ -1068,10 +1068,10 @@ class PgSubCollection:
                 # Use default serialisation if specification is missing
                 if serialisation_module is None:
                     text.add_layer(dict_to_layer(layer_element, text))
-                elif serialisation_module in layer_converter_collection:
-                    text.add_layer(layer_converter_collection[serialisation_module].dict_to_layer(layer_element, text))
+                elif serialisation_module in SERIALISATION_REGISTRY:
+                    text.add_layer( SERIALISATION_REGISTRY[serialisation_module].dict_to_layer(layer_element, text) )
                 else:
-                    raise ValueError('serialisation module not registered in serialisation map: ' + layer_converter_collection)
+                    raise ValueError(('serialisation module {!r} not registered in serialisation map: '.format(serialisation_module))+SERIALISATION_REGISTRY.keys())
 
         return text
 
@@ -1087,10 +1087,10 @@ class PgSubCollection:
         if serialisation_module is None:
             return default_serialisation.dict_to_layer(layer_dict, text_object)
 
-        if serialisation_module in layer_converter_collection:
-            return layer_converter_collection[serialisation_module].dict_to_layer(layer_dict, text_object)
+        if serialisation_module in SERIALISATION_REGISTRY:
+            return SERIALISATION_REGISTRY[serialisation_module].dict_to_layer(layer_dict, text_object)
 
-        raise ValueError('serialisation module not registered in serialisation map: ' + layer_converter_collection)
+        raise ValueError(('serialisation module {!r} not registered in serialisation map: '.format(serialisation_module))+SERIALISATION_REGISTRY.keys())
 
     def _dict_to_text(self, text_dict: dict, attached_layers) -> Text:
         """Deprecated to be removed"""
