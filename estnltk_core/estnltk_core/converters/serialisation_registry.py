@@ -25,11 +25,6 @@ class SerialisationRegistry:
     def __contains__(self, serialisation_module_name:str):
         return serialisation_module_name in self._layer_converters.keys()
 
-    def __delitem__(self, serialisation_module_name:str):
-        if serialisation_module_name in self:
-            del self._layer_converters[serialisation_module_name]
-        raise ValueError('serialisation module not registered: ' + serialisation_module_name)
-
     def keys(self):
         return list(self._layer_converters.keys())
 
