@@ -28,9 +28,12 @@ from .TCF_importer import import_TCF
 
 from .texta_exporter import TextaExporter
 
-# Update serialization map: add syntax serialization module
+# Update serialization map: add syntax & legacy serialization modules
 from estnltk_core.converters.serialisation_modules.serialisation_map import layer_converter_collection
 from estnltk.converters.serialisation_modules import syntax_v0
+from estnltk.converters.serialisation_modules import legacy_v0
 
 if 'syntax_v0' not in layer_converter_collection:
     layer_converter_collection['syntax_v0'] = syntax_v0
+if 'legacy_v0' not in layer_converter_collection:
+    layer_converter_collection['legacy_v0'] = legacy_v0

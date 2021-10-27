@@ -2,7 +2,7 @@ import json
 import os
 
 from estnltk_core.common import CORE_PACKAGE_PATH
-from estnltk_core.legacy.legacy_to_current_json import legacy_to_current_json
+from estnltk.legacy.legacy_to_current_json import legacy_to_current_json
 
 def test_legacy_to_current_json():
     input_json = '{"meta": {"year": 2017}, "text": "Ööbik laulab.", "layers": [{"spans": [{"normalized_form": null, "end": 5, "start": 0}, {"normalized_form": null, "end": 12, "start": 6}, {"normalized_form": null, "end": 13, "start": 12}], "parent": null, "_base": "words", "name": "words", "attributes": ["normalized_form"], "ambiguous": false, "enveloping": null}, {"spans": [[{"end": 5, "partofspeech": "S", "root_tokens": ["ööbik"], "root": "ööbik", "form": "sg n", "ending": "0", "_index_": 0, "start": 0, "lemma": "ööbik", "clitic": ""}], [{"end": 12, "partofspeech": "V", "root_tokens": ["laul"], "root": "laul", "form": "b", "ending": "b", "_index_": 1, "start": 6, "lemma": "laulma", "clitic": ""}], [{"end": 13, "partofspeech": "Z", "root_tokens": ["."], "root": ".", "form": "", "ending": "", "_index_": 2, "start": 12, "lemma": ".", "clitic": ""}]], "parent": "words", "_base": "words", "name": "morph_analysis", "attributes": ["lemma", "root", "root_tokens", "ending", "clitic", "form", "partofspeech"], "ambiguous": true, "enveloping": null}, {"spans": [{"_index_": [0, 1, 2]}], "parent": null, "_base": "sentences", "name": "sentences", "attributes": [], "ambiguous": false, "enveloping": "words"}]}'

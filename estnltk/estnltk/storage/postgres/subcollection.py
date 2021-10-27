@@ -8,7 +8,7 @@ from estnltk import logger, Progressbar
 from estnltk import Text
 from estnltk.converters import layer_converter_collection
 from estnltk_core.converters.serialisation_modules import default as default_serialisation
-from estnltk_core.converters.serialisation_modules import legacy_v0 as legacy_serialisation
+from estnltk.converters.serialisation_modules import legacy_v0 as legacy_serialisation
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres.collection import PgCollectionException
 
