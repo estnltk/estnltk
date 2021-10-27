@@ -23,24 +23,24 @@ class TaggersRegistry:
     layers. 
     """
     def __init__(self, taggers: List):
-        self.rules = {}
-        self.composite_rules = set()
+        self._rules = {}
+        self._composite_rules = set()
         for tagger_entry in taggers:
             if isinstance(tagger_entry, list):
                 # Check the first entry is a tagger, 
                 # and others are retaggers
                 TaggersRegistry.validate_taggers_node_list( tagger_entry )
-                self.composite_rules.add( tagger_entry[0].output_layer )
+                self._composite_rules.add( tagger_entry[0].output_layer )
                 # Add a composite entry: tagger followed by retaggers
-                self.rules[tagger_entry[0].output_layer] = tagger_entry
+                self._rules[tagger_entry[0].output_layer] = tagger_entry
             else:
                 # Add a single tagger
                 if not issubclass( type(tagger_entry), Tagger ):
                     raise TypeError('(!) Expected a subclass of Tagger, but got {}.'.format( type(tagger_entry) ) )
                 if issubclass( type(tagger_entry), Retagger ):
                     raise TypeError('(!) Expected a subclass of Tagger, not Retagger ({}).'.format( tagger_entry.__class__.__name__ ) )
-                self.rules[tagger_entry.output_layer] = tagger_entry
-        self.graph = self._make_graph()
+                self._rules[tagger_entry.output_layer] = tagger_entry
+        self._graph = self._make_graph()
 
     def update(self, tagger: Union[Tagger, Retagger] ) -> None:
         '''Updates the registry with the given tagger or retagger.
@@ -65,14 +65,14 @@ class TaggersRegistry:
         if issubclass( type(tagger), Retagger ):
             raise TypeError('(!) Expected a subclass of Tagger, not Retagger ({}).'.format( tagger.__class__.__name__ ) )
         output_layer = tagger.output_layer
-        if output_layer not in self.composite_rules:
-            self.rules[output_layer] = tagger
+        if output_layer not in self._composite_rules:
+            self._rules[output_layer] = tagger
         else:
-            new_listing = self.rules[output_layer].copy()
+            new_listing = self._rules[output_layer].copy()
             new_listing[0] = tagger
             TaggersRegistry.validate_taggers_node_list( new_listing )
-            self.rules[output_layer][0] = tagger
-        self.graph = self._make_graph()
+            self._rules[output_layer][0] = tagger
+        self._graph = self._make_graph()
 
     def add_retagger(self, retagger: Retagger) -> None:
         '''Adds a new retagger to the registry. 
@@ -83,32 +83,50 @@ class TaggersRegistry:
         if not issubclass( type(retagger), Retagger ):
             raise TypeError('(!) Expected a subclass of Retagger, but got {}.'.format( type(retagger) ) )
         output_layer = retagger.output_layer
-        if output_layer not in self.rules:
+        if output_layer not in self._rules:
             raise ValueError( ('(!) Cannot add a retagger for the layer {!r}: '+
                                'no tagger for creating the layer!').format( output_layer ) )
-        if output_layer not in self.composite_rules:
-            self.rules[output_layer] = [ self.rules[output_layer] ]
-            self.composite_rules.add( output_layer )
-        self.rules[output_layer].append( retagger )
-        self.graph = self._make_graph()
+        if output_layer not in self._composite_rules:
+            self._rules[output_layer] = [ self._rules[output_layer] ]
+            self._composite_rules.add( output_layer )
+        self._rules[output_layer].append( retagger )
+        self._graph = self._make_graph()
+
+    def get_tagger(self, layer_name: str) -> Tagger:
+        '''Returns tagger responsible for creating given layer.'''
+        if layer_name not in self._rules:
+            raise Exception('(!) No tagger registered for layer {!r}.'.format( layer_name ) )
+        if layer_name in self._composite_rules:
+            return self._rules[layer_name][0]
+        else:
+            return self._rules[layer_name]
+
+    def get_retaggers(self, layer_name: str) -> List[Retagger]:
+        '''Returns list of retaggers modifying given layer.'''
+        if layer_name not in self._rules:
+            raise Exception('(!) No tagger registered for layer {!r}.'.format( layer_name ) )
+        if layer_name in self._composite_rules:
+            return self._rules[layer_name][1:]
+        else:
+            return []
 
     def clear_retaggers(self, layer_name: str) -> None:
         '''Removes all the retaggers modifying the given layer.
            Note: the tagger creating the layer will remain. '''
-        if layer_name in self.rules and layer_name in self.composite_rules:
-            assert isinstance(self.rules[layer_name], list)
-            self.rules[layer_name] = self.rules[layer_name][0]
-            self.composite_rules.remove( layer_name )
+        if layer_name in self._rules and layer_name in self._composite_rules:
+            assert isinstance(self._rules[layer_name], list)
+            self._rules[layer_name] = self._rules[layer_name][0]
+            self._composite_rules.remove( layer_name )
             # Important: we also need to update the graph
-            self.graph = self._make_graph()
+            self._graph = self._make_graph()
 
     def _make_graph(self) -> None:
         '''Builds a dependency graph from input/output layers of taggers (and retaggers).'''
         graph = nx.DiGraph()
-        graph.add_nodes_from(self.rules)
-        for layer_name, tagger_entry in self.rules.items():
+        graph.add_nodes_from(self._rules)
+        for layer_name, tagger_entry in self._rules.items():
             taggers_listing = tagger_entry
-            if layer_name not in self.composite_rules:
+            if layer_name not in self._composite_rules:
                 taggers_listing = [ tagger_entry ]
             for tagger in taggers_listing:
                 for dep in tagger.input_layers:
@@ -158,30 +176,30 @@ class TaggersRegistry:
            The method returns None, as the created layer will be attached to the given 
            Text object.
         '''
-        if layer_name not in self.rules:
+        if layer_name not in self._rules:
             raise Exception('(!) No tagger registered for creating layer {!r}.'.format( layer_name ) )
-        if layer_name in self.composite_rules:
-            self.rules[layer_name][0].tag( text )
-            for retagger in self.rules[layer_name][1:]:
+        if layer_name in self._composite_rules:
+            self._rules[layer_name][0].tag( text )
+            for retagger in self._rules[layer_name][1:]:
                 retagger.retag( text )
         else:
-            self.rules[layer_name].tag(text)
+            self._rules[layer_name].tag(text)
 
     def list_layers(self) -> List[str]:
         '''Lists creatable layers in a topological order.'''
-        return nx.topological_sort(self.graph)
+        return nx.topological_sort(self._graph)
 
     def _repr_html_(self):
         records = []
         for layer_name in self.list_layers():
-            if layer_name in self.composite_rules:
+            if layer_name in self._composite_rules:
                 # A tagger followed by retagger(s)
-                records.append( self.rules[layer_name][0].parameters() )
-                for retagger in self.rules[layer_name][1:]:
+                records.append( self._rules[layer_name][0].parameters() )
+                for retagger in self._rules[layer_name][1:]:
                     records.append( retagger.parameters() )
             else:
                 # A single tagger
-                records.append( self.rules[layer_name].parameters() )
+                records.append( self._rules[layer_name].parameters() )
         import pandas
         df = pandas.DataFrame.from_records(records, columns=['name',
                                                              'layer',
@@ -197,25 +215,33 @@ class LayerResolver:
        and create all the prerequisite layers of the target layer."""
 
     def __init__(self, taggers: TaggersRegistry):
-        self.taggers = taggers
+        self._taggers = taggers
 
     def update(self, tagger: Union[Tagger, Retagger]) -> None:
         '''Updates the Taggers registry with the given tagger or retagger.'''
-        self.taggers.update(tagger)
+        self._taggers.update(tagger)
 
     def taggers(self):
         '''Returns TaggersRegistry of this Resolver.'''
-        return self.taggers
+        return self._taggers
+
+    def get_tagger(self, layer_name: str) -> Tagger:
+        '''Returns tagger responsible for creating the given layer.'''
+        return self._taggers.get_tagger(layer_name)
+
+    def get_retaggers(self, layer_name: str) -> List[Retagger]:
+        '''Returns list of retaggers modifying the given layer.'''
+        return self._taggers.get_retaggers(layer_name)
 
     def clear_retaggers(self, layer_name: str) -> None:
         '''Removes all the retaggers modifying the given layer.
            Note: the tagger creating the layer will remain. '''
-        self.taggers.clear_retaggers(layer_name)
+        self._taggers.clear_retaggers(layer_name)
 
     def list_layers(self) -> List[str]:
         '''Lists layers that can be created by this resolver in the order 
            in which they should be created.'''
-        return self.taggers.list_layers()
+        return self._taggers.list_layers()
 
     def apply(self, text: Union['BaseText', 'Text'], layer_name: str) -> Union['BaseText', 'Text']:
         '''Creates the given layer along with all the prerequisite layers. 
@@ -224,20 +250,20 @@ class LayerResolver:
         '''
         if layer_name in text.layers:
             return text
-        if layer_name not in self.taggers.graph.nodes:
+        if layer_name not in self._taggers._graph.nodes:
             raise Exception('(!) No tagger registered for creating layer {!r}.'.format( layer_name ) )
-        for prerequisite in self.taggers.graph.predecessors(layer_name):
+        for prerequisite in self._taggers._graph.predecessors(layer_name):
             self.apply(text, prerequisite)
 
-        self.taggers.create_layer_for_text( layer_name, text )
+        self._taggers.create_layer_for_text( layer_name, text )
         return text
 
     def _repr_html_(self):
-        if self.taggers:
+        if self._taggers:
             creatable_layers = list(self.list_layers())
             creatable_layers_str = "No creatable layers available. Update taggers registry to enable layer creation."
             if len(creatable_layers) > 0:
                 creatable_layers_str = 'Creatable layers: '+(', '.join(creatable_layers))
             return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+\
-                    creatable_layers_str+'\n</br>'+self.taggers._repr_html_()
+                    creatable_layers_str+'\n</br>'+self._taggers._repr_html_()
             

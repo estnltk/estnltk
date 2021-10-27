@@ -201,8 +201,8 @@ def test_clause_segmenter_no_java_initialization_in_make_resolver():
     #  method is called )
     from estnltk.default_resolver import make_resolver
     new_default_resolver = make_resolver()
-    for (layer, tagger) in new_default_resolver.taggers.rules.items():
-        if isinstance(tagger, ClauseSegmenter):
-            # Check that there is no process at first (lazy initialization)
-            assert tagger._java_process._process is None
+    segmenter = new_default_resolver.get_tagger('clauses')
+    assert isinstance(segmenter, ClauseSegmenter)
+    # Check that there is no process at first (lazy initialization)
+    assert segmenter._java_process._process is None
 

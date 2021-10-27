@@ -142,6 +142,28 @@ def test_resolver_list_layers():
     assert list(resolver.list_layers()) == ['tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'] 
 
 
+def test_resolver_access_taggers_retaggers():
+    # Test that taggers and retaggers can be accessed by their output layer names in the resolver
+    compound_tokens_tagger = StubTagger('compound_tokens', input_layers=['tokens'])
+    sentence_tokenizer = StubTagger('sentences', input_layers=['words'])
+    morph_analyzer = StubTagger('morph_analysis', input_layers=['words'])
+    morph_retagger1 = StubRetagger('morph_analysis', input_layers=['morph_analysis', 'sentences'])
+    morph_retagger2 = StubRetagger('morph_analysis', input_layers=['morph_analysis', 'compound_tokens'])
+    taggers = TaggersRegistry([StubTagger('tokens', input_layers=[]),
+                               compound_tokens_tagger,
+                               StubTagger('words', input_layers=['compound_tokens']),
+                               sentence_tokenizer,
+                               [morph_analyzer, morph_retagger1, morph_retagger2]])
+    resolver = LayerResolver(taggers)
+    assert resolver.get_tagger('sentences') == sentence_tokenizer
+    assert resolver.get_tagger('compound_tokens') == compound_tokens_tagger
+    assert resolver.get_tagger('morph_analysis') == morph_analyzer
+    morph_retaggers = resolver.get_retaggers('morph_analysis')
+    assert len(morph_retaggers) == 2
+    assert morph_retaggers[0] == morph_retagger1
+    assert morph_retaggers[1] == morph_retagger2
+
+
 def test_resolver_add_and_remove_retaggers():
     # Test that the resolver can be updated with new retaggers
     # and that retaggers can also be removed
@@ -196,4 +218,5 @@ def test_redefine_resolver_with_new_taggers():
     text = create_text_object('test')
     resolver.apply(text, 'sentences')
     assert set(text.layers) == {'tokens', 'words2', 'sentences'}
+
 
