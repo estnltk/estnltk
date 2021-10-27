@@ -5,7 +5,7 @@ import warnings
 from estnltk_core.taggers import Tagger, Retagger
 
 class TaggersRegistry:
-    """Registry for taggers required for layer creation. 
+    """Registry of taggers required for layer creation. 
     Maintains a graph of layers' dependencies, which gives 
     information about prerequisite layers of each layer, 
     and holds taggers (and retaggers) that are needed for 
