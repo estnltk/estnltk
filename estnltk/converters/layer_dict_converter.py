@@ -19,10 +19,6 @@ def dict_to_layer(layer_dict: dict, text_object=None, serialisation_module=None)
 
     # nothing is specified, we run default
     if serialisation_module is None:
-        # check for legacy format
-        # TODO: to be removed by rewriting tests
-        if 'meta' not in layer_dict:
-            return legacy_v0.dict_to_layer(layer_dict, text_object)
         return default.dict_to_layer(layer_dict, text_object)
 
     if serialisation_module in layer_converter_collection:

@@ -5,9 +5,10 @@ This heavily stripped down version of the EstNLTK v1.6 package is based on EstNL
 Changes and removals:
 
 estnltk/converters:
-    * removed CG3_exporter.py, CG3_importer.py, TCF_exporter.py, TCF_importer.py, cg3_annotation_parser.py, conll_exporter.py, conll_importer.py, conll_ner_exporter.py, conll_ner_importer.py, texta_exporter.py, serialisation_modules/syntax_v0.py;
+    * removed CG3_exporter.py, CG3_importer.py, TCF_exporter.py, TCF_importer.py, cg3_annotation_parser.py, conll_exporter.py, conll_importer.py, conll_ner_exporter.py, conll_ner_importer.py, texta_exporter.py;
     * changed serialisation_modules/serialisation_map.py -- removed syntax_v0 import and syntax_v0 entry from layer_converter_collection;
     * changed layer_dict_converter.py -- fixed imports of serialisation_modules.default and serialisation_modules.legacy_v0;
+    * changed serialisation_modules/syntax_v0.py -- dict_to_layer() does not apply proper retagging, only assigns None values to all 'parent_span' and 'children' attributes;
 
 estnltk/layer:
     * removed to_html.py;
