@@ -16,16 +16,12 @@ setup(
     include_package_data=True,
     package_data={
         'license_headers' : ['*.*'],
-        'estnltk.visualisation': ['span_visualiser/*.css', 
-                                  'span_visualiser/*.js']
     },
     url="https://github.com/estnltk/estnltk",
     install_requires=[
         'regex>=2015.07.19',       # improved Python regular expressions
         'networkx ; python_version >  "3.6"',      # building graphs: required for layers, WordNet and grammars (> py36)
         'networkx==2.5 ; python_version == "3.6"', # building graphs: required for layers, WordNet and grammars (= py36)
-        'ipython ; python_version >  "3.6"',         # required for integration with Jupyter Notebook-s (> py36)
-        'ipython< 7.17.0 ; python_version == "3.6"', # required for integration with Jupyter Notebook-s (= py36)
         'pandas>=1.1.5 ; python_version >  "3.6"', # Panel Data Analysis library for Python (> py36)
         'pandas<=1.1.5 ; python_version == "3.6"', # Panel Data Analysis library for Python (= py36)
         'numpy==1.19.4 ; python_version == "3.6"', # This is the last numpy version that supports py36
