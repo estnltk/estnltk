@@ -5,12 +5,14 @@ from estnltk_core.base_text import Layer
 
 class Text( BaseText ):
 
-    def tag_layer(self, layer_names: Union[str, Sequence[str]] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
+    def tag_layer(self, layer_names: Union[str, Sequence[str]]=None, resolver=None) -> 'Text':
         from estnltk.default_resolver import DEFAULT_RESOLVER
         if resolver is None:
             resolver = DEFAULT_RESOLVER
         if isinstance(layer_names, str):
             layer_names = [layer_names]
+        if layer_names is None:
+            layer_names = resolver.get_default_layers()
         for layer_name in layer_names:
             resolver.apply(self, layer_name)
         return self

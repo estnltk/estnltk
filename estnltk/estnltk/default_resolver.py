@@ -45,7 +45,7 @@ def make_resolver(
                        SentenceTokenizer(), ParagraphTokenizer(),
                        vabamorf_tagger, MorphExtendedTagger(), ClauseSegmenter(),
                        VabamorfEstCatConverter()])
-    return LayerResolver(taggers)
+    return LayerResolver( taggers, default_layers=('morph_analysis', 'sentences') )
 
 
 DEFAULT_RESOLVER = make_resolver()
