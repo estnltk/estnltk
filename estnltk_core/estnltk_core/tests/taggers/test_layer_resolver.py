@@ -142,6 +142,26 @@ def test_resolver_list_layers():
     assert list(resolver.list_layers()) == ['tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'] 
 
 
+def test_resolver_access_and_update_default_layers():
+    # Test that resolver's default layers can be accessed and updated
+    taggers = TaggersRegistry([StubTagger('compound_tokens', input_layers=['tokens']),
+                       StubTagger('words', input_layers=['compound_tokens']),
+                       StubTagger('morph_analysis', input_layers=['words', 'sentences']),
+                       StubTagger('sentences', input_layers=['words']),
+                       StubTagger('tokens', input_layers=[])
+                       ])
+    resolver = LayerResolver(taggers)
+    assert resolver.get_default_layers() == ()
+    resolver.set_default_layers( ['morph_analysis', 'sentences'] )
+    assert resolver.get_default_layers() == ('morph_analysis', 'sentences')
+    resolver.set_default_layers( 'morph_analysis' )
+    assert resolver.get_default_layers() == ('morph_analysis',)
+    with pytest.raises(ValueError):
+        # ValueError: (!) TaggersRegistry has no entry for layer 'morph_extended'. Registered layers are: 
+        # ['tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis']
+        resolver.set_default_layers( 'morph_extended' )
+
+
 def test_resolver_access_taggers_retaggers():
     # Test that taggers and retaggers can be accessed by their output layer names in the resolver
     compound_tokens_tagger = StubTagger('compound_tokens', input_layers=['tokens'])

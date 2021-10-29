@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Sequence
 import networkx as nx
 import warnings
 
@@ -212,10 +212,14 @@ class TaggersRegistry:
 class LayerResolver:
     """LayerResolver handles layer creation, and resolves layer dependencies automatically. 
        Upon creating a layer, it uses the TaggersRegistry to (recursively) find 
-       and create all the prerequisite layers of the target layer."""
+       and create all the prerequisite layers of the target layer.
+       Also holds default layers: the layers that are created when Text object's tag_layer() 
+       is called without layer name arguments. """
 
-    def __init__(self, taggers: TaggersRegistry):
+    def __init__(self, taggers: TaggersRegistry, default_layers: Union[str, Sequence[str]] = []):
         self._taggers = taggers
+        self._default_layers = []
+        self.set_default_layers( default_layers )
 
     def update(self, tagger: Union[Tagger, Retagger]) -> None:
         '''Updates the Taggers registry with the given tagger or retagger.'''
@@ -224,6 +228,31 @@ class LayerResolver:
     def taggers(self):
         '''Returns TaggersRegistry of this Resolver.'''
         return self._taggers
+
+    def get_default_layers(self):
+        '''Returns default layers of this resolver.
+           Default layers are the layers created when Text object's tag_layer() 
+           is called without layer name arguments. '''
+        return self._default_layers
+
+    def set_default_layers(self, layers: Union[str, Sequence[str]]):
+        '''Assigns default layers to this resolver.
+           Default layers are the layers created when Text object's tag_layer() 
+           is called without layer name arguments. 
+           Raises a ValueError if given layers are not registered in resolver's
+           TaggersRegistry. '''
+        if not isinstance( layers, list ) and not isinstance( layers, str ):
+            raise TypeError('(!) A list of layer names or a single layer name was expected.' )
+        if isinstance( layers, str ):
+            layers = tuple([layers])
+        elif isinstance( layers, list ):
+            layers = tuple(layers)
+        creatable_layers = list(self.list_layers())
+        for layer in layers:
+            if layer not in creatable_layers:
+                raise ValueError( ('(!) TaggersRegistry has no entry for layer {!r}. '+
+                                   'Registered layers are: {!r}').format( layer, creatable_layers ) )
+        self._default_layers = layers
 
     def get_tagger(self, layer_name: str) -> Tagger:
         '''Returns tagger responsible for creating the given layer.'''
@@ -264,6 +293,10 @@ class LayerResolver:
             creatable_layers_str = "No creatable layers available. Update taggers registry to enable layer creation."
             if len(creatable_layers) > 0:
                 creatable_layers_str = 'Creatable layers: '+(', '.join(creatable_layers))
+            default_layers = list(self.get_default_layers())
+            default_layers_str = ''
+            if len(default_layers) > 0:
+                default_layers_str = 'Default layers: <b>'+(', '.join(default_layers))+'</b>\n</br>'
             return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+\
-                    creatable_layers_str+'\n</br>'+self._taggers._repr_html_()
+                    creatable_layers_str+'\n</br>'+default_layers_str+self._taggers._repr_html_()
             
