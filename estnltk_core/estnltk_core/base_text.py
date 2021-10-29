@@ -136,7 +136,7 @@ class BaseText:
         """
         Returns the names of all layers in the text object in alphabetical order.
         """
-        return self.__dict__.keys() | self._shadowed_layers.keys()
+        return self.__dict__.keys() | self._shadowed_layers.keys() | set()
 
     @property
     def attributes(self) -> DefaultDict[str, List[str]]:

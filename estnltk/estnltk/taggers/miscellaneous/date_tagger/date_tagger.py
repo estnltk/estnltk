@@ -1,7 +1,7 @@
 import datetime
 
 from estnltk.taggers import RegexTagger
-from estnltk.taggers.raw_text_tagging.date_tagger.regexes_v import regexes
+from estnltk.taggers.miscellaneous.date_tagger.regexes_v import regexes
 
 
 class DateTagger(RegexTagger):

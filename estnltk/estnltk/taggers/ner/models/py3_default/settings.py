@@ -7,7 +7,7 @@ import os
 from estnltk.common import PACKAGE_PATH
 
 
-NER_PACKAGE_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'estner')
+NER_PACKAGE_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'ner')
 
 CLASSES = ['PER', 'ORG', 'LOC']
 
@@ -155,19 +155,19 @@ TEMPLATES = [
 ]
 
 FEATURE_EXTRACTORS = (
-    "estnltk.taggers.estner.fex.NerMorphFeatureTagger",
-    "estnltk.taggers.estner.fex.NerLocalFeatureTagger",
-    "estnltk.taggers.estner.fex.NerSentenceFeatureTagger",
-    "estnltk.taggers.estner.fex.NerGazetteerFeatureTagger",
-    "estnltk.taggers.estner.fex.NerGlobalContextFeatureTagger"
+    "estnltk.taggers.ner.fex.NerMorphFeatureTagger",
+    "estnltk.taggers.ner.fex.NerLocalFeatureTagger",
+    "estnltk.taggers.ner.fex.NerSentenceFeatureTagger",
+    "estnltk.taggers.ner.fex.NerGazetteerFeatureTagger",
+    "estnltk.taggers.ner.fex.NerGlobalContextFeatureTagger"
  )
 
 '''
 FEATURE_EXTRACTORS = (
-    "estnltk.taggers.estner.featureextraction.MorphFeatureExtractor",
-    "estnltk.taggers.estner.featureextraction.LocalFeatureExtractor",
-    "estnltk.taggers.estner.featureextraction.SentenceFeatureExtractor",
-    "estnltk.taggers.estner.featureextraction.GazetteerFeatureExtractor",
-    "estnltk.taggers.estner.featureextraction.GlobalContextFeatureExtractor"
+    "estnltk.taggers.ner.featureextraction.MorphFeatureExtractor",
+    "estnltk.taggers.ner.featureextraction.LocalFeatureExtractor",
+    "estnltk.taggers.ner.featureextraction.SentenceFeatureExtractor",
+    "estnltk.taggers.ner.featureextraction.GazetteerFeatureExtractor",
+    "estnltk.taggers.ner.featureextraction.GlobalContextFeatureExtractor"
 )
 '''

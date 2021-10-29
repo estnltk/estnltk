@@ -72,7 +72,7 @@ class CRF():
 
         Parameters
         ----------
-        settings: estnltk.estner.Settings
+        settings: estnltk.ner.Settings
             The settings module used for feature extraction.
         model_filename: str
             The filename pointing to the path of the model that
@@ -85,7 +85,7 @@ class CRF():
         """Tag the given document.
         Parameters
         ----------
-        nerdoc: estnltk.estner.Document
+        nerdoc: estnltk.ner.Document
             The document to be tagged.
 
         Returns

@@ -3,6 +3,7 @@ from typing import Union, List, Sequence
 import pandas
 import collections
 import warnings
+import pkgutil
 
 from estnltk_core import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
 from estnltk_core import Span, EnvelopingSpan, Annotation, SpanList
@@ -21,6 +22,9 @@ def to_base_span(x) -> BaseSpan:
             return ElementaryBaseSpan(*x)
         return EnvelopingBaseSpan(to_base_span(y) for y in x)
     raise TypeError(x)
+
+def check_if_estnltk_is_available():
+    return pkgutil.find_loader("estnltk") is not None
 
 
 class Layer:
@@ -126,7 +130,7 @@ class Layer:
 
     @property
     def spans(self):
-        return self._span_list.spans
+        return self._span_list.spans or []
 
     @property
     def text(self):
@@ -533,6 +537,14 @@ class Layer:
                                                       'ambiguous', 'span count'])
 
     print_start_end = False
+
+    def display(self, **kwargs):
+        if check_if_estnltk_is_available():
+            from estnltk.visualisation import DisplaySpans
+            display_spans = DisplaySpans(**kwargs)
+            display_spans(self)
+        else:
+            raise NotImplementedError("Layer display is not available in estnltk-core. Please use the full EstNLTK package for that.")
 
     def _repr_html_(self):
         if self.meta:

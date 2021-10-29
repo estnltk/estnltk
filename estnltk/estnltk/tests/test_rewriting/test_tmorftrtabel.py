@@ -1,6 +1,6 @@
 from os.path import dirname, join
 
-import estnltk.taggers.syntax_preprocessing as syntax_pp
+import estnltk.taggers.syntax.preprocessing as syntax_pp
 
 
 # not sure if the following sets are complete

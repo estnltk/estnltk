@@ -74,9 +74,9 @@ class MorphExtendedTagger(Tagger):
         self.input_layers = [ input_morph_analysis_layer ]
 
         if fs_to_synt_rules_file is None:
-            fs_to_synt_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/tmorftrtabel.txt')
+            fs_to_synt_rules_file = abs_path('taggers/syntax/preprocessing/rules_files/tmorftrtabel.txt')
         if subcat_rules_file is None:
-            subcat_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/abileksikon06utf.lx')
+            subcat_rules_file = abs_path('taggers/syntax/preprocessing/rules_files/abileksikon06utf.lx')
 
         self.punctuation_type_retagger = PunctuationTypeRetagger()
         self.morph_to_syntax_morph_retagger = MorphToSyntaxMorphRetagger(input_layer = self.input_layers[0],

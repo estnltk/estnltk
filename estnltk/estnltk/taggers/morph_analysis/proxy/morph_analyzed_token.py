@@ -25,7 +25,7 @@ class MorphAnalyzedToken():
            disambiguate=False
     """
     _dir = os.path.dirname(__file__)
-    DEFAULT_PRONOUN_FILE = os.path.join(_dir, '../../syntax_preprocessing/rules_files/pronouns.csv')
+    DEFAULT_PRONOUN_FILE = os.path.join(_dir, '../../syntax/preprocessing/rules_files/pronouns.csv')
     DEFAULT_PRONOUN_LEMMAS = load_pronoun_lemmas(DEFAULT_PRONOUN_FILE)
     
     def __init__(self, token:str, pronoun_file:str=None) -> None:
@@ -149,7 +149,7 @@ class MorphAnalyzedToken():
         '''
         Returns True if the token has an analysis where the part of speech is
         'P' and the lemma is listed in
-        estnltk/taggers/syntax_preprocessing/rules_files/pronouns.csv,
+        estnltk/taggers/syntax/preprocessing/rules_files/pronouns.csv,
         False otherwise.
         '''
         return bool(self._pronoun_lemmas & self._lemmas('P'))

@@ -64,7 +64,7 @@ setup(
     # TODO: package_data duplicates MANIFEST.in; if there is no need for package_data, remove it
     package_data={
         'estnltk.java': [ 'res/*.*'],
-        'estnltk.taggers.estner': ['gazetteer/*', 'models/py3_default/*'],
+        'estnltk.taggers.ner': ['gazetteer/*', 'models/py3_default/*'],
         'estnltk.taggers.miscellaneous':  ['*.csv'],
         'estnltk.taggers.morph_analysis': ['hfst/models/*.*', 
                                            'number_fixes/*.*', 

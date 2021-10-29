@@ -61,8 +61,8 @@ def yield_tokens_analysis(file):
 
 
 def test_syntax_preprocessing_on_tokens():
-    fs_to_synt_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/tmorftrtabel.txt')
-    subcat_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/abileksikon06utf.lx')
+    fs_to_synt_rules_file = abs_path('taggers/syntax/preprocessing/rules_files/tmorftrtabel.txt')
+    subcat_rules_file = abs_path('taggers/syntax/preprocessing/rules_files/abileksikon06utf.lx')
     allow_to_remove_all = False
 
     tagger = MorphExtendedTagger(fs_to_synt_rules_file=fs_to_synt_rules_file,
@@ -83,8 +83,8 @@ def test_syntax_preprocessing_on_tokens():
 
 
 def test_syntax_preprocessing_with_customized_layer_names():
-    fs_to_synt_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/tmorftrtabel.txt')
-    subcat_rules_file = abs_path('taggers/syntax_preprocessing/rules_files/abileksikon06utf.lx')
+    fs_to_synt_rules_file = abs_path('taggers/syntax/preprocessing/rules_files/tmorftrtabel.txt')
+    subcat_rules_file = abs_path('taggers/syntax/preprocessing/rules_files/abileksikon06utf.lx')
     allow_to_remove_all = False
 
     tagger = MorphExtendedTagger(output_layer='my_morph_extended',

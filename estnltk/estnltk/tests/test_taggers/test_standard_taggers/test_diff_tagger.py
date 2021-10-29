@@ -1,12 +1,12 @@
 from estnltk import Layer, Text
 from estnltk.taggers import DiffTagger
-from estnltk.taggers.standard_taggers.diff_tagger import iterate_modified
-from estnltk.taggers.standard_taggers.diff_tagger import iterate_missing
-from estnltk.taggers.standard_taggers.diff_tagger import iterate_extra
-from estnltk.taggers.standard_taggers.diff_tagger import iterate_diff_conflicts
-from estnltk.taggers.standard_taggers.diff_tagger import iterate_overlapped
-from estnltk.taggers.standard_taggers.diff_tagger import iterate_prolonged
-from estnltk.taggers.standard_taggers.diff_tagger import iterate_shortened
+from estnltk.taggers.system_taggers.diff_tagger import iterate_modified
+from estnltk.taggers.system_taggers.diff_tagger import iterate_missing
+from estnltk.taggers.system_taggers.diff_tagger import iterate_extra
+from estnltk.taggers.system_taggers.diff_tagger import iterate_diff_conflicts
+from estnltk.taggers.system_taggers.diff_tagger import iterate_overlapped
+from estnltk.taggers.system_taggers.diff_tagger import iterate_prolonged
+from estnltk.taggers.system_taggers.diff_tagger import iterate_shortened
 
 
 def test_diff_tagger_init():

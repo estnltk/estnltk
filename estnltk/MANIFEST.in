@@ -3,8 +3,8 @@ include LICENSE
 graft include
 graft src
 graft estnltk/java/res
-graft estnltk/taggers/estner/gazetteer
-graft estnltk/taggers/estner/models
+graft estnltk/taggers/ner/gazetteer
+graft estnltk/taggers/ner/models
 graft estnltk/taggers/miscellaneous
 graft estnltk/taggers/morph_analysis/hfst
 graft estnltk/taggers/morph_analysis/number_fixes
@@ -17,7 +17,7 @@ include estnltk/taggers/syntax/stanza_tagger/stanza_resources/readme.md
 include estnltk/taggers/syntax/stanza_tagger/stanza_resources/resources.json
 graft estnltk/taggers/syntax/ud_validation/agreement_resources
 graft estnltk/taggers/syntax/ud_validation/data
-graft estnltk/taggers/syntax_preprocessing/rules_files
+graft estnltk/taggers/syntax/preprocessing/rules_files
 graft estnltk/taggers/text_segmentation
 graft estnltk/taggers/verb_chains
 graft estnltk/vabamorf/dct

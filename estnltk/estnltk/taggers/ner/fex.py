@@ -561,7 +561,7 @@ class FeatureExtractor(object):
 
         Parameters
         ----------
-        settings: estnltk.estner.settings.Settings
+        settings: estnltk.ner.settings.Settings
             The settings and configuration of the NER system.
         """
         self.settings = settings
