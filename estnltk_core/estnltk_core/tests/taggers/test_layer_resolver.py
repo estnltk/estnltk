@@ -154,6 +154,8 @@ def test_resolver_access_and_update_default_layers():
     assert resolver.get_default_layers() == ()
     resolver.set_default_layers( ['morph_analysis', 'sentences'] )
     assert resolver.get_default_layers() == ('morph_analysis', 'sentences')
+    # Passing a tuple instead of a list should also work
+    resolver.set_default_layers( resolver.get_default_layers() )
     resolver.set_default_layers( 'morph_analysis' )
     assert resolver.get_default_layers() == ('morph_analysis',)
     with pytest.raises(ValueError):

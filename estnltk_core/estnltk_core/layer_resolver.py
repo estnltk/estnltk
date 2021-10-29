@@ -241,7 +241,7 @@ class LayerResolver:
            is called without layer name arguments. 
            Raises a ValueError if given layers are not registered in resolver's
            TaggersRegistry. '''
-        if not isinstance( layers, list ) and not isinstance( layers, str ):
+        if not isinstance( layers, (list, tuple) ) and not isinstance( layers, str ):
             raise TypeError('(!) A list of layer names or a single layer name was expected.' )
         if isinstance( layers, str ):
             layers = tuple([layers])
