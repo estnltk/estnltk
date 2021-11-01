@@ -12,13 +12,7 @@ Note: if you add a new serialisation module, you should also update the global s
 
 Other converters listed here provide either application specific data import/export (e.g Weblicht TCF), or import from/export to specific markup format (e.g CONLL, CG3).  
 
-## Text <-> CG3
-
-`cg3_annotation_parser` -- functions for parsing VISL CG3 format lines; mainly used in importing morphological and syntactic data from .cg3 files;
-
-`CG3_exporter` -- converts Text with morph_extended layer to cg3 format;
-
-`CG3_importer` -- restores Text objects from cg3 format files;
+* [`cg3`](cg3) -- tools for converting Text objects with morph_extended layer to cg3 format, and for restoring annotated Text objects from cg3 format files. Also includes helpers, such as converting from cg3 format to conll format; 
 
 ## Text <-> CONLL
 

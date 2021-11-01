@@ -5,7 +5,8 @@ from estnltk.taggers import Tagger
 from estnltk import Text
 from estnltk import Layer
 from estnltk.converters.cg3.CG3_exporter import export_CG3
-from estnltk.taggers.syntax.vislcg3_syntax import VISLCG3Pipeline, convert_cg3_to_conll
+from estnltk.converters.cg3.helpers import convert_cg3_to_conll
+from estnltk.taggers.syntax.vislcg3_syntax import VISLCG3Pipeline
 from estnltk.common import abs_path
 
 

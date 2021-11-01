@@ -3,7 +3,7 @@ import re
 from estnltk import ElementaryBaseSpan
 from estnltk import Text, Layer, Annotation
 from estnltk.converters.cg3.cg3_annotation_parser import CG3AnnotationParser
-from estnltk.taggers.syntax import vislcg3_syntax
+from estnltk.converters.cg3.helpers import cleanup_lines
 
 
 def import_CG3(file: str, layer_name: str = "syntax_gold") -> List[Text]:
@@ -17,7 +17,7 @@ def import_CG3(file: str, layer_name: str = "syntax_gold") -> List[Text]:
         lines = f.read().split('\n')
 
     cg3 = CG3AnnotationParser()
-    visl_output = vislcg3_syntax.cleanup_lines(lines)
+    visl_output = cleanup_lines(lines)
 
     sentence = []
     visl_lines = []
