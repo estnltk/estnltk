@@ -14,6 +14,8 @@ Other converters listed here provide either application specific data import/exp
 
 * [`cg3`](cg3) -- tools for converting Text objects with morph_extended layer to cg3 format, and for restoring annotated Text objects from cg3 format files. Also includes helpers, such as converting from cg3 format to conll format; 
 
+* [`tcf`](tcf) -- tools for converting Text objects to  Weblicht's [TCF XML format](https://weblicht.sfs.uni-tuebingen.de/weblichtwiki/index.php/The_TCF_Format), and restoring Text objects from the same format;
+
 ## Text <-> CONLL
 
 `conll_exporter` -- converts Text with syntactic analysis layer to CONLL format;
@@ -23,12 +25,5 @@ Other converters listed here provide either application specific data import/exp
 `conll_ner_exporter` -- converts Text object with named entity layer to CONLL format;
 
 `conll_ner_importer` -- restores Text objects with named entity layers from CONLL format files;
-
-
-## Text <-> TCF
-
-`TCF_exporter` -- exports Text to TCF XML format for Weblicht service;
-
-`TCF_importer` -- imports Text objects from Weblicht's TCF XML format;
 
 
