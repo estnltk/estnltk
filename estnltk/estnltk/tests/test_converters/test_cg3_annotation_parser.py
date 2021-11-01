@@ -1,6 +1,6 @@
 import pytest
-from estnltk.converters.cg3_annotation_parser import CG3AnnotationParser
-from estnltk.converters.cg3_annotation_parser import get_reversed_mapping, get_cats
+from estnltk.converters.cg3.cg3_annotation_parser import CG3AnnotationParser
+from estnltk.converters.cg3.cg3_annotation_parser import get_reversed_mapping, get_cats
 
 parser = CG3AnnotationParser()
 

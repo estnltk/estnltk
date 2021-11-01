@@ -3,8 +3,8 @@ from os import linesep as OS_NEWLINE
 from estnltk.common import abs_path
 from estnltk.taggers import Tagger
 from estnltk import Layer
-from estnltk.converters.CG3_exporter import export_CG3
-from estnltk.converters.cg3_annotation_parser import CG3AnnotationParser
+from estnltk.converters.cg3.CG3_exporter import export_CG3
+from estnltk.converters.cg3.cg3_annotation_parser import CG3AnnotationParser
 from estnltk.taggers.syntax.vislcg3_syntax import VISLCG3Pipeline
 from collections import defaultdict
 

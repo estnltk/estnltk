@@ -30,7 +30,7 @@
 #   Example usage:
 #
 #      from estnltk import Text
-#      from estnltk.converters.CG3_exporter import export_CG3
+#      from estnltk.converters import export_CG3
 #      from estnltk.taggers.vislcg3_syntax import VISLCG3Pipeline
 #
 #      #  Set the variables:

@@ -6,7 +6,7 @@
 """
 
 from estnltk import Text
-from estnltk.converters.CG3_exporter import export_CG3
+from estnltk.converters import export_CG3
 
 def test():
     t = Text('Tere maailm! Kuidas Sul läheb?')

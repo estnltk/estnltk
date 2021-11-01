@@ -2,7 +2,7 @@ from typing import List
 import re
 from estnltk import ElementaryBaseSpan
 from estnltk import Text, Layer, Annotation
-from estnltk.converters.cg3_annotation_parser import CG3AnnotationParser
+from estnltk.converters.cg3.cg3_annotation_parser import CG3AnnotationParser
 from estnltk.taggers.syntax import vislcg3_syntax
 
 

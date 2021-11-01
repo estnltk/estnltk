@@ -13,7 +13,7 @@ from estnltk import Text
 from estnltk import Layer
 from estnltk.taggers import MorphExtendedTagger
 from estnltk.taggers import VabamorfTagger
-from estnltk.converters.CG3_exporter import export_CG3
+from estnltk.converters import export_CG3
 
 from estnltk.taggers.morph_analysis.morf_common import NORMALIZED_TEXT
 
