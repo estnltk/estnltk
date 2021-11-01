@@ -41,9 +41,12 @@ def ner_labelling_to_conll(text: Text, ner_layer: Layer, merge_pos_and_form: boo
             lemma = root[i][0]
             nertag += '\n'
         if merge_pos_and_form:
+            partofspeech_and_form_str = '_{}_ {}'.format( pos[i][0], form[i][0] )
+            if len(form[i][0]) == 0:
+                partofspeech_and_form_str = '_{}_'.format( pos[i][0] )
             fields = [('word', t[i][0]),
                       ('lemma', lemma),
-                      ('partofspeech_and_form', '_{}_ {}'.format(pos[i][0], form[i][0])),
+                      ('partofspeech_and_form', partofspeech_and_form_str),
                       ('nertag', nertag)]
         else:
             fields = [('word', t[i][0]),
