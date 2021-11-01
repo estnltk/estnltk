@@ -16,7 +16,7 @@ for text in texts:
     tagger.tag(text)
 
     
-from estnltk.converters import TextaExporter
+from estnltk.legacy import TextaExporter
 
 exporter = TextaExporter(index='collection',
                          doc_type='sentences',

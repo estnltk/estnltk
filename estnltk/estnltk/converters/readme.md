@@ -10,7 +10,7 @@ The folder [`serialisation_modules`](serialisation_modules) contains additional 
 
 Note: if you add a new serialisation module, you should also update the global serialization registry, see the file  [`__init__.py`](__init__.py) for details.
 
-Other converters listed here provide either application specific data import/export (e.g TextA, Weblicht TCF), or import from/export to specific markup format (e.g CONLL, CG3).  
+Other converters listed here provide either application specific data import/export (e.g Weblicht TCF), or import from/export to specific markup format (e.g CONLL, CG3).  
 
 ## Text <-> CG3
 
