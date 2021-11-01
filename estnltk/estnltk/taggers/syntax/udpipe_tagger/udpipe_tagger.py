@@ -2,7 +2,7 @@ import os
 from os import linesep as OS_NEWLINE
 from collections import OrderedDict
 from conllu.parser import parse_nullable_value
-from estnltk.converters.conll_exporter import sentence_to_conll
+from estnltk.converters.conll.conll_exporter import sentence_to_conll
 from estnltk.common import PACKAGE_PATH
 from estnltk import Layer
 from estnltk.taggers import Tagger

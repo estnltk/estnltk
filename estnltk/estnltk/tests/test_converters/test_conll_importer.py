@@ -274,8 +274,8 @@ text_dict = {
 @pytest.mark.skipif(not check_if_conllu_is_available(),
                     reason="package conllu is required for this test")
 def test_conll_importers():
-    from estnltk.converters.conll_importer import conll_to_text
-    from estnltk.converters.conll_importer import add_layer_from_conll
+    from estnltk.converters.conll.conll_importer import conll_to_text
+    from estnltk.converters.conll.conll_importer import add_layer_from_conll
     
     file = abs_path('tests/test_converters/test_conll.conll')
     text = conll_to_text(file, syntax_layer='syntax')

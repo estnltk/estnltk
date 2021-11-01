@@ -11,8 +11,8 @@ def check_if_conllu_is_available():
 @pytest.mark.skipif(not check_if_conllu_is_available(),
                     reason="package conllu is required for this test")
 def test_sentence_to_conll():
-    from estnltk.converters.conll_importer import conll_to_text
-    from estnltk.converters.conll_exporter import sentence_to_conll
+    from estnltk.converters.conll.conll_importer import conll_to_text
+    from estnltk.converters.conll.conll_exporter import sentence_to_conll
     
     file = abs_path('tests/test_converters/test_conll.conll')
 
