@@ -1,5 +1,5 @@
-from estnltk import Annotation
-from estnltk.taggers import Retagger
+from estnltk_core import Annotation
+from estnltk_core.taggers import Retagger
 
 #TODO make sure in the documentation that this is used instead of retagger
 #for annotation rewriting
