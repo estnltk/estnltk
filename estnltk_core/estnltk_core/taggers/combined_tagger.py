@@ -1,5 +1,5 @@
 from typing import Sequence, List
-from estnltk.taggers import Tagger
+from estnltk_core.taggers import Tagger
 from estnltk_core.layer_operations import merge_layers, resolve_conflicts
 
 

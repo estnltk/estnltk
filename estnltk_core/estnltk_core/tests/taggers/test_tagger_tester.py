@@ -2,11 +2,11 @@ import pytest
 import os
 import regex as re
 
-from estnltk import Text
+from estnltk_core.common import load_text_class
 from estnltk_core.taggers.tagger_tester import TaggerTester
 
-from estnltk.taggers import Tagger
-from estnltk import Layer
+from estnltk_core.taggers import Tagger
+from estnltk_core import Layer
 
 
 def path(filename):
@@ -48,6 +48,7 @@ def test_tagger_tester():
 
     tester = TaggerTester(tagger=tagger, input_file=input_file, target_file=target_file)
 
+    Text = load_text_class()
     text = Text('')
     tester.add_test(annotation='empty text', text=text, expected_text=[])
 

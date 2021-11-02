@@ -259,7 +259,7 @@ def test_access_of_shadowed_layers():
     private_methods = {method for method in dir(object) if callable(getattr(object, method, None))}
     public_methods = ['add_layer', 'analyse', 'diff', 'list_layers', 'pop_layer', 'tag_layer', 'topological_sort']
     protected_methods = ['_repr_html_']
-    public_variables = ['attribute_mapping_for_elementary_layers', 'attribute_mapping_for_enveloping_layers', 'methods']
+    public_variables = ['methods']
     slots = ['text', 'meta', '__dict__', '_shadowed_layers']
     shadowed_layers = properties + public_methods + protected_methods + public_variables + slots
 
@@ -276,8 +276,6 @@ def test_access_of_shadowed_layers():
     assert text.meta == {}
     assert text.attributes == {}
     assert text.layers == set()
-    assert text.attribute_mapping_for_elementary_layers == Text.attribute_mapping_for_elementary_layers
-    assert text.attribute_mapping_for_enveloping_layers == Text.attribute_mapping_for_enveloping_layers
     assert text.methods == set(public_methods) | set(properties) | set(protected_methods) | private_methods
 
     # Shadowed layers are not present in a text without layers

@@ -3,9 +3,9 @@ from os import path
 
 from estnltk_core import Layer
 from estnltk_core.taggers import Tagger
-from estnltk.converters import to_json_file, from_json_file
-from estnltk.converters import layer_to_dict, dict_to_layer
-from estnltk.converters import text_to_dict, dict_to_text
+from estnltk_core.converters import to_json_file, from_json_file
+from estnltk_core.converters import layer_to_dict, dict_to_layer
+from estnltk_core.converters import text_to_dict, dict_to_text
 
 from typing import Union
 

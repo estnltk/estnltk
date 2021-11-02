@@ -130,7 +130,7 @@ class Layer:
 
     @property
     def spans(self):
-        return self._span_list.spans or []
+        return self._span_list.spans
 
     @property
     def text(self):
