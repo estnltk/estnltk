@@ -259,7 +259,12 @@ def test_access_of_shadowed_layers():
     private_methods = {method for method in dir(object) if callable(getattr(object, method, None))}
     public_methods = ['add_layer', 'analyse', 'diff', 'list_layers', 'pop_layer', 'tag_layer', 'topological_sort']
     protected_methods = ['_repr_html_']
-    public_variables = ['methods']
+    if Text().__class__.__name__ == 'BaseText':
+        public_variables = [ 'methods' ]
+    else:
+        public_variables = [ 'attribute_mapping_for_elementary_layers', \
+                             'attribute_mapping_for_enveloping_layers', \
+                             'methods' ]
     slots = ['text', 'meta', '__dict__', '_shadowed_layers']
     shadowed_layers = properties + public_methods + protected_methods + public_variables + slots
 
