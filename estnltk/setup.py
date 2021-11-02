@@ -60,8 +60,8 @@ setup(
     version="1.6.10b0",
 
     packages=find_packages(exclude=exclude_package_dirs),
+    # the list of package data used by "build", "bdist" and "install"
     include_package_data=True,
-    # TODO: package_data duplicates MANIFEST.in; if there is no need for package_data, remove it
     package_data={
         'estnltk.java': [ 'res/*.*'],
         'estnltk.taggers.ner': ['gazetteer/*', 'models/py3_default/*'],
