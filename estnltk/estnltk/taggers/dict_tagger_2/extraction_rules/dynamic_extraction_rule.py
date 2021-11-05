@@ -4,7 +4,8 @@ from typing import Union
 from typing import Callable
 from dataclasses import dataclass
 
-from estnltk import Span, Text
+from estnltk_core import Span
+from estnltk import Text
 
 
 @dataclass(frozen=True)

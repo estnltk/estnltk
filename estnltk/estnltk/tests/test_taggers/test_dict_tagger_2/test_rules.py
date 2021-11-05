@@ -1,8 +1,8 @@
 from estnltk import Layer
 from estnltk import Text
 
-from patches.dict_taggers import StaticExtractionRule
-from patches.dict_taggers import DynamicExtractionRule
+from estnltk.taggers.dict_tagger_2 import StaticExtractionRule
+from estnltk.taggers.dict_tagger_2 import DynamicExtractionRule
 
 
 def test_static_extraction_rules():
@@ -29,7 +29,7 @@ def test_dynamic_extraction_rules():
         'right_context': x.text_object.text[x.end:],
         'layer_name': x.layer.name
     })
-    assert(rule.pattern == 'no')
+    assert(rule.pattern == 'word')
     text = Text('left-word-right')
     layer = Layer('test', text_object=text)
     layer.add_annotation((5, 9))
@@ -48,7 +48,7 @@ def test_dynamic_extraction_rules():
     assert result is None
     text = Text('word-right')
     layer = Layer('test', text_object=text)
-    layer.add_annotation((0, 5))
+    layer.add_annotation((0, 4))
     result = rule.decorator(layer[0])
     assert result is not None
     assert result['extracted_text'] == 'word'

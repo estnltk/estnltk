@@ -5,7 +5,7 @@ from estnltk import Text, Layer, Tagger
 from estnltk import ElementaryBaseSpan, Span, Annotation
 from typing import Tuple, List, Dict, Sequence, Union, Any, Callable, Iterator, Generator
 
-from cda_data_cleaning.estnltk_patches.taggers.dict_taggers import Ruleset
+from estnltk.taggers.dict_tagger_2 import Ruleset
 
 
 class SubstringTagger(Tagger):
@@ -236,14 +236,15 @@ class SubstringTagger(Tagger):
             # Drop spans for which the global decorator fails
             if self.global_decorator is not None:
                 span.annotations[0] = self.global_decorator(text_object, span)
-                if not isinstance(span.annotations[0], dict):
+                '''if not isinstance(span.annotations[0], dict):
                     current = next(sorted_tuples, None)
-                    continue
+                    continue'''
 
             # No dynamic rules to change the annotation
             decorator = self._decorator_map.get(current[1], None)
             if decorator is None:
-                layer.add_span(span)
+                if span.annotations[0] is not None:
+                    layer.add_span(span)
                 current = next(sorted_tuples, None)
                 continue
 

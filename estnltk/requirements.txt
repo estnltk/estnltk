@@ -16,3 +16,4 @@ numpy
 tqdm
 conllu
 pytest-httpserver
+pyahocorasick

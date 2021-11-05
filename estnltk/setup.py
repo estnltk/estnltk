@@ -137,6 +137,7 @@ setup(
         'numpy==1.19.4 ; python_version == "3.6"', # This is the last numpy version that supports py36
         'pandas>=1.1.5 ; python_version >  "3.6"', # Panel Data Analysis library for Python (> py36)
         'pandas<=1.1.5 ; python_version == "3.6"', # Panel Data Analysis library for Python (= py36)
+        'pyahocorasick',
     ],
     #
     #  Note: if you need to build and install for Python 3.5, you need 
