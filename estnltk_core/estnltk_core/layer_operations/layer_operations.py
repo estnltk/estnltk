@@ -63,17 +63,6 @@ def keep_annotations(layer: Layer, attribute: str, values: Container, preserve_s
             del layer[i].annotations[j]
 
 
-def apply_to_annotations(layer: Layer, function: callable):
-    for span in layer:
-        for annotation in span:
-            function(annotation)
-
-
-def apply_to_spans(layer: Layer, function: callable):
-    for span in layer:
-        function(span)
-
-
 def unique_texts(layer: Layer, order=None):
     """Retrive unique texts of layer optionally ordered.
 

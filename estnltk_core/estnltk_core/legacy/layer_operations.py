@@ -1,10 +1,26 @@
+from itertools import groupby
+from pandas import DataFrame
+
+#
+#  Legacy layer operations, relocated from:
+#   https://github.com/estnltk/estnltk/blob/21a0d68f72ae714abab14fe2f730bf9c3df1e49e/estnltk_core/estnltk_core/layer_operations/layer_operations.py#L66-L74
+#
+
+def apply_to_annotations(layer: 'Layer', function: callable):
+    for span in layer:
+        for annotation in span:
+            function(annotation)
+
+
+def apply_to_spans(layer: 'Layer', function: callable):
+    for span in layer:
+        function(span)
+
+
 #
 #  Legacy layer operations, relocated from:
 #   https://github.com/estnltk/estnltk/blob/f2dbde4062cb103384b6949b722125543d3fe457/estnltk_core/estnltk_core/layer_operations/layer_operations.py#L295-L590
 #
-
-from itertools import groupby
-from pandas import DataFrame
 
 ############################################################
 ####### OLD API BELOW ######################################
