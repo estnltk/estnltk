@@ -2,6 +2,18 @@ from itertools import groupby
 from pandas import DataFrame
 
 #
+#  Legacy layer operation, relocated from:
+#   https://github.com/estnltk/estnltk/blob/535654dca55f0cc8067599c9da49f025e46e3554/estnltk_core/estnltk_core/layer_operations/merge.py#L71-L76
+#
+
+def iterate_spans(layer: 'Layer'):
+    if layer.ambiguous:
+        for ambiguous_span in layer:
+            yield from ambiguous_span
+    else:
+        yield from layer
+
+#
 #  Legacy layer operations, relocated from:
 #   https://github.com/estnltk/estnltk/blob/21a0d68f72ae714abab14fe2f730bf9c3df1e49e/estnltk_core/estnltk_core/layer_operations/layer_operations.py#L66-L74
 #

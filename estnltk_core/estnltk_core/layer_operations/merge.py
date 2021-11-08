@@ -68,9 +68,3 @@ def merge_layers(layers: Sequence[Layer],
     return new_layer
 
 
-def iterate_spans(layer):
-    if layer.ambiguous:
-        for ambiguous_span in layer:
-            yield from ambiguous_span
-    else:
-        yield from layer
