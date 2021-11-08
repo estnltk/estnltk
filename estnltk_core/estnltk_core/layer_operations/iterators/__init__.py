@@ -5,3 +5,4 @@ from .consecutive import iterate_ending_spans
 from .intersections import iterate_intersecting_spans
 from .intersections import iterate_nested_spans
 from .intersections import iterate_overlapping_spans
+from .intersections import iterate_conflicting_spans

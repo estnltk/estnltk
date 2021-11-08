@@ -10,7 +10,7 @@ from .layer_operations import diff_layer
 from .layer_operations import get_enclosing_spans
 from .merge import merge_layers
 from .combine import combine_layers
-from .conflict_resolver import iterate_conflicting_spans
+from .iterators import iterate_conflicting_spans
 from .conflict_resolver import resolve_conflicts
 from .flatten import flatten
 from .splitting import extract_section

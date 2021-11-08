@@ -9,6 +9,7 @@ from estnltk_core.layer_operations.iterators.consecutive import iterate_ending_s
 from estnltk_core.layer_operations.iterators.intersections import iterate_intersecting_spans
 from estnltk_core.layer_operations.iterators.intersections import iterate_nested_spans
 from estnltk_core.layer_operations.iterators.intersections import iterate_overlapping_spans
+from estnltk_core.layer_operations.iterators.intersections import iterate_conflicting_spans
 
 from estnltk_core.common import load_text_class
 
@@ -405,3 +406,36 @@ def test_iterate_overlapping_spans():
     #print( overlapping_texts )
     assert overlapping_texts == \
         [('B C', 'CD'), ('EF', 'F G')]
+
+# --------------------- Iterate over conflicting Spans in SpanList
+
+def test_iterate_conflicting_spans():
+    # Example text: 
+    text = 'A B CD EF G'
+    
+    # Create a list of spans
+    spanlist = []
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 0, end=1), layer=None))  # A
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 0, end=1), layer=None))  # A
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 0, end=1), layer=None))  # A
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 2, end=3), layer=None))  # B
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 4, end=5), layer=None))  # C
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 2, end=5), layer=None))  # 'B C'
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 5, end=6), layer=None))  # D
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 4, end=6), layer=None))  # CD
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 7, end=8), layer=None))  # E
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 8, end=9), layer=None))  # F
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 7, end=9), layer=None))  # EF
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start=10, end=11), layer=None)) # G
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start=10, end=11), layer=None)) # G
+    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 8, end=11), layer=None)) # 'F G'
+    
+    conflicting = list( iterate_conflicting_spans(spanlist) )
+    conflicting_texts = \
+        [ (text[a.start:a.end],text[b.start:b.end]) for a, b in conflicting ]
+    #print( conflicting_texts )
+    assert conflicting_texts == \
+        [('B', 'B C'), ('B C', 'C'), ('B C', 'CD'), ('C', 'CD'), ('CD', 'D'), \
+         ('E', 'EF'), ('EF', 'F'), ('EF', 'F G'), ('F', 'F G'), ('F G', 'G'), ('F G', 'G')]
+
+
