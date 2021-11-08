@@ -1,14 +1,14 @@
 from estnltk_core import ElementaryBaseSpan, Span, Layer
 
-from estnltk_core.layer_operations.consecutive import iterate_consecutive_spans
-from estnltk_core.layer_operations.consecutive import iterate_touching_spans
-from estnltk_core.layer_operations.consecutive import iterate_hovering_spans
-from estnltk_core.layer_operations.consecutive import iterate_starting_spans
-from estnltk_core.layer_operations.consecutive import iterate_ending_spans
+from estnltk_core.layer_operations.iterators.consecutive import iterate_consecutive_spans
+from estnltk_core.layer_operations.iterators.consecutive import iterate_touching_spans
+from estnltk_core.layer_operations.iterators.consecutive import iterate_hovering_spans
+from estnltk_core.layer_operations.iterators.consecutive import iterate_starting_spans
+from estnltk_core.layer_operations.iterators.consecutive import iterate_ending_spans
 
-from estnltk_core.layer_operations.intersections import iterate_intersecting_spans
-from estnltk_core.layer_operations.intersections import iterate_nested_spans
-from estnltk_core.layer_operations.intersections import iterate_overlapping_spans
+from estnltk_core.layer_operations.iterators.intersections import iterate_intersecting_spans
+from estnltk_core.layer_operations.iterators.intersections import iterate_nested_spans
+from estnltk_core.layer_operations.iterators.intersections import iterate_overlapping_spans
 
 from estnltk_core.common import load_text_class
 
