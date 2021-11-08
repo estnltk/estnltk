@@ -362,7 +362,7 @@ class Layer:
         raise ValueError(by)
 
     def rolling(self, window: int, min_periods: int = None, inside: str = None):
-        import estnltk_core.layer_operations as layer_operations
+        import estnltk_core.layer_operations.aggregators as layer_operations
         return layer_operations.Rolling(self, window=window,  min_periods=min_periods, inside=inside)
 
     def resolve_attribute(self, item):
