@@ -4,8 +4,8 @@ from estnltk_core.converters import layer_to_dict
 from estnltk_core.converters import dict_to_layer
 
 from estnltk_core.layer_operations import join_texts
-from estnltk_core.layer_operations.join import join_layers
-from estnltk_core.layer_operations.join import join_layers_while_reusing_spans
+from estnltk_core.layer_operations import join_layers
+from estnltk_core.layer_operations import join_layers_while_reusing_spans
 from estnltk_core.layer_operations import split_by, split_by_sentences
 
 from estnltk_core.common import load_text_class

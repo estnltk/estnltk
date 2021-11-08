@@ -8,7 +8,8 @@ def merge_layers(layers: Sequence[Layer],
                  output_attributes: Sequence[str],
                  text=None) -> Layer:
     """Creates a new layer spans of which is the union of spans of input layers.
-    The input layers must be of the same type (parent, enveloping, ambiguous).
+    The input layers must be of the same type (parent, enveloping, ambiguous), 
+    and they must cover the same Text object.
     Missing attribute values are None.
 
     """
@@ -28,6 +29,11 @@ def merge_layers(layers: Sequence[Layer],
             break
     assert text is None or text is text_object
     text_object = text_object or text
+    
+    if text_object is not None:
+        assert all(layer.text_object == text_object for layer in layers), \
+            "some layers belong to different text objects: " + \
+                str( [layer.name for layer in layers if layer.text_object != text_object] )
 
     new_layer = Layer(
         name=output_layer,
