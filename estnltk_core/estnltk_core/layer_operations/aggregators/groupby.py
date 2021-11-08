@@ -4,6 +4,10 @@ from estnltk_core.layer.layer import Layer, SpanList
 
 
 class GroupBy:
+    """Groups layer by attribute values of annotations.
+       Depending on the return_type, spans or annotations that 
+       have the same attribute values will form a group."""
+    
     def __init__(self, layer: Layer, by: Sequence[str], return_type: str):
         self.layer = layer
         self.by = by
@@ -49,12 +53,13 @@ class GroupBy:
         return '{self.__class__.__name__}(layer:{self.layer.name!r}, by={self.by}, return_type={self.return_type!r})'.format(self=self)
 
 
-def group_by(layer: Layer, by: Layer):
-    """
+def group_by_layer(layer: Layer, by: Layer):
+    """Groups layer by an enveloping layer.
+    
     :param layer: Layer
-        EstNLTK Layer
+        Layer which spans will be grouped;
     :param by: Layer
-        Layer that envelopes Layer
+        Layer that envelopes the groupable layer.
     :return:
         iterator of SpanList
     """

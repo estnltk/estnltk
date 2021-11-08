@@ -344,21 +344,21 @@ class Layer:
         return collections.Counter(getattr(span, attribute) for span in self.spans)
 
     def groupby(self, by: Union[str, Sequence[str], 'Layer'], return_type: str = 'spans'):
-        import estnltk_core.layer_operations as layer_operations
+        import estnltk_core.layer_operations.aggregators as layer_operations
         if isinstance(by, str):
             if by in self.attributes:
                 # Group by a single attribute of this Layer
                 return layer_operations.GroupBy(layer=self, by=[ by ], return_type=return_type)
             elif self.text_object is not None and by in self.text_object.layers:
                 # Group by a Layer (using given layer name)
-                return layer_operations.group_by(layer=self, by = self.text_object[by])
+                return layer_operations.group_by_layer(layer=self, by = self.text_object[by])
             raise ValueError(by)
         elif isinstance(by, Sequence) and all(isinstance(b, str) for b in by):
             # Group by multiple attributes of this Layer
             return layer_operations.GroupBy(layer=self, by=by, return_type=return_type)
         elif isinstance(by, Layer):
             # Group by a Layer
-            return layer_operations.group_by(layer=self, by=by)
+            return layer_operations.group_by_layer(layer=self, by=by)
         raise ValueError(by)
 
     def rolling(self, window: int, min_periods: int = None, inside: str = None):
