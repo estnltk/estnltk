@@ -4,8 +4,8 @@ from estnltk_core.layer.span import Span
 from estnltk_core.layer.layer import Layer
 from estnltk_core.common import create_text_object
 
-from estnltk_core.layer_operations.splitting_discontinuous import _split_by_discontinuous_layer
-from estnltk_core.layer_operations.splitting_discontinuous import split_by_clauses
+from estnltk_core.layer_operations.iterators.splitting_discontinuous import _split_by_discontinuous_layer
+from estnltk_core.layer_operations.iterators.splitting_discontinuous import split_by_clauses
 
 import networkx as nx
 

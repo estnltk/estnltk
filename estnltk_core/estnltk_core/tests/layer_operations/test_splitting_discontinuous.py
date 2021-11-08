@@ -1,7 +1,7 @@
 from estnltk_core import Layer
 
-from estnltk_core.layer_operations.splitting_discontinuous import group_consecutive_spans
-from estnltk_core.layer_operations.splitting_discontinuous import _split_by_discontinuous_layer
+from estnltk_core.layer_operations.iterators.splitting_discontinuous import group_consecutive_spans
+from estnltk_core.layer_operations.iterators.splitting_discontinuous import _split_by_discontinuous_layer
 
 from estnltk_core.converters import layer_to_dict
 from estnltk_core.converters import dict_to_layer
