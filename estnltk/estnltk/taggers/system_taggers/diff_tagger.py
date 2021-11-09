@@ -11,7 +11,7 @@ from estnltk import Layer
 from estnltk.taggers import Tagger
 from estnltk_core.layer_operations import diff_layer
 from estnltk_core.layer.span_operations import symm_diff_ambiguous_spans
-from estnltk_core.layer_operations.iterators import iterate_conflicting_spans
+from estnltk_core.layer_operations.iterators import iterate_intersecting_spans
 
 
 class DiffTagger(Tagger):
@@ -146,7 +146,7 @@ def diff_summary(difference_layer: Layer, span_status_attribute, input_layer_att
 
 
 def iterate_diff_conflicts(diff_layer, span_status_attribute):
-    for a, b in iterate_conflicting_spans(diff_layer):
+    for a, b in iterate_intersecting_spans(diff_layer):
         a_status = getattr(a.annotations[0], span_status_attribute)
         b_status = getattr(b.annotations[0], span_status_attribute)
         if a_status == 'missing' and b_status == 'extra':

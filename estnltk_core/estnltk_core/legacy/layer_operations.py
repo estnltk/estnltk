@@ -55,6 +55,32 @@ def apply_to_spans(layer: 'Layer', function: callable):
 
 
 #
+#  Legacy layer operation, relocated from:
+#   https://github.com/estnltk/estnltk/blob/051d0c3ff1931a50a799dae2916f7202a62ab46c/estnltk_core/estnltk_core/layer_operations/conflict_resolver.py#L13-L29
+#
+
+def iterate_conflicting_spans( layer: 'Layer' ):
+    """Yields all pairs `(a, b)` of spans in the layer such that
+       `a.start <= b.start` and `b.start < a.end`.
+       
+       Note: this function duplicates the functionality of 
+       layer_operations.iterate_intersecting_spans(...) and 
+       therefore was moved into legacy.
+       
+       :param layer: Layer
+          input layer
+       :returns generator
+    """
+    len_layer = len(layer)
+    for i, a in enumerate(layer):
+        a_end = a.end
+        for j in range(i + 1, len_layer):
+            b = layer[j]
+            if a_end <= b.start:
+                break
+            yield a, b
+
+#
 #  Legacy layer operations, relocated from:
 #   https://github.com/estnltk/estnltk/blob/f2dbde4062cb103384b6949b722125543d3fe457/estnltk_core/estnltk_core/layer_operations/layer_operations.py#L295-L590
 #

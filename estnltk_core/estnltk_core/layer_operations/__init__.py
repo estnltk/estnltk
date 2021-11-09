@@ -11,7 +11,7 @@ from .combiners import join_texts
 from .combiners import join_layers
 from .combiners import join_layers_while_reusing_spans
 from .combiners import merge_layers
-from .iterators import iterate_conflicting_spans
+from .iterators import iterate_intersecting_spans
 from .iterators import extract_sections
 from .iterators import extract_section
 from .iterators import split_by

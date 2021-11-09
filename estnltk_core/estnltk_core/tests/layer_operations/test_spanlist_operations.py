@@ -9,7 +9,6 @@ from estnltk_core.layer_operations.iterators.consecutive import iterate_ending_s
 from estnltk_core.layer_operations.iterators.intersections import iterate_intersecting_spans
 from estnltk_core.layer_operations.iterators.intersections import iterate_nested_spans
 from estnltk_core.layer_operations.iterators.intersections import iterate_overlapping_spans
-from estnltk_core.layer_operations.iterators.intersections import iterate_conflicting_spans
 
 from estnltk_core.common import load_text_class
 
@@ -407,7 +406,7 @@ def test_iterate_overlapping_spans():
     assert overlapping_texts == \
         [('B C', 'CD'), ('EF', 'F G')]
 
-# --------------------- Iterate over conflicting Spans in SpanList
+# --------------------- Iterate over conflicting (i.e. intersecting) Spans in SpanList
 
 def test_iterate_conflicting_spans():
     # Example text: 
@@ -429,7 +428,7 @@ def test_iterate_conflicting_spans():
     spanlist.append(Span(base_span=ElementaryBaseSpan(start=10, end=11), layer=None)) # G
     spanlist.append(Span(base_span=ElementaryBaseSpan(start= 8, end=11), layer=None)) # 'F G'
     
-    conflicting = list( iterate_conflicting_spans(spanlist) )
+    conflicting = list( iterate_intersecting_spans(spanlist) )
     conflicting_texts = \
         [ (text[a.start:a.end],text[b.start:b.end]) for a, b in conflicting ]
     #print( conflicting_texts )

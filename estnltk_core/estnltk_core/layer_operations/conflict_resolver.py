@@ -8,7 +8,7 @@ spans. That would preserve all annotations but may also create meaningless spans
 from collections import defaultdict
 
 from estnltk_core import Span
-from estnltk_core.layer_operations.iterators import iterate_conflicting_spans
+from estnltk_core.layer_operations.iterators import iterate_intersecting_spans
 
 
 def _resolve_ambiguous_span(ambiguous_span: Span, priority_attribute: str, keep_equal: bool) -> None:
@@ -64,7 +64,7 @@ def resolve_conflicts(layer,
     number_of_conflicts = 0
 
     map_conflicts_new = defaultdict(set)
-    for a, b in iterate_conflicting_spans(layer):
+    for a, b in iterate_intersecting_spans(layer):
     
         map_conflicts_new[a.base_span].add(b.base_span)
         map_conflicts_new[b.base_span].add(a.base_span)
