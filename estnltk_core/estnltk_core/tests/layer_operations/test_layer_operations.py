@@ -191,11 +191,12 @@ def test_layer_groupby_attributes():
 
 
 def test_layer_groupby_enveloping_layer():
+    # Get a grouping of spans
     text = new_text( 5 )
     assert text.layer_4.enveloping == text.layer_0.name
     grouped_spanlist_texts = []
-    for spanlist in text.layer_0.groupby( text.layer_4 ):
-        grouped_spanlist_texts.append( spanlist.text )
+    for (env_layer_id, list_of_spans) in text.layer_0.groupby( text.layer_4 ):
+        grouped_spanlist_texts.append( [sp.text for sp in list_of_spans] )
     assert grouped_spanlist_texts == [ \
        ['Sada', 'kakskümmend', 'kolm'],
        [' Neli', 'tuhat', 'viissada', 'kuuskümmend', 'seitse'],
@@ -203,16 +204,16 @@ def test_layer_groupby_enveloping_layer():
        ['kaheksa'],
        ['Üheksakümmend', 'tuhat']
     ]
-    grouped_annotations = []
-    for spanlist in text.layer_0.groupby( text.layer_4 ):
-        grouped_annotations.append( [] )
-        for span in spanlist:
-            for a in span.annotations:
-                ann_dict = {}
-                for attr in text.layer_0.attributes:
-                    ann_dict[attr] = a[attr]
-                grouped_annotations[-1].append( ann_dict )
-    assert grouped_annotations == [ \
+    # Get a grouping of spans' annotations
+    grouped_annotations_1 = []
+    for (env_layer_id, list_of_annotations) in text.layer_0.groupby( text.layer_4, return_type='annotations' ):
+        grouped_annotations_1.append( [] )
+        for ann in list_of_annotations:
+            ann_dict = {}
+            for attr in text.layer_0.attributes:
+                ann_dict[attr] = ann[attr]
+            grouped_annotations_1[-1].append( ann_dict )
+    assert grouped_annotations_1 == [ \
        [ {'attr': 'L0-0', 'attr_0': '100'},
          {'attr': 'L0-2', 'attr_0': '20'},
          {'attr': 'L0-4', 'attr_0': '3'} ],
