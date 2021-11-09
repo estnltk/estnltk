@@ -54,7 +54,7 @@ class GroupBy:
 
 
 def group_by_layer(layer: Layer, by: Layer):
-    """Groups layer by an enveloping layer.
+    """Groups layer's spans by an enveloping layer.
     
     :param layer: Layer
         Layer which spans will be grouped;
