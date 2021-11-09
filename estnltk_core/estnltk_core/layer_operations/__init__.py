@@ -6,7 +6,6 @@ from .layer_operations import count_by
 from .layer_operations import diff_layer
 from .layer_operations import get_enclosing_spans
 from .aggregators import GroupBy
-from .aggregators import group_by_layer
 from .aggregators import Rolling
 from .combiners import join_texts
 from .combiners import join_layers

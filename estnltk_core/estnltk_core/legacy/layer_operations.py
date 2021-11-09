@@ -1,6 +1,31 @@
 from itertools import groupby
 from pandas import DataFrame
 
+from estnltk_core.layer.layer import Layer, SpanList
+
+#
+#  Legacy layer operation, relocated from:
+#   https://github.com/estnltk/estnltk/blob/65b26140df807a0b0d0f76ddf22f274dc8049fed/estnltk_core/estnltk_core/layer_operations/aggregators/groupby.py#L84-L100
+#
+
+def group_by_layer(layer: Layer, by: Layer):
+    """Groups layer's spans by an enveloping layer.
+    
+    :param layer: Layer
+        Layer which spans will be grouped;
+    :param by: Layer
+        Layer that envelopes the groupable layer.
+    :return:
+        iterator of SpanList
+    """
+    for enveloping_span in by:
+        span_list = SpanList()
+        for span in enveloping_span.spans:
+            sp = layer.get(span)
+            if sp is not None:
+                span_list.add_span(sp)
+        yield span_list
+
 #
 #  Legacy layer operation, relocated from:
 #   https://github.com/estnltk/estnltk/blob/535654dca55f0cc8067599c9da49f025e46e3554/estnltk_core/estnltk_core/layer_operations/merge.py#L71-L76

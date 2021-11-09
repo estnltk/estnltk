@@ -80,21 +80,3 @@ class GroupBy:
     def __repr__(self):
         return '{self.__class__.__name__}(layer:{self.layer.name!r}, by={self.by}, return_type={self.return_type!r})'.format(self=self)
 
-
-def group_by_layer(layer: Layer, by: Layer):
-    """Groups layer's spans by an enveloping layer.
-    
-    :param layer: Layer
-        Layer which spans will be grouped;
-    :param by: Layer
-        Layer that envelopes the groupable layer.
-    :return:
-        iterator of SpanList
-    """
-    for enveloping_span in by:
-        span_list = SpanList()
-        for span in enveloping_span.spans:
-            sp = layer.get(span)
-            if sp is not None:
-                span_list.add_span(sp)
-        yield span_list
