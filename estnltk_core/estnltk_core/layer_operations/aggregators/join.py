@@ -10,6 +10,10 @@ from estnltk_core.layer.enveloping_span import EnvelopingSpan
 
 from estnltk_core.common import create_text_object
 
+#
+# Remark: semantics of join_layers, join_layers_while_reusing_spans & join_texts are up 
+# for a debation, and the corresponding functionalities may change in the future
+#
 
 def shift_span( span, layer: Layer, positions: int ):
     '''Shifts span's start and end indices by the given amount of positions.

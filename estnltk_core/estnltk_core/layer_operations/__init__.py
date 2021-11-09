@@ -12,7 +12,6 @@ from .aggregators import GroupBy
 from .aggregators import group_by_layer
 from .aggregators import merge_layers
 from .aggregators import Rolling
-from .combine import combine_layers
 from .iterators import iterate_conflicting_spans
 from .iterators import extract_sections
 from .iterators import extract_section

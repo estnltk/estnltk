@@ -3,6 +3,8 @@ from estnltk_core.layer.enveloping_span import EnvelopingSpan
 
 
 class Rolling:
+    """Yields span lists from a window rolling over a layer."""
+
     def __init__(self, layer: Layer, window: int, min_periods: int = None, inside: str = None):
         self.layer = layer
 

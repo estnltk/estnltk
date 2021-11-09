@@ -4,6 +4,9 @@ from typing import List, Callable, Dict, Generator
 def combine_layers(a: List[Dict], b: List[Dict], fun: Callable[[Dict, Dict], Dict]) -> Generator:
     """
     Generator of merged layers.
+    
+    Remark: this function could be useful, but needs to be re-implemented to properly support v1.6.
+    Can be added to layer_operations.aggregators.
 
     Parameters
     ----------
