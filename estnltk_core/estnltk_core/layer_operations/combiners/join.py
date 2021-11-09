@@ -1,3 +1,6 @@
+#
+#  join -- horizontal joining of layers (aka concatenation)
+#
 from typing import Sequence, List, Union
 
 from estnltk_core.layer.span import Span

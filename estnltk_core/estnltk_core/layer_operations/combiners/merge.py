@@ -1,3 +1,6 @@
+#
+#  merge -- vertical merging of layers
+#
 from typing import Sequence
 from estnltk_core.layer.enveloping_span import EnvelopingSpan
 from estnltk_core.layer.layer import Layer
