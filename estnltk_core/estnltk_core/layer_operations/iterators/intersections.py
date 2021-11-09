@@ -84,8 +84,11 @@ def iterate_conflicting_spans( spanlist:Union[List[Span], SpanList] ):
         where one Span is partially overlapped by other or 
         nested inside another; equal spans will be discarded. 
         
+        Note: this function is just an alias for 
+        iterate_intersecting_spans() with default settings. 
+        
         Another way to describe this operation: 
         yields all pairs `(a, b)` of spans such that 
         `a.start <= b.start` and `b.start < a.end`.
     """
-    yield from iterate_intersecting_spans( spanlist, yield_nested=True, yield_equal=False, yield_overlapped=True )
+    yield from iterate_intersecting_spans( spanlist, yield_nested=True, yield_equal=True, yield_overlapped=True )

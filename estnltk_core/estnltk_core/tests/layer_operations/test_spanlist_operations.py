@@ -417,7 +417,6 @@ def test_iterate_conflicting_spans():
     spanlist = []
     spanlist.append(Span(base_span=ElementaryBaseSpan(start= 0, end=1), layer=None))  # A
     spanlist.append(Span(base_span=ElementaryBaseSpan(start= 0, end=1), layer=None))  # A
-    spanlist.append(Span(base_span=ElementaryBaseSpan(start= 0, end=1), layer=None))  # A
     spanlist.append(Span(base_span=ElementaryBaseSpan(start= 2, end=3), layer=None))  # B
     spanlist.append(Span(base_span=ElementaryBaseSpan(start= 4, end=5), layer=None))  # C
     spanlist.append(Span(base_span=ElementaryBaseSpan(start= 2, end=5), layer=None))  # 'B C'
@@ -435,7 +434,8 @@ def test_iterate_conflicting_spans():
         [ (text[a.start:a.end],text[b.start:b.end]) for a, b in conflicting ]
     #print( conflicting_texts )
     assert conflicting_texts == \
-        [('B', 'B C'), ('B C', 'C'), ('B C', 'CD'), ('C', 'CD'), ('CD', 'D'), \
-         ('E', 'EF'), ('EF', 'F'), ('EF', 'F G'), ('F', 'F G'), ('F G', 'G'), ('F G', 'G')]
+        [('A', 'A'), ('B', 'B C'), ('B C', 'C'), ('B C', 'CD'), ('C', 'CD'), \
+         ('CD', 'D'), ('E', 'EF'), ('EF', 'F'), ('EF', 'F G'), ('F', 'F G'), \
+         ('F G', 'G'), ('F G', 'G'), ('G', 'G')]
 
 
