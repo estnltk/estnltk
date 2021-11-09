@@ -2,7 +2,6 @@ from .layer_filtering import apply_filter
 from .layer_filtering import drop_annotations
 from .layer_filtering import keep_annotations
 from .layer_operations import unique_texts
-from .layer_operations import count_by
 from .layer_operations import diff_layer
 from .layer_operations import get_enclosing_spans
 from .aggregators import GroupBy

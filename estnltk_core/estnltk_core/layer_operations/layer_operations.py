@@ -4,11 +4,9 @@ Operations for Estnltk Layer object.
 """
 from operator import eq
 
-from collections import Counter
-
 from estnltk_core.layer.layer import Layer
 
-
+# TODO: rest of the functions (except diff_layer) should also be relocated into legacy?
 
 def unique_texts(layer: Layer, order=None):
     """Retrive unique texts of layer optionally ordered.
@@ -36,46 +34,6 @@ def unique_texts(layer: Layer, order=None):
     if order == 'desc':
         return sorted(set(texts), reverse=True, key=str.lower)
     raise ValueError('Incorrect order type.')
-
-
-def count_by(layer: Layer, attributes, counter=None):
-    """Create table of counts for every *layer* *attributes* value combination.
-    
-    Parameters
-    ----------
-    layer: Layer
-        The layer which elements have the keys listed in *attributes*.
-    attributes: list of str or str
-        Name of *layer*'s key or list of *layer*'s key names.
-        If *attributes* contains 'text', then the *layer*'s text is found using spans.
-    table: collections.Counter, None, default: None
-        If table==None, then new 
-        If table!=None, then the table is updated and returned.
-    
-    Returns
-    -------
-    collections.Counter
-        The keys are tuples of values of attributes. 
-        The values are corresponding counts.
-    """
-    if isinstance(attributes, str):
-        attributes = [attributes]
-
-    if counter is None:
-        counter = Counter()
-
-    for span in layer:
-        key = []
-        for a in attributes:
-            if a == 'text':
-                key.append(span.text)
-            else:
-                for annotation in span.annotations:
-                    key.append(getattr(annotation, a))
-        key = tuple(key)
-        counter[key] += 1
-
-    return counter
 
 
 def diff_layer(a: Layer, b: Layer, comp=eq):

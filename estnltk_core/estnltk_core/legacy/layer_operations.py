@@ -1,7 +1,55 @@
 from itertools import groupby
+from collections import Counter
+
 from pandas import DataFrame
 
 from estnltk_core.layer.layer import Layer, SpanList
+
+#
+#  Legacy layer operation, relocated from:
+#   https://github.com/estnltk/estnltk/blob/08aee4213e1fe1132c12b3393b545613a24940d0/estnltk_core/estnltk_core/layer_operations/layer_operations.py#L41-L78
+#
+
+def count_by(layer: Layer, attributes, counter=None):
+    """Create table of counts for every *layer* *attributes* value combination.
+    
+    Note: this functionality is already covered by layer_operations.GroupBy.
+    
+    Parameters
+    ----------
+    layer: Layer
+        The layer which elements have the keys listed in *attributes*.
+    attributes: list of str or str
+        Name of *layer*'s key or list of *layer*'s key names.
+        If *attributes* contains 'text', then the *layer*'s text is found using spans.
+    table: collections.Counter, None, default: None
+        If table==None, then new 
+        If table!=None, then the table is updated and returned.
+    
+    Returns
+    -------
+    collections.Counter
+        The keys are tuples of values of attributes. 
+        The values are corresponding counts.
+    """
+    if isinstance(attributes, str):
+        attributes = [attributes]
+
+    if counter is None:
+        counter = Counter()
+
+    for span in layer:
+        key = []
+        for a in attributes:
+            if a == 'text':
+                key.append(span.text)
+            else:
+                for annotation in span.annotations:
+                    key.append(getattr(annotation, a))
+        key = tuple(key)
+        counter[key] += 1
+
+    return counter
 
 #
 #  Legacy layer operation, relocated from:

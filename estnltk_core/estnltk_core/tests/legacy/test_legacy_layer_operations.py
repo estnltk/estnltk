@@ -9,8 +9,49 @@ from estnltk_core.legacy.layer_operations import apply_simple_filter
 from estnltk_core.legacy.layer_operations import conflicts
 from estnltk_core.legacy.layer_operations import count_by_document
 from estnltk_core.legacy.layer_operations import dict_to_df
+from estnltk_core.legacy.layer_operations import count_by
 
 from estnltk_core.legacy.layer_operations import group_by_spans
+
+
+def test_layer_count_by():
+    from estnltk_core import Layer, ElementaryBaseSpan
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    text_1 = Text('Üks kaks kolm neli kaks.')
+    layer_1 = Layer('test', attributes=['label'], text_object=text_1, ambiguous=True)
+    layer_1.add_annotation( ElementaryBaseSpan(0, 3), label=1 )
+    layer_1.add_annotation( ElementaryBaseSpan(4, 8), label=2 )
+    layer_1.add_annotation( ElementaryBaseSpan(9, 13), label=3 )
+    layer_1.add_annotation( ElementaryBaseSpan(14, 18), label=4 )
+    layer_1.add_annotation( ElementaryBaseSpan(19, 23), label=2 )
+    text_1.add_layer( layer_1 )
+    
+    text_2 = Text('Neli kolm kaks üks kaks.')
+    layer_2 = Layer('test', attributes=['label'], text_object=text_2, ambiguous=False)
+    layer_2.add_annotation( ElementaryBaseSpan(0, 4), label=4 )
+    layer_2.add_annotation( ElementaryBaseSpan(5, 9), label=3 )
+    layer_2.add_annotation( ElementaryBaseSpan(10, 14), label=2 )
+    layer_2.add_annotation( ElementaryBaseSpan(15, 18), label=1 )
+    layer_2.add_annotation( ElementaryBaseSpan(19, 23), label=2 )
+    text_2.add_layer( layer_2 )
+
+    counter = count_by( text_1['test'], 'label' )
+    expected = {(1,): 1, (2,): 2, (3,): 1, (4,): 1}
+    assert counter == expected
+    counter = count_by( text_2['test'], ['label'], counter=counter)
+    expected = {(1,): 2, (2,): 4, (3,): 2, (4,): 2}
+    assert counter == expected
+
+    counter = count_by( text_1['test'], ['text', 'label'] )
+    expected = {('Üks', 1): 1, ('kaks', 2): 2, ('kolm', 3): 1, ('neli', 4): 1}
+    assert counter == expected
+    counter = count_by( text_2['test'], ['text', 'label'], counter=counter )
+    expected = {('üks', 1): 1, ('Üks', 1): 1, ('kaks', 2): 4, ('kolm', 3): 2, ('neli', 4): 1, ('Neli', 4): 1}
+    assert counter == expected
+
+
 
 ############################################################
 ####### TESTS BELOW USE THE OLD API  #######################
