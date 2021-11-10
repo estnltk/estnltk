@@ -1,12 +1,7 @@
-"""
-Operations for Estnltk Layer object.
-
-"""
 from operator import eq
 
 from estnltk_core.layer.layer import Layer
 
-# TODO: rename module
 
 def diff_layer(a: Layer, b: Layer, comp=eq):
     """Generator of layer differences.
