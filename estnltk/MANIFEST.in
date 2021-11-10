@@ -20,7 +20,6 @@ graft estnltk/taggers/syntax/ud_validation/agreement_resources
 graft estnltk/taggers/syntax/ud_validation/data
 graft estnltk/taggers/syntax/preprocessing/rules_files
 graft estnltk/taggers/text_segmentation
-graft estnltk/taggers/verb_chains
 graft estnltk/vabamorf/dct
 graft estnltk/wordnet
 graft estnltk/visualisation/attribute_visualiser

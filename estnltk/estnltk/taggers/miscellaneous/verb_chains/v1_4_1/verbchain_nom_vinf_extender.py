@@ -17,13 +17,13 @@
 
 import re
 
-from estnltk.taggers.verb_chains.v1_4_1.vcd_common_names import *
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.vcd_common_names import *
 
-from estnltk.taggers.verb_chains.v1_4_1.utils import WordTemplate
-from estnltk.taggers.verb_chains.v1_4_1.utils import getClausesByClauseIDs
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _getJsonAsTextString
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _getMatchingAnalysisIDs
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _isFollowedByComma
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.utils import WordTemplate
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.utils import getClausesByClauseIDs
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _getJsonAsTextString
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _getMatchingAnalysisIDs
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _isFollowedByComma
 #from .debug_print import _debugPrint
 
 class VerbChainNomVInfExtender:

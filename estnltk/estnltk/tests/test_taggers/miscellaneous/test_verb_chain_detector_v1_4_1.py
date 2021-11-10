@@ -1,6 +1,6 @@
 # Tests for VerbChainDetector (which uses v1.4.1 source)
 from estnltk import Text
-from estnltk.taggers.verb_chains import VerbChainDetector
+from estnltk.taggers import VerbChainDetector
 
 
 def test_verb_chain_detection_1():
@@ -235,8 +235,8 @@ def test_verb_chain_detection_3():
 def test_verb_chain_detection_customize_detector():
     # Tests that VerbChainDetector's detector component can be customized:
     # Use a detector that breaks chains on intervening punctuation
-    from estnltk.taggers.verb_chains.verbchain_detector_tagger import VERB_CHAIN_RES_PATH
-    from estnltk.taggers.verb_chains.v1_4_1.verbchain_detector import VerbChainDetectorV1_4
+    from estnltk.taggers.miscellaneous.verb_chains.verbchain_detector_tagger import VERB_CHAIN_RES_PATH
+    from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.verbchain_detector import VerbChainDetectorV1_4
     vc_detector_customized = VerbChainDetector( vc_detector=VerbChainDetectorV1_4(resourcesPath=VERB_CHAIN_RES_PATH),
                                                 breakOnPunctuation=True )
     test_data = [

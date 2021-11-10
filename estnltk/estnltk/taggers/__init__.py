@@ -55,7 +55,7 @@ from estnltk.taggers.miscellaneous.address_tagger import AddressPartTagger
 from estnltk.taggers.miscellaneous.address_tagger import AddressGrammarTagger
 from estnltk.taggers.miscellaneous.adjective_phrase_tagger import AdjectivePhraseTagger
 from estnltk.taggers.miscellaneous.flesch_tagger import SentenceFleschScoreRetagger
-from estnltk.taggers.verb_chains import VerbChainDetector
+from estnltk.taggers.miscellaneous.verb_chains import VerbChainDetector
 
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.token_splitter import TokenSplitter

@@ -12,8 +12,8 @@
 import re
 
 # WordTemplate and constants from v1.4.1 source
-from estnltk.taggers.verb_chains.v1_4_1.vcd_common_names import *
-from estnltk.taggers.verb_chains.v1_4_1.utils import WordTemplate
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.vcd_common_names import *
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.utils import WordTemplate
 
 # Additional constants
 SENT_ID = 'sent_id'

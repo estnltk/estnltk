@@ -16,22 +16,22 @@
 
 import re
 
-from estnltk.taggers.verb_chains.v1_4_1.vcd_common_names import *
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.vcd_common_names import *
 
-from estnltk.taggers.verb_chains.v1_4_1.utils import WordTemplate
-from estnltk.taggers.verb_chains.v1_4_1.utils import addWordIDs
-from estnltk.taggers.verb_chains.v1_4_1.utils import getClausesByClauseIDs
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.utils import WordTemplate
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.utils import addWordIDs
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.utils import getClausesByClauseIDs
 
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _extractBasicPredicateFromClause
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _expandSaamaWithTud
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _expandOlemaVerbChains
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _loadVerbSubcatRelations
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _expandVerbChainsBySubcat
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _determineVerbChainContextualAmbiguity
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _extractEgaNegFromSent
-from estnltk.taggers.verb_chains.v1_4_1.basic_verbchain_detection import _getJsonAsTextString
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _extractBasicPredicateFromClause
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _expandSaamaWithTud
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _expandOlemaVerbChains
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _loadVerbSubcatRelations
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _expandVerbChainsBySubcat
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _determineVerbChainContextualAmbiguity
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _extractEgaNegFromSent
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.basic_verbchain_detection import _getJsonAsTextString
 
-from estnltk.taggers.verb_chains.v1_4_1.verbchain_nom_vinf_extender import VerbChainNomVInfExtender
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.verbchain_nom_vinf_extender import VerbChainNomVInfExtender
 
 # ================================================================
 #    Various postprocessing functions

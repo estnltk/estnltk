@@ -65,7 +65,8 @@ setup(
     package_data={
         'estnltk.java': [ 'res/*.*'],
         'estnltk.taggers.ner': ['gazetteer/*', 'models/py3_default/*'],
-        'estnltk.taggers.miscellaneous':  ['*.csv'],
+        'estnltk.taggers.miscellaneous':  ['*.csv', 
+                                           'verb_chains/v1_4_1/res/*.*'],
         'estnltk.taggers.morph_analysis': ['hfst/models/*.*', 
                                            'number_fixes/*.*', 
                                            'reorderings/*.*'],
@@ -80,7 +81,6 @@ setup(
                                    'ud_validation/agreement_resources/*.*',
                                    'ud_validation/data/*.*'],
         'estnltk.taggers.text_segmentation': ['*.csv'], 
-        'estnltk.taggers.verb_chains': ['v1_4_1/res/*.*'],
         'estnltk.tests.test_converters': ['*.conll'], 
         'estnltk.tests.test_corpus_processing': ['*.vert'], 
         'estnltk.tests.test_morph': ['*.csv'], 

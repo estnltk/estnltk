@@ -12,7 +12,7 @@
 
 import re
 
-from estnltk.taggers.verb_chains.v1_4_1.vcd_common_names import *
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.vcd_common_names import *
 
 # ================================================================
 #    Indexing word tokens: add WORD_ID to each word 

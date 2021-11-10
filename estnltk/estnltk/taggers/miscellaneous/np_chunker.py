@@ -22,7 +22,7 @@ from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 from estnltk.taggers.miscellaneous.np_chunker_v1_4_1 import NounPhraseChunkerV1_4
 # Constants
 from estnltk.taggers.miscellaneous.np_chunker_v1_4_1 import PARSER_OUT, SENT_ID
-from estnltk.taggers.verb_chains.v1_4_1.vcd_common_names import WORDS
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.vcd_common_names import WORDS
 
 
 class NounPhraseChunker( Tagger ):

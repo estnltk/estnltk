@@ -19,12 +19,12 @@ from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_s
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
 
 # Verb chain detector functionality from the version 1.4.1
-from estnltk.taggers.verb_chains.v1_4_1.verbchain_detector import VerbChainDetectorV1_4
-from estnltk.taggers.verb_chains.v1_4_1.vcd_common_names import CLAUSE_IDX
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.verbchain_detector import VerbChainDetectorV1_4
+from estnltk.taggers.miscellaneous.verb_chains.v1_4_1.vcd_common_names import CLAUSE_IDX
 
 # Path to the verb chain detector's resources
 from estnltk.common import PACKAGE_PATH
-VERB_CHAIN_RES_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'verb_chains', 'v1_4_1', 'res')
+VERB_CHAIN_RES_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'miscellaneous', 'verb_chains', 'v1_4_1', 'res')
 
 
 class VerbChainDetector( Tagger ):
@@ -83,7 +83,7 @@ class VerbChainDetector( Tagger ):
             Name of the input sentences layer;
         input_morph_analysis_layer: str (default: 'morph_analysis')
             Name of the input morph_analysis layer;
-        resources_dir: str (default: PACKAGE_PATH/taggers/verb_chains/v1_4_1/res )
+        resources_dir: str (default: PACKAGE_PATH/taggers/miscellaneous/verb_chains/v1_4_1/res )
             The path to the resource files (path to the 'res' directory);
         add_morph_attr: boolean (default: False)
             If attribute 'morph' will be added to the output layer.
@@ -103,7 +103,8 @@ class VerbChainDetector( Tagger ):
             If True, expansion of regular verb chains will be broken in case of intervening punctuation.
         removeSingleAraEi: boolean (default: True)
             if True, verb chains consisting of a single word, 'ära' or 'ei', will be removed.
-        vc_detector: estnltk.taggers.verb_chains.v1_4_1.verbchain_detector.VerbChainDetector (default: None)
+        vc_detector: estnltk.taggers.miscellaneous.verb_chains.v1_4_1.verbchain_detector.VerbChainDetector 
+            (default: None)
             Overrides the default verb chain detector with the given 
             VerbChainDetector instance. 
         """
