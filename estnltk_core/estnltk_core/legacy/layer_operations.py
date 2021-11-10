@@ -7,6 +7,56 @@ from estnltk_core.layer.layer import Layer, SpanList
 
 #
 #  Legacy layer operation, relocated from:
+#  https://github.com/estnltk/estnltk/blob/93310cbda16dc71f56a7d5b06124d093040fe684/estnltk_core/estnltk_core/layer_operations/layer_operations.py#L11-L36
+# 
+
+def unique_texts(layer: Layer, order=None):
+    """Retrive unique texts of layer optionally ordered.
+    Parameters
+    ----------
+    layer: Text Layer
+    order: {None, 'asc', 'desc'} (default: None)
+        If 'asc', then the texts are returned in ascending order by unicode lowercase.
+        If 'desc', then the texts are returned in descending order by unicode lowercase.
+        The ordering is nondeterministic if the lowercase versions of words are equal. 
+        For example the list ['On', 'on'] is both in ascending and descending order. 
+        Else, the texts returned have no particular order.
+    Returns
+    -------
+    list of str
+        List of unique texts of given layer.
+    """
+    texts = layer.text
+    if order == None:
+        return list(set(texts))
+    if order == 'asc':
+        return sorted(set(texts), reverse=False, key=str.lower)
+    if order == 'desc':
+        return sorted(set(texts), reverse=True, key=str.lower)
+    raise ValueError('Incorrect order type.')
+
+
+#
+#  Legacy layer operation, relocated from:
+#  https://github.com/estnltk/estnltk/blob/93310cbda16dc71f56a7d5b06124d093040fe684/estnltk_core/estnltk_core/layer_operations/layer_operations.py#L107-L114
+#
+
+def get_enclosing_spans(layer: Layer, span):
+    '''Yields layer's spans enclosing around the given span.
+       Note: this is inefficient. Instead of using this function,
+       use a regular iteration over spans of the enveloping layer 
+       and over subspans of each (enveloping) span.
+    '''
+    base_span = span.base_span
+    end = span.end
+    for sp in layer:
+        if base_span in sp.base_span:
+            yield sp
+        if end < sp.start:
+            break
+
+#
+#  Legacy layer operation, relocated from:
 #   https://github.com/estnltk/estnltk/blob/08aee4213e1fe1132c12b3393b545613a24940d0/estnltk_core/estnltk_core/layer_operations/layer_operations.py#L41-L78
 #
 

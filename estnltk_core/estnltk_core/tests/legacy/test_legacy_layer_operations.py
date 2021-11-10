@@ -9,7 +9,9 @@ from estnltk_core.legacy.layer_operations import apply_simple_filter
 from estnltk_core.legacy.layer_operations import conflicts
 from estnltk_core.legacy.layer_operations import count_by_document
 from estnltk_core.legacy.layer_operations import dict_to_df
+
 from estnltk_core.legacy.layer_operations import count_by
+from estnltk_core.legacy.layer_operations import unique_texts
 
 from estnltk_core.legacy.layer_operations import group_by_spans
 
@@ -51,6 +53,46 @@ def test_layer_count_by():
     expected = {('üks', 1): 1, ('Üks', 1): 1, ('kaks', 2): 4, ('kolm', 3): 2, ('neli', 4): 1, ('Neli', 4): 1}
     assert counter == expected
 
+
+def test_layer_unique_texts():
+    from estnltk_core import Layer, ElementaryBaseSpan
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    text = Text('Üks kaks kolm neli. Neli kolm kaks üks.')
+    layer_1 = Layer('words', attributes=[], text_object=text, ambiguous=False)
+    layer_1.add_annotation( ElementaryBaseSpan(0, 3) )
+    layer_1.add_annotation( ElementaryBaseSpan(4, 8) )
+    layer_1.add_annotation( ElementaryBaseSpan(9, 13) )
+    layer_1.add_annotation( ElementaryBaseSpan(14, 18) )
+    layer_1.add_annotation( ElementaryBaseSpan(18, 19) )
+    layer_1.add_annotation( ElementaryBaseSpan(20, 24) )
+    layer_1.add_annotation( ElementaryBaseSpan(25, 29) )
+    layer_1.add_annotation( ElementaryBaseSpan(30, 34) )
+    layer_1.add_annotation( ElementaryBaseSpan(35, 38) )
+    layer_1.add_annotation( ElementaryBaseSpan(38, 39) )
+    text.add_layer( layer_1 )
+    
+    result = unique_texts( text['words'], order=None )
+    expected = {'.', 'kaks', 'kolm', 'neli', 'Neli', 'üks', 'Üks'}
+    assert set(result) == expected
+
+    text = Text('Üks kaks kolm neli.')
+    layer_2 = Layer('words', attributes=[], text_object=text, ambiguous=False)
+    layer_2.add_annotation( ElementaryBaseSpan(0, 3) )
+    layer_2.add_annotation( ElementaryBaseSpan(4, 8) )
+    layer_2.add_annotation( ElementaryBaseSpan(9, 13) )
+    layer_2.add_annotation( ElementaryBaseSpan(14, 18) )
+    layer_2.add_annotation( ElementaryBaseSpan(18, 19) )
+    text.add_layer( layer_2 )
+
+    result = unique_texts( text['words'], order='asc' )
+    expected = ['.', 'kaks', 'kolm', 'neli', 'Üks']
+    assert result == expected
+
+    result = unique_texts( text['words'], order='desc' )
+    expected = ['Üks', 'neli', 'kolm', 'kaks', '.']
+    assert result, expected
 
 
 ############################################################
