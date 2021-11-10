@@ -1,6 +1,6 @@
 import regex as re
 
-from estnltk.taggers import AnnotationRewriter
+from estnltk_core.taggers.annotation_rewriter import AnnotationRewriter
 
 
 _suffix_conversions = (("=[td]ud", "tud"),

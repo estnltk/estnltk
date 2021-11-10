@@ -1,4 +1,4 @@
-from estnltk.taggers import Retagger
+from estnltk_core.taggers import Retagger
 
 
 class AnnotationRewriter(Retagger):

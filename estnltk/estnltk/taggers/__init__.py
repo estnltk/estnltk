@@ -1,8 +1,9 @@
 from estnltk_core.taggers.tagger import Tagger
 from estnltk_core.taggers.retagger import Retagger
+from estnltk_core.taggers.span_rewriter import SpanRewriter
+from estnltk_core.taggers.annotation_rewriter import AnnotationRewriter
 
 from estnltk.taggers.system_taggers.atomizer import Atomizer
-from estnltk.taggers.system_taggers.annotation_rewriter import AnnotationRewriter
 from estnltk.taggers.system_taggers.attribute_comparison_tagger import AttributeComparisonTagger
 
 from estnltk.taggers.dict_taggers.vocabulary import Vocabulary
