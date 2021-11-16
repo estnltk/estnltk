@@ -126,7 +126,7 @@ class Ruleset:
         """
 
         try:
-            csv_file = open(file_name, 'rt')
+            csv_file = open(file_name, 'rt', encoding='utf-8')
             csv_buffer = read_csv(csv_file, **kwargs)
         except FileNotFoundError:
             raise ValueError("File '{}' does not exist". format(file_name))
