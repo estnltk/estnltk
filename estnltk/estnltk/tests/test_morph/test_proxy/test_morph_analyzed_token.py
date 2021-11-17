@@ -1,4 +1,4 @@
-from estnltk.taggers.morph_analysis.proxy import MorphAnalyzedToken
+from estnltk.taggers.standard.morph_analysis.proxy import MorphAnalyzedToken
 
 
 def test_public():

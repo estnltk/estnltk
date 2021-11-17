@@ -3,7 +3,7 @@ import regex as re
 
 from estnltk import Text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
-from estnltk.taggers.text_segmentation.compound_token_tagger import ALL_1ST_LEVEL_PATTERNS
+from estnltk.taggers.standard.text_segmentation.compound_token_tagger import ALL_1ST_LEVEL_PATTERNS
 
 class CompoundTokenTaggerTest(unittest.TestCase):
 
@@ -788,8 +788,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         self.assertListEqual(['Mis', 'lil', '-', 'li', 'müüs', 'Tiit', '10e', 'krooniga', '?'], word_texts)
 
 
-from estnltk.taggers.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
-from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
+from estnltk.taggers.standard.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
+from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 
 class PretokenizedTextCompoundTokenTaggerTest(unittest.TestCase):
 

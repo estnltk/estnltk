@@ -2,8 +2,8 @@ import pytest
 
 from estnltk import Text
 from estnltk import Annotation
-from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
-from estnltk.taggers.morph_analysis.morf import IGNORE_ATTR
+from estnltk.taggers.standard.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
+from estnltk.taggers.standard.morph_analysis.morf import IGNORE_ATTR
 from estnltk_core.layer import AmbiguousAttributeList
 
 

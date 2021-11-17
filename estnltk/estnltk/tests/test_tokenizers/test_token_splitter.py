@@ -1,7 +1,7 @@
 import regex as re
 
 from estnltk import Text
-from estnltk.taggers.text_segmentation.token_splitter import TokenSplitter
+from estnltk.taggers.standard.text_segmentation.token_splitter import TokenSplitter
 
 def test_tokens_splitting_1():
     # Test tokens splitting on the old language

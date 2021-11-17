@@ -15,8 +15,8 @@ from estnltk import Text, Layer
 from estnltk.taggers import Tagger
 
 # Converting morphological analysis structures from v1.6 to v1.4.1
-from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
+from estnltk.taggers.standard.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
+from estnltk.taggers.standard.morph_analysis.morf_common import _is_empty_annotation
 
 # NP chunker functionality from the version 1.4.1
 from estnltk.taggers.miscellaneous.np_chunker_v1_4_1 import NounPhraseChunkerV1_4

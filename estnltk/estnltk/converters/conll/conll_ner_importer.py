@@ -2,7 +2,7 @@ from typing import List
 
 from estnltk import Text, Layer, ElementaryBaseSpan
 
-from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
+from estnltk.taggers.standard.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
 from estnltk.taggers import VabamorfTagger
 
 

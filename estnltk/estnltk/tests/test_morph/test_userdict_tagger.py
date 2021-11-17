@@ -4,7 +4,7 @@ from estnltk.common import PACKAGE_PATH
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import UserDictTagger
 
-from estnltk.taggers.morph_analysis.userdict_tagger import CSV_UNSPECIFIED_FIELD
+from estnltk.taggers.standard.morph_analysis.userdict_tagger import CSV_UNSPECIFIED_FIELD
 
 from estnltk.converters import layer_to_dict
 from estnltk.converters import dict_to_layer

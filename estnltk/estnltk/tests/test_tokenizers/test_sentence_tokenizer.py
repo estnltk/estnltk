@@ -3,7 +3,7 @@ import regex as re
 from estnltk import Text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer
-from estnltk.taggers.text_segmentation.sentence_tokenizer import merge_patterns
+from estnltk.taggers.standard.text_segmentation.sentence_tokenizer import merge_patterns
 
 
 def test_merge_mistakenly_split_sentences_1():

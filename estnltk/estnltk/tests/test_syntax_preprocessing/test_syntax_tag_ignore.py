@@ -3,7 +3,7 @@
 
 from estnltk import Text
 from estnltk.taggers import WordTagger, SentenceTokenizer
-from estnltk.taggers.syntax.preprocessing.syntax_ignore_tagger import SyntaxIgnoreTagger
+from estnltk.taggers.standard.syntax.preprocessing.syntax_ignore_tagger import SyntaxIgnoreTagger
 
 def test_ignore_content_in_parentheses_1():
     syntax_ignore_tagger = SyntaxIgnoreTagger()

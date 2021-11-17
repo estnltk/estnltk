@@ -12,7 +12,7 @@ ROOT_DIR = os.getcwd()
 # ========================================================================
 
 DEFAULT_NUMBER_ANALYSIS_RULES = \
-        os.path.join(ROOT_DIR,'estnltk','taggers','morph_analysis','number_fixes','number_analysis_rules.csv')
+        os.path.join(ROOT_DIR,'estnltk','taggers','standard','morph_analysis','number_fixes','number_analysis_rules.csv')
 
 def load_number_analysis_rules_csv_with_pandas( csv_file:str ):
     '''Loads number analysis corrections from an input CSV file.

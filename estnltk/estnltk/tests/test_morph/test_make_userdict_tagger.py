@@ -3,7 +3,7 @@
 #
 from estnltk import Text
 
-from estnltk.taggers.morph_analysis.make_userdict import make_userdict
+from estnltk.taggers.standard.morph_analysis.make_userdict import make_userdict
 
 from estnltk.converters import layer_to_dict
 from estnltk.converters import dict_to_layer

@@ -25,7 +25,7 @@ def layer_to_dict(layer):
 
 
 def dict_to_layer(layer_dict: dict, text_object=None):
-    from estnltk.taggers.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
+    from estnltk.taggers.standard.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
     layer = default_dict_to_layer(layer_dict, text_object)
 
     retagger = SyntaxDependencyRetagger(layer.name)

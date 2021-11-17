@@ -5,8 +5,8 @@ import pytest
 from estnltk import Text
 from estnltk.converters import dict_to_layer
 from estnltk.taggers import ConllMorphTagger
-from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import check_if_udpipe_is_in_path
-from estnltk.taggers.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
+from estnltk.taggers.standard.syntax.udpipe_tagger.udpipe_tagger import check_if_udpipe_is_in_path
+from estnltk.taggers.standard.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
 
 UDPIPE_SYNTAX_MODELS_PATH = os.environ.get('UDPIPE_SYNTAX_MODELS_PATH')
 
@@ -202,7 +202,7 @@ udpipe_dict = {
 @pytest.mark.skipif(not check_if_vislcg_is_in_path('vislcg3'),
                     reason="a directory containing vislcg3 executable must be inside the system PATH")
 def test_udpipe_tagger():
-    from estnltk.taggers.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
+    from estnltk.taggers.standard.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
     text = Text(
         'Nuriseti , et hääbuvale kultuurile rõhumine mõjus pigem masendavalt ega omanud seost etnofuturismiga .')
     text.analyse('all')

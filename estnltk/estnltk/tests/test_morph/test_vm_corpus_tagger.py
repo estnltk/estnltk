@@ -1,5 +1,5 @@
 from estnltk import Text
-from estnltk.taggers.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
+from estnltk.taggers.standard.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
 from estnltk.tests.test_morph.test_cb_disambiguator import count_analyses
 
 

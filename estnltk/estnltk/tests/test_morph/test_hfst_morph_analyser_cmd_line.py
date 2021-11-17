@@ -7,8 +7,8 @@ import pytest
 from estnltk import Annotation
 from estnltk import Text
 
-from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import check_if_hfst_is_in_path
-from estnltk.taggers.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
+from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line import check_if_hfst_is_in_path
+from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")

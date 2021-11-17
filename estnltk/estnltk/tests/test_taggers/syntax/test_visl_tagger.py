@@ -4,7 +4,7 @@ from estnltk import Text
 from estnltk.converters import dict_to_layer
 from estnltk.taggers import VislTagger
 
-from estnltk.taggers.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
+from estnltk.taggers.standard.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
 
 visl_dict = {
     'name': 'visl',

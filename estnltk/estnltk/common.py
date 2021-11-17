@@ -9,7 +9,7 @@ PACKAGE_PATH = os.path.dirname(__file__)
 JAVARES_PATH = os.path.join(PACKAGE_PATH, 'java', 'res')
 
 # default NER model path
-DEFAULT_PY3_NER_MODEL_DIR = os.path.join(PACKAGE_PATH, 'taggers', 'ner', 'models', 'py3_default')
+DEFAULT_PY3_NER_MODEL_DIR = os.path.join(PACKAGE_PATH, 'taggers', 'standard', 'ner', 'models', 'py3_default')
 
 
 def abs_path(repo_path: str) -> str:

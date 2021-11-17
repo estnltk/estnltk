@@ -1,8 +1,8 @@
 from estnltk import Text, Annotation
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import PostMorphAnalysisTagger
-from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
-from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
+from estnltk.taggers.standard.morph_analysis.morf import VabamorfAnalyzer
+from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 
 from estnltk_core.layer import AmbiguousAttributeTupleList
 

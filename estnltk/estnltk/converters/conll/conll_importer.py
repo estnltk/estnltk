@@ -3,7 +3,7 @@ from conllu import parse_incr
 from estnltk import Layer, Text, ElementaryBaseSpan
 from estnltk.taggers import SyntaxDependencyRetagger
 
-from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
+from estnltk.taggers.standard.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
 
 
 def add_layer_from_conll(file: str, text: Text, syntax_layer: str):

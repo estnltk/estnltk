@@ -4,8 +4,8 @@
 
 from collections import OrderedDict
 
-from estnltk.taggers.morph_analysis.hfst.hfst_morph_common import split_into_morphemes
-from estnltk.taggers.morph_analysis.hfst.hfst_morph_common import extract_morpheme_features
+from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_common import split_into_morphemes
+from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_common import extract_morpheme_features
 
 def test_hfst_morph_common_split_analyses_into_morphemes():
     test_data = [ {'word':'talv',\

@@ -2,7 +2,7 @@ import pytest
 
 from estnltk import Text
 from estnltk.taggers import TimexTagger
-from estnltk.taggers.timexes.timex_tagger_preprocessing import TIMEXES_RESOLVER
+from estnltk.taggers.standard.timexes.timex_tagger_preprocessing import TIMEXES_RESOLVER
 
 timexes_tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
 TIMEXES_RESOLVER.update( timexes_tagger )
@@ -307,7 +307,7 @@ def test_timex_tagger_context_tear_down():
 #    Preprocessing for TimexTagger
 #########################################################
 
-from estnltk.taggers.timexes.timex_tagger_preprocessing import CP_TAGGER_ADAPTED
+from estnltk.taggers.standard.timexes.timex_tagger_preprocessing import CP_TAGGER_ADAPTED
 
 def test_timex_tagger_preprocessing():
     # Case 1

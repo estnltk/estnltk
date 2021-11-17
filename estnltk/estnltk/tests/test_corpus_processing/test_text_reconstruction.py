@@ -4,7 +4,7 @@ from estnltk_core.layer import AmbiguousAttributeList, AttributeList
 
 from estnltk.corpus_processing.parse_koondkorpus import reconstruct_text
 
-from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
+from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 from estnltk_core.layer_operations import split_by
 
 # ===========================================================

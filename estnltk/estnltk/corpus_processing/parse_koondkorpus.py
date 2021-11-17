@@ -22,7 +22,7 @@ from estnltk_core.converters import json_to_text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
 
-from estnltk.taggers.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
+from estnltk.taggers.standard.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
 
 from estnltk.taggers import Tagger
 
@@ -879,7 +879,7 @@ def create_estnltk_texts( docs,
        preserve_orig_tokenization and \
        not koond_whitespace_tokenizer:
         # Create a word tokenizer that only splits into words by whitespaces
-        from estnltk.taggers.text_segmentation.whitespace_tokens_tagger \
+        from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger \
              import WhiteSpaceTokensTagger
         koond_whitespace_tokenizer = \
            WhiteSpaceTokensTagger()

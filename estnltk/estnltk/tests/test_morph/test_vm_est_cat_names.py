@@ -2,7 +2,7 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import VabamorfAnalyzer
 
-from estnltk.taggers.morph_analysis.vm_est_cat_names import VabamorfEstCatConverter
+from estnltk.taggers.standard.morph_analysis.vm_est_cat_names import VabamorfEstCatConverter
 
 from estnltk.converters import dict_to_layer, layer_to_dict
 

@@ -3,20 +3,20 @@
 #
 from estnltk_core.layer_resolver import TaggersRegistry, LayerResolver
 
-from .taggers.text_segmentation.tokens_tagger import TokensTagger
-from .taggers.text_segmentation.word_tagger import WordTagger
-from .taggers.text_segmentation.compound_token_tagger import CompoundTokenTagger
-from .taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer
-from .taggers.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
-from .taggers.morph_analysis.morf import VabamorfTagger
-from .taggers.morph_analysis.vm_est_cat_names import VabamorfEstCatConverter
-from .taggers.syntax.preprocessing.morph_extended_tagger import MorphExtendedTagger
-from .taggers.text_segmentation.clause_segmenter import ClauseSegmenter    # Requires Java
+from .taggers.standard.text_segmentation.tokens_tagger import TokensTagger
+from .taggers.standard.text_segmentation.word_tagger import WordTagger
+from .taggers.standard.text_segmentation.compound_token_tagger import CompoundTokenTagger
+from .taggers.standard.text_segmentation.sentence_tokenizer import SentenceTokenizer
+from .taggers.standard.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
+from .taggers.standard.morph_analysis.morf import VabamorfTagger
+from .taggers.standard.morph_analysis.vm_est_cat_names import VabamorfEstCatConverter
+from .taggers.standard.syntax.preprocessing.morph_extended_tagger import MorphExtendedTagger
+from .taggers.standard.text_segmentation.clause_segmenter import ClauseSegmenter    # Requires Java
 
 # Load default configuration for morph analyser
-from .taggers.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
-from .taggers.morph_analysis.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
-from .taggers.morph_analysis.morf_common import DEFAULT_PARAM_COMPOUND
+from .taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
+from .taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
+from .taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_COMPOUND
 
 
 def make_resolver(

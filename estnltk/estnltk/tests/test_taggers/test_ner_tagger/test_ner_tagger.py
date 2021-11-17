@@ -4,8 +4,8 @@ from estnltk import Text
 from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import VabamorfTagger
-from estnltk.taggers.ner.ner_tagger import NerTagger
-from estnltk.taggers.ner.word_level_ner_tagger import WordLevelNerTagger
+from estnltk.taggers.standard.ner.ner_tagger import NerTagger
+from estnltk.taggers.standard.ner.word_level_ner_tagger import WordLevelNerTagger
 
 def test_ner():
     text = """Norm , 24 tunni keskmine , on 50 mikrogrammi kuupmeetri kohta ja seda võib ületada 35 päeval aastas ,

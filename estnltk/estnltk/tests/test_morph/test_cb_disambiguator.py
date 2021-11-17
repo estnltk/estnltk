@@ -3,12 +3,12 @@ import pytest
 
 from estnltk import Text
 
-from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
-from estnltk.taggers.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
-from estnltk.taggers.morph_analysis.cb_disambiguator import RemoveDuplicateAndProblematicAnalysesRetagger
-from estnltk.taggers.morph_analysis.cb_disambiguator import IgnoredByPostDisambiguationTagger
+from estnltk.taggers.standard.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
+from estnltk.taggers.standard.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
+from estnltk.taggers.standard.morph_analysis.cb_disambiguator import RemoveDuplicateAndProblematicAnalysesRetagger
+from estnltk.taggers.standard.morph_analysis.cb_disambiguator import IgnoredByPostDisambiguationTagger
 
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_annotation
+from estnltk.taggers.standard.morph_analysis.morf_common import _is_empty_annotation
 
 # ----------------------------------
 #   Helper functions

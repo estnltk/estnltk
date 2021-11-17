@@ -2,8 +2,8 @@ import unittest
 
 from estnltk import Text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
-from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
-from estnltk.taggers.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
+from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
+from estnltk.taggers.standard.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
 
 from estnltk_core.layer import AttributeList
 
