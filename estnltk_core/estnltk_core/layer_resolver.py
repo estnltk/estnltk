@@ -290,13 +290,12 @@ class LayerResolver:
     def _repr_html_(self):
         if self._taggers:
             creatable_layers = list(self.list_layers())
+            default_layers = list(self.get_default_layers())
             creatable_layers_str = "No creatable layers available. Update taggers registry to enable layer creation."
             if len(creatable_layers) > 0:
+                if default_layers:
+                    creatable_layers = ['<b>{} (default)</b>'.format(layer) if layer in default_layers else layer for layer in creatable_layers]
                 creatable_layers_str = 'Creatable layers: '+(', '.join(creatable_layers))
-            default_layers = list(self.get_default_layers())
-            default_layers_str = ''
-            if len(default_layers) > 0:
-                default_layers_str = 'Default layers: <b>'+(', '.join(default_layers))+'</b>\n</br>'
             return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+\
-                    creatable_layers_str+'\n</br>'+default_layers_str+self._taggers._repr_html_()
+                    creatable_layers_str+'\n</br>'+self._taggers._repr_html_()
             
