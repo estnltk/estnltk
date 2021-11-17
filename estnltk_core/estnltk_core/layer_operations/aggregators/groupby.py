@@ -1,6 +1,6 @@
 from typing import Sequence, Union
 from collections import defaultdict
-from estnltk_core.layer.layer import Layer, SpanList
+from estnltk_core.layer.layer import Layer
 
 
 class GroupBy:
@@ -32,7 +32,6 @@ class GroupBy:
             else:
                 # group by indexes of the enveloping layer
                 for span_id, enveloping_span in enumerate(by):
-                    span_list = SpanList()
                     for env_sub_span in enveloping_span.spans:
                         span = layer.get( env_sub_span )
                         if span is not None:
@@ -49,7 +48,6 @@ class GroupBy:
             else:
                 # group by indexes of the enveloping layer
                 for span_id, enveloping_span in enumerate(by):
-                    span_list = SpanList()
                     for env_sub_span in enveloping_span.spans:
                         span = layer.get( env_sub_span )
                         if span is not None:
