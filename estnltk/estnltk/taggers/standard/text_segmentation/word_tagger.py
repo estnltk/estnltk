@@ -11,11 +11,6 @@ from estnltk import ElementaryBaseSpan
 from estnltk import Layer
 from estnltk.taggers import Tagger
 
-# Whether the words layer should be made ambiguous?
-#  ( e.g. to provide multiple normalized forms )
-MAKE_AMBIGUOUS = True
-
-
 class WordTagger(Tagger):
     """Creates words layer based on the tokens and compound_tokens layers.
        Provides normalized forms of the words, which are used in the succeeding 
@@ -34,8 +29,7 @@ class WordTagger(Tagger):
                  output_layer:str='words',
                  input_tokens_layer:str='tokens',
                  input_compound_tokens_layer:str='compound_tokens',
-                 make_ambiguous:bool=MAKE_AMBIGUOUS
-                 ):
+                 make_ambiguous:bool=True ):
         """Initializes WordTagger.
 
         Parameters
@@ -49,8 +43,10 @@ class WordTagger(Tagger):
         input_compound_tokens_layer: str (default: 'compound_tokens')
             Name of the input compound_tokens layer;
         
-        make_ambiguous: bool (default: see the variable MAKE_AMBIGUOUS)
+        make_ambiguous: bool (default: True)
             If set, then the words layer will be made ambiguous.
+            Ambiguous layer allows each word to have multiple 
+            normalized forms.
         """
         # Set input/output layer names
         self.output_layer = output_layer

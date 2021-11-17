@@ -22,8 +22,6 @@ from estnltk_core.converters import json_to_text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
 
-from estnltk.taggers.standard.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
-
 from estnltk.taggers import Tagger
 
 from bs4 import BeautifulSoup
@@ -37,6 +35,8 @@ import tarfile
 # Tokenizer that splits text into words by spaces (created only if needed)
 koond_whitespace_tokenizer   = None
 
+# Whether the words layer should be made ambiguous
+_MAKE_WORDS_AMBIGUOUS = True
 
 def get_div_target( fnm ):
     """Based on the full name of the XML file (the name with full path), determines

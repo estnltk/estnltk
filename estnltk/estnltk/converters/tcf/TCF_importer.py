@@ -2,7 +2,6 @@ from lxml import etree
 from estnltk import ElementaryBaseSpan
 from estnltk import Layer, Text
 
-from estnltk.taggers.standard.text_segmentation.word_tagger import MAKE_AMBIGUOUS
 from estnltk.taggers.standard.morph_analysis.morf_common import NORMALIZED_TEXT, ESTNLTK_MORPH_ATTRIBUTES
 
 def import_TCF(string:str=None, file:str=None):
@@ -24,7 +23,7 @@ def import_TCF(string:str=None, file:str=None):
     element = text_corpus.find('{http://www.dspin.de/data/textcorpus}tokens')
     if element is not None:
         id_to_token = {}
-        layer = Layer(name='words', attributes=['normalized_form'], ambiguous=MAKE_AMBIGUOUS)
+        layer = Layer(name='words', attributes=['normalized_form'], ambiguous=True)
         for token in element:
             annotation = layer.add_annotation(ElementaryBaseSpan(int(token.get('start')), int(token.get('end'))))
             id_to_token[token.get('ID')] = annotation.span

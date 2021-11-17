@@ -2,7 +2,6 @@ from typing import List
 
 from estnltk import Text, Layer, ElementaryBaseSpan
 
-from estnltk.taggers.standard.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
 from estnltk.taggers import VabamorfTagger
 
 
@@ -31,7 +30,7 @@ def conll_to_ner_labelling(filename: str, ner_layer: str = 'wordner') -> Text:
     words = Layer(name='words',
                   text_object=text,
                   attributes=[],
-                  ambiguous=_MAKE_WORDS_AMBIGUOUS
+                  ambiguous=True
                   )
 
     sentences = Layer(name='sentences',
@@ -111,7 +110,7 @@ def conll_to_ner_labelling_lists(filename: str, ner_layer: str = 'wordner') -> L
     words = Layer(name='words',
                   text_object=texts[-1],
                   attributes=[],
-                  ambiguous=_MAKE_WORDS_AMBIGUOUS
+                  ambiguous=True
                   )
     words_layers.append(words)
 
@@ -178,7 +177,7 @@ def conll_to_ner_labelling_lists(filename: str, ner_layer: str = 'wordner') -> L
                     words = Layer(name='words',
                                   text_object=texts[-1],
                                   attributes=[],
-                                  ambiguous=_MAKE_WORDS_AMBIGUOUS
+                                  ambiguous=True
                                   )
                     words_layers.append(words)
 

@@ -3,8 +3,6 @@ from conllu import parse_incr
 from estnltk import Layer, Text, ElementaryBaseSpan
 from estnltk.taggers import SyntaxDependencyRetagger
 
-from estnltk.taggers.standard.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
-
 
 def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
     """
@@ -75,7 +73,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
     words = Layer(name='words',
                   text_object=text,
                   attributes=[],
-                  ambiguous=_MAKE_WORDS_AMBIGUOUS
+                  ambiguous=True
                   )
 
     sentences = Layer(name='sentences',
@@ -148,7 +146,7 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
     words = Layer(name='words',
                   text_object=texts[-1],
                   attributes=[],
-                  ambiguous=_MAKE_WORDS_AMBIGUOUS
+                  ambiguous=True
                   )
     words_layers.append( words )
     sentences = Layer(name='sentences',

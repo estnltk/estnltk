@@ -4,7 +4,6 @@ import pytest
 
 from estnltk.common import abs_path
 from estnltk.converters import text_to_dict
-from estnltk.taggers.standard.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
 
 def check_if_conllu_is_available():
     # Check if conllu is available
@@ -222,7 +221,7 @@ text_dict = {
                 'attributes': (),
                 'parent': None,
                 'enveloping': None,
-                'ambiguous': _MAKE_WORDS_AMBIGUOUS,
+                'ambiguous': True,
                 'serialisation_module': None,
                 'meta': {},
                 'spans': [{'base_span': (0, 3), 'annotations': [{}]},

@@ -34,11 +34,12 @@ from estnltk.taggers.standard.morph_analysis.morf_common import ESTNLTK_MORPH_AT
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
 
-from estnltk.taggers.standard.text_segmentation.word_tagger import MAKE_AMBIGUOUS as _MAKE_WORDS_AMBIGUOUS
-
 # =================================================
 #   Helpful utils
 # =================================================
+
+# Whether the words layer should be made ambiguous
+_MAKE_WORDS_AMBIGUOUS = True
 
 # Pattern for capturing names & values of attributes
 enc_tag_attrib_pat = re.compile('([^= ]+)="([^"]+?)"')
