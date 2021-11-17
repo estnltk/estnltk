@@ -5,22 +5,30 @@ from estnltk_core.taggers.annotation_rewriter import AnnotationRewriter
 
 from estnltk.taggers.system_taggers.atomizer import Atomizer
 from estnltk.taggers.system_taggers.attribute_comparison_tagger import AttributeComparisonTagger
+from estnltk.taggers.system_taggers.disambiguating_tagger import DisambiguatingTagger
+from estnltk.taggers.system_taggers.enveloping_gap_tagger import EnvelopingGapTagger
+from estnltk.taggers.system_taggers.flatten_tagger import FlattenTagger
+from estnltk.taggers.system_taggers.gap_tagger import GapTagger
+from estnltk.taggers.system_taggers.layer_merge_tagger import MergeTagger
+from estnltk.taggers.system_taggers.diff_tagger import DiffTagger
+from estnltk.taggers.system_taggers.text_segments_tagger import TextSegmentsTagger
 
 from estnltk.taggers.dict_taggers.vocabulary import Vocabulary
 from estnltk.taggers.dict_taggers.phrase_tagger import PhraseTagger
 from estnltk.taggers.dict_taggers.regex_tagger import RegexTagger
 from estnltk.taggers.dict_taggers.span_tagger import SpanTagger
 
-from estnltk.taggers.standard.ner.ner_tagger import NerTagger
-from estnltk.taggers.standard.ner.word_level_ner_tagger import WordLevelNerTagger
-from estnltk.taggers.standard.ner.fex import NerGazetteerFeatureTagger
-from estnltk.taggers.standard.ner.fex import NerGlobalContextFeatureTagger
-from estnltk.taggers.standard.ner.fex import NerLocalFeatureTagger
-from estnltk.taggers.standard.ner.fex import NerMorphFeatureTagger
-from estnltk.taggers.standard.ner.fex import NerSentenceFeatureTagger
-
 from estnltk.taggers.grammar_taggers.grammar_parsing_tagger import GrammarParsingTagger
 
+from estnltk.taggers.standard.text_segmentation.tokens_tagger import TokensTagger
+from estnltk.taggers.standard.text_segmentation.token_splitter import TokenSplitter
+from estnltk.taggers.standard.text_segmentation.word_tagger import WordTagger
+from estnltk.taggers.standard.text_segmentation.sentence_tokenizer import SentenceTokenizer
+from estnltk.taggers.standard.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
+from estnltk.taggers.standard.text_segmentation.compound_token_tagger import CompoundTokenTagger
+from estnltk.taggers.standard.text_segmentation.clause_segmenter import ClauseSegmenter
+from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
+from estnltk.taggers.standard.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
 
 from estnltk.taggers.standard.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 from estnltk.taggers.standard.morph_analysis.morf import VabamorfTagger
@@ -31,43 +39,10 @@ from estnltk.taggers.standard.morph_analysis.userdict_tagger import UserDictTagg
 from estnltk.taggers.standard.morph_analysis.make_userdict import make_userdict
 from estnltk.taggers.standard.morph_analysis.vm_analysis_reorderer import MorphAnalysisReorderer
 from estnltk.taggers.standard.morph_analysis.vm_est_cat_names import VabamorfEstCatConverter
-
 from estnltk.taggers.standard.morph_analysis.vm_spellcheck import SpellCheckRetagger
-
 from estnltk.taggers.standard.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 from estnltk.taggers.standard.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
-
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
-
-from estnltk.taggers.system_taggers.disambiguating_tagger import DisambiguatingTagger
-from estnltk.taggers.system_taggers.enveloping_gap_tagger import EnvelopingGapTagger
-from estnltk.taggers.system_taggers.flatten_tagger import FlattenTagger
-from estnltk.taggers.system_taggers.gap_tagger import GapTagger
-from estnltk.taggers.system_taggers.layer_merge_tagger import MergeTagger
-from estnltk.taggers.system_taggers.diff_tagger import DiffTagger
-from estnltk.taggers.system_taggers.text_segments_tagger import TextSegmentsTagger
-
-from estnltk.taggers.standard.timexes.timex_tagger import TimexTagger
-
-from estnltk.taggers.miscellaneous.date_tagger.date_tagger import DateTagger
-from estnltk.taggers.miscellaneous.robust_date_number_tagger import RobustDateNumberTagger
-from estnltk.taggers.miscellaneous.address_tagger import AddressPartTagger
-from estnltk.taggers.miscellaneous.address_tagger import AddressGrammarTagger
-from estnltk.taggers.miscellaneous.adjective_phrase_tagger import AdjectivePhraseTagger
-from estnltk.taggers.miscellaneous.flesch_tagger import SentenceFleschScoreRetagger
-from estnltk.taggers.miscellaneous.verb_chains import VerbChainDetector
-
-from estnltk.taggers.standard.text_segmentation.tokens_tagger import TokensTagger
-from estnltk.taggers.standard.text_segmentation.token_splitter import TokenSplitter
-from estnltk.taggers.standard.text_segmentation.word_tagger import WordTagger
-from estnltk.taggers.standard.text_segmentation.sentence_tokenizer import SentenceTokenizer
-from estnltk.taggers.standard.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
-from estnltk.taggers.standard.text_segmentation.compound_token_tagger import CompoundTokenTagger
-from estnltk.taggers.standard.text_segmentation.clause_segmenter import ClauseSegmenter
-
-# Taggers for processing pretokenized texts:
-from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
-from estnltk.taggers.standard.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
 
 from estnltk.taggers.standard.syntax.preprocessing.pronoun_type_retagger import PronounTypeRetagger
 from estnltk.taggers.standard.syntax.preprocessing.verb_extension_suffix_tagger import VerbExtensionSuffixRetagger
@@ -84,4 +59,20 @@ from estnltk.taggers.standard.syntax.syntax_diff_retagger import SyntaxDiffRetag
 from estnltk.taggers.standard.syntax.scoring.syntax_las_tagger import SyntaxLasTagger
 from estnltk.taggers.standard.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
 
-from estnltk.taggers.system_taggers.attribute_comparison_tagger import AttributeComparisonTagger
+from estnltk.taggers.standard.ner.ner_tagger import NerTagger
+from estnltk.taggers.standard.ner.word_level_ner_tagger import WordLevelNerTagger
+from estnltk.taggers.standard.ner.fex import NerGazetteerFeatureTagger
+from estnltk.taggers.standard.ner.fex import NerGlobalContextFeatureTagger
+from estnltk.taggers.standard.ner.fex import NerLocalFeatureTagger
+from estnltk.taggers.standard.ner.fex import NerMorphFeatureTagger
+from estnltk.taggers.standard.ner.fex import NerSentenceFeatureTagger
+
+from estnltk.taggers.standard.timexes.timex_tagger import TimexTagger
+
+from estnltk.taggers.miscellaneous.date_tagger.date_tagger import DateTagger
+from estnltk.taggers.miscellaneous.robust_date_number_tagger import RobustDateNumberTagger
+from estnltk.taggers.miscellaneous.address_tagger import AddressPartTagger
+from estnltk.taggers.miscellaneous.address_tagger import AddressGrammarTagger
+from estnltk.taggers.miscellaneous.adjective_phrase_tagger import AdjectivePhraseTagger
+from estnltk.taggers.miscellaneous.flesch_tagger import SentenceFleschScoreRetagger
+from estnltk.taggers.miscellaneous.verb_chains import VerbChainDetector
