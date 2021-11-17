@@ -30,7 +30,18 @@ class StanzaSyntaxTagger(Tagger):
     An optional input_type flag allows choosing layer type to use as the base of prediction. Default is 'morph_analysis',
     which expects 'morph_analysis' as input. Values 'morph_extended' and 'sentences' can also be chosen. When using
     one of the morphological layers, the name of the morphological layer to use must be declared in input_morph_layer
-    parameter (default 'morph_analysis').
+    parameter (default 'morph_analysis'). Possible configurations (with default layer names):
+        1) input_type='sentences', input_morph_layer=None;
+           uses only 'sentences' from estnltk, and the lingustic processing is done with stanza's models;
+           (value of input_morph_layer is irrelevant)
+        
+        2) input_type='morph_analysis', input_morph_layer='morph_analysis';
+           uses a model trained on Vabamorf's layer ('morph_analysis'); input_morph_layer 
+           must point to the name of the Vabamorf's layer;
+           
+        3) input_type='morph_extended', input_morph_layer='morph_extended';
+           uses a model trained on the extended Vabamorf's layer ('morph_extended'); input_morph_layer 
+           must point to the name of the layer;
 
     Names of layers to use can be changed using parameters sentences_layer, words_layer and input_morph_layer,
     if needed. To use GPU for parsing, parameter use_gpu must be set to True.
@@ -88,6 +99,14 @@ class StanzaSyntaxTagger(Tagger):
 
         if self.input_type not in ['sentences', 'morph_analysis', 'morph_extended']:
             raise ValueError('Invalid input type {}'.format(input_type))
+
+        # Check for illegal parameter combinations (mismatching input type and layer):
+        if input_type=='morph_analysis' and input_morph_layer=='morph_extended':
+            raise ValueError( ('Invalid parameter combination: input_type={!r} and input_morph_layer={!r}. '+\
+                              'Mismatching input type and layer.').format(input_type, input_morph_layer))
+        elif input_type=='morph_extended' and input_morph_layer=='morph_analysis':
+            raise ValueError( ('Invalid parameter combination: input_type={!r} and input_morph_layer={!r}. '+\
+                              'Mismatching input type and layer.').format(input_type, input_morph_layer))
 
         if depparse_path and not os.path.isfile(depparse_path):
             raise ValueError('Invalid path: {}'.format(depparse_path))
