@@ -1,6 +1,3 @@
-from .layer_filtering import apply_filter
-from .layer_filtering import drop_annotations
-from .layer_filtering import keep_annotations
 from .diff import diff_layer
 from .aggregators import GroupBy
 from .aggregators import Rolling
