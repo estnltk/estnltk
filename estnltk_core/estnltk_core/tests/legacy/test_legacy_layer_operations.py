@@ -4,6 +4,7 @@
 
 from estnltk_core.tests import new_text
 from estnltk_core.common import load_text_class
+from estnltk_core.layer.layer import Layer, ElementaryBaseSpan
 from estnltk_core.layer import AmbiguousAttributeTupleList
 from estnltk_core.converters.layer_dict_converter import dict_to_layer
 
@@ -15,7 +16,6 @@ from estnltk_core.legacy.layer_operations import unique_texts
 
 
 def test_apply_filter():
-    from estnltk_core import Layer, ElementaryBaseSpan
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
     
