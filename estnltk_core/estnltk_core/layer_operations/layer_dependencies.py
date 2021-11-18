@@ -37,5 +37,5 @@ def find_layer_dependencies(text:'Text', layer:'Layer', include_enveloping:bool 
                 graph.add_edge( layer_name, layer_object.parent )
             else:
                 graph.add_edge( layer_object.parent, layer_name )
-    return nx.descendants( graph, layer )
+    return nx.descendants(graph,layer) if layer in graph.nodes else set()
 
