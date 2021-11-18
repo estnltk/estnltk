@@ -87,7 +87,7 @@ setup(
         'estnltk.tests.test_taggers': ['*.txt', 
                                        'test_dict_taggers/*.csv', 
                                        'miscellaneous/*.json',
-                                       'test_standard_taggers/*.json',
+                                       'system_taggers/*.json',
                                        'syntax_preprocessing/*.txt',], 
         'estnltk.tests.test_visualisation': ['expected_outputs/direct_plain_span_visualiser_outputs/*.txt',
                                              'expected_outputs/indirect_plain_span_visualiser_outputs/*.txt',
