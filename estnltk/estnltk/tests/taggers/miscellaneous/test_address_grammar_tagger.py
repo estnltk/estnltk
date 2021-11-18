@@ -7,8 +7,8 @@ from estnltk.taggers import AddressGrammarTagger
 
 def test_tagger():
     tagger = AddressGrammarTagger()
-    input_file = abs_path('tests/test_taggers/miscellaneous/address_grammar_tagger_input.json')
-    target_file = abs_path('tests/test_taggers/miscellaneous/address_grammar_tagger_target.json')
+    input_file = abs_path('tests/taggers/miscellaneous/address_grammar_tagger_input.json')
+    target_file = abs_path('tests/taggers/miscellaneous/address_grammar_tagger_target.json')
 
     tester = TaggerTester(tagger, input_file, target_file)
     tester.load()

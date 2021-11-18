@@ -68,8 +68,8 @@ def test_syntax_preprocessing_on_tokens():
     tagger = MorphExtendedTagger(fs_to_synt_rules_file=fs_to_synt_rules_file,
                                  subcat_rules_file=subcat_rules_file,
                                  allow_to_remove_all=allow_to_remove_all)
-    analysed_tokens_file = abs_path('tests/test_taggers/syntax_preprocessing/analysed_tokens.txt')
-    expected_cg3_file = abs_path('tests/test_taggers/syntax_preprocessing/expected_cg3.txt')
+    analysed_tokens_file = abs_path('tests/taggers/standard/syntax/preprocessing/analysed_tokens.txt')
+    expected_cg3_file = abs_path('tests/taggers/standard/syntax/preprocessing/expected_cg3.txt')
 
     with open(expected_cg3_file, 'r', encoding='utf-8') as expected_cg3:
         for (token_a, analysis), expected in zip(yield_tokens_analysis(analysed_tokens_file), expected_cg3):
@@ -92,8 +92,8 @@ def test_syntax_preprocessing_with_customized_layer_names():
                                  fs_to_synt_rules_file=fs_to_synt_rules_file,
                                  subcat_rules_file=subcat_rules_file,
                                  allow_to_remove_all=allow_to_remove_all)
-    analysed_tokens_file = abs_path('tests/test_taggers/syntax_preprocessing/analysed_tokens.txt')
-    expected_cg3_file = abs_path('tests/test_taggers/syntax_preprocessing/expected_cg3.txt')
+    analysed_tokens_file = abs_path('tests/taggers/standard/syntax/preprocessing/analysed_tokens.txt')
+    expected_cg3_file = abs_path('tests/taggers/standard/syntax/preprocessing/expected_cg3.txt')
 
     with open(expected_cg3_file, 'r', encoding='utf-8') as expected_cg3:
         token_tests_passed = 0
@@ -127,8 +127,8 @@ if __name__ == '__main__':
 
     with open(abs_path('../../koondkorpus-experiments/temp/tokens_syntax_preprocessing_369f7c25.json')) as cg3_in, \
          open(abs_path('../../koondkorpus-experiments/temp/analyzed.json')) as analyses_in, \
-         open(abs_path('tests/test_taggers/syntax_preprocessing/analysed_tokens.txt'), 'w') as analyses_out, \
-         open(abs_path('tests/test_taggers/syntax_preprocessing/expected_cg3.txt'), 'w') as cg3_out:
+         open(abs_path('tests/taggers/standard/syntax/preprocessing/analysed_tokens.txt'), 'w') as analyses_out, \
+         open(abs_path('tests/taggers/standard/syntax/preprocessing/expected_cg3.txt'), 'w') as cg3_out:
         for i, (analysis, cg3) in enumerate(zip(analyses_in, cg3_in)):
             token, _ = json.loads(analysis)
             if i in chosen_lines or token in chosen_tokens:

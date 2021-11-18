@@ -7,8 +7,8 @@ from estnltk.taggers import AddressPartTagger
 
 def test_tagger():
     tagger = AddressPartTagger()
-    input_file = abs_path('tests/test_taggers/miscellaneous/address_part_tagger_input.json')
-    target_file = abs_path('tests/test_taggers/miscellaneous/address_part_tagger_target.json')
+    input_file = abs_path('tests/taggers/miscellaneous/address_part_tagger_input.json')
+    target_file = abs_path('tests/taggers/miscellaneous/address_part_tagger_target.json')
 
     tester = TaggerTester(tagger, input_file, target_file).load()
     tester.run_tests()

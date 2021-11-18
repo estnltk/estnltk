@@ -26,11 +26,10 @@ graft estnltk/visualisation/attribute_visualiser
 graft estnltk/visualisation/span_visualiser
 graft estnltk/tests/test_converters
 graft estnltk/tests/test_corpus_processing
-graft estnltk/tests/test_taggers/morph_analysis
-graft estnltk/tests/test_taggers/test_dict_taggers
-graft estnltk/tests/test_taggers/miscellaneous
-graft estnltk/tests/test_taggers/system_taggers
-graft estnltk/tests/test_taggers/syntax_preprocessing
-include estnltk/tests/test_taggers/neural_test_sentences.txt
+graft estnltk/tests/taggers/standard/morph_analysis
+graft estnltk/tests/taggers/standard/syntax/preprocessing
+graft estnltk/tests/taggers/test_dict_taggers
+graft estnltk/tests/taggers/miscellaneous
+graft estnltk/tests/taggers/system_taggers
 graft estnltk/tests/test_visualisation/expected_outputs
 prune scribbles
