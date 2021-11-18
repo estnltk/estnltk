@@ -308,7 +308,7 @@ def test_userdict_tagger_dict_from_csv_file():
     # Tests complete overwriting of all analyses of a word
     # Construct path to testing csv file
     csv_dict_path = \
-        os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_userdict.csv')
+        os.path.join(PACKAGE_PATH, 'tests', 'test_taggers', 'morph_analysis', 'test_userdict.csv')
     # Load completely new analyses (from a csv file)
     userdict = UserDictTagger(csv_file=csv_dict_path, ignore_case=True, autocorrect_root=True, delimiter=',')
     
@@ -405,7 +405,7 @@ def test_userdict_tagger_post_analysis():
     morph_analyser.tag(text)
     # Create user dict tagger (from csv file)
     csv_dict_path = \
-        os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_userdict.csv')
+        os.path.join(PACKAGE_PATH, 'tests', 'test_taggers', 'morph_analysis', 'test_userdict.csv')
     userdict = UserDictTagger(csv_file=csv_dict_path, ignore_case=True, autocorrect_root=True, delimiter=',')
     # Tag corrections
     userdict.retag(text)

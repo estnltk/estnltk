@@ -1,6 +1,6 @@
 from estnltk import Text
 from estnltk.taggers.standard.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
-from estnltk.tests.test_morph.test_cb_disambiguator import count_analyses
+from estnltk.tests.test_taggers.morph_analysis.test_cb_disambiguator import count_analyses
 
 
 def test_vm_corpus_tagger_input_structures():

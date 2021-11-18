@@ -208,7 +208,7 @@ def test_reorderer_with_customized_postag_freq_info():
     # Tests that morph analysis reorderer runs with customized postag freq lexicon
     # Create new reorderer that loads postag freq info from CSV file
     csv_dict_file_path = \
-        os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_reorderer_postag_freq.csv')
+        os.path.join(PACKAGE_PATH, 'tests', 'test_taggers', 'morph_analysis', 'test_reorderer_postag_freq.csv')
     morph_reorderer = MorphAnalysisReorderer( reorderings_csv_file=None,
                                               postag_freq_csv_file=csv_dict_file_path,
                                               form_freq_csv_file=None )

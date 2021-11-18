@@ -26,7 +26,7 @@ graft estnltk/visualisation/attribute_visualiser
 graft estnltk/visualisation/span_visualiser
 graft estnltk/tests/test_converters
 graft estnltk/tests/test_corpus_processing
-graft estnltk/tests/test_morph
+graft estnltk/tests/test_taggers/morph_analysis
 graft estnltk/tests/test_taggers/test_dict_taggers
 graft estnltk/tests/test_taggers/miscellaneous
 graft estnltk/tests/test_taggers/system_taggers
