@@ -14,4 +14,5 @@ from .iterators import split_by_clauses
 from .conflict_resolver import resolve_conflicts
 from .flatten import flatten
 from .rebase import rebase
+from .layer_dependencies import find_layer_dependencies
 from .layer_indexing import create_ngram_fingerprint_index

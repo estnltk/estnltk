@@ -7,7 +7,7 @@ from estnltk_core.common import create_text_object
 from estnltk_core.layer_operations.iterators.splitting_discontinuous import _split_by_discontinuous_layer
 from estnltk_core.layer_operations.iterators.splitting_discontinuous import split_by_clauses
 
-import networkx as nx
+from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
 
 
 def extract_sections(text: Union['Text', 'BaseText'],
@@ -138,16 +138,14 @@ def extract_section(text,
     return extract_sections(text, [(start, end)], layers_to_keep, trim_overlapping)[0]
 
 
+
 def layers_to_keep_default(text, layer):
-    graph = nx.DiGraph()
-    for layer_name in text.layers:
-        layer_object = text[layer_name]
-        if layer_object.enveloping:
-            graph.add_edge(layer_name, layer_object.enveloping)
-        elif layer_object.parent:
-            graph.add_edge(layer_name, layer_object.parent)
-            graph.add_edge(layer_object.parent, layer_name)
-    return nx.descendants(graph, layer) | {layer}
+    dependency_layers = find_layer_dependencies(text, layer, 
+                                        include_enveloping=True,
+                                        include_parents=True,
+                                        add_bidirectional_parents=True)
+    return set(dependency_layers) | {layer}
+
 
 
 def split_by(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequence[str] = None, trim_overlapping: bool = False

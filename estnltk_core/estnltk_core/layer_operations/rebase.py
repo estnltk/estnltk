@@ -1,12 +1,12 @@
 import networkx as nx
 
+from .layer_dependencies import find_layer_dependencies
 
 def rebase(text, layer, new_base):
-    g = nx.DiGraph()
-    for layer_name in text.layers:
-        l = text[layer_name]
-        if l.parent:
-            g.add_edge(layer_name, l.parent)
-    assert new_base in nx.descendants(g, layer), "can't use '" + new_base + "' as a new base for '"+layer+"'"
+    dependency_layers = find_layer_dependencies(text, layer, 
+                                                 include_enveloping=False,
+                                                 include_parents=True)
+    if new_base not in dependency_layers:
+        raise ValueError("can't use '" + new_base + "' as a new base for '"+layer+"'")
     text[layer].parent = new_base
     return text
