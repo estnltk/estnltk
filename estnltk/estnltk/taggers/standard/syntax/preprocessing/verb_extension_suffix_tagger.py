@@ -35,5 +35,7 @@ class VerbExtensionSuffixRetagger(AnnotationRewriter):
     """
 
     def __init__(self, layer_name):
-        super().__init__(layer_name=layer_name, output_attributes=['verb_extension_suffix'], function=rewrite,
-                         check_output_consistency=False)
+        super().__init__(layer_name=layer_name, output_attributes=['verb_extension_suffix'], 
+                         function=rewrite,
+                         attribute_change_op='ADD',
+                         check_output_consistency=False) # do not try this at home!
