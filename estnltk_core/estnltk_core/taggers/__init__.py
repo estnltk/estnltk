@@ -5,7 +5,7 @@ from estnltk_core.taggers.retagger import Retagger
 
 #from estnltk_core.taggers.sequential_tagger import SequentialTagger
 
-#from estnltk_core.taggers.span_rewriter import SpanRewriter
+#from estnltk_core.taggers.span_annotations_rewriter import SpanAnnotationsRewriter
 
 #from estnltk_core.taggers.annotation_rewriter import AnnotationRewriter
 

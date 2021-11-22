@@ -21,11 +21,13 @@ class AnnotationRewriter(Retagger):
          be removed from layer's attributes;
        
        Usage note: this function should be reasonably fast 
-       if you can rewrite annotations one-by-one. 
-       Use SpanAnnotationsRewriter (TODO) instead if you 
+       if you can rewrite annotations one-by-one. This 
+       is also most suitable for rewriting unambiguous layer. 
+       
+       Use SpanAnnotationsRewriter instead if you 
        need to rewrite all annotations of a span at once 
-       (e.g. you need to consider other annotations
-        while rewriting).
+       (e.g. if you have an ambiguous layer, and you need 
+             to consider other annotations while rewriting).
     """
     conf_param = ['function', 'attr_change']
 

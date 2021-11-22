@@ -5,7 +5,7 @@ from estnltk_core.taggers import Retagger
 #for annotation rewriting
 class SpanRewriter(Retagger):
     """Rewrites span annotations.
-
+       Legacy: use SpanAnnotationsRewriter instead.
     """
     conf_param = ['function']
 
