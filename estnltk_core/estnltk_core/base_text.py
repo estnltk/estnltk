@@ -26,14 +26,12 @@ class BaseText:
         'topological_sort',
     } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
-    __slots__ = ['text', 'meta', '__dict__', '_shadowed_layers']
+    __slots__ = ['text', 'meta', '__dict__']
 
     def __init__(self, text: str = None) -> None:
         assert text is None or isinstance(text, str), "{} takes string as an argument!".format( self.__class__.__name__ )
         # self.text: str
         super().__setattr__('text', text)
-        # self._shadowed_layers: Mapping[str, Layer]
-        super().__setattr__('_shadowed_layers', {})
         # self.meta: MutableMapping
         super().__setattr__('meta', {})
 
@@ -69,7 +67,6 @@ class BaseText:
         # Initialisation is not guaranteed! Bypass the text protection mechanism
         assert type(state['text']) == str, '\'field \'text\' must be of type str'
         super().__setattr__('text', state['text'])
-        super().__setattr__('_shadowed_layers', {})
         self.meta = state['meta']
         # Layer.text_object is already set! Bypass the add_layer protection mechanism
         # By wonders of pickling this resolves all recursive references including references to the text object itself
@@ -107,7 +104,7 @@ class BaseText:
         if item in self.__dict__:
             return self.__dict__[item]
         else:
-            return self._shadowed_layers[item]
+            raise KeyError("'{}' object has no layer {!r}".format( self.__class__.__name__, item ))
 
     def __delattr__(self, item):
         raise TypeError("'{}' object does not support attribute deletion, use pop_layer(...) function instead".format( self.__class__.__name__ ))
@@ -136,7 +133,7 @@ class BaseText:
         """
         Returns the names of all layers in the text object in alphabetical order.
         """
-        return self.__dict__.keys() | self._shadowed_layers.keys()
+        return set( self.__dict__.keys() )
 
     @property
     def attributes(self) -> DefaultDict[str, List[str]]:
@@ -154,18 +151,12 @@ class BaseText:
             for attrib in layer.attributes:
                 result[attrib].append(name)
 
-        # Collect attributes from shadowed layers
-        for name, layer in self._shadowed_layers.items():
-            for attrib in layer.attributes:
-                result[attrib].append(name)
-
         return result
 
     def add_layer(self, layer: Layer):
         """
         Adds a layer to the text object
 
-        # TODO: Make it work with shadowed layers
         # TODO: write down what layer must satisfy
         """
         assert isinstance(layer, Layer), 'Layer expected, got {!r}'.format(type(layer))
@@ -187,10 +178,9 @@ class BaseText:
         if layer.enveloping:
             assert layer.enveloping in self.__dict__, "can't add an enveloping layer before adding the layer it envelops"
 
-        if name in self.__class__.methods:
-            self._shadowed_layers[name] = layer
-        else:
-            self.__dict__[name] = layer
+        assert name not in self.__class__.methods, "can't add layer with name {!r}: the name overrides a method name".format(name)
+
+        self.__dict__[name] = layer
 
     def pop_layer(self, name: str,  cascading: bool = True, default=Ellipsis) -> Union[Layer, Any]:
         """
@@ -207,8 +197,7 @@ class BaseText:
             raise KeyError('{layer!r} is not a valid layer in this {classname} object'.format(layer=name,classname=self.__class__.__name__))
 
         if not cascading:
-            result = self.__dict__.pop(name, None)
-            return result if result else self._shadowed_layers.pop(name, None)
+            return self.__dict__.pop(name, None)
 
         # Find all dependencies between layers. The implementations is complete overkill.
         # However, further optimisation is not worth the time.
@@ -226,10 +215,8 @@ class BaseText:
         to_delete = nx.descendants(g, name)
 
         result = self.__dict__.pop(name, None)
-        result = result if result else self._shadowed_layers.pop(name, None)
         for name in to_delete:
-            if not self.__dict__.pop(name):
-                self._shadowed_layers.pop(name, None)
+            self.__dict__.pop(name, None)
 
         return result
 

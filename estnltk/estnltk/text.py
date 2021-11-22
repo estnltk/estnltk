@@ -1,9 +1,113 @@
-from typing import Sequence, Union
+from typing import Sequence, Union, Set, List, Union, Any, Mapping
+from typing import DefaultDict
+
+import networkx as nx
 
 from estnltk_core.base_text import BaseText
 from estnltk_core.base_text import Layer
 
 class Text( BaseText ):
+
+    # basic slots are inherited from the parent, therefore define only extra slots
+    __slots__ = ['_shadowed_layers']
+
+    def __init__(self, text: str = None) -> None:
+        super().__init__( text )
+        object.__setattr__(self, '_shadowed_layers', {})
+
+    def __setstate__(self, state):
+        super().__setstate__(state)
+        object.__setattr__(self, '_shadowed_layers', {})
+
+    def __getitem__(self, item):
+        if item in self._shadowed_layers:
+            return self._shadowed_layers[item]
+        return super().__getitem__(item)
+
+    @property
+    def layers(self) -> Set[str]:
+        """
+        Returns the names of all layers in the text object in alphabetical order.
+        """
+        return super().layers | self._shadowed_layers.keys()
+    
+    @property
+    def attributes(self) -> DefaultDict[str, List[str]]:
+        """
+        Returns all attributes together with layer names hosting them.
+        """
+        result = super().attributes
+        
+        # Collect attributes from shadowed layers
+        for name, layer in self._shadowed_layers.items():
+            for attrib in layer.attributes:
+                result[attrib].append(name)
+
+        return result
+
+    def add_layer(self, layer: Layer):
+        """
+        Adds a layer to the text object.
+        """
+        # TODO: the validation logic below duplicates the logic in BaseText.add_layer(...) -- abstract it into separate method
+        assert isinstance(layer, Layer), 'Layer expected, got {!r}'.format(type(layer))
+
+        name = layer.name
+        
+        assert name not in self.__dict__, 'this {} object already has a layer with name {!r}'.format(self.__class__.__name__, name)
+
+        if layer.text_object is None:
+            layer.text_object = self
+        else:
+            assert layer.text_object is self, \
+                "can't add layer {!r}, this layer is already bound to another {} object".format(name, self.__class__.__name__)
+
+        if layer.parent:
+            assert layer.parent in self.__dict__, 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
+                parent=layer.parent, layer=layer.name)
+
+        if layer.enveloping:
+            assert layer.enveloping in self.__dict__, "can't add an enveloping layer before adding the layer it envelops"
+
+        if name in self.__class__.methods:
+            self._shadowed_layers[name] = layer
+        else:
+            super().add_layer( layer )
+
+    def pop_layer(self, name: str,  cascading: bool = True, default=Ellipsis) -> Union[Layer, Any]:
+        """
+        Removes a layer from the text object together with the layers that are computed from it by default.
+        """
+        if name in self._shadowed_layers:
+            if not cascading:
+                return self._shadowed_layers.pop(name, None)
+            else:
+                # TODO: the dependency-finding logic below duplicates the logic in BaseText.pop_layer(...) -- 
+                #       abstract it into separate method
+                
+                # Find all dependencies between layers. The implementations is complete overkill.
+                # However, further optimisation is not worth the time.
+                relations = set()
+                for layer_name, layer in self.__dict__.items():
+                    relations.update((b, a) for a, b in [
+                        (layer_name, layer.parent),
+                        (layer_name, layer.enveloping)] if b is not None and a != b
+                                     )
+
+                g = nx.DiGraph()
+                g.add_edges_from(relations)
+                g.add_nodes_from(self.__dict__.keys())
+
+                to_delete = nx.descendants(g, name)
+
+                result = self._shadowed_layers.pop(name, None)
+                for name in to_delete:
+                    if not self.__dict__.pop(name):
+                        self._shadowed_layers.pop(name, None)
+                return result
+        else:
+            super().pop_layer(name)
+
 
     def tag_layer(self, layer_names: Union[str, Sequence[str]]=None, resolver=None) -> 'Text':
         from estnltk.default_resolver import DEFAULT_RESOLVER

@@ -15,7 +15,13 @@ def inspect_class_members(obj: object):
     public_variables = []
     protected_variables = []
     private_variables = []
-    slots = obj.__slots__
+    slots = obj.__slots__[:]
+    # include slots of the parent class
+    for cls in obj.__class__.__mro__:
+        for slot in getattr( cls, "__slots__", [] ):
+            if slot not in slots:
+                slots.append( slot )
+    # extract class members
     for attr in dir(obj):
         if attr in slots:
             pass

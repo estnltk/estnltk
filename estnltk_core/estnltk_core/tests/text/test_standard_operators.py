@@ -193,9 +193,13 @@ def test_abnormal_attribute_access():
     Text = load_text_class()
     # Test for shadowing errors
     text = Text('Äkksurm varjuteatris')
-    text.add_layer(Layer(name='add_layer'))
-    assert type(text.add_layer) == MethodType, "Layers cannot shadow methods"
-    text.add_layer(Layer(name='new_layer'))
+    if Text().__class__.__name__ == 'BaseText':
+        with pytest.raises(AssertionError):
+            text.add_layer(Layer(name='add_layer'))
+    else:
+        text.add_layer(Layer(name='add_layer'))
+        assert type(text.add_layer) == MethodType, "Layers cannot shadow methods"
+        text.add_layer(Layer(name='new_layer'))
 
     # Test that attribute resolving does not introduce shadowing errors for methods
     text = Text('Šaakali päev')
@@ -209,7 +213,8 @@ def test_abnormal_attribute_access():
     assert type(text.meta) == dict, "Attribute resolver cannot shadow slots"
     assert type(text.text) == str, "Attribute resolver cannot shadow slots"
     assert type(text.__dict__) == dict, "Attribute resolver cannot shadow slots"
-    assert type(text._shadowed_layers) == dict, "Attribute resolver cannot shadow slots"
+    if Text().__class__.__name__ == 'Text':
+        assert type(text._shadowed_layers) == dict, "Attribute resolver cannot shadow slots"
 
 
 def test_normal_layer_access():
@@ -265,8 +270,13 @@ def test_access_of_shadowed_layers():
         public_variables = [ 'attribute_mapping_for_elementary_layers', \
                              'attribute_mapping_for_enveloping_layers', \
                              'methods' ]
-    slots = ['text', 'meta', '__dict__', '_shadowed_layers']
-    shadowed_layers = properties + public_methods + protected_methods + public_variables + slots
+    if Text().__class__.__name__ == 'BaseText':
+        slots = ['text', 'meta', '__dict__']
+        all_slots = slots # incl parent slots
+    else:
+        slots = ['_shadowed_layers']
+        all_slots = ['text', 'meta', '__dict__', '_shadowed_layers']  # incl parent slots
+    shadowed_layers = properties + public_methods + protected_methods + public_variables + all_slots
 
     # Check that lists are correct
     members = inspect_class_members(Text())
@@ -292,25 +302,32 @@ def test_access_of_shadowed_layers():
     for layer_name in shadowed_layers:
         _ = Layer(name=layer_name, attributes=['attr'])
 
-    # Shadowed layers are accessible
+    # Test accessibility of shadowed layer
     other = Text('See on teine ilma kihtideta test tekst.')
     for layer_name in shadowed_layers:
         # Test access for empty layers
         layer = Layer(name=layer_name, attributes=['attr'])
-        text.add_layer(layer)
+        if Text().__class__.__name__ == 'BaseText' and \
+            layer_name in Text().__class__.methods:
+            # shadowed layers not supported, raises error
+            with pytest.raises(AssertionError):
+                text.add_layer(layer)
+        else:
+            # successfully add shadowed layer
+            text.add_layer(layer)
+            assert text[layer_name] is layer
+            with pytest.raises(IndexError):
+                _ = text[layer_name][0]
 
-        assert text[layer_name] is layer
-        with pytest.raises(IndexError):
-            _ = text[layer_name][0]
+        if Text().__class__.__name__ == 'Text':
+            # # Test access for non-empty layers
+            layer = Layer(name=layer_name, attributes=['attr_0', 'attr_1'])
+            layer.add_annotation(ElementaryBaseSpan(0, 4), attr_0='L0-0', attr_1='100')
+            other.add_layer(layer)
 
-        # # Test access for non-empty layers
-        layer = Layer(name=layer_name, attributes=['attr_0', 'attr_1'])
-        layer.add_annotation(ElementaryBaseSpan(0, 4), attr_0='L0-0', attr_1='100')
-        other.add_layer(layer)
-
-        assert other[layer_name] is layer
-        assert other[layer_name][0].attr_0 == 'L0-0'
-        assert other[layer_name][0] == layer[0]
+            assert other[layer_name] is layer
+            assert other[layer_name][0].attr_0 == 'L0-0'
+            assert other[layer_name][0] == layer[0]
 
 
 def test_attribute_resolver():
