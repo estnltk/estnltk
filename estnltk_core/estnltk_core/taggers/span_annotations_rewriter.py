@@ -29,7 +29,7 @@ class SpanAnnotationsRewriter(Retagger):
        * 'REMOVE' -- retagger's output_attributes will 
          be removed from layer's attributes;
        
-       Usage note: this function should be used if you 
+       Usage note: this retagger should be used if you 
        need to rewrite all annotations of a span at once  
        (e.g. if you have an ambiguous layer, and you need 
              to consider other annotations while rewriting).

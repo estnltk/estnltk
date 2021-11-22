@@ -20,7 +20,7 @@ class AnnotationRewriter(Retagger):
        * 'REMOVE' -- retagger's output_attributes will 
          be removed from layer's attributes;
        
-       Usage note: this function should be reasonably fast 
+       Usage note: this retagger should be reasonably fast 
        if you can rewrite annotations one-by-one. This 
        is also most suitable for rewriting unambiguous layer. 
        
