@@ -33,7 +33,7 @@ def test_annotation_rewriter():
 
     rewriter = AnnotationRewriter('words', ('uppercase',), 
                                   rewrite_add_uppercase, 
-                                  attribute_change_op='ADD')
+                                  attr_change='ADD')
     rewriter.retag( text )
     expected_words_layer_dict = \
         {'ambiguous': True,
@@ -60,9 +60,8 @@ def test_annotation_rewriter():
 
     rewriter2 = AnnotationRewriter('words', ('normalized_form',), 
                                    rewrite_delete_norm_form, 
-                                   attribute_change_op='REMOVE')
+                                   attr_change='REMOVE')
     rewriter2.retag( text )
-
     expected_words_layer_dict2 = \
         {'ambiguous': True,
          'attributes': ('uppercase',),
@@ -76,5 +75,26 @@ def test_annotation_rewriter():
                    {'annotations': [{'uppercase': 'TSAU-PAKAA'}], 'base_span': (6, 16)},
                    {'annotations': [{'uppercase': '!'}], 'base_span': (16, 17)}]}
     assert expected_words_layer_dict2 == layer_to_dict(text['words'])
+
+    # Case 3: duplicate attribute values (strings)
+    def rewrite_duplicate_attr_value( annotation ):
+        # duplicate attribute
+        annotation['uppercase'] = annotation['uppercase']+'-'+annotation['uppercase']
+    
+    rewriter3 = AnnotationRewriter('words', (), rewrite_duplicate_attr_value)
+    rewriter3.retag( text )
+    expected_words_layer_dict3 = \
+        {'ambiguous': True,
+         'attributes': ('uppercase',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'words',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'uppercase': 'TERE-TERE'}], 'base_span': (0, 4)},
+                   {'annotations': [{'uppercase': '!-!'}], 'base_span': (4, 5)},
+                   {'annotations': [{'uppercase': 'TSAU-PAKAA-TSAU-PAKAA'}], 'base_span': (6, 16)},
+                   {'annotations': [{'uppercase': '!-!'}], 'base_span': (16, 17)}]}
+    assert expected_words_layer_dict3 == layer_to_dict(text['words'])
 
 
