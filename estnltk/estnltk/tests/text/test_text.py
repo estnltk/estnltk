@@ -24,7 +24,7 @@ def test_general():
     with pytest.raises(AttributeError):
         t.sentences.words
 
-    assert {'tokens', 'compound_tokens', 'sentences', 'words', 'morph_analysis'} <= set(t.__dict__)
+    assert {'tokens', 'compound_tokens', 'sentences', 'words', 'morph_analysis'} <= set(t.layers)
 
     with pytest.raises(AttributeError):
         t.words.sentences

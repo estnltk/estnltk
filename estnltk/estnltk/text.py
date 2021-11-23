@@ -54,7 +54,7 @@ class Text( BaseText ):
 
         name = layer.name
         
-        assert name not in self.__dict__, 'this {} object already has a layer with name {!r}'.format(self.__class__.__name__, name)
+        assert name not in self._layers, 'this {} object already has a layer with name {!r}'.format(self.__class__.__name__, name)
 
         if layer.text_object is None:
             layer.text_object = self
@@ -63,11 +63,11 @@ class Text( BaseText ):
                 "can't add layer {!r}, this layer is already bound to another {} object".format(name, self.__class__.__name__)
 
         if layer.parent:
-            assert layer.parent in self.__dict__, 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
+            assert layer.parent in self._layers, 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
                 parent=layer.parent, layer=layer.name)
 
         if layer.enveloping:
-            assert layer.enveloping in self.__dict__, "can't add an enveloping layer before adding the layer it envelops"
+            assert layer.enveloping in self._layers, "can't add an enveloping layer before adding the layer it envelops"
 
         if name in self.__class__.methods:
             self._shadowed_layers[name] = layer
@@ -88,7 +88,7 @@ class Text( BaseText ):
                 # Find all dependencies between layers. The implementations is complete overkill.
                 # However, further optimisation is not worth the time.
                 relations = set()
-                for layer_name, layer in self.__dict__.items():
+                for layer_name, layer in self._layers.items():
                     relations.update((b, a) for a, b in [
                         (layer_name, layer.parent),
                         (layer_name, layer.enveloping)] if b is not None and a != b
@@ -96,13 +96,13 @@ class Text( BaseText ):
 
                 g = nx.DiGraph()
                 g.add_edges_from(relations)
-                g.add_nodes_from(self.__dict__.keys())
+                g.add_nodes_from(self._layers.keys())
 
                 to_delete = nx.descendants(g, name)
 
                 result = self._shadowed_layers.pop(name, None)
                 for name in to_delete:
-                    if not self.__dict__.pop(name):
+                    if not self._layers.pop(name):
                         self._shadowed_layers.pop(name, None)
                 return result
         else:
@@ -140,7 +140,7 @@ class Text( BaseText ):
         else:
             raise ValueError("invalid argument: '" + str(t) +
                              "', use 'segmentation', 'morphology' or 'syntax' instead")
-        if 'tokens' in self.__dict__ and t != 'all':
+        if 'tokens' in self._layers and t != 'all':
             self.pop_layer('tokens')
         return self
 
@@ -158,8 +158,6 @@ class Text( BaseText ):
     attribute_mapping_for_enveloping_layers = attribute_mapping_for_elementary_layers
 
     def __getattr__(self, item):
-        # Function __getattr__ is never called on items in __dict__
-
         # Resolve slots
         if item in self.__class__.__slots__:
             return self.__getattribute__(item)
@@ -168,11 +166,15 @@ class Text( BaseText ):
         if item in self.__class__.methods:
             return self.__getattribute__(item)
 
+        # Resolve layers
+        if item in self.layers:
+            return self.__getitem__(item)
+
         # Resolve attributes that uniquely determine a layer, e.g. BaseText/Text.lemmas ==> BaseText/Text.morph_layer.lemmas
         attributes = self.__getattribute__('attributes')
 
         if len(attributes[item]) == 1:
-            return getattr(self.__dict__[attributes[item][0]], item)
+            return getattr(self._layers[attributes[item][0]], item)
 
         # Nothing else to resolve
         raise AttributeError("'{}' object has no layer {!r}".format( self.__class__.__name__, item ))

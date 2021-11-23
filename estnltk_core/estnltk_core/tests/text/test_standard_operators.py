@@ -140,7 +140,7 @@ def test_attribute_assignment():
     with pytest.raises(AttributeError, match='raw text has already been set'):
         # noinspection PyPropertyAccess
         Text("Initsialiseeritud objekt").text = "Uus väärtus"
-    with pytest.raises(TypeError, match='expecting a string as rvalue'):
+    with pytest.raises(TypeError, match='expecting a string as value'):
         Text().text = 5
     text = Text()
     assert text.text is None
@@ -276,11 +276,11 @@ def test_access_of_shadowed_layers():
                              'attribute_mapping_for_enveloping_layers', \
                              'methods' ]
     if Text().__class__.__name__ == 'BaseText':
-        slots = ['text', 'meta', '__dict__']
+        slots = ['text', 'meta', '__dict__', '_layers']
         all_slots = slots # incl parent slots
     else:
         slots = ['_shadowed_layers']
-        all_slots = ['text', 'meta', '__dict__', '_shadowed_layers']  # incl parent slots
+        all_slots = ['text', 'meta', '__dict__', '_layers', '_shadowed_layers']  # incl parent slots
     shadowed_layers = properties + public_methods + protected_methods + public_variables + all_slots
 
     # Check that lists are correct
@@ -531,20 +531,19 @@ def test_pop_layer():
     text.add_layer(morph_layer)
 
     assert set(layer_names) <= set(text.layers)
-    assert set(layer_names) <= set(text.__dict__)
 
     # Test del text.layer_name
     # Deleting a root layer should also delete all its dependants
     text.pop_layer('tokens')
 
-    assert 'tokens' not in text.__dict__
-    assert 'compound_tokens' not in text.__dict__
+    assert 'tokens' not in text.layers
+    assert 'compound_tokens' not in text.layers
 
     text.pop_layer('words')
 
-    assert 'words' not in text.__dict__
-    assert 'sentences' not in text.__dict__
-    assert 'morph_analysis' not in text.__dict__
+    assert 'words' not in text.layers
+    assert 'sentences' not in text.layers
+    assert 'morph_analysis' not in text.layers
 
     assert text.layers == set()
 
@@ -676,14 +675,14 @@ def test_pop_layer():
 
     text.pop_layer('tokens')
 
-    assert 'tokens' not in text.__dict__
-    assert 'compound_tokens' not in text.__dict__
+    assert 'tokens' not in text.layers
+    assert 'compound_tokens' not in text.layers
 
     text.pop_layer('words')
 
-    assert 'words' not in text.__dict__
-    assert 'sentences' not in text.__dict__
-    assert 'morph_analysis' not in text.__dict__
+    assert 'words' not in text.layers
+    assert 'sentences' not in text.layers
+    assert 'morph_analysis' not in text.layers
 
     assert text.layers == set()
 
