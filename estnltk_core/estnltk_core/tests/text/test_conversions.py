@@ -27,8 +27,8 @@ def test_pickle():
     text.meta = {'a': 55, 'b': 53}
     text.add_layer(Layer('empty_layer', attributes=[]))
     text.add_layer(Layer('nonempty_layer', attributes=['a', 'b']))
-    text.nonempty_layer.add_annotation(ElementaryBaseSpan(0, 4), a=1, b=2)
-    text.nonempty_layer.add_annotation(ElementaryBaseSpan(5, 8), a=3, b=4)
+    text['nonempty_layer'].add_annotation(ElementaryBaseSpan(0, 4), a=1, b=2)
+    text['nonempty_layer'].add_annotation(ElementaryBaseSpan(5, 8), a=3, b=4)
     result = save_restore(text)
     assert result.text == text.text
     assert result.meta == text.meta
@@ -50,24 +50,24 @@ def test_pickle():
     text = Text("Rekursiivsete kihtidega teksti kopeerimine")
     text.add_layer(Layer('empty_layer', attributes=[]))
     text.add_layer(Layer('nonempty_layer', attributes=['text', 'layer', 'espan']))
-    text.nonempty_layer.add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text.nonempty_layer)
-    text.nonempty_layer[0].espan = text.nonempty_layer[0]
+    text['nonempty_layer'].add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text['nonempty_layer'])
+    text['nonempty_layer'][0].espan = text['nonempty_layer'][0]
     text.add_layer(Layer('text', attributes=['text', 'layer', 'espan']))
     text['text'].add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text['text'], espan=None)
     text['text'][0].espan = text['text'][0]
-    text['text'].add_annotation(ElementaryBaseSpan(5, 8), text=text, layer=text.nonempty_layer, espan=None)
-    text['text'][1].espan = text.nonempty_layer[0]
+    text['text'].add_annotation(ElementaryBaseSpan(5, 8), text=text, layer=text['nonempty_layer'], espan=None)
+    text['text'][1].espan = text['nonempty_layer'][0]
     result = save_restore(text)
     assert result.text == text.text
     assert result.meta == text.meta
     assert result.layers == text.layers
-    assert len(result.empty_layer) == 0
-    assert len(result.nonempty_layer) == len(text.nonempty_layer)
-    for i in range(len(result.nonempty_layer)):
-        assert result.nonempty_layer[i].base_span == text.nonempty_layer[i].base_span
-    assert result.nonempty_layer[0]['text'] is result
-    assert result.nonempty_layer[0]['layer'] is result.nonempty_layer
-    assert result.nonempty_layer[0]['espan'] is result.nonempty_layer[0]
+    assert len(result['empty_layer']) == 0
+    assert len(result['nonempty_layer']) == len(text['nonempty_layer'])
+    for i in range(len(result['nonempty_layer'])):
+        assert result['nonempty_layer'][i].base_span == text['nonempty_layer'][i].base_span
+    assert result['nonempty_layer'][0]['text'] is result
+    assert result['nonempty_layer'][0]['layer'] is result['nonempty_layer']
+    assert result['nonempty_layer'][0]['espan'] is result['nonempty_layer'][0]
     assert len(result['text']) == len(text['text'])
     for i in range(len(result['text'])):
         assert result['text'][i].base_span == text['text'][i].base_span
@@ -420,7 +420,7 @@ def test_to_record():
 
     # teine tundub veidi loogilisem, aga piisavalt harv vajadus ja piisavalt tülikas implementeerida, et valida esimene
     # alati saab teha lihtsalt
-    assert t.morph_analysis.to_records() == [[{'normalized_text': 'Minu',
+    assert t['morph_analysis'].to_records() == [[{'normalized_text': 'Minu',
                                                'lemma': 'mina',
                                                'root': 'mina',
                                                'root_tokens': ['mina'],
@@ -496,7 +496,7 @@ def test_from_dict():
                         {'end': 24, 'lemma': '?', 'start': 23}]
                        )
 
-    for span, lemma in zip(t.words, ['kui', 'mitu', 'kuu', 'olema', 'aasta', '?']):
+    for span, lemma in zip(t['words'], ['kui', 'mitu', 'kuu', 'olema', 'aasta', '?']):
         print(span.lemma, lemma)
         assert span.lemma == lemma
 
@@ -519,7 +519,7 @@ def test_ambiguous_from_dict():
     ]
     )
 
-    assert t.words[0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
+    assert t['words'][0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
 
 
 def test_ambiguous_from_dict_unbound():
@@ -543,7 +543,7 @@ def test_ambiguous_from_dict_unbound():
     t = Text('Kui mitu kuud on aastas?')
     t.add_layer(words)
 
-    assert t.words[0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
+    assert t['words'][0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
 
     words2 = Layer(name='words2', attributes=['lemma2'], ambiguous=True, parent='words')
     # We create the layer
@@ -557,6 +557,6 @@ def test_ambiguous_from_dict_unbound():
     ]
     )
     t.add_layer(words2)
-    assert t.words2[0].lemma2 == AttributeList(['kui', 'KUU'], 'lemma2')
+    assert t['words2'][0].lemma2 == AttributeList(['kui', 'KUU'], 'lemma2')
 
-    assert t.words2[0].parent is t.words[0]
+    assert t['words2'][0].parent is t['words'][0]

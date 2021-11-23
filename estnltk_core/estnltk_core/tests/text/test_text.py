@@ -60,7 +60,7 @@ def test_new_span_hierarchy():
     )
     text.add_layer(l)
 
-    for i in text.words:
+    for i in text['words']:
         l.add_annotation(i, test1='1234')
 
     l = Layer(
@@ -71,10 +71,10 @@ def test_new_span_hierarchy():
     )
     text.add_layer(l)
 
-    for i in text.layer1:
+    for i in text['layer1']:
         l.add_annotation(i, test2='12345')
 
-    assert text.layer2[0].parent.layer.name == 'layer1'
+    assert text['layer2'][0].parent.layer.name == 'layer1'
 
 
 
@@ -145,11 +145,11 @@ def test_layer():
     assert text.text == string
 
     # TODO: This is a part of layer testing
-    layer = text.test  # type: Layer
+    layer = text['test']  # type: Layer
     layer.add_annotation((0, 2))
-    assert text.test.text == [string[:2]]
+    assert text['test'].text == [string[:2]]
 
-    text.test.add_annotation((2, 4))
+    text['test'].add_annotation((2, 4))
 
 
 def test_annotated_layer():
@@ -162,11 +162,11 @@ def test_annotated_layer():
     t.add_layer(l)
     l.add_annotation((1, 5))
 
-    for i in t.test:
+    for i in t['test']:
         i.test = 'mock'
 
     with pytest.raises(AttributeError):
-        for i in t.test:
+        for i in t['test']:
             i.test2 = 'mock'
 
 
@@ -229,10 +229,10 @@ def test_dependant_span():
                 )
     t.add_layer(dep)
 
-    for word in t.words:
+    for word in t['words']:
         dep.add_annotation(word, revlemma=word.lemma[::-1])
 
-    for i in t.reverse_lemmas:
+    for i in t['reverse_lemmas']:
         assert (i.revlemma == i.words.lemma[::-1])
 
     # TODO: how should this work?
@@ -260,36 +260,36 @@ def test_enveloping_layer():
     wordpairs = Layer(name='wordpairs', enveloping='words')
     t.add_layer(wordpairs)
 
-    wordpairs.add_annotation(t.words[0:2])
-    wordpairs.add_annotation(t.words[2:4])
-    wordpairs.add_annotation(t.words[4:6])
+    wordpairs.add_annotation(t['words'][0:2])
+    wordpairs.add_annotation(t['words'][2:4])
+    wordpairs.add_annotation(t['words'][4:6])
 
-    print(t.wordpairs.text)
+    #print(t['wordpairs'].text)
     assert (wordpairs.text == ['Kui', 'mitu', 'kuud', 'on', 'aastas', '?'])
 
-    wordpairs.add_annotation(t.words[1:3])
-    wordpairs.add_annotation(t.words[3:5])
-    print(t.wordpairs.text)
+    wordpairs.add_annotation(t['words'][1:3])
+    wordpairs.add_annotation(t['words'][3:5])
+    #print(t['wordpairs'].text)
     assert (wordpairs.text == ['Kui', 'mitu', 'mitu', 'kuud', 'kuud', 'on', 'on', 'aastas', 'aastas', '?'])
 
-    for wordpair in t.wordpairs:
+    for wordpair in t['wordpairs']:
         for word in wordpair.words:
             assert (word)
 
-    for wordpair in t.wordpairs:
+    for wordpair in t['wordpairs']:
         wordpair.words.lemma  # this should not give a keyerror
 
     # I have changed my mind about what this should raise so much, I'm leaving it free at the moment
     with pytest.raises(Exception):
-        for wordpair in t.wordpairs:
+        for wordpair in t['wordpairs']:
             wordpair.nonsense  # this SHOULD give a --keyerror--
 
-    assert (t.words.lemma == AttributeList(['kui', 'mitu', 'kuu', 'olema', 'aasta', '?'], 'lemma'))
+    assert (t['words'].lemma == AttributeList(['kui', 'mitu', 'kuu', 'olema', 'aasta', '?'], 'lemma'))
 
-    assert ([list(wordpair.words.lemma) for wordpair in t.wordpairs] ==
+    assert ([list(wordpair.words.lemma) for wordpair in t['wordpairs']] ==
             [['kui', 'mitu'], ['mitu', 'kuu'], ['kuu', 'olema'], ['olema', 'aasta'], ['aasta', '?']])
 
-    print(t.wordpairs.text)
+    #print(t['wordpairs'].text)
     with pytest.raises(Exception):
         (wordpairs.test)
 
@@ -343,17 +343,17 @@ def test_various():
                   attributes=['upper'])
     text.add_layer(upper)
 
-    for word in text.words:
+    for word in text['words']:
         upper.add_annotation(word, upper=word.text.upper())
 
     with pytest.raises(AttributeError):
-        for word in text.words:
+        for word in text['words']:
             word.nonsense
 
-    for word in text.uppercase:
+    for word in text['uppercase']:
         assert word.text.upper() == word.upper
 
-    for word in text.words:
+    for word in text['words']:
         assert (word.uppercase.upper == word.text.upper())
 
         # we have to get explicit access
@@ -414,10 +414,10 @@ def test_ambiguous_layer():
                 )
     t.add_layer(dep)
 
-    dep.add_annotation(t.words[0], asd='asd')
+    dep.add_annotation(t['words'][0], asd='asd')
 
-    dep.add_annotation(t.words[1], asd='asd')
-    dep.add_annotation(t.words[0], asd='123')
+    dep.add_annotation(t['words'][1], asd='asd')
+    dep.add_annotation(t['words'][0], asd='123')
 
     # TODO: assert something
 
@@ -475,11 +475,11 @@ def test_delete_annotation_in_ambiguous_span():
     text.add_layer(l)
 
     c = 0
-    for word in text.words:
+    for word in text['words']:
         l.add_annotation(word, test1=c)
         c += 1
 
-    for word in text.words:
+    for word in text['words']:
         l.add_annotation(word, test1=c)
         c += 1
 

@@ -55,8 +55,8 @@ def test_copy_constructors():
     text.meta = {'a': 55, 'b': 53}
     text.add_layer(Layer('empty_layer', attributes=[]))
     text.add_layer(Layer('nonempty_layer', attributes=['a', 'b']))
-    text.nonempty_layer.add_annotation(ElementaryBaseSpan(0, 4), a=1, b=2)
-    text.nonempty_layer.add_annotation(ElementaryBaseSpan(5, 8), a=3, b=4)
+    text['nonempty_layer'].add_annotation(ElementaryBaseSpan(0, 4), a=1, b=2)
+    text['nonempty_layer'].add_annotation(ElementaryBaseSpan(5, 8), a=3, b=4)
 
     s_copy = copy(text)
     assert s_copy is not text
@@ -97,13 +97,13 @@ def test_copy_constructors():
     text = Text("Rekursiivsete kihtidega teksti kopeerimine")
     text.add_layer(Layer('empty_layer', attributes=[]))
     text.add_layer(Layer('nonempty_layer', attributes=['text', 'layer', 'espan']))
-    text.nonempty_layer.add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text.nonempty_layer)
-    text.nonempty_layer[0].espan = text.nonempty_layer[0]
+    text['nonempty_layer'].add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text['nonempty_layer'])
+    text['nonempty_layer'][0].espan = text['nonempty_layer'][0]
     text.add_layer(Layer('text', attributes=['text', 'layer', 'espan']))
     text['text'].add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text['text'], espan=None)
     text['text'][0].espan = text['text'][0]
-    text['text'].add_annotation(ElementaryBaseSpan(5, 8), text=text, layer=text.nonempty_layer, espan=None)
-    text['text'][1].espan = text.nonempty_layer[0]
+    text['text'].add_annotation(ElementaryBaseSpan(5, 8), text=text, layer=text['nonempty_layer'], espan=None)
+    text['text'][1].espan = text['nonempty_layer'][0]
 
     s_copy = copy(text)
     assert s_copy is not text
@@ -119,8 +119,8 @@ def test_copy_constructors():
     assert d_copy.layers == text.layers
     for layer in d_copy.layers:
         assert d_copy[layer] is not text[layer]
-    assert d_copy.empty_layer == text.empty_layer
-    assert len(d_copy.nonempty_layer) == 1
+    assert d_copy['empty_layer'] == text['empty_layer']
+    assert len(d_copy['nonempty_layer']) == 1
     # assert text.nonempty_layer[0]['text'] is d_copy, "Fails as layers deep copy is incorrect"
     # assert text.nonempty_layer[0].layer is d_copy.nonempty_layer, "Fails as layers deep copy is incorrect"
     # assert text.nonempty_layer[0].espan is d_copy.nonempty_layer[0], "Fails as layers deep copy is incorrect"
@@ -233,26 +233,31 @@ def test_normal_layer_access():
     layer = Layer(name='empty_layer', attributes=['attr1'])
     text.add_layer(layer)
 
-    assert text.empty_layer is layer
     assert text['empty_layer'] is layer
-    assert text.empty_layer is text['empty_layer']
-
-    with pytest.raises(IndexError):
-        _ = text.empty_layer[0]
     with pytest.raises(IndexError):
         _ = text['empty_layer'][0]
+    
+    if Text().__class__.__name__ == 'Text':
+        # .attr access will only be available in estnltk-standard
+        assert text.empty_layer is layer
+        assert text.empty_layer is text['empty_layer']
+
+        with pytest.raises(IndexError):
+            _ = text.empty_layer[0]
 
     # Accessing non-empty layer
     layer = Layer(name='nonempty_layer', attributes=['attr_0', 'attr_1'])
     layer.add_annotation(ElementaryBaseSpan(0, 4), attr_0='L0-0', attr_1='100')
     text.add_layer(layer)
 
-    assert text.nonempty_layer is layer
     assert text['nonempty_layer'] is layer
-
-    assert text.nonempty_layer[0].attr_0 == 'L0-0'
     assert text['nonempty_layer'][0].attr_0 == 'L0-0'
-    assert text.nonempty_layer[0] is text['nonempty_layer'][0]
+    
+    if Text().__class__.__name__ == 'Text':
+        # .attr access will only be available in estnltk-standard
+        assert text.nonempty_layer is layer
+        assert text.nonempty_layer[0].attr_0 == 'L0-0'
+        assert text.nonempty_layer[0] is text['nonempty_layer'][0]
 
 
 def test_access_of_shadowed_layers():
@@ -392,9 +397,11 @@ def test_add_layer():
     with pytest.raises(TypeError, match=error_message):
         text['empty_layer'] = layer
 
-    text = Text('test')
-    with pytest.raises(AttributeError, match=error_message):
-        text.empty_layer = layer
+    if Text().__class__.__name__ == 'Text':
+        # .attr access will only be available in estnltk-standard
+        text = Text('test')
+        with pytest.raises(AttributeError, match=error_message):
+            text.empty_layer = layer
 
 
 def test_pop_layer():
@@ -542,14 +549,14 @@ def test_pop_layer():
     assert text.layers == set()
 
     # Test that deleted layers are indeed missing
-    with pytest.raises(AttributeError):
-        _ = text.words
+    with pytest.raises(KeyError):
+        _ = text['words']
 
-    with pytest.raises(AttributeError):
-        _ = text.sentences
+    with pytest.raises(KeyError):
+        _ = text['sentences']
 
-    with pytest.raises(AttributeError):
-        _ = text.morph_analysis
+    with pytest.raises(KeyError):
+        _ = text['morph_analysis']
 
     # Test del text['layer_name']
     # Deleting a root layer should also delete all its dependants
@@ -681,14 +688,14 @@ def test_pop_layer():
     assert text.layers == set()
 
     # Test that deleted layers are indeed missing
-    with pytest.raises(AttributeError):
-        _ = text.words
+    with pytest.raises(KeyError):
+        _ = text['words']
 
-    with pytest.raises(AttributeError):
-        _ = text.sentences
+    with pytest.raises(KeyError):
+        _ = text['sentences']
 
-    with pytest.raises(AttributeError):
-        _ = text.morph_analysis
+    with pytest.raises(KeyError):
+        _ = text['morph_analysis']
 
     # Test more obscure configurations
 
@@ -901,5 +908,5 @@ def test_equal():
     t_1 = new_text(5)
     t_2 = new_text(5)
     assert t_1 == t_2
-    t_1.layer_5[1].annotations[1].attr_5 = 'bla'
+    t_1['layer_5'][1].annotations[1].attr_5 = 'bla'
     assert t_1 != t_2
