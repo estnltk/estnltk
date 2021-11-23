@@ -325,14 +325,14 @@ def test_split_by_clauses_1():
                                                  trim_overlapping=False)
     
     assert len(clause_texts) == len(text['clauses'])
-    assert clause_texts[0].words.text == ['Mees', 'oli', 'tuttav', 'ja']
-    assert clause_texts[1].words.text == [',', 'keda', 'seal', 'kohtasime', ',']
-    assert clause_texts[2].words.text == ['teretas', 'meid', '.']
-    assert clause_texts[3].words.text == ['(', 'sic', '!', ')']
-    assert clause_texts[0].morph_analysis.text == ['Mees', 'oli', 'tuttav', 'ja']
-    assert clause_texts[1].morph_analysis.text == [',', 'keda', 'seal', 'kohtasime', ',']
-    assert clause_texts[2].morph_analysis.text == ['teretas', 'meid', '.']
-    assert clause_texts[3].morph_analysis.text == ['(', 'sic', '!', ')']
+    assert clause_texts[0]['words'].text == ['Mees', 'oli', 'tuttav', 'ja']
+    assert clause_texts[1]['words'].text == [',', 'keda', 'seal', 'kohtasime', ',']
+    assert clause_texts[2]['words'].text == ['teretas', 'meid', '.']
+    assert clause_texts[3]['words'].text == ['(', 'sic', '!', ')']
+    assert clause_texts[0]['morph_analysis'].text == ['Mees', 'oli', 'tuttav', 'ja']
+    assert clause_texts[1]['morph_analysis'].text == [',', 'keda', 'seal', 'kohtasime', ',']
+    assert clause_texts[2]['morph_analysis'].text == ['teretas', 'meid', '.']
+    assert clause_texts[3]['morph_analysis'].text == ['(', 'sic', '!', ')']
     assert len(clause_texts[0]['clauses']) == 0
     assert len(clause_texts[-1]['sentences']) == 0
 
@@ -365,18 +365,18 @@ def test_split_by_clauses_2():
                                                  trim_overlapping=True)
     
     assert len(clause_texts) == len(text['clauses'])
-    assert clause_texts[0].words.text == ['Mees', 'oli', 'tuttav', 'ja']
-    assert clause_texts[1].words.text == [',', 'keda', 'seal', 'kohtasime', ',']
-    assert clause_texts[2].words.text == ['teretas', 'meid', '.']
-    assert clause_texts[3].words.text == ['(', 'sic', '!', ')']
-    assert clause_texts[0].morph_analysis.text == ['Mees', 'oli', 'tuttav', 'ja']
-    assert clause_texts[1].morph_analysis.text == [',', 'keda', 'seal', 'kohtasime', ',']
-    assert clause_texts[2].morph_analysis.text == ['teretas', 'meid', '.']
-    assert clause_texts[3].morph_analysis.text == ['(', 'sic', '!', ')']
-    assert clause_texts[0].clauses.text == ['Mees', 'oli', 'tuttav', 'ja']
-    assert clause_texts[1].sentences.text == [',', 'keda', 'seal', 'kohtasime', ',']
-    assert clause_texts[2].clauses.text == ['teretas', 'meid', '.']
-    assert clause_texts[3].sentences.text == ['(', 'sic', '!', ')']
+    assert clause_texts[0]['words'].text == ['Mees', 'oli', 'tuttav', 'ja']
+    assert clause_texts[1]['words'].text == [',', 'keda', 'seal', 'kohtasime', ',']
+    assert clause_texts[2]['words'].text == ['teretas', 'meid', '.']
+    assert clause_texts[3]['words'].text == ['(', 'sic', '!', ')']
+    assert clause_texts[0]['morph_analysis'].text == ['Mees', 'oli', 'tuttav', 'ja']
+    assert clause_texts[1]['morph_analysis'].text == [',', 'keda', 'seal', 'kohtasime', ',']
+    assert clause_texts[2]['morph_analysis'].text == ['teretas', 'meid', '.']
+    assert clause_texts[3]['morph_analysis'].text == ['(', 'sic', '!', ')']
+    assert clause_texts[0]['clauses'].text == ['Mees', 'oli', 'tuttav', 'ja']
+    assert clause_texts[1]['sentences'].text == [',', 'keda', 'seal', 'kohtasime', ',']
+    assert clause_texts[2]['clauses'].text == ['teretas', 'meid', '.']
+    assert clause_texts[3]['sentences'].text == ['(', 'sic', '!', ')']
 
 
 
@@ -526,11 +526,11 @@ def test_split_by_clauses_3_verb_chains():
                                                  trim_overlapping=True)
     # Validate results
     assert len(clause_texts) == len(text['clauses'])
-    assert clause_texts[0].clauses.text == ['Und', 'pole', ',']
-    assert clause_texts[1].clauses.text == ['aga', 'ma', 'ei', 'näe', 'põhjust', 'öö', 'läbi', 'üleval', 'olla', '.']
-    assert clause_texts[2].clauses.text == ['(', 'sest', 'magada', 'on', 'vaja', '!', ')']
-    assert clause_texts[0].verb_chains.text == ['pole']
-    assert clause_texts[1].verb_chains.text == ['ei', 'näe']
-    assert clause_texts[2].verb_chains.text == ['magada', 'on', 'vaja']
+    assert clause_texts[0]['clauses'].text == ['Und', 'pole', ',']
+    assert clause_texts[1]['clauses'].text == ['aga', 'ma', 'ei', 'näe', 'põhjust', 'öö', 'läbi', 'üleval', 'olla', '.']
+    assert clause_texts[2]['clauses'].text == ['(', 'sest', 'magada', 'on', 'vaja', '!', ')']
+    assert clause_texts[0]['verb_chains'].text == ['pole']
+    assert clause_texts[1]['verb_chains'].text == ['ei', 'näe']
+    assert clause_texts[2]['verb_chains'].text == ['magada', 'on', 'vaja']
 
 

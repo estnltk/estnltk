@@ -9,7 +9,7 @@ from estnltk_core.common import load_text_class
 
 def test_layer_groupby_attributes():
     text   = new_text( 5 )
-    groups = text.layer_1.groupby(['attr_1'], return_type='spans')
+    groups = text['layer_1'].groupby(['attr_1'], return_type='spans')
     assert groups.count == {('SADA',): 3, \
                             ('KAKS',): 2,
                             ('KAKSKÜMMEND',): 1,
@@ -26,15 +26,15 @@ def test_layer_groupby_attributes():
                             ('KAHEKSA',): 1,
                             ('ÜHEKSA',): 2,
                             ('ÜHEKSAKÜMMEND',): 1}
-    assert groups.groups[ ('KAHEKSA',) ] == [ text.layer_1[15] ]
-    assert groups.groups[ ('KAKS',) ] == [ text.layer_1[1], text.layer_1[2] ]
-    assert groups.groups[ ('KAKSKÜMMEND',) ] == [ text.layer_1[2] ]
+    assert groups.groups[ ('KAHEKSA',) ] == [ text['layer_1'][15] ]
+    assert groups.groups[ ('KAKS',) ] == [ text['layer_1'][1], text['layer_1'][2] ]
+    assert groups.groups[ ('KAKSKÜMMEND',) ] == [ text['layer_1'][2] ]
 
 
 def test_layer_groupby_text():
     # Case 1
     text   = new_text( 5 )
-    groups = text.layer_1.groupby(['text'], return_type='spans')
+    groups = text['layer_1'].groupby(['text'], return_type='spans')
     assert groups.count == { ('Sada',): 1,
                              ('kaheksa',): 1,
                              ('kaks',): 1,
@@ -53,9 +53,9 @@ def test_layer_groupby_text():
                              ('Üheksa',): 1,
                              ('Üheksakümmend',): 1 }
     assert groups.groups[ ('neli',) ] == []
-    assert groups.groups[ ('viis',) ] == [ text.layer_1[7] ]
-    assert groups.groups[ ('sada',) ] == [ text.layer_1[9] ]
-    assert groups.groups[ ('kümme',) ] == [ text.layer_1[3], text.layer_1[12], text.layer_1[18] ]
+    assert groups.groups[ ('viis',) ] == [ text['layer_1'][7] ]
+    assert groups.groups[ ('sada',) ] == [ text['layer_1'][9] ]
+    assert groups.groups[ ('kümme',) ] == [ text['layer_1'][3], text['layer_1'][12], text['layer_1'][18] ]
 
     # Case 2:
     # Load Text or BaseText class (depending on the available packages)
@@ -96,9 +96,9 @@ def test_layer_groupby_text():
 def test_layer_groupby_enveloping_layer():
     # Get a grouping of spans
     text = new_text( 5 )
-    assert text.layer_4.enveloping == text.layer_0.name
+    assert text['layer_4'].enveloping == text['layer_0'].name
     grouped_spanlist_texts = []
-    for (env_layer_id, list_of_spans) in text.layer_0.groupby( text.layer_4 ):
+    for (env_layer_id, list_of_spans) in text['layer_0'].groupby( text['layer_4'] ):
         grouped_spanlist_texts.append( [sp.text for sp in list_of_spans] )
     assert grouped_spanlist_texts == [ \
        ['Sada', 'kakskümmend', 'kolm'],
@@ -109,11 +109,11 @@ def test_layer_groupby_enveloping_layer():
     ]
     # Get a grouping of spans' annotations
     grouped_annotations_1 = []
-    for (env_layer_id, list_of_annotations) in text.layer_0.groupby( text.layer_4, return_type='annotations' ):
+    for (env_layer_id, list_of_annotations) in text['layer_0'].groupby( text['layer_4'], return_type='annotations' ):
         grouped_annotations_1.append( [] )
         for ann in list_of_annotations:
             ann_dict = {}
-            for attr in text.layer_0.attributes:
+            for attr in text['layer_0'].attributes:
                 ann_dict[attr] = ann[attr]
             grouped_annotations_1[-1].append( ann_dict )
     assert grouped_annotations_1 == [ \

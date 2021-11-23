@@ -67,9 +67,9 @@ def test_tagger():
     Text = load_text_class()
     text = Text('Aias sadas saia.')
     combined_tagger.tag(text)
-    assert text.combined.to_records() == [{'start':  0, 'end':  5, 'attr_1': '1', 'attr_2': ''},
-                                          {'start':  6, 'end': 10, 'attr_1': '2', 'attr_2': ''},
-                                          ]
+    assert text['combined'].to_records() == [{'start':  0, 'end':  5, 'attr_1': '1', 'attr_2': ''},
+                                             {'start':  6, 'end': 10, 'attr_1': '2', 'attr_2': ''},
+                                            ]
 
 
 def test_add_tagger():
@@ -86,7 +86,7 @@ def test_add_tagger():
     Text = load_text_class()
     text = Text('Aias sadas saia.')
     combined_tagger.tag(text)
-    assert text.combined.to_records() == [{'start':  0, 'end':  5, 'attr_1': '1', 'attr_2': ''},
-                                          {'start':  6, 'end': 10, 'attr_1': '2', 'attr_2': ''},
-                                          {'start': 11, 'end': 15, 'attr_1': '3', 'attr_2': ''}
-                                          ]
+    assert text['combined'].to_records() == [{'start':  0, 'end':  5, 'attr_1': '1', 'attr_2': ''},
+                                             {'start':  6, 'end': 10, 'attr_1': '2', 'attr_2': ''},
+                                             {'start': 11, 'end': 15, 'attr_1': '3', 'attr_2': ''}
+                                            ]

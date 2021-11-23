@@ -33,7 +33,7 @@ def test_apply_filter():
     layer_1.add_annotation(ElementaryBaseSpan(12, 13), attr='L1-3', attr_1='F')
     text_3.add_layer(layer_1)
 
-    layer = text_3.layer_1
+    layer = text_3['layer_1']
 
     apply_filter(layer=layer,
                  function=filter_function,
@@ -59,36 +59,36 @@ def test_apply_filter():
 
 def test_drop_annotations():
     text = new_text(3)
-    drop_annotations(layer=text.layer_1,
+    drop_annotations(layer=text['layer_1'],
                      attribute='attr_1',
                      values={'A', 'D'}
                      )
     expected = AmbiguousAttributeTupleList([[['L1-0', 'B']], [['L1-1', 'C']], [['L1-2', 'E']], [['L1-3', 'F']]],
                                            ('attr', 'attr_1'))
-    assert text.layer_1['attr', 'attr_1'] == expected
+    assert text['layer_1']['attr', 'attr_1'] == expected
 
 
 def test_keep_annotations():
     # test attribute and values
     text = new_text(3)
-    keep_annotations(layer=text.layer_1,
+    keep_annotations(layer=text['layer_1'],
                      attribute='attr_1',
                      values={'B', 'C', 'E', 'F'}
                      )
     expected = AmbiguousAttributeTupleList([[['L1-0', 'B']], [['L1-1', 'C']], [['L1-2', 'E']], [['L1-3', 'F']]],
                                            ('attr', 'attr_1'))
-    assert text.layer_1['attr', 'attr_1'] == expected
+    assert text['layer_1']['attr', 'attr_1'] == expected
 
     # test preserve_spans=True
     text = new_text(3)
-    keep_annotations(layer=text.layer_1,
+    keep_annotations(layer=text['layer_1'],
                      attribute='attr_1',
                      values={},
                      preserve_spans=True,
                      )
     expected = AmbiguousAttributeTupleList([[['L1-0', 'A']], [['L1-1', 'C']], [['L1-2', 'D']], [['L1-3', 'F']]],
                                            ('attr', 'attr_1'))
-    assert text.layer_1['attr', 'attr_1'] == expected
+    assert text['layer_1']['attr', 'attr_1'] == expected
 
 
 def test_layer_count_by():

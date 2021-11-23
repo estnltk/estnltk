@@ -77,16 +77,16 @@ def test_general_access():
     assert t.text == example_text_str
 
     # Texts from layer 'words' (list of strings)
-    assert t.words.text == ['Ilm', 'on', 'ilus', '.', 'Päike', 'paistab', '.']
+    assert t['words'].text == ['Ilm', 'on', 'ilus', '.', 'Päike', 'paistab', '.']
     
     # Texts from layer 'sentences' (list of lists of strings)
-    assert [s.text for s in t.sentences] == [['Ilm', 'on', 'ilus', '.'], ['Päike', 'paistab', '.']]
+    assert [s.text for s in t['sentences']] == [['Ilm', 'on', 'ilus', '.'], ['Päike', 'paistab', '.']]
      
     # Raw text corresponding to the 1st element from layer 'sentences' (string)
-    assert t.sentences[0].enclosing_text == 'Ilm on ilus.'
+    assert t['sentences'][0].enclosing_text == 'Ilm on ilus.'
     
     # Raw texts of all sentences (list of strings)
-    assert [s.enclosing_text for s in t.sentences] == ['Ilm on ilus.', 'Päike paistab.']
+    assert [s.enclosing_text for s in t['sentences']] == ['Ilm on ilus.', 'Päike paistab.']
 
 from estnltk_core.converters import dict_to_layer, layer_to_dict
 
@@ -150,7 +150,7 @@ def test_adding_layer():
     assert 'uppercase' in t.layers
     
     # Example: populating the new layer with elements
-    for word in t.words:
+    for word in t['words']:
         dep.add_annotation(word, upper=word.text.upper(), reverse=word.text.upper()[::-1])
     
     # Validate the layer
@@ -178,8 +178,8 @@ def test_adding_layer():
     #pprint(layer_to_dict(t.uppercase))
     
     # Example: accessing new annotations (attribute values) through the parent layer ('words')
-    assert [word.uppercase.upper for word in t.words[:11]] == ['ILM', 'ON', 'ILUS', '.', 'PÄIKE', 'PAISTAB', '.']
-    assert [word.uppercase.reverse for word in t.words[:11]] == ['MLI', 'NO', 'SULI', '.', 'EKIÄP', 'BATSIAP', '.']
+    assert [word.uppercase.upper for word in t['words'][:11]] == ['ILM', 'ON', 'ILUS', '.', 'PÄIKE', 'PAISTAB', '.']
+    assert [word.uppercase.reverse for word in t['words'][:11]] == ['MLI', 'NO', 'SULI', '.', 'EKIÄP', 'BATSIAP', '.']
     
     # Validate a subset of Layer (which is also a Layer)
     expected_layer_subset_dict = \
@@ -201,7 +201,7 @@ def test_adding_layer():
                    {'base_span': (19, 26),
                     'annotations': [{'upper': 'PAISTAB', 'reverse': 'BATSIAP'}]},
                    {'base_span': (26, 27), 'annotations': [{'upper': '.', 'reverse': '.'}]}]}
-    assert t.uppercase[:11] == dict_to_layer( expected_layer_subset_dict )
+    assert t['uppercase'][:11] == dict_to_layer( expected_layer_subset_dict )
     
     #from pprint import pprint
-    #pprint(layer_to_dict(t.uppercase[:11]))
+    #pprint(layer_to_dict(t['uppercase'][:11]))

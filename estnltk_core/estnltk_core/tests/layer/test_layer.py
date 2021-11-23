@@ -197,7 +197,7 @@ def test_layer_indexing():
     assert layer['a'] != layer[['a']]
     assert len(layer[['a']]) == 8
 
-    atl = t.base['a', 'b']
+    atl = t['base']['a', 'b']
     t.pop_layer('base')
     assert atl == AttributeTupleList([[1, 11],
                                       [2, 12],
@@ -566,9 +566,9 @@ def test_check_layer_consistency():
 
 
 def test_count_values():
-    assert new_text(1).layer_5.count_values('attr') == {}
+    assert new_text(1)['layer_5'].count_values('attr') == {}
 
-    assert new_text(5).layer_0.count_values('attr_0') == {',': 1,
+    assert new_text(5)['layer_0'].count_values('attr_0') == {',': 1,
                                                           '10': 3,
                                                           '100': 2,
                                                           '1000': 2,
@@ -585,7 +585,7 @@ def test_count_values():
                                                           '9': 1,
                                                           '90': 1}
 
-    assert new_text(5).layer_1.count_values('attr_1') == {'KAHEKSA': 1,
+    assert new_text(5)['layer_1'].count_values('attr_1') == {'KAHEKSA': 1,
                                                           'KAKS': 2,
                                                           'KAKSKÜMMEND': 1,
                                                           'KOLM': 1,
@@ -604,7 +604,7 @@ def test_count_values():
 
 
 def test_groupby():
-    result = new_text(5).layer_1.groupby(['attr_1']).groups
+    result = new_text(5)['layer_1'].groupby(['attr_1']).groups
     for key in result:
         result[key] = [sp.text for sp in result[key]]
     assert result == {('KAHEKSA',): ['kaheksa'],
@@ -629,7 +629,7 @@ def test_groupby():
                       ('ÜHEKSA',): ['Üheksa', 'Üheksakümmend'],
                       ('ÜHEKSAKÜMMEND',): ['Üheksakümmend']}
 
-    result = new_text(5).layer_0.groupby(['attr', 'attr_0']).groups
+    result = new_text(5)['layer_0'].groupby(['attr', 'attr_0']).groups
     for key in result:
         result[key] = [sp.text for sp in result[key]]
     assert result == {('L0-0', '100'): ['Sada'],
@@ -653,7 +653,7 @@ def test_groupby():
                       ('L0-8', '500'): ['viissada'],
                       ('L0-9', '100'): ['sada']}
 
-    groups = new_text(5).layer_1.groupby(['attr'], return_type='annotations').groups
+    groups = new_text(5)['layer_1'].groupby(['attr'], return_type='annotations').groups
     result = {}
     for key in groups:
         result[key] = [sp.text for sp in groups[key]]
@@ -677,7 +677,7 @@ def test_groupby():
                       ('L1-8',): ['viissada', 'viissada', 'viissada'],
                       ('L1-9',): ['sada']}
 
-    result = new_text(5).layer_0.groupby(['attr', 'attr_0'], return_type='annotations').groups
+    result = new_text(5)['layer_0'].groupby(['attr', 'attr_0'], return_type='annotations').groups
     for key in result:
         result[key] = [sp.text for sp in result[key]]
     assert result == {('L0-0', '100'): ['Sada'],
