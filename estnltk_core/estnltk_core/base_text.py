@@ -179,8 +179,6 @@ class BaseText:
         if layer.enveloping:
             assert layer.enveloping in self._layers, "can't add an enveloping layer before adding the layer it envelops"
 
-        assert name not in self.__class__.methods, "can't add layer with name {!r}: the name overrides a method name".format(name)
-
         self._layers[name] = layer
 
     def pop_layer(self, name: str,  cascading: bool = True, default=Ellipsis) -> Union[Layer, Any]:
