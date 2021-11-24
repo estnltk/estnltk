@@ -209,10 +209,10 @@ def test_abnormal_attribute_access():
 
     # Test that attribute resolving does not introduce shadowing errors for slots
     text = Text('Poola zloti devalveerimine')
-    text.add_layer(Layer(name='innocent_bystander', attributes=['meta', '_text', '__dict__', '_shadowed_layers']))
+    text.add_layer(Layer(name='innocent_bystander', attributes=['meta', '_text', '_layers', '_shadowed_layers']))
     assert type(text.meta) == dict, "Attribute resolver cannot shadow slots"
     assert type(text.text) == str, "Attribute resolver cannot shadow slots"
-    assert type(text.__dict__) == dict, "Attribute resolver cannot shadow slots"
+    assert type(text._layers) == dict, "Attribute resolver cannot shadow slots"
     if Text().__class__.__name__ == 'Text':
         assert type(text._shadowed_layers) == dict, "Attribute resolver cannot shadow slots"
 
@@ -276,11 +276,11 @@ def test_access_of_shadowed_layers():
                              'attribute_mapping_for_enveloping_layers', \
                              'methods' ]
     if Text().__class__.__name__ == 'BaseText':
-        slots = ['text', 'meta', '__dict__', '_layers']
+        slots = ['text', 'meta', '_layers']
         all_slots = slots # incl parent slots
     else:
         slots = ['_shadowed_layers']
-        all_slots = ['text', 'meta', '__dict__', '_layers', '_shadowed_layers']  # incl parent slots
+        all_slots = ['text', 'meta', '_layers', '_shadowed_layers']  # incl parent slots
     shadowed_layers = properties + public_methods + protected_methods + public_variables + all_slots
 
     # Check that lists are correct
