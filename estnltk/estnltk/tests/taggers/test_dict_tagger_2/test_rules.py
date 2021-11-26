@@ -1,8 +1,8 @@
 from estnltk import Layer
 from estnltk import Text
 
-from estnltk.taggers.dict_tagger_2 import StaticExtractionRule
-from estnltk.taggers.dict_tagger_2 import DynamicExtractionRule
+from estnltk.taggers.system.dict_tagger_2 import StaticExtractionRule
+from estnltk.taggers.system.dict_tagger_2 import DynamicExtractionRule
 
 
 def test_static_extraction_rules():

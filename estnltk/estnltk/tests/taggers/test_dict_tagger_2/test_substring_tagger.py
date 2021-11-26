@@ -1,7 +1,7 @@
-from estnltk.taggers.dict_tagger_2 import Ruleset
-from estnltk.taggers.dict_tagger_2 import StaticExtractionRule
-from estnltk.taggers.dict_tagger_2 import DynamicExtractionRule
-from estnltk.taggers.dict_tagger_2 import SubstringTagger
+from estnltk.taggers.system.dict_tagger_2 import Ruleset
+from estnltk.taggers.system.dict_tagger_2 import StaticExtractionRule
+from estnltk.taggers.system.dict_tagger_2 import DynamicExtractionRule
+from estnltk.taggers.system.dict_tagger_2 import SubstringTagger
 
 from estnltk import Text, Layer, Span
 

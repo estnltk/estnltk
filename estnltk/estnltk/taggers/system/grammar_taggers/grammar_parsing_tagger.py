@@ -1,7 +1,7 @@
 from estnltk.taggers import Tagger
 from estnltk import Layer
-from estnltk.taggers.grammar_taggers.finite_grammar.layer_graph import GrammarNode, layer_to_graph, get_spans
-from estnltk.taggers.grammar_taggers.finite_grammar import parse_graph
+from estnltk.taggers.system.grammar_taggers.finite_grammar.layer_graph import GrammarNode, layer_to_graph, get_spans
+from estnltk.taggers.system.grammar_taggers.finite_grammar import parse_graph
 
 from estnltk_core.layer_operations import resolve_conflicts
 

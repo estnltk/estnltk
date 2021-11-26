@@ -3,22 +3,22 @@ from estnltk_core.taggers.retagger import Retagger
 from estnltk_core.taggers.annotation_rewriter import AnnotationRewriter
 from estnltk_core.taggers.span_annotations_rewriter import SpanAnnotationsRewriter
 
-from estnltk.taggers.system_taggers.atomizer import Atomizer
-from estnltk.taggers.system_taggers.attribute_comparison_tagger import AttributeComparisonTagger
-from estnltk.taggers.system_taggers.disambiguating_tagger import DisambiguatingTagger
-from estnltk.taggers.system_taggers.enveloping_gap_tagger import EnvelopingGapTagger
-from estnltk.taggers.system_taggers.flatten_tagger import FlattenTagger
-from estnltk.taggers.system_taggers.gap_tagger import GapTagger
-from estnltk.taggers.system_taggers.layer_merge_tagger import MergeTagger
-from estnltk.taggers.system_taggers.diff_tagger import DiffTagger
-from estnltk.taggers.system_taggers.text_segments_tagger import TextSegmentsTagger
+from estnltk.taggers.system.atomizer import Atomizer
+from estnltk.taggers.system.attribute_comparison_tagger import AttributeComparisonTagger
+from estnltk.taggers.system.disambiguating_tagger import DisambiguatingTagger
+from estnltk.taggers.system.enveloping_gap_tagger import EnvelopingGapTagger
+from estnltk.taggers.system.flatten_tagger import FlattenTagger
+from estnltk.taggers.system.gap_tagger import GapTagger
+from estnltk.taggers.system.layer_merge_tagger import MergeTagger
+from estnltk.taggers.system.diff_tagger import DiffTagger
+from estnltk.taggers.system.text_segments_tagger import TextSegmentsTagger
 
-from estnltk.taggers.dict_taggers.vocabulary import Vocabulary
-from estnltk.taggers.dict_taggers.phrase_tagger import PhraseTagger
-from estnltk.taggers.dict_taggers.regex_tagger import RegexTagger
-from estnltk.taggers.dict_taggers.span_tagger import SpanTagger
+from estnltk.taggers.system.dict_taggers.vocabulary import Vocabulary
+from estnltk.taggers.system.dict_taggers.phrase_tagger import PhraseTagger
+from estnltk.taggers.system.dict_taggers.regex_tagger import RegexTagger
+from estnltk.taggers.system.dict_taggers.span_tagger import SpanTagger
 
-from estnltk.taggers.grammar_taggers.grammar_parsing_tagger import GrammarParsingTagger
+from estnltk.taggers.system.grammar_taggers.grammar_parsing_tagger import GrammarParsingTagger
 
 from estnltk.taggers.standard.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.standard.text_segmentation.token_splitter import TokenSplitter

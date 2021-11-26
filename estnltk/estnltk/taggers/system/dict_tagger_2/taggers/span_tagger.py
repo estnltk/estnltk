@@ -1,7 +1,7 @@
 from typing import Sequence, Union
 
 from estnltk.taggers import Tagger, Vocabulary
-from estnltk.taggers.dict_tagger_2 import Ruleset
+from estnltk.taggers.system.dict_tagger_2 import Ruleset
 from estnltk import Span
 from estnltk import Layer
 from estnltk import Annotation

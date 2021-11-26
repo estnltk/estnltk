@@ -5,7 +5,7 @@ from estnltk import Annotation, EnvelopingBaseSpan
 from estnltk import EnvelopingSpan
 from estnltk import Layer
 from estnltk.taggers import Tagger
-from estnltk.taggers.dict_tagger_2 import Ruleset
+from estnltk.taggers.system.dict_tagger_2 import Ruleset
 from estnltk_core.layer_operations import resolve_conflicts
 
 
@@ -137,8 +137,9 @@ class PhraseTagger(Tagger):
                             base_span = EnvelopingBaseSpan(s.base_span
                                                            for s in input_layer[i:i + len(tail) + 1])
                             span = EnvelopingSpan(base_span=base_span, layer=layer)
+                            print(self.vocabulary.static_rules)
                             record = [rule.attributes for rule in self.vocabulary.static_rules if rule.pattern==phrase]
-                            annotation = Annotation(span, **{attr: record[attr]
+                            annotation = Annotation(span, **{attr: record[0][attr]
                                                              for attr in output_attributes})
                             is_valid =  self.decorator(span, annotation)
                             assert isinstance(is_valid, bool), is_valid

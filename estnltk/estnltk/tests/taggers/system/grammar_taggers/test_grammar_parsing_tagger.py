@@ -2,7 +2,7 @@ import pytest
 
 from estnltk import Text, Layer
 from estnltk.taggers import GrammarParsingTagger
-from estnltk.taggers.grammar_taggers.finite_grammar import Grammar
+from estnltk.taggers.system.grammar_taggers.finite_grammar import Grammar
 
 
 def test_raises_error():

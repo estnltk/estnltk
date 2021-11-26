@@ -1,6 +1,6 @@
-from estnltk.taggers.dict_tagger_2 import Ruleset
+from estnltk.taggers.system.dict_tagger_2 import Ruleset
 import pytest
-from estnltk.taggers.dict_tagger_2.extraction_rules.static_extraction_rule import StaticExtractionRule
+from estnltk.taggers.system.dict_tagger_2.extraction_rules.static_extraction_rule import StaticExtractionRule
 
 @pytest.mark.skip(reason="data file is missing")
 def test_parse_rules():

@@ -1,6 +1,6 @@
 import pytest
-from estnltk.taggers.grammar_taggers.finite_grammar import Rule, Grammar
-from estnltk.taggers.grammar_taggers.finite_grammar import match_SEQ_pattern
+from estnltk.taggers.system.grammar_taggers.finite_grammar import Rule, Grammar
+from estnltk.taggers.system.grammar_taggers.finite_grammar import match_SEQ_pattern
 
 
 def test_match_SEQ_pattern():
