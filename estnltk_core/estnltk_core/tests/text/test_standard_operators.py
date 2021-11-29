@@ -1035,3 +1035,25 @@ def test_equal():
     assert t_1 == t_2
     t_1['layer_5'][1].annotations[1].attr_5 = 'bla'
     assert t_1 != t_2
+
+
+
+def test_text_repr_and_str( capsys ):
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    text = Text('Suflee kolmele')
+    if Text().__class__.__name__ == 'BaseText':
+        assert str(text)  == "BaseText(text={!r})".format( text.text )
+        assert repr(text) == "BaseText(text={!r})".format( text.text )
+        print( text )
+        captured = capsys.readouterr()
+        assert captured.out == "BaseText(text={!r})\n".format( text.text )
+    else:
+        assert str(text)  == "Text(text={!r})".format( text.text )
+        assert repr(text) == "Text(text={!r})".format( text.text )
+        print( text )
+        captured = capsys.readouterr()
+        assert captured.out == "Text(text={!r})\n".format( text.text )
+    
+    

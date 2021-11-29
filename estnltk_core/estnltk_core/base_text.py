@@ -117,7 +117,7 @@ class BaseText:
     def __eq__(self, other):
         return self.diff(other) is None
 
-    def __str__(self):
+    def __repr__(self):
         if self.text is None:
             return '{}()'.format( self.__class__.__name__ )
         text_string = self.text
@@ -126,9 +126,6 @@ class BaseText:
                                                                         len(text) - 9000,
                                                                         text_string[-1000:])
         return '{classname}(text={text_string!r})'.format(classname=self.__class__.__name__, text_string=text_string)
-
-    def __repr__(self):
-        return str(self)
 
     @property
     def layers(self) -> Set[str]:
