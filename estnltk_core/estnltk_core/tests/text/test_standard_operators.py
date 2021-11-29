@@ -308,6 +308,15 @@ def test_abnormal_attribute_access():
     assert type(text.text) == str, "Attribute resolver cannot shadow slots"
     assert type(text._layers) == dict, "Attribute resolver cannot shadow slots"
 
+    if Text().__class__.__name__ == 'BaseText':
+        text = Text('Suflee kahele')
+        text.add_layer(Layer(name='new_layer'))
+        # BaseText supports accessing layers via brackets
+        _ = text['new_layer']
+        # BaseText does not support accessing layers as attributes
+        with pytest.raises(AttributeError):
+            _ = text.new_layer
+
 
 def test_normal_layer_access():
     # Load Text or BaseText class (depending on the available packages)
