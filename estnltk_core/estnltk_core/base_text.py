@@ -109,7 +109,7 @@ class BaseText:
             raise KeyError("'{}' object has no layer {!r}".format( self.__class__.__name__, item ))
 
     def __delattr__(self, item):
-        raise TypeError("'{}' object does not support attribute deletion, use pop_layer(...) function instead".format( self.__class__.__name__ ))
+        raise TypeError("'{}' object does not support attribute deletion".format( self.__class__.__name__ ))
 
     def __delitem__(self, key):
         raise TypeError("'{}' object does not support item deletion, use pop_layer(...) function instead".format( self.__class__.__name__ ))

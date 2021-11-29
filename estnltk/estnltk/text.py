@@ -56,6 +56,9 @@ class Text( BaseText ):
 
     attribute_mapping_for_enveloping_layers = attribute_mapping_for_elementary_layers
 
+    def __delattr__(self, item):
+        raise TypeError("'{}' object does not support attribute deletion, use pop_layer(...) function instead".format( self.__class__.__name__ ))
+
     def __getattr__(self, item):
         # Resolve slots
         if item in self.__class__.__slots__:
