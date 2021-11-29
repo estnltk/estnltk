@@ -171,7 +171,7 @@ def test_copy_and_deepcopy_reference_equality():
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
 
-    # 1) check copying text w layers
+    # 1) check copying text w simple layers
     text = Text("Lihtsate kihtidega teksti kopeerimine")
     text.meta = {'a': 55, 'b': 53}
     text.add_layer(Layer('empty_layer', attributes=[]))
@@ -208,10 +208,9 @@ def test_copy_and_deepcopy_reference_equality():
     text['enveloping_layer'].add_annotation( env_span, c=9 )
     
     s_copy = copy(text)
-    layer = 'enveloping_layer'
-    assert s_copy[layer].text_object is s_copy
-    assert s_copy[layer].enveloping == 'nonempty_layer'
-    for env_span in s_copy[layer]:
+    assert s_copy['enveloping_layer'].text_object is s_copy
+    assert s_copy['enveloping_layer'].enveloping == 'nonempty_layer'
+    for env_span in s_copy['enveloping_layer']:
         # Spans still point to the original text obj
         assert env_span.text_object is text
         assert env_span.text_object is not s_copy
@@ -219,15 +218,52 @@ def test_copy_and_deepcopy_reference_equality():
             assert span is text['nonempty_layer'][sid]
     
     d_copy = deepcopy(text)
-    layer = 'enveloping_layer'
-    assert d_copy[layer].text_object is d_copy
-    assert d_copy[layer].enveloping == 'nonempty_layer'
-    for env_span in d_copy[layer]:
+    assert d_copy['enveloping_layer'].text_object is d_copy
+    assert d_copy['enveloping_layer'].enveloping == 'nonempty_layer'
+    for env_span in d_copy['enveloping_layer']:
         # Spans point to the new text obj
         assert env_span.text_object is not text
         assert env_span.text_object is d_copy
         for sid, span in enumerate(env_span.spans):
             assert span is d_copy['nonempty_layer'][sid]
+
+    # 3) check copying text w parent layers
+    text.add_layer(Layer('child_layer_1', attributes=['d'], parent='nonempty_layer'))
+    text.add_layer(Layer('child_layer_2', attributes=['e'], parent='child_layer_1'))
+    text['child_layer_1'].add_annotation( text['nonempty_layer'][0].base_span, d=10 )
+    text['child_layer_1'].add_annotation( text['nonempty_layer'][1].base_span, d=12 )
+    text['child_layer_2'].add_annotation( text['child_layer_1'][0].base_span, e=20 )
+    text['child_layer_2'].add_annotation( text['child_layer_1'][1].base_span, e=22 )
+    
+    s_copy = copy(text)
+    assert s_copy['child_layer_1'].text_object is s_copy
+    assert s_copy['child_layer_2'].text_object is s_copy
+    # Check that spans still point to the original text obj
+    for sid, child_span in enumerate( s_copy['child_layer_1'] ):
+        assert child_span.text_object is text
+        assert child_span.text_object is not s_copy
+        assert child_span is text['child_layer_1'][sid]
+        assert child_span.parent is text['nonempty_layer'][sid]
+    for sid, child_span in enumerate( s_copy['child_layer_2'] ):
+        assert child_span.text_object is text
+        assert child_span.text_object is not s_copy
+        assert child_span is text['child_layer_2'][sid]
+        assert child_span.parent is text['child_layer_1'][sid]
+
+    d_copy = deepcopy(text)
+    assert d_copy['child_layer_1'].text_object is d_copy
+    assert d_copy['child_layer_2'].text_object is d_copy
+    # Check that spans point to the new text obj
+    for sid, child_span in enumerate( d_copy['child_layer_1'] ):
+        assert child_span.text_object is not text
+        assert child_span.text_object is d_copy
+        assert child_span is d_copy['child_layer_1'][sid]
+        assert child_span.parent is d_copy['nonempty_layer'][sid]
+    for sid, child_span in enumerate( d_copy['child_layer_2'] ):
+        assert child_span.text_object is not text
+        assert child_span.text_object is d_copy
+        assert child_span is d_copy['child_layer_2'][sid]
+        assert child_span.parent is d_copy['child_layer_1'][sid]
 
 
 def test_attribute_assignment():

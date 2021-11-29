@@ -55,7 +55,6 @@ class BaseText:
         memo[id(text)] = text
         result.meta = deepcopy(self.meta, memo)
         # Layers must be created in the topological order
-        # TODO: test this in tests
         for original_layer in self.list_layers():
             layer = deepcopy(original_layer, memo)
             layer.text_object = None
