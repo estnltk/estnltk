@@ -1,6 +1,5 @@
 import html
 import pandas
-import networkx as nx
 
 from copy import copy, deepcopy
 from collections import defaultdict
@@ -203,21 +202,9 @@ class BaseText:
         if not cascading:
             return self._layers.pop(name, None)
 
-        # Find all dependencies between layers. The implementations is complete overkill.
-        # However, further optimisation is not worth the time.
-        relations = set()
-        for layer_name, layer in self._layers.items():
-            relations.update((b, a) for a, b in [
-                (layer_name, layer.parent),
-                (layer_name, layer.enveloping)] if b is not None and a != b
-                             )
-
-        g = nx.DiGraph()
-        g.add_edges_from(relations)
-        g.add_nodes_from(self._layers.keys())
-
-        to_delete = nx.descendants(g, name)
-
+        # TODO: Layer.ancestor_layers() actually returns descendants, the name is misleading
+        to_delete = self._layers[name].ancestor_layers()
+        
         result = self._layers.pop(name, None)
         for name in to_delete:
             self._layers.pop(name, None)
