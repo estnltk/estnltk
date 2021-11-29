@@ -40,10 +40,11 @@ class BaseText:
     def __copy__(self):
         result = self.__class__( self.text )
         result.meta = self.meta
-        for layer_name in self.layers:
-            layer = copy(self[layer_name])
-            layer.text_object = None
-            result.add_layer(layer)
+        # Layers must be created in the topological order
+        for layer in self.list_layers():
+            copied_layer = copy(layer)
+            copied_layer.text_object = None
+            result.add_layer(copied_layer)
         return result
 
     def __deepcopy__(self, memo={}):
@@ -57,6 +58,7 @@ class BaseText:
         # TODO: test this in tests
         for original_layer in self.list_layers():
             layer = deepcopy(original_layer, memo)
+            layer.text_object = None
             memo[id(layer)] = layer
             result.add_layer(layer)
         return result
