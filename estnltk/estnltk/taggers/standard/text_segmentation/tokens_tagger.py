@@ -18,8 +18,8 @@ tokenizer = WordPunctTokenizer()
 
 class TokensTagger(Tagger):
     """Tags tokens in raw text."""
-    output_layer = 'tokens'
-    attributes   = ()
+    output_layer      = 'tokens'
+    output_attributes = ()
     conf_param   = ['apply_punct_postfixes',
                     '_punct_split_patterns',
                     '_punct_no_split_patterns']

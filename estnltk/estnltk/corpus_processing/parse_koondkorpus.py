@@ -588,7 +588,7 @@ def _reconstruct_enveloping_tokenization_layers( text_object, \
        # Create tokens layer from the token records
        orig_tokens = \
            Layer(name=layer_name_prefix+TokensTagger.output_layer, \
-                 attributes=TokensTagger.attributes, \
+                 attributes=TokensTagger.output_attributes, \
                  text_object=text_object,\
                  ambiguous=False).from_records(token_locations)
        # Create compound tokens layer

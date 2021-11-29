@@ -15,9 +15,9 @@ from estnltk.taggers import Retagger
 
 class TokenSplitter( Retagger ):
     """Splits tokens into smaller tokens based on regular expression patterns."""
-    output_layer = 'tokens'
-    input_layers = ['tokens']
-    attributes   = ()
+    output_layer      = 'tokens'
+    input_layers      = ['tokens']
+    output_attributes = ()
     conf_param = ['patterns', 'break_group_name']
 
     def __init__(self, 

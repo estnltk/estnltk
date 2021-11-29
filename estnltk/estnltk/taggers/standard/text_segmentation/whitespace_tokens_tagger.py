@@ -22,8 +22,8 @@ class WhiteSpaceTokensTagger(Tagger):
        Use this tagger only if you have a text that has been already 
        correctly tokenized by whitespaces, and you do not need to apply 
        any extra tokenization rules. """
-    attributes   = ()
-    conf_param   = ()
+    output_attributes = ()
+    conf_param        = ()
 
     def __init__(self, output_layer: str = 'tokens'):
         """
