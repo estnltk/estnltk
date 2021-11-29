@@ -137,11 +137,9 @@ class BaseText:
     @property
     def attributes(self) -> DefaultDict[str, List[str]]:
         """
-        Returns all attributes together with layer names hosting them.
+        Returns a mapping from all attributes to layer names hosting them.
 
-        # TODO: Reduce defaultdict to dict
-        # TODO: Rename to layer_attributes
-        # TODO: remove infinite recursion
+        # TODO: Rename to layer_attributes, or attribute_to_layers_map
         """
         result = defaultdict(list)
 
@@ -154,9 +152,18 @@ class BaseText:
 
     def add_layer(self, layer: Layer):
         """
-        Adds a layer to the text object
-
-        # TODO: write down what layer must satisfy
+        Adds a layer to the text object.
+        
+        An addable layer must satisfy the following conditions:
+        * layer.name is unique among names of existing layers of this 
+          Text object;
+        * layer.text_object is either None or points to this Text object;
+          if layer has already been associated with another Text object, 
+          throws an AssertionError;
+        * if the layer has parent, then its parent layer must already exist 
+          among the layers of this Text object;
+        * if the layer is enveloping, then the layer it envelops must already 
+          exist among the layers of this Text object;
         """
         assert isinstance(layer, Layer), 'Layer expected, got {!r}'.format(type(layer))
 
