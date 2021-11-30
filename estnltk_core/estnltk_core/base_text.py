@@ -7,7 +7,7 @@ from typing import List, Sequence, Set, Union, Any, Mapping
 from typing import DefaultDict
 
 from estnltk_core.layer.layer import Layer
-
+from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
 
 class BaseText:
     # All methods for BaseText/Text object
@@ -202,7 +202,8 @@ class BaseText:
         if not cascading:
             return self._layers.pop(name, None)
 
-        to_delete = self._layers[name].descendant_layers()
+        # Find layer's descendant layers
+        to_delete = sorted(find_layer_dependencies(self, name, reverse=True))
         
         result = self._layers.pop(name, None)
         for name in to_delete:
