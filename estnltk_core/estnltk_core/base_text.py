@@ -202,8 +202,7 @@ class BaseText:
         if not cascading:
             return self._layers.pop(name, None)
 
-        # TODO: Layer.ancestor_layers() actually returns descendants, the name is misleading
-        to_delete = self._layers[name].ancestor_layers()
+        to_delete = self._layers[name].descendant_layers()
         
         result = self._layers.pop(name, None)
         for name in to_delete:

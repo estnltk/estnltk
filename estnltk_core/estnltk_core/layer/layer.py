@@ -147,33 +147,17 @@ class Layer:
         return self.text_object.text[self.start:self.end]
 
     def ancestor_layers(self):
-        text = self.text_object
-        layers = self.text_object.layers
-        map_ancestors = collections.defaultdict(set)
-        for layer_name in layers:
-            layer = text[layer_name]
-            if layer.parent is not None:
-                map_ancestors[layer.parent].add(layer_name)
-            if layer.enveloping is not None:
-                map_ancestors[layer.enveloping].add(layer_name)
-
-        def yield_ancestors(name):
-            for ancestor in map_ancestors.get(name, []):
-                yield ancestor
-                yield from yield_ancestors(ancestor)
-
-        return sorted(yield_ancestors(self.name))
+        if self.text_object is None:
+            raise Exception('(!) Cannot find ancestor layers: the layer is detached from Text object.')
+        from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
+        ancestors = find_layer_dependencies(self.text_object, self.name, reverse=False)
+        return sorted(ancestors)
 
     def descendant_layers(self):
-        descendants = set()
-        if self.parent is not None:
-            descendant = self.text_object[self.parent]
-            descendants.add(descendant.name)
-            descendants.update(descendant.descendant_layers())
-        if self.enveloping is not None:
-            descendant = self.text_object[self.enveloping]
-            descendants.add(descendant.name)
-            descendants.update(descendant.descendant_layers())
+        if self.text_object is None:
+            raise Exception('(!) Cannot find descendant layers: the layer is detached from Text object.')
+        from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
+        descendants = find_layer_dependencies(self.text_object, self.name, reverse=True)
         return sorted(descendants)
 
     def from_records(self, records, rewriting=False) -> 'Layer':

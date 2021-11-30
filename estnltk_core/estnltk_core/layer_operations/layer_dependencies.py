@@ -1,9 +1,9 @@
 import networkx as nx
 
-def find_layer_dependencies(text:'Text', layer:'Layer', include_enveloping:bool =True, 
-                                                        include_parents:bool =True, 
-                                                        reverse:bool= False,
-                                                        add_bidirectional_parents:bool=False):
+def find_layer_dependencies(text:'Text', layer:str, include_enveloping:bool =True, 
+                                                       include_parents:bool =True, 
+                                                       reverse:bool= False,
+                                                       add_bidirectional_parents:bool=False):
     '''Finds all layers that the given layer depends on. 
        Returns set of dependency layer names. 
        If include_enveloping=True (default), then finds dependency layers over 
