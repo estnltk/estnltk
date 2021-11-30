@@ -22,6 +22,19 @@ class Text( BaseText ):
         'topological_sort',
     } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
+    # presorted_layers used in for visualization purposes (BaseText._repr_html_)
+    # presorted_layers: Tuple[str, ...]
+    presorted_layers = (
+        'paragraphs',
+        'sentences',
+        'tokens',
+        'compound_tokens',
+        'normalized_words',
+        'words',
+        'morph_analysis',
+        'morph_extended'
+    )
+
     def tag_layer(self, layer_names: Union[str, Sequence[str]]=None, resolver=None) -> 'Text':
         from estnltk.default_resolver import DEFAULT_RESOLVER
         if resolver is None:

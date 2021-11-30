@@ -278,24 +278,17 @@ class BaseText:
             table_meta = table_meta.to_html(header=False, index=False)
             table = '\n'.join((table, '<h4>Metadata</h4>', table_meta))
         if self._layers:
-            # create a list of layers preserving the order of registered layers
-            # can be optimized
             layers = []
-            presort = (
-                'paragraphs',
-                'sentences',
-                'tokens',
-                'compound_tokens',
-                'normalized_words',
-                'words',
-                'morph_analysis',
-                'morph_extended')
-            for layer_name in presort:
+            # Try to fetch presorted layers (only available in Text)
+            presorted_layers = getattr(self, 'presorted_layers', ())
+            for layer_name in presorted_layers:
+                assert isinstance(layer_name, str)
                 layer = self._layers.get(layer_name)
                 if layer is not None:
                     layers.append(layer)
-            for layer_name in sorted(self._layers):
-                if layer_name not in presort:
+            # Assuming self._layers is always ordered (requires Python 3.7+)
+            for layer_name in self._layers:
+                if layer_name not in presorted_layers:
                     layers.append(self._layers[layer_name])
 
             layer_table = pandas.DataFrame()
