@@ -20,7 +20,7 @@ class BaseText:
         'pop_layer',
         'diff',
         'layers',
-        'list_layers',
+        'sorted_layers',
         'tag_layer',
         'topological_sort',
     } | {method for method in dir(object) if callable(getattr(object, method, None))}
@@ -40,7 +40,7 @@ class BaseText:
         result = self.__class__( self.text )
         result.meta = self.meta
         # Layers must be created in the topological order
-        for layer in self.list_layers():
+        for layer in self.sorted_layers():
             copied_layer = copy(layer)
             copied_layer.text_object = None
             result.add_layer(copied_layer)
@@ -54,7 +54,7 @@ class BaseText:
         memo[id(text)] = text
         result.meta = deepcopy(self.meta, memo)
         # Layers must be created in the topological order
-        for original_layer in self.list_layers():
+        for original_layer in self.sorted_layers():
             layer = deepcopy(original_layer, memo)
             layer.text_object = None
             memo[id(layer)] = layer
@@ -63,7 +63,7 @@ class BaseText:
 
     def __getstate__(self):
         # No copying is allowed or we cannot properly restore text object with recursive references.
-        return dict(text=self.text, meta=self.meta, layers=[layer for layer in self.list_layers()])
+        return dict(text=self.text, meta=self.meta, layers=[layer for layer in self.sorted_layers()])
 
     def __setstate__(self, state):
         # Initialisation is not guaranteed! Bypass the text protection mechanism
@@ -138,7 +138,7 @@ class BaseText:
         """
         Returns a mapping from all attributes to layer names hosting them.
 
-        # TODO: Rename to layer_attributes, or attribute_to_layers_map
+        # TODO: Rename to layer_attributes or attribute_to_layers_mapping
         """
         result = defaultdict(list)
 
@@ -215,11 +215,6 @@ class BaseText:
         raise NotImplementedError('(!) The NLP pipeline is not available in estnltk-core. Please use the full EstNLTK package for the pipeline.')
 
     def analyse(self, t: str, resolver=None) -> 'Text':
-        """
-        Analyses text by adding standard NLP layers. Analysis level specifies what layers must be present.
-
-        # TODO: Complete documentation by explicitly stating what levels are present for which level
-        """
         raise NotImplementedError('(!) The NLP pipeline is not available in estnltk-core. Please use the full EstNLTK package for the pipeline.')
 
     @staticmethod
@@ -244,7 +239,7 @@ class BaseText:
                     break
         return sorted_layers
 
-    def list_layers(self) -> List[Layer]:
+    def sorted_layers(self) -> List[Layer]:
         """
         Returns a list of all layers of this text object in order of dependencies and layer names.
         The order is uniquely determined.

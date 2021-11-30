@@ -57,7 +57,7 @@ def extract_discontinuous_sections(text: Union['Text', 'BaseText'],
         new_text = create_text_object( text_str )
         # Construct Layers
         map_spans = {}
-        for layer in text.list_layers():
+        for layer in text.sorted_layers():
             layer_name = layer.name
             if layers_to_keep is not None:
                 if layer_name not in layers_to_keep:

@@ -16,6 +16,6 @@ def text_to_dict(text: Union['BaseText', 'Text']) -> dict:
     text_dict = {'text': text.text,
                  'meta': text.meta,
                  'layers': []}
-    for layer in text.list_layers():
+    for layer in text.sorted_layers():
         text_dict['layers'].append(layer_dict_converter.layer_to_dict(layer))
     return text_dict

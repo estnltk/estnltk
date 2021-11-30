@@ -44,7 +44,7 @@ def extract_sections(text: Union['Text', 'BaseText'],
     for start, end in sections:
         map_spans = {}
         new_text = create_text_object( text.text[start:end] )
-        for layer in text.list_layers():
+        for layer in text.sorted_layers():
             layer_name = layer.name
             if layers_to_keep is not None:
                 if layer_name not in layers_to_keep:

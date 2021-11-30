@@ -404,7 +404,7 @@ def test_access_of_shadowed_layers():
     # List of all attributes that can be potentially shadowed
     properties = ['attributes', 'layers']
     private_methods = {method for method in dir(object) if callable(getattr(object, method, None))}
-    public_methods = ['add_layer', 'analyse', 'diff', 'list_layers', 'pop_layer', 'tag_layer', 'topological_sort']
+    public_methods = ['add_layer', 'analyse', 'diff', 'pop_layer', 'sorted_layers', 'tag_layer', 'topological_sort']
     protected_methods = ['_repr_html_']
     if Text().__class__.__name__ == 'BaseText':
         public_variables = [ 'methods' ]
