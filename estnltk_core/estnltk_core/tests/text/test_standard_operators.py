@@ -1040,6 +1040,79 @@ def test_equal():
 
 
 
+def test_text_diff():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    # case 1: simple texts with layers and metadata
+    text1 = Text('Tshempionite eine kahele')
+    text1.meta['author'] = 'K. Vonnegut'
+    text1.add_layer( Layer('notes', attributes=('remark',) ) )
+    text1['notes'].add_annotation( (0, 17), remark='this is title' )
+    # check identity
+    assert text1.diff( text1 ) == None
+    # check uncomparable type
+    assert text1.diff('some string') == 'Not a {} object.'.format( Text().__class__.__name__ )
+    # check different raw text
+    assert text1.diff( Text('Tshempionite hommikusöök') ) == 'The raw text is different.'
+    # check different layer names
+    text2 = Text('Tshempionite eine kahele')
+    text2.meta['author'] = 'K. Vonnegut'
+    text2.add_layer( Layer('remarks', attributes=('note',) ) )
+    assert text1.diff( text2 ) == 'Different layer names: {} != {}'.format(set(text1.layers), set(text2.layers))
+    # check different metadata
+    text3 = Text('Tshempionite eine kahele')
+    text3.meta['author'] = 'K. Vonnegut'
+    text3.meta['publishing_date'] = 1973
+    text3.add_layer( Layer('notes', attributes=('remark',) ) )
+    text3['notes'].add_annotation( (0, 17), remark='this is title' )
+    assert text1.diff( text3 ) == 'Different metadata.'
+    # check difference inside a layer
+    del text3.meta['publishing_date']
+    text3['notes'].add_annotation( (0, 12), remark="title's first word" )
+    assert text1.diff( text3 ) == '{} layer spans differ'.format('notes')
+    text4 = Text('Tshempionite eine kahele')
+    text4.meta['author'] = 'K. Vonnegut'
+    text4.add_layer( Layer('notes', attributes=('remark',) ) )
+    text4['notes'].add_annotation( (0, 17), remark='this may be a title' )
+    assert text1.diff( text4 ) == '{} layer spans differ'.format('notes')
+    
+    # case 2: simple texts with shadowed layers
+    text1 = Text('Tshempionite eine kahele')
+    text1.add_layer( Layer('words') )
+    text1.add_layer( Layer('diff') )
+    text1.add_layer( Layer('tag_layer') )
+    text2 = Text('Tshempionite eine kahele')
+    text2.add_layer( Layer('words') )
+    text2.add_layer( Layer('sorted_layers') )
+    text2.add_layer( Layer('layers') )
+    assert text1.diff(text2) == 'Different layer names: {} != {}'.format(set(text1.layers), set(text2.layers))
+
+
+@pytest.mark.skip(reason='currently throws a RecursionError, needs fixing')
+def test_text_diff_recursion_problems():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    # case 1: texts with recursive metadata
+    text1 = Text('Tshempionite eine kahele')
+    text1.meta['text'] = text1
+    text2 = Text('Tshempionite eine kahele')
+    text2.meta['text'] = text2
+    # throws RecursionError: maximum recursion depth exceeded
+    assert text1.diff( text2 ) == 'Different metadata.'
+
+    # case 2: texts with recursive annotation data
+    text1 = Text('Tshempionite eine kolmele')
+    text1.add_layer(Layer('rec_layer', attributes=['text', 'layer']))
+    text1['rec_layer'].add_annotation(ElementaryBaseSpan(0, 12), text=text1, layer=text1['rec_layer'])
+    text2 = Text('Tshempionite eine kolmele')    
+    text2.add_layer(Layer('rec_layer', attributes=['text', 'layer']))
+    text2['rec_layer'].add_annotation(ElementaryBaseSpan(0, 12), text=text2, layer=text2['rec_layer'])
+    # throws RecursionError: maximum recursion depth exceeded while calling a Python object
+    assert text1.diff( text2 ) == '{} layer annotations differ'.format('rec_layer')
+
+
 def test_text_repr_and_str( capsys ):
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()

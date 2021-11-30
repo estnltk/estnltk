@@ -22,7 +22,7 @@ class Text( BaseText ):
         'topological_sort',
     } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
-    # presorted_layers used in for visualization purposes (BaseText._repr_html_)
+    # presorted layers used for visualization purposes (BaseText._repr_html_)
     # presorted_layers: Tuple[str, ...]
     presorted_layers = (
         'paragraphs',

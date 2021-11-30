@@ -235,13 +235,10 @@ class BaseText:
         """
         Returns a brief diagnostic message that explains why two BaseText/Text objects are different.
 
-        # TODO: Make it nicer for the Jupyter environment
-        # TODO: Use memo dict to break infinite loops
-        # TODO: Think what is the right reasoning to give out for various occasions
+        # TODO: Use memo dict to break infinite loops ??
 
         # BUGS:
           - Loops with recursive self-references.
-          - Layer comparison ignores shadowed layers.
         """
         if self is other:
             return None
