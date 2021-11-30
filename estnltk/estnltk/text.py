@@ -7,6 +7,20 @@ from estnltk_core.base_text import BaseText
 from estnltk_core.base_text import Layer
 
 class Text( BaseText ):
+    # All methods for BaseText/Text object
+    # methods: Set[str]
+    methods = {
+        '_repr_html_',
+        'add_layer',
+        'analyse',
+        'attributes',
+        'pop_layer',
+        'diff',
+        'layers',
+        'sorted_layers',
+        'tag_layer',
+        'topological_sort',
+    } | {method for method in dir(object) if callable(getattr(object, method, None))}
 
     def tag_layer(self, layer_names: Union[str, Sequence[str]]=None, resolver=None) -> 'Text':
         from estnltk.default_resolver import DEFAULT_RESOLVER

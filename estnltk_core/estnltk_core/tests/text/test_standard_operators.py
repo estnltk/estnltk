@@ -407,7 +407,7 @@ def test_access_of_shadowed_layers():
     public_methods = ['add_layer', 'analyse', 'diff', 'pop_layer', 'sorted_layers', 'tag_layer', 'topological_sort']
     protected_methods = ['_repr_html_']
     if Text().__class__.__name__ == 'BaseText':
-        public_variables = [ 'methods' ]
+        public_variables = []
     else:
         public_variables = [ 'attribute_mapping_for_elementary_layers', \
                              'attribute_mapping_for_enveloping_layers', \
@@ -428,7 +428,8 @@ def test_access_of_shadowed_layers():
     assert text.meta == {}
     assert text.attributes == {}
     assert text.layers == set()
-    assert text.methods == set(public_methods) | set(properties) | set(protected_methods) | private_methods
+    if Text().__class__.__name__ == 'Text':
+        assert text.methods == set(public_methods) | set(properties) | set(protected_methods) | private_methods
 
     # Shadowed layers are not present in a text without layers
     for layer_name in shadowed_layers:

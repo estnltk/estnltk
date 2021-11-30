@@ -10,21 +10,6 @@ from estnltk_core.layer.layer import Layer
 from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
 
 class BaseText:
-    # All methods for BaseText/Text object
-    # methods: Set[str]
-    methods = {
-        '_repr_html_',
-        'add_layer',
-        'analyse',
-        'attributes',
-        'pop_layer',
-        'diff',
-        'layers',
-        'sorted_layers',
-        'tag_layer',
-        'topological_sort',
-    } | {method for method in dir(object) if callable(getattr(object, method, None))}
-
     __slots__ = ['text', 'meta', '_layers']
 
     def __init__(self, text: str = None) -> None:
