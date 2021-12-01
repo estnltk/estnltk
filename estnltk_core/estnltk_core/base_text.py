@@ -22,14 +22,7 @@ class BaseText:
         object.__setattr__(self, '_layers', {})
 
     def __copy__(self):
-        result = self.__class__( self.text )
-        result.meta = self.meta
-        # Layers must be created in the topological order
-        for layer in self.sorted_layers():
-            copied_layer = copy(layer)
-            copied_layer.text_object = None
-            result.add_layer(copied_layer)
-        return result
+        raise Exception('Shallow copying of {} object is not allowed. Use deepcopy instead.'.format( self.__class__.__name__ ) )
 
     def __deepcopy__(self, memo={}):
         #print(memo)
