@@ -30,6 +30,6 @@ graft estnltk/tests/taggers/standard/morph_analysis
 graft estnltk/tests/taggers/standard/syntax/preprocessing
 graft estnltk/tests/taggers/test_dict_taggers
 graft estnltk/tests/taggers/miscellaneous
-graft estnltk/tests/taggers/system_taggers
+graft estnltk/tests/taggers/system
 graft estnltk/tests/test_visualisation/expected_outputs
 prune scribbles
