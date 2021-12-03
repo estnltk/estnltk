@@ -1,0 +1,5 @@
+_token_,value,_priority_
+string,string,callable
+tundma,T,1
+päike,P,2
+inimene,K,2

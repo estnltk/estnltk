@@ -236,9 +236,9 @@ class SubstringTagger(Tagger):
             # Drop spans for which the global decorator fails
             if self.global_decorator is not None:
                 span.annotations[0] = self.global_decorator(text_object, span)
-                '''if not isinstance(span.annotations[0], dict):
+                if not isinstance(span.annotations[0], dict):
                     current = next(sorted_tuples, None)
-                    continue'''
+                    continue
 
             # No dynamic rules to change the annotation
             decorator = self._decorator_map.get(current[1], None)

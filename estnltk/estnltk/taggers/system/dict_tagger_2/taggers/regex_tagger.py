@@ -24,12 +24,14 @@ class RegexTagger(Tagger):
 
     def __init__(self,
                  ruleset: Union[str, dict, list, Ruleset],
+                 key: str = '_regex_pattern',
                  output_layer: str = 'regexes',
                  output_attributes: Sequence = None,
                  conflict_resolving_strategy: str = 'MAX',
                  overlapped: bool = False,
                  priority_attribute: str = None,
                  ambiguous: bool = False,
+                 ignore_case: bool = False
                  ):
         """Initialize a new RegexTagger instance.
 
@@ -83,8 +85,12 @@ class RegexTagger(Tagger):
         def default_validator(s):
             return True
 
-
-        self.ruleset = ruleset
+        if isinstance(ruleset, Ruleset):
+            self.ruleset = ruleset
+        else:
+            self.ruleset = Ruleset()
+            Ruleset.load(self.ruleset, file_name=ruleset,
+                         key_column=key)
         '''
         ruleset = Ruleset.parse(vocabulary=ruleset,
                                    key=vocabulary_key,
@@ -92,6 +98,12 @@ class RegexTagger(Tagger):
                                    default_rec={'_group_': 0, '_validator_': default_validator})
         self.vocabulary = ruleset.to_regex(ignore_case=ignore_case)
         '''
+
+        if ignore_case:
+            for rule in self.vocabulary.static_rules:
+                for i in range(len(rule.pattern)):
+                    rule.pattern[i] = rule.pattern[i].lower()
+
 
         self.overlapped = overlapped
         if conflict_resolving_strategy not in ['ALL', 'MIN', 'MAX']:

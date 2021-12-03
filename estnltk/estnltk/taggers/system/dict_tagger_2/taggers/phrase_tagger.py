@@ -18,7 +18,7 @@ class PhraseTagger(Tagger):
                  input_layer: str,
                  input_attribute: str,
                  ruleset: Ruleset,
-                 key: str=None,
+                 key: str='_phrase_',
                  output_attributes: Sequence=None,
                  decorator=None,
                  conflict_resolving_strategy: str='MAX',
@@ -75,13 +75,27 @@ class PhraseTagger(Tagger):
 
         self.vocabulary = ruleset
 
+        addable_attributes = []
+        for attribute in self.output_attributes:
+            if attribute not in self.vocabulary.static_rules[0].attributes:
+                addable_attributes.append(attribute)
+        for rule in self.vocabulary.static_rules:
+            for attribute in addable_attributes:
+                if attribute == key:
+                    rule.attributes[attribute] = rule.pattern
+                else:
+                    rule.attributes[attribute] = None
+
         self.ignore_case = ignore_case
-        #TODO
-        #if ignore_case:
-        #    self.vocabulary = self.vocabulary.to_lower()
+
+        if ignore_case:
+            for rule in self.vocabulary.static_rules:
+                for i in range(len(rule.pattern)):
+                    rule.pattern[i] = rule.pattern[i].lower()
 
         #assert key is None or key == self.vocabulary.key,\
         #    'mismatching key and vocabulary.key: {}!={}'.format(key, self.vocabulary.key)
+        ## key can not be tested like this anymore because ruleset does not have the key attribute
         #assert self.validator_attribute in self.vocabulary.attributes,\
         #    'validator attribute is not among the vocabulary attributes: ' + str(self.validator_attribute)
         #assert set(self.output_attributes) <= set(self.vocabulary.attributes),\
@@ -137,11 +151,10 @@ class PhraseTagger(Tagger):
                             base_span = EnvelopingBaseSpan(s.base_span
                                                            for s in input_layer[i:i + len(tail) + 1])
                             span = EnvelopingSpan(base_span=base_span, layer=layer)
-                            print(self.vocabulary.static_rules)
                             record = [rule.attributes for rule in self.vocabulary.static_rules if rule.pattern==phrase]
                             annotation = Annotation(span, **{attr: record[0][attr]
                                                              for attr in output_attributes})
-                            is_valid =  self.decorator(span, annotation)
+                            is_valid = self.decorator(span, annotation)
                             assert isinstance(is_valid, bool), is_valid
                             if not is_valid:
                                 continue

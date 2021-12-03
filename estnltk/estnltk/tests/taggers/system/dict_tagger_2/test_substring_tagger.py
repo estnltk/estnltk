@@ -153,8 +153,7 @@ def test_global_decorator():
     expected_outcome = [
         {'start': 0, 'end': 5, 'text': 'first', 'value': 1},
         {'start': 7, 'end': 13, 'text': 'second', 'value': 2},
-        {'start': 15, 'end': 20, 'text': 'third', 'value': 3},
-        {'start': 25, 'end': 29, 'text': 'last', 'value': 4}]
+        {'start': 15, 'end': 20, 'text': 'third', 'value': 3}]
     assert layer_to_dict(text.terms) == expected_outcome, "Dynamic decorator does not work"
 
 
