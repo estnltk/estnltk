@@ -8,6 +8,7 @@ from estnltk.taggers.system.diff_tagger import iterate_overlapped
 from estnltk.taggers.system.diff_tagger import iterate_prolonged
 from estnltk.taggers.system.diff_tagger import iterate_shortened
 
+from estnltk.converters import layer_to_dict
 
 def test_diff_tagger_init():
     def fun(x, y):
@@ -51,12 +52,13 @@ def test_simple_ambiguous():
 
     diff_layer = diff_tagger.make_layer(text=text_5, layers={'layer_1': layer_1, 'layer_2': layer_2})
 
-    assert diff_layer.to_dict() == {
+    assert layer_to_dict( diff_layer ) == {
         'name': 'diff_1_2',
         'attributes': ('span_status', 'input_layer_name', 'attr', 'attr_1'),
         'parent': None,
         'enveloping': None,
         'ambiguous': True,
+        'serialisation_module': None,
         'meta': {'modified_spans': 1,
                  'missing_spans': 2,
                  'extra_spans': 2,
@@ -142,12 +144,13 @@ def test_enveloping_not_ambiguous():
 
     diff_layer = diff_tagger.make_layer(text, layers={'layer_a': layer_a, 'layer_b': layer_b})
 
-    assert diff_layer.to_dict() == {
+    assert layer_to_dict( diff_layer ) == {
         'name': 'diff_layer',
         'attributes': ('input_layer_name', 'span_status', 'attr', 'attr_4'),
         'parent': None,
         'enveloping': 'layer_0',
         'ambiguous': True,
+        'serialisation_module': None,
         'meta': {'modified_spans': 1,
                  'missing_spans': 1,
                  'extra_spans': 2,
@@ -247,12 +250,13 @@ def test_iterators_on_enveloping_ambiguous_diff_layer():
 
     diff_layer = diff_tagger.make_layer(text, layers={'layer_a': layer_a, 'layer_b': layer_b})
 
-    assert diff_layer.to_dict() == {
+    assert layer_to_dict( diff_layer ) == {
         'name': 'diff_layer',
         'attributes': ('input_layer_name', 'span_status', 'attr', 'attr_5'),
         'parent': None,
         'enveloping': 'layer_1',
         'ambiguous': True,
+        'serialisation_module': None,
         'meta': {'modified_spans': 2,
                  'missing_spans': 4,
                  'extra_spans': 2,

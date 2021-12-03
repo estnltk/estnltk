@@ -3,6 +3,8 @@ from collections import OrderedDict
 from estnltk.taggers import AttributeComparisonTagger
 from estnltk import Text, Layer
 
+from estnltk.converters import layer_to_dict
+
 def test_attribute_comparison_tagger_init():
     tagger = AttributeComparisonTagger(output_layer="new_layer",
                                        input_layers=["layer_1", "layer_2"],
@@ -42,12 +44,13 @@ def test_head_attribute_comparison():
 
     new_layer = tagger.make_layer(text=text, layers=OrderedDict([('layer_1', layer_1), ('layer_2', layer_2)]))
 
-    assert new_layer.to_dict() == {'ambiguous': False,
+    assert layer_to_dict(new_layer) == {'ambiguous': False,
                                      'attributes': ('head', 'head_1', 'head_2'),
                                      'enveloping': None,
                                      'meta': {},
                                      'name': 'new_layer',
                                      'parent': None,
+                                     'serialisation_module': None,
                                      'spans': [{'annotations': [{'head': 3, 'head_1': 3, 'head_2': 3}],
                                        'base_span': (0, 5)},
                                       {'annotations': [{'head': 1, 'head_1': 1, 'head_2': 1}],
@@ -87,12 +90,13 @@ def test_deprel_attribute_comparison():
 
     new_layer = tagger.make_layer(text=text, layers=OrderedDict([('layer_1', layer_1), ('layer_2', layer_2)]))
 
-    assert new_layer.to_dict() == {'ambiguous': False,
+    assert layer_to_dict(new_layer) == {'ambiguous': False,
                                      'attributes': ('deprel', 'deprel_1', 'deprel_2'),
                                      'enveloping': None,
                                      'meta': {},
                                      'name': 'new_layer',
                                      'parent': None,
+                                     'serialisation_module': None,
                                      'spans': [{'annotations': [{'deprel': '@AN>',
                                          'deprel_1': '@AN>',
                                          'deprel_2': '@AN>'}],

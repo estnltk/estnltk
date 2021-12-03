@@ -2,6 +2,7 @@ import datetime
 from estnltk import Text
 from estnltk.taggers import DateTagger
 
+from estnltk.converters import layer_to_dict
 
 def test_date_tagger():
     datetagger = DateTagger()
@@ -22,7 +23,7 @@ pt.-l 2007a.-l diagnoositud sügatõbi:',
 
     datetagger.tag(text)
 
-    assert text['dates'].to_dict() == {
+    assert layer_to_dict( text['dates'] ) == {
         'name': 'dates',
         'attributes': ('date_text',
                        'type',
@@ -33,6 +34,7 @@ pt.-l 2007a.-l diagnoositud sügatõbi:',
         'enveloping': None,
         'ambiguous': False,
         'meta': {},
+        'serialisation_module': None,
         'spans': [{'base_span': (0, 16),
                    'annotations': [{'type': 'date_time',
                                     'extracted_values': datetime.datetime(2011, 7, 7, 14,
