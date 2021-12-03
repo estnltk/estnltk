@@ -567,7 +567,7 @@ class TestLayer(unittest.TestCase):
         # Add some annotations to the layer
         def row_mapper_x(row):
             text_id, text = row[0], row[1]
-            layer = layer_template.copy()
+            layer = Layer('test_layer', ['attr_1', 'attr_2'], ambiguous=True)
             layer.add_annotation( (0, 3), attr_1='a', attr_2='b' )
             return RowMapperRecord( layer=layer, meta={} )
 

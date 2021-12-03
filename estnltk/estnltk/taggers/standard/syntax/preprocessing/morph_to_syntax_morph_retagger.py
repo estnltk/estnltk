@@ -49,9 +49,22 @@ class MorphToSyntaxMorphRetagger(Retagger):
                      parent=self.input_layers[0],
                      ambiguous=True)
 
+    def _copy_morph_layer(self, morph_layer):
+        copied_layer = Layer( name=morph_layer.name,
+                              attributes=morph_layer.attributes,
+                              text_object=morph_layer.text_object,
+                              parent=morph_layer.parent,
+                              enveloping=morph_layer.enveloping,
+                              ambiguous=morph_layer.ambiguous,
+                              default_values=morph_layer.default_values.copy() )
+        for span in morph_layer:
+            for annotation in span.annotations:
+                copied_layer.add_annotation(span.base_span, **annotation)
+        return copied_layer
+
     def _make_layer(self, text, layers, status=None):
         morph_layer = layers[self.input_layers[0]]
-        layer = morph_layer.copy()
+        layer = self._copy_morph_layer( morph_layer )
         layer.name = self.output_layer
         layer.parent = morph_layer.name
 

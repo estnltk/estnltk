@@ -197,19 +197,6 @@ class Layer:
                 result = AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
         return result
 
-    def copy(self):
-        layer = Layer(name=self.name,
-                      attributes=self.attributes,
-                      text_object=self.text_object,
-                      parent=self.parent,
-                      enveloping=self.enveloping,
-                      ambiguous=self.ambiguous,
-                      default_values=self.default_values.copy())
-        for span in self:
-            for annotation in span.annotations:
-                layer.add_annotation(span.base_span, **annotation)
-        return layer
-
     def to_records(self, with_text=False):
         return self._span_list.to_records(with_text)
 

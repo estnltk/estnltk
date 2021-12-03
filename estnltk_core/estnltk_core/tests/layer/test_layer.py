@@ -1,5 +1,7 @@
 import pytest
 
+from copy import copy
+
 from estnltk_core import Layer
 from estnltk_core import ElementaryBaseSpan
 from estnltk_core import Span
@@ -702,20 +704,20 @@ def test_groupby():
                       ('L0-9', '100'): ['sada']}
 
 
-def test_copy():
+def test_shallow_copy():
     layer = Layer('test')
-    layer_copy = layer.copy()
+    layer_copy = copy( layer )
     assert layer == layer_copy
     assert layer is not layer_copy
 
     text = new_text(5)
 
     layer = text['layer_1']
-    layer_copy = layer.copy()
+    layer_copy = copy( layer )
 
     assert layer_copy == layer
     assert layer_copy.attributes == layer.attributes
-    # the tuple of attribute names is not copied
+    # the tuple of attribute names is deep copied
     assert layer_copy.attributes is layer.attributes
     layer_copy.attributes = [*layer_copy.attributes, 'new_attribute']
     assert layer_copy.attributes != layer.attributes
@@ -731,23 +733,22 @@ def test_copy():
     del layer_copy.default_values['new_attribute']
     assert layer_copy.default_values == layer.default_values
 
-    # list of spans is copied
+    # list of spans is shallow copied
     assert layer_copy == layer
     span = layer_copy[0]
     del layer_copy[0]
-    assert layer_copy != layer
-    layer_copy.add_span(span)
+    assert layer_copy == layer
 
-    # list of annotations is copied
+    # list of annotations is shallow copied
     assert layer == layer_copy
     layer_copy.add_annotation(layer_copy[0].base_span, attr='L1-2',  attr_1='kümme')
-    assert layer_copy != layer
+    assert layer_copy == layer
     del layer_copy[0].annotations[-1]
 
-    # annotations are copied
+    # annotations are shallow copied
     assert layer == layer_copy
     layer_copy[0].annotations[0].attr_0 = '101'
-    assert layer_copy != layer
+    assert layer_copy == layer
     layer_copy[0].annotations[0].attr_0 = '100'
 
 

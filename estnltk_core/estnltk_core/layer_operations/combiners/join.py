@@ -72,8 +72,17 @@ def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
     if len(layers) == 0:
         raise ValueError('(!) Cannot join layers on an empty list of layers. ')
     elif len(layers) == 1:
-        new_layer = layers[0].copy()
-        new_layer.text_object = None
+        # copy the layer
+        new_layer = Layer(name=layers[0].name,
+                          attributes=layers[0].attributes,
+                          text_object=None,
+                          parent=layers[0].parent,
+                          enveloping=layers[0].enveloping,
+                          ambiguous=layers[0].ambiguous,
+                          default_values=layers[0].default_values.copy())
+        for span in layers[0]:
+            for annotation in span.annotations:
+                new_layer.add_annotation(span.base_span, **annotation)
         return new_layer
     else:
         # 0) Validate input layers
