@@ -2,9 +2,7 @@ import html
 import pandas
 
 from copy import copy, deepcopy
-from collections import defaultdict
 from typing import List, Sequence, Set, Union, Any, Mapping
-from typing import DefaultDict
 
 from estnltk_core.layer.layer import Layer
 from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
@@ -110,22 +108,6 @@ class BaseText:
         Returns the names of all layers in the text object in alphabetical order.
         """
         return set( self._layers.keys() )
-
-    @property
-    def attributes(self) -> DefaultDict[str, List[str]]:
-        """
-        Returns a mapping from all attributes to layer names hosting them.
-
-        # TODO: Rename to layer_attributes or attribute_to_layers_mapping
-        """
-        result = defaultdict(list)
-
-        # Collect attributes from standard layers
-        for name, layer in self._layers.items():
-            for attrib in layer.attributes:
-                result[attrib].append(name)
-
-        return result
 
     def add_layer(self, layer: Layer):
         """

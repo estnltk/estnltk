@@ -1,5 +1,5 @@
 from typing import Sequence, Union, Set, List, Union, Any, Mapping
-from typing import DefaultDict
+from typing import Dict
 
 import networkx as nx
 
@@ -13,7 +13,7 @@ class Text( BaseText ):
         '_repr_html_',
         'add_layer',
         'analyse',
-        'attributes',
+        'layer_attributes',
         'pop_layer',
         'diff',
         'layers',
@@ -70,6 +70,22 @@ class Text( BaseText ):
             self.pop_layer('tokens')
         return self
 
+    @property
+    def layer_attributes(self) -> Dict[str, List[str]]:
+        """
+        Returns a mapping from all attributes to layer names hosting them.
+        """
+        result = dict()
+
+        # Collect attributes from standard layers
+        for name, layer in self._layers.items():
+            for attrib in layer.attributes:
+                if attrib not in result:
+                    result[attrib] = []
+                result[attrib].append(name)
+
+        return result
+
     # attribute_mapping_for_elementary_layers: Mapping[str, str]
     attribute_mapping_for_elementary_layers = {
         'lemma': 'morph_analysis',
@@ -100,9 +116,9 @@ class Text( BaseText ):
             return self.__getitem__(item)
 
         # Resolve attributes that uniquely determine a layer, e.g. BaseText/Text.lemmas ==> BaseText/Text.morph_layer.lemmas
-        attributes = self.__getattribute__('attributes')
+        attributes = self.__getattribute__('layer_attributes')
 
-        if len(attributes[item]) == 1:
+        if len( attributes.get(item, []) ) == 1:
             return getattr(self._layers[attributes[item][0]], item)
 
         # Nothing else to resolve

@@ -336,7 +336,10 @@ def test_access_of_shadowed_layers():
     Text = load_text_class()
     
     # List of all attributes that can be potentially shadowed
-    properties = ['attributes', 'layers']
+    if Text().__class__.__name__ == 'BaseText':
+        properties = ['layers']
+    else:
+        properties = ['layer_attributes', 'layers']
     private_methods = {method for method in dir(object) if callable(getattr(object, method, None))}
     public_methods = ['add_layer', 'analyse', 'diff', 'pop_layer', 'sorted_layers', 'tag_layer', 'topological_sort']
     protected_methods = ['_repr_html_']
@@ -361,9 +364,9 @@ def test_access_of_shadowed_layers():
     text = Text('See on kihtideta tekst')
     assert text.text == 'See on kihtideta tekst'
     assert text.meta == {}
-    assert text.attributes == {}
     assert text.layers == set()
     if Text().__class__.__name__ == 'Text':
+        assert text.layer_attributes == {}
         assert text.methods == set(public_methods) | set(properties) | set(protected_methods) | private_methods
 
     # Shadowed layers are not present in a text without layers
