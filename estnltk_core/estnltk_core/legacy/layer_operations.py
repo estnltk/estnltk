@@ -6,6 +6,25 @@ from pandas import DataFrame
 from estnltk_core.layer.layer import Layer, SpanList
 
 #
+#  Legacy layer copying operation, relocated from:
+#  https://github.com/estnltk/estnltk/blob/1518183411eacfb24492242dc0033b4769460d65/estnltk_core/estnltk_core/layer/layer.py#L200-L211
+# 
+
+def copy_layer(layer: Layer):
+    copied_layer = Layer(name=layer.name,
+                         attributes=layer.attributes,
+                         text_object=layer.text_object,
+                         parent=layer.parent,
+                         enveloping=layer.enveloping,
+                         ambiguous=layer.ambiguous,
+                         default_values=layer.default_values.copy())
+    for span in layer:
+        for annotation in span.annotations:
+            copied_layer.add_annotation(span.base_span, **annotation)
+    return copied_layer
+
+
+#
 #  Legacy layer operation, relocated from:
 #  https://github.com/estnltk/estnltk/blob/217b0071829ec18f0769aa6b3228daab14bbfbe3/estnltk_core/estnltk_core/layer_operations/layer_filtering.py
 # 
