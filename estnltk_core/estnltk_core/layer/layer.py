@@ -198,43 +198,6 @@ class Layer:
                 result = AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
         return result
 
-    def to_dict(self):
-        """Returns a dict representation of this layer.
-
-        """
-        return {
-            'name': self.name,
-            'attributes': self.attributes,
-            'parent': self.parent,
-            'enveloping': self.enveloping,
-            'ambiguous': self.ambiguous,
-            'meta': self.meta,
-            'spans': [{'base_span': span.base_span.raw(),
-                       'annotations': [dict(annotation) for annotation in span.annotations]}
-                      for span in self._span_list]
-        }
-
-    @classmethod
-    def from_dict(cls, d: dict, text_object=None):
-        """Parses dict to layer.
-
-        """
-        layer = cls(name=d['name'],
-                    attributes=d['attributes'],
-                    text_object=text_object,
-                    parent=d['parent'],
-                    enveloping=d['enveloping'],
-                    ambiguous=d['ambiguous']
-                    )
-        layer.meta.update(d['meta'])
-
-        for span_dict in d['spans']:
-            base_span = to_base_span(span_dict['base_span'])
-            for annotation in span_dict['annotations']:
-                layer.add_annotation(base_span, **annotation)
-
-        return layer
-
     def add_span(self, span: Span) -> Span:
         assert isinstance(span, Span), str(type(span))
         assert len(span.annotations) > 0, span

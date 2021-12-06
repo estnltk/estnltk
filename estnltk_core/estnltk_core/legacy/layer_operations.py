@@ -3,7 +3,43 @@ from collections import Counter
 
 from pandas import DataFrame
 
-from estnltk_core.layer.layer import Layer, SpanList
+from estnltk_core.layer.layer import Layer, SpanList, to_base_span
+
+#
+#  Legacy layer conversion operations, relocated from:
+#   https://github.com/estnltk/estnltk/blob/cb1dbd401d9ac719dc88f4aad9d976ed50776dc6/estnltk_core/estnltk_core/layer/layer.py#L201-L236
+# 
+def layer_to_dict(layer: Layer):
+    """Returns a dict representation of given layer.
+    """
+    return {
+        'name': layer.name,
+        'attributes': layer.attributes,
+        'parent': layer.parent,
+        'enveloping': layer.enveloping,
+        'ambiguous': layer.ambiguous,
+        'meta': layer.meta,
+        'spans': [{'base_span': span.base_span.raw(),
+                   'annotations': [dict(annotation) for annotation in span.annotations]}
+                  for span in layer]
+    }
+
+
+def layer_from_dict(d: dict, text_object: 'Text'=None):
+    """Parses dict to layer.
+    """
+    layer = Layer(name=d['name'],
+                  attributes=d['attributes'],
+                  text_object=text_object,
+                  parent=d['parent'],
+                  enveloping=d['enveloping'],
+                  ambiguous=d['ambiguous'])
+    layer.meta.update(d['meta'])
+    for span_dict in d['spans']:
+        base_span = to_base_span(span_dict['base_span'])
+        for annotation in span_dict['annotations']:
+            layer.add_annotation(base_span, **annotation)
+    return layer
 
 #
 #  Legacy layer copying operation, relocated from:
@@ -25,7 +61,7 @@ def copy_layer(layer: Layer):
 
 
 #
-#  Legacy layer operation, relocated from:
+#  Legacy layer operations, relocated from:
 #  https://github.com/estnltk/estnltk/blob/217b0071829ec18f0769aa6b3228daab14bbfbe3/estnltk_core/estnltk_core/layer_operations/layer_filtering.py
 # 
 
