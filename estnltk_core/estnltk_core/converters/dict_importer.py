@@ -27,7 +27,10 @@ def records_to_layer(layer: 'Layer', records: List[Dict[str, Any]], rewriting: b
        'end' marking the location of the span.
        If rewriting==True, existing annotations of the layer will be overwritten,
        otherwise new annotations will be appended to the layer.
+       TODO: this conversion does not work on enveloping layers
     '''
+    if layer.enveloping is not None:
+        raise NotImplementedError('(!) records_to_layer has not been implemented for enveloping layers!')
     if rewriting:
         layer._span_list = SpanList()
 
