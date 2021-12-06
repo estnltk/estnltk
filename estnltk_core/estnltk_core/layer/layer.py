@@ -5,6 +5,8 @@ import collections
 import warnings
 import pkgutil
 
+from copy import deepcopy
+
 from estnltk_core import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
 from estnltk_core import Span, EnvelopingSpan, Annotation, SpanList
 from estnltk_core.layer import AmbiguousAttributeTupleList, AmbiguousAttributeList, AttributeTupleList, AttributeList
@@ -114,6 +116,22 @@ class Layer:
             default_values=self.default_values,
             serialisation_module=self.serialisation_module)
         result._span_list = self._span_list
+        return result
+
+    def __deepcopy__(self, memo={}):
+        result = self.__class__( name=self.name,
+                                 attributes=deepcopy(self.attributes, memo),
+                                 text_object=self.text_object,
+                                 parent=self.parent,
+                                 enveloping=self.enveloping,
+                                 ambiguous=self.ambiguous,
+                                 default_values=deepcopy(self.default_values, memo),
+                                 serialisation_module=self.serialisation_module )
+        memo[id(self)] = result
+        result.meta = deepcopy(self.meta, memo)
+        for span in self:
+            for annotation in span.annotations:
+                result.add_annotation(span.base_span, **annotation)
         return result
 
     @property

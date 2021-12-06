@@ -1,9 +1,10 @@
 import pytest
 
-from copy import copy
+from copy import copy, deepcopy
 
 from estnltk_core import Layer
 from estnltk_core import ElementaryBaseSpan
+from estnltk_core import EnvelopingBaseSpan, EnvelopingSpan
 from estnltk_core import Span
 from estnltk_core import Annotation
 from estnltk_core.layer import AmbiguousAttributeTupleList
@@ -752,6 +753,107 @@ def test_shallow_copy():
     layer_copy[0].annotations[0].attr_0 = '100'
 
 
+def test_deep_copy():
+    # Simple empty layer
+    layer = Layer('test')
+    layer_deepcopy = deepcopy( layer )
+    assert layer == layer_deepcopy
+    assert layer is not layer_deepcopy
+    assert layer.meta is not layer_deepcopy.meta
+
+    # Ambiguous layer
+    text = new_text(5)
+
+    layer = text['layer_1']
+    layer_deepcopy = deepcopy( layer )
+    assert layer_deepcopy == layer
+    # Modify attributes
+    # Initially, both layers' attributes point to the same tuple
+    assert layer_deepcopy.attributes == layer.attributes
+    assert layer_deepcopy.attributes is layer.attributes
+    layer_deepcopy.attributes = [*layer_deepcopy.attributes, 'new_attribute']
+    assert layer_deepcopy.attributes != layer.attributes
+    layer_deepcopy.attributes = layer_deepcopy.attributes[:-1]
+    # After modification of one layer, tuples won't be same anymore ...
+    assert layer_deepcopy.attributes == layer.attributes
+    assert layer_deepcopy.attributes is not layer.attributes
+
+    # Modify spans
+    assert layer_deepcopy == layer
+    assert layer_deepcopy[0] == layer[0]
+    # Span references are different
+    assert layer_deepcopy[0] is not layer[0]
+    # Deleting span from one layer does not affect the other layer
+    del layer_deepcopy[0]
+    assert layer_deepcopy != layer
+    layer_deepcopy.add_annotation(layer[0].base_span, attr='L1-0',  attr_1='SADA')
+    assert layer_deepcopy == layer
+    assert layer_deepcopy[0] is not layer[0]
+    
+    # Modify annotations
+    assert layer_deepcopy[0].annotations == layer[0].annotations
+    # We can modify annotations without affecting the other layer
+    layer_deepcopy.add_annotation(layer_deepcopy[1].base_span, attr='L1-2',  attr_1='KAKS!')
+    assert layer_deepcopy[1].annotations != layer[1].annotations
+    del layer_deepcopy[1].annotations[-1]
+    assert layer_deepcopy[1].annotations == layer[1].annotations
+    assert layer_deepcopy[1].annotations is not layer[1].annotations
+    layer[2].annotations[-1].attr = '???'
+    assert layer_deepcopy[2].annotations[-1].attr == 'L1-2'
+    assert layer_deepcopy[2].annotations != layer[2].annotations
+    layer_deepcopy[2].annotations[-1].attr = '???'
+    assert layer_deepcopy[2].annotations == layer[2].annotations
+    assert layer_deepcopy[2] == layer[2]
+
+    # Enveloping layer
+    Text = load_text_class()
+    text = Text("Lihtsate kihtidega teksti kopeerimine")
+    layer_a = Layer('my_layer', attributes=['a', 'b'])
+    layer_a.add_annotation( ElementaryBaseSpan(0, 4), a=1, b=2 )
+    layer_a.add_annotation( ElementaryBaseSpan(5, 8), a=3, b=4 )
+    text.add_layer( layer_a )
+    env_layer = Layer( 'enveloping_layer', attributes=['c'], 
+                        enveloping='my_layer', ambiguous=True )
+    text.add_layer( env_layer )
+    env_span = EnvelopingSpan( EnvelopingBaseSpan( [s.base_span for s in text['my_layer']] ), \
+                               layer=env_layer )
+    text['enveloping_layer'].add_annotation( env_span, c=9 )
+    env_layer_deepcopy = deepcopy( text['enveloping_layer'] )
+    assert env_layer == env_layer_deepcopy
+    assert env_layer is not env_layer_deepcopy
+    assert env_layer.meta is not env_layer_deepcopy.meta
+    assert env_layer[0] == env_layer_deepcopy[0]
+    
+    # Modify spans
+    del env_layer_deepcopy[0]
+    env_span = EnvelopingSpan( EnvelopingBaseSpan( [text['my_layer'][0].base_span] ), \
+                               layer=env_layer_deepcopy )
+    env_layer_deepcopy.add_annotation( env_span, c=7 )
+    assert env_layer[0] != env_layer_deepcopy[0]
+    assert env_layer != env_layer_deepcopy
+    del env_layer_deepcopy[0]
+    assert env_layer != env_layer_deepcopy
+    env_span = EnvelopingSpan( EnvelopingBaseSpan( [ text['my_layer'][0].base_span, \
+                                                     text['my_layer'][1].base_span ] ), \
+                               layer=env_layer_deepcopy )
+    env_layer_deepcopy.add_annotation( env_span, c=9 )
+    assert env_layer[0] == env_layer_deepcopy[0]
+    assert env_layer == env_layer_deepcopy
+    
+    # Modify annotations
+    env_layer_deepcopy.add_annotation(env_layer_deepcopy[0].base_span, c=10)
+    env_layer_deepcopy.add_annotation(env_layer_deepcopy[0].base_span, c=11)
+    assert env_layer[0].annotations != env_layer_deepcopy[0].annotations
+    del env_layer_deepcopy[0].annotations[-1]
+    env_layer.add_annotation(env_layer[0].base_span, c=10)
+    assert env_layer[0].annotations == env_layer_deepcopy[0].annotations
+    assert env_layer[0].annotations is not env_layer_deepcopy[0].annotations
+    env_layer_deepcopy[0].annotations[-1].c = 9000
+    assert env_layer[0].annotations != env_layer_deepcopy[0].annotations
+    env_layer[0].annotations[-1].c = 9000
+    assert env_layer[0].annotations == env_layer_deepcopy[0].annotations
+
+
 def test_descendant_layers():
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
@@ -832,3 +934,4 @@ def test_ancestor_layers():
 
     assert layer_8.ancestor_layers() == []
     assert layer_9.ancestor_layers() == ['layer_8']
+
