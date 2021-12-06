@@ -2,10 +2,12 @@ from .unicode_binary import as_unicode
 from .unicode_binary import as_binary
 from .dict_exporter import annotation_to_dict
 from .dict_exporter import text_to_dict
+from .dict_exporter import layer_to_records
 from .layer_dict_converter import layer_to_dict
 
 from .dict_importer import dict_to_annotation
 from .dict_importer import dict_to_text
+from .dict_importer import records_to_layer
 from .layer_dict_converter import dict_to_layer
 
 from .json_converter import to_json

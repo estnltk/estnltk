@@ -6,7 +6,7 @@ from estnltk_core.common import load_text_class
 
 from estnltk_core.layer import AttributeList
 from estnltk_core.converters import dict_to_layer
-
+from estnltk_core.converters import records_to_layer
 
 def test_new_span_hierarchy():
     # Load Text or BaseText class (depending on the available packages)
@@ -213,14 +213,13 @@ def test_dependant_span():
     
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words',
-                  attributes=['lemma']
-                  ).from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
-                                  {'end': 8, 'lemma': 'mitu', 'start': 4},
-                                  {'end': 13, 'lemma': 'kuu', 'start': 9},
-                                  {'end': 16, 'lemma': 'olema', 'start': 14},
-                                  {'end': 23, 'lemma': 'aasta', 'start': 17},
-                                  {'end': 24, 'lemma': '?', 'start': 23}],
-                                 )
+                  attributes=['lemma'])
+    words = records_to_layer( words, [{'end': 3, 'lemma': 'kui', 'start': 0},
+                                      {'end': 8, 'lemma': 'mitu', 'start': 4},
+                                      {'end': 13, 'lemma': 'kuu', 'start': 9},
+                                      {'end': 16, 'lemma': 'olema', 'start': 14},
+                                      {'end': 23, 'lemma': 'aasta', 'start': 17},
+                                      {'end': 24, 'lemma': '?', 'start': 23}] )
     t.add_layer(words)
 
     dep = Layer(name='reverse_lemmas',
@@ -247,15 +246,13 @@ def test_enveloping_layer():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(
             name='words',
-            attributes=['lemma']
-
-    ).from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
-                    {'end': 8, 'lemma': 'mitu', 'start': 4},
-                    {'end': 13, 'lemma': 'kuu', 'start': 9},
-                    {'end': 16, 'lemma': 'olema', 'start': 14},
-                    {'end': 23, 'lemma': 'aasta', 'start': 17},
-                    {'end': 24, 'lemma': '?', 'start': 23}],
-                   )
+            attributes=['lemma'])
+    words = records_to_layer( words, [{'end': 3, 'lemma': 'kui', 'start': 0},
+                                      {'end': 8, 'lemma': 'mitu', 'start': 4},
+                                      {'end': 13, 'lemma': 'kuu', 'start': 9},
+                                      {'end': 16, 'lemma': 'olema', 'start': 14},
+                                      {'end': 23, 'lemma': 'aasta', 'start': 17},
+                                      {'end': 24, 'lemma': '?', 'start': 23}] )
     t.add_layer(words)
     wordpairs = Layer(name='wordpairs', enveloping='words')
     t.add_layer(wordpairs)

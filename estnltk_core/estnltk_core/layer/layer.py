@@ -178,23 +178,6 @@ class Layer:
         descendants = find_layer_dependencies(self.text_object, self.name, reverse=True)
         return sorted(descendants)
 
-    def from_records(self, records, rewriting=False) -> 'Layer':
-        if rewriting:
-            self._span_list = SpanList()
-
-        if self.ambiguous:
-            for record_line in records:
-                for record in record_line:
-                    attributes = {attr: record.get(attr, self.default_values[attr]) for attr in self.attributes}
-                    self.add_annotation(ElementaryBaseSpan(record['start'], record['end']), **attributes)
-        else:
-            for record in records:
-                if record is None:
-                    continue
-                attributes = {attr: record.get(attr, self.default_values[attr]) for attr in self.attributes}
-                self.add_annotation(ElementaryBaseSpan(record['start'], end=record['end']), **attributes)
-        return self
-
     def attribute_list(self, attributes):
         assert isinstance(attributes, (str, list, tuple)), str(type(attributes))
         if not attributes:
@@ -214,9 +197,6 @@ class Layer:
             else:
                 result = AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
         return result
-
-    def to_records(self, with_text=False):
-        return self._span_list.to_records(with_text)
 
     def to_dict(self):
         """Returns a dict representation of this layer.

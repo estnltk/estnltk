@@ -5,6 +5,8 @@ from estnltk_core.common import load_text_class
 from estnltk_core.layer import AttributeList
 from estnltk_core.layer.base_span import ElementaryBaseSpan
 from estnltk_core.converters import dict_to_layer
+from estnltk_core.converters import layer_to_records
+from estnltk_core.converters import records_to_layer
 
 
 def test_pickle():
@@ -200,7 +202,7 @@ def test_to_records():
 
 
     # ambiguous
-    assert (text['morph_analysis'].to_records()) == [[{'normalized_text': 'Minu',
+    assert layer_to_records( text['morph_analysis'] ) == [[{'normalized_text': 'Minu',
    'lemma': 'mina',
    'root': 'mina',
    'root_tokens': ['mina'],
@@ -264,30 +266,30 @@ def test_to_records():
 
     if not text['words'].ambiguous:
         # base
-        assert (text['words'].to_records() == [{'normalized_form': None, 'start': 0, 'end': 4},
+        assert layer_to_records( text['words'] ) == [{'normalized_form': None, 'start': 0, 'end': 4},
  {'normalized_form': None, 'start': 5, 'end': 9},
  {'normalized_form': None, 'start': 10, 'end': 12},
  {'normalized_form': None, 'start': 13, 'end': 16},
- {'normalized_form': None, 'start': 16, 'end': 17}])
+ {'normalized_form': None, 'start': 16, 'end': 17}]
         # enveloping (note nested lists)
-        assert (text['sentences'].to_records() == [[{'normalized_form': None, 'start': 0, 'end': 4},
+        assert layer_to_records( text['sentences'] ) == [[{'normalized_form': None, 'start': 0, 'end': 4},
   {'normalized_form': None, 'start': 5, 'end': 9},
   {'normalized_form': None, 'start': 10, 'end': 12},
   {'normalized_form': None, 'start': 13, 'end': 16},
-  {'normalized_form': None, 'start': 16, 'end': 17}]])
+  {'normalized_form': None, 'start': 16, 'end': 17}]]
     else:
         # base
-        assert (text['words'].to_records() == [[{'normalized_form': None, 'start': 0, 'end': 4}],
+        assert layer_to_records( text['words'] ) == [[{'normalized_form': None, 'start': 0, 'end': 4}],
  [{'normalized_form': None, 'start': 5, 'end': 9}],
  [{'normalized_form': None, 'start': 10, 'end': 12}],
  [{'normalized_form': None, 'start': 13, 'end': 16}],
- [{'normalized_form': None, 'start': 16, 'end': 17}]])
+ [{'normalized_form': None, 'start': 16, 'end': 17}]]
         # enveloping (note double nested lists)
-        assert (text['sentences'].to_records() == [[[{'normalized_form': None, 'start': 0, 'end': 4}],
+        assert layer_to_records( text['sentences'] ) == [[[{'normalized_form': None, 'start': 0, 'end': 4}],
   [{'normalized_form': None, 'start': 5, 'end': 9}],
   [{'normalized_form': None, 'start': 10, 'end': 12}],
   [{'normalized_form': None, 'start': 13, 'end': 16}],
-  [{'normalized_form': None, 'start': 16, 'end': 17}]]])
+  [{'normalized_form': None, 'start': 16, 'end': 17}]]]
 
 
 def test_to_record():
@@ -420,7 +422,7 @@ def test_to_record():
 
     # teine tundub veidi loogilisem, aga piisavalt harv vajadus ja piisavalt tülikas implementeerida, et valida esimene
     # alati saab teha lihtsalt
-    assert t['morph_analysis'].to_records() == [[{'normalized_text': 'Minu',
+    assert layer_to_records( t['morph_analysis'] ) == [[{'normalized_text': 'Minu',
                                                'lemma': 'mina',
                                                'root': 'mina',
                                                'root_tokens': ['mina'],
@@ -488,14 +490,12 @@ def test_from_dict():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words', attributes=['lemma'])
     t.add_layer(words)
-    words.from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
-                        {'end': 8, 'lemma': 'mitu', 'start': 4},
-                        {'end': 13, 'lemma': 'kuu', 'start': 9},
-                        {'end': 16, 'lemma': 'olema', 'start': 14},
-                        {'end': 23, 'lemma': 'aasta', 'start': 17},
-                        {'end': 24, 'lemma': '?', 'start': 23}]
-                       )
-
+    words = records_to_layer(words, [{'end': 3, 'lemma': 'kui', 'start': 0},
+                                     {'end': 8, 'lemma': 'mitu', 'start': 4},
+                                     {'end': 13, 'lemma': 'kuu', 'start': 9},
+                                     {'end': 16, 'lemma': 'olema', 'start': 14},
+                                     {'end': 23, 'lemma': 'aasta', 'start': 17},
+                                     {'end': 24, 'lemma': '?', 'start': 23}] )
     for span, lemma in zip(t['words'], ['kui', 'mitu', 'kuu', 'olema', 'aasta', '?']):
         print(span.lemma, lemma)
         assert span.lemma == lemma
@@ -509,15 +509,14 @@ def test_ambiguous_from_dict():
     words = Layer(name='words', attributes=['lemma'], ambiguous=True)
     t.add_layer(words)
 
-    words.from_records([
+    words = records_to_layer(words, [ \
         [{'end': 3, 'lemma': 'kui', 'start': 0}, {'end': 3, 'lemma': 'KUU', 'start': 0}],
         [{'end': 8, 'lemma': 'mitu', 'start': 4}],
         [{'end': 13, 'lemma': 'kuu', 'start': 9}],
         [{'end': 16, 'lemma': 'olema', 'start': 14}],
         [{'end': 23, 'lemma': 'aasta', 'start': 17}],
         [{'end': 24, 'lemma': '?', 'start': 23}]
-    ]
-    )
+    ])
 
     assert t['words'][0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
 
@@ -529,15 +528,14 @@ def test_ambiguous_from_dict_unbound():
     words = Layer(name='words', attributes=['lemma'], ambiguous=True)
 
     # We create the layer
-    words.from_records([
+    words = records_to_layer(words, [ \
         [{'end': 3, 'lemma': 'kui', 'start': 0}, {'end': 3, 'lemma': 'KUU', 'start': 0}],
         [{'end': 8, 'lemma': 'mitu', 'start': 4}],
         [{'end': 13, 'lemma': 'kuu', 'start': 9}],
         [{'end': 16, 'lemma': 'olema', 'start': 14}],
         [{'end': 23, 'lemma': 'aasta', 'start': 17}],
         [{'end': 24, 'lemma': '?', 'start': 23}]
-    ]
-    )
+    ])
 
     # then we bind it to an object
     t = Text('Kui mitu kuud on aastas?')
@@ -547,7 +545,7 @@ def test_ambiguous_from_dict_unbound():
 
     words2 = Layer(name='words2', attributes=['lemma2'], ambiguous=True, parent='words')
     # We create the layer
-    words2.from_records([
+    words2 = records_to_layer(words2, [ \
         [{'end': 3, 'lemma2': 'kui', 'start': 0}, {'end': 3, 'lemma2': 'KUU', 'start': 0}],
         [{'end': 8, 'lemma2': 'mitu', 'start': 4}],
         [{'end': 13, 'lemma2': 'kuu', 'start': 9}],

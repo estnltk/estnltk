@@ -2,7 +2,7 @@ from estnltk_core.common import load_text_class
 from estnltk_core import Layer, Span
 from estnltk_core.taggers import Tagger
 from estnltk_core.taggers.combined_tagger import CombinedTagger
-
+from estnltk_core.converters import layer_to_dict
 
 class Tagger_1(Tagger):
     """Test tagger 1
@@ -67,9 +67,18 @@ def test_tagger():
     Text = load_text_class()
     text = Text('Aias sadas saia.')
     combined_tagger.tag(text)
-    assert text['combined'].to_records() == [{'start':  0, 'end':  5, 'attr_1': '1', 'attr_2': ''},
-                                             {'start':  6, 'end': 10, 'attr_1': '2', 'attr_2': ''},
-                                            ]
+    assert layer_to_dict(text['combined']) == \
+        {'ambiguous': False,
+         'attributes': ('attr_1', 'attr_2'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'combined',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'attr_1': '1', 'attr_2': ''}],
+                    'base_span': (0, 5)},
+                   {'annotations': [{'attr_1': '2', 'attr_2': ''}],
+                    'base_span': (6, 10)}]}
 
 
 def test_add_tagger():
@@ -86,7 +95,18 @@ def test_add_tagger():
     Text = load_text_class()
     text = Text('Aias sadas saia.')
     combined_tagger.tag(text)
-    assert text['combined'].to_records() == [{'start':  0, 'end':  5, 'attr_1': '1', 'attr_2': ''},
-                                             {'start':  6, 'end': 10, 'attr_1': '2', 'attr_2': ''},
-                                             {'start': 11, 'end': 15, 'attr_1': '3', 'attr_2': ''}
-                                            ]
+    assert layer_to_dict(text['combined']) == \
+        {'ambiguous': False,
+         'attributes': ('attr_1', 'attr_2'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'combined',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'attr_1': '1', 'attr_2': ''}],
+                    'base_span': (0, 5)},
+                   {'annotations': [{'attr_1': '2', 'attr_2': ''}],
+                    'base_span': (6, 10)},
+                   {'annotations': [{'attr_1': '3', 'attr_2': ''}],
+                    'base_span': (11, 15)}]}
+

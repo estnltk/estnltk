@@ -1,6 +1,7 @@
 from estnltk_core import Layer, ElementaryBaseSpan
 from estnltk_core.layer_operations import merge_layers
 from estnltk_core.common import load_text_class
+from estnltk_core.converters import layer_to_records
 
 def test_1():
     # Load Text or BaseText class (depending on the available packages)
@@ -61,7 +62,7 @@ def test_1():
                                output_layer='layer_5_new',
                                output_attributes=['attr', 'attr_5'])
 
-    assert layer_5_new.to_records() == [
+    assert layer_to_records( layer_5_new ) == [
         [[{'attr': 'L1-0', 'attr_1': 'SADA', 'start': 0, 'end': 4}],
          [{'attr': 'L1-1', 'attr_1': 'KAKS', 'start': 5, 'end': 9}]],
         [[{'attr': 'L1-0', 'attr_1': 'SADA', 'start': 0, 'end': 4}],
