@@ -89,10 +89,9 @@ class TokensTagger(Tagger):
                     spans_to_split.append( (start, end) )
             if spans_to_split:
                 spans = self._split_into_symbols( spans, spans_to_split )
-        layer = (self._make_layer_template()).from_records([ { 'start': start,
-                                                               'end': end
-                                                             } for start, end in spans],
-                                                             rewriting=True)
+        layer = self._make_layer_template()
+        for start, end in spans:
+            layer.add_annotation( (start, end) )
         layer.text_object = text
         return layer
 

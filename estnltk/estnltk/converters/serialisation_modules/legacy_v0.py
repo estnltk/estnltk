@@ -3,7 +3,8 @@ from typing import Union
 from estnltk_core.layer.layer import Layer
 from estnltk_core.layer.span import Span
 from estnltk_core.layer.annotation import Annotation
-
+from estnltk_core.converters import records_to_layer
+from estnltk_core.converters import layer_to_records
 
 __version__ = 'legacy_v0'
 
@@ -19,7 +20,7 @@ def layer_to_dict(layer: Layer) -> dict:
                   'spans': []}
     if layer.parent:
         parent_layer = layer.text_object[layer.parent]
-        records = layer.to_records()
+        records = layer_to_records( layer )
         last_index = 0
         for span, record in zip(layer, records):
             if layer.ambiguous:
@@ -54,7 +55,7 @@ def layer_to_dict(layer: Layer) -> dict:
                 records.append(record)
         layer_dict['spans'] = records
     else:
-        layer_dict['spans'] = layer.to_records()
+        layer_dict['spans'] = layer_to_records( layer )
 
     return layer_dict
 
@@ -97,5 +98,5 @@ def dict_to_layer(layer_dict: dict, text: Union['BaseText', 'Text']) -> Layer:
 
                 layer.add_annotation(spans, **attributes)
     else:
-        layer = layer.from_records(layer_dict['spans'], rewriting=True)
+        layer = records_to_layer( layer, layer_dict['spans'], rewriting=True )
     return layer

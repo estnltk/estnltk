@@ -27,6 +27,8 @@ from sys import stderr
 from tqdm import tqdm
 from tqdm.notebook import tqdm as notebook_tqdm
 
+from estnltk_core.converters import records_to_layer
+
 from estnltk import Text, Layer
 
 from estnltk.taggers.standard.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
@@ -480,19 +482,21 @@ class ENCTextReconstructor:
         if word_chunk_locations is not None and len(word_chunk_locations) > 0:
             if self.tokenization == 'preserve':
                 orig_word_chunks = \
-                    Layer(name=self.layer_name_prefix+'word_chunks', \
-                          attributes=(), \
-                          text_object=text_obj,\
-                          ambiguous=False).from_records( word_chunk_locations )
+                    records_to_layer( \
+                        Layer(name=self.layer_name_prefix+'word_chunks', \
+                              attributes=(), \
+                              text_object=text_obj,\
+                              ambiguous=False), word_chunk_locations )
         # Create words layer from the token records
         if word_locations is not None and len(word_locations) > 0:
             if self.tokenization == 'preserve':
                 # Create tokens layer
                 orig_tokens = \
-                    Layer(name=self.layer_name_prefix+TokensTagger.output_layer, \
-                          attributes=(), \
-                          text_object=text_obj,\
-                          ambiguous=False).from_records( word_locations )
+                    records_to_layer( \
+                        Layer(name=self.layer_name_prefix+TokensTagger.output_layer, \
+                              attributes=(), \
+                              text_object=text_obj,\
+                              ambiguous=False), word_locations )
                 # Create compound tokens layer
                 # Note: this layer will remain empty, as there is no information
                 #       about compound tokens in the original text
@@ -506,10 +510,11 @@ class ENCTextReconstructor:
             if _MAKE_WORDS_AMBIGUOUS:
                 word_locations = [ [wl] for wl in word_locations ]
             orig_words = \
-                Layer(name=self.layer_name_prefix+WordTagger.output_layer, \
-                      attributes=WordTagger.output_attributes, \
-                      text_object=text_obj,\
-                      ambiguous=_MAKE_WORDS_AMBIGUOUS).from_records( word_locations )
+                records_to_layer( \
+                    Layer(name=self.layer_name_prefix+WordTagger.output_layer, \
+                          attributes=WordTagger.output_attributes, \
+                          text_object=text_obj,\
+                          ambiguous=_MAKE_WORDS_AMBIGUOUS), word_locations )
         # Create sentences layer enveloping around words
         if sent_locations is not None and len(sent_locations) > 0 and \
            orig_words is not None: 

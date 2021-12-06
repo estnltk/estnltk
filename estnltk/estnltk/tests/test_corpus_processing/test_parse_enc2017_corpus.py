@@ -7,6 +7,7 @@ from estnltk.corpus_processing.parse_enc import ENCTextReconstructor
 
 from estnltk.corpus_processing.parse_enc import parse_enc_file_iterator
 
+from estnltk_core.converters import layer_to_records
 from estnltk_core.layer_operations import split_by
 
 inputfile_1 = 'test_enc2017_excerpt_1.vert'
@@ -274,7 +275,7 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
             texts.append( text_obj )
     # Assert / Check some details
     doc1 = texts[1]
-    assert doc1.original_morph_analysis.to_records(with_text=True)[0:6] == \
+    assert layer_to_records( doc1.original_morph_analysis, with_text=True )[0:6] == \
            [[{'text': 'Uudised', 'end': 7, 'form': 'pl n', 'start': 0, 'ending': 'd', 'partofspeech': 'S', 'root': 'uudis', 'root_tokens': ('uudis',), 'lemma': 'uudis', 'clitic': ''}], \
             [{'text': 'Sel', 'end': 12, 'form': 'sg ad', 'start': 9, 'ending': 'l', 'partofspeech': 'P', 'root': 'see', 'root_tokens': ('see',), 'lemma': 'see', 'clitic': ''}], 
             [{'text': 'pühapäeval', 'end': 23, 'form': 'sg ad', 'start': 13, 'ending': 'l', 'partofspeech': 'S', 'root': 'püha_päev', 'root_tokens': ('püha', 'päev'), 'lemma': 'pühapäev', 'clitic': ''}], \
@@ -282,7 +283,7 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
             [{'text': '1.', 'end': 27, 'form': '?', 'start': 25, 'ending': '0', 'partofspeech': 'O', 'root': '1.', 'root_tokens': ('1.',), 'lemma': '1.', 'clitic': ''}], \
             [{'text': 'mail', 'ending': 'il', 'root_tokens': ('maa',), 'form': 'pl ad', 'partofspeech': 'S', 'root': 'maa', 'start': 28, 'end': 32, 'clitic': '', 'lemma': 'maa'}] ]
     doc2 = texts[3]
-    assert doc2.original_morph_analysis.to_records(with_text=True)[0:7] == \
+    assert layer_to_records( doc2.original_morph_analysis, with_text=True )[0:7] == \
            [[{'text': 'TALLINN', 'root_tokens': ('Tallinn',), 'start': 0, 'ending': '0', 'partofspeech': 'H', 'form': 'sg n', 'root': 'Tallinn', 'lemma': 'Tallinn', 'clitic': '', 'end': 7}], \
             [{'text': ',', 'root_tokens': (',',), 'start': 7, 'ending': '', 'partofspeech': 'Z', 'form': '', 'root': ',', 'lemma': ',', 'clitic': '', 'end': 8}], \
             [{'text': '9.', 'root_tokens': ('9.',), 'start': 9, 'ending': '0', 'partofspeech': 'O', 'form': '?', 'root': '9.', 'lemma': '9.', 'clitic': '', 'end': 11}], \
@@ -303,7 +304,7 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
         texts.append( text_obj )
     # Assert / Check some details
     doc1 = texts[0]
-    assert doc1.original_morph_analysis.to_records(with_text=True)[0:4] == \
+    assert layer_to_records( doc1.original_morph_analysis, with_text=True )[0:4] == \
            [[{'text': 'Kuidas', 'root_tokens': ('kuidas',), 'lemma': 'kuidas', 'start': 0, 'form': '', 'end': 6, 'ending': '0', 'root': 'kuidas', 'clitic': '', 'partofspeech': 'D'}], \
             [{'text': 'õunu', 'root_tokens': ('õun',), 'lemma': 'õun', 'start': 7, 'form': 'pl p', 'end': 11, 'ending': 'u', 'root': 'õun', 'clitic': '', 'partofspeech': 'S'}], \
             [{'text': 'paremini', 'root_tokens': ('paremini',), 'lemma': 'paremini', 'start': 12, 'form': '', 'end': 20, 'ending': '0', 'root': 'paremini', 'clitic': '', 'partofspeech': 'D'}], \

@@ -2,6 +2,7 @@ from os.path import dirname, join
 
 from estnltk import Text
 from estnltk.taggers import SpanTagger
+from estnltk_core.converters import layer_to_records
 from estnltk_core.tests.helpers.text_objects import new_text
 
 
@@ -25,7 +26,7 @@ def test_basic():
      [{'letter': 'B', 'end': 27, 'number': 2, 'start': 22, '_priority_': 1},
       {'letter': 'C', 'end': 27, 'number': 3, 'start': 22, '_priority_': 1}]]
 
-    assert expected==text['tagged_tokens'].to_records()
+    assert expected==layer_to_records( text['tagged_tokens'] )
 
 
 def test_ambiguous_input_layer():
@@ -41,7 +42,7 @@ def test_ambiguous_input_layer():
                         )
     text = Text('Eestimaal tunnevad inimesed palju puudust päikesest ja energiast.').tag_layer(['morph_analysis'])
     tagger.tag(text)
-    assert text.tagged_tokens.to_records() == [
+    assert layer_to_records( text.tagged_tokens ) == [
         [{'value': 'T', '_priority_': 1, 'start': 10, 'end': 18}],
         [{'value': 'K', '_priority_': 2, 'start': 19, 'end': 27},
          {'value': 'I', '_priority_': 3, 'start': 19, 'end': 27}],
@@ -61,4 +62,4 @@ def test_not_case_sensitive():
                               )
     comma_tagger.tag(text)
 
-    assert text.size.to_records() == [[{'start': 0, 'end': 4}], [{'start': 8, 'end': 13}]]
+    assert layer_to_records( text.size ) == [[{'start': 0, 'end': 4}], [{'start': 8, 'end': 13}]]

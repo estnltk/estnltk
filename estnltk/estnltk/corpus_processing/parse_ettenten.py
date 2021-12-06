@@ -11,6 +11,8 @@
 
 import re
 
+from estnltk_core.converters import records_to_layer
+
 from estnltk import Text, Layer
 from estnltk.taggers import ParagraphTokenizer
 
@@ -214,10 +216,11 @@ def reconstruct_ettenten_text( document, \
         # 5.2) If there are no other annotations, then add stand-alone 
         #      layer 'original_paragraphs'
         orig_paragraphs = \
-           Layer(name = 'original_paragraphs',
-                 text_object=text,
-                 attributes = tuple(list(paragraph_attrib_names)),
-                 ambiguous=True ).from_records(para_locations)
+            records_to_layer( \
+               Layer(name = 'original_paragraphs',
+                     text_object=text,
+                     attributes = tuple(list(paragraph_attrib_names)),
+                     ambiguous=True ), para_locations )
         text.add_layer(orig_paragraphs)
     return text
 

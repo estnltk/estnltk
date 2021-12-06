@@ -1,6 +1,8 @@
 from collections import defaultdict
 import pytest
 
+from estnltk_core.converters import layer_to_records
+
 from estnltk import Text
 
 from estnltk.taggers.standard.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
@@ -287,7 +289,7 @@ def test_mark_ambiguities_to_be_ignored():
     hidden_words_records = []
     hidden_words = []
     for hidden_word in doc[ disamb_ignore_tagger.output_layer ]:
-        records = hidden_word.morph_analysis.to_records()
+        records = layer_to_records( hidden_word.morph_analysis )
         hidden_words_records.append( records[0] )
         hidden_words.append( hidden_word.text[0] )
     assert hidden_words == ['kõlanud', 'nagu', 'Mis', 'on', 'üks', 'ega', 'teine']

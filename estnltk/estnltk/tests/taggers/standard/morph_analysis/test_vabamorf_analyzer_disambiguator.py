@@ -5,7 +5,8 @@ from estnltk import Annotation
 from estnltk.taggers.standard.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
 from estnltk.taggers.standard.morph_analysis.morf import IGNORE_ATTR
 from estnltk_core.layer import AmbiguousAttributeList
-
+from estnltk.converters import dict_to_layer
+from estnltk.converters import layer_to_records
 
 # ----------------------------------
 #   Helper functions
@@ -93,9 +94,9 @@ def test_morph_analyzer_1():
         [{'normalized_text': 'mees', 'partofspeech': 'S', 'start': 33, 'ending': '0', 'form': 'sg n', 'root': 'mees', 'end': 37, 'clitic': '', 'root_tokens': ['mees',], 'lemma': 'mees'},
          {'normalized_text': 'mees', 'partofspeech': 'S', 'start': 33, 'ending': 's', 'form': 'sg in', 'root': 'mesi', 'end': 37, 'clitic': '', 'root_tokens': ['mesi',], 'lemma': 'mesi'}],
         [{'normalized_text': '?', 'partofspeech': 'Z', 'start': 38, 'ending': '', 'form': '', 'root': '?', 'end': 39, 'clitic': '', 'root_tokens': ['?',], 'lemma': '?'}]]
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records( text['morph_analysis'] )
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -171,9 +172,9 @@ def test_morph_analyzer_with_multiple_normalized_forms():
             {'normalized_text': 'jube', 'lemma': 'jube', 'end': 21, 'form': '', 'root_tokens': ['jube'], 'root': 'jube', 'ending': '0', 'clitic': '', 'partofspeech': 'D', 'start': 11}], 
            [{'normalized_text': '...', 'lemma': '...', 'end': 25, 'form': '', 'root_tokens': ['...'], 'root': '...', 'ending': '', 'clitic': '', 'partofspeech': 'Z', 'start': 22}]
          ]
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records( text['morph_analysis'] )
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -208,8 +209,8 @@ def test_morph_analyzer_with_multiple_normalized_forms():
            {'normalized_text': 'head', 'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'pl n', 'root': 'hea', 'start': 6}, 
            {'normalized_text': 'head', 'clitic': '', 'partofspeech': 'S', 'lemma': 'hea', 'root_tokens': ['hea'], 'ending': 'd', 'end': 9, 'form': 'sg p', 'root': 'hea', 'start': 6}], 
           [{'normalized_text':  None, 'root_tokens': None, 'clitic': None, 'lemma': None, 'root': None, 'ending': None, 'end': 11, 'partofspeech': None, 'form': None, 'start': 10}] ]
-    #print(text['morph_analysis'].to_records())
-    results_dict = text['morph_analysis'].to_records()
+    #print(layer_to_records(text['morph_analysis']))
+    results_dict = layer_to_records( text['morph_analysis'] )
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -239,9 +240,9 @@ def test_morph_disambiguator_1():
          {'normalized_text': 'jõudnud', 'ending': 'd', 'root': 'jõud=nud', 'root_tokens': ['jõudnud',], 'start': 25, 'end': 32, 'clitic': '', 'partofspeech': 'A', 'lemma': 'jõudnud', 'form': 'pl n'}], \
         [{'normalized_text': 'mees', 'ending': '0', 'root': 'mees', 'root_tokens': ['mees',], 'start': 33, 'end': 37, 'clitic': '', 'partofspeech': 'S', 'lemma': 'mees', 'form': 'sg n'}], \
         [{'normalized_text': '?', 'ending': '', 'root': '?', 'root_tokens': ['?',], 'start': 38, 'end': 39, 'clitic': '', 'partofspeech': 'Z', 'lemma': '?', 'form': ''}]]
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records( text['morph_analysis'] )
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -304,7 +305,7 @@ def test_morph_disambiguation_preserves_extra_attributes():
                     setattr(annotation, 'sentence_id', str(sent_id))
     # Disambiguate text
     disambiguator.retag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     # Check that extra attributes are preserved
     expected_records = [
         [{'normalized_text': 'Mees', 'analysis_id': '0_3', 'clitic': '', 'root': 'mees', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '0', 'start': 0, 'root_tokens': ['mees',], 'end': 4, 'form': 'sg n', 'lemma': 'mees'}],
@@ -315,7 +316,7 @@ def test_morph_disambiguation_preserves_extra_attributes():
         [{'normalized_text': 'naeris', 'analysis_id': '5_1', 'clitic': '', 'root': 'naer', 'ending': 'is', 'partofspeech': 'V', 'sentence_id': '1', 'start': 22, 'root_tokens': ['naer',], 'end': 28, 'form': 's', 'lemma': 'naerma'}],
         [{'normalized_text': '.', 'analysis_id': '6_0', 'clitic': '', 'root': '.', 'ending': '', 'partofspeech': 'Z', 'sentence_id': '1', 'start': 28, 'root_tokens': ['.',], 'end': 29, 'form': '', 'lemma': '.'}] ]
     # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records( text['morph_analysis'] )
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -328,8 +329,6 @@ def test_morph_disambiguation_preserves_extra_attributes():
 #      multiple normalized forms 
 #      are provided
 # ----------------------------------
-
-from estnltk.converters import dict_to_layer
 
 def test_morph_disambiguation_if_analysis_has_normalized_text_attribute():
     # Tests that morphological disambiguator works if morphological_analysis 
@@ -460,13 +459,13 @@ def test_morph_disambiguation_with_ignore_all():
     text=Text('Mees peeti kinni') 
     text.tag_layer(['words','sentences'])
     analyzer1.tag(text)  # analyze and add empty IGNORE_ATTR-s
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     # Ignore all spans/words
     for spanlist in text.morph_analysis:
         for annotation in spanlist.annotations:
             setattr(annotation, IGNORE_ATTR, True)
     disambiguator.retag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     # Assert that attribute IGNORE_ATTR has been removed 
     assert IGNORE_ATTR not in text.morph_analysis.attributes
 
@@ -498,9 +497,9 @@ def test_morph_disambiguation_with_ignore_xml_tags():
     # ignore xml_tags
     mark_ignore = \
       _ignore_morph_analyses_overlapping_with_compound_tokens(text, ['xml_tag'])
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     disambiguator.retag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     # Assert that attribute IGNORE_ATTR has been removed
     assert IGNORE_ATTR not in text.morph_analysis.attributes
     for span in text.morph_analysis:

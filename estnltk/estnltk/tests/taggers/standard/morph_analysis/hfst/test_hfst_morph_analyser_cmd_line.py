@@ -7,6 +7,8 @@ import pytest
 from estnltk import Annotation
 from estnltk import Text
 
+from estnltk.converters import layer_to_records
+
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line import check_if_hfst_is_in_path
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
 
@@ -21,7 +23,7 @@ def test_hfst_morph_analyser_raw_output():
     text = Text(input_text_str)
     text.tag_layer(['compound_tokens', 'words'])
     hfstAnalyser.tag(text)
-    results = text['hfst_gt_morph_analysis'].to_records()
+    results = layer_to_records( text['hfst_gt_morph_analysis'] )
     #print(results)
     expected_results = [ 
        [{'weight': 6.0, 'raw_analysis': 'no+Interj', 'start': 0, 'end': 2}], \
@@ -54,7 +56,7 @@ def test_hfst_morph_analyser_raw_output():
     text = Text(input_text_str)
     text.tag_layer(['compound_tokens', 'words'])
     hfstAnalyser.tag(text)
-    results = text['hfst_gt_morph_analysis'].to_records()
+    results = layer_to_records( text['hfst_gt_morph_analysis'] )
     #print(results)
     expected_results = [ 
        [{'raw_analysis': 'Trinidad+N+Prop+Sg+Nom', 'end': 8, 'weight': 11.0, 'start': 0}], \
@@ -116,7 +118,7 @@ def test_hfst_morph_analyser_raw_output_file_based_io():
     text = Text(input_text_str)
     text.tag_layer(['compound_tokens', 'words'])
     hfstAnalyser.tag(text)
-    results = text['hfst_gt_morph_analysis'].to_records()
+    results = layer_to_records( text['hfst_gt_morph_analysis'] )
     #print(results)
     expected_results = [ 
        [{'weight': 6.0, 'raw_analysis': 'no+Interj', 'start': 0, 'end': 2}], \
@@ -149,7 +151,7 @@ def test_hfst_morph_analyser_raw_output_file_based_io():
     text = Text(input_text_str)
     text.tag_layer(['compound_tokens', 'words'])
     hfstAnalyser.tag(text)
-    results = text['hfst_gt_morph_analysis'].to_records()
+    results = layer_to_records( text['hfst_gt_morph_analysis'] )
     #print(results)
     expected_results = [ 
        [{'raw_analysis': 'Trinidad+N+Prop+Sg+Nom', 'end': 8, 'weight': 11.0, 'start': 0}], \
@@ -209,7 +211,7 @@ def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
                 word.clear_annotations()
                 word.add_annotation( Annotation(word, normalized_form='jube') )
     hfstAnalyser.tag(text)
-    results = text['hfst_gt_morph_analysis'].to_records()
+    results = layer_to_records( text['hfst_gt_morph_analysis'] )
     #print(results)
     expected_results = \
     [
@@ -239,7 +241,7 @@ def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
                 word.add_annotation( Annotation(word, normalized_form='hääx0R') )
                 word.add_annotation( Annotation(word, normalized_form='head') )
     hfstAnalyser.tag(text)
-    results = text['hfst_gt_morph_analysis'].to_records()
+    results = layer_to_records( text['hfst_gt_morph_analysis'] )
     #print(results)
     expected_results = \
     [
@@ -270,7 +272,7 @@ def test_hfst_morph_analyser_morphemes_lemmas_output():
     text = Text(input_text_str)
     text.tag_layer(['compound_tokens', 'words'])
     hfstAnalyser.tag(text)
-    results = text['hfst_gt_morph_analysis'].to_records()
+    results = layer_to_records( text['hfst_gt_morph_analysis'] )
     #print(results)
     expected_results = [
        [{'weight': 54.0, 'end': 10, 'forms': ('', 'Sg+Nom'), 'postags': ('Pref', 'A'), 'morphemes_lemmas': ('üli', 'püüdlik'), 'is_guessed': False, 'has_clitic': False, 'start': 0, 'usage': ()}, 
@@ -291,7 +293,7 @@ def test_hfst_morph_analyser_morphemes_lemmas_output():
     text = Text(input_text_str)
     text.tag_layer(['compound_tokens', 'words'])
     hfstAnalyser.tag(text)
-    results = text['hfst_gt_morph_analysis'].to_records()
+    results = layer_to_records( text['hfst_gt_morph_analysis'] )
     #print(results)
     expected_results = [
        [{'postags': ('Adv', 'V', 'A'), 'is_guessed': False, 'end': 11, 'morphemes_lemmas': ('ära', 'lõikama', 'tud'), 'has_clitic': False, 'forms': ('', 'Der', ''), 'weight': 60.0, 'start': 0, 'usage': ()}, 
@@ -358,10 +360,10 @@ def test_hfst_morph_analyser_with_guessing_switched_on_and_off():
     hfstAnalyser = HfstClMorphAnalyser(remove_guesses=True)
     hfstAnalyserGuesser = HfstClMorphAnalyser(output_layer='hfst_gt_morph_analysis_w_guesses')
     hfstAnalyser.tag(text)
-    results1 = text['hfst_gt_morph_analysis'].to_records()
+    results1 = layer_to_records( text['hfst_gt_morph_analysis'] )
     assert results1 == [[{'weight': float('inf'), 'postags': None, 'forms': None, 'morphemes_lemmas': None, 'end': 15, 'usage': None, 'start': 0, 'has_clitic': None, 'is_guessed': None}]]
     hfstAnalyserGuesser.tag(text)
-    results2 = text['hfst_gt_morph_analysis_w_guesses'].to_records()
+    results2 = layer_to_records( text['hfst_gt_morph_analysis_w_guesses'] )
     assert results2 == [[{'weight': 240.0, 'postags': ('', 'N'), 'forms': ('', 'Pl+Nom'), 'morphemes_lemmas': ('bronze', 'mehike'), 'end': 15, 'usage': (), 'start': 0, 'has_clitic': False, 'is_guessed': True}, \
                          {'weight': 242.0, 'postags': ('', 'N'), 'forms': ('', 'Pl+Nom'), 'morphemes_lemmas': ('bronze', 'mehikene'), 'end': 15, 'usage': (), 'start': 0, 'has_clitic': False, 'is_guessed': True}]] 
 

@@ -5,21 +5,8 @@ from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
 from estnltk.default_resolver import make_resolver
 from estnltk_core.layer import AmbiguousAttributeList
+from estnltk_core.converters import layer_to_dict
 
-# ----------------------------------
-
-def _sort_morph_analysis_records( morph_analysis_records:list ):
-    '''Sorts sublists (lists of analyses of a single word) of 
-       morph_analysis_records. Sorting is required for comparing
-       morph analyses of a word without setting any constraints 
-       on their specific order. '''
-    for wrid, word_records_list in enumerate( morph_analysis_records ):
-        sorted_records = sorted( word_records_list, key = lambda x : \
-            str(x['root'])+str(x['ending'])+str(x['clitic'])+\
-            str(x['partofspeech'])+str(x['form']) )
-        morph_analysis_records[wrid] = sorted_records
-
-# ----------------------------------
 
 def test_analyse_segmentation_and_morphology():
     # Analysing first for 'segmentation', and then for 'morphology'
@@ -35,39 +22,183 @@ def test_default_morph_analysis():
     # Case 1
     text = Text("Aga kõik juhtus iseenesest.")
     text.analyse('morphology')
-    #print( text['morph_analysis'].to_records() )
-    expected_records = [ \
-        [{'normalized_text': 'Aga', 'root': 'aga', 'ending': '0', 'start': 0, 'form': '', 'lemma': 'aga', 'root_tokens': ['aga',], 'partofspeech': 'J', 'clitic': '', 'end': 3}], \
-        [{'normalized_text': 'kõik', 'root': 'kõik', 'ending': '0', 'start': 4, 'form': 'pl n', 'lemma': 'kõik', 'root_tokens': ['kõik',], 'partofspeech': 'P', 'clitic': '', 'end': 8}, \
-         {'normalized_text': 'kõik', 'root': 'kõik', 'ending': '0', 'start': 4, 'form': 'sg n', 'lemma': 'kõik', 'root_tokens': ['kõik',], 'partofspeech': 'P', 'clitic': '', 'end': 8}], \
-        [{'normalized_text': 'juhtus', 'root': 'juhtu', 'ending': 's', 'start': 9, 'form': 's', 'lemma': 'juhtuma', 'root_tokens': ['juhtu',], 'partofspeech': 'V', 'clitic': '', 'end': 15}], \
-        [{'normalized_text': 'iseenesest', 'root': 'ise_enesest', 'ending': '0', 'start': 16, 'form': '', 'lemma': 'iseenesest', 'root_tokens': ['ise', 'enesest'], 'partofspeech': 'D', 'clitic': '', 'end': 26}], \
-        [{'normalized_text': '.', 'root': '.', 'ending': '', 'start': 26, 'form': '', 'lemma': '.', 'root_tokens': ['.',], 'partofspeech': 'Z', 'clitic': '', 'end': 27}] ]
     # Check results
-    assert expected_records == text['morph_analysis'].to_records()
-    assert AmbiguousAttributeList([['J'], ['P', 'P'], ['V'], ['D'], ['Z']], 'partofspeech') == text.partofspeech
+    assert 'morph_analysis' in text.layers
+    assert layer_to_dict( text['morph_analysis'] ) == \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'aga',
+                                     'normalized_text': 'Aga',
+                                     'partofspeech': 'J',
+                                     'root': 'aga',
+                                     'root_tokens': ['aga']}],
+                    'base_span': (0, 3)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'pl n',
+                                     'lemma': 'kõik',
+                                     'normalized_text': 'kõik',
+                                     'partofspeech': 'P',
+                                     'root': 'kõik',
+                                     'root_tokens': ['kõik']},
+                                    {'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'kõik',
+                                     'normalized_text': 'kõik',
+                                     'partofspeech': 'P',
+                                     'root': 'kõik',
+                                     'root_tokens': ['kõik']}],
+                    'base_span': (4, 8)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 's',
+                                     'form': 's',
+                                     'lemma': 'juhtuma',
+                                     'normalized_text': 'juhtus',
+                                     'partofspeech': 'V',
+                                     'root': 'juhtu',
+                                     'root_tokens': ['juhtu']}],
+                    'base_span': (9, 15)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'iseenesest',
+                                     'normalized_text': 'iseenesest',
+                                     'partofspeech': 'D',
+                                     'root': 'ise_enesest',
+                                     'root_tokens': ['ise', 'enesest']}],
+                    'base_span': (16, 26)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (26, 27)}]}
     
     # Case 2 (contains ambiguities that should be resolved)
     text = Text("Kärbes hulbib mees ja naeris puhub sädelevaid mulle.")
     text.analyse('morphology')
-    #print( text['morph_analysis'].to_records() )
-    expected_records = [ \
-        [{'normalized_text': 'Kärbes', 'partofspeech': 'S', 'root': 'kärbes', 'start': 0, 'clitic': '', 'end': 6, 'root_tokens': ['kärbes',], 'lemma': 'kärbes', 'ending': '0', 'form': 'sg n'}], \
-        [{'normalized_text': 'hulbib', 'partofspeech': 'V', 'root': 'hulpi', 'start': 7, 'clitic': '', 'end': 13, 'root_tokens': ['hulpi',], 'lemma': 'hulpima', 'ending': 'b', 'form': 'b'}], \
-        [{'normalized_text': 'mees', 'partofspeech': 'S', 'root': 'mees', 'start': 14, 'clitic': '', 'end': 18, 'root_tokens': ['mees',], 'lemma': 'mees', 'ending': '0', 'form': 'sg n'}], \
-        [{'normalized_text': 'ja', 'partofspeech': 'J', 'root': 'ja', 'start': 19, 'clitic': '', 'end': 21, 'root_tokens': ['ja',], 'lemma': 'ja', 'ending': '0', 'form': ''}], \
-        [{'normalized_text': 'naeris', 'partofspeech': 'V', 'root': 'naer', 'start': 22, 'clitic': '', 'end': 28, 'root_tokens': ['naer',], 'lemma': 'naerma', 'ending': 'is', 'form': 's'}], \
-        [{'normalized_text': 'puhub', 'partofspeech': 'V', 'root': 'puhu', 'start': 29, 'clitic': '', 'end': 34, 'root_tokens': ['puhu',], 'lemma': 'puhuma', 'ending': 'b', 'form': 'b'}], \
-        [{'normalized_text': 'sädelevaid', 'partofspeech': 'A', 'root': 'sädelev', 'start': 35, 'clitic': '', 'end': 45, 'root_tokens': ['sädelev',], 'lemma': 'sädelev', 'ending': 'id', 'form': 'pl p'}], \
-        [{'normalized_text': 'mulle', 'partofspeech': 'P', 'root': 'mina', 'start': 46, 'clitic': '', 'end': 51, 'root_tokens': ['mina',], 'lemma': 'mina', 'ending': 'lle', 'form': 'sg all'}], \
-        [{'normalized_text': '.', 'partofspeech': 'Z', 'root': '.', 'start': 51, 'clitic': '', 'end': 52, 'root_tokens': ['.',], 'lemma': '.', 'ending': '', 'form': ''}]]
+    # Check results
     # Note that this example sentence is a little out of the ordinary and 
     # hence the bad performance of disambiguator. The more 'normal' your 
     # text is, the better the results.
-    # Check results
-    assert expected_records == text['morph_analysis'].to_records()
+    assert layer_to_dict( text['morph_analysis'] ) == \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'kärbes',
+                                     'normalized_text': 'Kärbes',
+                                     'partofspeech': 'S',
+                                     'root': 'kärbes',
+                                     'root_tokens': ['kärbes']}],
+                    'base_span': (0, 6)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'b',
+                                     'form': 'b',
+                                     'lemma': 'hulpima',
+                                     'normalized_text': 'hulbib',
+                                     'partofspeech': 'V',
+                                     'root': 'hulpi',
+                                     'root_tokens': ['hulpi']}],
+                    'base_span': (7, 13)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'mees',
+                                     'normalized_text': 'mees',
+                                     'partofspeech': 'S',
+                                     'root': 'mees',
+                                     'root_tokens': ['mees']}],
+                    'base_span': (14, 18)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'ja',
+                                     'normalized_text': 'ja',
+                                     'partofspeech': 'J',
+                                     'root': 'ja',
+                                     'root_tokens': ['ja']}],
+                    'base_span': (19, 21)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'is',
+                                     'form': 's',
+                                     'lemma': 'naerma',
+                                     'normalized_text': 'naeris',
+                                     'partofspeech': 'V',
+                                     'root': 'naer',
+                                     'root_tokens': ['naer']}],
+                    'base_span': (22, 28)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'b',
+                                     'form': 'b',
+                                     'lemma': 'puhuma',
+                                     'normalized_text': 'puhub',
+                                     'partofspeech': 'V',
+                                     'root': 'puhu',
+                                     'root_tokens': ['puhu']}],
+                    'base_span': (29, 34)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'id',
+                                     'form': 'pl p',
+                                     'lemma': 'sädelev',
+                                     'normalized_text': 'sädelevaid',
+                                     'partofspeech': 'A',
+                                     'root': 'sädelev',
+                                     'root_tokens': ['sädelev']}],
+                    'base_span': (35, 45)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'lle',
+                                     'form': 'sg all',
+                                     'lemma': 'mina',
+                                     'normalized_text': 'mulle',
+                                     'partofspeech': 'P',
+                                     'root': 'mina',
+                                     'root_tokens': ['mina']}],
+                    'base_span': (46, 51)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (51, 52)}]}
 
-    text = Text('<ANONYM id="14" type="per" morph="_H_ sg n"/>').tag_layer(['morph_analysis'])
+    # Case 3
+    text = Text('<ANONYM id="14" type="per" morph="_H_ sg n"/>').tag_layer( 'morph_analysis' )
     assert text.morph_analysis[0].parent is not None
 
 
@@ -85,31 +216,176 @@ def test_default_morph_analysis_without_disambiguation():
     text.pop_layer('morph_analysis')
     # Create a new layer without disambiguation
     text.tag_layer(resolver=resolver)['morph_analysis']
-    #print( text['morph_analysis'].to_records() )
-    expected_records = [ \
-        [{'normalized_text': 'Kärbes', 'root_tokens': ['Kärbes',], 'lemma': 'Kärbes', 'root': 'Kärbes', 'clitic': '', 'ending': '0', 'end': 6, 'start': 0, 'form': 'sg n', 'partofspeech': 'H', '_ignore': False},\
-         {'normalized_text': 'Kärbes', 'root_tokens': ['Kärbe',], 'lemma': 'Kärbe', 'root': 'Kärbe', 'clitic': '', 'ending': 's', 'end': 6, 'start': 0, 'form': 'sg in', 'partofspeech': 'H', '_ignore': False},\
-         {'normalized_text': 'Kärbes', 'root_tokens': ['kärbes',], 'lemma': 'kärbes', 'root': 'kärbes', 'clitic': '', 'ending': '0', 'end': 6, 'start': 0, 'form': 'sg n', 'partofspeech': 'S', '_ignore': False}], \
-        [{'normalized_text': 'hulbib', 'root_tokens': ['hulpi',], 'lemma': 'hulpima', 'root': 'hulpi', 'clitic': '', 'ending': 'b', 'end': 13, 'start': 7, 'form': 'b', 'partofspeech': 'V', '_ignore': False}], \
-        [{'normalized_text': 'mees', 'root_tokens': ['mesi',], 'lemma': 'mesi', 'root': 'mesi', 'clitic': '', 'ending': 's', 'end': 18, 'start': 14, 'form': 'sg in', 'partofspeech': 'S', '_ignore': False}, \
-         {'normalized_text': 'mees', 'root_tokens': ['mees',], 'lemma': 'mees', 'root': 'mees', 'clitic': '', 'ending': '0', 'end': 18, 'start': 14, 'form': 'sg n', 'partofspeech': 'S', '_ignore': False}], \
-        [{'normalized_text': 'ja', 'root_tokens': ['ja',], 'lemma': 'ja', 'root': 'ja', 'clitic': '', 'ending': '0', 'end': 21, 'start': 19, 'form': '', 'partofspeech': 'J', '_ignore': False}], \
-        [{'normalized_text': 'naeris', 'root_tokens': ['naeris',], 'lemma': 'naeris', 'root': 'naeris', 'clitic': '', 'ending': '0', 'end': 28, 'start': 22, 'form': 'sg n', 'partofspeech': 'S', '_ignore': False},\
-         {'normalized_text': 'naeris', 'root_tokens': ['naer',], 'lemma': 'naerma', 'root': 'naer', 'clitic': '', 'ending': 'is', 'end': 28, 'start': 22, 'form': 's', 'partofspeech': 'V', '_ignore': False},\
-         {'normalized_text': 'naeris', 'root_tokens': ['naeris',], 'lemma': 'naeris', 'root': 'naeris', 'clitic': '', 'ending': 's', 'end': 28, 'start': 22, 'form': 'sg in', 'partofspeech': 'S', '_ignore': False}], \
-        [{'normalized_text': 'puhub', 'root_tokens': ['puhu',], 'lemma': 'puhuma', 'root': 'puhu', 'clitic': '', 'ending': 'b', 'end': 34, 'start': 29, 'form': 'b', 'partofspeech': 'V', '_ignore': False}], \
-        [{'normalized_text': 'sädelevaid', 'root_tokens': ['sädelev',], 'lemma': 'sädelev', 'root': 'sädelev', 'clitic': '', 'ending': 'id', 'end': 45, 'start': 35, 'form': 'pl p', 'partofspeech': 'A', '_ignore': False}], \
-        [{'normalized_text': 'mulle', 'root_tokens': ['mina',], 'lemma': 'mina', 'root': 'mina', 'clitic': '', 'ending': 'lle', 'end': 51, 'start': 46, 'form': 'sg all', 'partofspeech': 'P', '_ignore': False}, \
-         {'normalized_text': 'mulle', 'root_tokens': ['mulle',], 'lemma': 'mulle', 'root': 'mulle', 'clitic': '', 'ending': '0', 'end': 51, 'start': 46, 'form': 'sg n', 'partofspeech': 'S', '_ignore': False},\
-         {'normalized_text': 'mulle', 'root_tokens': ['mull',], 'lemma': 'mull', 'root': 'mull', 'clitic': '', 'ending': 'e', 'end': 51, 'start': 46, 'form': 'pl p', 'partofspeech': 'S', '_ignore': False}], \
-        [{'normalized_text': '.', 'root_tokens': ['.',], 'lemma': '.', 'root': '.', 'clitic': '', 'ending': '', 'end': 52, 'start': 51, 'form': '', 'partofspeech': 'Z', '_ignore': False}]]
-    # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
     # Check results ( morph should be ambiguous )
-    assert len(expected_records) == len(results_dict)
-    assert expected_records == results_dict
+    assert layer_to_dict( text['morph_analysis'] ) == \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech',
+                        '_ignore'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 's',
+                                     'form': 'sg in',
+                                     'lemma': 'Kärbe',
+                                     'normalized_text': 'Kärbes',
+                                     'partofspeech': 'H',
+                                     'root': 'Kärbe',
+                                     'root_tokens': ['Kärbe']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'Kärbes',
+                                     'normalized_text': 'Kärbes',
+                                     'partofspeech': 'H',
+                                     'root': 'Kärbes',
+                                     'root_tokens': ['Kärbes']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'kärbes',
+                                     'normalized_text': 'Kärbes',
+                                     'partofspeech': 'S',
+                                     'root': 'kärbes',
+                                     'root_tokens': ['kärbes']}],
+                    'base_span': (0, 6)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'b',
+                                     'form': 'b',
+                                     'lemma': 'hulpima',
+                                     'normalized_text': 'hulbib',
+                                     'partofspeech': 'V',
+                                     'root': 'hulpi',
+                                     'root_tokens': ['hulpi']}],
+                    'base_span': (7, 13)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'mees',
+                                     'normalized_text': 'mees',
+                                     'partofspeech': 'S',
+                                     'root': 'mees',
+                                     'root_tokens': ['mees']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 's',
+                                     'form': 'sg in',
+                                     'lemma': 'mesi',
+                                     'normalized_text': 'mees',
+                                     'partofspeech': 'S',
+                                     'root': 'mesi',
+                                     'root_tokens': ['mesi']}],
+                    'base_span': (14, 18)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'ja',
+                                     'normalized_text': 'ja',
+                                     'partofspeech': 'J',
+                                     'root': 'ja',
+                                     'root_tokens': ['ja']}],
+                    'base_span': (19, 21)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'is',
+                                     'form': 's',
+                                     'lemma': 'naerma',
+                                     'normalized_text': 'naeris',
+                                     'partofspeech': 'V',
+                                     'root': 'naer',
+                                     'root_tokens': ['naer']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'naeris',
+                                     'normalized_text': 'naeris',
+                                     'partofspeech': 'S',
+                                     'root': 'naeris',
+                                     'root_tokens': ['naeris']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 's',
+                                     'form': 'sg in',
+                                     'lemma': 'naeris',
+                                     'normalized_text': 'naeris',
+                                     'partofspeech': 'S',
+                                     'root': 'naeris',
+                                     'root_tokens': ['naeris']}],
+                    'base_span': (22, 28)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'b',
+                                     'form': 'b',
+                                     'lemma': 'puhuma',
+                                     'normalized_text': 'puhub',
+                                     'partofspeech': 'V',
+                                     'root': 'puhu',
+                                     'root_tokens': ['puhu']}],
+                    'base_span': (29, 34)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'id',
+                                     'form': 'pl p',
+                                     'lemma': 'sädelev',
+                                     'normalized_text': 'sädelevaid',
+                                     'partofspeech': 'A',
+                                     'root': 'sädelev',
+                                     'root_tokens': ['sädelev']}],
+                    'base_span': (35, 45)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'e',
+                                     'form': 'pl p',
+                                     'lemma': 'mull',
+                                     'normalized_text': 'mulle',
+                                     'partofspeech': 'S',
+                                     'root': 'mull',
+                                     'root_tokens': ['mull']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'lle',
+                                     'form': 'sg all',
+                                     'lemma': 'mina',
+                                     'normalized_text': 'mulle',
+                                     'partofspeech': 'P',
+                                     'root': 'mina',
+                                     'root_tokens': ['mina']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'mulle',
+                                     'normalized_text': 'mulle',
+                                     'partofspeech': 'S',
+                                     'root': 'mulle',
+                                     'root_tokens': ['mulle']}],
+                    'base_span': (46, 51)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (51, 52)}]}
 
 
 def test_default_morph_analysis_without_propername():
@@ -124,18 +400,94 @@ def test_default_morph_analysis_without_propername():
     text = Text("Ida-Euroopas sai valmis Parlament, suure algustähega.")
     # Analyse 'morphology' without without propername guessing
     text.analyse('morphology', resolver=resolver)
-    #print( text['morph_analysis'].to_records() )
-    expected_records = [ \
-        [{'normalized_text': 'Ida-Euroopas', 'partofspeech': 'H', 'ending': 's', 'root_tokens': ['Ida', 'Euroopa'], 'end': 12, 'clitic': '', 'start': 0, 'lemma': 'Ida-Euroopa', 'form': 'sg in', 'root': 'Ida-Euroopa'}], \
-        [{'normalized_text': 'sai', 'partofspeech': 'V', 'ending': 'i', 'root_tokens': ['saa',], 'end': 16, 'clitic': '', 'start': 13, 'lemma': 'saama', 'form': 's', 'root': 'saa'}], \
-        [{'normalized_text': 'valmis', 'partofspeech': 'A', 'ending': '0', 'root_tokens': ['valmis',], 'end': 23, 'clitic': '', 'start': 17, 'lemma': 'valmis', 'form': '', 'root': 'valmis'}], \
-        [{'normalized_text': 'Parlament', 'partofspeech': 'S', 'ending': '0', 'root_tokens': ['parlament',], 'end': 33, 'clitic': '', 'start': 24, 'lemma': 'parlament', 'form': 'sg n', 'root': 'parlament'}], \
-        [{'normalized_text': ',', 'partofspeech': 'Z', 'ending': '', 'root_tokens': [',',], 'end': 34, 'clitic': '', 'start': 33, 'lemma': ',', 'form': '', 'root': ','}], \
-        [{'normalized_text': 'suure', 'partofspeech': 'A', 'ending': '0', 'root_tokens': ['suur',], 'end': 40, 'clitic': '', 'start': 35, 'lemma': 'suur', 'form': 'sg g', 'root': 'suur'}], \
-        [{'normalized_text': 'algustähega', 'partofspeech': 'S', 'ending': 'ga', 'root_tokens': ['algus', 'täht'], 'end': 52, 'clitic': '', 'start': 41, 'lemma': 'algustäht', 'form': 'sg kom', 'root': 'algus_täht'}], \
-        [{'normalized_text': '.', 'partofspeech': 'Z', 'ending': '', 'root_tokens': ['.',], 'end': 53, 'clitic': '', 'start': 52, 'lemma': '.', 'form': '', 'root': '.'}]]
     # Check results
-    assert expected_records == text['morph_analysis'].to_records()
+    assert layer_to_dict( text['morph_analysis'] ) == \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': 's',
+                                     'form': 'sg in',
+                                     'lemma': 'Ida-Euroopa',
+                                     'normalized_text': 'Ida-Euroopas',
+                                     'partofspeech': 'H',
+                                     'root': 'Ida-Euroopa',
+                                     'root_tokens': ['Ida', 'Euroopa']}],
+                    'base_span': (0, 12)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'i',
+                                     'form': 's',
+                                     'lemma': 'saama',
+                                     'normalized_text': 'sai',
+                                     'partofspeech': 'V',
+                                     'root': 'saa',
+                                     'root_tokens': ['saa']}],
+                    'base_span': (13, 16)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'valmis',
+                                     'normalized_text': 'valmis',
+                                     'partofspeech': 'A',
+                                     'root': 'valmis',
+                                     'root_tokens': ['valmis']}],
+                    'base_span': (17, 23)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'parlament',
+                                     'normalized_text': 'Parlament',
+                                     'partofspeech': 'S',
+                                     'root': 'parlament',
+                                     'root_tokens': ['parlament']}],
+                    'base_span': (24, 33)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': ',',
+                                     'normalized_text': ',',
+                                     'partofspeech': 'Z',
+                                     'root': ',',
+                                     'root_tokens': [',']}],
+                    'base_span': (33, 34)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'suur',
+                                     'normalized_text': 'suure',
+                                     'partofspeech': 'A',
+                                     'root': 'suur',
+                                     'root_tokens': ['suur']}],
+                    'base_span': (35, 40)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'ga',
+                                     'form': 'sg kom',
+                                     'lemma': 'algustäht',
+                                     'normalized_text': 'algustähega',
+                                     'partofspeech': 'S',
+                                     'root': 'algus_täht',
+                                     'root_tokens': ['algus', 'täht']}],
+                    'base_span': (41, 52)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (52, 53)}]}
 
 
 def test_default_morph_analysis_without_guessing():
@@ -154,28 +506,151 @@ def test_default_morph_analysis_without_guessing():
     text.pop_layer('morph_analysis')
     # Create a new layer without guessing
     text.tag_layer(resolver=resolver)['morph_analysis']
-    #print( text['morph_analysis'].to_records() )
-    expected_records = [ \
-        [{'normalized_text': 'Sa', 'lemma': 'sina', 'ending': '0', 'clitic': '', 'form': 'sg n', 'partofspeech': 'P', 'end': 2, 'root_tokens': ['sina',], 'root': 'sina', 'start': 0, '_ignore': False}], \
-        [{'normalized_text': 'ajad', 'lemma': 'aeg', 'ending': 'd', 'clitic': '', 'form': 'pl n', 'partofspeech': 'S', 'end': 7, 'root_tokens': ['aeg',], 'root': 'aeg', 'start': 3, '_ignore': False}, \
-         {'normalized_text': 'ajad', 'lemma': 'ajama', 'ending': 'd', 'clitic': '', 'form': 'd', 'partofspeech': 'V', 'end': 7, 'root_tokens': ['aja',], 'root': 'aja', 'start': 3, '_ignore': False}], \
-        [{'normalized_text': None, 'clitic': None, '_ignore': False, 'form': None, 'root': None, 'partofspeech': None, 'end': 13, 'lemma': None, 'start': 8, 'root_tokens': None, 'ending': None}],\
-        [{'normalized_text': 'inimmeste', 'lemma': 'inimmest', 'ending': 'e', 'clitic': '', 'form': 'pl p', 'partofspeech': 'S', 'end': 23, 'root_tokens': ['inim', 'mest'], 'root': 'inim_mest', 'start': 14, '_ignore': False}], \
-        [{'normalized_text': 'erinevad', 'lemma': 'erinema', 'ending': 'vad', 'clitic': '', 'form': 'vad', 'partofspeech': 'V', 'end': 32, 'root_tokens': ['erine',], 'root': 'erine', 'start': 24, '_ignore': False}, \
-         {'normalized_text': 'erinevad', 'lemma': 'erinev', 'ending': 'd', 'clitic': '', 'form': 'pl n', 'partofspeech': 'A', 'end': 32, 'root_tokens': ['erinev',], 'root': 'erinev', 'start': 24, '_ignore': False}], \
-        [{'normalized_text': 'käsitlusviisid', 'lemma': 'käsitlusviis', 'ending': 'd', 'clitic': '', 'form': 'pl n', 'partofspeech': 'S', 'end': 47, 'root_tokens': ['käsitlus', 'viis'], 'root': 'käsitlus_viis', 'start': 33, '_ignore': False}], \
-        [{'normalized_text': 'ja', 'lemma': 'ja', 'ending': '0', 'clitic': '', 'form': '', 'partofspeech': 'J', 'end': 50, 'root_tokens': ['ja',], 'root': 'ja', 'start': 48, '_ignore': False}], \
-        [{'normalized_text': None, 'clitic': None, '_ignore': False, 'form': None, 'root': None, 'partofspeech': None, 'end': 66, 'lemma': None, 'start': 51, 'root_tokens': None, 'ending': None}],\
-        [{'normalized_text': None, 'clitic': None, '_ignore': False, 'form': None, 'root': None, 'partofspeech': None, 'end': 74, 'lemma': None, 'start': 67, 'root_tokens': None, 'ending': None}],\
-        [{'normalized_text': 'vahekorra', 'lemma': 'vahekord', 'ending': '0', 'clitic': '', 'form': 'sg g', 'partofspeech': 'S', 'end': 84, 'root_tokens': ['vahe', 'kord'], 'root': 'vahe_kord', 'start': 75, '_ignore': False}],\
-        [{'normalized_text': None, 'clitic': None, '_ignore': False, 'form': None, 'root': None, 'partofspeech': None, 'end': 85, 'lemma': None, 'start': 84, 'root_tokens': None, 'ending': None}] ]
-    # Note: currently words without analyses will not show up when calling to_records()
-    # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
-    # Check results
-    assert expected_records == results_dict
+    # Check results: unknown words appear as annotations filled with None 
+    assert layer_to_dict( text['morph_analysis'] ) == \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech',
+                        '_ignore'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'sina',
+                                     'normalized_text': 'Sa',
+                                     'partofspeech': 'P',
+                                     'root': 'sina',
+                                     'root_tokens': ['sina']}],
+                    'base_span': (0, 2)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'd',
+                                     'form': 'pl n',
+                                     'lemma': 'aeg',
+                                     'normalized_text': 'ajad',
+                                     'partofspeech': 'S',
+                                     'root': 'aeg',
+                                     'root_tokens': ['aeg']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'd',
+                                     'form': 'd',
+                                     'lemma': 'ajama',
+                                     'normalized_text': 'ajad',
+                                     'partofspeech': 'V',
+                                     'root': 'aja',
+                                     'root_tokens': ['aja']}],
+                    'base_span': (3, 7)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': None,
+                                     'ending': None,
+                                     'form': None,
+                                     'lemma': None,
+                                     'normalized_text': None,
+                                     'partofspeech': None,
+                                     'root': None,
+                                     'root_tokens': None}],
+                    'base_span': (8, 13)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'e',
+                                     'form': 'pl p',
+                                     'lemma': 'inimmest',
+                                     'normalized_text': 'inimmeste',
+                                     'partofspeech': 'S',
+                                     'root': 'inim_mest',
+                                     'root_tokens': ['inim', 'mest']}],
+                    'base_span': (14, 23)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'vad',
+                                     'form': 'vad',
+                                     'lemma': 'erinema',
+                                     'normalized_text': 'erinevad',
+                                     'partofspeech': 'V',
+                                     'root': 'erine',
+                                     'root_tokens': ['erine']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'd',
+                                     'form': 'pl n',
+                                     'lemma': 'erinev',
+                                     'normalized_text': 'erinevad',
+                                     'partofspeech': 'A',
+                                     'root': 'erinev',
+                                     'root_tokens': ['erinev']}],
+                    'base_span': (24, 32)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'd',
+                                     'form': 'pl n',
+                                     'lemma': 'käsitlusviis',
+                                     'normalized_text': 'käsitlusviisid',
+                                     'partofspeech': 'S',
+                                     'root': 'käsitlus_viis',
+                                     'root_tokens': ['käsitlus', 'viis']}],
+                    'base_span': (33, 47)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'ja',
+                                     'normalized_text': 'ja',
+                                     'partofspeech': 'J',
+                                     'root': 'ja',
+                                     'root_tokens': ['ja']}],
+                    'base_span': (48, 50)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': None,
+                                     'ending': None,
+                                     'form': None,
+                                     'lemma': None,
+                                     'normalized_text': None,
+                                     'partofspeech': None,
+                                     'root': None,
+                                     'root_tokens': None}],
+                    'base_span': (51, 66)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': None,
+                                     'ending': None,
+                                     'form': None,
+                                     'lemma': None,
+                                     'normalized_text': None,
+                                     'partofspeech': None,
+                                     'root': None,
+                                     'root_tokens': None}],
+                    'base_span': (67, 74)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'vahekord',
+                                     'normalized_text': 'vahekorra',
+                                     'partofspeech': 'S',
+                                     'root': 'vahe_kord',
+                                     'root_tokens': ['vahe', 'kord']}],
+                    'base_span': (75, 84)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': None,
+                                     'ending': None,
+                                     'form': None,
+                                     'lemma': None,
+                                     'normalized_text': None,
+                                     'partofspeech': None,
+                                     'root': None,
+                                     'root_tokens': None}],
+                    'base_span': (84, 85)}]}
     
     # Case 2
     # Create text and tag all
@@ -194,52 +669,218 @@ def test_default_morph_analysis_without_guessing():
     text = Text("Ma tahax minna järve ääde")
     text.tag_layer(['words', 'sentences'])
     morph_analyser.tag(text)
-    #print( text['morph_analysis'].to_records() )
-    expected_records = [ \
-        [{'normalized_text': 'Ma', 'partofspeech': 'P', 'lemma': 'mina', 'form': 'sg n', 'root_tokens': ['mina',], 'ending': '0', 'end': 2, 'clitic': '', 'start': 0, 'root': 'mina', '_ignore': False}], \
-        [{'normalized_text': None, 'ending': None, 'start': 3, 'lemma': None, 'form': None, 'root_tokens': None, '_ignore': False, 'root': None, 'clitic': None, 'end': 8, 'partofspeech': None}], \
-        [{'normalized_text': 'minna', 'partofspeech': 'V', 'lemma': 'minema', 'form': 'da', 'root_tokens': ['mine',], 'ending': 'a', 'end': 14, 'clitic': '', 'start': 9, 'root': 'mine', '_ignore': False}], \
-        [{'normalized_text': 'järve', 'partofspeech': 'S', 'lemma': 'järv', 'form': 'adt', 'root_tokens': ['järv',], 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv', '_ignore': False}, \
-         {'normalized_text': 'järve','partofspeech': 'S', 'lemma': 'järv', 'form': 'sg g', 'root_tokens': ['järv',], 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv', '_ignore': False}, \
-         {'normalized_text': 'järve','partofspeech': 'S', 'lemma': 'järv', 'form': 'sg p', 'root_tokens': ['järv',], 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv', '_ignore': False}],\
-        [{'normalized_text': None, 'ending': None, 'start': 21, 'lemma': None, 'form': None, 'root_tokens': None, '_ignore': False, 'root': None, 'clitic': None, 'end': 25, 'partofspeech': None}], \
-    ]
-    # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
     # Check results
-    assert expected_records == results_dict
+    assert layer_to_dict( text['morph_analysis'] ) == \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech',
+                        '_ignore'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'mina',
+                                     'normalized_text': 'Ma',
+                                     'partofspeech': 'P',
+                                     'root': 'mina',
+                                     'root_tokens': ['mina']}],
+                    'base_span': (0, 2)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': None,
+                                     'ending': None,
+                                     'form': None,
+                                     'lemma': None,
+                                     'normalized_text': None,
+                                     'partofspeech': None,
+                                     'root': None,
+                                     'root_tokens': None}],
+                    'base_span': (3, 8)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': 'a',
+                                     'form': 'da',
+                                     'lemma': 'minema',
+                                     'normalized_text': 'minna',
+                                     'partofspeech': 'V',
+                                     'root': 'mine',
+                                     'root_tokens': ['mine']}],
+                    'base_span': (9, 14)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'adt',
+                                     'lemma': 'järv',
+                                     'normalized_text': 'järve',
+                                     'partofspeech': 'S',
+                                     'root': 'järv',
+                                     'root_tokens': ['järv']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'järv',
+                                     'normalized_text': 'järve',
+                                     'partofspeech': 'S',
+                                     'root': 'järv',
+                                     'root_tokens': ['järv']},
+                                    {'_ignore': False,
+                                     'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg p',
+                                     'lemma': 'järv',
+                                     'normalized_text': 'järve',
+                                     'partofspeech': 'S',
+                                     'root': 'järv',
+                                     'root_tokens': ['järv']}],
+                    'base_span': (15, 20)},
+                   {'annotations': [{'_ignore': False,
+                                     'clitic': None,
+                                     'ending': None,
+                                     'form': None,
+                                     'lemma': None,
+                                     'normalized_text': None,
+                                     'partofspeech': None,
+                                     'root': None,
+                                     'root_tokens': None}],
+                    'base_span': (21, 25)}]}
 
 
 def test_default_morph_analysis_on_compound_tokens():
     # Case 1
     text = Text("Mis lil-li müüs Tiit Mac'ile 10'e krooniga?")
     text.analyse('morphology')
-    #print( text['morph_analysis'].to_records() )
-    expected_records = [ \
-        [{'normalized_text': 'Mis', 'end': 3, 'partofspeech': 'P', 'start': 0, 'root_tokens': ['mis',], 'lemma': 'mis', 'ending': '0', 'root': 'mis', 'form': 'pl n', 'clitic': ''}, \
-         {'normalized_text': 'Mis', 'end': 3, 'partofspeech': 'P', 'start': 0, 'root_tokens': ['mis',], 'lemma': 'mis', 'ending': '0', 'root': 'mis', 'form': 'sg n', 'clitic': ''}], \
-        [{'normalized_text': 'lilli', 'end': 10, 'partofspeech': 'S', 'start': 4, 'root_tokens': ['lill',], 'lemma': 'lill', 'ending': 'i', 'root': 'lill', 'form': 'pl p', 'clitic': ''}], \
-        [{'normalized_text': 'müüs', 'end': 15, 'partofspeech': 'V', 'start': 11, 'root_tokens': ['müü',], 'lemma': 'müüma', 'ending': 's', 'root': 'müü', 'form': 's', 'clitic': ''}], \
-        [{'normalized_text': 'Tiit', 'end': 20, 'partofspeech': 'H', 'start': 16, 'root_tokens': ['Tiit',], 'lemma': 'Tiit', 'ending': '0', 'root': 'Tiit', 'form': 'sg n', 'clitic': ''}], \
-        [{'normalized_text': "Mac'ile", 'end': 28, 'partofspeech': 'H', 'start': 21, 'root_tokens': ['Mac',], 'lemma': 'Mac', 'ending': 'le', 'root': 'Mac', 'form': 'sg all', 'clitic': ''}], \
-        [{'normalized_text': "10'e", 'end': 33, 'partofspeech': 'S', 'start': 29, 'root_tokens': ['10',], 'lemma': '10', 'ending': '0', 'root': '10', 'form': 'sg g', 'clitic': ''}], \
-        [{'normalized_text': 'krooniga', 'end': 42, 'partofspeech': 'S', 'start': 34, 'root_tokens': ['kroon',], 'lemma': 'kroon', 'ending': 'ga', 'root': 'kroon', 'form': 'sg kom', 'clitic': ''}], \
-        [{'normalized_text': '?', 'end': 43, 'partofspeech': 'Z', 'start': 42, 'root_tokens': ['?',], 'lemma': '?', 'ending': '', 'root': '?', 'form': '', 'clitic': ''}]]
-    # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
+    #from pprint import pprint
+    #pprint( layer_to_dict( text['morph_analysis'] ) )
     # Check results
-    assert expected_records == results_dict
+    assert layer_to_dict( text['morph_analysis'] ) == \
+        {'name': 'morph_analysis',
+         'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'mis',
+                                     'normalized_text': 'Mis',
+                                     'partofspeech': 'P',
+                                     'root': 'mis',
+                                     'root_tokens': ['mis']},
+                                    {'clitic': '',
+                                     'ending': '0',
+                                     'form': 'pl n',
+                                     'lemma': 'mis',
+                                     'normalized_text': 'Mis',
+                                     'partofspeech': 'P',
+                                     'root': 'mis',
+                                     'root_tokens': ['mis']}],
+                    'base_span': (0, 3)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'i',
+                                     'form': 'pl p',
+                                     'lemma': 'lill',
+                                     'normalized_text': 'lilli',
+                                     'partofspeech': 'S',
+                                     'root': 'lill',
+                                     'root_tokens': ['lill']}],
+                    'base_span': (4, 10)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 's',
+                                     'form': 's',
+                                     'lemma': 'müüma',
+                                     'normalized_text': 'müüs',
+                                     'partofspeech': 'V',
+                                     'root': 'müü',
+                                     'root_tokens': ['müü']}],
+                    'base_span': (11, 15)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'Tiit',
+                                     'normalized_text': 'Tiit',
+                                     'partofspeech': 'H',
+                                     'root': 'Tiit',
+                                     'root_tokens': ['Tiit']}],
+                    'base_span': (16, 20)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'le',
+                                     'form': 'sg all',
+                                     'lemma': 'Mac',
+                                     'normalized_text': "Mac'ile",
+                                     'partofspeech': 'H',
+                                     'root': 'Mac',
+                                     'root_tokens': ['Mac']}],
+                    'base_span': (21, 28)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': '10',
+                                     'normalized_text': "10'e",
+                                     'partofspeech': 'S',
+                                     'root': '10',
+                                     'root_tokens': ['10']}],
+                    'base_span': (29, 33)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'ga',
+                                     'form': 'sg kom',
+                                     'lemma': 'kroon',
+                                     'normalized_text': 'krooniga',
+                                     'partofspeech': 'S',
+                                     'root': 'kroon',
+                                     'root_tokens': ['kroon']}],
+                    'base_span': (34, 42)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '?',
+                                     'normalized_text': '?',
+                                     'partofspeech': 'Z',
+                                     'root': '?',
+                                     'root_tokens': ['?']}],
+                    'base_span': (42, 43)}]}
 
 
 def test_default_morph_analysis_on_empty_input():
     text = Text("")
     text.analyse('morphology')
     # Check results
-    assert [] == text['morph_analysis'].to_records()
+    assert len(text['morph_analysis']) == 0
+    assert layer_to_dict( text['morph_analysis'] ) == \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': []}
 
 
 def test_default_morph_analysis_with_different_output_layer_name():

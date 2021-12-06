@@ -1,6 +1,7 @@
 from estnltk import Text
 from estnltk.taggers import VabamorfAnalyzer
 from estnltk.taggers import GTMorphConverter
+from estnltk.converters import layer_to_records
 
 # ----------------------------------
 #   Helper functions
@@ -33,14 +34,14 @@ def test_gt_conversion_1_simple():
     assert 'gt_morph_analysis' in text.layers
     
     # Assert content of the layer
-    #print(text['gt_morph_analysis'].to_records())
+    #print( layer_to_records(text['gt_morph_analysis']) )
     expected_records = [
         [{'normalized_text': 'Rändur', 'form': 'Sg Nom', 'clitic': '', 'root_tokens': ('rändur',), 'end': 6, 'root': 'rändur', 'lemma': 'rändur', 'start': 0, 'partofspeech': 'S', 'ending': '0'}], \
         [{'normalized_text': 'võttis', 'form': 'Pers Prt Ind Sg 3 Aff', 'clitic': '', 'root_tokens': ('võt',), 'end': 13, 'root': 'võt', 'lemma': 'võtma', 'start': 7, 'partofspeech': 'V', 'ending': 'is'}], \
         [{'normalized_text': 'istet', 'form': 'Sg Par', 'clitic': '', 'root_tokens': ('iste',), 'end': 19, 'root': 'iste', 'lemma': 'iste', 'start': 14, 'partofspeech': 'S', 'ending': 't'}], \
         [{'normalized_text': '.', 'form': '', 'clitic': '', 'root_tokens': ('.',), 'end': 20, 'root': '.', 'lemma': '.', 'start': 19, 'partofspeech': 'Z', 'ending': ''}] \
     ]
-    assert expected_records == text['gt_morph_analysis'].to_records()
+    assert expected_records == layer_to_records( text['gt_morph_analysis'] )
 
     # Case 2
     text = Text('Rändur võttis seljakotist vilepilli ja tõstis huultele.')
@@ -48,7 +49,7 @@ def test_gt_conversion_1_simple():
     gt_converter.tag( text )
     
     # Assert content of the layer    
-    #print(text['gt_morph_analysis'].to_records())
+    #print( layer_to_records(text['gt_morph_analysis']) )
     expected_records = [ \
           [{'normalized_text': 'Rändur', 'start': 0, 'ending': '0', 'clitic': '', 'partofspeech': 'S', 'end': 6, 'form': 'Sg Nom', 'root_tokens': ('rändur',), 'root': 'rändur', 'lemma': 'rändur'}], \
           [{'normalized_text': 'võttis', 'start': 7, 'ending': 'is', 'clitic': '', 'partofspeech': 'V', 'end': 13, 'form': 'Pers Prt Ind Sg 3 Aff', 'root_tokens': ('võt',), 'root': 'võt', 'lemma': 'võtma'}], \
@@ -59,7 +60,7 @@ def test_gt_conversion_1_simple():
           [{'normalized_text': 'huultele', 'start': 46, 'ending': 'tele', 'clitic': '', 'partofspeech': 'S', 'end': 54, 'form': 'Pl All', 'root_tokens': ('huul',), 'root': 'huul', 'lemma': 'huul'}], \
           [{'normalized_text': '.', 'start': 54, 'ending': '', 'clitic': '', 'partofspeech': 'Z', 'end': 55, 'form': '', 'root_tokens': ('.',), 'root': '.', 'lemma': '.'}] \
     ]
-    assert expected_records == text['gt_morph_analysis'].to_records()
+    assert expected_records == layer_to_records( text['gt_morph_analysis'] )
 
 
 def test_gt_conversion_2_neg():
@@ -71,7 +72,7 @@ def test_gt_conversion_2_neg():
     gt_converter.tag( text )
 
     # Assert content of the layer
-    #print(text['gt_morph_analysis'].to_records())
+    #print( layer_to_records(text['gt_morph_analysis']) )
     expected_records = [ \
         [{'normalized_text': 'Ärge', 'root': 'ära', 'ending': 'ge', 'partofspeech': 'V', 'root_tokens': ('ära',), 'form': 'Pers Prs Imprt Pl 2 Neg', 'clitic': '', 'end': 4, 'lemma': 'ära', 'start': 0}], \
         [{'normalized_text': 'peatuge', 'root': 'peatu', 'ending': 'ge', 'partofspeech': 'V', 'root_tokens': ('peatu',), 'form': 'Pers Prs Imprt Pl 2', 'clitic': '', 'end': 12, 'lemma': 'peatuma', 'start': 5}], \
@@ -83,7 +84,7 @@ def test_gt_conversion_2_neg():
         [{'normalized_text': 'vähendada', 'root': 'vähenda', 'ending': 'da', 'partofspeech': 'V', 'root_tokens': ('vähenda',), 'form': 'Inf', 'clitic': '', 'end': 44, 'lemma': 'vähendama', 'start': 35}], \
         [{'normalized_text': '!', 'root': '!', 'ending': '', 'partofspeech': 'Z', 'root_tokens': ('!',), 'form': '', 'clitic': '', 'end': 45, 'lemma': '!', 'start': 44}] \
     ]
-    assert expected_records == text['gt_morph_analysis'].to_records()
+    assert expected_records == layer_to_records( text['gt_morph_analysis'] )
 
     # Case 2
     text = Text('Mine sa tea!')
@@ -91,14 +92,14 @@ def test_gt_conversion_2_neg():
     gt_converter.tag( text )
     
     # Assert content of the layer
-    #print(text['gt_morph_analysis'].to_records())
+    #print( layer_to_records( text['gt_morph_analysis'] ) )
     expected_records = [ \
         [{'normalized_text': 'Mine', 'ending': '0', 'partofspeech': 'V', 'lemma': 'minema', 'root_tokens': ('mine',), 'root': 'mine', 'clitic': '', 'start': 0, 'end': 4, 'form': 'Pers Prs Imprt Sg 2'}], \
         [{'normalized_text': 'sa', 'ending': '0', 'partofspeech': 'P', 'lemma': 'sina', 'root_tokens': ('sina',), 'root': 'sina', 'clitic': '', 'start': 5, 'end': 7, 'form': 'Sg Nom'}], \
         [{'normalized_text': 'tea', 'ending': '0', 'partofspeech': 'V', 'lemma': 'teadma', 'root_tokens': ('tead',), 'root': 'tead', 'clitic': '', 'start': 8, 'end': 11, 'form': 'Pers Prs Imprt Sg 2'}], \
         [{'normalized_text': '!', 'ending': '', 'partofspeech': 'Z', 'lemma': '!', 'root_tokens': ('!',), 'root': '!', 'clitic': '', 'start': 11, 'end': 12, 'form': ''}] \
     ]
-    assert expected_records == text['gt_morph_analysis'].to_records()
+    assert expected_records == layer_to_records( text['gt_morph_analysis'] )
 
 
 def test_gt_conversion_3_ambiguous():
@@ -110,7 +111,7 @@ def test_gt_conversion_3_ambiguous():
     gt_converter.tag( text )
     
     # Assert content of the layer
-    #print(text['gt_morph_analysis'].to_records())
+    #print( layer_to_records( text['gt_morph_analysis'] ) )
     expected_records = [ \
         [{'normalized_text': 'Sellist', 'start': 0, 'ending': 't', 'clitic': '', 'end': 7, 'lemma': 'selline', 'form': 'Sg Par', 'root': 'selline', 'partofspeech': 'P', 'root_tokens': ('selline',)}], \
         [{'normalized_text': 'asja', 'start': 8, 'ending': '0', 'clitic': '', 'end': 12, 'lemma': 'asi', 'form': 'Sg Par', 'root': 'asi', 'partofspeech': 'S', 'root_tokens': ('asi',)}], \
@@ -122,7 +123,7 @@ def test_gt_conversion_3_ambiguous():
         ], \
         [{'normalized_text': '.', 'start': 21, 'ending': '', 'clitic': '', 'end': 22, 'lemma': '.', 'form': '', 'root': '.', 'partofspeech': 'Z', 'root_tokens': ('.',)}] \
     ]
-    assert expected_records == text['gt_morph_analysis'].to_records()
+    assert expected_records == layer_to_records( text['gt_morph_analysis'] )
 
 
 def test_gt_conversion_3_sid_ksid():
@@ -153,7 +154,7 @@ def test_gt_conversion_3_sid_ksid():
          {'normalized_text': 'läinud', 'partofspeech': 'V', 'end': 50, 'root_tokens': ('mine',), 'root': 'mine', 'clitic': '', 'start': 44, 'lemma': 'minema', 'form': 'Pers Prt Prc', 'ending': 'nud'}], \
         [{'normalized_text': '.', 'partofspeech': 'Z', 'end': 51, 'root_tokens': ('.',), 'root': '.', 'clitic': '', 'start': 50, 'lemma': '.', 'form': '', 'ending': ''}]
     ]
-    results = text['gt_morph_analysis'].to_records()
+    results = layer_to_records( text['gt_morph_analysis'] )
     _sort_morph_analysis_records( results )
     _sort_morph_analysis_records( expected_records )
     assert expected_records == results
@@ -162,7 +163,7 @@ def test_gt_conversion_3_sid_ksid():
     text = Text('Sa läksid ära. Aga nemad tõttasid edasi, sind nad ei näinud.')
     text.tag_layer(['morph_analysis', 'clauses'])
     gt_converter.tag( text )
-    #print(text['gt_morph_analysis'].to_records())
+    #print( layer_to_records(text['gt_morph_analysis']) )
     
     # Assert content of the layer
     expected_records = [ \
@@ -185,7 +186,7 @@ def test_gt_conversion_3_sid_ksid():
           {'normalized_text': 'näinud', 'lemma': 'näima', 'root_tokens': ('näi',), 'clitic': '', 'start': 53, 'root': 'näi', 'partofspeech': 'V', 'end': 59, 'ending': 'nud', 'form': 'Pers Prt Ind Neg'}], \
          [{'normalized_text': '.', 'lemma': '.', 'root_tokens': ('.',), 'clitic': '', 'start': 59, 'root': '.', 'partofspeech': 'Z', 'end': 60, 'ending': '', 'form': ''}]
     ]
-    results = text['gt_morph_analysis'].to_records()
+    results = layer_to_records( text['gt_morph_analysis'] )
     _sort_morph_analysis_records( results )
     _sort_morph_analysis_records( expected_records )
     assert expected_records == results
@@ -200,9 +201,9 @@ def test_gt_conversion_4_empty():
     gt_converter.tag( text )
     
     # Assert content of the layer
-    #print(text['gt_morph_analysis'].to_records())
+    #print(layer_to_records(text['gt_morph_analysis']))
     expected_records = []
-    assert expected_records == text['gt_morph_analysis'].to_records()
+    assert expected_records == layer_to_records(text['gt_morph_analysis'])
 
 
 def test_gt_conversion_5_unknown_words():
@@ -215,7 +216,7 @@ def test_gt_conversion_5_unknown_words():
     analyzer.tag(text)
     text.tag_layer(['clauses'])
     gt_converter.tag( text )
-    #print(text['gt_morph_analysis'].to_records())
+    #print(layer_to_records(text['gt_morph_analysis']))
 
     expected_records = [ \
         [{'normalized_text': 'Ma', 'start': 0, 'root': 'mina', 'form': 'Sg Nom', 'ending': '0', 'partofspeech': 'P', 'clitic': '', 'lemma': 'mina', 'root_tokens': ('mina',), 'end': 2}], \
@@ -227,7 +228,7 @@ def test_gt_conversion_5_unknown_words():
         [{'normalized_text': None, 'start': 21, 'root': None, 'form': None, 'ending': None, 'partofspeech': None, 'clitic': None, 'lemma': None, 'root_tokens': None, 'end': 25}]]
     
     # Assert content of the layer
-    results_dict = text['gt_morph_analysis'].to_records()
+    results_dict = layer_to_records(text['gt_morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results

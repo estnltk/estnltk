@@ -62,11 +62,8 @@ class WhiteSpaceTokensTagger(Tagger):
         assert text.text is not None, '(!) {} has no textual content to be analysed.'.format(text)
         raw_text = text.text
         spans = list(tokenizer.span_tokenize(raw_text))
-        layer = (self._make_layer_template()).from_records(
-                                                [{
-                                                   'start': start,
-                                                   'end': end
-                                                  } for start, end in spans],
-                                                 rewriting=True)
+        layer = self._make_layer_template()
+        for start, end in spans:
+            layer.add_annotation( (start, end) )
         layer.text_object = text
         return layer

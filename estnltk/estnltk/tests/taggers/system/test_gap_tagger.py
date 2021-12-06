@@ -4,6 +4,7 @@ from estnltk import Text
 from estnltk import Layer
 from estnltk.taggers import GapTagger
 from estnltk.common import abs_path
+from estnltk_core.converters import layer_to_records
 from estnltk_core.taggers.tagger_tester import TaggerTester
 
 text = Text('Üks kaks kolm neli viis kuus seitse.')
@@ -39,7 +40,7 @@ def test_gaps_trim():
     records = [{'end': 3, 'gap_length': 3, 'start': 0},
                {'end': 23, 'gap_length': 4, 'start': 19},
                {'end': 35, 'gap_length': 6, 'start': 29}]
-    assert text['gaps'].to_records() == records
+    assert layer_to_records( text['gaps'] ) == records
 
 
 def test_bad_trim():

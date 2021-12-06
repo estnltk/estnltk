@@ -5,6 +5,7 @@ from estnltk.taggers.standard.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 
 from estnltk_core.layer import AmbiguousAttributeTupleList
+from estnltk_core.converters import layer_to_records
 
 # ----------------------------------
 #   Helper functions
@@ -35,7 +36,7 @@ def test_postanalysis_fix_names_with_initials():
     text=Text('Romaan kinnitab üht T. S. Eliot´i ennustust.')
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [
         [{'normalized_text': 'Romaan', 'clitic': '', 'lemma': 'romaan', 'ending': '0', 'partofspeech': 'S', 'form': 'sg n', 'root_tokens': ['romaan',], 'end': 6, 'root': 'romaan', 'start': 0}], \
         [{'normalized_text': 'kinnitab', 'clitic': '', 'lemma': 'kinnitama', 'ending': 'b', 'partofspeech': 'V', 'form': 'b', 'root_tokens': ['kinnita',], 'end': 15, 'root': 'kinnita', 'start': 7}], \
@@ -45,7 +46,7 @@ def test_postanalysis_fix_names_with_initials():
         [{'normalized_text': 'ennustust', 'clitic': '', 'lemma': 'ennustus', 'ending': 't', 'partofspeech': 'S', 'form': 'sg p', 'root_tokens': ['ennustus',], 'end': 43, 'root': 'ennustus', 'start': 34}], \
         [{'normalized_text': '.', 'clitic': '', 'lemma': '.', 'ending': '', 'partofspeech': 'Z', 'form': '', 'root_tokens': ['.',], 'end': 44, 'root': '.', 'start': 43}]]
     # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -55,7 +56,7 @@ def test_postanalysis_fix_names_with_initials():
     text=Text("Läände jõudis tualettpaber tänu Joseph C. Gayetty'le.")
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [ \
         [{'normalized_text': 'Läände', 'lemma': 'lääs', 'root': 'lääs', 'ending': 'de', 'root_tokens': ['lääs',], 'start': 0, 'end': 6, 'clitic': '', 'partofspeech': 'S', 'form': 'adt'}], \
         [{'normalized_text': 'jõudis', 'lemma': 'jõudma', 'root': 'jõud', 'ending': 'is', 'root_tokens': ['jõud',], 'start': 7, 'end': 13, 'clitic': '', 'partofspeech': 'V', 'form': 's'}], \
@@ -65,7 +66,7 @@ def test_postanalysis_fix_names_with_initials():
         [{'normalized_text': "C. Gayetty'le", 'clitic': '', 'partofspeech': 'H', 'lemma': 'C. Gayetty', 'end': 52, 'ending': 'le', 'root_tokens': ['C. ', 'Gayetty'], 'root': 'C. _Gayetty', 'start': 39, 'form': 'sg all'}], \
         [{'normalized_text': '.', 'lemma': '.', 'root': '.', 'ending': '', 'root_tokens': ['.',], 'start': 52, 'end': 53, 'clitic': '', 'partofspeech': 'Z', 'form': ''}]]
     # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records( text['morph_analysis'] )
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -75,7 +76,7 @@ def test_postanalysis_fix_names_with_initials():
     text=Text("Arhitektid E. Lüüs, E. Eharand ja T. Soans")
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [ \
         [{'normalized_text': 'Arhitektid', 'start': 0, 'ending': 'd', 'root_tokens': ['arhitekt',], 'form': 'pl n', 'end': 10, 'lemma': 'arhitekt', 'root': 'arhitekt', 'clitic': '', 'partofspeech': 'S'}], \
         [{'normalized_text': 'E. Lüüs', 'root_tokens': ['E. ', 'Lüüs'], 'root': 'E. _Lüüs', 'clitic': '', 'partofspeech': 'H', 'lemma': 'E. Lüüs', 'start': 11, 'end': 18, 'form': 'sg n', 'ending': '0'}], \
@@ -84,7 +85,7 @@ def test_postanalysis_fix_names_with_initials():
         [{'normalized_text': 'ja', 'root_tokens': ['ja',], 'root': 'ja', 'clitic': '', 'partofspeech': 'J', 'lemma': 'ja', 'start': 31, 'end': 33, 'form': '', 'ending': '0'}], \
         [{'normalized_text': 'T. Soans', 'root_tokens': ['T. ', 'Soans'], 'root': 'T. _Soans', 'clitic': '', 'partofspeech': 'H', 'lemma': 'T. Soans', 'start': 34, 'end': 42, 'form': '?', 'ending': '0'}]]
     # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -112,7 +113,7 @@ def test_postanalysis_fix_emoticons():
     text=Text('Äge pull :D irw :-P')
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [ \
         [{'normalized_text': 'Äge', 'form': 'sg n', 'clitic': '', 'lemma': 'äge', 'start': 0, 'end': 3, 'ending': '0', 'root': 'äge', 'partofspeech': 'A', 'root_tokens': ['äge',]}], \
         [{'normalized_text': 'pull', 'form': 'sg n', 'clitic': '', 'lemma': 'pull', 'start': 4, 'end': 8, 'ending': '0', 'root': 'pull', 'partofspeech': 'S', 'root_tokens': ['pull',]}], \
@@ -122,7 +123,7 @@ def test_postanalysis_fix_emoticons():
     # TODO: roots of emoticons also need to be fixed, but this 
     #       has a prerequisite that methods creating lemmas &
     #       root_tokens work in-line with the fixes
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records( text['morph_analysis'] )
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -137,7 +138,7 @@ def test_postanalysis_fix_www_addresses():
     text=Text('Lugeja saatis Maaleht.ee-le http://www.tartupostimees.ee foto.')
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [ \
         [{'normalized_text': 'Lugeja', 'clitic': '', 'lemma': 'lugeja', 'start': 0, 'end': 6, 'partofspeech': 'S', 'form': 'sg g', 'root_tokens': ['lugeja',], 'root': 'lugeja', 'ending': '0'}], \
         [{'normalized_text': 'saatis', 'clitic': '', 'lemma': 'saatma', 'start': 7, 'end': 13, 'partofspeech': 'V', 'form': 's', 'root_tokens': ['saat',], 'root': 'saat', 'ending': 'is'}], \
@@ -145,7 +146,7 @@ def test_postanalysis_fix_www_addresses():
         [{'normalized_text': 'http://www.tartupostimees.ee', 'clitic': '', 'lemma': 'http://www.tartupostimees.ee', 'start': 28, 'end': 56, 'partofspeech': 'H', 'form': '?', 'root_tokens': ['http://www.tartupostimees.ee',], 'root': 'http://www.tartupostimees.ee', 'ending': '0'}], \
         [{'normalized_text': 'foto', 'clitic': '', 'lemma': 'foto', 'start': 57, 'end': 61, 'partofspeech': 'S', 'form': 'sg n', 'root_tokens': ['foto',], 'root': 'foto', 'ending': '0'}], \
         [{'normalized_text': '.', 'clitic': '', 'lemma': '.', 'start': 61, 'end': 62, 'partofspeech': 'Z', 'form': '', 'root_tokens': ['.',], 'root': '.', 'ending': ''}]]
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -160,14 +161,14 @@ def test_postanalysis_fix_email_addresses():
     text=Text('Kontakt: big@boss.com; http://www.big.boss.com')
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [ \
         [{'normalized_text': 'Kontakt', 'partofspeech': 'S', 'form': 'sg n', 'ending': '0', 'lemma': 'kontakt', 'root_tokens': ['kontakt',], 'start': 0, 'clitic': '', 'end': 7, 'root': 'kontakt'}], \
         [{'normalized_text': ':', 'partofspeech': 'Z', 'form': '', 'ending': '', 'lemma': ':', 'root_tokens': [':',], 'start': 7, 'clitic': '', 'end': 8, 'root': ':'}], \
         [{'normalized_text': 'big@boss.com', 'partofspeech': 'H', 'form': '?', 'ending': '0', 'lemma': 'big@boss.com', 'root_tokens': ['big@boss.com',], 'start': 9, 'clitic': '', 'end': 21, 'root': 'big@boss.com'}], \
         [{'normalized_text': ';', 'partofspeech': 'Z', 'form': '', 'ending': '', 'lemma': ';', 'root_tokens': [';',], 'start': 21, 'clitic': '', 'end': 22, 'root': ';'}], \
         [{'normalized_text': 'http://www.big.boss.com', 'partofspeech': 'H', 'form': '?', 'ending': '0', 'lemma': 'http://www.big.boss.com', 'root_tokens': ['http://www.big.boss.com',], 'start': 23, 'clitic': '', 'end': 46, 'root': 'http://www.big.boss.com'}]]
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -182,7 +183,7 @@ def test_postanalysis_fix_abbreviations():
     text=Text('( 9. jaan. 1939. a. või dets. - toim. )')
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [ \
         [{'normalized_text': '(', 'partofspeech': 'Z', 'root': '(', 'root_tokens': ['(',], 'ending': '', 'clitic': '', 'lemma': '(', 'form': '', 'end': 1, 'start': 0}], \
         [{'normalized_text': '9.', 'partofspeech': 'O', 'root': '9.', 'root_tokens': ['9.',], 'ending': '0', 'clitic': '', 'lemma': '9.', 'form': '?', 'end': 4, 'start': 2}], \
@@ -195,7 +196,7 @@ def test_postanalysis_fix_abbreviations():
         [{'normalized_text': '-', 'partofspeech': 'Z', 'root': '-', 'root_tokens': ['-',], 'ending': '', 'clitic': '', 'lemma': '-', 'form': '', 'end': 31, 'start': 30}], \
         [{'normalized_text': 'toim.', 'partofspeech': 'Y', 'root': 'toim', 'root_tokens': ['toim',], 'ending': '0', 'clitic': '', 'lemma': 'toim', 'form': 'sg n', 'end': 37, 'start': 32}], \
         [{'normalized_text': ')', 'partofspeech': 'Z', 'root': ')', 'root_tokens': [')'], 'ending': '', 'clitic': '', 'lemma': ')', 'form': '', 'end': 39, 'start': 38}]]
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -210,7 +211,7 @@ def test_postanalysis_fix_number_postags():
     text=Text('kahanenud 4,7% -lt 1,8% -ni')
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [ \
         [{'normalized_text': 'kahanenud', 'ending': '0', 'lemma': 'kahanenud', 'root': 'kahane=nud', 'root_tokens': ['kahanenud',], 'start': 0, 'partofspeech': 'A', 'form': '', 'clitic': '', 'end': 9}, \
          {'normalized_text': 'kahanenud', 'ending': '0', 'lemma': 'kahanenud', 'root': 'kahane=nud', 'root_tokens': ['kahanenud',], 'start': 0, 'partofspeech': 'A', 'form': 'sg n', 'clitic': '', 'end': 9}, \
@@ -218,7 +219,7 @@ def test_postanalysis_fix_number_postags():
          {'normalized_text': 'kahanenud', 'ending': 'nud', 'lemma': 'kahanema', 'root': 'kahane', 'root_tokens': ['kahane',], 'start': 0, 'partofspeech': 'V', 'form': 'nud', 'clitic': '', 'end': 9}], \
         [{'normalized_text': '4,7%-lt', 'ending': 'lt', 'lemma': '4,7%', 'root': '4,7%', 'root_tokens': ['4,7%',], 'start': 10, 'partofspeech': 'N', 'form': 'sg abl', 'clitic': '', 'end': 18}], \
         [{'normalized_text': '1,8%-ni', 'ending': 'ni', 'lemma': '1,8%', 'root': '1,8%', 'root_tokens': ['1,8%',], 'start': 19, 'partofspeech': 'N', 'form': 'sg ter', 'clitic': '', 'end': 27}]]
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -228,7 +229,7 @@ def test_postanalysis_fix_number_postags():
     text=Text('10-te km kaupa liiva umbes 0-iga')
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [
         [{'normalized_text': '10-te', 'partofspeech': 'N', 'start': 0, 'lemma': '10', 'root_tokens': ['10',], 'ending': 'te', 'root': '10', 'end': 5, 'clitic': '', 'form': 'pl g'}],  \
         [{'normalized_text': 'km', 'partofspeech': 'Y', 'start': 6, 'lemma': 'km', 'root_tokens': ['km',], 'ending': '0', 'root': 'km', 'end': 8, 'clitic': '', 'form': '?'}], \
@@ -236,7 +237,7 @@ def test_postanalysis_fix_number_postags():
         [{'normalized_text': 'liiva', 'partofspeech': 'S', 'start': 15, 'lemma': 'liiv', 'root_tokens': ['liiv',], 'ending': '0', 'root': 'liiv', 'end': 20, 'clitic': '', 'form': 'sg p'}], \
         [{'normalized_text': 'umbes', 'partofspeech': 'D', 'start': 21, 'lemma': 'umbes', 'root_tokens': ['umbes',], 'ending': '0', 'root': 'umbes', 'end': 26, 'clitic': '', 'form': ''}], \
         [{'normalized_text': '0-iga', 'partofspeech': 'N', 'start': 27, 'lemma': '0', 'root_tokens': ['0',], 'ending': 'ga', 'root': '0', 'end': 32, 'clitic': '', 'form': 'sg kom'}]]
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -247,7 +248,7 @@ def test_postanalysis_fix_number_postags():
     text=Text('Sai 112-e helistatud, kuna 1-ed ja 2-ed on ju nii lähestikku')
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [
         [{'normalized_text': 'Sai', 'partofspeech': 'V', 'form': 's', 'lemma': 'saama', 'root_tokens': ['saa',], 'clitic': '', 'root': 'saa', 'end': 3, 'start': 0, 'ending': 'i'}],
         # Following is problematic: 
@@ -269,7 +270,7 @@ def test_postanalysis_fix_number_postags():
         [{'normalized_text': 'ju','partofspeech': 'D', 'ending': '0', 'root_tokens': ['ju',], 'end': 45, 'lemma': 'ju', 'start': 43, 'root': 'ju', 'form': '', 'clitic': ''}],
         [{'normalized_text': 'nii','partofspeech': 'D', 'ending': '0', 'root_tokens': ['nii',], 'end': 49, 'lemma': 'nii', 'start': 46, 'root': 'nii', 'form': '', 'clitic': ''}],
         [{'normalized_text': 'lähestikku','partofspeech': 'D', 'ending': '0', 'root_tokens': ['lähestikku',], 'end': 60, 'lemma': 'lähestikku', 'start': 50, 'root': 'lähestikku', 'form': '', 'clitic': ''}]]
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -361,13 +362,13 @@ def test_postanalysis_fix_number_analyses_using_rules():
     text=Text('Tiit müüs 10e krooniga')
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [ \
         [{'normalized_text': 'Tiit', 'start': 0, 'lemma': 'Tiit', 'ending': '0', 'form': 'sg n', 'root': 'Tiit', 'partofspeech': 'H', 'clitic': '', 'root_tokens': ['Tiit',], 'end': 4}], \
         [{'normalized_text': 'müüs', 'start': 5, 'lemma': 'müüma', 'ending': 's', 'form': 's', 'root': 'müü', 'partofspeech': 'V', 'clitic': '', 'root_tokens': ['müü',], 'end': 9}], \
         [{'normalized_text': '10e', 'start': 10, 'lemma': '10', 'ending': '0', 'form': 'sg g', 'root': '10', 'partofspeech': 'N', 'clitic': '', 'root_tokens': ['10',], 'end': 13}], \
         [{'normalized_text': 'krooniga', 'start': 14, 'lemma': 'kroon', 'ending': 'ga', 'form': 'sg kom', 'root': 'kroon', 'partofspeech': 'S', 'clitic': '', 'root_tokens': ['kroon',], 'end': 22}]]
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -377,7 +378,7 @@ def test_postanalysis_fix_number_analyses_using_rules():
     text=Text('Tiit ei maksnud 6t krooni, vaid ostis 3ga')
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [
         [{'normalized_text': 'Tiit', 'clitic': '', 'root': 'Tiit', 'lemma': 'Tiit', 'end': 4, 'form': 'sg n', 'partofspeech': 'H', 'start': 0, 'ending': '0', 'root_tokens': ['Tiit',]}],
         [{'normalized_text': 'ei', 'clitic': '', 'root': 'ei', 'lemma': 'ei', 'end': 7, 'form': 'neg', 'partofspeech': 'V', 'start': 5, 'ending': '0', 'root_tokens': ['ei',]}],
@@ -391,7 +392,7 @@ def test_postanalysis_fix_number_analyses_using_rules():
         [{'normalized_text': 'vaid', 'clitic': '', 'root': 'vaid', 'lemma': 'vaid', 'end': 31, 'form': '', 'partofspeech': 'J', 'start': 27, 'ending': '0', 'root_tokens': ['vaid',]}],
         [{'normalized_text': 'ostis', 'clitic': '', 'root': 'ost', 'lemma': 'ostma', 'end': 37, 'form': 's', 'partofspeech': 'V', 'start': 32, 'ending': 'is', 'root_tokens': ['ost',]}],
         [{'normalized_text': '3ga', 'clitic': '', 'root': '3', 'lemma': '3', 'end': 41, 'form': 'sg kom', 'partofspeech': 'N', 'start': 38, 'ending': 'ga', 'root_tokens': ['3',]}]]
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -413,9 +414,9 @@ def test_postanalysis_fix_number_analyses_using_rules_postcorrections():
     tokenizer.tag(text)
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print( text['morph_analysis'].to_records() )
+    #print( layer_to_records(text['morph_analysis']) )
     #from pprint import pprint
-    #pprint( text['morph_analysis'].to_records() )
+    #pprint( layer_to_records(text['morph_analysis']) )
     expected_records = [ \
        [{'normalized_text': '4-', 'form': '?', 'root': '4-', 'root_tokens': ['4', ''], 'start': 0, 'lemma': '4-', 'clitic': '', 'ending': '0', 'end': 2, 'partofspeech': 'N'}], \
        [{'normalized_text': 'ja', 'form': '', 'root': 'ja', 'root_tokens': ['ja',], 'start': 3, 'lemma': 'ja', 'clitic': '', 'ending': '0', 'end': 5, 'partofspeech': 'J'}], \
@@ -423,7 +424,7 @@ def test_postanalysis_fix_number_analyses_using_rules_postcorrections():
        [{'normalized_text': '-10', 'form': '?', 'root': '-10', 'root_tokens': ['', '10'], 'start': 22, 'lemma': '-10', 'clitic': '', 'ending': '0', 'end': 25, 'partofspeech': 'N'}], \
        [{'normalized_text': 'kraadi', 'form': 'sg p', 'root': 'kraad', 'root_tokens': ['kraad',], 'start': 26, 'lemma': 'kraad', 'clitic': '', 'ending': '0', 'end': 32, 'partofspeech': 'S'}]
     ]
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records( text['morph_analysis'] )
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -456,9 +457,9 @@ def test_postanalysis_fix_pronouns_WIP():
     #
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     #from pprint import pprint
-    #pprint(text['morph_analysis'].to_records())
+    #pprint(layer_to_records(text['morph_analysis']))
     expected_records = [ \
          [{'normalized_text': '11-endal', 'end': 9, 'root': None, 'start': 1, 'form': None, '_ignore': False, 'root_tokens': None, 'partofspeech': None, 'clitic': None, 'lemma': None, 'ending': None}], 
          [{'normalized_text': ',', 'end': 11, 'root': ',', 'start': 10, 'form': '', '_ignore': False, 'root_tokens': [',',], 'partofspeech': 'Z', 'clitic': '', 'lemma': ',', 'ending': ''}], 
@@ -469,7 +470,7 @@ def test_postanalysis_fix_pronouns_WIP():
          [{'normalized_text': '80selt', 'end': 37, 'root': None, 'start': 31, 'form': None, '_ignore': False, 'root_tokens': None, 'partofspeech': None, 'clitic': None, 'lemma': None, 'ending': None}], 
          [{'normalized_text': '.', 'end': 39, 'root': '.', 'start': 38, 'form': '', '_ignore': False, 'root_tokens': ['.',], 'partofspeech': 'Z', 'clitic': '', 'lemma': '.', 'ending': ''}] 
     ]
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results

@@ -8,6 +8,7 @@ from estnltk.taggers.standard.morph_analysis.userdict_tagger import CSV_UNSPECIF
 
 from estnltk.converters import layer_to_dict
 from estnltk.converters import dict_to_layer
+from estnltk.converters import layer_to_records
 
 import os, os.path, tempfile
 
@@ -270,9 +271,9 @@ def test_userdict_tagger_complete_overwriting():
         [{'normalized_text': 'loetamatu', 'root_tokens': ['loetamatu',], 'lemma': 'loetamatu', 'end': 34, 'start': 25, 'form': 'sg n', 'root': 'loetamatu', 'ending': '0', 'clitic': '', 'partofspeech': 'A'}], \
         [{'normalized_text': '.', 'root_tokens': ['.',], 'lemma': '.', 'end': 35, 'start': 34, 'form': '', 'root': '.', 'ending': '', 'clitic': '', 'partofspeech': 'Z'}]
     ]
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
@@ -288,16 +289,16 @@ def test_userdict_tagger_complete_overwriting():
     userdict = UserDictTagger(words_dict=words_dict, ignore_case=True, autocorrect_root=True, replace_missing_normalized_text_with_text = True)
     # Tag corrections
     userdict.retag(text)
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     expected_records = [ \
         [{'normalized_text': 'Või', 'ending': '0', 'form': '', 'partofspeech': 'J', 'root_tokens': ['või',], 'end': 3, 'lemma': 'või', 'start': 0, 'clitic': '', 'root': 'või'}], \
         [{'normalized_text': 'jämesoolelingud', 'end': 19, 'root_tokens': ['jämesoole', 'ling'], 'form': 'pl n', 'lemma': 'jämesooleling', 'root': 'jämesoole_ling', 'partofspeech': 'S', 'clitic': '', 'start': 4, 'ending': 'd'}], \
         [{'normalized_text': 'femorises', 'ending': 's', 'form': 'sg in', 'partofspeech': 'S', 'root_tokens': ['femoris',], 'end': 29, 'lemma': 'femoris', 'start': 20, 'clitic': '', 'root': 'femoris'}], \
         [{'normalized_text': '?', 'ending': '', 'form': '', 'partofspeech': 'Z', 'root_tokens': ['?',], 'end': 30, 'lemma': '?', 'start': 29, 'clitic': '', 'root': '?'}] \
     ]
-    #print(text['morph_analysis'].to_records())
+    #print(layer_to_records(text['morph_analysis']))
     # Sort analyses (so that the order within a word is always the same)
-    results_dict = text['morph_analysis'].to_records()
+    results_dict = layer_to_records(text['morph_analysis'])
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results

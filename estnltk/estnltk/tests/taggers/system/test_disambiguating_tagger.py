@@ -1,6 +1,6 @@
 from estnltk import Text, Layer
 from estnltk.taggers import DisambiguatingTagger
-
+from estnltk_core.converters import layer_to_records
 
 def test_1():
     text = Text('Tere, maailm!')
@@ -29,7 +29,7 @@ def test_1():
                                     decorator=decorator)
     tagger_1.tag(text)
 
-    assert text.simple.to_records() == [
+    assert layer_to_records( text.simple ) == [
         {'attr_1': 20, 'start': 0, 'end': 4},
         {'attr_1': 16, 'start': 4, 'end': 5},
         {'attr_1': 28, 'start': 6, 'end': 12},
@@ -59,7 +59,7 @@ def test_1():
                                     )
     tagger_2.tag(text)
 
-    assert text.enveloping.to_records() == [
+    assert layer_to_records( text.enveloping ) == [
         [[{'attr_2': 2, 'attr_1': 1, 'start': 0, 'end': 4},
           {'attr_2': 4, 'attr_1': 3, 'start': 0, 'end': 4},
           {'attr_2': 6, 'attr_1': 5, 'start': 0, 'end': 4},
