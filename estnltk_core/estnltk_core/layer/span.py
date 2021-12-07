@@ -131,17 +131,6 @@ class Span:
     def raw_text(self):
         return self.text_object.text
 
-    def to_records(self, with_text=False):
-        if self._layer.ambiguous:
-            return [i.to_record(with_text) for i in self._annotations]
-        annotation = self.annotations[0]
-        record = {k: annotation[k] for k in self._layer.attributes}
-        if with_text:
-            record['text'] = self.text
-        record['start'] = self.start
-        record['end'] = self.end
-        return record
-
     def __setattr__(self, key, value):
         if key in {'_base_span', '_layer', '_annotations', '_parent'}:
             super().__setattr__(key, value)

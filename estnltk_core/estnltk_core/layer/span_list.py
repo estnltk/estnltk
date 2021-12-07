@@ -26,9 +26,6 @@ class SpanList(Sequence):
         del self._base_span_to_span[span.base_span]
         self.spans.remove(span)
 
-    def to_records(self, with_text=False):
-        return [i.to_records(with_text) for i in self.spans]
-
     @property
     def text(self):
         return [span.text for span in self.spans]

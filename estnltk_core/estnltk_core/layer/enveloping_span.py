@@ -29,9 +29,6 @@ class EnvelopingSpan(Span):
 
         return self._spans
 
-    def to_records(self, with_text=False):
-        return [i.to_records(with_text) for i in self.spans]
-
     @property
     def _html_text(self):
         rt = self.raw_text

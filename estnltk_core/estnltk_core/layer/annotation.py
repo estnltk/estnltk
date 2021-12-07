@@ -32,15 +32,6 @@ class Annotation(Mapping):
         if self._span:
             return self._span.end
 
-    # TODO: get rid of this
-    def to_record(self, with_text=False) -> Mapping[str, Any]:
-        record = self.__dict__.copy()
-        if with_text:
-            record['text'] = getattr(self, 'text')
-        record['start'] = self.start
-        record['end'] = self.end
-        return record
-
     @property
     def layer(self):
         if self._span:

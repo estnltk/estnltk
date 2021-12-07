@@ -1,6 +1,7 @@
 from estnltk_core.converters.dict_exporter import annotation_to_dict
 from estnltk_core.converters.dict_exporter import text_to_dict
 from estnltk_core.converters.dict_exporter import layer_to_records
+from estnltk_core.converters.dict_exporter import span_to_records
 from estnltk_core.converters.layer_dict_converter import layer_to_dict
 
 from estnltk_core.converters.dict_importer import dict_to_annotation

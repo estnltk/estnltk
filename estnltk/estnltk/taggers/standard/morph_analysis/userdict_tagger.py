@@ -14,6 +14,8 @@ from typing import MutableMapping
 from estnltk import Annotation, Span, Layer
 from estnltk.taggers import Retagger
 
+from estnltk_core.converters import span_to_records
+
 from estnltk.taggers.standard.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.standard.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.standard.morph_analysis.morf_common import NORMALIZED_TEXT
@@ -606,7 +608,8 @@ class UserDictTagger(Retagger):
         estnltk_vm_attribs = [a for a in attribute_names if a not in [NORMALIZED_TEXT, IGNORE_ATTR]]
         while morph_span_id < len(morph_spans):
             # 1) Get morph records
-            records = [span.to_record() for span in morph_spans[morph_span_id].annotations]
+            records = span_to_records( morph_spans[morph_span_id] )
+            assert isinstance(records, list)
             overwrite_records = []
             preserve_records  = []
             records_merged = False

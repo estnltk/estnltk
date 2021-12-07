@@ -3,6 +3,7 @@ from .unicode_binary import as_binary
 from .dict_exporter import annotation_to_dict
 from .dict_exporter import text_to_dict
 from .dict_exporter import layer_to_records
+from .dict_exporter import span_to_records
 from .layer_dict_converter import layer_to_dict
 
 from .dict_importer import dict_to_annotation

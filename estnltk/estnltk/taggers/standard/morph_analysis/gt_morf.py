@@ -10,6 +10,8 @@
 import regex as re
 from collections import OrderedDict
 
+from estnltk_core.converters import span_to_records
+
 from estnltk import Layer, Text
 
 from estnltk.taggers import Tagger
@@ -371,7 +373,7 @@ class GTMorphConverter( Tagger ):
                 vmend   = vabamorf_span.end
                 if vmstart == wstart and vmend == wend:
                     if not _is_empty_annotation(vabamorf_span.annotations[0]):
-                        new_analyses = vabamorf_span.to_records()
+                        new_analyses = span_to_records( vabamorf_span )
                         # Convert noun categories
                         new_analyses = [_convert_nominal_form( a ) for a in new_analyses ]
                         # Convert ambiguous verb categories
@@ -385,7 +387,7 @@ class GTMorphConverter( Tagger ):
                         analysis_dicts.extend( new_analyses )
                     else:
                         # Analysis is empty (an unknown word)
-                        new_analyses = vabamorf_span.to_records()
+                        new_analyses = span_to_records( vabamorf_span )
                         # Convert None to empty string
                         for analysis in new_analyses:
                             for key in analysis.keys():

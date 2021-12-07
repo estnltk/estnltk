@@ -1,6 +1,7 @@
 from collections import defaultdict
 import pytest
 
+from estnltk_core.converters import span_to_records
 from estnltk_core.converters import layer_to_records
 
 from estnltk import Text
@@ -244,7 +245,7 @@ def test_remove_duplicate_and_problematic_analyses():
     assert [countTotal, countH, countNonH] == [7, 2, 5]
     for word in doc['words']:
         if word.text == 'palk':
-            records = word.morph_analysis.to_records()
+            records = span_to_records( word.morph_analysis )
             for rec in records:
                 del rec['start']
                 del rec['end']
@@ -258,7 +259,7 @@ def test_remove_duplicate_and_problematic_analyses():
     duplicate_removal_tagger.retag( doc )
     for word in doc['words']:
         if word.text.endswith('tama'):
-            records = word.morph_analysis.to_records()
+            records = span_to_records( word.morph_analysis )
             for rec in records:
                 del rec['start']
                 del rec['end']
