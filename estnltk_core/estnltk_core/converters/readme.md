@@ -12,6 +12,8 @@
 
 * `dict_importer.py` -- functions for restoring annotations and `Text` objects from dictionaries;
 
+* `records_converter.py` -- functions for converting between layers and their representations of listed annotation dictionaries (records). Note that these conversions are not suitable for all types of layers and may result in information loss. For complete layer conversions, please use functions of `layer_dict_converter.py`;
+
 ## Text or BaseText, Layer, Annotation <-> json
 
 * `json_converter.py` -- functions for converting between dictionary objects and JSON objects (strings), and for importing JSON objects to files/exporting JSON objects from files;
