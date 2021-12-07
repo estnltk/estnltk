@@ -7,6 +7,9 @@ import importlib, importlib.util
 
 CORE_PACKAGE_PATH = os.path.dirname(__file__)
 
+# Maximum length for string representation in html output
+HTML_OUTPUT_CONF = {'max_len' : 100}
+
 def core_abs_path(repo_path: str) -> str:
     """Absolute path to core_repo_path.
        Note: It is recommended to use core_abs_path instead of 
