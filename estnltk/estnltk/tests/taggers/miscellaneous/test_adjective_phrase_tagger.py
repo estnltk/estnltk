@@ -1,28 +1,47 @@
 from estnltk.taggers import AdjectivePhraseTagger
 from estnltk import Text
-from estnltk_core.converters import layer_to_records
+from estnltk_core.converters import layer_to_dict
 
 def test_adjective_phrase_tagger():
     text = Text("Eile leitud koer oli väga energiline ja mänguhimuline.").analyse('morphology')
 
     tagger = AdjectivePhraseTagger()
     tagger.tag(text)
+    
+    assert layer_to_dict( text.grammar_tags ) == \
+        {'ambiguous': True,
+         'attributes': ('grammar_symbol',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'grammar_tags',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'grammar_symbol': 'ADV2'}], 'base_span': (0, 4)},
+                   {'annotations': [{'grammar_symbol': 'ADJ'}], 'base_span': (5, 11)},
+                   {'annotations': [{'grammar_symbol': 'RANDOM_TEXT'}],
+                    'base_span': (12, 20)},
+                   {'annotations': [{'grammar_symbol': 'ADJ_M'},
+                                    {'grammar_symbol': 'ADV2'}],
+                    'base_span': (21, 25)},
+                   {'annotations': [{'grammar_symbol': 'ADJ'}], 'base_span': (26, 36)},
+                   {'annotations': [{'grammar_symbol': 'CONJ'}], 'base_span': (37, 39)},
+                   {'annotations': [{'grammar_symbol': 'ADJ'}], 'base_span': (40, 53)},
+                   {'annotations': [{'grammar_symbol': 'RANDOM_TEXT'}],
+                    'base_span': (53, 54)}]}
+    assert layer_to_dict( text.adjective_phrases ) == \
+        {'ambiguous': False,
+         'attributes': ('type', 'adverb_class', 'adverb_weight'),
+         'enveloping': 'grammar_tags',
+         'meta': {},
+         'name': 'adjective_phrases',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'adverb_class': None,
+                                     'adverb_weight': None,
+                                     'type': 'adjective phrase'}],
+                    'base_span': ((5, 11),)},
+                   {'annotations': [{'adverb_class': None,
+                                     'adverb_weight': None,
+                                     'type': 'adjective phrase'}],
+                    'base_span': ((21, 25), (26, 36), (37, 39), (40, 53))}]}
 
-    assert layer_to_records( text.grammar_tags ) == [
-        [{'grammar_symbol': 'ADV2', 'start': 0, 'end': 4}],
-         [{'grammar_symbol': 'ADJ', 'start': 5, 'end': 11}],
-         [{'grammar_symbol': 'RANDOM_TEXT', 'start': 12, 'end': 20}],
-         [{'grammar_symbol': 'ADJ_M', 'start': 21, 'end': 25},
-          {'grammar_symbol': 'ADV2', 'start': 21, 'end': 25}],
-         [{'grammar_symbol': 'ADJ', 'start': 26, 'end': 36}],
-         [{'grammar_symbol': 'CONJ', 'start': 37, 'end': 39}],
-         [{'grammar_symbol': 'ADJ', 'start': 40, 'end': 53}],
-         [{'grammar_symbol': 'RANDOM_TEXT', 'start': 53, 'end': 54}]]
-
-    assert layer_to_records( text.adjective_phrases ) == [
-        [[{'grammar_symbol': 'ADJ', 'start': 5, 'end': 11}]],
-        [[{'grammar_symbol': 'ADJ_M', 'start': 21, 'end': 25},
-          {'grammar_symbol': 'ADV2', 'start': 21, 'end': 25}],
-         [{'grammar_symbol': 'ADJ', 'start': 26, 'end': 36}],
-         [{'grammar_symbol': 'CONJ', 'start': 37, 'end': 39}],
-         [{'grammar_symbol': 'ADJ', 'start': 40, 'end': 53}]]]

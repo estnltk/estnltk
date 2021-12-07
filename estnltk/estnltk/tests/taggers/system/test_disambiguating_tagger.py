@@ -1,6 +1,6 @@
 from estnltk import Text, Layer
 from estnltk.taggers import DisambiguatingTagger
-from estnltk_core.converters import layer_to_records
+from estnltk_core.converters import layer_to_dict
 
 def test_1():
     text = Text('Tere, maailm!')
@@ -29,11 +29,18 @@ def test_1():
                                     decorator=decorator)
     tagger_1.tag(text)
 
-    assert layer_to_records( text.simple ) == [
-        {'attr_1': 20, 'start': 0, 'end': 4},
-        {'attr_1': 16, 'start': 4, 'end': 5},
-        {'attr_1': 28, 'start': 6, 'end': 12},
-        {'attr_1': 17, 'start': 12, 'end': 13}]
+    assert layer_to_dict( text.simple ) == \
+        {'ambiguous': False,
+         'attributes': ('attr_1',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'simple',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'attr_1': 20}], 'base_span': (0, 4)},
+                   {'annotations': [{'attr_1': 16}], 'base_span': (4, 5)},
+                   {'annotations': [{'attr_1': 28}], 'base_span': (6, 12)},
+                   {'annotations': [{'attr_1': 17}], 'base_span': (12, 13)}]}
 
     layer_2 = Layer(name='enveloping_ambiguous',
                     attributes=['attr_3'],
@@ -58,14 +65,15 @@ def test_1():
                                     decorator=decorator
                                     )
     tagger_2.tag(text)
+    
+    assert layer_to_dict( text.enveloping ) == \
+        {'ambiguous': False,
+         'attributes': ('attr_1',),
+         'enveloping': 'simple_ambiguous',
+         'meta': {},
+         'name': 'enveloping',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'attr_1': 2}], 'base_span': ((0, 4), (4, 5))},
+                   {'annotations': [{'attr_1': 2}], 'base_span': ((6, 12), (12, 13))}]}
 
-    assert layer_to_records( text.enveloping ) == [
-        [[{'attr_2': 2, 'attr_1': 1, 'start': 0, 'end': 4},
-          {'attr_2': 4, 'attr_1': 3, 'start': 0, 'end': 4},
-          {'attr_2': 6, 'attr_1': 5, 'start': 0, 'end': 4},
-          {'attr_2': 12, 'attr_1': 11, 'start': 0, 'end': 4}],
-         [{'attr_2': 8, 'attr_1': 7, 'start': 4, 'end': 5},
-          {'attr_2': 10, 'attr_1': 9, 'start': 4, 'end': 5}]],
-        [[{'attr_2': 14, 'attr_1': 13, 'start': 6, 'end': 12},
-          {'attr_2': 16, 'attr_1': 15, 'start': 6, 'end': 12}],
-         [{'attr_2': 18, 'attr_1': 17, 'start': 12, 'end': 13}]]]

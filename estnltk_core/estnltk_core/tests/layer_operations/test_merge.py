@@ -1,7 +1,7 @@
 from estnltk_core import Layer, ElementaryBaseSpan
 from estnltk_core.layer_operations import merge_layers
 from estnltk_core.common import load_text_class
-from estnltk_core.converters import layer_to_records
+from estnltk_core.converters import layer_to_dict
 
 def test_1():
     # Load Text or BaseText class (depending on the available packages)
@@ -41,53 +41,62 @@ def test_1():
     layer_1.add_annotation(ElementaryBaseSpan(82, 87),  attr='L1-18', attr_1='KÜMME')
     text_5.add_layer(layer_1)
 
-    layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], ambiguous=True, enveloping='layer_1')
-    layer_5.add_annotation([layer_1[0], layer_1[1]],                attr='L5-0-0',  attr_5='SADA KAKS')
-    layer_5.add_annotation([layer_1[0], layer_1[2]],                attr='L5-1-1',  attr_5='SADA KAKS')
-    layer_5.add_annotation([layer_1[0], layer_1[2]],                attr='L5-1-2',  attr_5='SADA KÜMME')
-    layer_5.add_annotation([layer_1[0], layer_1[2]],                attr='L5-1-3',  attr_5='SADA KAKSKÜMMEND')
-    layer_5.add_annotation([layer_1[0], layer_1[2], layer_1[4]],    attr='L5-2-4',  attr_5='SADA KAKSKÜMMEND KOLM')
-    layer_5.add_annotation([layer_1[5], layer_1[6]],                attr='L5-3-5',  attr_5='NELI TUHAT')
-    layer_5.add_annotation([layer_1[7]],                            attr='L5-5-7',  attr_5='VIIS')
-    layer_5.add_annotation([layer_1[6], layer_1[7]],                attr='L5-4-6',  attr_5='TUHAT VIIS')
-    layer_5.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-8',  attr_5='VIISSADA KUUS')
-    layer_5.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-9',  attr_5='VIISSADA KÜMME')
-    layer_5.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-10', attr_5='VIISSADA KUUSKÜMMEND')
-    layer_5.add_annotation([layer_1[12], layer_1[14], layer_1[15]], attr='L5-7-11', attr_5='KÜMME KOMA KAHEKSA')
-    layer_5.add_annotation([layer_1[13], layer_1[14], layer_1[15]], attr='L5-8-12', attr_5='SEITSE KOMA KAHEKSA')
-    text_5.add_layer(layer_5)
+    layer_5a = Layer('layer_5a', attributes=['attr', 'attr_5'], ambiguous=True, enveloping='layer_1')
+    layer_5a.add_annotation([layer_1[0], layer_1[2]],                attr='L5-1-1',  attr_5='SADA KAKS')
+    layer_5a.add_annotation([layer_1[0], layer_1[2]],                attr='L5-1-2',  attr_5='SADA KÜMME')
+    layer_5a.add_annotation([layer_1[0], layer_1[2]],                attr='L5-1-3',  attr_5='SADA KAKSKÜMMEND')
+    layer_5a.add_annotation([layer_1[0], layer_1[2], layer_1[4]],    attr='L5-2-4',  attr_5='SADA KAKSKÜMMEND KOLM')
+    layer_5a.add_annotation([layer_1[5], layer_1[6]],                attr='L5-3-5',  attr_5='NELI TUHAT')
+    layer_5a.add_annotation([layer_1[7]],                            attr='L5-5-7',  attr_5='VIIS')
+    layer_5a.add_annotation([layer_1[13], layer_1[14], layer_1[15]], attr='L5-8-12', attr_5='SEITSE KOMA KAHEKSA')
+    text_5.add_layer(layer_5a)
 
-    # use merge to copy layer_5
-    layer_5_new = merge_layers(layers=[layer_5],
+    layer_5b = Layer('layer_5b', attributes=['attr', 'attr_5'], ambiguous=True, enveloping='layer_1')
+    layer_5b.add_annotation([layer_1[0], layer_1[1]],                attr='L5-0-0',  attr_5='SADA KAKS')
+    layer_5b.add_annotation([layer_1[6], layer_1[7]],                attr='L5-4-6',  attr_5='TUHAT VIIS')
+    layer_5b.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-8',  attr_5='VIISSADA KUUS')
+    layer_5b.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-9',  attr_5='VIISSADA KÜMME')
+    layer_5b.add_annotation([layer_1[8], layer_1[11]],               attr='L5-6-10', attr_5='VIISSADA KUUSKÜMMEND')
+    layer_5b.add_annotation([layer_1[12], layer_1[14], layer_1[15]], attr='L5-7-11', attr_5='KÜMME KOMA KAHEKSA')
+    text_5.add_layer(layer_5b)
+
+    # merge layer_5a and layer_5b
+    layer_5_new = merge_layers(layers=[layer_5a, layer_5b],
                                output_layer='layer_5_new',
                                output_attributes=['attr', 'attr_5'])
 
-    assert layer_to_records( layer_5_new ) == [
-        [[{'attr': 'L1-0', 'attr_1': 'SADA', 'start': 0, 'end': 4}],
-         [{'attr': 'L1-1', 'attr_1': 'KAKS', 'start': 5, 'end': 9}]],
-        [[{'attr': 'L1-0', 'attr_1': 'SADA', 'start': 0, 'end': 4}],
-         [{'attr': 'L1-2', 'attr_1': 'KAKS', 'start': 5, 'end': 16},
-          {'attr': 'L1-2', 'attr_1': 'KÜMME', 'start': 5, 'end': 16},
-          {'attr': 'L1-2', 'attr_1': 'KAKSKÜMMEND', 'start': 5, 'end': 16}]],
-        [[{'attr': 'L1-0', 'attr_1': 'SADA', 'start': 0, 'end': 4}],
-         [{'attr': 'L1-2', 'attr_1': 'KAKS', 'start': 5, 'end': 16},
-          {'attr': 'L1-2', 'attr_1': 'KÜMME', 'start': 5, 'end': 16},
-          {'attr': 'L1-2', 'attr_1': 'KAKSKÜMMEND', 'start': 5, 'end': 16}],
-         [{'attr': 'L1-4', 'attr_1': 'KOLM', 'start': 17, 'end': 21}]],
-        [[{'attr': 'L1-5', 'attr_1': 'NELI', 'start': 23, 'end': 27}],
-         [{'attr': 'L1-6', 'attr_1': 'TUHAT', 'start': 28, 'end': 33}]],
-        [[{'attr': 'L1-6', 'attr_1': 'TUHAT', 'start': 28, 'end': 33}],
-         [{'attr': 'L1-7', 'attr_1': 'VIIS', 'start': 34, 'end': 38}]],
-        [[{'attr': 'L1-7', 'attr_1': 'VIIS', 'start': 34, 'end': 38}]],
-        [[{'attr': 'L1-8', 'attr_1': 'SADA', 'start': 34, 'end': 42},
-          {'attr': 'L1-8', 'attr_1': 'VIIS', 'start': 34, 'end': 42},
-          {'attr': 'L1-8', 'attr_1': 'VIISSADA', 'start': 34, 'end': 42}],
-         [{'attr': 'L1-11', 'attr_1': 'KUUS', 'start': 43, 'end': 54},
-          {'attr': 'L1-11', 'attr_1': 'KÜMME', 'start': 43, 'end': 54},
-          {'attr': 'L1-11', 'attr_1': 'KUUSKÜMMEND', 'start': 43, 'end': 54}]],
-        [[{'attr': 'L1-12', 'attr_1': 'KÜMME', 'start': 47, 'end': 52}],
-         [{'attr': 'L1-14', 'attr_1': 'KOMA', 'start': 62, 'end': 66}],
-         [{'attr': 'L1-15', 'attr_1': 'KAHEKSA', 'start': 67, 'end': 74}]],
-        [[{'attr': 'L1-13', 'attr_1': 'SEITSE', 'start': 55, 'end': 61}],
-         [{'attr': 'L1-14', 'attr_1': 'KOMA', 'start': 62, 'end': 66}],
-         [{'attr': 'L1-15', 'attr_1': 'KAHEKSA', 'start': 67, 'end': 74}]]]
+    assert layer_to_dict( layer_5_new ) == \
+        {'ambiguous': True,
+         'attributes': ('attr', 'attr_5'),
+         'enveloping': 'layer_1',
+         'meta': {},
+         'name': 'layer_5_new',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'attr': 'L5-0-0', 'attr_5': 'SADA KAKS'}],
+                    'base_span': ((0, 4), (5, 9))},
+                   {'annotations': [{'attr': 'L5-1-1', 'attr_5': 'SADA KAKS'},
+                                    {'attr': 'L5-1-2', 'attr_5': 'SADA KÜMME'},
+                                    {'attr': 'L5-1-3', 'attr_5': 'SADA KAKSKÜMMEND'}],
+                    'base_span': ((0, 4), (5, 16))},
+                   {'annotations': [{'attr': 'L5-2-4', 
+                                     'attr_5': 'SADA KAKSKÜMMEND KOLM'}],
+                    'base_span': ((0, 4), (5, 16), (17, 21))},
+                   {'annotations': [{'attr': 'L5-3-5', 'attr_5': 'NELI TUHAT'}],
+                    'base_span': ((23, 27), (28, 33))},
+                   {'annotations': [{'attr': 'L5-4-6', 'attr_5': 'TUHAT VIIS'}],
+                    'base_span': ((28, 33), (34, 38))},
+                   {'annotations': [{'attr': 'L5-5-7', 'attr_5': 'VIIS'}],
+                    'base_span': ((34, 38),)},
+                   {'annotations': [{'attr': 'L5-6-8', 'attr_5': 'VIISSADA KUUS'},
+                                    {'attr': 'L5-6-9', 'attr_5': 'VIISSADA KÜMME'},
+                                    {'attr': 'L5-6-10',
+                                     'attr_5': 'VIISSADA KUUSKÜMMEND'}],
+                    'base_span': ((34, 42), (43, 54))},
+                   {'annotations': [{'attr': 'L5-7-11',
+                                     'attr_5': 'KÜMME KOMA KAHEKSA'}],
+                    'base_span': ((47, 52), (62, 66), (67, 74))},
+                   {'annotations': [{'attr': 'L5-8-12',
+                                     'attr_5': 'SEITSE KOMA KAHEKSA'}],
+                    'base_span': ((55, 61), (62, 66), (67, 74))}]}
+
