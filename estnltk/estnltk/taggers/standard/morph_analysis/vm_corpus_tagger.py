@@ -15,7 +15,7 @@ from estnltk import Text
 from estnltk import Layer
 from estnltk.taggers import Retagger
 
-from estnltk_core.layer.ambiguous_attribute_tuple_list import to_str
+from estnltk_core.layer.to_html import to_str
 
 from estnltk.vabamorf.morf import Vabamorf
 from estnltk.taggers.standard.morph_analysis.morf import VabamorfAnalyzer

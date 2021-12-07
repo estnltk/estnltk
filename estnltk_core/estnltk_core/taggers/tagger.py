@@ -1,7 +1,7 @@
 from typing import MutableMapping, Sequence, Set, Union
 
 from estnltk_core.layer.layer import Layer
-from estnltk_core.layer.ambiguous_attribute_tuple_list import to_str
+from estnltk_core.layer.to_html import to_str
 
 
 class TaggerChecker(type):

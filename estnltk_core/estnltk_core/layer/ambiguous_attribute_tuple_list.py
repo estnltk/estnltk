@@ -1,31 +1,7 @@
 import pandas
-import html
-import regex as re
 
 from estnltk_core.layer.immutable_list import ImmutableList
-
-
-def to_str(value, escape_html=False):
-    if isinstance(value, str):
-        value_str = value
-    elif callable(value) and hasattr(value, '__name__') and hasattr(value, '__module__'):
-        value_str = '<function {}.{}>'.format(value.__module__, value.__name__)
-    elif isinstance(value, re.regex.Pattern):
-        value_str = '<Regex {}>'.format(value.pattern)
-    elif isinstance(value, tuple):
-        value_str = str(tuple(to_str(v) for v in value))
-    else:
-        value_str = str(value)
-
-    if len(value_str) >= 100:
-        value_str = value_str[:80] + ' ..., type: ' + str(type(value))
-        if hasattr(value, '__len__'):
-            value_str += ', length: ' + str(len(value))
-
-    if escape_html:
-        value_str = html.escape(value_str)
-    return value_str
-
+from estnltk_core.layer.to_html import to_str
 
 class AmbiguousAttributeTupleList:
     def __init__(self, amb_attr_tuple_list, attribute_names):

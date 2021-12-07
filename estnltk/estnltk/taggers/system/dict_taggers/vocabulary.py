@@ -4,7 +4,7 @@ import pandas as pd
 from pandas import DataFrame, set_option
 from typing import Sequence, Mapping
 
-from estnltk_core.taggers.tagger import to_str
+from estnltk_core.layer.to_html import to_str
 
 
 class VocabularyException(Exception):
