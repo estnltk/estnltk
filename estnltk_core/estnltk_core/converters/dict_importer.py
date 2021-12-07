@@ -21,7 +21,8 @@ def dict_to_text(text_dict: dict, layers: Container = None) -> Union['BaseText',
     return text
 
 
-def records_to_layer(layer: 'Layer', records: List[Dict[str, Any]], rewriting: bool=False) -> 'Layer':
+def records_to_layer(layer: 'Layer', records: Union[ List[Dict[str, Any]], List[List[Dict[str, Any]]] ], 
+                                     rewriting: bool=False) -> 'Layer':
     '''Populates given layer with annotations from given list of records (dicts).
        Technically, records are annotation dicts with extra attributes 'start' and 
        'end' marking the location of the span.
@@ -30,7 +31,8 @@ def records_to_layer(layer: 'Layer', records: List[Dict[str, Any]], rewriting: b
        TODO: this conversion does not work on enveloping layers
     '''
     if layer.enveloping is not None:
-        raise NotImplementedError('(!) records_to_layer has not been implemented for enveloping layers!')
+        raise NotImplementedError('(!) records_to_layer has not been implemented for enveloping layers!'+\
+                                  'Please use dict_to_layer/dict_to_text functions for complete dictionary import.')
     if rewriting:
         layer._span_list = SpanList()
 

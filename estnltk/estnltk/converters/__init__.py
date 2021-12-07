@@ -1,12 +1,12 @@
 from estnltk_core.converters.dict_exporter import annotation_to_dict
 from estnltk_core.converters.dict_exporter import text_to_dict
-from estnltk_core.converters.dict_exporter import layer_to_records
-from estnltk_core.converters.dict_exporter import span_to_records
+from estnltk_core.converters import layer_to_records
+from estnltk_core.converters import span_to_records
 from estnltk_core.converters.layer_dict_converter import layer_to_dict
 
 from estnltk_core.converters.dict_importer import dict_to_annotation
 from estnltk_core.converters.dict_importer import dict_to_text
-from estnltk_core.converters.dict_importer import records_to_layer
+from estnltk_core.converters import records_to_layer
 from estnltk_core.converters.layer_dict_converter import dict_to_layer
 
 from estnltk_core.converters.json_converter import to_json
