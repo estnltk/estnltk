@@ -1,6 +1,7 @@
 from typing import Union
 
-from estnltk_core.layer.layer import Layer, to_base_span
+from estnltk_core.layer.base_layer import to_base_span
+from estnltk_core.layer.layer import Layer
 
 
 def layer_to_dict(layer: Layer) -> dict:

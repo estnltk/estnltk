@@ -3,7 +3,9 @@ from collections import Counter
 
 from pandas import DataFrame
 
-from estnltk_core.layer.layer import Layer, SpanList, to_base_span
+from estnltk_core.layer.base_layer import to_base_span
+from estnltk_core.layer.layer import Layer
+from estnltk_core.layer.span_list import SpanList
 
 #
 #  Legacy layer conversion operations, relocated from:

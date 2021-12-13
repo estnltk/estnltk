@@ -6,7 +6,8 @@ from typing import Sequence, List, Union
 from estnltk_core.layer.span import Span
 from estnltk_core.layer.span_list import SpanList
 from estnltk_core.layer.annotation import Annotation
-from estnltk_core.layer.layer import Layer, to_base_span
+from estnltk_core.layer.base_layer import to_base_span
+from estnltk_core.layer.layer import Layer
 from estnltk_core.layer.base_span import ElementaryBaseSpan
 from estnltk_core.layer.base_span import EnvelopingBaseSpan
 from estnltk_core.layer.enveloping_span import EnvelopingSpan
