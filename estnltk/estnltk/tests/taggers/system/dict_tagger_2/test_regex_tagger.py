@@ -3,7 +3,7 @@ from estnltk.taggers.system.dict_tagger_2 import RegexTagger, Ruleset
 from estnltk.common import abs_path
 
 def test_tagger():
-    vocabulary_file = 'rulesets/regex_vocabulary.csv'
+    vocabulary_file = abs_path('tests/taggers/system/dict_tagger_2/rulesets/regex_vocabulary.csv')
     ruleset = Ruleset()
     ruleset.load(file_name=vocabulary_file, key_column='_regex_pattern_')
     tokenization_hints_tagger = RegexTagger(ruleset=ruleset,

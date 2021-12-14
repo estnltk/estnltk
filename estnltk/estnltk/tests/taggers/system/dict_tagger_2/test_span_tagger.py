@@ -4,7 +4,7 @@ from estnltk.common import abs_path
 from estnltk.taggers.system.dict_tagger_2 import Ruleset
 
 def test_tagger():
-    vocabulary_file = 'rulesets/span_vocabulary.csv'
+    vocabulary_file = abs_path('tests/taggers/system/dict_tagger_2/rulesets/span_vocabulary.csv')
     ruleset = Ruleset()
     ruleset.load(file_name=vocabulary_file, key_column='_token_')
     tagger = SpanTagger(output_layer='tagged_tokens',
