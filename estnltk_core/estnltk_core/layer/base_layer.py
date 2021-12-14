@@ -151,7 +151,9 @@ class BaseLayer:
 
     @property
     def end(self):
-        return self._span_list.spans[-1].end
+        # Important: SpanList is sorted only by start indexes, 
+        # so we have to seek the farthest span 
+        return max( sp.end for sp in self._span_list.spans )
 
     @property
     def spans(self):

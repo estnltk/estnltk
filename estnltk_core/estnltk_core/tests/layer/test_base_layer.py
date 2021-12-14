@@ -150,6 +150,33 @@ def test_add_annotation():
     # TODO: continue with all layer types
 
 
+def test_layer_start_end():
+    # Test that layer's start/end indexes will be properly resolved.
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    t = Text("0123456789")
+    # Test empty layer
+    empty_layer = BaseLayer('empty_layer', attributes=['value'])
+    with pytest.raises(IndexError):
+        assert empty_layer.start == -1
+    with pytest.raises(ValueError):
+        assert empty_layer.end == -1
+    # Test filled-in layer
+    layer = BaseLayer('layer', attributes=['value'])
+    layer.add_annotation( (0,1), **{'value':0} )
+    layer.add_annotation( (1,2), **{'value':1} )
+    layer.add_annotation( (2,3), **{'value':2} )
+    layer.add_annotation( (2,7), **{'value':None} )
+    layer.add_annotation( (3,5), **{'value':None} )
+    layer.add_annotation( (4,6), **{'value':None} )
+    t.add_layer(layer)
+    assert layer.start == 0
+    del layer[0]
+    del layer[0]
+    assert layer.start == 2
+    assert layer.end == 7
+
+
 def test_layer_indexing():
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
