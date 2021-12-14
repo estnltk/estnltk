@@ -723,4 +723,95 @@ def test_deep_copy():
     assert env_layer[0].annotations == env_layer_deepcopy[0].annotations
 
 
+@pytest.mark.skip(reason='reference inequality tests fail, layer.deepcopy should be fixed')
+def test_deep_copy_syntax_layer():
+    # Special case of deepcopy: it should also work with syntax layer,
+    # which attributes can contain references to other spans (complex 
+    # references)
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    # Create txt with syntax layer
+    text = Text('Tere, Kerttu!')
+    syntax_layer = BaseLayer( name='my_syntax', attributes=('id',
+                                                            'lemma',
+                                                            'upostag',
+                                                            'xpostag',
+                                                            'feats',
+                                                            'head',
+                                                            'deprel',
+                                                            'deps',
+                                                            'misc',
+                                                            'parent_span',
+                                                            'children') )
+    syntax_layer.add_annotation( (0, 4), **{'deprel': 'discourse',
+                                            'deps': '_',
+                                            'feats': {},
+                                            'head': 3,
+                                            'id': 1,
+                                            'lemma': 'tere',
+                                            'misc': '_',
+                                            'upostag': 'I',
+                                            'xpostag': 'I',
+                                            'parent_span': None,
+                                            'children': None} )
+    syntax_layer.add_annotation( (4, 5), **{'deprel': 'punct',
+                                            'deps': '_',
+                                            'feats': {},
+                                            'head': 3,
+                                            'id': 2,
+                                            'lemma': ',',
+                                            'misc': '_',
+                                            'upostag': 'Z',
+                                            'xpostag': 'Z',
+                                            'parent_span': None,
+                                            'children': None} )
+    syntax_layer.add_annotation( (6, 12), **{'deprel': 'root',
+                                             'deps': '_',
+                                             'feats': {'nom': 'nom',
+                                                       'prop': 'prop',
+                                                       'sg': 'sg'},
+                                             'head': 0,
+                                             'id': 3,
+                                             'lemma': 'Kerttu',
+                                             'misc': '_',
+                                             'upostag': 'S',
+                                             'xpostag': 'S',
+                                             'parent_span': None,
+                                             'children': None} )
+    syntax_layer.add_annotation( (12, 13), **{'deprel': 'punct',
+                                              'deps': '_',
+                                              'feats': {},
+                                              'head': 3,
+                                              'id': 4,
+                                              'lemma': '!',
+                                              'misc': '_',
+                                              'upostag': 'Z',
+                                              'xpostag': 'Z',
+                                              'parent_span': None,
+                                              'children': None} )
+    # Add parent/child references
+    syntax_layer[0].annotations[0].parent_span = syntax_layer[2]
+    syntax_layer[0].annotations[0].children = ()
+    syntax_layer[1].annotations[0].parent_span = syntax_layer[2]
+    syntax_layer[1].annotations[0].children = ()
+    syntax_layer[2].annotations[0].parent_span = None
+    syntax_layer[2].annotations[0].children = (syntax_layer[0], syntax_layer[1], syntax_layer[3])
+    syntax_layer[3].annotations[0].parent_span = syntax_layer[2]
+    syntax_layer[3].annotations[0].children = ()
+    text.add_layer(syntax_layer)
+    # Deepcopy syntax layer
+    layer_deepcopy = deepcopy( syntax_layer )
+    # Validate
+    assert layer_deepcopy == syntax_layer
+    assert layer_deepcopy is not syntax_layer
+    # 1) Validate copying references to spans: values should be equal
+    assert syntax_layer[0].annotations[0].parent_span == layer_deepcopy[0].annotations[0].parent_span
+    assert syntax_layer[1].annotations[0].parent_span == layer_deepcopy[1].annotations[0].parent_span
+    assert syntax_layer[2].annotations[0].children == layer_deepcopy[2].annotations[0].children
+    assert syntax_layer[3].annotations[0].parent_span == layer_deepcopy[3].annotations[0].parent_span
+    # 2) Validate copying references to spans: references should point to different objects
+    assert syntax_layer[0].annotations[0].parent_span is not layer_deepcopy[0].annotations[0].parent_span
+    assert syntax_layer[1].annotations[0].parent_span is not layer_deepcopy[1].annotations[0].parent_span
+    assert syntax_layer[2].annotations[0].children is not layer_deepcopy[2].annotations[0].children
+    assert syntax_layer[3].annotations[0].parent_span is not layer_deepcopy[3].annotations[0].parent_span
 
