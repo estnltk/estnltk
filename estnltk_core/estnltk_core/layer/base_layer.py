@@ -388,8 +388,8 @@ class BaseLayer:
     def __len__(self):
         return len(self._span_list)
 
-    def __str__(self):
-        return 'Layer(name={self.name!r}, attributes={self.attributes}, spans={self._span_list})'.format(self=self)
+    def __repr__(self):
+        return '{classname}(name={self.name!r}, attributes={self.attributes}, spans={self._span_list})'.format(classname=self.__class__.__name__, self=self)
 
     def metadata(self):
         """
@@ -433,9 +433,6 @@ class BaseLayer:
         if attributes:
             table_2 = self.attribute_list(attributes).to_html(index='text')
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object, table_1, table_2))
-
-    def __repr__(self):
-        return str(self)
 
     def diff(self, other):
         if self is other:
