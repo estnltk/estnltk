@@ -11,7 +11,9 @@ from estnltk_core import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
 from estnltk_core import Span, Annotation
 from estnltk_core.layer import AmbiguousAttributeTupleList, AmbiguousAttributeList, AttributeList
 from estnltk_core.layer.base_layer import BaseLayer
-
+from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
+from estnltk_core.layer_operations.aggregators import GroupBy
+from estnltk_core.layer_operations.aggregators import Rolling
 
 def check_if_estnltk_is_available():
     return pkgutil.find_loader("estnltk") is not None
@@ -31,14 +33,12 @@ class Layer(BaseLayer):
     def ancestor_layers(self):
         if self.text_object is None:
             raise Exception('(!) Cannot find ancestor layers: the layer is detached from Text object.')
-        from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
         ancestors = find_layer_dependencies(self.text_object, self.name, reverse=False)
         return sorted(ancestors)
 
     def descendant_layers(self):
         if self.text_object is None:
             raise Exception('(!) Cannot find descendant layers: the layer is detached from Text object.')
-        from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
         descendants = find_layer_dependencies(self.text_object, self.name, reverse=True)
         return sorted(descendants)
 
@@ -50,26 +50,24 @@ class Layer(BaseLayer):
         return collections.Counter(getattr(span, attribute) for span in self.spans)
 
     def groupby(self, by: Union[str, Sequence[str], 'Layer'], return_type: str = 'spans'):
-        import estnltk_core.layer_operations.aggregators as layer_operations
         if isinstance(by, str):
             if by in self.attributes:
                 # Group by a single attribute of this Layer
-                return layer_operations.GroupBy(layer=self, by=[ by ], return_type=return_type)
+                return GroupBy(layer=self, by=[ by ], return_type=return_type)
             elif self.text_object is not None and by in self.text_object.layers:
                 # Group by a Layer (using given layer name)
-                return layer_operations.GroupBy(layer=self, by = self.text_object[by], return_type=return_type)
+                return GroupBy(layer=self, by = self.text_object[by], return_type=return_type)
             raise ValueError(by)
         elif isinstance(by, Sequence) and all(isinstance(b, str) for b in by):
             # Group by multiple attributes of this Layer
-            return layer_operations.GroupBy(layer=self, by=by, return_type=return_type)
+            return GroupBy(layer=self, by=by, return_type=return_type)
         elif isinstance(by, Layer):
             # Group by a Layer
-            return layer_operations.GroupBy(layer=self, by=by, return_type=return_type)
+            return GroupBy(layer=self, by=by, return_type=return_type)
         raise ValueError(by)
 
     def rolling(self, window: int, min_periods: int = None, inside: str = None):
-        import estnltk_core.layer_operations.aggregators as layer_operations
-        return layer_operations.Rolling(self, window=window,  min_periods=min_periods, inside=inside)
+        return Rolling(self, window=window,  min_periods=min_periods, inside=inside)
 
     def resolve_attribute(self, item):
         if len(self) == 0:
