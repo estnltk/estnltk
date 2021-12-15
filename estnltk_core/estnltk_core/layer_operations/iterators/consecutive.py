@@ -5,14 +5,14 @@
 from typing import Union, List, Callable
 
 from estnltk_core.layer.span import Span
-from estnltk_core.layer.layer import Layer
+from estnltk_core.layer.base_layer import BaseLayer
 
 
 def default_gap_validator(s: str) -> bool:
     return True
 
 
-def iterate_consecutive_spans(spanlist: Union[List[Span], Layer],
+def iterate_consecutive_spans(spanlist: Union[List[Span], BaseLayer, 'Layer'],
                               raw_text: str,
                               max_gap: int = float('inf'),
                               gap_validator: Callable = None):
@@ -68,14 +68,14 @@ def iterate_consecutive_spans(spanlist: Union[List[Span], Layer],
                 spans_checked.append(following_span)
 
 
-def iterate_touching_spans(spanlist: Union[List[Span], Layer], raw_text: str):
+def iterate_touching_spans(spanlist: Union[List[Span], BaseLayer, 'Layer'], raw_text: str):
     """ Given a Layer or a List of Spans, yields pairs of Spans that are
         positionally touching (i.e. gap between the consecutive spans is 0).
     """
     yield from iterate_consecutive_spans(spanlist, raw_text, max_gap=0)
 
 
-def iterate_hovering_spans(spanlist: Union[List[Span], Layer],
+def iterate_hovering_spans(spanlist: Union[List[Span], BaseLayer, 'Layer'],
                            raw_text: str,
                            min_gap: int = 1,
                            max_gap: int = float('inf')):

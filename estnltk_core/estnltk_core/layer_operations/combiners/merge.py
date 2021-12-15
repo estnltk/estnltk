@@ -1,15 +1,15 @@
 #
 #  merge -- vertical merging of layers
 #
-from typing import Sequence
+from typing import Sequence, Union
 from estnltk_core.layer.enveloping_span import EnvelopingSpan
-from estnltk_core.layer.layer import Layer
+from estnltk_core.layer.base_layer import BaseLayer
 
 
-def merge_layers(layers: Sequence[Layer],
+def merge_layers(layers: Sequence[Union[BaseLayer, 'Layer']],
                  output_layer: str,
                  output_attributes: Sequence[str],
-                 text=None) -> Layer:
+                 text=None) -> Union[BaseLayer, 'Layer']:
     """Creates a new layer spans of which is the union of spans of input layers.
     The input layers must be of the same type (parent, enveloping, ambiguous), 
     and they must cover the same Text object.
@@ -38,7 +38,7 @@ def merge_layers(layers: Sequence[Layer],
             "some layers belong to different text objects: " + \
                 str( [layer.name for layer in layers if layer.text_object != text_object] )
 
-    new_layer = Layer(
+    new_layer = layers[0].__class__(
         name=output_layer,
         attributes=tuple(output_attributes),
         text_object=text_object,

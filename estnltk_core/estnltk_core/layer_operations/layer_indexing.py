@@ -1,10 +1,11 @@
+from typing import Union
 from itertools import product, chain
 
-from estnltk_core.layer.layer import Layer
+from estnltk_core.layer.base_layer import BaseLayer
 
 
-def build_ngrams(layer: Layer, attribute: str, n: int, sep: str='-'):
-    unigrams = getattr(layer, attribute)
+def build_ngrams(layer: Union[BaseLayer, 'Layer'], attribute: str, n: int, sep: str='-'):
+    unigrams = layer[attribute]
     ngrams = set()
     is_ambiguous = layer.ambiguous
     for i in range(n, len(unigrams) + 1):
@@ -18,6 +19,6 @@ def build_ngrams(layer: Layer, attribute: str, n: int, sep: str='-'):
     return list(ngrams)
 
 
-def create_ngram_fingerprint_index(layer: Layer, attribute: str, n: int, sep: str= '-'):
+def create_ngram_fingerprint_index(layer: Union[BaseLayer, 'Layer'], attribute: str, n: int, sep: str= '-'):
     """Used with finite grammar ngram_fingerprint."""
     return list(chain(*[build_ngrams(layer, attribute, i, sep) for i in range(1, n + 1)]))

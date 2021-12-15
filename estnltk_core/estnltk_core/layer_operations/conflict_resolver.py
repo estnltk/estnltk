@@ -5,9 +5,11 @@ Possible Enhancements: another possibility to resolve conflicts is to split conf
 spans. That would preserve all annotations but may also create meaningless spans.
 
 """
+from typing import Union
 from collections import defaultdict
 
 from estnltk_core import Span
+from estnltk_core.layer.base_layer import BaseLayer
 from estnltk_core.layer_operations.iterators import iterate_intersecting_spans
 
 
@@ -24,7 +26,7 @@ def _resolve_ambiguous_span(ambiguous_span: Span, priority_attribute: str, keep_
     ambiguous_span.annotations.extend(result)
 
 
-def resolve_conflicts(layer,
+def resolve_conflicts(layer: Union[BaseLayer, 'Layer'],
                       conflict_resolving_strategy: str = 'ALL',
                       priority_attribute: str = None,
                       status: dict = None,
@@ -34,7 +36,7 @@ def resolve_conflicts(layer,
 
     Parameters
     ----------
-    layer: Layer
+    layer: Union[BaseLayer, 'Layer']
         The layer with conflicts.
     conflict_resolving_strategy: str ('ALL', 'MAX', 'MIN')
         Conflict resolving strategy.

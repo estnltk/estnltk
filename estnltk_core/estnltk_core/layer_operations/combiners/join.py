@@ -7,7 +7,7 @@ from estnltk_core.layer.span import Span
 from estnltk_core.layer.span_list import SpanList
 from estnltk_core.layer.annotation import Annotation
 from estnltk_core.layer.base_layer import to_base_span
-from estnltk_core.layer.layer import Layer
+from estnltk_core.layer.base_layer import BaseLayer
 from estnltk_core.layer.base_span import ElementaryBaseSpan
 from estnltk_core.layer.base_span import EnvelopingBaseSpan
 from estnltk_core.layer.enveloping_span import EnvelopingSpan
@@ -19,7 +19,7 @@ from estnltk_core.common import create_text_object
 # for a debation, and the corresponding functionalities may change in the future
 #
 
-def shift_span( span, layer: Layer, positions: int ):
+def shift_span( span, layer: Union[BaseLayer, 'Layer'], positions: int ):
     '''Shifts span's start and end indices by the given amount of positions.
        The positions can be negative (shift backward) or positive (shift 
        forward). 
@@ -44,7 +44,7 @@ def shift_span( span, layer: Layer, positions: int ):
         raise TypeError('(!) Unexpected type of the input span {}. Expected Span or EnvelopingSpan.'.format(type(span)))
 
 
-def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
+def join_layers( layers: Sequence[Union[BaseLayer, 'Layer']], separators: Sequence[str] ):
     '''Joins (concatenates) given list of layers into one layer. 
        This function creates new spans for the new layer, thus input 
        layers (and their corresponding texts) will not be affected
@@ -74,13 +74,13 @@ def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
         raise ValueError('(!) Cannot join layers on an empty list of layers. ')
     elif len(layers) == 1:
         # copy the layer
-        new_layer = Layer(name=layers[0].name,
-                          attributes=layers[0].attributes,
-                          text_object=None,
-                          parent=layers[0].parent,
-                          enveloping=layers[0].enveloping,
-                          ambiguous=layers[0].ambiguous,
-                          default_values=layers[0].default_values.copy())
+        new_layer = layers[0].__class__(name=layers[0].name,
+                                        attributes=layers[0].attributes,
+                                        text_object=None,
+                                        parent=layers[0].parent,
+                                        enveloping=layers[0].enveloping,
+                                        ambiguous=layers[0].ambiguous,
+                                        default_values=layers[0].default_values.copy())
         for span in layers[0]:
             for annotation in span.annotations:
                 new_layer.add_annotation(span.base_span, **annotation)
@@ -107,14 +107,14 @@ def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
             if layer.ambiguous != ambiguous:
                 raise Exception( "Not all layers have the same state of ambiguity: " + str([l.ambiguous for l in layers]) )
         # 1) Make a new detached layer
-        new_layer = Layer( name=name,
-                           attributes=attributes,
-                           text_object=None,
-                           parent=parent,
-                           enveloping=enveloping,
-                           ambiguous=ambiguous,
-                           default_values=layers[0].default_values.copy(),
-                           serialisation_module=layers[0].serialisation_module )
+        new_layer = layers[0].__class__( name=name,
+                                         attributes=attributes,
+                                         text_object=None,
+                                         parent=parent,
+                                         enveloping=enveloping,
+                                         ambiguous=ambiguous,
+                                         default_values=layers[0].default_values.copy(),
+                                         serialisation_module=layers[0].serialisation_module )
         # 2) Compose joined layer's spanlist
         last_shift = 0
         joined_spanlist = SpanList()
@@ -132,7 +132,7 @@ def join_layers( layers: Sequence[Layer], separators: Sequence[str] ):
         return new_layer
 
 
-def join_layers_while_reusing_spans( layers: Sequence[Layer], separators: Sequence[str] ):
+def join_layers_while_reusing_spans( layers: Sequence[Union[BaseLayer, 'Layer']], separators: Sequence[str] ):
     '''Joins (concatenates) given list of layers into one layer. 
        This function reuses spans of input layers in the new layer, 
        and thus is more efficient than join_layers(). 
@@ -187,14 +187,14 @@ def join_layers_while_reusing_spans( layers: Sequence[Layer], separators: Sequen
             if layer.ambiguous != ambiguous:
                 raise Exception( "Not all layers have the same state of ambiguity: " + str([l.ambiguous for l in layers]) )
         # 1) Make a new detached layer
-        new_layer = Layer( name=name,
-                           attributes=attributes,
-                           text_object=None,
-                           parent=parent,
-                           enveloping=enveloping,
-                           ambiguous=ambiguous,
-                           default_values=layers[0].default_values.copy(),
-                           serialisation_module=layers[0].serialisation_module )
+        new_layer = layers[0].__class__( name=name,
+                                         attributes=attributes,
+                                         text_object=None,
+                                         parent=parent,
+                                         enveloping=enveloping,
+                                         ambiguous=ambiguous,
+                                         default_values=layers[0].default_values.copy(),
+                                         serialisation_module=layers[0].serialisation_module )
         # 2) Add spans from the old list of layers to the new layer.
         #    Texts of the old layers will be broken (hence destructivity of the approach)
         last_shift = 0

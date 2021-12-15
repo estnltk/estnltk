@@ -1,11 +1,13 @@
-from estnltk_core.layer.layer import Layer
+from typing import Union
+
+from estnltk_core.layer.base_layer import BaseLayer
 from estnltk_core.layer.enveloping_span import EnvelopingSpan
 
 
 class Rolling:
     """Yields span lists from a window rolling over a layer."""
 
-    def __init__(self, layer: Layer, window: int, min_periods: int = None, inside: str = None):
+    def __init__(self, layer: Union[BaseLayer, 'Layer'], window: int, min_periods: int = None, inside: str = None):
         self.layer = layer
 
         if not(isinstance(window, int)):

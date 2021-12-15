@@ -1,15 +1,16 @@
+from typing import Union
 from operator import eq
 
-from estnltk_core.layer.layer import Layer
+from estnltk_core.layer.base_layer import BaseLayer
 
 
-def diff_layer(a: Layer, b: Layer, comp=eq):
+def diff_layer(a: Union[BaseLayer, 'Layer'], b: Union[BaseLayer, 'Layer'], comp=eq):
     """Generator of layer differences.
 
     Parameters
     ----------
-    a: Layer
-    b: Layer
+    a: Union[BaseLayer, 'Layer']
+    b: Union[BaseLayer, 'Layer']
     comp: compare function, default: operator.eq
         Function that returns True if layer elements are equal and False otherwise.
         Only layer elements with equal spans are compared.

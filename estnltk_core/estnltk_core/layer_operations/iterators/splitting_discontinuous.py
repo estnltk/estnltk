@@ -10,7 +10,6 @@
 from typing import Iterable, Sequence, List, Union
 from estnltk_core import ElementaryBaseSpan
 from estnltk_core.layer.span import Span
-from estnltk_core.layer.layer import Layer
 from estnltk_core.common import create_text_object
 
 from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
@@ -66,11 +65,11 @@ def extract_discontinuous_sections(text: Union['Text', 'BaseText'],
             parent = layer.parent
             enveloping = layer.enveloping
             ambiguous = layer.ambiguous
-            new_layer = Layer(name=layer.name,
-                              attributes=attribute_names,
-                              parent=parent,
-                              enveloping=enveloping,
-                              ambiguous=ambiguous)
+            new_layer = layer.__class__(name=layer.name,
+                                        attributes=attribute_names,
+                                        parent=parent,
+                                        enveloping=enveloping,
+                                        ambiguous=ambiguous)
             new_layer.meta.update(layer.meta)
             new_layer.serialisation_module = layer.serialisation_module
             new_text.add_layer(new_layer)

@@ -1,11 +1,10 @@
-from typing import Sequence
+from typing import Sequence, Union
 from estnltk_core.layer.base_span import ElementaryBaseSpan
-from estnltk_core.layer.layer import Layer
 
 
-def flatten(input_layer: Layer, output_layer: str, output_attributes: Sequence[str] = None,
+def flatten(input_layer: Union['BaseLayer', 'Layer'], output_layer: str, output_attributes: Sequence[str] = None,
             attribute_mapping: Sequence = None, default_values: dict = None,
-            disambiguation_strategy:str = None ) -> Layer:
+            disambiguation_strategy:str = None ) -> Union['BaseLayer', 'Layer']:
     """Reduces enveloping layer or layer with parent to a detached ambiguous layer of simple text spans.
     
        Note: By default, the output layer will be ambiguous. However, if you set 
@@ -16,7 +15,7 @@ def flatten(input_layer: Layer, output_layer: str, output_attributes: Sequence[s
        
        Parameters
        ----------
-       input_layer: Layer
+       input_layer: Union['BaseLayer', 'Layer']
            The layer to be turned into the flat layer.
        output_layer: str
            Name of the output layer.
@@ -40,14 +39,14 @@ def flatten(input_layer: Layer, output_layer: str, output_attributes: Sequence[s
     layer_attributes = input_layer.attributes
 
     output_attributes = output_attributes or layer_attributes
-    new_layer = Layer(name=output_layer,
-                      attributes=output_attributes,
-                      text_object=input_layer.text_object,
-                      parent=None,
-                      enveloping=None,
-                      ambiguous=True,
-                      default_values=default_values
-                      )
+    # Create new BaseLayer or Layer
+    new_layer = input_layer.__class__(name=output_layer,
+                                      attributes=output_attributes,
+                                      text_object=input_layer.text_object,
+                                      parent=None,
+                                      enveloping=None,
+                                      ambiguous=True,
+                                      default_values=default_values)
 
     if attribute_mapping is None:
         attribute_mapping = tuple((attr, attr) for attr in output_attributes)

@@ -1,6 +1,6 @@
 from typing import Sequence, Union
 from collections import defaultdict
-from estnltk_core.layer.layer import Layer
+from estnltk_core.layer.base_layer import BaseLayer
 
 
 class GroupBy:
@@ -14,13 +14,15 @@ class GroupBy:
        to the same span in the enveloping layer will form a group. 
        """
     
-    def __init__(self, layer: Layer, by: Union[Sequence[str], Layer], return_type: str):
+    def __init__(self, layer: Union[BaseLayer, 'Layer'], 
+                       by: Union[Sequence[str], Union[BaseLayer, 'Layer']], 
+                       return_type: str):
         self.layer = layer
         self.by = by
         self.return_type = return_type
 
         groups = defaultdict(list)
-        group_by_layer = isinstance(by, Layer)
+        group_by_layer = isinstance(by, BaseLayer)
 
         if return_type == 'annotations':
             if not group_by_layer:
