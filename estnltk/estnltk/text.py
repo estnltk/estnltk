@@ -4,7 +4,6 @@ from typing import Dict
 import networkx as nx
 
 from estnltk_core.base_text import BaseText
-from estnltk_core.base_text import Layer
 
 class Text( BaseText ):
     # All methods for BaseText/Text object

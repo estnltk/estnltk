@@ -5,7 +5,6 @@ from copy import copy, deepcopy
 from typing import List, Sequence, Set, Union, Any, Mapping
 
 from estnltk_core.layer.base_layer import BaseLayer
-from estnltk_core.layer.layer import Layer
 from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
 
 class BaseText:
@@ -110,7 +109,7 @@ class BaseText:
         """
         return set( self._layers.keys() )
 
-    def add_layer(self, layer: Union[BaseLayer, Layer]):
+    def add_layer(self, layer: Union[BaseLayer, 'Layer']):
         """
         Adds a layer to the text object.
         
@@ -146,7 +145,7 @@ class BaseText:
 
         self._layers[name] = layer
 
-    def pop_layer(self, name: str,  cascading: bool = True, default=Ellipsis) -> Union[BaseLayer, Layer, Any]:
+    def pop_layer(self, name: str,  cascading: bool = True, default=Ellipsis) -> Union[BaseLayer, 'Layer', Any]:
         """
         Removes a layer from the text object together with the layers that are computed from it by default.
 
@@ -179,7 +178,7 @@ class BaseText:
         raise NotImplementedError('(!) The NLP pipeline is not available in estnltk-core. Please use the full EstNLTK package for the pipeline.')
 
     @staticmethod
-    def topological_sort(layers: Mapping[str, Union[BaseLayer, Layer]]) -> List[Union[BaseLayer, Layer]]:
+    def topological_sort(layers: Mapping[str, Union[BaseLayer, 'Layer']]) -> List[Union[BaseLayer, 'Layer']]:
         """
         Returns a list of all layers of the given dict of layers in order of dependencies and layer names.
         The order is uniquely determined.
@@ -200,7 +199,7 @@ class BaseText:
                     break
         return sorted_layers
 
-    def sorted_layers(self) -> List[Union[BaseLayer, Layer]]:
+    def sorted_layers(self) -> List[Union[BaseLayer, 'Layer']]:
         """
         Returns a list of all layers of this text object in order of dependencies and layer names.
         The order is uniquely determined.
