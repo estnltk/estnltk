@@ -14,7 +14,7 @@ from estnltk_core.layer import AmbiguousAttributeTupleList, AmbiguousAttributeLi
 
 def to_base_span(x) -> BaseSpan:
     """Reduces estnltk's annotation structure (BaseLayer, Span or Annotation) 
-       to its ElementaryBaseSpan or EnvelopingBaseSpan or creates ElementaryBaseSpan 
+       to ElementaryBaseSpan or EnvelopingBaseSpan or creates ElementaryBaseSpan 
        or EnvelopingBaseSpan from given sequence of span locations. 
        
        If param x is BaseLayer, returns EnvelopingBaseSpan enveloping all 
@@ -33,7 +33,7 @@ def to_base_span(x) -> BaseSpan:
         if len(x) == 2 and isinstance(x[0], int) and isinstance(x[1], int):
             return ElementaryBaseSpan(*x)
         return EnvelopingBaseSpan(to_base_span(y) for y in x)
-    raise TypeError(x)
+    raise TypeError('{} ({}) cannot be converted to base span'.format(type(x), x))
 
 
 class BaseLayer:
@@ -152,7 +152,7 @@ class BaseLayer:
     @property
     def end(self):
         # Important: SpanList is sorted only by start indexes, 
-        # so we have to seek the farthest span 
+        # so we have to seek the farthest span ending
         return max( sp.end for sp in self._span_list.spans )
 
     @property
@@ -174,6 +174,13 @@ class BaseLayer:
         return self.text_object.text[self.start:self.end]
 
     def attribute_list(self, attributes):
+        """ Returns all annotations of this layer with selected `attributes` (snapshot of attributes).
+            Returns:
+                AttributeList -- if the layer is not ambiguous and only one attribute was selected;
+                AttributeTupleList -- if the layer is not ambiguous and more than one attributes were selected;
+                AmbiguousAttributeList -- if the layer is ambiguous and only one attribute was selected;
+                AmbiguousAttributeTupleList -- if the layer is ambiguous and more than one attributes were selected;
+        """
         assert isinstance(attributes, (str, list, tuple)), str(type(attributes))
         if not attributes:
             raise IndexError('no attributes: ' + str(attributes))
@@ -194,6 +201,16 @@ class BaseLayer:
         return result
 
     def add_span(self, span: Span) -> Span:
+        """Adds new Span (or EnvelopingSpan) to this layer.
+           Before adding, span will be validated:
+           * the span must have at least one annotation;
+           * the span must have exactly one annotation (if the layer is not ambiguous);
+           * the span belongs to this layer;
+           
+           Note that you cannot add two Spans (EnvelopingSpans) that 
+           have exactly the same text location (base span); however, 
+           partially overlapping spans are allowed.
+        """
         assert isinstance(span, Span), str(type(span))
         assert len(span.annotations) > 0, span
         assert self.ambiguous or len(span.annotations) == 1, span
@@ -207,10 +224,34 @@ class BaseLayer:
         return span
 
     def remove_span(self, span):
+        """Removes given span from the layer.
+        """
         self._span_list.remove_span(span)
 
     def add_annotation(self, base_span, **attributes) -> Annotation:
+        """Adds new annotation (from dict `attributes`) to given text location `base_span`.
+        
+           Location `base_span` can be:
+           * (start, end) or ElementaryBaseSpan or Span;
+           * [(s1, e1), ... (sN, eN)] or EnvelopingBaseSpan or EnvelopingSpan or BaseLayer if the layer is enveloping;
+           * Annotation if it is attached to Span (appropriately non-enveloping or enveloping);
+           
+           `attributes` should contain attribute assignments for the annotation. 
+           Missing attributes will be filled in with layer's default_values 
+           (None values, if defaults have not been explicitly set).
+           
+           Note that you can add two or more annotations to exactly the 
+           same `base_span` location only if the layer is ambiguous. 
+           however, partially overlapping locations are always allowed. 
+        """
         base_span = to_base_span(base_span)
+        # Make it clear, if we got non-enveloping or enveloping span properly
+        # (otherwise we may run into obscure error messages later)
+        if self.enveloping is not None and not isinstance(base_span, EnvelopingBaseSpan):
+            raise TypeError('Cannot add {!r} to enveloping layer. Enveloping span is required.'.format(base_span))
+        elif self.enveloping is None and isinstance(base_span, EnvelopingBaseSpan):
+            raise TypeError('Cannot add {!r} to non-enveloping layer. Elementary span is required.'.format(base_span))
+        
         attributes = {**self.default_values, **{k: v for k, v in attributes.items() if k in self.attributes}}
         span = self.get(base_span)
 
@@ -240,7 +281,12 @@ class BaseLayer:
         return annotation
 
     def check_span_consistency(self) -> None:
-        """Checks for layer's span consistency
+        """Checks for layer's span consistency.
+           Checks that:
+           * spans of the layer are sorted;
+           * each span has at least one annotation;
+           * each span has at exactly one annotation if the layer is not ambiguous;
+           * all annotations have exactly the same attributes as the layer;
         """
         attribute_names = set(self.attributes)
 
