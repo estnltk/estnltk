@@ -30,9 +30,9 @@ def test_word_level_ner():
     nertagger = WordLevelNerTagger()
     text.tag_layer()
     nertagger.tag(text)
-    nerlayer = "Layer(name='wordner',attributes=('nertag',),spans=SL[EnvelopingSpan('Tallinna',[{'nertag':'B-LOC'}])," \
-               "EnvelopingSpan('õhusaaste',[{'nertag':'O'}]),EnvelopingSpan('suureneb',[{'nertag':'O'}])," \
-               "EnvelopingSpan('.',[{'nertag':'O'}])]) "
+    nerlayer = "Layer(name='wordner',attributes=('nertag',),spans=SL[Span('Tallinna',[{'nertag':'B-LOC'}])," \
+               "Span('õhusaaste',[{'nertag':'O'}]),Span('suureneb',[{'nertag':'O'}])," \
+               "Span('.',[{'nertag':'O'}])]) "
     assert ''.join(nerlayer.split()) == ''.join(str(text.wordner).split())
 
 
