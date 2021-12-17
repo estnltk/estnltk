@@ -19,28 +19,33 @@ OUTPUT_CONFIG = {
 
 def _create_attr_val_repr( seq_attribute_values: Sequence[Tuple[str, Any]] ) -> str:
     """Creates a concise string representation of annotations' attributes and values. 
-       A value of an attribute will be rendered only if its an instance of a type 
-       listed in OUTPUT_CONFIG['attr_val_repr_types']. If a value is a sqeuence or 
-       mapping, it will be rendered only if it consists of basic types (str, int, 
-       float, bool). In all other cases, values will have only their type name rendered. 
+       A value of an attribute will be rendered only if it is None or an instance of 
+       a type listed in OUTPUT_CONFIG['attr_val_repr_types']. If value is sequence or 
+       mapping, it will be rendered only if it consists of basic types (None, str, 
+       int, float, bool). In all other cases, values will be rendered as their type 
+       names. 
        Returns a string, which follows the dict representation: { k1: v1, ..., kN: vN }
     """
     basic_types = (str, int, float, bool)
     allowed_types = OUTPUT_CONFIG.get( 'attr_val_repr_types', basic_types )
     key_value_strings = []
     for (attr, val) in seq_attribute_values:
-        if isinstance( val, allowed_types ):
+        if val is None:
+            # None will always be displayed
+            key_value_strings.append( '{!r}: {!r}'.format(attr, val) )
+        elif isinstance( val, allowed_types ):
             has_all_basic_types = True
             if isinstance( val, (list, tuple, set) ):
                 # Check the contents of the sequence: display only if 
                 # it consists of basic types
                 has_all_basic_types = \
-                    all([isinstance(i, basic_types) for i in val])
+                    all([i is None or isinstance(i, basic_types) for i in val])
             elif isinstance( val, dict ):
                 # Check the contents of the mapping: display only if 
                 # it consists of basic types
                 has_all_basic_types = \
-                    all([isinstance(k2, basic_types) and isinstance(v2, basic_types) for k2,v2 in val.items()])
+                    all([isinstance(k2, basic_types) and (isinstance(v2, basic_types) or \
+                         v2 is None) for k2,v2 in val.items()])
             if has_all_basic_types:
                 key_value_strings.append( '{!r}: {!r}'.format(attr, val) )
             else:
