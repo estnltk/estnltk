@@ -2,7 +2,7 @@ from html import escape
 import pandas
 import regex as re
 
-from estnltk_core.common import HTML_OUTPUT_CONF
+from estnltk_core.common import OUTPUT_CONFIG
 
 def to_str(value, escape_html=False):
     if isinstance(value, str):
@@ -15,8 +15,9 @@ def to_str(value, escape_html=False):
         value_str = str(tuple(to_str(v) for v in value))
     else:
         value_str = str(value)
-    if len(value_str) >= HTML_OUTPUT_CONF['max_len']:
-        value_str = value_str[:max(HTML_OUTPUT_CONF['max_len']-20, 20)] + ' ..., type: ' + str(type(value))
+    html_str_max_len = OUTPUT_CONFIG.get('html_str_max_len', 100)
+    if len(value_str) >= html_str_max_len:
+        value_str = value_str[:max(html_str_max_len-20, 20)] + ' ..., type: ' + str(type(value))
         if hasattr(value, '__len__'):
             value_str += ', length: ' + str(len(value))
 

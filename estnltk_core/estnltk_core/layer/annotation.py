@@ -1,6 +1,7 @@
 from reprlib import recursive_repr
 from typing import Any, Mapping, Sequence
 
+from estnltk_core.common import _create_attr_val_repr
 
 class Annotation(Mapping):
     """Mapping for Span attribute values.
@@ -95,7 +96,7 @@ class Annotation(Mapping):
         return isinstance(other, Annotation) and self.__dict__ == other.__dict__
 
     @recursive_repr()
-    def __str__(self):
+    def __repr__(self):
         # Output key-value pairs in an ordered way
         # (to assure a consistent output, e.g. for automated testing)
 
@@ -104,10 +105,9 @@ class Annotation(Mapping):
         else:
             attribute_names = self.legal_attribute_names
 
-        key_value_strings = ['{!r}: {!r}'.format(k, self.__dict__[k]) for k in attribute_names]
+        attr_val_repr = _create_attr_val_repr( [(k, self.__dict__[k]) for k in attribute_names] )
 
-        return '{class_name}({text!r}, {{{attributes}}})'.format(class_name=self.__class__.__name__, text=self.text,
-                                                                 attributes=', '.join(key_value_strings))
+        return '{class_name}({text!r}, {attributes})'.format(class_name=self.__class__.__name__, 
+                                                             text=self.text,
+                                                             attributes=attr_val_repr)
 
-    def __repr__(self):
-        return str(self)

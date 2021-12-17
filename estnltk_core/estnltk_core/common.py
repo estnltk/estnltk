@@ -1,14 +1,56 @@
 #    
 #    This module contains constants, paths and functions commonly used in the EstNLTK core library.
 #
-from typing import Union
+from typing import Union, Tuple, Sequence, Any
+
 import os
 import importlib, importlib.util
 
 CORE_PACKAGE_PATH = os.path.dirname(__file__)
 
-# Maximum length for string representation in html output
-HTML_OUTPUT_CONF = {'max_len' : 100}
+# Output configuration parameters commonly used in the package
+OUTPUT_CONFIG = {
+    # Maximum length for string representation in html output
+    'html_str_max_len' : 100,
+    # Which types of attributes will have their values displayed?
+    'attr_val_repr_types' : (str, int, float, bool, list, tuple, set, dict),
+}
+
+
+def _create_attr_val_repr( seq_attribute_values: Sequence[Tuple[str, Any]] ) -> str:
+    """Creates a concise string representation of annotations' attributes and values. 
+       A value of an attribute will be rendered only if its an instance of a type 
+       listed in OUTPUT_CONFIG['attr_val_repr_types']. If a value is a sqeuence or 
+       mapping, it will be rendered only if it consists of basic types (str, int, 
+       float, bool). In all other cases, values will have only their type name rendered. 
+       Returns a string, which follows the dict representation: { k1: v1, ..., kN: vN }
+    """
+    basic_types = (str, int, float, bool)
+    allowed_types = OUTPUT_CONFIG.get( 'attr_val_repr_types', basic_types )
+    key_value_strings = []
+    for (attr, val) in seq_attribute_values:
+        if isinstance( val, allowed_types ):
+            has_all_basic_types = True
+            if isinstance( val, (list, tuple, set) ):
+                # Check the contents of the sequence: display only if 
+                # it consists of basic types
+                has_all_basic_types = \
+                    all([isinstance(i, basic_types) for i in val])
+            elif isinstance( val, dict ):
+                # Check the contents of the mapping: display only if 
+                # it consists of basic types
+                has_all_basic_types = \
+                    all([isinstance(k2, basic_types) and isinstance(v2, basic_types) for k2,v2 in val.items()])
+            if has_all_basic_types:
+                key_value_strings.append( '{!r}: {!r}'.format(attr, val) )
+            else:
+                # If it included some non-basic types, display type name only
+                key_value_strings.append( '{!r}: {!r}'.format(attr, type(val)) )
+        else:
+            # If the type is not allowed, display type name only
+            key_value_strings.append( '{!r}: {!r}'.format(attr, type(val)) )
+    return '{{{attributes}}}'.format( attributes=', '.join(key_value_strings) )
+
 
 def core_abs_path(repo_path: str) -> str:
     """Absolute path to core_repo_path.
