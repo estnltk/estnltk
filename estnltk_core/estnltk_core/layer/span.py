@@ -1,12 +1,13 @@
 from reprlib import recursive_repr
 from typing import Any, Sequence
 
+from estnltk_core.common import _create_attr_val_repr
+
 from estnltk_core.layer.base_span import BaseSpan, ElementaryBaseSpan
 from estnltk_core.layer.annotation import Annotation
 from estnltk_core.layer import AttributeList, AttributeTupleList
 
 from .to_html import html_table
-
 
 class Span:
     """Basic element of an EstNLTK layer.
@@ -165,7 +166,7 @@ class Span:
                and all(s in other.annotations for s in self.annotations)
 
     @recursive_repr()
-    def __str__(self):
+    def __repr__(self):
         try:
             text = self.text
         except:
@@ -175,17 +176,14 @@ class Span:
             attribute_names = self._layer.attributes
             annotation_strings = []
             for annotation in self._annotations:
-                key_value_strings = ['{!r}: {!r}'.format(attr, annotation[attr]) for attr in attribute_names]
-                annotation_strings.append('{{{}}}'.format(', '.join(key_value_strings)))
+                attr_val_repr = _create_attr_val_repr( [(attr, annotation[attr]) for attr in attribute_names] )
+                annotation_strings.append( attr_val_repr )
             annotations = '[{}]'.format(', '.join(annotation_strings))
         except:
             annotations = None
 
         return '{class_name}({text!r}, {annotations})'.format(class_name=self.__class__.__name__, text=text,
                                                               annotations=annotations)
-
-    def __repr__(self):
-        return str(self)
 
     def _to_html(self, margin=0) -> str:
         try:
