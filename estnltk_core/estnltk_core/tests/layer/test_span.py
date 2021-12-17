@@ -1,11 +1,12 @@
 import pytest
 
-from estnltk_core import ElementaryBaseSpan, Span, Layer, Annotation
+from estnltk_core.layer.base_layer import BaseLayer
+from estnltk_core import ElementaryBaseSpan, Span, Annotation
 from estnltk_core.layer import AttributeList
 
 
 def test_add_annotation():
-    span_1 = Span(ElementaryBaseSpan(0, 1), Layer('test', attributes=['attr_1'], ambiguous=True))
+    span_1 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
 
     span_1.add_annotation(Annotation(span_1, attr_1=0))
     span_1.add_annotation(Annotation(span_1, attr_1=3))
@@ -13,7 +14,7 @@ def test_add_annotation():
 
     assert len(span_1.annotations) == 2
 
-    span_2 = Span(ElementaryBaseSpan(0, 1), Layer('test', attributes=['attr_1'], ambiguous=True))
+    span_2 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
 
     span_2.add_annotation(Annotation(span_2, attr_1=3))
     span_2.add_annotation(Annotation(span_2, attr_1=0))
@@ -24,7 +25,7 @@ def test_add_annotation():
 
 
 def test_getattr():
-    span_1 = Span(ElementaryBaseSpan(0, 1), Layer('test', attributes=['attr_1'], ambiguous=True))
+    span_1 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
 
     span_1.add_annotation(Annotation(span_1, attr_1=0))
     span_1.add_annotation(Annotation(span_1, attr_1=3))
@@ -45,7 +46,7 @@ def test_getattr():
 
 
 def test_getitem():
-    span_1 = Span(ElementaryBaseSpan(0, 1), Layer('test', attributes=['attr_1'], ambiguous=True))
+    span_1 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
 
     span_1.add_annotation(Annotation(span_1, attr_1=0))
     span_1.add_annotation(Annotation(span_1, attr_1=3))
@@ -67,6 +68,6 @@ def test_getitem():
 
 
 def test_base_spans():
-    span_1 = Span(ElementaryBaseSpan(0, 1), layer=Layer('test', attributes=['attr_1'], ambiguous=True))
+    span_1 = Span(ElementaryBaseSpan(0, 1), layer=BaseLayer('test', attributes=['attr_1'], ambiguous=True))
 
     assert ElementaryBaseSpan(0, 1) == span_1.base_span

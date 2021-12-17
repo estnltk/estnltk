@@ -1,5 +1,6 @@
 import pytest
-from estnltk_core import ElementaryBaseSpan, Layer, Span, Annotation
+from estnltk_core.layer.base_layer import BaseLayer
+from estnltk_core import ElementaryBaseSpan, Span, Annotation
 from estnltk_core.common import load_text_class
 
 def test_annotation_without_span():
@@ -77,15 +78,15 @@ def test_annotation_with_text_object():
     Text = load_text_class()
     
     text = Text('Tere!')
-    layer = Layer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
+    layer = BaseLayer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], text_object=text)
     span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
     annotation = Annotation(span=span, attr_1='üks', attr_2=2, attr_3=3)
 
-    layer_1 = Layer('test_layer_1', attributes=['attr_3', 'attr_1', 'attr_2'], text_object=text)
+    layer_1 = BaseLayer('test_layer_1', attributes=['attr_3', 'attr_1', 'attr_2'], text_object=text)
     span_1 = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer_1)
     annotation_1 = Annotation(span=span_1, attr_1='üks', attr_2=2, attr_3=3)
 
-    layer_2 = Layer('test_layer_1', attributes=['attr_1', 'attr_2'], text_object=text)
+    layer_2 = BaseLayer('test_layer_1', attributes=['attr_1', 'attr_2'], text_object=text)
     span_2 = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer_2)
     annotation_2 = Annotation(span=span_2, attr_1='üks', attr_2=2)
 

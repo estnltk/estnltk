@@ -1,10 +1,11 @@
 import pytest
-from estnltk_core import EnvelopingSpan, Layer, Annotation, EnvelopingBaseSpan
+from estnltk_core.layer.base_layer import BaseLayer
+from estnltk_core import EnvelopingSpan, Annotation, EnvelopingBaseSpan
 from estnltk_core.common import create_text_object
 
 text = create_text_object('Sada kakskümmend kolm. Neli tuhat viissada kuuskümmend seitse koma kaheksa. Üheksakümmend tuhat.')
 
-layer_0 = Layer('layer_0', attributes=['attr', 'attr_0'])
+layer_0 = BaseLayer('layer_0', attributes=['attr', 'attr_0'])
 layer_0.add_annotation(( 0,  4), attr='L0-0',  attr_0='100')
 layer_0.add_annotation(( 5,  9), attr='L0-1',  attr_0='2')
 layer_0.add_annotation(( 5, 16), attr='L0-2',  attr_0='20')
@@ -27,7 +28,7 @@ layer_0.add_annotation((82, 87), attr='L0-18', attr_0='10')
 layer_0.add_annotation((90, 95), attr='L0-19', attr_0='1000')
 text.add_layer(layer_0)
 
-layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], ambiguous=False, enveloping='layer_0')
+layer_4 = BaseLayer('layer_4', attributes=['attr', 'attr_4'], ambiguous=False, enveloping='layer_0')
 layer_4.add_annotation([layer_0[0], layer_0[2], layer_0[4]], attr='L4-0', attr_4='123')
 layer_4.add_annotation([layer_0[5], layer_0[6], layer_0[8], layer_0[11], layer_0[13]], attr='L4-1', attr_4='4567')
 layer_4.add_annotation([layer_0[15]], attr='L4-2', attr_4='8')
