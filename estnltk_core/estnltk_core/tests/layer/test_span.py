@@ -71,3 +71,92 @@ def test_base_spans():
     span_1 = Span(ElementaryBaseSpan(0, 1), layer=BaseLayer('test', attributes=['attr_1'], ambiguous=True))
 
     assert ElementaryBaseSpan(0, 1) == span_1.base_span
+
+
+def test_span_annotations_repr():
+    # Test span annotations rendering
+    # Case 1: spans with annotation values consisting of basic types: None, str, int, float, bool
+    span = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
+    span.add_annotation( Annotation(span, attr_1=None) )
+    assert str(span) == "Span(None, [{'attr_1': None}])"
+    
+    span = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
+    span.add_annotation( Annotation(span, attr_1='my_value') )
+    assert str(span) == "Span(None, [{'attr_1': 'my_value'}])"
+    
+    span = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
+    span.add_annotation( Annotation(span, attr_1=42) )
+    assert str(span) == "Span(None, [{'attr_1': 42}])"
+
+    span = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
+    span.add_annotation( Annotation(span, attr_1=3.1415926535897) )
+    assert str(span) == "Span(None, [{'attr_1': 3.1415926535897}])"
+    
+    span = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
+    span.add_annotation( Annotation(span, attr_1=False) )
+    assert str(span) == "Span(None, [{'attr_1': False}])"
+    
+    # Case 2: spans with annotation values consisting of sequences of basic types
+    span = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_seq'], ambiguous=True))
+    span.add_annotation( Annotation(span, attr_seq=(None, None, None, False)) )
+    assert str(span) == "Span(None, [{'attr_seq': (None, None, None, False)}])"
+    
+    span = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_seq'], ambiguous=True))
+    span.add_annotation( Annotation(span, attr_seq=[1, 2, 3.14, 'N/A']) )
+    assert str(span) == "Span(None, [{'attr_seq': [1, 2, 3.14, 'N/A']}])"
+
+    # Case 3: spans with annotation values consisting of dicts of basic types
+    span = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_dict'], ambiguous=True))
+    span.add_annotation( Annotation(span, attr_dict={"a": 1, "b": 2, "c": None}) )
+    assert str(span) == "Span(None, [{'attr_dict': {'a': 1, 'b': 2, 'c': None}}])"
+
+    # Case 4: repr of syntax layer (which has recursive span references)
+    syntax_layer = BaseLayer( name='my_syntax', attributes=('id',
+                                                            'lemma',
+                                                            'head',
+                                                            'parent_span',
+                                                            'children') )
+    syntax_layer.add_annotation( (0, 4), **{'head': 3,
+                                            'id': 1,
+                                            'lemma': 'tere',
+                                            'parent_span': None,
+                                            'children': None} )
+    syntax_layer.add_annotation( (4, 5), **{'head': 3,
+                                            'id': 2,
+                                            'lemma': ',',
+                                            'parent_span': None,
+                                            'children': None} )
+    syntax_layer.add_annotation( (6, 12), **{'head': 0,
+                                             'id': 3,
+                                             'lemma': 'Kerttu',
+                                             'parent_span': None,
+                                             'children': None} )
+    syntax_layer.add_annotation( (12, 13), **{'head': 3,
+                                              'id': 4,
+                                              'lemma': '!',
+                                              'parent_span': None,
+                                              'children': None} )
+    # Add parent/child references
+    syntax_layer[0].annotations[0].parent_span = syntax_layer[2]
+    syntax_layer[0].annotations[0].children = ()
+    syntax_layer[1].annotations[0].parent_span = syntax_layer[2]
+    syntax_layer[1].annotations[0].children = ()
+    syntax_layer[2].annotations[0].parent_span = None
+    syntax_layer[2].annotations[0].children = (syntax_layer[0], syntax_layer[1], syntax_layer[3])
+    syntax_layer[3].annotations[0].parent_span = syntax_layer[2]
+    syntax_layer[3].annotations[0].children = ()
+    # Check span repr
+    expected_span_0_repr = \
+       "Span(None, [{'id': 1, 'lemma': 'tere', 'head': 3, 'parent_span': <class 'estnltk_core.layer.span.Span'>, 'children': ()}])"
+    assert repr(syntax_layer[0]) == expected_span_0_repr
+    assert str(syntax_layer[0]) == expected_span_0_repr
+    expected_span_1_repr = \
+       "Span(None, [{'id': 2, 'lemma': ',', 'head': 3, 'parent_span': <class 'estnltk_core.layer.span.Span'>, 'children': ()}])"
+    assert repr(syntax_layer[1]) == expected_span_1_repr
+    assert str(syntax_layer[1]) == expected_span_1_repr
+    expected_span_2_repr = \
+       "Span(None, [{'id': 3, 'lemma': 'Kerttu', 'head': 0, 'parent_span': None, 'children': <class 'tuple'>}])"
+    assert repr(syntax_layer[2]) == expected_span_2_repr
+    assert str(syntax_layer[2]) == expected_span_2_repr
+
+
