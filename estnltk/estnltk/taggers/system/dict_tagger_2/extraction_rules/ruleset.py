@@ -41,12 +41,14 @@ class Ruleset:
     TODO: Harden attribute access
     """
 
-    def __init__(self, rules: List[ExtractionRule] = ()):
+    def __init__(self, rules: List[ExtractionRule] = (), ambiguous=False):
         """
         Creates an empty ruleset unless the list of rules is explicitly given.
         The standard way to specify rules is via the load method that reads csv files in simple format.
         The more direct approach is needed when extraction rules use functions to dynamically compute attribute values.
         """
+
+        self.ambiguous = ambiguous
 
         if len(rules) == 0:
             self.static_rules: List[StaticExtractionRule] = list()
@@ -63,8 +65,11 @@ class Ruleset:
             else:
                 raise ValueError("All rules must be of type StaticExtractionRule or DynamicExtractionRule")
 
-        if not self.is_valid:
-            raise ValueError("Two rules in ruleset give a conflicting attribute definition for the same pattern.")
+
+
+        if not self.is_valid and not self.ambiguous:
+            raise ValueError("Two rules in ruleset give a conflicting attribute definition for the same pattern but "
+                             "ambiguous ruleset is not allowed.")
 
     def add_rules(self, rules: List[ExtractionRule]):
         """
@@ -81,8 +86,9 @@ class Ruleset:
             else:
                 raise ValueError("All rules must be of type StaticExtractionRule or DynamicExtractionRule")
 
-        if not self.is_valid:
-            raise ValueError("Two rules in ruleset give a conflicting attribute definition for the same pattern.")
+        if not self.is_valid and not self.ambiguous:
+            raise ValueError("Two rules in ruleset give a conflicting attribute definition for the same pattern but "
+                             "ambiguous ruleset is not allowed.")
 
     def load(
             self,
@@ -129,7 +135,7 @@ class Ruleset:
             csv_file = open(file_name, 'rt', encoding='utf-8')
             csv_buffer = read_csv(csv_file, **kwargs)
         except FileNotFoundError:
-            raise ValueError("File '{}' does not exist". format(file_name))
+            raise ValueError("File '{}' does not exist".format(file_name))
         except PermissionError:
             raise ValueError("Do not have permissions to read the rule file '{}'".format(file_name))
         except CSVError:
@@ -307,12 +313,22 @@ class Ruleset:
             csv_file.close()
             raise ValueError("Invalid file format: Line {}: File is not in CSV format".format(i))
 
-        if not self.is_valid:
-            raise ValueError("Two rules in ruleset give a conflicting attribute definition for the same pattern.")
+        if not self.is_valid and not self.ambiguous:
+            raise ValueError("Two rules in ruleset give a conflicting attribute definition for the same pattern but "
+                             "ambiguous ruleset is not allowed.")
 
     @property
     def attribute_map(self):
-        return {rule.pattern: rule.attributes for rule in self.static_rules}
+        if not self.ambiguous:
+            return {rule.pattern: rule.attributes for rule in self.static_rules}
+        else:
+            mapping = {}
+            for rule in self.static_rules:
+                if rule.pattern in mapping.keys():
+                    mapping[rule.pattern].append(rule.attributes)
+                else:
+                    mapping[rule.pattern] = [rule.attributes]
+            return mapping
 
     @property
     def decorator_map(self):

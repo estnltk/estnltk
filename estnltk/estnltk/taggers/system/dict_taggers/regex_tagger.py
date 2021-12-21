@@ -16,7 +16,6 @@ class RegexTagger(Tagger):
     __slots__ = ['conflict_resolving_strategy',
                  'overlapped',
                  'priority_attribute',
-                 '_illegal_keywords',
                  '_internal_attributes',
                  'vocabulary',
                  '_disamb_tagger',
@@ -55,7 +54,6 @@ class RegexTagger(Tagger):
         self.conf_param = ['conflict_resolving_strategy',
                            'overlapped',
                            'priority_attribute',
-                           '_illegal_keywords',
                            '_internal_attributes',
                            'vocabulary',
                            '_disamb_tagger',
@@ -66,8 +64,6 @@ class RegexTagger(Tagger):
             self.output_attributes = ()
         else:
             self.output_attributes = tuple(output_attributes)
-
-        self._illegal_keywords = {'start', 'end'}
 
         # output_attributes needed by tagger
         self._internal_attributes = set(self.output_attributes) | {'_group_', '_priority_'}

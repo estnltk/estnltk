@@ -89,6 +89,7 @@ class RegexTagger(Tagger):
             self.ruleset = ruleset
         else:
             self.ruleset = Ruleset()
+            #todo if the rules are callables, make sure that they are dynamic rules
             Ruleset.load(self.ruleset, file_name=ruleset,
                          key_column=key)
         '''

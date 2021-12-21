@@ -1,3 +1,4 @@
+import copy
 from collections import defaultdict
 from typing import Sequence, Union
 
@@ -40,12 +41,6 @@ class PhraseTagger(Tagger):
             The name of the vocabulary index if the input vocabulary is a list of records, a dict or a csv file.
         :param output_attributes
             Names of the output layer attributes.
-        :param global_validator: callable
-            Global validator function.
-        :param validator_attribute: str
-            The name of the attribute that points to the validator function in the vocabulary.
-        :param default_values: dict
-            Default values for the input vocabulary records.
         :param  conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
             Strategy to choose between overlapping events.
         :param priority_attribute: str
@@ -65,7 +60,6 @@ class PhraseTagger(Tagger):
         if priority_attribute is not None and priority_attribute not in output_attributes:
             output_attributes.append(priority_attribute)
         self.output_attributes = tuple(output_attributes)
-
         self.decorator = decorator or default_decorator
 
         self.conflict_resolving_strategy = conflict_resolving_strategy
@@ -73,18 +67,7 @@ class PhraseTagger(Tagger):
 
         self.output_ambiguous = output_ambiguous
 
-        self.vocabulary = ruleset
-
-        addable_attributes = []
-        for attribute in self.output_attributes:
-            if attribute not in self.vocabulary.static_rules[0].attributes:
-                addable_attributes.append(attribute)
-        for rule in self.vocabulary.static_rules:
-            for attribute in addable_attributes:
-                if attribute == key:
-                    rule.attributes[attribute] = rule.pattern
-                else:
-                    rule.attributes[attribute] = None
+        self.extend_ruleset(ruleset, key)
 
         self.ignore_case = ignore_case
 
@@ -96,8 +79,6 @@ class PhraseTagger(Tagger):
         #assert key is None or key == self.vocabulary.key,\
         #    'mismatching key and vocabulary.key: {}!={}'.format(key, self.vocabulary.key)
         ## key can not be tested like this anymore because ruleset does not have the key attribute
-        #assert self.validator_attribute in self.vocabulary.attributes,\
-        #    'validator attribute is not among the vocabulary attributes: ' + str(self.validator_attribute)
         #assert set(self.output_attributes) <= set(self.vocabulary.attributes),\
         #    'some output_attributes missing in vocabulary attributes: {}'.format(
         #        set(self.output_attributes)-set(self.vocabulary.attributes))
@@ -106,9 +87,24 @@ class PhraseTagger(Tagger):
         assert self.output_ambiguous or all(len(values) == 1 for values in self.vocabulary.static_rules),\
             'output_ambiguous is False but vocabulary is ambiguous'
 
+        #TODO would be better if this was a dict instead of defaultdict for safety and memory
         self._heads = defaultdict(list)
         for phrase in self.vocabulary.static_rules:
             self._heads[phrase.pattern[0]].append(phrase.pattern[1:])
+
+    def extend_ruleset(self, ruleset, key):
+        self.vocabulary = copy.deepcopy(ruleset)
+
+        addable_attributes = []
+        for attribute in self.output_attributes:
+            if attribute not in self.vocabulary.static_rules[0].attributes:
+                addable_attributes.append(attribute)
+        for rule in self.vocabulary.static_rules:
+            for attribute in addable_attributes:
+                if attribute == key:
+                    rule.attributes[attribute] = rule.pattern
+                else:
+                    rule.attributes[attribute] = None
 
     def _make_layer_template(self):
         return Layer( name=self.output_layer,

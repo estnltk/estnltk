@@ -1,3 +1,4 @@
+import copy
 from typing import Sequence, Union
 
 from estnltk.taggers import Tagger, Vocabulary
@@ -70,7 +71,7 @@ class SpanTagger(Tagger):
         self.ambiguous = ambiguous
 
         if isinstance(ruleset, Ruleset):
-            self._vocabulary = ruleset
+            self._vocabulary = copy.deepcopy(ruleset)
         else:
             self._vocabulary = Ruleset()
             Ruleset.load(self._vocabulary, file_name=ruleset,
