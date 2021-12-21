@@ -2,7 +2,8 @@ import pytest
 import re
 
 from estnltk_core.layer.base_layer import BaseLayer
-from estnltk_core import ElementaryBaseSpan, Span, Annotation
+from estnltk_core import ElementaryBaseSpan, EnvelopingBaseSpan
+from estnltk_core import Span, Annotation
 from estnltk_core.layer import AttributeList
 
 from estnltk_core.common import load_text_class
@@ -73,6 +74,97 @@ def test_base_spans():
     span_1 = Span(ElementaryBaseSpan(0, 1), layer=BaseLayer('test', attributes=['attr_1'], ambiguous=True))
 
     assert ElementaryBaseSpan(0, 1) == span_1.base_span
+
+
+def test_text_properties_and_text_object():
+    # Tests from:
+    #   https://github.com/estnltk/estnltk/blob/5bacff50072f9415814aee4f369c28db0e8d7789/estnltk/tests/test_layer/span/test_properties.py#L59-L142
+    
+    # Span with elementary base span and no layer
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    assert span.text is None
+    assert span.enclosing_text is None
+    assert span.text_object is None
+
+    # Span with enveloping base span and no layer
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=None)
+    assert span.text is None
+    assert span.enclosing_text is None
+    assert span.text_object is None
+
+    # Span with elementary base span and no text object
+    layer = BaseLayer('test_layer')
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    assert span.text is None
+    assert span.enclosing_text is None
+    assert span.text_object is None
+
+    # Span with enveloping base span and no text object
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=layer)
+    assert span.text is None
+    assert span.enclosing_text is None
+    assert span.text_object is None
+
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    # Valid span with elementary base span that is attached to text
+    text = Text('0123456789abcdef')
+    layer = BaseLayer('test_layer', text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    assert span.text == '0123'
+    assert span.enclosing_text == '0123'
+    assert span.text_object is text
+
+    # Valid span with enveloping base span that is attached to text
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=layer)
+    assert span.text == ['0123', '89ab']
+    assert span.enclosing_text == '0123456789ab'
+    assert span.text_object is text
+
+    # Valid span with enveloping base span that is attached to text and is continuous
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(4, 8), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=layer)
+    assert span.text == ['0123', '4567', '89ab']
+    assert span.enclosing_text == '0123456789ab'
+    assert span.text_object is text
+
+    # Invalid span with elementary base span that is attached to text
+    # We cannot check whether span is valid during its creation as text might be unreachable.
+    # Thus natural truncation is the only sane solution to the problem.
+    text = Text('01')
+    layer = BaseLayer('test_layer', text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    assert span.text == '01'
+    assert span.enclosing_text == '01'
+    assert span.text_object is text
+    # Invalid span that is completely outside of text
+    # The outcome is an empty string
+    span = Span(base_span=ElementaryBaseSpan(3, 8), layer=layer)
+    assert span.text == ''
+    assert span.enclosing_text == ''
+    assert span.text_object is text
+
+    # Invalid span with enveloping base span that is attached to text
+    # Natural truncation is the only sane solution to the problem.
+    # We do not omit empty texts to preserve the number of leafs
+    text = Text('0123456789a')
+    layer = BaseLayer('test_layer', text_object=text)
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=layer)
+    assert span.text == ['0123', '89a']
+    assert span.enclosing_text == '0123456789a'
+    assert span.text_object is text
+    text = Text('')
+    layer = BaseLayer('test_layer', text_object=text)
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(8, 12)])
+    span = Span(base_span=base_span, layer=layer)
+    assert span.text == ['', '']
+    assert span.enclosing_text == ''
+    assert span.text_object is text
 
 
 def test_span_annotations_repr():

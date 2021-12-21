@@ -121,6 +121,8 @@ class Span:
 
     @property
     def enclosing_text(self):
+        if self.text_object is None:
+            return
         return self._layer.text_object.text[self.start:self.end]
 
     @property
