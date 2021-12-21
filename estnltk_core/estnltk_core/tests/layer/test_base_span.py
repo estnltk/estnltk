@@ -74,10 +74,13 @@ def test_enveloping_base_span():
     with pytest.raises(TypeError):
         EnvelopingBaseSpan([(1,2)])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="enveloped components must be sorted and must not overlap"):
         EnvelopingBaseSpan([ElementaryBaseSpan(0, 5), ElementaryBaseSpan(4, 8)])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="enveloped components must be sorted and must not overlap"):
+        base_span = EnvelopingBaseSpan([ElementaryBaseSpan(8, 12), ElementaryBaseSpan(0, 4)])
+
+    with pytest.raises(ValueError, match="enveloped components must have the same levels"):
         EnvelopingBaseSpan([EnvelopingBaseSpan([ElementaryBaseSpan(0, 3)]), ElementaryBaseSpan(4, 8)])
 
     el_span = ElementaryBaseSpan(4, 10)
@@ -137,7 +140,8 @@ def test_enveloping_base_span():
     assert EnvelopingBaseSpan([ElementaryBaseSpan(10, 15),
                                ElementaryBaseSpan(20, 25),
                                ElementaryBaseSpan(30, 34)]) < EnvelopingBaseSpan([ElementaryBaseSpan(10, 15),
-                                                                                  ElementaryBaseSpan(19, 25),                                                                                  ElementaryBaseSpan(30, 35)])
+                                                                                  ElementaryBaseSpan(19, 25), 
+                                                                                  ElementaryBaseSpan(30, 35)])
     # order by first base span
     assert EnvelopingBaseSpan([ElementaryBaseSpan(10, 15),
                                ElementaryBaseSpan(20, 25),
@@ -161,5 +165,4 @@ def test_enveloping_base_span():
     assert len(span_2) == 2
 
     assert repr(span) == 'EnvelopingBaseSpan((ElementaryBaseSpan(4, 10), ElementaryBaseSpan(11, 20)))'
-
 
