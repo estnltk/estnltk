@@ -28,26 +28,32 @@ def to_str(value, escape_html=False):
 
 def span_html_text(span, margin):
     base = span.base_span.flatten()
-    raw_text = span.text_object.text
+    if span.text_object is not None:
+        raw_text = span.text_object.text
 
-    start, last_end = base[0]
-    html_parts = ['<span style="font-family: monospace; white-space: pre-wrap;">',
-                  escape(raw_text[max(0, start-margin):start]),
-                  '<span style="text-decoration: underline;">',
-                  escape(raw_text[start:last_end]),
-                  '</span>']
+        start, last_end = base[0]
+        html_parts = ['<span style="font-family: monospace; white-space: pre-wrap;">',
+                      escape(raw_text[max(0, start-margin):start]),
+                      '<span style="text-decoration: underline;">',
+                      escape(raw_text[start:last_end]),
+                      '</span>']
 
-    for start, end in base[1:]:
-        html_parts.append(escape(raw_text[last_end:start]))
-        html_parts.append('<span style="text-decoration: underline;">')
-        html_parts.append(escape(raw_text[start:end]))
+        for start, end in base[1:]:
+            html_parts.append(escape(raw_text[last_end:start]))
+            html_parts.append('<span style="text-decoration: underline;">')
+            html_parts.append(escape(raw_text[start:end]))
+            html_parts.append('</span>')
+            last_end = end
+
+        html_parts.append(escape(raw_text[last_end:last_end+margin]))
+
         html_parts.append('</span>')
-        last_end = end
-
-    html_parts.append(escape(raw_text[last_end:last_end+margin]))
-
-    html_parts.append('</span>')
-
+    else:
+        html_parts = ['<span style="font-family: monospace; white-space: pre-wrap;">']
+        html_parts.append('<span>')
+        html_parts.append( str(None) )
+        html_parts.append('</span>')
+        html_parts.append('</span>')
     return ''.join(html_parts)
 
 

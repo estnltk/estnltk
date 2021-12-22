@@ -194,12 +194,9 @@ class Span:
                                                               annotations=annotations)
 
     def _to_html(self, margin=0) -> str:
-        try:
-            return '<b>{}</b>\n{}'.format(
-                    self.__class__.__name__,
-                    html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
-        except:
-            return str(self)
+        return '<b>{}</b>\n{}'.format(
+                self.__class__.__name__,
+                html_table(spans=[self], attributes=self._layer.attributes, margin=margin, index=False))
 
     def _repr_html_(self):
         return self._to_html()

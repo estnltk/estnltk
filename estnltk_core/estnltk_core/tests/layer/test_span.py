@@ -424,16 +424,31 @@ def test_span_annotations_repr():
     assert str(syntax_layer[2]) == expected_span_2_repr
 
 
-def test_repr_html():
+def test_span_repr_html():
     # Test span rendering as HTML
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
     
-    # Case 1: no text object -- return same output as str
-    span_1 = Span(ElementaryBaseSpan(0, 1), layer=BaseLayer('test', attributes=['attr_1']))
+    # Case 1: no text object, return HTML
+    span_1 = Span(ElementaryBaseSpan(0, 1), layer=BaseLayer('test', attributes=['attr_1'], ambiguous=True))
     span_1.add_annotation(Annotation(span_1, attr_1=0))
-    assert span_1._repr_html_() == str(span_1)
-
+    span_1.add_annotation(Annotation(span_1, attr_1=3))
+    output_html_1 = span_1._repr_html_()
+    output_html_2 = span_1._to_html()
+    # This renders a HTML table. However, its formatting depends on pandas, so we don't
+    # want to hardcode formatting into test. 
+    # Instead, test loosely general properties
+    assert output_html_1 == output_html_2
+    assert output_html_1.startswith('<b>{}</b>'.format(span_1.__class__.__name__))
+    assert '<table' in output_html_1
+    assert '<th>text</th>' in output_html_1
+    assert '<th>attr_1</th>' in output_html_1
+    assert re.search( '<td>.*?None.*?</td>', output_html_1 ) is not None
+    assert re.search( '<td>.*?0.*?</td>', output_html_1 ) is not None
+    assert re.search( '<td></td>', output_html_1 ) is not None
+    assert re.search( '<td>.*?3.*?</td>', output_html_1 ) is not None
+    assert '</table>' in output_html_1
+    
     # Case 2: with text object, return HTML
     text = Text('ABC')
     layer = BaseLayer('test', attributes=['attr_1'], text_object=text, ambiguous=True)
@@ -442,9 +457,6 @@ def test_repr_html():
     span_1.add_annotation(Annotation(span_1, attr_1=3))
     output_html_1 = span_1._repr_html_()
     output_html_2 = span_1._to_html()
-    # This renders a HTML table. However, its formatting depends on pandas, so we don't
-    # want to hardcode formatting into test. 
-    # Instead, test loosely general properties
     assert output_html_1 == output_html_2
     assert output_html_1.startswith('<b>{}</b>'.format(span_1.__class__.__name__))
     assert '<table' in output_html_1
