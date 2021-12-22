@@ -267,6 +267,74 @@ def test_basespan_property_access_and_assignment():
     base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
     span = Span(base_span=base_span, layer=None)
     assert span.base_span is base_span
+
+ 
+@pytest.mark.xfail(reason="TODO: cannot add EnvelopingBaseSpan iff the layer itself is not enveloping, only parent is")
+def test_complex_logic_for_parent_and_base_span_attributes():
+    # Tests partially based on:
+    #   https://github.com/estnltk/estnltk/blob/5bacff50072f9415814aee4f369c28db0e8d7789/estnltk/tests/test_layer/span/test_properties.py#L398-L463
+    #
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+
+    # Default resolving mechanism
+    text = Text('Tere see on piisavalt pikk tekst!')
+    layer_1 = BaseLayer('layer_1', attributes=['a'], text_object=text)
+    layer_2 = BaseLayer('layer_2', attributes=['b'], text_object=text, parent='layer_1')
+    layer_3 = BaseLayer('layer_3', attributes=['c'], text_object=text, enveloping='layer_2')
+    text.add_layer(layer_1)
+    text.add_layer(layer_2)
+    text.add_layer(layer_3)
+    layer_1.add_annotation(base_span=ElementaryBaseSpan(0, 4), a=1)
+    layer_1.add_annotation(base_span=ElementaryBaseSpan(6, 9), a=2)
+    layer_2.add_annotation(base_span=layer_1[0].base_span, b=3)
+    layer_2.add_annotation(base_span=layer_1[1].base_span, b=4)
+    compound_base_span = EnvelopingBaseSpan([layer_1[0].base_span, layer_1[1].base_span])
+    layer_3.add_annotation(base_span=compound_base_span, c=5)
+    assert layer_3[0].base_span == EnvelopingBaseSpan([layer_2[0].base_span, layer_2[1].base_span])
+    assert layer_3[0].parent is None
+    assert layer_2[0].base_span is layer_1[0].base_span
+    assert layer_2[1].base_span is layer_1[1].base_span
+    assert layer_2[0].parent is layer_1[0]
+    assert layer_2[1].parent is layer_1[1]
+    assert layer_1[0].base_span == ElementaryBaseSpan(0, 4)
+    assert layer_1[1].base_span == ElementaryBaseSpan(6, 9)
+    assert layer_1[0].parent is None
+    assert layer_1[1].parent is None
+
+    # Default resolving mechanism (more complex: parent is an enveloping layer)
+    text = Text('Tere see on piisavalt pikk tekst!')
+    layer_1 = BaseLayer('layer_1', attributes=['a'], text_object=text)
+    layer_2 = BaseLayer('layer_2', attributes=['b'], text_object=text, parent='layer_1')
+    layer_3 = BaseLayer('layer_3', attributes=['c'], text_object=text, enveloping='layer_2')
+    layer_4 = BaseLayer('layer_4', attributes=['d'], text_object=text, parent='layer_3')
+    text.add_layer(layer_1)
+    text.add_layer(layer_2)
+    text.add_layer(layer_3)
+    text.add_layer(layer_4)
+    layer_1.add_annotation(base_span=ElementaryBaseSpan(0, 4), a=1)
+    layer_1.add_annotation(base_span=ElementaryBaseSpan(6, 9), a=2)
+    layer_2.add_annotation(base_span=layer_1[0].base_span, b=3)
+    layer_2.add_annotation(base_span=layer_1[1].base_span, b=4)
+    compound_base_span = EnvelopingBaseSpan([layer_1[0].base_span, layer_1[1].base_span])
+    layer_3.add_annotation(base_span=compound_base_span, c=5)
+    # TODO: The next add_annotation() fails: it expects elementary span, but 
+    # EnvelopingBaseSpan is given. 
+    # A tricky situation - should allow adding EnvelopingBaseSpan if the parent is enveloping?
+    # And how can we get the parent layer if the parent is not attached to the Text object?
+    layer_4.add_annotation(base_span=compound_base_span, d=6)
+    assert layer_4[0].base_span is compound_base_span
+    assert layer_4[0].parent is layer_3[0]
+    assert layer_3[0].base_span == EnvelopingBaseSpan([layer_2[0].base_span, layer_2[1].base_span])
+    assert layer_3[0].parent is None
+    assert layer_2[0].base_span is layer_1[0].base_span
+    assert layer_2[1].base_span is layer_1[1].base_span
+    assert layer_2[0].parent is layer_1[0]
+    assert layer_2[1].parent is layer_1[1]
+    assert layer_1[0].base_span == ElementaryBaseSpan(0, 4)
+    assert layer_1[1].base_span == ElementaryBaseSpan(6, 9)
+    assert layer_1[0].parent is None
+    assert layer_1[1].parent is None
  
 
 def test_span_annotations_repr():

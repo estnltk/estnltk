@@ -250,6 +250,8 @@ class BaseLayer:
         if self.enveloping is not None and not isinstance(base_span, EnvelopingBaseSpan):
             raise TypeError('Cannot add {!r} to enveloping layer. Enveloping span is required.'.format(base_span))
         elif self.enveloping is None and isinstance(base_span, EnvelopingBaseSpan):
+            # TODO: A tricky situation is when the parent is enveloping -- should allow EnvelopingBaseSpan then?
+            # And how can we get the parent layer if it is not attached to the Text object?
             raise TypeError('Cannot add {!r} to non-enveloping layer. Elementary span is required.'.format(base_span))
         
         attributes = {**self.default_values, **{k: v for k, v in attributes.items() if k in self.attributes}}
