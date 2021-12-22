@@ -234,6 +234,41 @@ def test_parent_property_access_and_assignment():
     assert span._parent is None
 
 
+def test_basespan_property_access_and_assignment():
+    # Tests partially based on:
+    #   https://github.com/estnltk/estnltk/blob/5bacff50072f9415814aee4f369c28db0e8d7789/estnltk/tests/test_layer/span/test_properties.py#L242-L395
+    #
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    # Computation of basespan property succeeds if we do everything right
+    text = Text('Tere see on piisavalt pikk tekst!')
+    base_layer = BaseLayer('base_layer', attributes=['attr'], text_object=text)
+    base_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
+    base_layer.add_annotation(base_span=ElementaryBaseSpan(6, 10), attr=24)
+    text.add_layer(base_layer)
+    layer = BaseLayer('test_layer', enveloping='base_layer', text_object=text)
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=layer)
+    # Basespan property is available
+    assert len(span.base_span) == len(base_span)
+    assert span.base_span[0] == base_layer[0].base_span
+    assert span.base_span[1] == base_layer[1].base_span
+
+    # span.base_span cannot be directly assigned
+    with pytest.raises(AttributeError):
+        span.base_span = base_span
+    #
+    #  Note: span._base_span can be assigned, but that is an internal 
+    #  property, not to be considered as a part of the public interface.
+    #
+
+    # Basespan property is not affected by existence of the layer
+    base_span = EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(6, 10)])
+    span = Span(base_span=base_span, layer=None)
+    assert span.base_span is base_span
+ 
+
 def test_span_annotations_repr():
     # Test span annotations rendering (as string)
     # Case 1: spans with annotation values consisting of basic types: None, str, int, float, bool
