@@ -150,6 +150,41 @@ def test_add_annotation():
     # TODO: continue with all layer types
 
 
+def test_layer_clear_spans():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    text = Text('0123456789')
+    layer = BaseLayer(name='ambiguous', attributes=['a', 'b', 'c'], ambiguous=True)
+
+    span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
+    span.add_annotation(Annotation(span, a='s1', b=True, c=None))
+    span.add_annotation(Annotation(span, a='s1', b=True, c=None))
+    layer.add_span(span)
+
+    span = Span(base_span=ElementaryBaseSpan(1, 2), layer=layer)
+    span.add_annotation(Annotation(span, a='s2', b=False, c=5))
+    span.add_annotation(Annotation(span, a='s4', b=False, c=5))
+    layer.add_span(span)
+
+    text.add_layer(layer)
+    
+    assert len(layer) == 2
+    
+    # Restart the layer
+    layer.clear_spans()
+    
+    assert len(layer) == 0
+    assert list(layer) == []
+    
+    span = Span(base_span=ElementaryBaseSpan(3, 4), layer=layer)
+    span.add_annotation(Annotation(span, a='s1', b=True, c=None))
+    span.add_annotation(Annotation(span, a='s1', b=True, c=None))
+    layer.add_span(span)
+    
+    assert len(layer) == 1
+
+
 def test_layer_start_end():
     # Test that layer's start/end indexes will be properly resolved.
     # Load Text or BaseText class (depending on the available packages)

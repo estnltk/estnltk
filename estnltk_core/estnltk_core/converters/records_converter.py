@@ -66,7 +66,7 @@ def records_to_layer(layer: Layer, records: Union[ List[Dict[str, Any]], List[Li
         raise NotImplementedError('(!) records_to_layer has not been implemented for enveloping layers!'+\
                                   'Please use dict_to_layer/dict_to_text functions for complete dictionary import.')
     if rewriting:
-        layer._span_list = SpanList()
+        layer.clear_spans()
 
     if layer.ambiguous:
         for record_line in records:

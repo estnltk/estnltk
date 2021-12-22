@@ -282,6 +282,10 @@ class BaseLayer:
         self._span_list.add_span(span)
         return annotation
 
+    def clear_spans(self):
+        """Removes all spans (and annotations) from this layer."""
+        self._span_list = SpanList()
+
     def check_span_consistency(self) -> None:
         """Checks for layer's span consistency.
            Checks that:
