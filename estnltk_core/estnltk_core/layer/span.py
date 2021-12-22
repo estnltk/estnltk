@@ -78,9 +78,15 @@ class Span:
 
     @property
     def parent(self):
-        if self._parent is None and self._layer.parent:
+        if self._parent is None:
+            if self._layer is None or self._layer.parent is None:
+                return self._parent
+            
+            text_obj = self._layer.text_object
+            if text_obj is None or self._layer.parent not in text_obj.layers:
+                return self._parent
+            
             self._parent = self._layer.text_object[self._layer.parent].get(self.base_span)
-
         return self._parent
 
     @property

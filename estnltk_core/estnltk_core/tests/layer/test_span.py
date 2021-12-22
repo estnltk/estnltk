@@ -167,6 +167,73 @@ def test_text_properties_and_text_object():
     assert span.text_object is text
 
 
+def test_parent_property_access_and_assignment():
+    # Tests based on:
+    #   https://github.com/estnltk/estnltk/blob/5bacff50072f9415814aee4f369c28db0e8d7789/estnltk/tests/test_layer/span/test_properties.py#L145-L239
+    #
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    # Computation of parent property succeeds if we do everything right
+    text = Text('Tere!')
+    parent_layer = BaseLayer('parent_layer', attributes=['attr'], text_object=text)
+    parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
+    text.add_layer(parent_layer)
+    layer = BaseLayer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    # Parent attribute is computed and cached
+    assert span.parent is parent_layer[0]
+    assert span._parent is parent_layer[0]
+    
+    # span.parent cannot be directly assigned. 
+    with pytest.raises(AttributeError):
+        span.parent = span
+    #
+    #  Note: span._parent can be assigned, but that is an internal 
+    #  property, not to be considered as a part of the public interface.
+    #  In the old version, there were lot of guards for span.parent 
+    #  assignment which have been omitted
+    #
+    
+    # Computation of parent property fails if span does not have a layer
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=None)
+    assert span.parent is None
+    assert span._parent is None
+
+    # Computation of parent property fails if a layer does not have a parent
+    layer = BaseLayer('test_layer')
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    assert span.parent is None
+    assert span._parent is None
+
+    # Computation of parent property fails if a layer does not reference a text object
+    layer = BaseLayer('test_layer', parent="parent_layer")
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    assert span.parent is None
+    assert span._parent is None
+
+    # Computation of parent property fails if the parent layer is not attached to the text
+    text = Text('Tere!')
+    parent_layer = BaseLayer('parent_layer', attributes=['attr'], text_object=text)
+    parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 4), attr=42)
+    layer = BaseLayer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    # Parent attribute is not computed and cached
+    assert span.parent is None
+    assert span._parent is None
+
+    # Computation of parent property fails if the base span is not in parent layer that is attached to the text
+    text = Text('Tere!')
+    parent_layer = BaseLayer('parent_layer', attributes=['attr'], text_object=text)
+    parent_layer.add_annotation(base_span=ElementaryBaseSpan(0, 2), attr=42)
+    text.add_layer(parent_layer)
+    layer = BaseLayer('test_layer', attributes=['attr_1', 'attr_2', 'attr_3'], parent='parent_layer', text_object=text)
+    span = Span(base_span=ElementaryBaseSpan(0, 4), layer=layer)
+    # Parent attribute is not computed and cached
+    assert span.parent is None
+    assert span._parent is None
+
+
 def test_span_annotations_repr():
     # Test span annotations rendering (as string)
     # Case 1: spans with annotation values consisting of basic types: None, str, int, float, bool
