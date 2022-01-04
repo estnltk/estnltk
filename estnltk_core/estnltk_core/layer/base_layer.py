@@ -79,8 +79,8 @@ class BaseLayer:
         self.attributes = attributes
 
         # name of the layer
-        assert name.isidentifier() and not \
-            keyword.iskeyword(name), 'layer name must be a valid python identifier, {!r}'.format(name)
+        assert name is not None and len(name) > 0 and not name.isspace(), \
+            'layer name cannot be empty or consist of only whitespaces {!r}'.format(name)
 
         self.name = name
 
