@@ -63,19 +63,53 @@ class BaseLayer:
     def __init__(self,
                  name: str,
                  attributes: Sequence[str] = (),
-                 text_object=None,
+                 text_object: Union['BaseText','Text']=None,
                  parent: str = None,
                  enveloping: str = None,
                  ambiguous: bool = False,
                  default_values: dict = None,
                  serialisation_module=None
                  ) -> None:
+        """
+        Initializes a new BaseLayer object based on given configuration.
+        
+        Parameter `name` is mandatory and cannot be None or empty string or consist of 
+        only whitespaces.
+        
+        Parameter `attributes` lists legal attribute names for the layer. 
+        If an annotation is added to the layer, only values of legal attributes will 
+        be added, and values of illegal attributes will be ignored. 
+
+        Parameter `text_object` specifies the Text object of this layer. 
+        Note that the Text object becomes fully connected with the layer only 
+        after text.add_layer( layer ) has been called.
+        
+        If each span of this layer has a parent span in some other layer, then parameter 
+        `parent` is used to specify the name of the parent layer.
+        
+        If each span of this layer envelops (wraps around) multiple spans of some other 
+        layer, then parameter `enveloping` specifies the name of that layer. For instance, 
+        'sentences' layer is enveloping around 'words' layer, and 'paragraphs' layer is 
+        enveloping around 'sentences' layer. 
+        
+        Note that `parent` and `enveloping` cannot be set simultaneously -- one of them 
+        must be None.
+        
+        If ambiguous is set, then this layer can have multiple annotations on the same 
+        location (same span).
+        
+        Parameter `default_values` can be used to specify default values for `attributes`
+        in case they are missing from the annotation. If not specified, missing attributes 
+        will obtain None values.
+        
+        Parameter `serialisation_module` specifies name of the serialisation module. 
+        If left empty, then default serialisation module is assumed.
+        """
         assert parent is None or enveloping is None, "can't be derived AND enveloping"
 
         self.default_values = default_values or {}
         assert isinstance(self.default_values, dict)
 
-        # list of legal attribute names for the layer
         self.attributes = attributes
 
         # name of the layer
@@ -84,24 +118,15 @@ class BaseLayer:
 
         self.name = name
 
-        # the name of the parent layer.
         self.parent = parent
 
-        # the name of the layer this class envelops
-        # sentences envelop words
-        # paragraphs envelop sentences
-        # and so on...
         self.enveloping = enveloping
 
-        # Container for spans
         self._span_list = SpanList()
 
-        # boolean for if this is an ambiguous layer
-        # if True, add_span will behave differently and add a SpanList instead.
-        self.ambiguous = ambiguous  # type: bool
+        self.ambiguous = ambiguous
 
-        # placeholder. is set when `_add_layer` is called on text object
-        self.text_object = text_object  # type: Text
+        self.text_object = text_object
 
         self.serialisation_module = serialisation_module
 
