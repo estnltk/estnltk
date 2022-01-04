@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 from typing import List
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
 from collections import defaultdict
 from sklearn.neighbors import NearestNeighbors
 
@@ -78,7 +80,7 @@ class BaseCollocationNet:
 
         return list(neighbours[0])[1:]
 
-    def similar_rows_for_list(self, words: list, num_of_words: int = 10) -> List[str]:
+    def similar_rows_for_list(self, words: list, number_of_words: int = 10) -> List[str]:
         """
         Finds the most similar words in common for a list of given words using KNN
         based on the word distribution obtained with the LDA model.
@@ -113,7 +115,7 @@ class BaseCollocationNet:
 
         similar_words = [sort[0] for sort in sorted_common]
 
-        return similar_words[:num_of_words]
+        return similar_words[:number_of_words]
 
     def similar_columns(self, word: str, number_of_words: int = 10) -> List[str]:
         """
@@ -129,7 +131,7 @@ class BaseCollocationNet:
 
         return list(neighbours[0])[1:]
 
-    def similar_columns_for_list(self, words: list, num_of_words: int = 10) -> List[str]:
+    def similar_columns_for_list(self, words: list, number_of_words: int = 10) -> List[str]:
         """
         Finds the most similar words in common for a list of given words using KNN
         based on the word distribution obtained with the LDA model.
@@ -164,7 +166,7 @@ class BaseCollocationNet:
 
         similar_words = [sort[0] for sort in sorted_common]
 
-        return similar_words[:num_of_words]
+        return similar_words[:number_of_words]
 
     def topic(self, word: str) -> List[str]:
         """
@@ -177,6 +179,32 @@ class BaseCollocationNet:
                 return list(words)
 
         raise ValueError(f"Word '{word}' not in dataset")
+
+    def topic_words(self, word: str, number_of_words: int = 100):
+        """
+        Shows a Word Cloud of the top words that influenced belonging to the
+        top cluster for the given word.
+        :param word: Word for which we want to find words it forms collocations with
+        :param number_of_words: Number of words to include in the Word Cloud, default 100
+        """
+
+        topic_idx = None
+
+        for topic, words in enumerate(self.topics):
+            if word in words.tolist():
+                topic_idx = topic
+                break
+
+        if topic_idx is None:
+            raise ValueError(f"Word '{word}' not in dataset")
+
+        dist = self.column_dist[topic_idx]
+        words = self.columns
+
+        wordcloud = WordCloud(background_color="white", color_func=lambda *args, **kwargs: "black",
+                              max_words=number_of_words).generate_from_frequencies({v: d for v, d in zip(*(words, dist))})
+
+        plt.imshow(wordcloud)
 
     def characterisation(self, word: str, number_of_topics: int = 10, number_of_words: int = 10) -> List[tuple]:
         """
@@ -198,7 +226,7 @@ class BaseCollocationNet:
 
         return final_list
 
-    def predict_column_probabilities(self, row: str, columns: list = None, num_of_columns: int = 10) -> List[tuple]:
+    def predict_column_probabilities(self, row: str, columns: list = None, number_of_columns: int = 10) -> List[tuple]:
         """
         When given a list of words the first word can form a collocation with, probabilities will
         be calculated for each collocation and the result will be an ordered list of tuples where
@@ -216,7 +244,7 @@ class BaseCollocationNet:
         avg_per_column = np.matmul(row_topics, self.column_dist_probs)
 
         if columns is None:
-            top_column_ind = np.argpartition(avg_per_column, -num_of_columns)[-num_of_columns:]
+            top_column_ind = np.argpartition(avg_per_column, -number_of_columns)[-number_of_columns:]
             top_column_ind = top_column_ind[np.argsort(avg_per_column[top_column_ind])][::-1]
             top_probs = avg_per_column[top_column_ind]
             top_column_words = self.columns[top_column_ind]
@@ -230,7 +258,7 @@ class BaseCollocationNet:
 
         return sorted(results, key=lambda x: x[1], reverse=True)
 
-    def predict_row_probabilities(self, column: str, rows: list = None, num_of_rows: int = 10) -> List[tuple]:
+    def predict_row_probabilities(self, column: str, rows: list = None, number_of_rows: int = 10) -> List[tuple]:
         """
         When given a list of words the first word can form a collocation with, probabilities will
         be calculated for each collocation and the result will be an ordered list of tuples where
@@ -244,7 +272,7 @@ class BaseCollocationNet:
         avg_per_row = np.matmul(column_topics, self.row_dist.T)
 
         if rows is None:
-            top_row_ind = np.argpartition(avg_per_row, -num_of_rows)[-num_of_rows:]
+            top_row_ind = np.argpartition(avg_per_row, -number_of_rows)[-number_of_rows:]
             top_row_ind = top_row_ind[np.argsort(avg_per_row[top_row_ind])][::-1]
             top_probs = avg_per_row[top_row_ind]
             top_row_words = self.rows[top_row_ind]
@@ -258,7 +286,7 @@ class BaseCollocationNet:
 
         return sorted(results, key=lambda x: x[1], reverse=True)
 
-    def predict_for_several_rows(self, words: list, num_of_columns: int = 10) -> List[tuple]:
+    def predict_for_several_rows(self, words: list, number_of_columns: int = 10) -> List[tuple]:
         """
         Uses the function predict_column_probabilities to find most probable collocates with
         each given word. To predict which words are most likely to describe the entire list
@@ -269,15 +297,15 @@ class BaseCollocationNet:
         avg_probs = defaultdict(int)
 
         for word in words:
-            adj_probs = self.predict_column_probabilities(word, num_of_columns=self.columns.shape[0])
+            adj_probs = self.predict_column_probabilities(word, number_of_columns=self.columns.shape[0])
             for adj, prob in adj_probs:
                 avg_probs[adj] += prob
 
         avg_probs = [(k, v / len(words)) for k, v in avg_probs.items()]
 
-        return sorted(avg_probs, key=lambda x: x[1], reverse=True)[:num_of_columns]
+        return sorted(avg_probs, key=lambda x: x[1], reverse=True)[:number_of_columns]
 
-    def predict_topic_for_several_rows(self, words: list, num_of_topics: int = 10, num_of_columns: int = 10) -> List[tuple]:
+    def predict_topic_for_several_rows(self, words: list, number_of_topics: int = 10, number_of_columns: int = 10) -> List[tuple]:
         """
         When given a list of several words in rows, it predicts the most likely topic for them and returns
         the average probability of that topic and the top words describing that topic.
@@ -291,12 +319,12 @@ class BaseCollocationNet:
                 avg_probs[i] += prob
 
         avg_probs = [(k, v / len(words)) for k, v in avg_probs.items()]
-        sorted_topics = sorted(avg_probs, key=lambda x: x[1], reverse=True)[:num_of_topics]
+        sorted_topics = sorted(avg_probs, key=lambda x: x[1], reverse=True)[:number_of_topics]
         predicted_topics = []
 
         for topic_id, topic_prob in sorted_topics:
             topic_columns = self.column_dist[topic_id]
-            top_column_ind = np.argpartition(topic_columns, -num_of_columns)[-num_of_columns:]
+            top_column_ind = np.argpartition(topic_columns, -number_of_columns)[-number_of_columns:]
             top_column_ind = top_column_ind[np.argsort(topic_columns[top_column_ind])][::-1]
             predicted_topics.append((list(self.columns[top_column_ind]), topic_prob))
 
@@ -316,8 +344,6 @@ class BaseCollocationNet:
             adjs = column_words_in_topics.loc[i][column_words_in_topics.loc[i] > 10].sort_values(ascending=False).index.tolist()
             for a in adjs:
                 if a == column:
-                    # return f"Fraas '{column} {row}' on koos kasutatav."
                     return True
 
-        # return f"Fraas '{column} {row}' ei ole koos kasutatav."
         return False
