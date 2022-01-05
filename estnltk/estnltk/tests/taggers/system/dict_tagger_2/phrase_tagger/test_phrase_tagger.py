@@ -4,10 +4,10 @@ from estnltk.taggers.system.dict_tagger_2 import Ruleset
 from estnltk.common import abs_path
 import pytest
 
-@pytest.mark.xfail(reason="figure out what is wrong with it")
+@pytest.mark.xfail(reason="fails because of json converter")
 def test_tagger():
 
-    vocabulary_file = 'rulesets/phrase_vocabulary.csv'
+    vocabulary_file = 'phrase_vocabulary.csv'
     ruleset = Ruleset()
     ruleset.load(file_name=vocabulary_file, key_column='_phrase_')
 
@@ -28,8 +28,8 @@ def test_tagger():
                           conflict_resolving_strategy='ALL',
                           priority_attribute='_priority_',
                           output_ambiguous=True)
-    input_file = abs_path('tests/taggers/system/dict_tagger_2/input_files/phrase_tagger_input.json')
-    target_file = abs_path('tests/taggers/system/dict_tagger_2/target_files/phrase_tagger_target.json')
+    input_file = abs_path('tests/taggers/system/dict_tagger_2/phrase_tagger/phrase_tagger_input.json')
+    target_file = abs_path('tests/taggers/system/dict_tagger_2/phrase_tagger/phrase_tagger_target.json')
 
     tester = TaggerTester(tagger, input_file, target_file)
     tester.load()

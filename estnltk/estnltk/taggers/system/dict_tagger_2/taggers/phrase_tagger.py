@@ -150,13 +150,15 @@ class PhraseTagger(Tagger):
                             record = [rule.attributes for rule in self.vocabulary.static_rules if rule.pattern==phrase]
                             annotation = Annotation(span, **{attr: record[0][attr]
                                                              for attr in output_attributes})
-                            is_valid = self.decorator(span, annotation)
-                            assert isinstance(is_valid, bool), is_valid
+                            is_valid = self.decorator(span, annotation) #phrase taggeri decorator samasuguseks kui substringi oma
+                            assert isinstance(is_valid, bool), is_valid # vt substring tagger rida 233-234
                             if not is_valid:
                                 continue
                             span.add_annotation(annotation)
                             if span.annotations:
                                 layer.add_span(span)
+
+
 
         resolve_conflicts(layer,
                           conflict_resolving_strategy=self.conflict_resolving_strategy,

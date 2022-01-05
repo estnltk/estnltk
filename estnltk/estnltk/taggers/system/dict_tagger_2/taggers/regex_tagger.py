@@ -147,6 +147,7 @@ class RegexTagger(Tagger):
                     'start': start,
                     'end': end
                 }
+                #todo see lõik vaata kuidas siit dynamic rule teha
                 for a in self._internal_attributes:
                     v = rec.get(a, 0)
                     if callable(v):

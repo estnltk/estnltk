@@ -19,7 +19,7 @@ class Test:
         self.resulting_layer = self.tagger.make_layer(text=self.text, layers=self.text.layers)
 
     def run(self):
-        assert self.resulting_layer == self.expected_layer, self.annotation
+        assert self.resulting_layer == self.expected_layer, self.annotation + "Actual: " + str(self.resulting_layer) + ", Expected: " + str(self.expected_layer)
 
     def diagnose(self):
         return self.expected_layer.diff(self.resulting_layer)

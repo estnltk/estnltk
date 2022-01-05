@@ -1,0 +1,10 @@
+_regex_pattern_,grammar_symbol,value,_group_,_priority_
+regex,string,string,callable,callable
+first,drug_name,drug_name,0,0
+second,drug_name,drug_name,0,0
+third,drug_name,drug_name,0,0
+fourth,drug_name,drug_name,0,0
+fifth,drug_name,drug_name,0,0
+sixth,drug_name,drug_name,0,0
+seventh,drug_name,drug_name,0,0
+eigth,drug_name,drug_name,0,0

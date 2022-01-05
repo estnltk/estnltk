@@ -52,3 +52,4 @@ def test_dynamic_extraction_rules():
     result = rule.decorator(layer[0])
     assert result is not None
     assert result['extracted_text'] == 'word'
+

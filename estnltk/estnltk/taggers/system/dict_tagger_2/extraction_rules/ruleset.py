@@ -67,7 +67,7 @@ class Ruleset:
 
 
 
-        if not self.is_valid and not self.ambiguous:
+        if not self.is_valid:
             raise ValueError("Two rules in ruleset give a conflicting attribute definition for the same pattern but "
                              "ambiguous ruleset is not allowed.")
 

@@ -4,7 +4,7 @@ from estnltk.common import abs_path
 from estnltk.taggers.system.dict_tagger_2 import Ruleset
 
 def test_tagger():
-    vocabulary_file = abs_path('tests/taggers/system/dict_tagger_2/rulesets/span_vocabulary.csv')
+    vocabulary_file = abs_path('tests/taggers/system/dict_tagger_2/span_tagger/span_vocabulary.csv')
     ruleset = Ruleset()
     ruleset.load(file_name=vocabulary_file, key_column='_token_')
     tagger = SpanTagger(output_layer='tagged_tokens',
@@ -16,8 +16,8 @@ def test_tagger():
                         validator_attribute=None,  # the default:
                         ambiguous=True  # default: False
                         )
-    input_file = abs_path('tests/taggers/system/dict_tagger_2/input_files/span_tagger_input.json')
-    target_file = abs_path('tests/taggers/system/dict_tagger_2/target_files/span_tagger_target.json')
+    input_file = abs_path('tests/taggers/system/dict_tagger_2/span_tagger/span_tagger_input.json')
+    target_file = abs_path('tests/taggers/system/dict_tagger_2/span_tagger/span_tagger_target.json')
 
     tester = TaggerTester(tagger, input_file, target_file)
     tester.load()
