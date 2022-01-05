@@ -118,22 +118,13 @@ def test_layer():
     # 'text' can be a layer name
     text.add_layer(Layer(name='text'))
 
-    # TODO: There is no reason why these cannot be layer names
-    # TODO: Drop the corresponding checks from the code
+    # test that duplicate layers cannot be added
     with pytest.raises(AssertionError):
         text.add_layer(Layer(name='test'))
 
+    # test that layer name is not whitespace only
     with pytest.raises(AssertionError):
         text.add_layer(Layer(name=' '))
-
-    with pytest.raises(AssertionError):
-        text.add_layer(Layer(name='3'))
-
-    with pytest.raises(AssertionError):
-        text.add_layer(Layer(name='assert'))
-
-    with pytest.raises(AssertionError):
-        text.add_layer(Layer(name='is'))
 
     assert text['test'] is layer
 
