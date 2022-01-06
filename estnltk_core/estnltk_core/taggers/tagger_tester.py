@@ -25,7 +25,7 @@ class Test:
         return self.expected_layer.diff(self.resulting_layer)
 
     def _repr_html_(self):
-        table_1 = self.expected_layer.get_config_dataframe().to_html(index=False, escape=False)
+        table_1 = self.expected_layer.get_overview_dataframe().to_html(index=False, escape=False)
         table_2 = self.expected_layer.attribute_list(('text', 'start', 'end') + self.expected_layer.attributes).to_html(index='text')
         return '\n'.join(('<h3>Test</h3>',
                           self.annotation,

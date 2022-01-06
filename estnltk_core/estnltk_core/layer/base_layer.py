@@ -499,9 +499,9 @@ class BaseLayer:
     def __repr__(self):
         return '{classname}(name={self.name!r}, attributes={self.attributes}, spans={self._span_list})'.format(classname=self.__class__.__name__, self=self)
 
-    def get_config_dataframe(self):
+    def get_overview_dataframe(self):
         """
-        Returns DataFrame with layer's configuration (name, attributes, parent etc) and status (span count).
+        Returns DataFrame giving an overview about layer's configuration (name, attributes, parent etc) and status (span count).
         """
         rec = [{'layer name': self.name,
                 'attributes': ', '.join(self.attributes),
@@ -536,7 +536,7 @@ class BaseLayer:
         attributes.extend(self.attributes)
         if not attributes:
             attributes = ['start', 'end']
-        table_1 = self.get_config_dataframe().to_html(index=False, escape=False)
+        table_1 = self.get_overview_dataframe().to_html(index=False, escape=False)
         table_2 = ''
         if attributes:
             table_2 = self.attribute_list(attributes).to_html(index='text')
