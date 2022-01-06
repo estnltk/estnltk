@@ -379,26 +379,44 @@ class BaseLayer:
 
     def __getitem__(self, item) -> Union[Span, 'BaseLayer', 'Layer', AmbiguousAttributeTupleList]:
         if isinstance(item, int):
+            # Expected call: layer[index]
+            # Returns Span
             return self._span_list[item]
 
         if isinstance(item, BaseSpan):
+            # Example call: layer[ parent_layer[0].base_span ]
+            # Returns Span
             return self._span_list.get(item)
 
         if item == [] or item == ():
+            # Unexpected call: layer[[]]
             raise IndexError('no attributes: ' + str(item))
 
         if isinstance(item, str) or isinstance(item, (list, tuple)) and all(isinstance(s, str) for s in item):
+            # Expected call: layer[attribute] or layer[attributes]
+            # Returns AmbiguousAttributeTupleList
             return self.attribute_list(item)
 
-        if isinstance(item, tuple) and len(item) == 2 \
-           and (callable(item[0])
-                or isinstance(item[0], (int, slice))
-                or (isinstance(item[0], (tuple, list)) and all(isinstance(i, int) for i in item[0])))\
-           and (isinstance(item[1], str)
-                or isinstance(item[1], (list, tuple)) and all(isinstance(i, str) for i in item[1])):
-            if isinstance(item[0], int):
-                return self[item[1]][item[0]]
-            return self[item[0]][item[1]]
+        if isinstance(item, tuple) and len(item) == 2:
+            # Expected call: layer[indexes, attributes]
+            # Check that the first item specifies an index or a range indexes
+            # Can also be a callable function validating suitable spans
+            first_ok = callable(item[0]) or \
+                       isinstance(item[0], (int, slice)) or \
+                       (isinstance(item[0], (tuple, list)) and all(isinstance(i, int) for i in item[0]))
+            # Check that the second item specifies an attribute or a list of attributes
+            second_ok = isinstance(item[1], str) or \
+                        isinstance(item[1], (list, tuple)) and all(isinstance(i, str) for i in item[1])
+            if first_ok and second_ok:
+                if isinstance(item[0], int):
+                    # Select attribute(s) of a single span
+                    # Example: text.morph_analysis[0, ['partofspeech', 'lemma']]
+                    # Returns Span -> List
+                    return self[item[1]][item[0]]
+                # Select attribute(s) over multiple spans
+                # Example: text.morph_analysis[0:5, ['partofspeech', 'lemma']]
+                # Returns AmbiguousAttributeTupleList
+                return self[item[0]][item[1]]
 
         layer = self.__class__(name=self.name,
                                attributes=self.attributes,
@@ -407,27 +425,38 @@ class BaseLayer:
                                enveloping=self.enveloping,
                                ambiguous=self.ambiguous,
                                default_values=self.default_values)
+        # TODO: can we return a list of spans instead of the Layer
 
         if isinstance(item, slice):
+            # Expected call: layer[start:end]
+            # Returns Layer
             wrapped = self._span_list.spans.__getitem__(item)
             layer._span_list.spans = wrapped
             return layer
         if isinstance(item, (list, tuple)):
             if all(isinstance(i, bool) for i in item):
+                # Expected call: layer[list_of_bools]
+                # Returns Layer
                 if len(item) != len(self):
                     warnings.warn('Index boolean list not equal to length of layer: {}!={}'.format(len(item), len(self)))
                 wrapped = [s for s, i in zip(self._span_list.spans, item) if i]
                 layer._span_list.spans = wrapped
                 return layer
             if all(isinstance(i, int) for i in item):
+                # Expected call: layer[list_of_indexes]
+                # Returns Layer
                 wrapped = [self._span_list.spans.__getitem__(i) for i in item]
                 layer._span_list.spans = wrapped
                 return layer
             if all(isinstance(i, BaseSpan) for i in item):
+                # Expected call: layer[list_of_base_span]
+                # Returns Layer
                 wrapped = [self._span_list.get(i) for i in item]
                 layer._span_list.spans = wrapped
                 return layer
         if callable(item):
+            # Expected call: layer[selector_function]
+            # Returns Layer
             wrapped = [span for span in self._span_list.spans if item(span)]
             layer._span_list.spans = wrapped
             return layer
