@@ -265,7 +265,7 @@ class BaseText:
 
             layer_table = pandas.DataFrame()
             for layer in layers:
-                layer_table = layer_table.append(layer.metadata())
+                layer_table = layer_table.append(layer.get_overview_dataframe())
             layer_table = layer_table.to_html(index=False, escape=False)
             return '\n'.join((table, layer_table))
         return table
