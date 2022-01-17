@@ -3,6 +3,7 @@ import pytest
 from estnltk.taggers.system.dict_tagger_2.extraction_rules.static_extraction_rule import StaticExtractionRule
 from estnltk.common import abs_path
 
+@pytest.mark.skip(reason="work in progress")
 def test_parse_rules():
     rules = AmbiguousRuleset()
     rules.load(abs_path('tests/taggers/system/dict_tagger_2/data/short.csv'))

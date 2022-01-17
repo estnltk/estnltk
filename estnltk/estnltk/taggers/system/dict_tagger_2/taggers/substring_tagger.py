@@ -6,6 +6,7 @@ from estnltk import ElementaryBaseSpan, Span, Annotation
 from typing import Tuple, List, Dict, Sequence, Union, Any, Callable, Iterator, Generator
 
 from estnltk.taggers.system.dict_tagger_2 import Ruleset
+from estnltk.taggers.system.dict_tagger_2.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
 
 
 class SubstringTagger(Tagger):
@@ -46,7 +47,7 @@ class SubstringTagger(Tagger):
 
     # noinspection PyMissingConstructor,PyUnresolvedReferences
     def __init__(self,
-                 ruleset: Ruleset,
+                 ruleset: AmbiguousRuleset,
                  token_separators: str = '',
                  output_layer: str = 'terms',
                  output_attributes: Sequence = None,
@@ -118,8 +119,8 @@ class SubstringTagger(Tagger):
         self.output_attributes = output_attributes or ()
 
         # Validate ruleset. It must exist
-        if not isinstance(ruleset, Ruleset):
-            raise ValueError('Argument ruleset must be of type RuleSet')
+        if not isinstance(ruleset, AmbiguousRuleset):
+            raise ValueError('Argument ruleset must be of type Ruleset or AmbiguousRuleset')
         if not (set(ruleset.output_attributes) <= set(self.output_attributes)):
             raise ValueError('Output attributes of a ruleset must match the output attributes of a tagger')
 
@@ -131,20 +132,14 @@ class SubstringTagger(Tagger):
 
         # We bypass restrictions of Tagger class to set some private attributes
         super(Tagger, self).__setattr__('_automaton', Automaton())
-        super(Tagger, self).__setattr__('_attribute_map', self.ruleset.attribute_map)
-        super(Tagger, self).__setattr__('_decorator_map', self.ruleset.decorator_map)
-        super(Tagger, self).__setattr__('_priority_map', self.ruleset.priority_map)
+        super(Tagger, self).__setattr__('_rule_map', self.ruleset.rule_map)
 
         # Configures automaton to match the patters in the ruleset
         if self.ignore_case:
-            for pattern in self._attribute_map:
-                self._automaton.add_word(pattern.lower(), len(pattern))
-            for pattern in self._decorator_map:
+            for pattern in self._rule_map:
                 self._automaton.add_word(pattern.lower(), len(pattern))
         else:
-            for pattern in self._attribute_map:
-                self._automaton.add_word(pattern, len(pattern))
-            for pattern in self._decorator_map:
+            for pattern in self._rule_map:
                 self._automaton.add_word(pattern, len(pattern))
 
         self._automaton.make_automaton()
@@ -155,7 +150,7 @@ class SubstringTagger(Tagger):
             name=self.output_layer,
             attributes=self.output_attributes,
             text_object=text,
-            ambiguous=False
+            ambiguous= not isinstance(self.ruleset, Ruleset)
         )
 
         raw_text = text.text.lower() if self.ignore_case else text.text
@@ -231,7 +226,10 @@ class SubstringTagger(Tagger):
         while current is not None:
             span = Span(base_span=current[0], layer=layer)
             # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
-            span.add_annotation(Annotation(span, **{**dummy_annotation, **self._attribute_map.get(current[1], {})}))
+            static_rulelist = self._rule_map.get(current[1], None)[0]
+            if static_rulelist:
+                for rule in static_rulelist:
+                    span.add_annotation(Annotation(span, **{**dummy_annotation, **rule.attributes}))
 
             # Drop spans for which the global decorator fails
             if self.global_decorator is not None:
@@ -241,7 +239,11 @@ class SubstringTagger(Tagger):
                     continue
 
             # No dynamic rules to change the annotation
-            decorator = self._decorator_map.get(current[1], None)
+            dynamic_rule = self._rule_map.get(current[1], None)[1]
+            if len(dynamic_rule) == 0:
+                decorator = None
+            else:
+                decorator = dynamic_rule[0].decorator
             if decorator is None:
                 if span.annotations[0] is not None:
                     layer.add_span(span)
@@ -283,7 +285,8 @@ class SubstringTagger(Tagger):
         dummy_annotation = {attribute: None for attribute in self.output_attributes}
         while current is not None:
             span = Span(base_span=current[0], layer=layer)
-            group, priority = self._priority_map.get[current[1]]
+            group = self._rule_map.get[current[1]][0][0].group
+            priority = self._rule_map.get[current[1]][0][0].priority #TODO reasonable solution here
             # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
             span.add_annotation(Annotation(span, **{**dummy_annotation, **self._attribute_map.get(current[1], {})}))
 
@@ -295,7 +298,11 @@ class SubstringTagger(Tagger):
                     continue
 
             # No dynamic rules to change the annotation
-            decorator = self._decorator_map.get(current[1], None)
+            dynamic_rule = self._rule_map.get(current[1], None)[1]
+            if len(dynamic_rule) == 0:
+                decorator = None
+            else:
+                decorator = dynamic_rule[0].decorator
             if decorator is None:
                 yield (span, group, priority)
                 current = next(sorted_tuples, None)
