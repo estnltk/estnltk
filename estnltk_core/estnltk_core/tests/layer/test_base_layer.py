@@ -149,6 +149,30 @@ def test_add_annotation():
 
     # TODO: continue with all layer types
 
+    # test alternative ways of specifying attributes
+    layer_x = BaseLayer('layer_x', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=False)
+    assert len(layer_x) == 0
+    # use only dictionary
+    layer_x.add_annotation(ElementaryBaseSpan(0, 1), {'attr_1': 11})
+    assert layer_x[0].annotations == [Annotation(None, attr_1=11, attr_2=None)]
+    layer_x.add_annotation(ElementaryBaseSpan(1, 2), {'attr_1': 21, 'attr_2': 22})
+    assert layer_x[1].annotations == [Annotation(None, attr_1=21, attr_2=22)]
+    # use dictionary + keywords
+    layer_x.add_annotation(ElementaryBaseSpan(2, 3), {'attr_1': 31}, attr_2=32)
+    assert layer_x[2].annotations == [Annotation(None, attr_1=31, attr_2=32)]
+    # use only keywords
+    layer_x.add_annotation(ElementaryBaseSpan(3, 4), attr_1=41, attr_2=42)
+    assert layer_x[3].annotations == [Annotation(None, attr_1=41, attr_2=42)]
+    # use only keyword arguments from dict
+    layer_x.add_annotation(ElementaryBaseSpan(4, 5), **{'attr_1':51, 'attr_2':52})
+    assert layer_x[4].annotations == [Annotation(None, attr_1=51, attr_2=52)]
+    # use a mix of regular dict and keyword arguments from dict
+    layer_x.add_annotation(ElementaryBaseSpan(5, 6), {'attr_1': 61}, **{'attr_2':62})
+    assert layer_x[5].annotations == [Annotation(None, attr_1=61, attr_2=62)]
+    # Problematic case: cannot use attribute_dict as a simple keyword, it should be a dictionary
+    with pytest.raises(ValueError, match=".+attribute_dict should be an instance of dict, not <class 'int'>"):
+        layer_x.add_annotation( ElementaryBaseSpan(6, 7), attribute_dict=55 )
+
 
 def test_layer_clear_spans():
     # Load Text or BaseText class (depending on the available packages)

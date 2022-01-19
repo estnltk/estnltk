@@ -1,5 +1,5 @@
 import keyword
-from typing import Union, List, Sequence
+from typing import Union, List, Sequence, Dict, Any
 import pandas
 import collections
 import warnings
@@ -413,17 +413,25 @@ class BaseLayer:
 
         return span
 
-    def add_annotation(self, base_span, **attributes) -> Annotation:
-        """Adds new annotation (from dict `attributes`) to given text location `base_span`.
+    def add_annotation(self, base_span, attribute_dict: Dict[str, Any]={}, **attribute_kwargs) -> Annotation:
+        """Adds new annotation (from `attribute_dict` / `attribute_kwargs`) to given text location `base_span`.
         
            Location `base_span` can be:
            * (start, end) or ElementaryBaseSpan or Span;
            * [(s1, e1), ... (sN, eN)] or EnvelopingBaseSpan or EnvelopingSpan or BaseLayer if the layer is enveloping;
            * Annotation if it is attached to Span (appropriately non-enveloping or enveloping);
            
-           `attributes` should contain attribute assignments for the annotation. 
+           `attribute_dict` should contain attribute assignments for the annotation. 
+           Example:
+
+               layer.add_annotation( base_span, {'attr1': ..., 'attr2': ...} )
+               
            Missing attributes will be filled in with layer's default_values 
            (None values, if defaults have not been explicitly set).
+           Optionally, you can leave `attribute_dict` unspecified and pass keyword arguments 
+           to the method via `attribute_kwargs`, for example: 
+           
+               layer.add_annotation( base_span, attr1=..., attr2=... )
            
            Note that you can add two or more annotations to exactly the 
            same `base_span` location only if the layer is ambiguous. 
@@ -439,7 +447,9 @@ class BaseLayer:
             # And how can we get the parent layer if it is not attached to the Text object?
             raise TypeError('Cannot add {!r} to non-enveloping layer. Elementary span is required.'.format(base_span))
         
-        attributes = {**self.default_values, **{k: v for k, v in attributes.items() if k in self.attributes}}
+        if not isinstance(attribute_dict, dict):
+            raise ValueError('(!) attribute_dict should be an instance of dict, not {}'.format(type(attribute_dict)))
+        attributes = {**self.default_values, **attribute_dict, **{k: v for k, v in attribute_kwargs.items() if k in self.attributes}}
         span = self.get(base_span)
 
         if self.enveloping is not None:
