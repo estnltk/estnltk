@@ -5,7 +5,7 @@ import collections
 import warnings
 import pkgutil
 
-from copy import deepcopy
+from copy import copy, deepcopy
 
 from estnltk_core import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
 from estnltk_core import Span, EnvelopingSpan, Annotation, SpanList
@@ -147,7 +147,7 @@ class BaseLayer:
             ambiguous=self.ambiguous,
             default_values=self.default_values,
             serialisation_module=self.serialisation_module)
-        result._span_list = self._span_list
+        result._span_list = copy(self._span_list)
         return result
 
     def __deepcopy__(self, memo={}):

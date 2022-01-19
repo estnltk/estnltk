@@ -701,11 +701,17 @@ def test_shallow_copy():
     del layer_copy.default_values['new_attribute']
     assert layer_copy.default_values == layer.default_values
 
-    # list of spans is shallow copied
+    # list of spans is shallow copied 
+    # internal
+    assert layer_copy == layer
+    assert layer_copy._span_list == layer._span_list
+    assert layer_copy._span_list is not layer._span_list
+    # public
     assert layer_copy == layer
     span = layer_copy[0]
     del layer_copy[0]
     assert layer_copy == layer
+    assert len(layer_copy) == len(layer)
 
     # list of annotations is shallow copied
     assert layer == layer_copy
