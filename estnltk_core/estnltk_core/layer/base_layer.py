@@ -166,29 +166,23 @@ class BaseLayer:
                 result.add_annotation(span.base_span, **annotation)
         return result
 
-    def _set_attributes(self, attributes: Sequence[str]):
-        assert not isinstance(attributes, str), attributes
-        attributes = tuple(attributes)
-        assert all(attr.isidentifier() for attr in attributes), attributes
-        assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
-        super().__setattr__('attributes', attributes)
-
-        try:
-            # due to unordered __slots__ in case of Python <= 3.5
-            # 'default_values' might not be set by __deepcopy__ before setting 'attributes'
-            #  which would lead to nasty errors
-            self.__getattribute__('default_values')
-        except AttributeError:
-            self.default_values = {}
-
-        for attr in set(self.default_values) - set(attributes):
-            del self.default_values[attr]
-
-        self.default_values = {attr: self.default_values.get(attr) for attr in attributes}
-
     def __setattr__(self, key, value):
         if key == 'attributes':
-            return self._set_attributes(value)
+            # set attributes
+            attributes = value
+            assert not isinstance(attributes, str), \
+                'attributes must be a list or tuple of strings, not a single string {!r}'.format(attributes)
+            attributes = tuple(attributes)
+            # TODO: do we need the following constraint?
+            assert all(attr.isidentifier() for attr in attributes), \
+                'unexpected attribute name: all names should be identifiers in {!r}'.format(attributes)
+            assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
+            super().__setattr__('attributes', attributes)
+            # (re)set default values
+            for attr in set(self.default_values) - set(attributes):
+                del self.default_values[attr]
+            self.default_values = {attr: self.default_values.get(attr) for attr in attributes}
+            return
         super().__setattr__(key, value)
 
     def __setitem__(self, key: int, value: Span):
