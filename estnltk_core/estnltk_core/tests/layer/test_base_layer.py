@@ -276,6 +276,18 @@ def test_layer_indexing():
                                       [7, None],
                                       [None, None]],
                                      ('a', 'b'))
+    
+    # Test getting indexes of specific spans
+    assert layer.index( layer[0] ) == 0
+    assert layer.index( layer[2] ) == 2
+    assert layer.index( layer[6] ) == 6
+    assert layer.index( layer[-1] ) == 7
+
+    # Test getting items by their basespans
+    assert layer.get( layer[0].base_span ) == layer[0]
+    assert layer.get( layer[2].base_span ) == layer[2]
+    assert layer.get( ElementaryBaseSpan(3, 4) ) == layer[3]
+    assert layer.get( ElementaryBaseSpan(7, 8) ) == layer[7]
 
 
 def test_ambiguous_layer_indexing():

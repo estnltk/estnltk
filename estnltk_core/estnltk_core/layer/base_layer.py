@@ -246,7 +246,6 @@ class BaseLayer:
                                enveloping=self.enveloping,
                                ambiguous=self.ambiguous,
                                default_values=self.default_values)
-        # TODO: can we return a list of spans instead of the Layer
 
         if isinstance(item, slice):
             # Expected call: layer[start:end]
@@ -283,6 +282,42 @@ class BaseLayer:
             return layer
 
         raise TypeError('index not supported: ' + str(item))
+
+    def get(self, item):
+        """Finds and returns Span (or EnvelopingSpan) corresponding to the given BaseSpan item.
+           If this layer is empty, returns None.
+           If the parameter item is a list of BaseSpan-s, then returns a new Layer populated 
+           with specified spans and bearing the same configuration as this layer.
+        """
+        if len(self._span_list) == 0:
+            return
+        if isinstance(item, Span):
+            item = item.base_span
+        if isinstance(item, BaseSpan):
+            level = self._span_list[0].base_span.level
+            if level == item.level:
+                return self._span_list.get(item)
+            item = item.reduce(level)
+
+        if isinstance(item, (list, tuple)):
+            layer = self.__class__(name=self.name,
+                                   attributes=self.attributes,
+                                   text_object=self.text_object,
+                                   parent=self.parent,
+                                   enveloping=self.enveloping,
+                                   ambiguous=self.ambiguous,
+                                   default_values=self.default_values)
+
+            wrapped = [self._span_list.get(i) for i in item]
+            assert all(s is not None for s in wrapped)
+            layer._span_list.spans = wrapped
+            return layer
+
+        raise ValueError(item)
+
+    def index(self, x, *args) -> int:
+        '''Returns the index of the specified span in this layer.'''
+        return self._span_list.index(x, *args)
 
     def __delitem__(self, key):
         self._span_list.remove_span(self[key])
@@ -440,36 +475,6 @@ class BaseLayer:
     def clear_spans(self):
         """Removes all spans (and annotations) from this layer."""
         self._span_list = SpanList()
-
-    def index(self, x, *args) -> int:
-        return self._span_list.index(x, *args)
-
-    def get(self, item):
-        if len(self._span_list) == 0:
-            return
-        if isinstance(item, Span):
-            item = item.base_span
-        if isinstance(item, BaseSpan):
-            level = self._span_list[0].base_span.level
-            if level == item.level:
-                return self._span_list.get(item)
-            item = item.reduce(level)
-
-        if isinstance(item, (list, tuple)):
-            layer = self.__class__(name=self.name,
-                                   attributes=self.attributes,
-                                   text_object=self.text_object,
-                                   parent=self.parent,
-                                   enveloping=self.enveloping,
-                                   ambiguous=self.ambiguous,
-                                   default_values=self.default_values)
-
-            wrapped = [self._span_list.get(i) for i in item]
-            assert all(s is not None for s in wrapped)
-            layer._span_list.spans = wrapped
-            return layer
-
-        raise ValueError(item)
 
     def check_span_consistency(self) -> None:
         """Checks for layer's span consistency.
