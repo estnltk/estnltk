@@ -541,6 +541,7 @@ class BaseLayer:
         if self.serialisation_module != other.serialisation_module:
             return "{self.name!r} layer dict converter modules are different: " \
                    "{self.dict_converter_module!r}!={other.dict_converter_module!r}".format(self=self, other=other)
+        # TODO: this fails with infinite recursion on the syntax layer with 'parent_span' & 'children'
         if self._span_list != other._span_list:
             return "{self.name} layer spans differ".format(self=self)
         return None
