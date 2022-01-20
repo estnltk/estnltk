@@ -443,7 +443,9 @@ class BaseLayer:
         
         if not isinstance(attribute_dict, dict):
             raise ValueError('(!) attribute_dict should be an instance of dict, not {}'.format(type(attribute_dict)))
-        attributes = {**self.default_values, **attribute_dict, **{k: v for k, v in attribute_kwargs.items() if k in self.attributes}}
+        attributes = {**self.default_values, \
+                      **{k: v for k, v in attribute_dict.items() if k in self.attributes}, \
+                      **{k: v for k, v in attribute_kwargs.items() if k in self.attributes}}
         span = self.get(base_span)
 
         if self.enveloping is not None:
