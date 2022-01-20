@@ -147,13 +147,21 @@ class BaseLayer:
             ambiguous=self.ambiguous,
             default_values=self.default_values,
             serialisation_module=self.serialisation_module)
+        result.meta = copy(self.meta)
         result._span_list = copy(self._span_list)
         return result
 
-    def __deepcopy__(self, memo={}):
+    def __deepcopy__(self, memo=None):
+        """
+        Makes a deep copy from the layer.
+        
+        Layer's inner components -- spans and annotations -- are also deep-copied,
+        along with the Text object of the layer.
+        """
+        memo = memo or {}
         result = self.__class__( name=self.name,
                                  attributes=deepcopy(self.attributes, memo),
-                                 text_object=self.text_object,
+                                 text_object=None,
                                  parent=self.parent,
                                  enveloping=self.enveloping,
                                  ambiguous=self.ambiguous,
@@ -162,8 +170,10 @@ class BaseLayer:
         memo[id(self)] = result
         result.meta = deepcopy(self.meta, memo)
         for span in self:
-            for annotation in span.annotations:
-                result.add_annotation(span.base_span, **annotation)
+            deepcopy_span = deepcopy( span, memo )
+            deepcopy_span._layer = result
+            result._span_list.add_span( deepcopy_span )
+        result.text_object = deepcopy( self.text_object, memo )
         return result
 
     def __setattr__(self, key, value):

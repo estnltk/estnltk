@@ -1,3 +1,4 @@
+from copy import deepcopy
 from reprlib import recursive_repr
 from typing import Any, Sequence
 
@@ -37,6 +38,30 @@ class Span:
         self._annotations = []
 
         self._parent = None  # type: Span
+
+    def __deepcopy__(self, memo=None):
+        """
+        Makes a deep copy from the span.
+        Loosely based on: 
+          https://github.com/estnltk/estnltk/blob/5bacff50072f9415814aee4f369c28db0e8d7789/estnltk/layer/span.py#L60
+        """
+        memo = memo or {}
+        # Create new valid instance
+        # _base_span: Immutable
+        result = self.__class__(base_span=self.base_span, \
+                                layer=None)
+        # Add self to memo
+        memo[id(self)] = result
+        # _annotations: List[Mutable]
+        for annotation in self._annotations:
+            deepcopy_annotation = deepcopy(annotation, memo)
+            deepcopy_annotation.span = result
+            result._annotations.append( deepcopy_annotation )
+        # _parent: Mutable
+        result._parent = deepcopy(self._parent, memo)
+        # _layer: Mutable
+        result._layer = deepcopy(self._layer, memo)
+        return result
 
     def add_annotation(self, annotation: Annotation) -> Annotation:
         if not isinstance(annotation, Annotation):

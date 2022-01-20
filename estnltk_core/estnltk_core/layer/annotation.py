@@ -1,3 +1,4 @@
+from copy import deepcopy
 from reprlib import recursive_repr
 from typing import Any, Mapping, Sequence
 
@@ -18,6 +19,21 @@ class Annotation(Mapping):
     def __init__(self, span, **attributes):
         self._span = span
         self.__dict__ = attributes
+
+    def __deepcopy__(self, memo=None):
+        """
+        Makes a deep copy of all annotation attributes but detaches annotation from span.
+        RATIONALE: One copies an annotation only to attach the copy to a different span.
+        Based on: 
+          https://github.com/estnltk/estnltk/blob/974c666b2da3e89dc42d570aad4b66ef060a6742/estnltk/layer/annotation.py#L44
+        """
+        memo = memo or {}
+        result = self.__class__(span=None)
+        # Add newly created valid mutable objects to memo
+        memo[id(self)] = result
+        # Perform deep copy with a valid memo dict
+        result.__dict__ = deepcopy(self.__dict__, memo)
+        return result
 
     @property
     def span(self):
