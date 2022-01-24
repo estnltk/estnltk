@@ -147,7 +147,35 @@ def test_add_annotation():
     assert len(layer_2) == 2
     assert layer_2[0].annotations == [Annotation(None, attr_1=None, attr_2=None)]
 
-    # TODO: continue with all layer types
+    # an enveloping layer
+    # base layer for the enveloping layer
+    layer_0 = BaseLayer('layer_0', attributes=['span_id'], parent=None, enveloping=None, ambiguous=False)
+    layer_0.add_annotation(ElementaryBaseSpan(0, 1), span_id=0)
+    layer_0.add_annotation(ElementaryBaseSpan(1, 2), span_id=1)
+    layer_0.add_annotation(ElementaryBaseSpan(2, 3), span_id=2)
+    layer_0.add_annotation(ElementaryBaseSpan(3, 5), span_id=3)
+    layer_0.add_annotation(ElementaryBaseSpan(5, 7), span_id=4)
+    layer_0.add_annotation(ElementaryBaseSpan(7, 8), span_id=5)
+    # the enveloping layer
+    layer_3 = BaseLayer('layer_3', attributes=['env_span_id'], parent=None, enveloping='layer_0', ambiguous=False)
+    layer_3.add_annotation(EnvelopingBaseSpan( (ElementaryBaseSpan(0, 1), ElementaryBaseSpan(1, 2)) ), env_span_id=0)
+    layer_3.add_annotation(EnvelopingBaseSpan( (ElementaryBaseSpan(2, 3), ElementaryBaseSpan(3, 5)) ), env_span_id=1)
+    with pytest.raises(ValueError):
+        # Adding a duplicate span raises a ValueError
+        layer_3.add_annotation(EnvelopingBaseSpan( (ElementaryBaseSpan(2, 3), ElementaryBaseSpan(3, 5)) ), env_span_id=2)
+    layer_3.add_annotation(EnvelopingBaseSpan( (ElementaryBaseSpan(5, 7), ElementaryBaseSpan(7, 8)) ), env_span_id=2)
+    assert len(layer_3) == 3
+    assert layer_3[0].annotations == [Annotation(None, env_span_id=0)]
+    assert layer_3[1].annotations == [Annotation(None, env_span_id=1)]
+    assert layer_3[2].annotations == [Annotation(None, env_span_id=2)]
+    with pytest.raises(ValueError, match='.*Mismatching base_span levels.*'):
+        # Adding an enveloping span that has higher base_span level than the current one raises ValueError
+        enveloping_span_level_2 = \
+            EnvelopingBaseSpan((
+                EnvelopingBaseSpan( (ElementaryBaseSpan(0, 1), ElementaryBaseSpan(1, 2)) ),
+                EnvelopingBaseSpan( (ElementaryBaseSpan(2, 3), ElementaryBaseSpan(3, 5)) )
+            ))
+        layer_3.add_annotation(enveloping_span_level_2, env_span_id=22)
 
     # test alternative ways of specifying attributes
     layer_x = BaseLayer('layer_x', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=False)

@@ -437,9 +437,13 @@ class BaseLayer:
            
                layer.add_annotation( base_span, attr1=..., attr2=... )
            
-           Note that you can add two or more annotations to exactly the 
+           Note 1: you can add two or more annotations to exactly the 
            same `base_span` location only if the layer is ambiguous. 
            however, partially overlapping locations are always allowed. 
+           Note 2: in case of an enveloping layer, all basespans must be 
+           at the same level. For instance, if you add an enveloping span 
+           [(1,2), (2,3)], which corresponds to level 1, you cannot add 
+           level 2 span [ [(1,2), (2,3)], [(4,5)]].
         """
         base_span = to_base_span(base_span)
         # Make it clear, if we got non-enveloping or enveloping span properly
@@ -456,6 +460,12 @@ class BaseLayer:
         attributes = {**self.default_values, \
                       **{k: v for k, v in attribute_dict.items() if k in self.attributes}, \
                       **{k: v for k, v in attribute_kwargs.items() if k in self.attributes}}
+        if len(self._span_list) > 0 and isinstance(base_span, BaseSpan):
+            # Check that level of the new basespan matches the level of the last basespan
+            # ( all basespans in the layer should be at the same level )
+            if self._span_list[-1].base_span.level != base_span.level:
+                raise ValueError( ('(!) Mismatching base_span levels: level of the last span is {}, '+\
+                   'while level of the new span is {}').format( self[-1].base_span.level, base_span.level ) )
         span = self.get(base_span)
 
         if self.enveloping is not None:
