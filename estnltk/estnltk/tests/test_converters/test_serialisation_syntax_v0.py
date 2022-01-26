@@ -96,6 +96,8 @@ test_text_dict = \
                                 'misc',
                                 'parent_span',
                                 'children'),
+                 'secondary_attributes': ('parent_span',
+                                          'children'),
                  'enveloping': None,
                  'meta': {},
                  'name': 'stanza_syntax',
@@ -158,6 +160,7 @@ def test_convert_syntax_v0_dict_to_text():
 def test_convert_syntax_v0_dict_to_text_and_back():
     text_obj = dict_to_text( test_text_dict )
     assert text_obj['stanza_syntax'].serialisation_module == 'syntax_v0'
+    assert text_obj['stanza_syntax'].secondary_attributes == ('parent_span', 'children')
     assert list(text_obj['stanza_syntax'].parent_span) == [ text_obj['stanza_syntax'][2], \
                                                             text_obj['stanza_syntax'][2], \
                                                             None, 
@@ -168,6 +171,7 @@ def test_convert_syntax_v0_dict_to_layer():
     layer_obj = dict_to_layer( test_text_dict['layers'][3] )
     assert layer_obj.name == 'stanza_syntax'
     assert layer_obj.serialisation_module == 'syntax_v0'
+    assert layer_obj.secondary_attributes == ('parent_span', 'children')
     assert list(layer_obj.parent_span) == [ layer_obj[2], \
                                             layer_obj[2], \
                                             None, 

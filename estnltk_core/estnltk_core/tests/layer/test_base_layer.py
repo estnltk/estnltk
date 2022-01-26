@@ -1029,7 +1029,9 @@ def test_deep_copy_syntax_layer():
                                                             'deps',
                                                             'misc',
                                                             'parent_span',
-                                                            'children') )
+                                                            'children'),
+                                                secondary_attributes=('parent_span',
+                                                                      'children') )
     syntax_layer.add_annotation( (0, 4), **{'deprel': 'discourse',
                                             'deps': '_',
                                             'feats': {},
@@ -1090,7 +1092,7 @@ def test_deep_copy_syntax_layer():
     layer_deepcopy = deepcopy( syntax_layer )
     # Validate
     assert layer_deepcopy is not syntax_layer
-    #assert layer_deepcopy == syntax_layer   # <= can't do that, leads to infinite recursion in layer.diff(other_layer)
+    assert layer_deepcopy == syntax_layer
     assert layer_deepcopy.name == syntax_layer.name
     assert layer_deepcopy.attributes == syntax_layer.attributes
     assert layer_deepcopy.ambiguous == syntax_layer.ambiguous
@@ -1099,13 +1101,14 @@ def test_deep_copy_syntax_layer():
     assert layer_deepcopy.serialisation_module == syntax_layer.serialisation_module
     assert len(layer_deepcopy) == len(syntax_layer)
     # 1) Validate copying references to spans: values should be equal
-    #    ( can't validate that, because layer.diff(other_layer) leads to infinite recursion )
-    #assert syntax_layer[0].annotations[0].parent_span == layer_deepcopy[0].annotations[0].parent_span
-    #assert syntax_layer[1].annotations[0].parent_span == layer_deepcopy[1].annotations[0].parent_span
-    #assert syntax_layer[2].annotations[0].children == layer_deepcopy[2].annotations[0].children
-    #assert syntax_layer[3].annotations[0].parent_span == layer_deepcopy[3].annotations[0].parent_span
+    assert syntax_layer[0].annotations[0].parent_span == layer_deepcopy[0].annotations[0].parent_span
+    assert syntax_layer[1].annotations[0].parent_span == layer_deepcopy[1].annotations[0].parent_span
+    assert syntax_layer[2].annotations[0].children == layer_deepcopy[2].annotations[0].children
+    assert syntax_layer[3].annotations[0].parent_span == layer_deepcopy[3].annotations[0].parent_span
     
     # Checks that all attributes (except recursive 'parent_span' & 'children') are equal
+    # ( reasoning: we cannot compare 'parent_span' & 'children' attribute values, as 
+    #   they are recursive and this would lead to infinite recursion errors )
     def _annotations_equal_ex( annotation1, annotation2 ):
         assert annotation1.legal_attribute_names == annotation2.legal_attribute_names
         for attr in annotation1.legal_attribute_names:

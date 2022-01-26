@@ -34,6 +34,10 @@ class SyntaxDependencyRetagger(Retagger):
         attributes.extend(attr for attr in ['parent_span', 'children']
                           if attr not in layer.attributes)
         layer.attributes = tuple(attributes)
+        secondary_attributes = list(layer.secondary_attributes)
+        secondary_attributes.extend(attr for attr in ['parent_span', 'children']
+                                    if attr not in secondary_attributes)
+        layer.secondary_attributes = secondary_attributes
 
         id_to_span = {}
         id_to_children = defaultdict(list)

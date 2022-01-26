@@ -8,6 +8,7 @@ def layer_to_dict(layer: Layer) -> dict:
     return {
         'name': layer.name,
         'attributes': layer.attributes,
+        'secondary_attributes': layer.secondary_attributes,
         'parent': layer.parent,
         'enveloping': layer.enveloping,
         'ambiguous': layer.ambiguous,
@@ -22,6 +23,7 @@ def layer_to_dict(layer: Layer) -> dict:
 def dict_to_layer(layer_dict: dict, text: Union['BaseText', 'Text']) -> Layer:
     layer = Layer(name=layer_dict['name'],
                   attributes=layer_dict['attributes'],
+                  secondary_attributes=layer_dict.get('secondary_attributes', ())
                   text_object=text,
                   parent=layer_dict['parent'],
                   enveloping=layer_dict['enveloping'],

@@ -26,6 +26,8 @@ text_dict = {
                                'misc',
                                'parent_span',
                                'children'),
+                'secondary_attributes': ('parent_span',
+                                         'children'),
                 'parent': None,
                 'enveloping': None,
                 'ambiguous': False,

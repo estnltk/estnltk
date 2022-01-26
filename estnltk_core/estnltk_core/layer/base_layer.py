@@ -42,10 +42,9 @@ class BaseLayer:
     BaseLayer is used to give annotations to text fragments. Each annotation consists of:
         selected text fragment
         corresponding annotations
-    Annotation consists of attributes which can have arbitrary names except reserved words:
-        meta - meta information
-        start
-        end
+    Annotation consists of attributes which can have arbitrary names. 
+    However, attribute names that are layer or span attributes (e.g. meta, start end) are 
+    accessible only with indexing operator as the attribute access is not possible.
 
     It is possible to add meta-information about layer as a whole by specifying layer.meta,
     which is a dictionary of type MutableMapping[str, Any]. However we strongly advise to use
@@ -58,11 +57,12 @@ class BaseLayer:
 
     """
     __slots__ = ['name', 'default_values', 'attributes', 'parent', 'enveloping', '_span_list', 'ambiguous',
-                 'text_object', 'serialisation_module', 'meta']
+                 'text_object', 'serialisation_module', 'secondary_attributes', 'meta']
 
     def __init__(self,
                  name: str,
                  attributes: Sequence[str] = (),
+                 secondary_attributes: Sequence[str] = (),
                  text_object: Union['BaseText','Text']=None,
                  parent: str = None,
                  enveloping: str = None,
@@ -73,24 +73,37 @@ class BaseLayer:
         """
         Initializes a new BaseLayer object based on given configuration.
         
-        Parameter `name` is mandatory and cannot be None or empty string or consist of 
-        only whitespaces.
+        Parameter `name` is mandatory and should be a descriptive name of the layer.
+        It is advisable to use layer names that are legitimate Pyhton attribute names 
+        (e.g. 'morphology', 'syntax_layer') and are not attributes of text objects. 
+        Otherwise, the layer is accessible only with indexing operator.
         
         Parameter `attributes` lists legal attribute names for the layer. 
         If an annotation is added to the layer, only values of legal attributes will 
         be added, and values of illegal attributes will be ignored. 
 
+        Parameter `secondary_attributes` lists names of layer's attributes which 
+        will be skipped while comparing two layers. Usually this means that these 
+        attributes contain redundant information. Another reason for marking attribute 
+        as secondary is avoiding (infinite) recursion in comparison. For instance, 
+        attributes referring to parent and children spans in the syntax layer are 
+        marked as secondary, because they are recursive and comparing recursive spans 
+        is not supported. 
+        All secondary attributes must also be present in `attributes`.
+
         Parameter `text_object` specifies the Text object of this layer. 
         Note that the Text object becomes fully connected with the layer only 
         after text.add_layer( layer ) has been called.
         
-        If each span of this layer has a parent span in some other layer, then parameter 
-        `parent` is used to specify the name of the parent layer.
+        Parameter `parent` is used to specify the name of the parent layer, declaring that 
+        each span of this layer has a parent span on the parent layer.
+        For instance, 'morph_analysis' layer takes 'words' layer as a parent, because 
+        morphological properties can be described on each word.
         
-        If each span of this layer envelops (wraps around) multiple spans of some other 
-        layer, then parameter `enveloping` specifies the name of that layer. For instance, 
-        'sentences' layer is enveloping around 'words' layer, and 'paragraphs' layer is 
-        enveloping around 'sentences' layer. 
+        Parameter `enveloping` specifies the name of the layer this layer envelops, meaning 
+        that each span of this layer envelops (wraps around) multiple spans of that layer. 
+        For instance, 'sentences' layer is enveloping around 'words' layer, and 'paragraphs' 
+        layer is enveloping around 'sentences' layer. 
         
         Note that `parent` and `enveloping` cannot be set simultaneously -- one of them 
         must be None.
@@ -105,21 +118,20 @@ class BaseLayer:
         Parameter `serialisation_module` specifies name of the serialisation module. 
         If left unspecified, then default serialisation module is used.
         """
-        assert parent is None or enveloping is None, "can't be derived AND enveloping"
-
-        self.default_values = default_values or {}
-        assert isinstance(self.default_values, dict)
+        default_values = default_values or {}
+        assert isinstance(default_values, dict)
+        self.default_values = default_values
 
         self.attributes = attributes
+        self.secondary_attributes = secondary_attributes
 
         # name of the layer
         assert name is not None and len(name) > 0 and not name.isspace(), \
             'layer name cannot be empty or consist of only whitespaces {!r}'.format(name)
-
         self.name = name
 
+        assert parent is None or enveloping is None, "can't be derived AND enveloping"
         self.parent = parent
-
         self.enveloping = enveloping
 
         self._span_list = SpanList()
@@ -141,6 +153,7 @@ class BaseLayer:
         result = self.__class__(
             name=self.name,
             attributes=self.attributes,
+            secondary_attributes=self.secondary_attributes,
             text_object=self.text_object,
             parent=self.parent,
             enveloping=self.enveloping,
@@ -161,6 +174,7 @@ class BaseLayer:
         memo = memo or {}
         result = self.__class__( name=self.name,
                                  attributes=deepcopy(self.attributes, memo),
+                                 secondary_attributes=deepcopy(self.secondary_attributes, memo),
                                  text_object=None,
                                  parent=self.parent,
                                  enveloping=self.enveloping,
@@ -192,6 +206,17 @@ class BaseLayer:
             for attr in set(self.default_values) - set(attributes):
                 del self.default_values[attr]
             self.default_values = {attr: self.default_values.get(attr) for attr in attributes}
+            return
+        if key == 'secondary_attributes':
+            assert not isinstance(value, str), \
+                'secondary_attributes must be a list or tuple of strings, not a single string {!r}'.format(value)
+            secondary_attributes = value or ()
+            for sec_attrib in secondary_attributes:
+                if sec_attrib not in self.attributes:
+                    raise ValueError( \
+                        'secondary attribute {!r} not listed in attributes {!r}'.format(sec_attrib, attributes))
+            secondary_attributes = tuple(secondary_attributes)
+            super().__setattr__('secondary_attributes', secondary_attributes)
             return
         super().__setattr__(key, value)
 
@@ -245,6 +270,7 @@ class BaseLayer:
 
         layer = self.__class__(name=self.name,
                                attributes=self.attributes,
+                               secondary_attributes=self.secondary_attributes,
                                text_object=self.text_object,
                                parent=self.parent,
                                enveloping=self.enveloping,
@@ -306,6 +332,7 @@ class BaseLayer:
         if isinstance(item, (list, tuple)):
             layer = self.__class__(name=self.name,
                                    attributes=self.attributes,
+                                   secondary_attributes=self.secondary_attributes,
                                    text_object=self.text_object,
                                    parent=self.parent,
                                    enveloping=self.enveloping,
@@ -551,7 +578,6 @@ class BaseLayer:
         if self.serialisation_module != other.serialisation_module:
             return "{self.name!r} layer dict converter modules are different: " \
                    "{self.dict_converter_module!r}!={other.dict_converter_module!r}".format(self=self, other=other)
-        # TODO: this fails with infinite recursion on the syntax layer with 'parent_span' & 'children'
         if self._span_list != other._span_list:
             return "{self.name} layer spans differ".format(self=self)
         return None

@@ -109,7 +109,17 @@ class Annotation(Mapping):
             raise AttributeError(key_error.args[0]) from key_error
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Annotation) and self.__dict__ == other.__dict__
+        if isinstance(other, Annotation):
+            self_dict  = self.__dict__
+            other_dict = other.__dict__
+            if self.layer is not None and len(self.layer.secondary_attributes) > 0:
+                # skip the comparison of the secondary attributes
+                secondary_attributes = self.layer.secondary_attributes
+                self_dict  = {k:v for k,v in self_dict.items() if k not in secondary_attributes}
+                other_dict = {k:v for k,v in other_dict.items() if k not in secondary_attributes}
+            return self_dict == other_dict
+        else:
+            return False
 
     @recursive_repr()
     def __repr__(self):

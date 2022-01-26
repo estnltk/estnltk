@@ -251,6 +251,7 @@ def test_syntax_dependency_retagger():
     retagger.retag(text)
 
     layer = text.conll_syntax
+    assert list(layer.secondary_attributes) == ['parent_span', 'children']
     assert list(layer.parent_span) == [layer[1], layer[2], layer[3], None, layer[5], layer[3],
                                        layer[5], layer[8], None, layer[8], layer[11], layer[9], layer[11],
                                        layer[16], layer[15], layer[16],  layer[11], layer[16]]

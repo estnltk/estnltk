@@ -6,6 +6,7 @@ def layer_to_dict(layer):
     layer_dict = {
         'name': layer.name,
         'attributes': layer.attributes,
+        'secondary_attributes': layer.secondary_attributes,
         'parent': layer.parent,
         'enveloping': layer.enveloping,
         'ambiguous': layer.ambiguous,
