@@ -51,7 +51,7 @@ class SubstringTagger(Tagger):
                  token_separators: str = '',
                  output_layer: str = 'terms',
                  output_attributes: Sequence = None,
-                 global_decorator: Callable[[Text, Span], Union[Dict[str, Any], None]] = None,
+                 global_decorator: Callable[[Text, Span], Union[Dict[str, Any], Any, None]] = None,
                  conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL',
                  ignore_case: bool = False
                  ):
@@ -135,6 +135,7 @@ class SubstringTagger(Tagger):
         super(Tagger, self).__setattr__('_rule_map', self.ruleset.rule_map)
 
         # Configures automaton to match the patters in the ruleset
+        # Each pattern is here exactly once
         if self.ignore_case:
             for pattern in self._rule_map:
                 self._automaton.add_word(pattern.lower(), len(pattern))
@@ -227,17 +228,22 @@ class SubstringTagger(Tagger):
             span = Span(base_span=current[0], layer=layer)
             # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
             static_rulelist = self._rule_map.get(current[1], None)[0]
-            if static_rulelist:
-                for rule in static_rulelist:
-                    span.add_annotation(Annotation(span, **{**dummy_annotation, **rule.attributes}))
+            for static_rule in static_rulelist:
+                # add static annotation
+                span.add_annotation(Annotation(span, **{**dummy_annotation, **static_rule.attributes}))
+                # apply global decorator
+                # Drop spans for which the global decorator fails
+                if self.global_decorator is not None:
+                    new_annotations = []
+                    for annotation in span.annotations:
+                        new_annotations.append(self.global_decorator(text_object, span, annotation))
+                        if not isinstance(annotation, dict):
+                            current = next(sorted_tuples, None)
+                            continue
+                    for annotation in new_annotations:
+                        span.add_annotation(annotation)
 
-            # Drop spans for which the global decorator fails
-            if self.global_decorator is not None:
-                span.annotations[0] = self.global_decorator(text_object, span)
-                if not isinstance(span.annotations[0], dict):
-                    current = next(sorted_tuples, None)
-                    continue
-
+            # apply dynamic_decorator --- it must be unique or have matching priority and group
             # No dynamic rules to change the annotation
             dynamic_rule = self._rule_map.get(current[1], None)[1]
             if len(dynamic_rule) == 0:
@@ -249,13 +255,26 @@ class SubstringTagger(Tagger):
                     layer.add_span(span)
                 current = next(sorted_tuples, None)
                 continue
+            else:
+                rule_group = dynamic_rule[0].group
+                rule_priority = dynamic_rule[0].priority
+                for rule in dynamic_rule:
+                    if rule.group != rule_group:
+                        raise AttributeError("Rules with the same left hand side have to have the same group.")
+                    if rule.priority != rule_priority:
+                        raise AttributeError("Rules with the same left hand side have to have the same priority.")
+                    # Drop all spans for which the decorator fails
+                    decorator = rule.decorator
+                    new_annotations = []
+                    for annotation in span.annotations:
+                        new_annotations.append(decorator(text_object, span, annotation))
+                    span.clear_annotations()
+                    for annotation in new_annotations:
+                        span.add_annotation(Annotation(span,**annotation))
+                    if isinstance(span.annotations[0], Annotation):
+                        layer.add_span(span)
 
-            # Drop all spans for which the decorator fails
-            span.annotations[0] = decorator(text_object, span)
-            if isinstance(span.annotations[0], dict):
-                layer.add_span(span)
-
-            current = next(sorted_tuples, None)
+                    current = next(sorted_tuples, None)
 
         return layer
 
@@ -285,18 +304,28 @@ class SubstringTagger(Tagger):
         dummy_annotation = {attribute: None for attribute in self.output_attributes}
         while current is not None:
             span = Span(base_span=current[0], layer=layer)
-            group = self._rule_map.get[current[1]][0][0].group
-            priority = self._rule_map.get[current[1]][0][0].priority #TODO reasonable solution here
             # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
-            span.add_annotation(Annotation(span, **{**dummy_annotation, **self._attribute_map.get(current[1], {})}))
+            static_rulelist = self._rule_map.get(current[1], None)[0]
+            group = None
+            priority = None
+            for static_rule in static_rulelist:
+                # add static annotation
+                span.add_annotation(Annotation(span, **{**dummy_annotation, **static_rule.attributes}))
+                # apply global decorator
+                # Drop spans for which the global decorator fails
+                if self.global_decorator is not None:
+                    new_annotations = []
+                    for annotation in span.annotations:
+                        new_annotations.append(self.global_decorator(text_object, span, annotation))
+                        if not isinstance(annotation, dict):
+                            current = next(sorted_tuples, None)
+                            continue
+                    for annotation in new_annotations:
+                        span.add_annotation(annotation)
+                    group = static_rule.group
+                    priority = static_rule.priority
 
-            # Drop spans for which the global decorator fails
-            if self.global_decorator is not None:
-                span.annotations[0] = self.global_decorator(text_object, span)
-                if not isinstance(span.annotations[0], dict):
-                    current = next(sorted_tuples, None)
-                    continue
-
+            # apply dynamic_decorator --- it must be unique or have matching priority and group
             # No dynamic rules to change the annotation
             dynamic_rule = self._rule_map.get(current[1], None)[1]
             if len(dynamic_rule) == 0:
@@ -304,16 +333,30 @@ class SubstringTagger(Tagger):
             else:
                 decorator = dynamic_rule[0].decorator
             if decorator is None:
-                yield (span, group, priority)
+                if span.annotations[0] is not None:
+                    yield span, group, priority
                 current = next(sorted_tuples, None)
                 continue
+            else:
+                rule_group = dynamic_rule[0].group
+                rule_priority = dynamic_rule[0].priority
+                for rule in dynamic_rule:
+                    if rule.group != rule_group:
+                        raise AttributeError("Rules with the same left hand side have to have the same group.")
+                    if rule.priority != rule_priority:
+                        raise AttributeError("Rules with the same left hand side have to have the same priority.")
+                    # Drop all spans for which the decorator fails
+                    decorator = rule.decorator
+                    new_annotations = []
+                    for annotation in span.annotations:
+                        new_annotations.append(decorator(text_object, span, annotation))
+                    span.clear_annotations()
+                    for annotation in new_annotations:
+                        span.add_annotation(Annotation(span, **annotation))
+                    if isinstance(span.annotations[0], Annotation):
+                        yield span, rule_group, rule_priority
 
-            # Drop all spans for which the decorator fails
-            span.annotations[0] = decorator(text_object, span)
-            if isinstance(span.annotations[0], dict):
-                yield (span, group, priority)
-
-            current = next(sorted_tuples, None)
+                    current = next(sorted_tuples, None)
 
     @staticmethod
     def keep_maximal_matches(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]]) \

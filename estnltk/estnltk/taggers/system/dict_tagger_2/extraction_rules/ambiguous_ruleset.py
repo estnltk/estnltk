@@ -2,7 +2,7 @@ import regex as re
 
 from csv import Error as CSVError
 from csv import reader as read_csv
-from typing import List, Union
+from typing import List, Union, Dict
 
 from .static_extraction_rule import StaticExtractionRule
 from .dynamic_extraction_rule import DynamicExtractionRule
@@ -303,7 +303,7 @@ class AmbiguousRuleset:
             raise ValueError("Invalid file format: Line {}: File is not in CSV format".format(i))
 
     @property
-    def rule_map(self):
+    def rule_map(self) -> Dict[str, List[List[StaticExtractionRule], List[DynamicExtractionRule]]]:
         """
         Maps all patterns to rules
         Returns Dict(str, [[StaticExtractionRule], [DynamicExtractionRule]])

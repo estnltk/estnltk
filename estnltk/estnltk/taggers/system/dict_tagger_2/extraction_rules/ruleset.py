@@ -29,15 +29,6 @@ class Ruleset(AmbiguousRuleset):
                              "ambiguous ruleset is not allowed.")
 
     @property
-    def attribute_map(self):
-        ''' Elements in dict are Pattern -> List to keep the signature the same'''
-        return {rule.pattern: [rule.attributes] for rule in self.static_rules}
-
-    @property
-    def decorator_map(self):
-        return {rule.pattern: [rule.decorator] for rule in self.dynamic_rules}
-
-    @property
     def is_valid(self):
         """
         Returns true if the ruleset does not contain conflicting attribute definitions for the same pattern.
