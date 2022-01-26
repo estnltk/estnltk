@@ -232,7 +232,7 @@ class BaseLayer:
 
     def __getattr__(self, item):
         # Deny access to other attributes
-        raise AttributeError('attributes cannot be accessed directly in {}'.format(self.__class__.__name__))
+        raise AttributeError('attribute {} cannot be accessed directly in {}'.format(item, self.__class__.__name__))
 
     def __getitem__(self, item) -> Union[Span, 'BaseLayer', 'Layer', AmbiguousAttributeTupleList]:
         if isinstance(item, int):
@@ -275,6 +275,10 @@ class BaseLayer:
                 # Returns AmbiguousAttributeTupleList
                 return self[item[0]][item[1]]
 
+            # If not first_ok or not second_ok, then we need to check 
+            # if this could be a list call with 2-element list, see below 
+            # for details
+
         layer = self.__class__(name=self.name,
                                attributes=self.attributes,
                                secondary_attributes=self.secondary_attributes,
@@ -299,7 +303,7 @@ class BaseLayer:
                 wrapped = [s for s, i in zip(self._span_list.spans, item) if i]
                 layer._span_list.spans = wrapped
                 return layer
-            if all(isinstance(i, int) for i in item):
+            if all(isinstance(i, int) and not isinstance(i, bool) for i in item):
                 # Expected call: layer[list_of_indexes]
                 # Returns Layer
                 wrapped = [self._span_list.spans.__getitem__(i) for i in item]
