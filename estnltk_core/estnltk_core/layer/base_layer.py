@@ -146,9 +146,15 @@ class BaseLayer:
 
     def __copy__(self):
         """
-        Creates a new layer object with the same content.
+        Creates a new Layer object with the same content.
 
-        New object is needed as a same layer object cannot be part of another text object.
+        TODO: this functionality will be deprecated in the future. 
+        Normally, you won't need to copy the layer. If you want to 
+        use copying for safely deleting spans, copy layer.spans 
+        instead:
+        
+            for span in copy(layer.spans):
+                layer.remove_span(span)
         """
         result = self.__class__(
             name=self.name,
@@ -163,10 +169,10 @@ class BaseLayer:
         result.meta = copy(self.meta)
         result._span_list = copy(self._span_list)
         return result
-
+    
     def __deepcopy__(self, memo=None):
         """
-        Makes a deep copy from the layer.
+        Makes a deep copy from the layer. Essential for deep copying of Text objects.
         
         Layer's inner components -- spans and annotations -- are also deep-copied,
         along with the Text object of the layer.
@@ -192,7 +198,7 @@ class BaseLayer:
 
     def __setattr__(self, key, value):
         if key == 'attributes':
-            # set attributes
+            # check attributes
             attributes = value
             assert not isinstance(attributes, str), \
                 'attributes must be a list or tuple of strings, not a single string {!r}'.format(attributes)
@@ -201,20 +207,21 @@ class BaseLayer:
             assert all(attr.isidentifier() for attr in attributes), \
                 'unexpected attribute name: all names should be identifiers in {!r}'.format(attributes)
             assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
+            # set attributes
             super().__setattr__('attributes', attributes)
             # (re)set default values
-            for attr in set(self.default_values) - set(attributes):
-                del self.default_values[attr]
             self.default_values = {attr: self.default_values.get(attr) for attr in attributes}
             return
         if key == 'secondary_attributes':
+            # check secondary_attributes
             assert not isinstance(value, str), \
                 'secondary_attributes must be a list or tuple of strings, not a single string {!r}'.format(value)
             secondary_attributes = value or ()
             for sec_attrib in secondary_attributes:
                 if sec_attrib not in self.attributes:
                     raise ValueError( \
-                        'secondary attribute {!r} not listed in attributes {!r}'.format(sec_attrib, attributes))
+                        'secondary attribute {!r} not listed in attributes {!r}'.format(sec_attrib, self.attributes))
+            # set secondary_attributes
             secondary_attributes = tuple(secondary_attributes)
             super().__setattr__('secondary_attributes', secondary_attributes)
             return
