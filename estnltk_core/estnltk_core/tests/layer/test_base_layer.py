@@ -258,10 +258,12 @@ def test_layer_start_end():
     layer.add_annotation( (4,6), **{'value':None} )
     t.add_layer(layer)
     assert layer.start == 0
+    assert layer.enclosing_text == '0123456'
     del layer[0]
     del layer[0]
     assert layer.start == 2
     assert layer.end == 7
+    assert layer.enclosing_text == '23456'
 
 
 def test_layer_indexing():

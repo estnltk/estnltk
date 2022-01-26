@@ -43,7 +43,7 @@ class BaseLayer:
         selected text fragment
         corresponding annotations
     Annotation consists of attributes which can have arbitrary names. 
-    However, attribute names that are layer or span attributes (e.g. meta, start end) are 
+    However, attribute names that are layer or span attributes (e.g. meta, start, end) are 
     accessible only with indexing operator as the attribute access is not possible.
 
     It is possible to add meta-information about layer as a whole by specifying layer.meta,
@@ -325,10 +325,15 @@ class BaseLayer:
         raise TypeError('index not supported: ' + str(item))
 
     def get(self, item):
-        """Finds and returns Span (or EnvelopingSpan) corresponding to the given BaseSpan item.
-           If this layer is empty, returns None.
-           If the parameter item is a list of BaseSpan-s, then returns a new Layer populated 
-           with specified spans and bearing the same configuration as this layer.
+        """ Finds and returns Span (or EnvelopingSpan) corresponding to the given BaseSpan item(s).
+            If this layer is empty, returns None.
+            If the parameter item is a sequence of BaseSpan-s, then returns a new Layer populated 
+            with specified spans and bearing the same configuration as this layer. For instance, 
+            if you pass a span of the enveloping layer as item, then you'll get a snapshot layer 
+            with all the spans of this layer wrapped by the enveloping span:
+           
+                # get a snapshot words-layer bearing all words of the first sentence
+                text.words.get( text.sentences[0] )
         """
         if len(self._span_list) == 0:
             return
@@ -358,7 +363,13 @@ class BaseLayer:
         raise ValueError(item)
 
     def index(self, x, *args) -> int:
-        '''Returns the index of the specified span in this layer.'''
+        '''Returns the index of the given span in this layer.
+           Use this to find the location of the span.
+           
+           TODO: this is only used in legacy serialization, 
+           so it can also be deprecated/removed if there are 
+           no other usages.
+        '''
         return self._span_list.index(x, *args)
 
     def __delitem__(self, key):
@@ -393,6 +404,13 @@ class BaseLayer:
 
     @property
     def text(self):
+        """Returns a list of text fragments corresponding to 
+           spans/annotations of this layer.
+           Normally, this is a list of strings, but in case 
+           of an envloping layer, a list of lists of strings 
+           will be returned, as each enveloping span is made 
+           of a list of spans of the the enveloped layer.
+        """
         result = []
         for span in self._span_list.spans:
             if isinstance(span, EnvelopingSpan):
