@@ -19,6 +19,7 @@ def merge_layers(layers: Sequence[Union[BaseLayer, 'Layer']],
     parent = layers[0].parent
     enveloping = layers[0].enveloping
     ambiguous = any(layer.ambiguous for layer in layers)
+    secondary_attributes = layers[0].secondary_attributes
 
     assert all(layer.parent == parent for layer in layers), \
         "some layers have parent, some don't: " + str({layer.name: layer.parent for layer in layers})
@@ -41,6 +42,7 @@ def merge_layers(layers: Sequence[Union[BaseLayer, 'Layer']],
     new_layer = layers[0].__class__(
         name=output_layer,
         attributes=tuple(output_attributes),
+        secondary_attributes=secondary_attributes,
         text_object=text_object,
         parent=parent,
         enveloping=enveloping,

@@ -68,6 +68,7 @@ def test_1():
     assert layer_to_dict( layer_5_new ) == \
         {'ambiguous': True,
          'attributes': ('attr', 'attr_5'),
+         'secondary_attributes': (),
          'enveloping': 'layer_1',
          'meta': {},
          'name': 'layer_5_new',

@@ -76,6 +76,7 @@ def join_layers( layers: Sequence[Union[BaseLayer, 'Layer']], separators: Sequen
         # copy the layer
         new_layer = layers[0].__class__(name=layers[0].name,
                                         attributes=layers[0].attributes,
+                                        secondary_attributes=layers[0].secondary_attributes,
                                         text_object=None,
                                         parent=layers[0].parent,
                                         enveloping=layers[0].enveloping,
@@ -94,6 +95,7 @@ def join_layers( layers: Sequence[Union[BaseLayer, 'Layer']], separators: Sequen
         parent = layers[0].parent
         enveloping = layers[0].enveloping
         attributes = layers[0].attributes
+        secondary_attributes = layers[0].secondary_attributes
         ambiguous = layers[0].ambiguous
         for layer in layers:
             if layer.name != name:
@@ -104,11 +106,14 @@ def join_layers( layers: Sequence[Union[BaseLayer, 'Layer']], separators: Sequen
                 raise Exception( "Not all layers are enveloping the same layer: " + str([l.enveloping for l in layers]) )
             if layer.attributes != attributes:
                 raise Exception( "Not all layers have the same attributes: " + str([l.attributes for l in layers]) )
+            if layer.secondary_attributes != secondary_attributes:
+                raise Exception( "Not all layers have the same secondary_attributes: " + str([l.secondary_attributes for l in layers]) )
             if layer.ambiguous != ambiguous:
                 raise Exception( "Not all layers have the same state of ambiguity: " + str([l.ambiguous for l in layers]) )
         # 1) Make a new detached layer
         new_layer = layers[0].__class__( name=name,
                                          attributes=attributes,
+                                         secondary_attributes=secondary_attributes,
                                          text_object=None,
                                          parent=parent,
                                          enveloping=enveloping,
@@ -174,6 +179,7 @@ def join_layers_while_reusing_spans( layers: Sequence[Union[BaseLayer, 'Layer']]
         parent = layers[0].parent
         enveloping = layers[0].enveloping
         attributes = layers[0].attributes
+        secondary_attributes = layers[0].secondary_attributes
         ambiguous = layers[0].ambiguous
         for layer in layers:
             if layer.name != name:
@@ -184,11 +190,14 @@ def join_layers_while_reusing_spans( layers: Sequence[Union[BaseLayer, 'Layer']]
                 raise Exception( "Not all layers are enveloping the same layer: " + str([l.enveloping for l in layers]) )
             if layer.attributes != attributes:
                 raise Exception( "Not all layers have the same attributes: " + str([l.attributes for l in layers]) )
+            if layer.secondary_attributes != secondary_attributes:
+                raise Exception( "Not all layers have the same secondary_attributes: " + str([l.secondary_attributes for l in layers]) )
             if layer.ambiguous != ambiguous:
                 raise Exception( "Not all layers have the same state of ambiguity: " + str([l.ambiguous for l in layers]) )
         # 1) Make a new detached layer
         new_layer = layers[0].__class__( name=name,
                                          attributes=attributes,
+                                         secondary_attributes=secondary_attributes,
                                          text_object=None,
                                          parent=parent,
                                          enveloping=enveloping,

@@ -42,6 +42,7 @@ def flatten(input_layer: Union['BaseLayer', 'Layer'], output_layer: str, output_
     # Create new BaseLayer or Layer
     new_layer = input_layer.__class__(name=output_layer,
                                       attributes=output_attributes,
+                                      secondary_attributes=input_layer.secondary_attributes,
                                       text_object=input_layer.text_object,
                                       parent=None,
                                       enveloping=None,

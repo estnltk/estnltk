@@ -28,6 +28,7 @@ def test_dict_export_import():
     text = Text(T_2)
     words_layer = dict_to_layer({'name': 'words',
      'attributes': ('normalized_form',),
+     'secondary_attributes': (),
      'parent': None,
      'enveloping': None,
      'ambiguous': True,
@@ -62,6 +63,7 @@ def test_dict_export_import_simple():
     simple_text_dict = \
         {'layers': [{'ambiguous': False,
                      'attributes': (),
+                     'secondary_attributes': (),
                      'enveloping': None,
                      'meta': {},
                      'name': 'tokens',
@@ -84,6 +86,7 @@ def test_layer_to_records():
     simple_text_dict = \
         {'layers': [{'ambiguous': False,
                      'attributes': (),
+                     'secondary_attributes': (),
                      'enveloping': None,
                      'meta': {'my_meta': 0},
                      'name': 'tokens',
@@ -133,6 +136,7 @@ def test_records_to_layer():
     simple_text_dict = \
         {'layers': [{'ambiguous': False,
                      'attributes': ('record_id', ),
+                     'secondary_attributes': (),
                      'enveloping': None,
                      'meta': {'my_meta': 0},
                      'name': 'tokens',
@@ -148,6 +152,7 @@ def test_records_to_layer():
     assert layer_to_dict( text_obj['tokens'] ) == \
         {'ambiguous': False,
          'attributes': ('record_id', ),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {'my_meta': 0},
          'name': 'tokens',
@@ -161,6 +166,7 @@ def test_records_to_layer():
     text.add_layer( \
         dict_to_layer({'name': 'layer_6',
                        'attributes': ('attr', 'attr_1'),
+                       'secondary_attributes': (),
                        'parent': None,
                        'enveloping': None,
                        'ambiguous': True,

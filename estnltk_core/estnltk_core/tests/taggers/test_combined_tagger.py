@@ -70,6 +70,7 @@ def test_tagger():
     assert layer_to_dict(text['combined']) == \
         {'ambiguous': False,
          'attributes': ('attr_1', 'attr_2'),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'combined',
@@ -98,6 +99,7 @@ def test_add_tagger():
     assert layer_to_dict(text['combined']) == \
         {'ambiguous': False,
          'attributes': ('attr_1', 'attr_2'),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'combined',

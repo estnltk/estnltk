@@ -49,11 +49,13 @@ def extract_sections(text: Union['Text', 'BaseText'],
                 if layer_name not in layers_to_keep:
                     continue
             attribute_names = layer.attributes
+            secondary_attributes = layer.secondary_attributes
             parent = layer.parent
             enveloping = layer.enveloping
             ambiguous = layer.ambiguous
             new_layer = layer.__class__(name=layer.name,
                                         attributes=attribute_names,
+                                        secondary_attributes=secondary_attributes,
                                         parent=parent,
                                         enveloping=enveloping,
                                         ambiguous=ambiguous)

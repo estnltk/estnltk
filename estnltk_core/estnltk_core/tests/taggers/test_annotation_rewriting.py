@@ -17,6 +17,7 @@ def test_annotation_rewriter():
     words_layer_dict = \
         {'ambiguous': True,
          'attributes': ('normalized_form',),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'words',
@@ -40,6 +41,7 @@ def test_annotation_rewriter():
     expected_words_layer_dict = \
         {'ambiguous': True,
          'attributes': ('normalized_form', 'uppercase'),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'words',
@@ -67,6 +69,7 @@ def test_annotation_rewriter():
     expected_words_layer_dict2 = \
         {'ambiguous': True,
          'attributes': ('uppercase',),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'words',
@@ -89,6 +92,7 @@ def test_annotation_rewriter():
     expected_words_layer_dict3 = \
         {'ambiguous': True,
          'attributes': ('uppercase',),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'words',
@@ -109,6 +113,7 @@ def test_span_annotations_rewriter():
     words_layer_dict = \
         {'ambiguous': True,
          'attributes': ('normalized_form',),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'words',
@@ -143,6 +148,7 @@ def test_span_annotations_rewriter():
     expected_words_layer_dict1 = \
         {'ambiguous': True,
          'attributes': ('normalized_form', 'index'),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'words',
@@ -177,6 +183,7 @@ def test_span_annotations_rewriter():
     expected_words_layer_dict2 = \
         {'ambiguous': True,
          'attributes': ('index',),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'words',
@@ -204,6 +211,7 @@ def test_span_annotations_rewriter():
     expected_words_layer_dict3 = \
         {'ambiguous': True,
          'attributes': ('new_index', 'lowercase'),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'words',
