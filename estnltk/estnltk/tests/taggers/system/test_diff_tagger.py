@@ -55,6 +55,7 @@ def test_simple_ambiguous():
     assert layer_to_dict( diff_layer ) == {
         'name': 'diff_1_2',
         'attributes': ('span_status', 'input_layer_name', 'attr', 'attr_1'),
+        'secondary_attributes': (),
         'parent': None,
         'enveloping': None,
         'ambiguous': True,
@@ -147,6 +148,7 @@ def test_enveloping_not_ambiguous():
     assert layer_to_dict( diff_layer ) == {
         'name': 'diff_layer',
         'attributes': ('input_layer_name', 'span_status', 'attr', 'attr_4'),
+        'secondary_attributes': (),
         'parent': None,
         'enveloping': 'layer_0',
         'ambiguous': True,
@@ -253,6 +255,7 @@ def test_iterators_on_enveloping_ambiguous_diff_layer():
     assert layer_to_dict( diff_layer ) == {
         'name': 'diff_layer',
         'attributes': ('input_layer_name', 'span_status', 'attr', 'attr_5'),
+        'secondary_attributes': (),
         'parent': None,
         'enveloping': 'layer_1',
         'ambiguous': True,

@@ -71,6 +71,7 @@ def test_maltparser_tagger_default_model():
                         'deprel',
                         'deps',
                         'misc'),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'maltparser_syntax',

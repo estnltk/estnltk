@@ -13,6 +13,7 @@ def test_softmax_emb_tag_sum_web_tagger(httpserver):
     layer_dict = {
         'name': 'softmax_emb_tag_sum',
         'attributes': ('morphtag', 'pos', 'form'),
+        'secondary_attributes': (),
         'parent': 'words',
         'enveloping': None,
         'ambiguous': False,

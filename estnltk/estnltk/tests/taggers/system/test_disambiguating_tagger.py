@@ -32,6 +32,7 @@ def test_1():
     assert layer_to_dict( text.simple ) == \
         {'ambiguous': False,
          'attributes': ('attr_1',),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'simple',
@@ -69,6 +70,7 @@ def test_1():
     assert layer_to_dict( text.enveloping ) == \
         {'ambiguous': False,
          'attributes': ('attr_1',),
+         'secondary_attributes': (),
          'enveloping': 'simple_ambiguous',
          'meta': {},
          'name': 'enveloping',

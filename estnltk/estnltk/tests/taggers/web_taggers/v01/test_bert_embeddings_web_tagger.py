@@ -13,6 +13,7 @@ def test_vabamorph_web_tagger(httpserver):
     layer_dict = {
         'name': 'bert_embeddings',
         'attributes': ('token', 'bert_embedding'),
+        'secondary_attributes': (),
         'parent': None,
         'enveloping': None,
         'ambiguous': True,

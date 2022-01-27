@@ -11,6 +11,7 @@ def test_adjective_phrase_tagger():
     assert layer_to_dict( text.grammar_tags ) == \
         {'ambiguous': True,
          'attributes': ('grammar_symbol',),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'grammar_tags',
@@ -31,6 +32,7 @@ def test_adjective_phrase_tagger():
     assert layer_to_dict( text.adjective_phrases ) == \
         {'ambiguous': False,
          'attributes': ('type', 'adverb_class', 'adverb_weight'),
+         'secondary_attributes': (),
          'enveloping': 'grammar_tags',
          'meta': {},
          'name': 'adjective_phrases',

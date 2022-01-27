@@ -29,6 +29,7 @@ def test_web_tagger(httpserver):
     layer_dict = {
         'name': 'my_test',
         'attributes': ('attr_1', 'attr_2'),
+        'secondary_attributes': (),
         'parent': None,
         'enveloping': None,
         'ambiguous': True,
@@ -67,6 +68,7 @@ def test_web_tagger(httpserver):
         'meta': {'text_meta': 'text meta'},
         'layers': {'layer_1': {'name': 'layer_1',
                                'attributes': [],
+                               'secondary_attributes': [],
                                'parent': None,
                                'enveloping': None,
                                'ambiguous': False,
@@ -75,6 +77,7 @@ def test_web_tagger(httpserver):
                                'spans': []},
                    'layer_2': {'name': 'layer_2',
                                'attributes': [],
+                               'secondary_attributes': [],
                                'parent': None,
                                'enveloping': None,
                                'ambiguous': False,

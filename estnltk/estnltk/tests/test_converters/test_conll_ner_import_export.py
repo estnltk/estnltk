@@ -61,6 +61,7 @@ def test_conll_ner_importer():
     expected_wordner_layer_dict = \
         {'ambiguous': False,
          'attributes': ('nertag',),
+         'secondary_attributes': (),
          'enveloping': None,
          'meta': {},
          'name': 'conll_wordner',
@@ -103,6 +104,7 @@ def test_conll_ner_exporter():
     input_text_with_ner_dict = \
         {'layers': [{'ambiguous': True,
                      'attributes': ('normalized_form',),
+                     'secondary_attributes': (),
                      'enveloping': None,
                      'meta': {},
                      'name': 'words',
@@ -133,6 +135,7 @@ def test_conll_ner_exporter():
                                     'clitic',
                                     'form',
                                     'partofspeech'),
+                     'secondary_attributes': (),
                      'enveloping': None,
                      'meta': {},
                      'name': 'morph_analysis',
@@ -212,6 +215,7 @@ def test_conll_ner_exporter():
                                 'base_span': (51, 52)}]},
                     {'ambiguous': False,
                      'attributes': ('nertag',),
+                     'secondary_attributes': (),
                      'enveloping': None,
                      'meta': {},
                      'name': 'wordner',

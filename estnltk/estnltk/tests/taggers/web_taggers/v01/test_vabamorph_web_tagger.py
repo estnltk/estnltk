@@ -13,6 +13,7 @@ def test_vabamorph_web_tagger(httpserver):
     layer_dict = {
         'name': 'morph_analysis',
         'attributes': ('normalized_text', 'lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech'),
+        'secondary_attributes': (),
         'parent': 'words',
         'enveloping': None,
         'ambiguous': True,

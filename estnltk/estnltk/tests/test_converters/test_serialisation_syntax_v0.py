@@ -12,6 +12,7 @@ from estnltk_core.converters import text_to_json, json_to_text
 test_text_dict = \
     {'layers': [{'ambiguous': True,
                  'attributes': ('normalized_form',),
+                 'secondary_attributes': (),
                  'enveloping': None,
                  'meta': {},
                  'name': 'words',
@@ -34,6 +35,7 @@ test_text_dict = \
                                 'clitic',
                                 'form',
                                 'partofspeech'),
+                 'secondary_attributes': (),
                  'enveloping': None,
                  'meta': {},
                  'name': 'morph_analysis',
@@ -77,6 +79,7 @@ test_text_dict = \
                             'base_span': (12, 13)}]},
                 {'ambiguous': False,
                  'attributes': (),
+                 'secondary_attributes': (),
                  'enveloping': 'words',
                  'meta': {},
                  'name': 'sentences',

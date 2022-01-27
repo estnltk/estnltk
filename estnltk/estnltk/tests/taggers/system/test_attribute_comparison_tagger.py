@@ -46,6 +46,7 @@ def test_head_attribute_comparison():
 
     assert layer_to_dict(new_layer) == {'ambiguous': False,
                                      'attributes': ('head', 'head_1', 'head_2'),
+                                     'secondary_attributes': (),
                                      'enveloping': None,
                                      'meta': {},
                                      'name': 'new_layer',
@@ -92,6 +93,7 @@ def test_deprel_attribute_comparison():
 
     assert layer_to_dict(new_layer) == {'ambiguous': False,
                                      'attributes': ('deprel', 'deprel_1', 'deprel_2'),
+                                     'secondary_attributes': (),
                                      'enveloping': None,
                                      'meta': {},
                                      'name': 'new_layer',
