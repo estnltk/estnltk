@@ -211,6 +211,8 @@ class BaseLayer:
             super().__setattr__('attributes', attributes)
             # (re)set default values
             self.default_values = {attr: self.default_values.get(attr) for attr in attributes}
+            # TODO: secondary_attributes should also be updated, but this can be done only
+            # after secondary_attributes have been initialized
             return
         if key == 'secondary_attributes':
             # check secondary_attributes
@@ -252,7 +254,7 @@ class BaseLayer:
         if isinstance(item, str) or isinstance(item, (list, tuple)) and all(isinstance(s, str) for s in item):
             # Expected call: layer[attribute] or layer[attributes]
             # Returns AmbiguousAttributeTupleList
-            return self.attribute_list(item)
+            return self.attribute_values(item)
 
         if isinstance(item, tuple) and len(item) == 2:
             # Expected call: layer[indexes, attributes]
@@ -325,7 +327,7 @@ class BaseLayer:
         raise TypeError('index not supported: ' + str(item))
 
     def get(self, item):
-        """ Finds and returns Span (or EnvelopingSpan) corresponding to the given BaseSpan item(s).
+        """ Finds and returns Span (or EnvelopingSpan) corresponding to the given (Base)Span item(s).
             If this layer is empty, returns None.
             If the parameter item is a sequence of BaseSpan-s, then returns a new Layer populated 
             with specified spans and bearing the same configuration as this layer. For instance, 
@@ -333,7 +335,7 @@ class BaseLayer:
             with all the spans of this layer wrapped by the enveloping span:
            
                 # get a snapshot words-layer bearing all words of the first sentence
-                text.words.get( text.sentences[0] )
+                text['words'].get( text['sentences'][0] )
         """
         if len(self._span_list) == 0:
             return
@@ -423,8 +425,19 @@ class BaseLayer:
     def enclosing_text(self):
         return self.text_object.text[self.start:self.end]
 
-    def attribute_list(self, attributes):
-        """ Returns all annotations of this layer with selected `attributes` (snapshot of attributes).
+    def attribute_values(self, attributes):
+        """ Returns a matrix-like data structure containing all annotations of this layer with the selected `attributes`.
+            Usage examples:
+            
+                >> text = Text('Kirju kass').tag_layer('morph_analysis')
+                >> # select 'partofspeech' attributes from the 'morph_analysis' layer
+                >> text['morph_analysis'].attribute_values('partofspeech')
+                [['A'], ['S']]
+                
+                >> # select 'lemma' & 'partofspeech' attributes from the 'morph_analysis' layer
+                >> text['morph_analysis'].attribute_values(['lemma', 'partofspeech'])
+                [[['kirju', 'A']], [['kass', 'S']]]
+                
             Returns:
                 AttributeList -- if the layer is not ambiguous and only one attribute was selected;
                 AttributeTupleList -- if the layer is not ambiguous and more than one attributes were selected;
@@ -654,5 +667,5 @@ class BaseLayer:
         table_1 = self.get_overview_dataframe().to_html(index=False, escape=False)
         table_2 = ''
         if attributes:
-            table_2 = self.attribute_list(attributes).to_html(index='text')
+            table_2 = self.attribute_values(attributes).to_html(index='text')
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object, table_1, table_2))

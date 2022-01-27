@@ -26,7 +26,7 @@ class Test:
 
     def _repr_html_(self):
         table_1 = self.expected_layer.get_overview_dataframe().to_html(index=False, escape=False)
-        table_2 = self.expected_layer.attribute_list(('text', 'start', 'end') + self.expected_layer.attributes).to_html(index='text')
+        table_2 = self.expected_layer.attribute_values(('text', 'start', 'end') + self.expected_layer.attributes).to_html(index='text')
         return '\n'.join(('<h3>Test</h3>',
                           self.annotation,
                           '<h4>Input text</h4>',
