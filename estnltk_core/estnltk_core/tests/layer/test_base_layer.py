@@ -981,7 +981,7 @@ def test_deep_copy():
     layer = BaseLayer('recursive_layer', attributes=['text', 'alayer', 'espan'])
     layer.add_annotation(ElementaryBaseSpan(0, 4), text=text, alayer=layer)
     layer[0].espan = layer[0]
-    layer.add_annotation(ElementaryBaseSpan(5, 8), text=text, alayer=text.nonempty_layer, espan=text.nonempty_layer[0])
+    layer.add_annotation(ElementaryBaseSpan(5, 8), text=text, alayer=text['nonempty_layer'], espan=text['nonempty_layer'][0])
     text.add_layer(layer)
 
     d_copy = deepcopy(layer)
@@ -1009,7 +1009,7 @@ def test_deep_copy():
     assert d_copy[0]['alayer'] is d_copy
     assert d_copy[0]['espan'] is d_copy[0], "fails as Span's deep copy is incorrect"
     assert d_copy[1]['text'] is d_copy.text_object
-    assert d_copy[1]['alayer'] is d_copy.text_object.nonempty_layer, "Fails as Layer's deep copy is incorrect"
+    assert d_copy[1]['alayer'] is d_copy.text_object['nonempty_layer'], "Fails as Layer's deep copy is incorrect"
     # =======
 
 
