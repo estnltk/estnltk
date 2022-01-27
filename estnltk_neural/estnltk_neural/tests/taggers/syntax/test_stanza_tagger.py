@@ -27,7 +27,7 @@ stanza_dict_sentences = {
                    'deprel',
                    'deps',
                    'misc'),
-
+    'secondary_attributes': (),
     'enveloping': None,
     'ambiguous': False,
     'spans': [{'base_span': (0, 5),
@@ -156,7 +156,7 @@ stanza_dict_morph_analysis = {
                    'deprel',
                    'deps',
                    'misc'),
-
+    'secondary_attributes': (),
     'enveloping': None,
     'ambiguous': False,
     'spans': [{'base_span': (0, 5),
