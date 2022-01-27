@@ -489,10 +489,18 @@ class BaseLayer:
     def add_annotation(self, base_span, attribute_dict: Dict[str, Any]={}, **attribute_kwargs) -> Annotation:
         """Adds new annotation (from `attribute_dict` / `attribute_kwargs`) to given text location `base_span`.
         
-           Location `base_span` can be:
-           * (start, end) or ElementaryBaseSpan or Span;
-           * [(s1, e1), ... (sN, eN)] or EnvelopingBaseSpan or EnvelopingSpan or BaseLayer if the layer is enveloping;
-           * Annotation if it is attached to Span (appropriately non-enveloping or enveloping);
+           For non-enveloping layer, the location `base_span` can be:
+           * (start, end) -- integer tuple;
+           * ElementaryBaseSpan;
+           * Span;
+           * Annotation if it is attached to (non-enveloping) Span;
+           
+           For enveloping layer, the `base_span` can be:
+           * [(start_1, end_1), ... (start_N, end_N)] -- list of integer tuples;
+           * EnvelopingBaseSpan;
+           * EnvelopingSpan;
+           * BaseLayer if the layer is enveloping;
+           * Annotation if it is attached to (enveloping) Span;
            
            `attribute_dict` should contain attribute assignments for the annotation. 
            Example:
@@ -506,9 +514,14 @@ class BaseLayer:
            
                layer.add_annotation( base_span, attr1=..., attr2=... )
            
+           While keyword arguments can only be valid Python keywords 
+           (excluding the keyword 'base_span'), `attribute_dict` enables to 
+           bypass these restrictions while giving the attribute assignments. 
+           
            Note 1: you can add two or more annotations to exactly the 
            same `base_span` location only if the layer is ambiguous. 
            however, partially overlapping locations are always allowed. 
+           
            Note 2: in case of an enveloping layer, all basespans must be 
            at the same level. For instance, if you add an enveloping span 
            [(1,2), (2,3)], which corresponds to level 1, you cannot add 
