@@ -405,6 +405,10 @@ class BaseLayer:
         return self._span_list.spans
 
     @property
+    def span_level(self):
+        return self._span_list.span_level
+
+    @property
     def text(self):
         """Returns a list of text fragments corresponding to 
            spans/annotations of this layer.
@@ -469,6 +473,7 @@ class BaseLayer:
            * the span must have at least one annotation;
            * the span must have exactly one annotation (if the layer is not ambiguous);
            * the span belongs to this layer;
+           * the base_span of the new span matches the span level of this layer;
            
            Note that you cannot add two Spans (EnvelopingSpans) that 
            have exactly the same text location (base span); however, 
@@ -482,6 +487,13 @@ class BaseLayer:
         if self.get(span) is not None:
             raise ValueError('this layer already has a span with the same base span')
 
+        if self.span_level is not None:
+            # Check that level of the new (base)span matches the span level of this layer
+            # ( all basespans in the layer should be at the same level )
+            if self.span_level != span.base_span.level:
+                raise ValueError( ('(!) Mismatching base_span levels: span level of this layer is {}, '+\
+                   'while level of the new span is {}').format( self.span_level, span.base_span.level ) )
+        
         self._span_list.add_span(span)
 
         return span
@@ -509,14 +521,20 @@ class BaseLayer:
                
            Missing attributes will be filled in with layer's default_values 
            (None values, if defaults have not been explicitly set).
-           Optionally, you can leave `attribute_dict` unspecified and pass keyword arguments 
-           to the method via `attribute_kwargs`, for example: 
+           Optionally, you can leave `attribute_dict` unspecified and pass keyword 
+           arguments to the method via `attribute_kwargs`, for example: 
            
                layer.add_annotation( base_span, attr1=..., attr2=... )
            
            While keyword arguments can only be valid Python keywords 
            (excluding the keyword 'base_span'), `attribute_dict` enables to 
-           bypass these restrictions while giving the attribute assignments. 
+           bypass these restrictions while giving the attribute assignments.
+           
+           The priority order in setting value of an attribute is:
+           `attribute_kwargs` > `attribute_dict` > `default attributes`
+           (e.g. if the attribute has a default value, and it is set 
+            both in `attribute_dict` and in `attribute_kwargs`, then 
+            `attribute_kwargs` will override other assignments).
            
            Note 1: you can add two or more annotations to exactly the 
            same `base_span` location only if the layer is ambiguous. 
@@ -542,12 +560,12 @@ class BaseLayer:
         attributes = {**self.default_values, \
                       **{k: v for k, v in attribute_dict.items() if k in self.attributes}, \
                       **{k: v for k, v in attribute_kwargs.items() if k in self.attributes}}
-        if len(self._span_list) > 0 and isinstance(base_span, BaseSpan):
-            # Check that level of the new basespan matches the level of the last basespan
+        if self.span_level is not None:
+            # Check that level of the new basespan matches the span level of this layer
             # ( all basespans in the layer should be at the same level )
-            if self._span_list[-1].base_span.level != base_span.level:
-                raise ValueError( ('(!) Mismatching base_span levels: level of the last span is {}, '+\
-                   'while level of the new span is {}').format( self[-1].base_span.level, base_span.level ) )
+            if self.span_level != base_span.level:
+                raise ValueError( ('(!) Mismatching base_span levels: span level of this layer is {}, '+\
+                   'while level of the new span is {}').format( self.span_level, base_span.level ) )
         span = self.get(base_span)
 
         if self.enveloping is not None:
@@ -581,8 +599,10 @@ class BaseLayer:
         self._span_list.remove_span(span)
 
     def clear_spans(self):
-        """Removes all spans (and annotations) from this layer."""
-        self._span_list = SpanList()
+        """Removes all spans (and annotations) from this layer.
+           Maintains the span level of the layer.
+        """
+        self._span_list = SpanList(span_level=self.span_level)
 
     def check_span_consistency(self) -> None:
         """Checks for layer's span consistency.

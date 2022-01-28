@@ -202,6 +202,47 @@ def test_add_annotation():
         layer_x.add_annotation( ElementaryBaseSpan(6, 7), attribute_dict=55 )
 
 
+def test_layer_span_levels():
+    layer = BaseLayer(name='my_layer', attributes=['a'])
+    # Span level of the new empty layer is Mone 
+    assert layer.span_level is None
+    
+    layer.add_annotation( ElementaryBaseSpan(0, 1), {'a':1} )
+    # Span level of ElementaryBaseSpan is 0
+    assert layer.span_level == 0
+    layer.add_annotation( ElementaryBaseSpan(1, 2), {'a':2} )
+    assert layer.span_level == 0
+    
+    # Restart the layer: the span level does not change
+    layer.clear_spans()
+    assert len(layer) == 0
+    assert layer.span_level == 0
+    
+    # We cannot add enveloping spans (because the layer is not enveloping)
+    with pytest.raises(TypeError, match=".+Elementary span is required.+"):
+        layer.add_annotation( EnvelopingBaseSpan((ElementaryBaseSpan(0, 1), ElementaryBaseSpan(1, 2))), {'a':3} )
+    
+    env_layer = BaseLayer(name='enveloping_layer', attributes=['b'], enveloping='my_layer')
+    # Span level of the new empty layer is Mone 
+    assert env_layer.span_level is None
+    env_layer.add_annotation( EnvelopingBaseSpan((ElementaryBaseSpan(0, 1), ElementaryBaseSpan(1, 2))), {'b':3} )
+    # Span level of ordinary EnvelopingBaseSpan is 1
+    assert env_layer.span_level == 1
+    
+    # Restart the layer: span level does not change
+    env_layer.clear_spans()
+    assert len(env_layer) == 0
+    assert env_layer.span_level == 1
+
+    # Cannot add enveloping span with different level
+    with pytest.raises(ValueError, match=".+Mismatching base_span levels.+"):
+        enveloping_span_level_2 = \
+            EnvelopingBaseSpan((
+                EnvelopingBaseSpan( (ElementaryBaseSpan(2, 3), ElementaryBaseSpan(3, 5)) ),
+            ))
+        env_layer.add_annotation( enveloping_span_level_2, {'a':3} )
+
+
 def test_layer_clear_spans():
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()

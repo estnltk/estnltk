@@ -10,14 +10,23 @@ class SpanList(Sequence):
     # TODO replace with SortedDict
     """
 
-    def __init__(self):
+    def __init__(self, span_level=None):
+        # Dict[BaseSpan, Span]
         self._base_span_to_span = {}
+        # Optinal[int]
+        self._span_level = span_level
+        # List[Span]
         self.spans = []
 
     def add_span(self, span):
         assert span.base_span not in self._base_span_to_span
         bisect.insort(self.spans, span)
         self._base_span_to_span[span.base_span] = span
+        if self._span_level is None:
+            # Level of the first span is the level 
+            # of this spanlist. Once the level is 
+            # set, it should not be changed
+            self._span_level = span.base_span.level
 
     def get(self, span: BaseSpan):
         return self._base_span_to_span.get(span)
@@ -29,6 +38,10 @@ class SpanList(Sequence):
     @property
     def text(self):
         return [span.text for span in self.spans]
+
+    @property
+    def span_level(self):
+        return self._span_level
 
     def __len__(self) -> int:
         return len(self.spans)
