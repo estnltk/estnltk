@@ -563,6 +563,8 @@ class BaseLayer:
         if self.span_level is not None:
             # Check that level of the new basespan matches the span level of this layer
             # ( all basespans in the layer should be at the same level )
+            # TODO: this duplicates the check in add_span(...), but is necessary for 
+            #       tests\layer\test_base_layer.py:178
             if self.span_level != base_span.level:
                 raise ValueError( ('(!) Mismatching base_span levels: span level of this layer is {}, '+\
                    'while level of the new span is {}').format( self.span_level, base_span.level ) )
@@ -570,27 +572,35 @@ class BaseLayer:
 
         if self.enveloping is not None:
             if span is None:
+                # add to new span
                 span = EnvelopingSpan(base_span=base_span, layer=self)
                 annotation = span.add_annotation(Annotation(span, **attributes))
-                self._span_list.add_span(span)
+                self.add_span(span)
             else:
+                # add to existing span or layer (TODO: can we get rid of layer?)
                 annotation = span.add_annotation(Annotation(span, **attributes))
 
             return annotation
 
         if self.ambiguous:
             if span is None:
+                # add to new span
                 span = Span(base_span, self)
-                self._span_list.add_span(span)
-            assert isinstance(span, Span), span
-            return span.add_annotation(Annotation(span, **attributes))
+                annotation = span.add_annotation(Annotation(span, **attributes))
+                self.add_span(span)
+            else:
+                # add to existing span
+                assert isinstance(span, Span), span
+                annotation = span.add_annotation(Annotation(span, **attributes))
+            return annotation
 
         if span is not None:
             raise ValueError('the layer is not ambiguous and already contains this span')
 
+        # add to new span
         span = Span(base_span=base_span, layer=self)
         annotation = span.add_annotation(Annotation(span, **attributes))
-        self._span_list.add_span(span)
+        self.add_span(span)
         return annotation
 
     def remove_span(self, span):
