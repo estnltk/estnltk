@@ -1,6 +1,6 @@
 from copy import deepcopy
 from reprlib import recursive_repr
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Sequence, Dict
 
 from estnltk_core.common import _create_attr_val_repr
 
@@ -16,9 +16,35 @@ class Annotation(Mapping):
     """
     __slots__ = ['__dict__', '_span']
 
-    def __init__(self, span, **attributes):
+    def __init__(self, span: 'Span', attributes: Dict[str, Any]={}, **attributes_kwargs):
+        """Initiates a new Annotation object tied to the given span.
+           
+           Note that there are two parameters for assigning attributes 
+           to the annotation: `attributes` and `attributes_kwargs`.
+           
+           `attributes` supports a dictionary-based assignment, 
+           for example:
+
+               Annotation( span, {'attr1': ..., 'attr2': ...} )
+           
+           `attributes_kwargs` supports keyword argument assignments, 
+           for example:
+
+               Annotation( span, attr1=..., attr2=... )
+           
+           While keyword arguments can only be valid Python keywords 
+           (excluding the keyword 'span'), using `attributes` dictionary 
+           enables to bypass these restrictions while making the attribute 
+           assignments.
+           
+           Note that you can use both `attributes` and `attributes_kwargs`
+           simultaneously. In that case, if there are overlapping 
+           argument assignments, then keyword arguments will override 
+           dictionary-based assignments.
+        """
         self._span = span
-        self.__dict__ = attributes
+        merged_attributes = { **attributes, **attributes_kwargs }
+        self.__dict__ = merged_attributes
 
     def __deepcopy__(self, memo=None):
         """

@@ -570,12 +570,12 @@ class BaseLayer:
             if span is None:
                 # add to new span
                 span = EnvelopingSpan(base_span=base_span, layer=self)
-                annotation = span.add_annotation(Annotation(span, **attributes))
+                annotation = span.add_annotation(Annotation(span, attributes))
                 self.add_span(span)
             else:
                 # add to existing span
                 if isinstance(span, EnvelopingSpan):
-                    annotation = span.add_annotation(Annotation(span, **attributes))
+                    annotation = span.add_annotation(Annotation(span, attributes))
                 else:
                     # Normally, self.get(base_span) should return EnvelopingSpan for the 
                     # enveloping layer. If it returned BaseLayer instead, then we are most 
@@ -593,12 +593,12 @@ class BaseLayer:
             if span is None:
                 # add to new span
                 span = Span(base_span, self)
-                annotation = span.add_annotation(Annotation(span, **attributes))
+                annotation = span.add_annotation(Annotation(span, attributes))
                 self.add_span(span)
             else:
                 # add to existing span
                 assert isinstance(span, Span), span
-                annotation = span.add_annotation(Annotation(span, **attributes))
+                annotation = span.add_annotation(Annotation(span, attributes))
             return annotation
 
         if span is not None:
@@ -606,7 +606,7 @@ class BaseLayer:
 
         # add to new span
         span = Span(base_span=base_span, layer=self)
-        annotation = span.add_annotation(Annotation(span, **attributes))
+        annotation = span.add_annotation(Annotation(span, attributes))
         self.add_span(span)
         return annotation
 
@@ -630,8 +630,8 @@ class BaseLayer:
            * each span has at exactly one annotation if the layer is not ambiguous;
            * all annotations have exactly the same attributes as the layer;
 
-           Returns None if no inconsistencies were detected and otherwise,
-           a string describing the problem.
+           Returns None if no inconsistencies were detected; 
+           otherwise, returns a string message describing the problem.
            
            This method is mainly used by Retagger to validate that 
            changes made in the layer do not break the span consistency.
@@ -671,7 +671,7 @@ class BaseLayer:
             * are instances of BaseLayer;
             * have same names and attributes;
             * have same parent and enveloping layers;
-            * are ambiguous / unambiguous;
+            * are correspondingly ambiguous or unambiguous;
             * have same serialisation_module;
             * have same spans (and annotations);
            Returns None if no differences were detected (both layers are the 

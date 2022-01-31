@@ -225,6 +225,14 @@ def test_add_annotation():
         layer_x.add_annotation( ElementaryBaseSpan(6, 7), attribute_dict=55 )
 
 
+def test_add_annotation_with_tricky_attributes():
+    # Test adding an annotation to a BaseLayer that has attributes 'text', 'start', 'end', 'span'
+    layer = BaseLayer('my_layer', attributes=('text', 'start', 'end', 'span'))
+    layer.add_annotation( ElementaryBaseSpan(1, 2), {'text': 'got you', 'start': 'you do not expect it', 'span': 'this can really break the construction'} )
+    assert len(layer) == 1
+    assert layer[0].annotations == [Annotation(None, {'text': 'got you', 'start': 'you do not expect it', 'end': None, 'span': 'this can really break the construction'})]
+
+
 def test_layer_span_levels():
     layer = BaseLayer(name='my_layer', attributes=['a'])
     # Span level of the new empty layer is Mone 
