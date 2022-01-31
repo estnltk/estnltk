@@ -28,6 +28,8 @@ def to_base_span(x) -> BaseSpan:
     if isinstance(x, Span):
         return x.base_span
     if isinstance(x, Annotation):
+        if x.span is None:
+            raise ValueError('{!r} is missing span. Unable to get the corresponding base_span.'.format(x))
         return x.span.base_span
     if isinstance(x, (List, tuple, BaseLayer)):
         if len(x) == 2 and isinstance(x[0], int) and isinstance(x[1], int):
