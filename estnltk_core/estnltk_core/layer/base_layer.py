@@ -13,24 +13,23 @@ from estnltk_core.layer import AmbiguousAttributeTupleList, AmbiguousAttributeLi
 
 
 def to_base_span(x) -> BaseSpan:
-    """Reduces estnltk's annotation structure (BaseLayer, Span or Annotation) 
-       to ElementaryBaseSpan or EnvelopingBaseSpan or creates ElementaryBaseSpan 
-       or EnvelopingBaseSpan from given sequence of span locations. 
+    """Reduces estnltk's annotation structure to BaseSpan or creates BaseSpan from raw location.
+       If param x is estnltk's structure, reduces it to base span and returns:
+        *) BaseSpan -> BaseSpan (returns input);
+        *) Span -> ElementaryBaseSpan;
+        *) EnvelopingSpan -> EnvelopingBaseSpan;
        
        If param x is BaseLayer, returns EnvelopingBaseSpan enveloping all 
        spans of the layer. 
-       A sequence of span locations will converted into appropriate base span: 
-       *) (start, end) -> ElementaryBaseSpan 
-       *) [(s1, e1), ... (sN, eN)] -> EnvelopingBaseSpan 
+       
+       If param x is a raw location, creates and returns appropriate base span:
+        *) (start, end) -> ElementaryBaseSpan;
+        *) [(start_1, end_1), ... (start_N, end_N)] -> EnvelopingBaseSpan;
     """
     if isinstance(x, BaseSpan):
         return x
     if isinstance(x, Span):
         return x.base_span
-    if isinstance(x, Annotation):
-        if x.span is None:
-            raise ValueError('{!r} is missing span. Unable to get the corresponding base_span.'.format(x))
-        return x.span.base_span
     if isinstance(x, (List, tuple, BaseLayer)):
         if len(x) == 2 and isinstance(x[0], int) and isinstance(x[1], int):
             return ElementaryBaseSpan(*x)
@@ -506,14 +505,12 @@ class BaseLayer:
            * (start, end) -- integer tuple;
            * ElementaryBaseSpan;
            * Span;
-           * Annotation if it is attached to (non-enveloping) Span;
            
            For enveloping layer, the `base_span` can be:
            * [(start_1, end_1), ... (start_N, end_N)] -- list of integer tuples;
            * EnvelopingBaseSpan;
            * EnvelopingSpan;
            * BaseLayer if the layer is enveloping;
-           * Annotation if it is attached to (enveloping) Span;
            
            `attribute_dict` should contain attribute assignments for the annotation. 
            Example:
