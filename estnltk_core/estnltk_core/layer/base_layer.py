@@ -342,10 +342,9 @@ class BaseLayer:
         if isinstance(item, Span):
             item = item.base_span
         if isinstance(item, BaseSpan):
-            level = self._span_list[0].base_span.level
-            if level == item.level:
+            if self.span_level == item.level:
                 return self._span_list.get(item)
-            item = item.reduce(level)
+            item = item.reduce(self.span_level)
 
         if isinstance(item, (list, tuple)):
             layer = self.__class__(name=self.name,
@@ -560,14 +559,7 @@ class BaseLayer:
         attributes = {**self.default_values, \
                       **{k: v for k, v in attribute_dict.items() if k in self.attributes}, \
                       **{k: v for k, v in attribute_kwargs.items() if k in self.attributes}}
-        if self.span_level is not None:
-            # Check that level of the new basespan matches the span level of this layer
-            # ( all basespans in the layer should be at the same level )
-            # TODO: this duplicates the check in add_span(...), but is necessary for 
-            #       tests\layer\test_base_layer.py:178
-            if self.span_level != base_span.level:
-                raise ValueError( ('(!) Mismatching base_span levels: span level of this layer is {}, '+\
-                   'while level of the new span is {}').format( self.span_level, base_span.level ) )
+
         span = self.get(base_span)
 
         if self.enveloping is not None:
@@ -577,9 +569,20 @@ class BaseLayer:
                 annotation = span.add_annotation(Annotation(span, **attributes))
                 self.add_span(span)
             else:
-                # add to existing span or layer (TODO: can we get rid of layer?)
-                annotation = span.add_annotation(Annotation(span, **attributes))
-
+                # add to existing span
+                if isinstance(span, EnvelopingSpan):
+                    annotation = span.add_annotation(Annotation(span, **attributes))
+                else:
+                    # Normally, self.get(base_span) should return EnvelopingSpan for the 
+                    # enveloping layer. If it returned BaseLayer instead, then we are most 
+                    # likely in a situation where the level of the base_span mismatches 
+                    # the level of the layer.
+                    assert self.span_level is not None
+                    if self.span_level != base_span.level:
+                        raise ValueError( ('(!) Mismatching base_span levels: span level of this layer is {}, '+\
+                             'while level of the new span is {}').format( self.span_level, base_span.level ) )
+                    raise ValueError(('(!) Unexpected base_span {!r}.'+\
+                                     ' Unable to find layer span corresponding to this base_span.').format(base_span))
             return annotation
 
         if self.ambiguous:

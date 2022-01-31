@@ -107,7 +107,7 @@ def test_add_span():
 
 
 def test_add_annotation():
-    # layer_0
+    # layer_0 : elementary layer, not ambiguous
     layer_0 = BaseLayer('layer_0', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=False)
     assert len(layer_0) == 0
     layer_0.add_annotation(ElementaryBaseSpan(10, 11), attr_1=11)
@@ -120,7 +120,7 @@ def test_add_annotation():
     assert len(layer_0) == 2
     assert layer_0[0].annotations == [Annotation(None, attr_1=None, attr_2=None)]
 
-    # layer_1
+    # layer_1 : elementary layer, ambiguous
     layer_1 = BaseLayer('layer_1', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=True)
     assert len(layer_1) == 0
     layer_1.add_annotation(ElementaryBaseSpan(10, 11), attr_1=11)
@@ -134,7 +134,7 @@ def test_add_annotation():
     assert len(layer_1) == 2
     assert layer_1[0].annotations == [Annotation(None, attr_1=None, attr_2=None)]
 
-    # layer_2
+    # layer_2 : elementary layer with parent
     layer_2 = BaseLayer('layer_2', attributes=['attr_1', 'attr_2'], parent='layer_0', enveloping=None, ambiguous=False)
     assert len(layer_2) == 0
     layer_2.add_annotation(layer_0[1], attr_1=2)
@@ -148,7 +148,7 @@ def test_add_annotation():
     assert layer_2[0].annotations == [Annotation(None, attr_1=None, attr_2=None)]
 
     # an enveloping layer
-    # base layer for the enveloping layer
+    # first, add base layer for the enveloping layer
     layer_0 = BaseLayer('layer_0', attributes=['span_id'], parent=None, enveloping=None, ambiguous=False)
     layer_0.add_annotation(ElementaryBaseSpan(0, 1), span_id=0)
     layer_0.add_annotation(ElementaryBaseSpan(1, 2), span_id=1)
@@ -156,7 +156,7 @@ def test_add_annotation():
     layer_0.add_annotation(ElementaryBaseSpan(3, 5), span_id=3)
     layer_0.add_annotation(ElementaryBaseSpan(5, 7), span_id=4)
     layer_0.add_annotation(ElementaryBaseSpan(7, 8), span_id=5)
-    # the enveloping layer
+    # layer_3 : the enveloping layer (level 1), not ambiguous
     layer_3 = BaseLayer('layer_3', attributes=['env_span_id'], parent=None, enveloping='layer_0', ambiguous=False)
     layer_3.add_annotation(EnvelopingBaseSpan( (ElementaryBaseSpan(0, 1), ElementaryBaseSpan(1, 2)) ), env_span_id=0)
     layer_3.add_annotation(EnvelopingBaseSpan( (ElementaryBaseSpan(2, 3), ElementaryBaseSpan(3, 5)) ), env_span_id=1)
@@ -165,6 +165,7 @@ def test_add_annotation():
         layer_3.add_annotation(EnvelopingBaseSpan( (ElementaryBaseSpan(2, 3), ElementaryBaseSpan(3, 5)) ), env_span_id=2)
     layer_3.add_annotation(EnvelopingBaseSpan( (ElementaryBaseSpan(5, 7), ElementaryBaseSpan(7, 8)) ), env_span_id=2)
     assert len(layer_3) == 3
+    assert layer_3[0].base_span.level == 1
     assert layer_3[0].annotations == [Annotation(None, env_span_id=0)]
     assert layer_3[1].annotations == [Annotation(None, env_span_id=1)]
     assert layer_3[2].annotations == [Annotation(None, env_span_id=2)]
@@ -176,6 +177,27 @@ def test_add_annotation():
                 EnvelopingBaseSpan( (ElementaryBaseSpan(2, 3), ElementaryBaseSpan(3, 5)) )
             ))
         layer_3.add_annotation(enveloping_span_level_2, env_span_id=22)
+
+    # layer_4 : the enveloping layer (level 2), ambiguous
+    layer_4 = BaseLayer('layer_4', attributes=['env_span_lvl2_count'], parent=None, enveloping='layer_3', ambiguous=True)
+    enveloping_span_level_2 = \
+        EnvelopingBaseSpan((
+            EnvelopingBaseSpan( (ElementaryBaseSpan(0, 1), ElementaryBaseSpan(1, 2)) ),
+            EnvelopingBaseSpan( (ElementaryBaseSpan(2, 3), ElementaryBaseSpan(3, 5)) )
+        ))
+    layer_4.add_annotation( enveloping_span_level_2, env_span_lvl2_count=0 )
+    layer_4.add_annotation( enveloping_span_level_2, env_span_lvl2_count=1 )
+    assert len(layer_4) == 1
+    enveloping_span_level_2 = \
+        EnvelopingBaseSpan((
+            EnvelopingBaseSpan( (ElementaryBaseSpan(5, 7), ElementaryBaseSpan(7, 8)) ),
+        ))
+    layer_4.add_annotation( enveloping_span_level_2, env_span_lvl2_count=2 )
+    layer_4.add_annotation( enveloping_span_level_2, env_span_lvl2_count=3 )
+    assert len(layer_4) == 2
+    assert layer_4[0].base_span.level == 2
+    assert layer_4[0].annotations == [Annotation(None, env_span_lvl2_count=0), Annotation(None, env_span_lvl2_count=1)]
+    assert layer_4[1].annotations == [Annotation(None, env_span_lvl2_count=2), Annotation(None, env_span_lvl2_count=3)]
 
     # test alternative ways of specifying attributes
     layer_x = BaseLayer('layer_x', attributes=['attr_1', 'attr_2'], parent=None, enveloping=None, ambiguous=False)
