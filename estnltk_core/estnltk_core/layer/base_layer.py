@@ -536,6 +536,8 @@ class BaseLayer:
            (e.g. if the attribute has a default value, and it is set 
             both in `attribute_dict` and in `attribute_kwargs`, then 
             `attribute_kwargs` will override other assignments).
+            
+           The method returns added annotation.
            
            Note 1: you can add two or more annotations to exactly the 
            same `base_span` location only if the layer is ambiguous. 
@@ -615,7 +617,7 @@ class BaseLayer:
 
     def clear_spans(self):
         """Removes all spans (and annotations) from this layer.
-           Maintains the span level of the layer.
+           Note: Clearing preserves the span level of the layer.
         """
         self._span_list = SpanList(span_level=self.span_level)
 
@@ -626,6 +628,10 @@ class BaseLayer:
            * each span has at least one annotation;
            * each span has at exactly one annotation if the layer is not ambiguous;
            * all annotations have exactly the same attributes as the layer;
+           Raises AssertionError in case of a problem.
+           
+           This method is mainly used by Retagger to validate that 
+           changes made in the layer do not break the span consistency.
         """
         attribute_names = set(self.attributes)
 
@@ -647,7 +653,12 @@ class BaseLayer:
                             attribute_names - set(annotation),
                             self.name)
 
-    def diff(self, other):
+    def diff(self, other) -> Union[None, str]:
+        """Finds differences between this layer and the other layer.
+           Returns None if no differences were detected (both layers are the 
+           same or one is exact copy of another), or a message string describing 
+           the difference.
+        """
         if self is other:
             return None
         if not isinstance(other, BaseLayer):
