@@ -544,7 +544,9 @@ class ENCTextReconstructor:
                                   sentence[attrib] if attrib in sentence else None
                     orig_sentences.add_annotation(orig_words[s_start:s_end+1], **current_sent_attribs)
                     sid += 1; s_start = -1; s_end = -1
-            orig_sentences.check_span_consistency()
+            error_msg = orig_sentences.check_span_consistency()
+            if error_msg is not None:
+                raise AssertionError( 'Error on parsing sentences: {}'.format(error_msg) )
             assert sid == len(sent_locations)
         # Create paragraphs layer enveloping around sentences
         if para_locations is not None and len(para_locations) > 0 and \
@@ -575,7 +577,9 @@ class ENCTextReconstructor:
                               paragraph[attrib] if attrib in paragraph else None
                   orig_paragraphs.add_annotation(orig_sentences[p_start:p_end+1], **current_paragraph_attribs)
                   pid += 1; p_start = -1; p_end = -1
-            orig_paragraphs.check_span_consistency()
+            error_msg = orig_paragraphs.check_span_consistency()
+            if error_msg is not None:
+                raise AssertionError( 'Error on parsing paragraphs: {}'.format(error_msg) )
             if pid == 0 and len(orig_paragraphs) == 0:
                 # The situation where only starting <p> tags exists
                 # ( occurs in 'etnc19_doaj.vert' document 6024414 )

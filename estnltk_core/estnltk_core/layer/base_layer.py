@@ -1,5 +1,5 @@
 import keyword
-from typing import Union, List, Sequence, Dict, Any
+from typing import Union, List, Sequence, Dict, Any, Optional
 import pandas
 import collections
 import warnings
@@ -621,14 +621,17 @@ class BaseLayer:
         """
         self._span_list = SpanList(span_level=self.span_level)
 
-    def check_span_consistency(self) -> None:
+    def check_span_consistency(self) -> Optional[str]:
         """Checks for layer's span consistency.
            Checks that:
+           * all spans are attached to this layer;
            * spans of the layer are sorted;
            * each span has at least one annotation;
            * each span has at exactly one annotation if the layer is not ambiguous;
            * all annotations have exactly the same attributes as the layer;
-           Raises AssertionError in case of a problem.
+
+           Returns None if no inconsistencies were detected and otherwise,
+           a string describing the problem.
            
            This method is mainly used by Retagger to validate that 
            changes made in the layer do not break the span consistency.
@@ -637,24 +640,40 @@ class BaseLayer:
 
         last_span = None
         for span in self:
-            assert last_span is None or last_span < span
+            if span.layer is not self:
+                return '{} is not attached to this layer'.format(span)
+            
+            if last_span is not None and not last_span < span:
+                if last_span.base_span == span.base_span:
+                    return 'duplicate spans: {!r} and {!r} (both have basespan {})'.format( \
+                                    last_span, span, last_span.base_span )
+                return 'ordering problem: {!r} should preceed {!r}'.format(last_span, span)
             last_span = span
 
             annotations = span.annotations
 
-            assert len(annotations) > 0, 'the span {} has no annotations'.format(span)
-            assert self.ambiguous or len(annotations) == 1, \
-                'the layer is not ambiguous but the span {} has {} annotations'.format(span, len(annotations))
+            if len(annotations) == 0:
+                return '{} has no annotations'.format(span)
+            if not self.ambiguous and len(annotations) > 1:
+                return 'the layer is not ambiguous but {} has {} annotations'.format(span, len(annotations))
 
             for annotation in annotations:
-                assert set(annotation) == attribute_names, \
-                    'extra annotation attributes: {}, missing annotation attributes: {} in layer {!r}'.format(
-                            set(annotation) - attribute_names,
-                            attribute_names - set(annotation),
-                            self.name)
+                if set(annotation) != attribute_names:
+                    return '{!r} has redundant annotation attributes: {}, missing annotation attributes: {}'.format( \
+                                span, 
+                                set(annotation) - attribute_names, 
+                                attribute_names - set(annotation) )
+        return None
 
-    def diff(self, other) -> Union[None, str]:
+    def diff(self, other) -> Optional[str]:
         """Finds differences between this layer and the other layer.
+           Checks that both layers:
+            * are instances of BaseLayer;
+            * have same names and attributes;
+            * have same parent and enveloping layers;
+            * are ambiguous / unambiguous;
+            * have same serialisation_module;
+            * have same spans (and annotations);
            Returns None if no differences were detected (both layers are the 
            same or one is exact copy of another), or a message string describing 
            the difference.

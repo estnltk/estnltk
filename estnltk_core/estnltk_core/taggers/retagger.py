@@ -211,7 +211,10 @@ class Retagger(Tagger):
                                                  list(layers.keys()))
         if self.check_output_consistency:
             # Validate changed layer: check span consistency
-            target_layers[self.output_layer].check_span_consistency()
+            error_msg = target_layers[self.output_layer].check_span_consistency()
+            if error_msg is not None:
+                # TODO: should we use ValueErrors (here and elsewere) instead of AssertionError ?
+                raise AssertionError( error_msg )
 
     def retag(self, text: Union['BaseText', 'Text'], status: dict = None ) -> Union['BaseText', 'Text']:
         """

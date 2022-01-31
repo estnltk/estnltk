@@ -1,5 +1,6 @@
 import pytest
 
+import re
 from copy import copy, deepcopy
 
 from estnltk_core.layer.base_layer import BaseLayer
@@ -676,31 +677,52 @@ def test_check_layer_consistency():
     # 1) Change first span, assign it to different layer
     old_first_span = morph_layer.spans[0]
     morph_layer.spans[0] = Span(base_span=old_first_span.base_span, layer=other_morph_layer)
-    with pytest.raises(AssertionError) as e1:
-        # Assertion error because the Span is connected
-        # to different layer
-        morph_layer.check_span_consistency()
+    
+    # Error msg because the Span is attached to a different layer
+    error_msg = morph_layer.check_span_consistency()
+    assert error_msg is not None
+    assert re.match('.+ is not attached to this layer', error_msg)
+    
     morph_layer.spans[0] = old_first_span
-    morph_layer.check_span_consistency()
+    error_msg = morph_layer.check_span_consistency()
+    assert error_msg is None
 
     # 2) Add element with duplicate location to the list
-    morph_layer.spans.append(old_first_span)
-    with pytest.raises(AssertionError) as e2:
-        # Assertion error because span with duplicate location
-        # exists
-        morph_layer.check_span_consistency()
+    # (duplicate first span)
+    morph_layer.spans.insert( 0, old_first_span )
+    # Error msg because of span with duplicate location
+    error_msg = morph_layer.check_span_consistency()
+    assert error_msg is not None
+    assert re.match('duplicate spans:.+', error_msg)
+   
+    morph_layer.spans.pop(0)
+    error_msg = morph_layer.check_span_consistency()
+    assert error_msg is None
+
+    # 3) Add element with wrong location to the list
+    # (add first span to the end of the spanlist)
+    morph_layer.spans.append( old_first_span )
+    # Error msg because of span with wrong location
+    error_msg = morph_layer.check_span_consistency()
+    assert error_msg is not None
+    assert re.match('ordering problem:.+', error_msg)
+
     morph_layer.spans.pop()
-    morph_layer.check_span_consistency()
+    error_msg = morph_layer.check_span_consistency()
+    assert error_msg is None
 
-    # 3) Set span without annotations
+    # 4) Set span without annotations
     morph_layer.spans[0] = Span(old_first_span.base_span, old_first_span.layer)
-    with pytest.raises(AssertionError) as e3:
-        # Assertion error because the first span has no annotations
-        morph_layer.check_span_consistency()
+    # Error msg because the first span has no annotations
+    error_msg = morph_layer.check_span_consistency()
+    assert error_msg is not None
+    assert re.match('.+ has no annotations', error_msg)
+    
     morph_layer.spans[0] = old_first_span
-    morph_layer.check_span_consistency()
+    error_msg = morph_layer.check_span_consistency()
+    assert error_msg is None
 
-    # 4) Layer with missing attributes
+    # 5) Layer with missing attributes
     layer1 = BaseLayer(name='test_layer1',
                        attributes=['a', 'b', 'c'],
                        ambiguous=True)
@@ -708,14 +730,16 @@ def test_check_layer_consistency():
     assert layer1[0].annotations[0].a is None
     assert layer1[0].annotations[0].b is None
     assert layer1[0].annotations[0].c is None
-    layer1.check_span_consistency()
+    error_msg = layer1.check_span_consistency()
+    assert error_msg is None
     del layer1[0].annotations[0].b
-    with pytest.raises(AssertionError) as e4:
-        # Assertion error because layer's Annotation had missing attributes
-        layer1.check_span_consistency()
-    # print(e4)
+    # Error because layer's Annotation had missing attributes
+    error_msg = layer1.check_span_consistency()
+    #print(error_msg)
+    assert error_msg is not None
+    assert re.match(".+ has redundant annotation attributes: .+, missing annotation attributes: {'b'}", error_msg)
 
-    # 5) Layer with redundant attributes
+    # 6) Layer with redundant attributes
     layer1 = BaseLayer(name='test_layer1',
                        attributes=['a'],
                        ambiguous=True)
@@ -729,9 +753,11 @@ def test_check_layer_consistency():
         setattr(broken_annotation, attr, '')
     amb_span1.annotations.append(broken_annotation)
     layer1.spans.append(amb_span1)
-    with pytest.raises(AssertionError) as e5:
-        # Assertion error because layer's Annotation had redundant attr
-        layer1.check_span_consistency()
+    # Error because layer's Annotation had redundant attr
+    error_msg = layer1.check_span_consistency()
+    #print(error_msg)
+    assert error_msg is not None
+    assert re.match(".+ has redundant annotation attributes: {('b', 'c'|'c', 'b')}, missing annotation attributes:.+", error_msg)
 
     # B1) Check for missing Span attributes
     layer = BaseLayer(name='test_layer',
@@ -747,12 +773,13 @@ def test_check_layer_consistency():
 
     layer.spans.append(span1)
     layer.spans.append(span2)
-    with pytest.raises(AssertionError) as ex1:
-        # Assertion error because Span misses some legal attributes
-        layer.check_span_consistency()
+    # Error because Span misses some legal attributes
+    error_msg = layer.check_span_consistency()
+    #print(error_msg)
+    assert error_msg is not None
+    assert re.match(".+ has redundant annotation attributes: .+, missing annotation attributes: {'c'}", error_msg)
     del layer.spans[-1]
     del layer.spans[-1]
-    # print(ex1)
 
     # B2) Check for redundant Span attributes
     span3 = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
@@ -760,9 +787,11 @@ def test_check_layer_consistency():
     span3.annotations[0].d = 12
 
     layer.spans.append(span3)
-    with pytest.raises(AssertionError) as ex2:
-        # assertion error because annotation of the span3 has a redundant attribute
-        layer.check_span_consistency()
+    # Error because annotation of the span3 has a redundant attribute
+    error_msg = layer.check_span_consistency()
+    #print(error_msg)
+    assert error_msg is not None
+    assert re.match(".+ has redundant annotation attributes: {'d'}, missing annotation attributes:.+", error_msg)
 
 
 def test_shallow_copy():
