@@ -23,10 +23,10 @@ class GroupBy:
            be grouped.
            
            The parameter `by` can be:
-           *) name of an attribute of this layer;
-           *) list of attribute names of this layer;
-           *) name of a Layer enveloping around this layer;
-           *) Layer object which is a layer enveloping around this layer;
+           *) name of an attribute of `layer`;
+           *) list of attribute names of `layer`;
+           *) name of a Layer enveloping around `layer`;
+           *) Layer object which is enveloping around `layer`;
            
            The parameter `return_type` specifies, whether "spans" or "annotations" 
            will be grouped.
