@@ -27,6 +27,9 @@ class GroupBy:
            *) list of attribute names of `layer`;
            *) name of a Layer enveloping around `layer`;
            *) Layer object which is enveloping around `layer`;
+           Note: you can also use 'text' as an attribute name, 
+           which groups spans / annotations by their surface 
+           text strings.
            
            The parameter `return_type` specifies, whether "spans" or "annotations" 
            will be grouped.
@@ -43,7 +46,7 @@ class GroupBy:
                 # group by attribute values
                 for span in layer.spans:
                     for annotation in span.annotations:
-                        key = tuple(getattr(annotation, k) for k in by)
+                        key = tuple((annotation[k] if k != 'text' else annotation.text) for k in by)
                         groups[key].append(annotation)
             else:
                 # group by indexes of the enveloping layer
@@ -58,7 +61,9 @@ class GroupBy:
             if not group_by_layer:
                 # group by attribute values
                 for span in layer.spans:
-                    keys = {tuple(getattr(annotation, a) for a in by) for annotation in span.annotations}
+                    keys = { tuple((annotation[a] if a != 'text' else annotation.text) \
+                                    for a in by ) \
+                                       for annotation in span.annotations }
                     for k in keys:
                         groups[k].append(span)
             else:

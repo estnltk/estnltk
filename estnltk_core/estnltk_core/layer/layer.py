@@ -49,11 +49,15 @@ class Layer(BaseLayer):
         return sorted(descendants)
 
     def count_values(self, attribute: str) -> collections.Counter:
-        """Counts attribute values and returns frequency table (collections.Counter)."""
+        """Counts attribute values and returns frequency table (collections.Counter). 
+           Note: you can also use 'text' as the attribute name to count corresponding 
+           surface text strings.
+        """
         if self.ambiguous:
-            return collections.Counter(annotation[attribute]
-                                       for span in self.spans for annotation in span.annotations)
-        return collections.Counter( span.annotations[0][attribute] for span in self.spans)
+            return collections.Counter(annotation[attribute] if attribute != 'text' else annotation.text \
+                                                  for span in self.spans for annotation in span.annotations)
+        return collections.Counter( span.annotations[0][attribute] if attribute != 'text' else annotation.text \
+                                                                      for span in self.spans)
 
     def groupby(self, by: Union[str, Sequence[str], 'Layer'], return_type: str = 'spans') -> GroupBy:
         """Groups layer by attribute values of annotations or by an enveloping layer.
@@ -63,6 +67,9 @@ class Layer(BaseLayer):
            *) list of attribute names of this layer;
            *) name of a Layer enveloping around this layer;
            *) Layer object which is a layer enveloping around this layer;
+           Note: you can also use 'text' as an attribute name, 
+           which groups spans / annotations by their surface 
+           text strings.
            
            The parameter `return_type` specifies, whether "spans" or "annotations" will 
            be grouped. 
@@ -134,8 +141,8 @@ class Layer(BaseLayer):
                 else:
                     attribute_mapping = self.text_object.attribute_mapping_for_enveloping_layers
             else:
-                raise AttributeError(item, "Foreign attribute resolving is not available "+\
-                                           "in estnltk_core. Please use the full EstNLTK package.")
+                raise AttributeError(item, "Foreign attribute resolving is only available "+\
+                                           "if the layer is attached to estnltk.Text object.")
         else:
             raise AttributeError(item, \
                 "Unable to resolve foreign attribute: the layer is not attached to Text object." )
