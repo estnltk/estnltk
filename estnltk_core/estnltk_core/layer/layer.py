@@ -55,8 +55,9 @@ class Layer(BaseLayer):
                                        for span in self.spans for annotation in span.annotations)
         return collections.Counter( span.annotations[0][attribute] for span in self.spans)
 
-    def groupby(self, by: Union[str, Sequence[str], 'Layer'], return_type: str = 'spans'):
+    def groupby(self, by: Union[str, Sequence[str], 'Layer'], return_type: str = 'spans') -> GroupBy:
         """Groups layer by attribute values of annotations or by an enveloping layer.
+           
            The parameter `by` can be:
            *) name of an attribute of this layer;
            *) list of attribute names of this layer;
@@ -87,7 +88,7 @@ class Layer(BaseLayer):
                            'or attribute(s) of this layer (a single attribute name '+\
                            'or a list of names).').format(by) )
 
-    def rolling(self, window: int, min_periods: int = None, inside: str = None):
+    def rolling(self, window: int, min_periods: int = None, inside: str = None) -> Rolling:
         """Creates an iterable object yielding span sequences from a window rolling over the layer.
            Parameters:
            *) window -- length of the window (in spans);
@@ -106,25 +107,53 @@ class Layer(BaseLayer):
         """
         return Rolling(self, window=window, min_periods=min_periods, inside=inside)
 
-    def resolve_attribute(self, item):
+    def resolve_attribute(self, item) -> Union[AmbiguousAttributeList, AttributeList]:
+        """Resolves and returns values of foreign attribute `item`.
+           
+           Values of the attribute will be sought from a foreign layer, 
+           which must either: 
+           a) share the same base spans with this layer (be a parent or a child), or 
+           b) share the same base spans with smaller span level, which means that 
+              this layer should envelop around the foreign layer.
+           
+           Note: this method relies on a mapping from attribute names to 
+           foreign layer names (`attribute_mapping_for_elementary_layers`), 
+           which is defined estnltk's `Text` object. If this layer is attached 
+           to estnltk-core's `BaseText` instead, then the method always raises 
+           AttributeError.
+        """
         if len(self) == 0:
             raise AttributeError(item, 'layer is empty')
-        if self._span_list[0].base_span.level == 0:
-            attribute_mapping = self.text_object.attribute_mapping_for_elementary_layers
+        attribute_mapping = {}
+        if self.text_object is not None:
+            if hasattr(self.text_object, 'attribute_mapping_for_elementary_layers'):
+                # Attribute mapping for elementary layers is only 
+                # defined in Text object, it is missing in BaseText
+                if self.span_level == 0:
+                    attribute_mapping = self.text_object.attribute_mapping_for_elementary_layers
+                else:
+                    attribute_mapping = self.text_object.attribute_mapping_for_enveloping_layers
+            else:
+                raise AttributeError(item, "Foreign attribute resolving is not available "+\
+                                           "in estnltk_core. Please use the full EstNLTK package.")
         else:
-            attribute_mapping = self.text_object.attribute_mapping_for_enveloping_layers
+            raise AttributeError(item, \
+                "Unable to resolve foreign attribute: the layer is not attached to Text object." )
         if item not in attribute_mapping:
-            raise AttributeError(item)
+            raise AttributeError(item, \
+                  "Attribute not defined in attribute_mapping_for_elementary_layers.")
 
         target_layer = self.text_object[attribute_mapping[item]]
         if len(target_layer) == 0:
             return AttributeList([], item)
         result = [target_layer.get(span.base_span)[item] for span in self]
 
-        target_level = target_layer[0].base_span.level
-        self_level = self[0].base_span.level
+        target_level = target_layer.span_level
+        self_level = self.span_level
         if target_level > self_level:
-            raise AttributeError(item)
+            raise AttributeError(item, \
+                  ("Unable to resolve foreign attribute: target layer {!r} has higher "+\
+                   "span level than this layer.").format( target_layer.name ) )
         if target_level == self_level and target_layer.ambiguous:
             return AmbiguousAttributeList(result, item)
 
