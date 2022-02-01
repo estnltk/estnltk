@@ -51,7 +51,7 @@ class SubstringTagger(Tagger):
                  token_separators: str = '',
                  output_layer: str = 'terms',
                  output_attributes: Sequence = None,
-                 global_decorator: Callable[[Text, Span], Union[Dict[str, Any], Any, None]] = None,
+                 global_decorator: Callable[[Text, Span, Annotation], Union[Dict[str, Any], Any, None]] = None,
                  conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL',
                  ignore_case: bool = False
                  ):
@@ -125,6 +125,13 @@ class SubstringTagger(Tagger):
             raise ValueError('Argument ruleset must be of type Ruleset or AmbiguousRuleset')
         if not (set(ruleset.output_attributes) <= set(self.output_attributes)):
             raise ValueError('Output attributes of a ruleset must match the output attributes of a tagger')
+        # Restrictions on the groups and priorities in the ruleset
+        for rule in ruleset.dynamic_rules:
+            for rule_2 in ruleset.dynamic_rules:
+                if rule.pattern == rule_2.pattern and rule.group != rule_2.group:
+                    raise AttributeError("Dynamic rules with the same left hand side have to have the same group.")
+                if rule.pattern == rule_2.pattern and rule.priority != rule_2.priority:
+                    raise AttributeError("Dynamic rules with the same left hand side have to have the same priority.")
 
         self.ruleset = copy(ruleset)
         self.token_separators = token_separators
@@ -153,7 +160,7 @@ class SubstringTagger(Tagger):
             name=self.output_layer,
             attributes=self.output_attributes,
             text_object=text,
-            ambiguous= not isinstance(self.ruleset, Ruleset)
+            ambiguous=not isinstance(self.ruleset, Ruleset)
         )
 
         raw_text = text.text.lower() if self.ignore_case else text.text
@@ -250,20 +257,11 @@ class SubstringTagger(Tagger):
             # No dynamic rules to change the annotation
             dynamic_rule = self._rule_map.get(current[1], None)[1]
             if len(dynamic_rule) == 0:
-                decorator = None
                 if span.annotations[0] is not None:
                     layer.add_span(span)
                 current = next(sorted_tuples, None)
                 continue
-            decorator = dynamic_rule[0].decorator
-            rule_group = dynamic_rule[0].group
-            rule_priority = dynamic_rule[0].priority
             for rule in dynamic_rule:
-                #move to constructor, validate ruleset there
-                if rule.group != rule_group:
-                    raise AttributeError("Rules with the same left hand side have to have the same group.")
-                if rule.priority != rule_priority:
-                    raise AttributeError("Rules with the same left hand side have to have the same priority.")
                 # Drop all spans for which the decorator fails
                 decorator = rule.decorator
                 new_annotations = []
@@ -271,7 +269,7 @@ class SubstringTagger(Tagger):
                     new_annotations.append(decorator(text_object, span, annotation))
                 span.clear_annotations()
                 for annotation in new_annotations:
-                    span.add_annotation(Annotation(span,annotation))
+                    span.add_annotation(Annotation(span, annotation))
                 if isinstance(span.annotations[0], Annotation):
                     layer.add_span(span)
 
@@ -284,7 +282,7 @@ class SubstringTagger(Tagger):
             self,
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]
-            ) -> Generator[Tuple[Span, int, int], None, None]:
+    ) -> Generator[Tuple[Span, int, int], None, None]:
         """
         Returns a triple (span, group, priority) for each match that passes validation test.
 
@@ -330,18 +328,12 @@ class SubstringTagger(Tagger):
             dynamic_rule = self._rule_map.get(current[1], None)[1]
             # No dynamic rules to change the annotation
             if len(dynamic_rule) == 0:
-                if span.annotations[0] is not None:
-                    yield span, group, priority
+                for annotation in span.annotations:
+                    yield annotation, group, priority
                 current = next(sorted_tuples, None)
                 continue
             else:
-                rule_group = dynamic_rule[0].group
-                rule_priority = dynamic_rule[0].priority
                 for rule in dynamic_rule:
-                    if rule.group != rule_group:
-                        raise AttributeError("Rules with the same left hand side have to have the same group.")
-                    if rule.priority != rule_priority:
-                        raise AttributeError("Rules with the same left hand side have to have the same priority.")
                     # Drop all spans for which the decorator fails
                     decorator = rule.decorator
                     new_annotations = []
@@ -351,7 +343,8 @@ class SubstringTagger(Tagger):
                     for annotation in new_annotations:
                         span.add_annotation(Annotation(span, annotation))
                     if isinstance(span.annotations[0], Annotation):
-                        yield span, rule_group, rule_priority
+                        for annotation in span.annotations:
+                            yield annotation, rule.group, rule.priority
 
                     current = next(sorted_tuples, None)
 
