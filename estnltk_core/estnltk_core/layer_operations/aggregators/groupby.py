@@ -17,6 +17,20 @@ class GroupBy:
     def __init__(self, layer: Union[BaseLayer, 'Layer'], 
                        by: Union[Sequence[str], Union[BaseLayer, 'Layer']], 
                        return_type: str):
+        """Initiates GroupBy object, which groups layer's spans or annotations.
+        
+           The parameter `layer` is a layer which spans / annotations will 
+           be grouped.
+           
+           The parameter `by` can be:
+           *) name of an attribute of this layer;
+           *) list of attribute names of this layer;
+           *) name of a Layer enveloping around this layer;
+           *) Layer object which is a layer enveloping around this layer;
+           
+           The parameter `return_type` specifies, whether "spans" or "annotations" 
+           will be grouped.
+        """
         self.layer = layer
         self.by = by
         self.return_type = return_type
