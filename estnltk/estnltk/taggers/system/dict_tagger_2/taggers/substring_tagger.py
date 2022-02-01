@@ -40,7 +40,7 @@ class SubstringTagger(Tagger):
     These can used in custom conflict resolver to choose between overlapping spans.
 
     Rules can be specified during the initialisation and cannot be changed afterwards.
-    Use the class Ruleset and its methods to load static rules from csv files before initialising the tagger.
+    Use the class AmbiguousRuleset or Ruleset to load static rules from csv files before initialising the tagger.
 
     TODO: Harden attribute access
     """
@@ -61,8 +61,10 @@ class SubstringTagger(Tagger):
         Parameters
         ----------
         ruleset:
+            Can be of type AmbiguousRuleset or Ruleset depending on if there are multiple rules
+            with the same left-hand side.
             A list of substrings together with their annotations.
-            Can be imported before creation of a tagger from CSV file with Ruleset.load method.
+            Can be imported before creation of a tagger from CSV file with load method of the Ruleset.
         token_separators:
             A list of characters that determine the end of token.
             If token separators are unspecified then all substring matches are considered.
@@ -72,9 +74,10 @@ class SubstringTagger(Tagger):
             The name of the new layer (default: 'terms').
         global_decorator:
             A global decorator that is applied for all matches and can update attribute values or invalidate match.
-            It must take in two arguments:
+            It must take in three arguments:
             * text: a text object that is processed
             * span: a span for which the attributes are recomputed.
+            * annotation: annotation for which the attributes are recomputed
             The function should return a dictionary of updated attribute values or None to invalidate the match.
         conflict_resolver: 'KEEP_ALL', 'KEEP_MAXIMAL', 'KEEP_MINIMAL' (default: 'KEEP_MAXIMAL')
             Strategy to choose between overlapping matches.
@@ -104,7 +107,6 @@ class SubstringTagger(Tagger):
         Extraction rules work for multi-token strings, however, the separators between tokens are fixed by the pattern.
         For multiple separator symbols, all pattern variants must be explicitly listed.
 
-        The resulting tagger always creates non-ambiguous layers.
         """
 
         self.conf_param = [
@@ -230,7 +232,7 @@ class SubstringTagger(Tagger):
             static_rulelist = self._rule_map.get(current[1], None)[0]
             for static_rule in static_rulelist:
                 # add static annotation
-                span.add_annotation(Annotation(span, **{**dummy_annotation, **static_rule.attributes}))
+                span.add_annotation(Annotation(span, {**dummy_annotation, **static_rule.attributes}))
                 # apply global decorator
                 # Drop spans for which the global decorator fails
                 if self.global_decorator is not None:
@@ -240,6 +242,7 @@ class SubstringTagger(Tagger):
                         if not isinstance(annotation, dict):
                             current = next(sorted_tuples, None)
                             continue
+                    span.clear_annotations()
                     for annotation in new_annotations:
                         span.add_annotation(annotation)
 
@@ -248,33 +251,31 @@ class SubstringTagger(Tagger):
             dynamic_rule = self._rule_map.get(current[1], None)[1]
             if len(dynamic_rule) == 0:
                 decorator = None
-            else:
-                decorator = dynamic_rule[0].decorator
-            if decorator is None:
                 if span.annotations[0] is not None:
                     layer.add_span(span)
                 current = next(sorted_tuples, None)
                 continue
-            else:
-                rule_group = dynamic_rule[0].group
-                rule_priority = dynamic_rule[0].priority
-                for rule in dynamic_rule:
-                    if rule.group != rule_group:
-                        raise AttributeError("Rules with the same left hand side have to have the same group.")
-                    if rule.priority != rule_priority:
-                        raise AttributeError("Rules with the same left hand side have to have the same priority.")
-                    # Drop all spans for which the decorator fails
-                    decorator = rule.decorator
-                    new_annotations = []
-                    for annotation in span.annotations:
-                        new_annotations.append(decorator(text_object, span, annotation))
-                    span.clear_annotations()
-                    for annotation in new_annotations:
-                        span.add_annotation(Annotation(span,**annotation))
-                    if isinstance(span.annotations[0], Annotation):
-                        layer.add_span(span)
+            decorator = dynamic_rule[0].decorator
+            rule_group = dynamic_rule[0].group
+            rule_priority = dynamic_rule[0].priority
+            for rule in dynamic_rule:
+                #move to constructor, validate ruleset there
+                if rule.group != rule_group:
+                    raise AttributeError("Rules with the same left hand side have to have the same group.")
+                if rule.priority != rule_priority:
+                    raise AttributeError("Rules with the same left hand side have to have the same priority.")
+                # Drop all spans for which the decorator fails
+                decorator = rule.decorator
+                new_annotations = []
+                for annotation in span.annotations:
+                    new_annotations.append(decorator(text_object, span, annotation))
+                span.clear_annotations()
+                for annotation in new_annotations:
+                    span.add_annotation(Annotation(span,annotation))
+                if isinstance(span.annotations[0], Annotation):
+                    layer.add_span(span)
 
-                    current = next(sorted_tuples, None)
+                current = next(sorted_tuples, None)
 
         return layer
 
@@ -326,13 +327,9 @@ class SubstringTagger(Tagger):
                     priority = static_rule.priority
 
             # apply dynamic_decorator --- it must be unique or have matching priority and group
-            # No dynamic rules to change the annotation
             dynamic_rule = self._rule_map.get(current[1], None)[1]
+            # No dynamic rules to change the annotation
             if len(dynamic_rule) == 0:
-                decorator = None
-            else:
-                decorator = dynamic_rule[0].decorator
-            if decorator is None:
                 if span.annotations[0] is not None:
                     yield span, group, priority
                 current = next(sorted_tuples, None)
@@ -352,7 +349,7 @@ class SubstringTagger(Tagger):
                         new_annotations.append(decorator(text_object, span, annotation))
                     span.clear_annotations()
                     for annotation in new_annotations:
-                        span.add_annotation(Annotation(span, **annotation))
+                        span.add_annotation(Annotation(span, annotation))
                     if isinstance(span.annotations[0], Annotation):
                         yield span, rule_group, rule_priority
 

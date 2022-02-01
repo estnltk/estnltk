@@ -303,7 +303,7 @@ class AmbiguousRuleset:
             raise ValueError("Invalid file format: Line {}: File is not in CSV format".format(i))
 
     @property
-    def rule_map(self) -> Dict[str, List[List[StaticExtractionRule], List[DynamicExtractionRule]]]:
+    def rule_map(self) -> Dict[str, List[Union[List[StaticExtractionRule], List[DynamicExtractionRule]]]]:
         """
         Maps all patterns to rules
         Returns Dict(str, [[StaticExtractionRule], [DynamicExtractionRule]])
