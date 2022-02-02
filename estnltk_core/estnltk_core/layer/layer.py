@@ -56,7 +56,7 @@ class Layer(BaseLayer):
         if self.ambiguous:
             return collections.Counter(annotation[attribute] if attribute != 'text' else annotation.text \
                                                   for span in self.spans for annotation in span.annotations)
-        return collections.Counter( span.annotations[0][attribute] if attribute != 'text' else annotation.text \
+        return collections.Counter( span.annotations[0][attribute] if attribute != 'text' else span.text \
                                                                       for span in self.spans)
 
     def groupby(self, by: Union[str, Sequence[str], 'Layer'], return_type: str = 'spans') -> GroupBy:
