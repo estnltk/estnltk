@@ -1,8 +1,8 @@
 import copy
 from typing import Sequence, Union
 
-from estnltk.taggers import Tagger, Vocabulary
-from estnltk.taggers.system.dict_tagger_2 import Ruleset
+from estnltk.taggers import Tagger
+from estnltk.taggers.system.dict_tagger_2 import Ruleset, AmbiguousRuleset
 from estnltk import Span
 from estnltk import Layer
 from estnltk import Annotation
@@ -18,13 +18,11 @@ class SpanTagger(Tagger):
                  output_layer: str,
                  input_layer: str,
                  input_attribute: str,
-                 ruleset: Union[dict, str, Ruleset],
-                 key: str = '_token_',
+                 ruleset: AmbiguousRuleset,
                  output_attributes: Sequence[str] = (),
-                 global_validator: callable = None,
+                 decorator: callable = None,
                  validator_attribute: str = None,
                  priority_attribute: str = None,
-                 ambiguous: bool = False,
                  case_sensitive=True
                  ):
         """Initialize a new TokenListTagger instance.
@@ -41,19 +39,15 @@ class SpanTagger(Tagger):
             If str, the vocabulary is read from the file 'vocabulary'
         :param output_attributes: Sequence[str]
             Output layer attributes.
-        :param key: str
-            The name of the index column if the vocabulary is read from a csv file.
-        :param global_validator: callable
-            Global global_validator function.
+        :param decorator: callable
+            Global decorator function.
         :param validator_attribute: str
             The name of the attribute that points to the global_validator function in the vocabulary.
         :param priority_attribute
             The name
-        :param ambiguous: bool
-            Whether the output layer should be ambiguous or not.
         """
-        self.conf_param = ('input_attribute', '_vocabulary', 'global_validator', 'validator_attribute',
-                           'priority_attribute', 'ambiguous', 'case_sensitive')
+        self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator', 'validator_attribute',
+                           'priority_attribute', 'ambiguous', 'case_sensitive', '_ruleset')
         self.priority_attribute = priority_attribute
         self.output_layer = output_layer
         self.input_attribute = input_attribute
@@ -62,35 +56,25 @@ class SpanTagger(Tagger):
 
         self.validator_attribute = validator_attribute
 
-        if global_validator is None:
-            global_validator = default_validator
-        self.global_validator = global_validator
+        if decorator is None:
+            decorator = default_decorator
+        self.global_decorator = decorator
 
         self.input_layers = [input_layer]
 
-        self.ambiguous = ambiguous
-
-        if isinstance(ruleset, Ruleset):
-            self._vocabulary = copy.deepcopy(ruleset)
-        else:
-            self._vocabulary = Ruleset()
-            Ruleset.load(self._vocabulary, file_name=ruleset,
-                         key_column=key)
+        self._ruleset = copy.deepcopy(ruleset)
         self.case_sensitive = case_sensitive
         if not self.case_sensitive:
-            self._vocabulary = self._vocabulary.to_lower()
-
-        if not self.ambiguous:
-            assert all(len(values) == 1 for values in self._vocabulary.values()), \
-                'ambiguous==False but vocabulary contains ambiguous keywords: ' \
-                + str([k for k, v in self._vocabulary.items() if len(v) > 1])
+            for rule in self._ruleset.static_rules:
+                for i in range(len(rule.pattern)):
+                    rule.pattern[i] = rule.pattern[i].lower()
 
     def _make_layer_template(self):
         return Layer(name=self.output_layer,
                      attributes=self.output_attributes,
                      text_object=None,
                      parent=self.input_layers[0],
-                     ambiguous=self.ambiguous)
+                     ambiguous=not isinstance(self._ruleset, Ruleset))
 
     def _make_layer(self, text, layers: dict, status: dict):
         raw_text = text.text
@@ -98,7 +82,7 @@ class SpanTagger(Tagger):
         layer = self._make_layer_template()
         layer.text_object = text
 
-        vocabulary = self._vocabulary
+        ruleset = self._ruleset
         input_attribute = self.input_attribute
         validator_key = self.validator_attribute
 
@@ -115,18 +99,14 @@ class SpanTagger(Tagger):
                 else:
                     values = {v.lower() for v in attr_list}
                 for value in values:
-                    if value in [rule.pattern for rule in vocabulary.static_rules]:
-                        if self.ambiguous:
-                            span = Span(base_span=parent_span.base_span, layer=layer)
-                        else:
-                            span = Span(base_span=parent_span.base_span, layer=layer, parent=parent_span)
-                        for rec in [rule.attributes for rule in vocabulary.static_rules if rule.pattern==value]:
+                    if value in [rule.pattern for rule in ruleset.static_rules]:
+                        span = Span(base_span=parent_span.base_span, layer=layer) #TODO check that it's fine with non-ambiguous
+                        for rec in [rule.attributes for rule in ruleset.static_rules if rule.pattern==value]:
                             attributes = {attr: rec[attr] for attr in layer.attributes}
                             annotation = Annotation(span, **attributes)
-
-                            if self.global_validator(raw_text, annotation):
-                                if validator_key is None or rec[validator_key](raw_text, annotation):
-                                    span.add_annotation(Annotation(span, **attributes))
+                            annotation = self.global_decorator(raw_text, span, annotation)
+                            if validator_key is None or rec[validator_key](raw_text, annotation):
+                                span.add_annotation(annotation)
 
                         if span.annotations:
                             layer.add_span(span)
@@ -135,15 +115,12 @@ class SpanTagger(Tagger):
                 value = getattr(parent_span, input_attribute)
                 if not case_sensitive:
                     value = value.lower()
-                if value in vocabulary:
-                    if self.ambiguous:
-                        span = Span(base_span=parent_span.base_span, layer=layer)
-                    else:
-                        span = Span(base_span=parent_span.base_span, layer=layer, parent=parent_span)
-                    for rec in vocabulary[value]:
+                if value in [rule.pattern for rule in ruleset.static_rules]:
+                    span = Span(base_span=parent_span.base_span, layer=layer)
+                    for rec in [rule.pattern for rule in ruleset.static_rules]:
                         attributes = {attr: rec[attr] for attr in layer.attributes}
                         annotation = Annotation(span, **attributes)
-                        if self.global_validator(raw_text, annotation):
+                        if self.global_decorator(raw_text, annotation):
                             if validator_key is None or rec[validator_key](raw_text, annotation):
                                 span.add_annotation(Annotation(span, **attributes))
 
@@ -156,5 +133,5 @@ class SpanTagger(Tagger):
         return layer
 
 
-def default_validator(raw_text, span):
-    return True
+def default_decorator(text, span, annotation):
+    return annotation
