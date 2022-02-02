@@ -1,12 +1,13 @@
 import copy
 from collections import defaultdict
-from typing import Sequence, Union
+from typing import Sequence
 
 from estnltk import Annotation, EnvelopingBaseSpan
 from estnltk import EnvelopingSpan
 from estnltk import Layer
 from estnltk.taggers import Tagger
-from estnltk.taggers.system.dict_tagger_2 import Ruleset
+from estnltk.taggers.system.dict_tagger_2.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
+from estnltk.taggers.system.dict_tagger_2.extraction_rules.ruleset import Ruleset
 from estnltk_core.layer_operations import resolve_conflicts
 
 
@@ -14,17 +15,17 @@ class PhraseTagger(Tagger):
     """
     Tags phrases on a given layer. Creates an enveloping layer.
     """
+
     def __init__(self,
                  output_layer: str,
                  input_layer: str,
                  input_attribute: str,
-                 ruleset: Ruleset,
-                 key: str='_phrase_',
-                 output_attributes: Sequence=None,
+                 ruleset: AmbiguousRuleset,
+                 key: str = '_phrase_',
+                 output_attributes: Sequence = None,
                  decorator=None,
-                 conflict_resolving_strategy: str='MAX',
-                 priority_attribute: str=None,
-                 output_ambiguous: bool=False,
+                 conflict_resolving_strategy: str = 'MAX',
+                 priority_attribute: str = None,
                  ignore_case=False
                  ):
         """Initialize a new EventSequenceTagger instance.
@@ -35,21 +36,21 @@ class PhraseTagger(Tagger):
             The name of the input layer.
         :param input_attribute: str
             The name of the input layer attribute.
-        :param vocabulary: list, dict, str, Vocabulary
-            A vocabulary list of records, dict, file name or Vocabulary object.
+        :param ruleset: AmbiguousRuleset
+            Ruleset of type Ruleset or AmbiguousRuleset
         :param key: str
             The name of the vocabulary index if the input vocabulary is a list of records, a dict or a csv file.
+        :param decorator: Callable
+            Decorator function for spans
         :param output_attributes
             Names of the output layer attributes.
         :param  conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
             Strategy to choose between overlapping events.
         :param priority_attribute: str
             Name of the attribute that is used to resolve conflicts.
-        :param ambiguous: bool
-            Whether the output layer is ambiguous.
         """
-        self.conf_param = ('input_attribute', 'vocabulary', 'decorator',
-                           'conflict_resolving_strategy', 'priority_attribute', 'output_ambiguous', '_heads',
+        self.conf_param = ('input_attribute', 'ruleset', 'decorator',
+                           'conflict_resolving_strategy', 'priority_attribute', '_heads',
                            'ignore_case')
 
         self.output_layer = output_layer
@@ -65,41 +66,38 @@ class PhraseTagger(Tagger):
         self.conflict_resolving_strategy = conflict_resolving_strategy
         self.priority_attribute = priority_attribute
 
-        self.output_ambiguous = output_ambiguous
-
         self.extend_ruleset(ruleset, key)
+
 
         self.ignore_case = ignore_case
 
         if ignore_case:
-            for rule in self.vocabulary.static_rules:
+            for rule in self.ruleset.static_rules:
                 for i in range(len(rule.pattern)):
                     rule.pattern[i] = rule.pattern[i].lower()
 
-        #assert key is None or key == self.vocabulary.key,\
+        # assert key is None or key == self.vocabulary.key,\
         #    'mismatching key and vocabulary.key: {}!={}'.format(key, self.vocabulary.key)
         ## key can not be tested like this anymore because ruleset does not have the key attribute
-        #assert set(self.output_attributes) <= set(self.vocabulary.attributes),\
+        # assert set(self.output_attributes) <= set(self.vocabulary.attributes),\
         #    'some output_attributes missing in vocabulary attributes: {}'.format(
         #        set(self.output_attributes)-set(self.vocabulary.attributes))
-        #assert self.priority_attribute is None or self.priority_attribute in self.vocabulary.attributes,\
+        # assert self.priority_attribute is None or self.priority_attribute in self.vocabulary.attributes,\
         #    'priority attribute is not among the vocabulary attributes: ' + str(self.priority_attribute)
-        assert self.output_ambiguous or all(len(values) == 1 for values in self.vocabulary.static_rules),\
-            'output_ambiguous is False but vocabulary is ambiguous'
 
-        #TODO would be better if this was a dict instead of defaultdict for safety and memory
-        self._heads = defaultdict(list)
-        for phrase in self.vocabulary.static_rules:
-            self._heads[phrase.pattern[0]].append(phrase.pattern[1:])
+        # TODO would be better if this was a dict instead of defaultdict for safety and memory
+        self._heads = defaultdict(set)
+        for phrase in self.ruleset.static_rules:
+            self._heads[phrase.pattern[0]].add(phrase.pattern[1:])
 
     def extend_ruleset(self, ruleset, key):
-        self.vocabulary = copy.deepcopy(ruleset)
+        self.ruleset = copy.deepcopy(ruleset)
 
         addable_attributes = []
         for attribute in self.output_attributes:
-            if attribute not in self.vocabulary.static_rules[0].attributes:
+            if attribute not in self.ruleset.static_rules[0].attributes:
                 addable_attributes.append(attribute)
-        for rule in self.vocabulary.static_rules:
+        for rule in self.ruleset.static_rules:
             for attribute in addable_attributes:
                 if attribute == key:
                     rule.attributes[attribute] = rule.pattern
@@ -107,16 +105,16 @@ class PhraseTagger(Tagger):
                     rule.attributes[attribute] = None
 
     def _make_layer_template(self):
-        return Layer( name=self.output_layer,
-                      attributes=self.output_attributes,
-                      text_object=None,
-                      enveloping=self.input_layers[0],
-                      ambiguous=self.output_ambiguous )
+        return Layer(name=self.output_layer,
+                     attributes=self.output_attributes,
+                     text_object=None,
+                     enveloping=self.input_layers[0],
+                     ambiguous=not isinstance(self.ruleset, Ruleset))
 
     def _make_layer(self, text, layers: dict, status=None):
         input_layer = layers[self.input_layers[0]]
         layer = self._make_layer_template()
-        layer.text_object=text
+        layer.text_object = text
 
         if self.ignore_case:
             if self.input_attribute == 'text':
@@ -147,18 +145,16 @@ class PhraseTagger(Tagger):
                             base_span = EnvelopingBaseSpan(s.base_span
                                                            for s in input_layer[i:i + len(tail) + 1])
                             span = EnvelopingSpan(base_span=base_span, layer=layer)
-                            record = [rule.attributes for rule in self.vocabulary.static_rules if rule.pattern==phrase]
-                            annotation = Annotation(span, **{attr: record[0][attr]
+                            records = [rule.attributes for rule in self.ruleset.static_rules if rule.pattern == phrase]
+                            for record in records:
+                                annotation = Annotation(span, **{attr: record[attr]
                                                              for attr in output_attributes})
-                            is_valid = self.decorator(span, annotation) #phrase taggeri decorator samasuguseks kui substringi oma
-                            assert isinstance(is_valid, bool), is_valid # vt substring tagger rida 233-234
-                            if not is_valid:
-                                continue
-                            span.add_annotation(annotation)
+                                annotation = self.decorator(text,span,annotation)
+                                if annotation is None:
+                                    continue
+                                span.add_annotation(annotation)
                             if span.annotations:
                                 layer.add_span(span)
-
-
 
         resolve_conflicts(layer,
                           conflict_resolving_strategy=self.conflict_resolving_strategy,
@@ -167,5 +163,5 @@ class PhraseTagger(Tagger):
         return layer
 
 
-def default_decorator(span, annotation: Annotation) -> bool:
-    return True
+def default_decorator(text, span, annotation):
+    return annotation
