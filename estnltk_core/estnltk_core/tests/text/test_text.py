@@ -4,9 +4,10 @@ import itertools
 from estnltk_core import Layer
 from estnltk_core.common import load_text_class
 
-from estnltk_core.layer import AttributeList
 from estnltk_core.converters import dict_to_layer
 from estnltk_core.converters import records_to_layer
+
+from estnltk_core.tests import create_amb_attribute_list
 
 def test_new_span_hierarchy():
     # Load Text or BaseText class (depending on the available packages)
@@ -272,7 +273,7 @@ def test_enveloping_layer():
         for wordpair in t['wordpairs']:
             wordpair.nonsense  # this SHOULD give a --keyerror--
 
-    assert (t['words'].lemma == AttributeList(['kui', 'mitu', 'kuu', 'olema', 'aasta', '?'], 'lemma'))
+    assert (t['words'].lemma == create_amb_attribute_list(['kui', 'mitu', 'kuu', 'olema', 'aasta', '?'], 'lemma'))
 
     assert ([list(wordpair.words.lemma) for wordpair in t['wordpairs']] ==
             [['kui', 'mitu'], ['mitu', 'kuu'], ['kuu', 'olema'], ['olema', 'aasta'], ['aasta', '?']])

@@ -4,7 +4,7 @@ from estnltk.taggers import PostMorphAnalysisTagger
 from estnltk.taggers.standard.morph_analysis.morf import VabamorfAnalyzer
 from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 
-from estnltk_core.layer import AmbiguousAttributeTupleList
+from estnltk_core.tests import create_amb_attribute_list
 from estnltk_core.converters import layer_to_records
 
 # ----------------------------------
@@ -96,12 +96,12 @@ def test_postanalysis_fix_names_with_initials():
     text=Text("Ansambli nimeks oli Swing B. Esinemas käisime tantsuõhtutel")
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    expected_result = AmbiguousAttributeTupleList([[['Ansambli', 'S']], [['nimeks', 'S']], [['oli', 'V']],
-                                                   [['Swing', 'H']], [['B. Esinemas', 'V']], [['käisime', 'V']],
-                                                   [['tantsuõhtutel', 'S']]], ('text', 'partofspeech'))
-    # TODO: 'B. Esinemas' is actually a wrong compound token, 
+    expected_result = create_amb_attribute_list([[['ansambel', 'S']], [['nimi', 'S']], [['olema', 'V']], 
+                                                 [['Swing', 'H']], [['B. esinema', 'V']], [['käima', 'V']], 
+                                                 [['tantsuõhtu', 'S']]], ('lemma', 'partofspeech')) 
+    # TODO: 'B. esinema' is actually a wrong compound token, 
     #        needs to be fixed in the future
-    result = text.morph_analysis['text', 'partofspeech']
+    result = text.morph_analysis['lemma', 'partofspeech']
     assert expected_result == result
 
 
@@ -290,10 +290,10 @@ def test_applying_postanalysis_twice():
     # retag post analysis second time
     postanalysis_tagger.retag(text)
     # check results:
-    expected_result = AmbiguousAttributeTupleList([[['Raamat', '0', 'H', 'sg g'], ['raamat', '0', 'S', 'sg g']], 
-                                                   [['toim', '0', 'Y', 'sg n']], 
-                                                   [['J. _K. _Köstri_mägi', '0', 'H', 'sg g']]], 
-                                                   ('root','ending','partofspeech','form') )
+    expected_result = create_amb_attribute_list([[['Raamat', '0', 'H', 'sg g'], ['raamat', '0', 'S', 'sg g']], 
+                                                 [['toim', '0', 'Y', 'sg n']], 
+                                                 [['J. _K. _Köstri_mägi', '0', 'H', 'sg g']]], 
+                                                 ('root','ending','partofspeech','form') )
     assert expected_result == text.morph_analysis['root','ending','partofspeech','form']
 
 # ----------------------------------
@@ -331,19 +331,19 @@ def test_postanalysis_preserves_extra_attributes():
     postanalysis_tagger.retag(text)
     #print(text.morph_analysis['root','partofspeech','analysis_id','sentence_id',])
     # Check that extra attributes are preserved
-    expected_result = AmbiguousAttributeTupleList([[['Pull', 'H', '0_0', '0'], ['Pull', 'H', '0_1', '0'], \
-                                                    ['Pull', 'H', '0_2', '0'], ['Pulli', 'H', '0_3', '0'], \
-                                                    ['Pulli', 'H', '0_4', '0'], ['pull', 'A', '0_5', '0'], \
-                                                    ['pull', 'A', '0_6', '0'], ['pull', 'A', '0_7', '0'], \
-                                                    ['pull', 'S', '0_8', '0'], ['pull', 'S', '0_9', '0'], \
-                                                    ['pull', 'S', '0_10', '0'], ['pulli', 'V', '0_11', '0']], \
-                                                    [['taht', 'V', '1_0', '0']], [['vähemalt', 'D', '2_0', '0'], \
-                                                    ['vähem', 'C', '2_1', '0']], [['10', 'N', '3_0', '0']], \
-                                                    [['eest', 'D', '4_0', '0'], ['eest', 'K', '4_1', '0'], \
-                                                    ['esi', 'S', '4_2', '0']], [['?', 'Z', '5_0', '0']], \
-                                                    [['siis', 'D', '6_0', '1'], ['siis', 'J', '6_1', '1']], \
-                                                    [['helista', 'V', '7_0', '1']], [['big@boss.com', 'H', '8_0', '1']]],
-                                                    ('root','partofspeech','analysis_id','sentence_id') )
+    expected_result = create_amb_attribute_list([[['Pull', 'H', '0_0', '0'], ['Pull', 'H', '0_1', '0'], \
+                                                 ['Pull', 'H', '0_2', '0'], ['Pulli', 'H', '0_3', '0'], \
+                                                 ['Pulli', 'H', '0_4', '0'], ['pull', 'A', '0_5', '0'], \
+                                                 ['pull', 'A', '0_6', '0'], ['pull', 'A', '0_7', '0'], \
+                                                 ['pull', 'S', '0_8', '0'], ['pull', 'S', '0_9', '0'], \
+                                                 ['pull', 'S', '0_10', '0'], ['pulli', 'V', '0_11', '0']], \
+                                                 [['taht', 'V', '1_0', '0']], [['vähemalt', 'D', '2_0', '0'], \
+                                                 ['vähem', 'C', '2_1', '0']], [['10', 'N', '3_0', '0']], \
+                                                 [['eest', 'D', '4_0', '0'], ['eest', 'K', '4_1', '0'], \
+                                                 ['esi', 'S', '4_2', '0']], [['?', 'Z', '5_0', '0']], \
+                                                 [['siis', 'D', '6_0', '1'], ['siis', 'J', '6_1', '1']], \
+                                                 [['helista', 'V', '7_0', '1']], [['big@boss.com', 'H', '8_0', '1']]],
+                                                 ('root','partofspeech','analysis_id','sentence_id') )
     assert expected_result == text.morph_analysis['root','partofspeech','analysis_id','sentence_id']
 
 # ----------------------------------

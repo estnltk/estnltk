@@ -2,12 +2,12 @@ import pytest
 
 from estnltk_core import Layer
 from estnltk_core.common import load_text_class
-from estnltk_core.layer import AttributeList
 from estnltk_core.layer.base_span import ElementaryBaseSpan
 from estnltk_core.converters import dict_to_layer
 from estnltk_core.converters import layer_to_records
 from estnltk_core.converters import records_to_layer
 
+from estnltk_core.tests import create_amb_attribute_list
 
 def test_pickle():
     import pickle
@@ -518,7 +518,7 @@ def test_ambiguous_from_dict():
         [{'end': 24, 'lemma': '?', 'start': 23}]
     ])
 
-    assert t['words'][0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
+    assert t['words'][0].lemma == create_amb_attribute_list(['kui', 'KUU'], 'lemma')
 
 
 def test_ambiguous_from_dict_unbound():
@@ -541,7 +541,7 @@ def test_ambiguous_from_dict_unbound():
     t = Text('Kui mitu kuud on aastas?')
     t.add_layer(words)
 
-    assert t['words'][0].lemma == AttributeList(['kui', 'KUU'], 'lemma')
+    assert t['words'][0].lemma == create_amb_attribute_list(['kui', 'KUU'], 'lemma')
 
     words2 = Layer(name='words2', attributes=['lemma2'], ambiguous=True, parent='words')
     # We create the layer
@@ -555,6 +555,6 @@ def test_ambiguous_from_dict_unbound():
     ]
     )
     t.add_layer(words2)
-    assert t['words2'][0].lemma2 == AttributeList(['kui', 'KUU'], 'lemma2')
+    assert t['words2'][0].lemma2 == create_amb_attribute_list(['kui', 'KUU'], 'lemma2')
 
     assert t['words2'][0].parent is t['words'][0]

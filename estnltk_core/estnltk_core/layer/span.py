@@ -92,11 +92,11 @@ class Span:
     def __getitem__(self, item):
         if isinstance(item, str):
             if self._layer.ambiguous:
-                return AttributeList((annotation[item] for annotation in self._annotations), item)
+                return AttributeList(self, item, index_type='annotations')
             return self._annotations[0][item]
         if isinstance(item, tuple):
             if self._layer.ambiguous:
-                return AttributeTupleList((annotation[item] for annotation in self._annotations), item)
+                return AttributeTupleList(self, item, index_type='annotations')
             return self._annotations[0][item]
 
         raise KeyError(item)

@@ -15,6 +15,7 @@ from estnltk_core.tests import new_text
 
 from estnltk_core.common import load_text_class
 
+from estnltk_core.tests import create_amb_attribute_list
 
 def test_layer_indexing():
     # Load Text or BaseText class (depending on the available packages)
@@ -68,15 +69,16 @@ def test_layer_indexing():
 
     atl = t['base']['a', 'b']
     t.pop_layer('base')
-    assert atl == AttributeTupleList([[1, 11],
-                                      [2, 12],
-                                      [3, 'default b'],
-                                      ['default a', 'default b'],
-                                      [5, 15],
-                                      [6, 16],
-                                      [7, None],
-                                      [None, None]],
-                                     ('a', 'b'))
+    assert isinstance(atl, AttributeTupleList)
+    assert atl == create_amb_attribute_list([[1, 11],
+                                             [2, 12],
+                                             [3, 'default b'],
+                                             ['default a', 'default b'],
+                                             [5, 15],
+                                             [6, 16],
+                                             [7, None],
+                                             [None, None]],
+                                             ('a', 'b'))
 
 
 def test_ambiguous_layer_indexing():

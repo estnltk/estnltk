@@ -8,6 +8,8 @@ from estnltk_core.layer.layer import Layer, ElementaryBaseSpan
 from estnltk_core.layer import AmbiguousAttributeTupleList
 from estnltk_core.converters.layer_dict_converter import dict_to_layer
 
+from estnltk_core.tests import create_amb_attribute_list
+
 from estnltk_core.legacy.layer_operations import apply_filter
 from estnltk_core.legacy.layer_operations import drop_annotations
 from estnltk_core.legacy.layer_operations import keep_annotations
@@ -117,8 +119,8 @@ def test_drop_annotations():
                      attribute='attr_1',
                      values={'A', 'D'}
                      )
-    expected = AmbiguousAttributeTupleList([[['L1-0', 'B']], [['L1-1', 'C']], [['L1-2', 'E']], [['L1-3', 'F']]],
-                                           ('attr', 'attr_1'))
+    expected = create_amb_attribute_list([[['L1-0', 'B']], [['L1-1', 'C']], [['L1-2', 'E']], [['L1-3', 'F']]],
+                                         ('attr', 'attr_1'))
     assert text['layer_1']['attr', 'attr_1'] == expected
 
 
@@ -129,8 +131,8 @@ def test_keep_annotations():
                      attribute='attr_1',
                      values={'B', 'C', 'E', 'F'}
                      )
-    expected = AmbiguousAttributeTupleList([[['L1-0', 'B']], [['L1-1', 'C']], [['L1-2', 'E']], [['L1-3', 'F']]],
-                                           ('attr', 'attr_1'))
+    expected = create_amb_attribute_list([[['L1-0', 'B']], [['L1-1', 'C']], [['L1-2', 'E']], [['L1-3', 'F']]],
+                                         ('attr', 'attr_1'))
     assert text['layer_1']['attr', 'attr_1'] == expected
 
     # test preserve_spans=True
@@ -140,8 +142,8 @@ def test_keep_annotations():
                      values={},
                      preserve_spans=True,
                      )
-    expected = AmbiguousAttributeTupleList([[['L1-0', 'A']], [['L1-1', 'C']], [['L1-2', 'D']], [['L1-3', 'F']]],
-                                           ('attr', 'attr_1'))
+    expected = create_amb_attribute_list([[['L1-0', 'A']], [['L1-1', 'C']], [['L1-2', 'D']], [['L1-3', 'F']]],
+                                         ('attr', 'attr_1'))
     assert text['layer_1']['attr', 'attr_1'] == expected
 
 

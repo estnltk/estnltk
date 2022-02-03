@@ -4,9 +4,9 @@ from estnltk.taggers import CompoundTokenTagger
 from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
 from estnltk.default_resolver import make_resolver
-from estnltk_core.layer import AmbiguousAttributeList
 from estnltk_core.converters import layer_to_dict
 
+from estnltk_core.tests import create_amb_attribute_list
 
 def test_analyse_segmentation_and_morphology():
     # Analysing first for 'segmentation', and then for 'morphology'
@@ -664,9 +664,9 @@ def test_default_morph_analysis_without_guessing():
     text.pop_layer('morph_analysis')
     # Create a new layer without guessing
     text.tag_layer(resolver=resolver)['morph_analysis']
-    assert AmbiguousAttributeList([['tüdruk'], ['mine'], [None], [None]], 'root') == text.root
-    assert AmbiguousAttributeList([['tüdruk'], ['minema'], [None], [None]], 'lemma') == text.lemma
-    assert AmbiguousAttributeList([['S'], ['V'], [None], [None]], 'partofspeech') == text.partofspeech
+    assert create_amb_attribute_list([['tüdruk'], ['mine'], [None], [None]], 'root') == text.root
+    assert create_amb_attribute_list([['tüdruk'], ['minema'], [None], [None]], 'lemma') == text.lemma
+    assert create_amb_attribute_list([['S'], ['V'], [None], [None]], 'partofspeech') == text.partofspeech
     
     # Case 3
     # Use VabamorfTagger

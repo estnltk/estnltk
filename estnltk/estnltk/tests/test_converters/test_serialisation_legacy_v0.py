@@ -6,7 +6,7 @@
 #
 from pprint import pprint
 
-from estnltk_core.layer import AmbiguousAttributeList
+from estnltk_core.tests import create_amb_attribute_list
 from estnltk_core.converters import dict_to_text
 
 test_legacy_v0_text_dict = \
@@ -224,6 +224,6 @@ def test_restore_text_from_legacy_v0_dict():
     assert len(text_obj['morph_analysis']) == 3
     assert len(text_obj['gt_morph_analysis']) == 3
 
-    assert text_obj['morph_analysis'].partofspeech == AmbiguousAttributeList([['A', 'A', 'V', 'A'], ['H'], ['S']], 'partofspeech')
-    assert text_obj['morph_analysis'].lemma == AmbiguousAttributeList([['varjatud', 'varjatud', 'varjama', 'varjatud'], ['Markov'], ['mudel']], 'lemma')
+    assert text_obj['morph_analysis'].partofspeech == create_amb_attribute_list([['A', 'A', 'V', 'A'], ['H'], ['S']], 'partofspeech')
+    assert text_obj['morph_analysis'].lemma == create_amb_attribute_list([['varjatud', 'varjatud', 'varjama', 'varjatud'], ['Markov'], ['mudel']], 'lemma')
     

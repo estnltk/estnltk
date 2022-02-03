@@ -4,9 +4,11 @@ import re
 from estnltk_core.layer.base_layer import BaseLayer
 from estnltk_core import ElementaryBaseSpan, EnvelopingBaseSpan
 from estnltk_core import Span, Annotation
-from estnltk_core.layer import AttributeList
+from estnltk_core.layer import AttributeList, AttributeTupleList
 
 from estnltk_core.common import load_text_class
+
+from estnltk_core.tests import create_amb_attribute_list
 
 def test_add_annotation():
     span_1 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
@@ -28,12 +30,21 @@ def test_add_annotation():
 
 
 def test_getattr():
-    span_1 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
+    # span of unambiguous layer
+    span_0 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test0', attributes=['attr_1'], ambiguous=False))
+    span_0.add_annotation(Annotation(span_0, attr_1=0))
+    
+    assert isinstance(span_0.attr_1, int)
+    assert span_0.attr_1 == 0
+
+    # span of ambiguous layer
+    span_1 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test1', attributes=['attr_1'], ambiguous=True))
 
     span_1.add_annotation(Annotation(span_1, attr_1=0))
     span_1.add_annotation(Annotation(span_1, attr_1=3))
 
-    assert span_1.attr_1 == AttributeList([0, 3], 'attr_1')
+    assert isinstance(span_1.attr_1, AttributeList)
+    assert span_1.attr_1 == create_amb_attribute_list([0, 3], 'attr_1')
 
     with pytest.raises(AttributeError):
         span_1.__getstate__
@@ -49,7 +60,18 @@ def test_getattr():
 
 
 def test_getitem():
-    span_1 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
+    # span of unambiguous layer with 1 attribute
+    span_0 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test0', attributes=['attr_1'], ambiguous=False))
+    span_0.add_annotation(Annotation(span_0, attr_1=0))
+    
+    assert isinstance(span_0.annotations[0], Annotation)
+    assert span_0.annotations[0].attr_1 == 0
+    
+    assert isinstance(span_0['attr_1'], int)
+    assert span_0['attr_1'] == 0
+  
+    # span of ambiguous layer with 1 attribute
+    span_1 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test1', attributes=['attr_1'], ambiguous=True))
 
     span_1.add_annotation(Annotation(span_1, attr_1=0))
     span_1.add_annotation(Annotation(span_1, attr_1=3))
@@ -58,7 +80,8 @@ def test_getitem():
     assert span_1.annotations[0].attr_1 == 0
     assert span_1.annotations[1].attr_1 == 3
 
-    assert span_1['attr_1'] == AttributeList([0, 3], 'attr_1')
+    assert isinstance(span_1['attr_1'], AttributeList)
+    assert span_1['attr_1'] == create_amb_attribute_list([0, 3], 'attr_1')
 
     with pytest.raises(KeyError):
         span_1[:]
@@ -68,6 +91,31 @@ def test_getitem():
 
     with pytest.raises(KeyError):
         span_1[0]
+
+    # span of unambiguous layer with multiple attributes
+    span_2 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test2', attributes=['attr_1', 'attr_2'], ambiguous=False))
+    span_2.add_annotation(Annotation(span_2, attr_1=1, attr_2=2))
+    
+    assert isinstance(span_2.annotations[0], Annotation)
+    assert span_2.annotations[0].attr_1 == 1
+    assert span_2.annotations[0].attr_2 == 2
+    assert span_2[('attr_1', 'attr_2')] == (1, 2)
+
+    # span of ambiguous layer with multiple attributes
+    span_3 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test3', attributes=['attr_1', 'attr_2'], ambiguous=True))
+    span_3.add_annotation(Annotation(span_3, attr_1=1,  attr_2=2))
+    span_3.add_annotation(Annotation(span_3, attr_1=11, attr_2=12))
+    
+    assert isinstance(span_3.annotations[0], Annotation)
+    assert isinstance(span_3.annotations[1], Annotation)
+    
+    assert span_3.annotations[0].attr_1 == 1
+    assert span_3.annotations[0].attr_2 == 2
+    assert span_3.annotations[1].attr_1 == 11
+    assert span_3.annotations[1].attr_2 == 12
+    
+    assert isinstance(span_3[('attr_1', 'attr_2')], AttributeTupleList)
+    assert span_3[('attr_1', 'attr_2')]== create_amb_attribute_list([[1, 2], [11, 12]], ('attr_1', 'attr_2') )
 
 
 def test_base_spans():

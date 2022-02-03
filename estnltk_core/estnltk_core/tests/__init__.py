@@ -1,2 +1,3 @@
 from estnltk_core.tests.helpers.text_objects import new_text
 from estnltk_core.tests.helpers.object_inspection import inspect_class_members
+from estnltk_core.tests.helpers.ambiguous_attribute_list_creator import create_amb_attribute_list

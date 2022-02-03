@@ -2,8 +2,9 @@ from os import path
 
 from estnltk.taggers import PhraseTagger
 from estnltk_core.tests.helpers.text_objects import new_text
-from estnltk_core.layer import AmbiguousAttributeList
 from estnltk import Annotation
+
+from estnltk_core.tests import create_amb_attribute_list
 
 
 def decorator(span, annotation):
@@ -32,8 +33,8 @@ def test_basic():
     tagger.tag(text)
 
     layer = text['phrases']
-    assert layer.letter == AmbiguousAttributeList([['B'], ['A', 'C'], ['D']], 'letter')
-    assert layer.number == AmbiguousAttributeList([[2], [1, 3], [4]], 'number')
-    assert layer._priority_ == AmbiguousAttributeList([[1], [1, 1], [1]], '_priority_')
-    assert layer.attr_1 == AmbiguousAttributeList([['default_1'], ['default_1', 'default_1'], ['default_1']], 'attr_1')
-    assert layer.attr_2 == AmbiguousAttributeList([[1], [2, 2], [3]], 'attr_2')
+    assert layer.letter == create_amb_attribute_list([['B'], ['A', 'C'], ['D']], 'letter')
+    assert layer.number == create_amb_attribute_list([[2], [1, 3], [4]], 'number')
+    assert layer._priority_ == create_amb_attribute_list([[1], [1, 1], [1]], '_priority_')
+    assert layer.attr_1 == create_amb_attribute_list([['default_1'], ['default_1', 'default_1'], ['default_1']], 'attr_1')
+    assert layer.attr_2 == create_amb_attribute_list([[1], [2, 2], [3]], 'attr_2')

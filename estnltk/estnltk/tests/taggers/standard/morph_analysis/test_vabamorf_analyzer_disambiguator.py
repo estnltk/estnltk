@@ -4,9 +4,10 @@ from estnltk import Text
 from estnltk import Annotation
 from estnltk.taggers.standard.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
 from estnltk.taggers.standard.morph_analysis.morf import IGNORE_ATTR
-from estnltk_core.layer import AmbiguousAttributeList
 from estnltk.converters import dict_to_layer
 from estnltk.converters import layer_to_records
+
+from estnltk_core.tests import create_amb_attribute_list
 
 # ----------------------------------
 #   Helper functions
@@ -118,10 +119,10 @@ def test_morph_analyzer_without_guessing():
     
     # Check for unknown word placeholders
     assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
-    assert AmbiguousAttributeList([[None],
-                                   ['ole', 'ole'], [None], ['rõlge', 'rõlge=lt'],
-                                   ['hea', 'hea', 'hea', 'hea'],
-                                   ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
+    assert create_amb_attribute_list([[None],
+                                      ['ole', 'ole'], [None], ['rõlge', 'rõlge=lt'],
+                                      ['hea', 'hea', 'hea', 'hea'],
+                                      ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
 
     # Test that zip can be used to discover unknown words
     unknown_words = []
@@ -263,10 +264,10 @@ def test_morph_disambiguation_exception_on_unknown_words():
     
     # Check for unknown word placeholders
     assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
-    assert AmbiguousAttributeList([[None],
-                                   ['ole', 'ole'], [None], ['rõlge', 'rõlge=lt'],
-                                   ['hea', 'hea', 'hea', 'hea'],
-                                   ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
+    assert create_amb_attribute_list([[None],
+                                      ['ole', 'ole'], [None], ['rõlge', 'rõlge=lt'],
+                                      ['hea', 'hea', 'hea', 'hea'],
+                                      ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
 
     with pytest.raises(Exception) as e1:
         # Disambiguate text

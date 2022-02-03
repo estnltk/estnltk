@@ -453,18 +453,14 @@ class BaseLayer:
             raise IndexError('no attributes: ' + str(attributes))
         if self.ambiguous:
             if isinstance(attributes, (list, tuple)):
-                result = AmbiguousAttributeTupleList(
-                        (((getattr(a, attr) for attr in attributes) for a in sp.annotations)
-                         for sp in self.spans), attributes)
+                result = AmbiguousAttributeTupleList( self.spans, attributes )
             else:
-                result = AmbiguousAttributeList(((getattr(a, attributes) for a in sp.annotations)
-                                                 for sp in self.spans), attributes)
+                result = AmbiguousAttributeList( self.spans, attributes )
         else:
             if isinstance(attributes, (list, tuple)):
-                result = AttributeTupleList([[getattr(sp, attr) for attr in attributes] for sp in self.spans],
-                                            attributes)
+                result = AttributeTupleList( self.spans, attributes )
             else:
-                result = AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
+                result = AttributeList( self.spans, attributes )
         return result
 
     def add_span(self, span: Span) -> Span:

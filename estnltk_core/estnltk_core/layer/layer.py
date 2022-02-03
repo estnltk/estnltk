@@ -153,7 +153,7 @@ class Layer(BaseLayer):
         target_layer = self.text_object[attribute_mapping[item]]
         if len(target_layer) == 0:
             return AttributeList([], item)
-        result = [target_layer.get(span.base_span)[item] for span in self]
+        result = [target_layer.get(span.base_span) for span in self]
 
         target_level = target_layer.span_level
         self_level = self.span_level
@@ -162,9 +162,10 @@ class Layer(BaseLayer):
                   ("Unable to resolve foreign attribute: target layer {!r} has higher "+\
                    "span level than this layer.").format( target_layer.name ) )
         if target_level == self_level and target_layer.ambiguous:
+            assert all([isinstance(s, Span) for s in result])
             return AmbiguousAttributeList(result, item)
-
-        return AttributeList(result, item)
+        assert all([isinstance(l, BaseLayer) for l in result])
+        return AttributeList(result, item, index_type='layers')
 
     def __getattr__(self, item):
         if item in self.__getattribute__('attributes'):

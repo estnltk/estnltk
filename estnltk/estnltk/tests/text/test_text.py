@@ -8,9 +8,9 @@ import pytest
 import itertools
 from estnltk_core import Layer
 from estnltk import Text
-from estnltk_core.layer import AttributeList
+from estnltk_core.layer import AttributeList, AmbiguousAttributeList
 from estnltk_core import Annotation
-from estnltk_core.layer import AmbiguousAttributeList, AttributeTupleList
+from estnltk_core.tests import create_amb_attribute_list
 
 
 def test_general():
@@ -32,11 +32,11 @@ def test_general():
     assert len(t.words) == len(t.words.text)
     # assert len(t.sentences) == len(t.sentences.text)
     # assert len(t.sentences.words.text) == len(t.sentences.text)
-    assert t.morph_analysis.lemma == AmbiguousAttributeList([['mina'], ['nimi'], ['olema', 'olema'], ['Uku'],
-                                                             ['.'], ['mis', 'mis'], ['sina'], ['nimi'],
-                                                             ['olema', 'olema'], ['?'], ['miks'], ['mina'],
-                                                             ['see'], ['arutama'], ['?']],
-                                                            'lemma')
+    assert t.morph_analysis.lemma == create_amb_attribute_list([['mina'], ['nimi'], ['olema', 'olema'], ['Uku'],
+                                                                ['.'], ['mis', 'mis'], ['sina'], ['nimi'],
+                                                                ['olema', 'olema'], ['?'], ['miks'], ['mina'],
+                                                                ['see'], ['arutama'], ['?']],
+                                                                'lemma')
 
     assert len(t.morph_analysis.lemma) == len(t.words)
     assert len(t.morph_analysis) == len(t.words)
@@ -85,7 +85,7 @@ def test_words_sentences():
     for word in t.words:
         dep.add_annotation(word, upper=word.text.upper())
 
-    assert t.uppercase.upper == AttributeList(
+    assert t.uppercase.upper == create_amb_attribute_list(
             ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?'],
             'upper')
 
@@ -137,7 +137,7 @@ def test_words_sentences():
     for word in t.words:
         dep.add_annotation(word, upper=word.text.upper())
 
-    assert t.uppercase.upper == AttributeList(
+    assert t.uppercase.upper == create_amb_attribute_list(
             ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?'],
             'upper')
     # assert t.sentences.uppercase.upper == [['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', ],[ 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']]
@@ -194,11 +194,11 @@ def test_morph2():
                     morph_word.add_annotation(Annotation(morph_word, **annotation))
 
     assert len(text.morph_analysis[5].annotations) == 2
-    print(text.morph_analysis[5])
-    print(text.morph_analysis[5].lemma)
+    #print(text.morph_analysis[5])
+    #print(text.morph_analysis[5].lemma)
     assert len(text.morph_analysis[5].lemma) == 2
-    assert text.morph_analysis[5].lemma == AttributeList(['olema', 'olema'], 'lemma')
-    assert text.morph_analysis.lemma == AmbiguousAttributeList(
+    assert text.morph_analysis[5].lemma == create_amb_attribute_list(['olema', 'olema'], 'lemma')
+    assert text.morph_analysis.lemma == create_amb_attribute_list(
         [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'],
          ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'],
          ['vaid'],
@@ -225,7 +225,7 @@ def test_sentences_morph_analysis_lemma():
 
 def test_span_morph_access():
     text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
-    assert text.sentences[0].words[0].morph_analysis.lemma == AttributeList(['olema'], 'lemma')
+    assert text.sentences[0].words[0].morph_analysis.lemma == create_amb_attribute_list(['olema'], 'lemma')
 
 
 def test_lemma_access_from_text_object():
@@ -300,16 +300,25 @@ def test_phrase_layer():
     w = UppercasePhraseTagger()
     t = w.tag(Text('Minu KARU ON PUNANE. MIS värvi SINU KARU on? Kuidas PALUN?').tag_layer(['words', 'sentences']))
     t.tag_layer(['morph_analysis'])
-    assert t.uppercasephrase['phrasetext', 'text'] == AttributeTupleList([['karu on punane', ['KARU', 'ON', 'PUNANE']],
-                                                                          ['sinu karu', ['SINU', 'KARU']]],
-                                                                         ('phrasetext', 'text'))
+    assert (t.phrasetext) == create_amb_attribute_list(['karu on punane', 'sinu karu'], 'phrasetext')
+    assert (t.uppercasephrase['phrasetext']) == create_amb_attribute_list(['karu on punane', 'sinu karu'], 'phrasetext')
+    # TODO: it's not a nice way to check, but currently there is not other way, as we cannot mock 'text' attribute
+    assert str(t.uppercasephrase['phrasetext', 'text']) == "[['karu on punane', ['KARU', 'ON', 'PUNANE']], "+\
+                                                           "['sinu karu', ['SINU', 'KARU']]]"
 
-    assert (t.phrasetext) == AttributeList(['karu on punane', 'sinu karu'], 'phrasetext')
-
-    assert t.uppercasephrase.lemma == \
-           AttributeList([AmbiguousAttributeList([['karu'], ['olema', 'olema'], ['punane']], ('lemma')),
-                          AmbiguousAttributeList([['sina'], ['karu']], ('lemma'))],
-                         'lemma')
+    assert isinstance(t.uppercasephrase.lemma, AttributeList)
+    assert str(t.uppercasephrase.lemma) == \
+           "[AmbiguousAttributeList([['karu'], ['olema', 'olema'], ['punane']], ('lemma',)), "+\
+            "AmbiguousAttributeList([['sina'], ['karu']], ('lemma',))]"
+    #
+    # More specifically,  t.uppercasephrase.lemma  returns:
+    #
+    #  AttributeList([AmbiguousAttributeList([['karu'], ['olema', 'olema'], ['punane']], ('lemma')),
+    #                 AmbiguousAttributeList([['sina'], ['karu']], ('lemma'))], 
+    #                'lemma')
+    #
+    #  (but we can't mock that structure)
+    #
 
     assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase))]) == ['Minu', '.', 'MIS',
                                                                                                  'värvi', 'on', '?',
