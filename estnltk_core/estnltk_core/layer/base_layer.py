@@ -429,7 +429,7 @@ class BaseLayer:
     def enclosing_text(self):
         return self.text_object.text[self.start:self.end]
 
-    def attribute_values(self, attributes):
+    def attribute_values(self, attributes, index_attributes=None):
         """ Returns a matrix-like data structure containing all annotations of this layer with the selected `attributes`.
             Usage examples:
             
@@ -441,7 +441,10 @@ class BaseLayer:
                 >> # select 'lemma' & 'partofspeech' attributes from the 'morph_analysis' layer
                 >> text['morph_analysis'].attribute_values(['lemma', 'partofspeech'])
                 [[['kirju', 'A']], [['kass', 'S']]]
-                
+            
+            Optional parameter `index_attributes` can be a list of span's indexing 
+            attributes ('start', 'end', 'text') which will be prepended to attributes.
+            
             Returns:
                 AttributeList -- if the layer is not ambiguous and only one attribute was selected;
                 AttributeTupleList -- if the layer is not ambiguous and more than one attributes were selected;
@@ -452,14 +455,29 @@ class BaseLayer:
         if not attributes:
             raise IndexError('no attributes: ' + str(attributes))
         if self.ambiguous:
-            if isinstance(attributes, (list, tuple)):
+            if isinstance(attributes, (list, tuple)) and index_attributes is None:
+                # multiple layer attributes, no index attributes
                 result = AmbiguousAttributeTupleList( self.spans, attributes )
+            elif isinstance(index_attributes, (list, tuple)) and \
+                 len(index_attributes) > 0: 
+                # at least one layer attribute + at least one index attribute
+                result = AmbiguousAttributeTupleList(self.spans, attributes,
+                                                     span_index_attributes=index_attributes)
             else:
+                # only one layer attribute
                 result = AmbiguousAttributeList( self.spans, attributes )
         else:
-            if isinstance(attributes, (list, tuple)):
+            if isinstance(attributes, (list, tuple)) and \
+               index_attributes is None:
+                # multiple layer attributes, no index attributes
                 result = AttributeTupleList( self.spans, attributes )
+            elif isinstance(index_attributes, (list, tuple)) and \
+                 len(index_attributes) > 0: 
+                # at least one layer attribute + at least one index attribute
+                result = AttributeTupleList(self.spans, attributes,
+                                            span_index_attributes=index_attributes)
             else:
+                # only one layer attribute
                 result = AttributeList( self.spans, attributes )
         return result
 

@@ -17,8 +17,10 @@ class AttributeTupleList(AmbiguousAttributeTupleList):
           AttributeTupleList([['Tere', 'Tere'], ['mis', 'mis'], ['teet', 'teet']], ('text', 'text'))
     """
 
-    def __init__(self, span_or_spanlist:Union['Span', List['Span']], attribute_names:List[str], index_type:str='spans'):
-        super().__init__(span_or_spanlist, attribute_names, index_type=index_type)
+    def __init__(self, span_or_spanlist:Union['Span', List['Span']], attribute_names:List[str], 
+                       index_type:str='spans', span_index_attributes:List[str]=None):
+        super().__init__(span_or_spanlist, attribute_names, index_type=index_type, \
+                         span_index_attributes=span_index_attributes)
 
     def __eq__(self, other):
         if isinstance(other, AttributeTupleList):
