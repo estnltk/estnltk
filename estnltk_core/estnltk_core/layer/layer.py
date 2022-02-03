@@ -142,7 +142,7 @@ class Layer(BaseLayer):
                     attribute_mapping = self.text_object.attribute_mapping_for_enveloping_layers
             else:
                 raise AttributeError(item, "Foreign attribute resolving is only available "+\
-                                           "if the layer is attached to estnltk.Text object.")
+                                           "if the layer is attached to estnltk.text.Text object.")
         else:
             raise AttributeError(item, \
                 "Unable to resolve foreign attribute: the layer is not attached to Text object." )
