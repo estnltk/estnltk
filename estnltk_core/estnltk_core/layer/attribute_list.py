@@ -23,10 +23,16 @@ class AttributeList(AmbiguousAttributeTupleList):
                          AmbiguousAttributeList([['mis', 'mis'], ['teet']], ('lemma',))], ('lemma',))
     """
 
-    def __init__(self, span_or_spanlist:Union['Span', List['Span'], List['Layer']], 
+    def __init__(self, span_or_spanlist:Union['Span', List['Span']], 
                        attribute_name:str, 
-                       index_type:str='spans'):
-        super().__init__(span_or_spanlist, [attribute_name], index_type=index_type)
+                       index_type:str='spans',
+                       index_attribute_name:str=None):
+        if attribute_name is not None and index_attribute_name is not None:
+            raise ValueError(('(!) Cannot set both attribute={!r} and index_attribute_name={!r} in '+\
+                              '{}. One argument should be None.').format(attribute_name, 
+                                                                         index_attribute_name, 
+                                                                         self.__class__.__name__))
+        super().__init__(span_or_spanlist, attribute_name, index_type=index_type, span_index_attributes=index_attribute_name)
 
     def __eq__(self, other):
         if isinstance(other, AttributeList):

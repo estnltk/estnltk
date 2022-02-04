@@ -491,3 +491,173 @@ def test_delete_annotation_in_ambiguous_span():
     )
     assert len(text['test'][1].annotations) == 1
 
+
+
+def test_attribute_values_selection():
+    # Test systematically different kinds of attribute value selections
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    # Prepare data
+    text = Text('Tere! Mis värk on?')
+    words_layer = dict_to_layer( \
+        {'ambiguous': False,
+         'attributes': ('normalized_form',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'words',
+         'parent': None,
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 4)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (4, 5)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (6, 9)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (10, 14)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (15, 17)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (17, 18)}]} )
+    text.add_layer( words_layer )
+    sentences_layer = dict_to_layer( \
+        {'ambiguous': False,
+         'attributes': (),
+         'enveloping': 'words',
+         'meta': {},
+         'name': 'sentences',
+         'parent': None,
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{}], 'base_span': ((0, 4), (4, 5))},
+                   {'annotations': [{}],
+                    'base_span': ((6, 9), (10, 14), (15, 17), (17, 18))}]} )
+    text.add_layer( sentences_layer )
+    morph_analysis_layer = dict_to_layer( \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'tere',
+                                     'normalized_text': 'Tere',
+                                     'partofspeech': 'I',
+                                     'root': 'tere',
+                                     'root_tokens': ['tere']}],
+                    'base_span': (0, 4)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '!',
+                                     'normalized_text': '!',
+                                     'partofspeech': 'Z',
+                                     'root': '!',
+                                     'root_tokens': ['!']}],
+                    'base_span': (4, 5)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'mis',
+                                     'normalized_text': 'Mis',
+                                     'partofspeech': 'P',
+                                     'root': 'mis',
+                                     'root_tokens': ['mis']},
+                                    {'clitic': '',
+                                     'ending': '0',
+                                     'form': 'pl n',
+                                     'lemma': 'mis',
+                                     'normalized_text': 'Mis',
+                                     'partofspeech': 'P',
+                                     'root': 'mis',
+                                     'root_tokens': ['mis']}],
+                    'base_span': (6, 9)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'värk',
+                                     'normalized_text': 'värk',
+                                     'partofspeech': 'S',
+                                     'root': 'värk',
+                                     'root_tokens': ['värk']}],
+                    'base_span': (10, 14)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'b',
+                                     'lemma': 'olema',
+                                     'normalized_text': 'on',
+                                     'partofspeech': 'V',
+                                     'root': 'ole',
+                                     'root_tokens': ['ole']},
+                                    {'clitic': '',
+                                     'ending': '0',
+                                     'form': 'vad',
+                                     'lemma': 'olema',
+                                     'normalized_text': 'on',
+                                     'partofspeech': 'V',
+                                     'root': 'ole',
+                                     'root_tokens': ['ole']}],
+                    'base_span': (15, 17)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '?',
+                                     'normalized_text': '?',
+                                     'partofspeech': 'Z',
+                                     'root': '?',
+                                     'root_tokens': ['?']}],
+                    'base_span': (17, 18)}]} )
+    text.add_layer( morph_analysis_layer )
+    
+    # AttributeList
+    # =============
+    
+    # select 1 attribute from a single span, which has ambiguous annotations
+    assert text['morph_analysis'][2]['lemma'] == create_amb_attribute_list( ['mis', 'mis'], ('lemma',) )
+    assert text['morph_analysis'][2]['form'] == create_amb_attribute_list( ['sg n', 'pl n'], ('form',) )
+    
+    # select 1 attribute from multiple spans of an unambiguous layer
+    # (note: 'words' is not unambiguous in standard estnltk)
+    assert text['words']['text'].attribute_names == ('text',)
+    # use str, because create_amb_attribute_list cannot mock 'text' attr:
+    assert str(text['words']['text']) == "['Tere', '!', 'Mis', 'värk', 'on', '?']"
+    assert text['words']['normalized_form'] == \
+        create_amb_attribute_list( [None, None, None, None, None, None], ('normalized_form',) )
+    
+    # AmbiguousAttributeList
+    # ======================
+    
+    # select 1 attribute from multiple spans of an ambiguous layer
+    assert text['morph_analysis'] ['partofspeech'] == \
+        create_amb_attribute_list( [['I'], ['Z'], ['P', 'P'], ['S'], ['V', 'V'], ['Z']], ('partofspeech',) )
+    
+    # AttributeTupleList
+    # ==================
+    
+    # select multiple attributes from a single span, which has ambiguous annotations
+    assert text['morph_analysis'][2]['lemma', 'form'] == \
+        create_amb_attribute_list( [['mis', 'sg n'], ['mis', 'pl n']], ('lemma', 'form') )
+    
+    # select multiple attributes from multiple spans of an unambiguous layer
+    # (note: 'words' is not unambiguous in standard estnltk)
+    assert text['words']['text', 'normalized_form'].attribute_names == ('text', 'normalized_form')
+    # use str, because create_amb_attribute_list cannot mock 'text' attr:
+    assert str( text['words']['text', 'normalized_form'] ) == \
+        "[['Tere', None], ['!', None], ['Mis', None], ['värk', None], ['on', None], ['?', None]]"
+    
+    # AmbiguousAttributeTupleList
+    # ===========================
+    
+    # select multiple attributes from multiple spans of an ambiguous layer
+    assert text['morph_analysis']['lemma', 'form'] == \
+        create_amb_attribute_list( [[['tere', '']], [['!', '']], [['mis', 'sg n'], ['mis', 'pl n']], [['värk', 'sg n']], 
+                                    [['olema', 'b'], ['olema', 'vad']], [['?', '']]], ('lemma', 'form') )
+

@@ -429,11 +429,11 @@ class BaseLayer:
     def enclosing_text(self):
         return self.text_object.text[self.start:self.end]
 
-    def attribute_values(self, attributes, index_attributes=None):
-        """ Returns a matrix-like data structure containing all annotations of this layer with the selected `attributes`.
+    def attribute_values(self, attributes, index_attributes=[]):
+        """ Returns a matrix-like data structure containing all annotations of this layer with the selected attributes.
             Usage examples:
             
-                >> text = Text('Kirju kass').tag_layer('morph_analysis')
+                >> text = Text('Kirjule kassile').tag_layer('morph_analysis')
                 >> # select 'partofspeech' attributes from the 'morph_analysis' layer
                 >> text['morph_analysis'].attribute_values('partofspeech')
                 [['A'], ['S']]
@@ -443,7 +443,16 @@ class BaseLayer:
                 [[['kirju', 'A']], [['kass', 'S']]]
             
             Optional parameter `index_attributes` can be a list of span's indexing 
-            attributes ('start', 'end', 'text') which will be prepended to attributes.
+            attributes ('start', 'end', 'text'), which will be prepended to attributes.
+            Example:
+            
+                >> text = Text('Kirjule kassile').tag_layer('morph_analysis')
+                >> # select 'partofspeech' from the 'morph_analysis' layer and prepend surface text strings
+                >> text['morph_analysis'].attribute_values('partofspeech', index_attributes=['text'])
+                [[['Kirjule', 'A']], [['kassile', 'S']]]
+            
+            Note: for a successful selection, you should provide at least one regular or index 
+            attribute; a selection without any attributes raises IndexError.
             
             Returns:
                 AttributeList -- if the layer is not ambiguous and only one attribute was selected;
@@ -451,34 +460,38 @@ class BaseLayer:
                 AmbiguousAttributeList -- if the layer is ambiguous and only one attribute was selected;
                 AmbiguousAttributeTupleList -- if the layer is ambiguous and more than one attributes were selected;
         """
-        assert isinstance(attributes, (str, list, tuple)), str(type(attributes))
-        if not attributes:
+        if not isinstance(attributes, (str, list, tuple)):
+            raise TypeError( 'Unexpected type for attributes:'.format( str(type(attributes)) ) )
+        if not isinstance(index_attributes, (str, list, tuple)):
+            raise TypeError( 'Unexpected type for index_attributes:'.format( str(type(index_attributes)) ) )
+        number_of_layer_attrs = \
+            len(attributes) if isinstance(attributes, (list, tuple)) else (0 if not attributes else 1)
+        number_of_index_attrs = \
+            len(index_attributes) if isinstance(index_attributes, (list, tuple)) else (0 if not index_attributes else 1)
+        if number_of_layer_attrs + number_of_index_attrs == 0:
             raise IndexError('no attributes: ' + str(attributes))
         if self.ambiguous:
-            if isinstance(attributes, (list, tuple)) and index_attributes is None:
-                # multiple layer attributes, no index attributes
-                result = AmbiguousAttributeTupleList( self.spans, attributes )
-            elif isinstance(index_attributes, (list, tuple)) and \
-                 len(index_attributes) > 0: 
-                # at least one layer attribute + at least one index attribute
+            if (number_of_layer_attrs + number_of_index_attrs) > 1 or \
+                isinstance(attributes, (list, tuple)):
+                # selected: more than 1 attributes at total or 
+                # at least 1 layer attribute in a list (for backwards compatibility)
                 result = AmbiguousAttributeTupleList(self.spans, attributes,
                                                      span_index_attributes=index_attributes)
-            else:
-                # only one layer attribute
-                result = AmbiguousAttributeList( self.spans, attributes )
+            elif number_of_layer_attrs + number_of_index_attrs == 1:
+                # only attribute
+                index_attr = index_attributes if len(index_attributes) > 0 else None
+                result = AmbiguousAttributeList(self.spans, attributes, index_attribute_name=index_attr)
         else:
-            if isinstance(attributes, (list, tuple)) and \
-               index_attributes is None:
-                # multiple layer attributes, no index attributes
-                result = AttributeTupleList( self.spans, attributes )
-            elif isinstance(index_attributes, (list, tuple)) and \
-                 len(index_attributes) > 0: 
-                # at least one layer attribute + at least one index attribute
+            if (number_of_layer_attrs + number_of_index_attrs) > 1 or \
+                isinstance(attributes, (list, tuple)):
+                # selected: more than 1 attributes at total or 
+                # at least 1 layer attribute in a list (for backwards compatibility)
                 result = AttributeTupleList(self.spans, attributes,
                                             span_index_attributes=index_attributes)
-            else:
-                # only one layer attribute
-                result = AttributeList( self.spans, attributes )
+            elif number_of_layer_attrs + number_of_index_attrs == 1:
+                # only attribute
+                index_attr = index_attributes if len(index_attributes) > 0 else None
+                result = AttributeList(self.spans, attributes, index_attribute_name=index_attr)
         return result
 
     def add_span(self, span: Span) -> Span:
@@ -742,19 +755,19 @@ class BaseLayer:
         else:
             meta = ''
 
-        attributes = []
+        index_attributes = []
         if self.text_object is None:
             text_object = 'No Text object.'
         else:
-            attributes.append('text')
+            index_attributes.append('text')
             text_object = ''
         if self.print_start_end:
-            attributes.extend(['start', 'end'])
-        attributes.extend(self.attributes)
-        if not attributes:
-            attributes = ['start', 'end']
+            index_attributes.extend(['start', 'end'])
+        attributes = self.attributes[:]
+        if not attributes and not index_attributes:
+            index_attributes = ['start', 'end']
         table_1 = self.get_overview_dataframe().to_html(index=False, escape=False)
         table_2 = ''
-        if attributes:
-            table_2 = self.attribute_values(attributes).to_html(index='text')
+        if attributes or index_attributes:
+            table_2 = self.attribute_values(attributes, index_attributes=index_attributes).to_html(index='text')
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object, table_1, table_2))

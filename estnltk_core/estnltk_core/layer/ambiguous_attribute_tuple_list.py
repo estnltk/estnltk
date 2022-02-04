@@ -64,7 +64,7 @@ class AmbiguousAttributeTupleList:
     def __init__(self, span_or_spanlist:Union['Span', List['Span'], List['BaseLayer']], 
                        attribute_names:Union[str, List[str]], 
                        index_type:str='spans',
-                       span_index_attributes:List[str]=None):
+                       span_index_attributes:Union[str, List[str]]=None):
         """ Initializes immutable lists representing values of attributes selected from the source.
             
             The exact structure depends on the number of attributes and the 
@@ -84,10 +84,10 @@ class AmbiguousAttributeTupleList:
                 this also guides how attribute values will be selected from the source
                 `span_or_spanlist`.
             
-            span_index_attributes: List[str] (default: None)
-                list containing names of span's indexing attributes ('start', 'end', 'text')
-                which values should also be selected. Note that the indexing attributes 
-                will be prepended to `attribute_names`, so they always come first.
+            span_index_attributes: Union[str, List[str] (default: None)
+                names of span's indexing attributes ('start', 'end', 'text') which values 
+                should also be selected. Note that the indexing attributes will be 
+                prepended to `attribute_names`, so they always come first. 
         """
         # Check input parameters
         if index_type not in ['layers', 'spans', 'annotations']:
@@ -96,20 +96,26 @@ class AmbiguousAttributeTupleList:
         if isinstance(span_or_spanlist, (list, tuple)) and index_type == 'annotations':
             raise TypeError('Unexpected index_type="annotations" for a list of spans. '+\
                             'This index_type can only be used with a single Span.')
-        if span_index_attributes is not None:
-            if not isinstance(span_index_attributes, (list, tuple)):
-                raise TypeError("Expected a list of strings for span_index_attributes.")
-            if not all([index_attr in ['start', 'end', 'text'] for index_attr in span_index_attributes]):
-                raise ValueError(("span_index_attributes={!r} contains unexpected values. Please use only "+
-                                  "values 'start', 'end', 'text'").format(span_index_attributes))
-        
-        # Unify input parameters
+        # Unify attribute names
+        # Assume that a string is a single attribute name,
+        # while otherwise we should have a list of attribute names
         if isinstance(attribute_names, str):
-            # Assume that a string argument is a single attribute name,
-            # while otherwise we have a list of attribute names
             attribute_names = [ attribute_names ]
-        assert isinstance(attribute_names, (list, tuple)) and \
-               all([isinstance(a, str) for a in attribute_names])
+        if isinstance(span_index_attributes, str):
+            span_index_attributes = [ span_index_attributes ]
+        # Check attribute names
+        if not (isinstance(attribute_names, (list, tuple)) and \
+                all([isinstance(a, str) for a in attribute_names])):
+            raise ValueError(("Unexpected attribute_names={!r}. "+\
+                              "Expected a list of strings.").format(attribute_names))
+        if span_index_attributes is not None:
+            if not isinstance(span_index_attributes, (list, tuple)) or \
+               not all([index_attr in ['start', 'end', 'text'] for index_attr in span_index_attributes]):
+                raise ValueError(("Unexpected span_index_attributes={!r}. "+\
+                                  "Expected a list containing strings "+\
+                                  "'start', 'end', 'text'.").format(span_index_attributes))
+        if len(attribute_names) == 0 and (span_index_attributes is None or len(span_index_attributes) == 0):
+            raise ValueError('No attributes were selected.')
              
         # Yield attributes & values from a single annotation:
         def get_attribute_values( annotation, attributes, index_attributes ):
@@ -135,9 +141,11 @@ class AmbiguousAttributeTupleList:
             # Unpack layers
             for layer in span_or_spanlist:
                 # Unpack spans of a layer
-                # Assume we have a Layer, so calling layer[attribute_names] should 
-                # give use AmbiguousAttributeTupleList via layer's attribute_values:
-                attr_values = layer[ attribute_names if len(attribute_names)>1 else attribute_names[0] ] 
+                # Assume we have a Layer, so calling layer's attribute_values should 
+                # give us AmbiguousAttributeTupleList
+                attr_names = attribute_names if len(attribute_names)>1 else attribute_names[0]
+                index_attribs = span_index_attributes if span_index_attributes is not None else []
+                attr_values = layer.attribute_values(attr_names, index_attributes=index_attribs)
                 assert isinstance(attr_values, AmbiguousAttributeTupleList)
                 amb_attr_tuple_list.append( [[attr_values]] )
         elif index_type == 'spans':
@@ -154,7 +162,11 @@ class AmbiguousAttributeTupleList:
         # Create ImmutableLists
         self.amb_attr_tuple_list = ImmutableList(ImmutableList(ImmutableList(v) for v in value_tuples)
                                                  for value_tuples in amb_attr_tuple_list)
-        self.attribute_names = tuple(attribute_names)
+        # Set attribute names
+        if span_index_attributes is not None:
+            self.attribute_names = tuple(span_index_attributes) + tuple(attribute_names)
+        else:
+            self.attribute_names = tuple(attribute_names)
         self.index_type = index_type
 
     def __getitem__(self, item):
