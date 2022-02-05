@@ -626,9 +626,10 @@ def test_attribute_values_selection():
     
     # select 1 attribute from multiple spans of an unambiguous layer
     # (note: 'words' is not unambiguous in standard estnltk)
-    assert text['words']['text'].attribute_names == ('text',)
+    selection = text['words']['text']
+    assert selection.attribute_names == ('text',)
     # use str, because create_amb_attribute_list cannot mock 'text' attr:
-    assert str(text['words']['text']) == "['Tere', '!', 'Mis', 'värk', 'on', '?']"
+    assert str(selection) == "['Tere', '!', 'Mis', 'värk', 'on', '?']"
     assert text['words']['normalized_form'] == \
         create_amb_attribute_list( [None, None, None, None, None, None], ('normalized_form',) )
     
@@ -636,9 +637,9 @@ def test_attribute_values_selection():
     # ======================
     
     # select 1 attribute from multiple spans of an ambiguous layer
-    assert text['morph_analysis'] ['partofspeech'] == \
+    assert text['morph_analysis']['partofspeech'] == \
         create_amb_attribute_list( [['I'], ['Z'], ['P', 'P'], ['S'], ['V', 'V'], ['Z']], ('partofspeech',) )
-    
+
     # AttributeTupleList
     # ==================
     
@@ -648,10 +649,34 @@ def test_attribute_values_selection():
     
     # select multiple attributes from multiple spans of an unambiguous layer
     # (note: 'words' is not unambiguous in standard estnltk)
-    assert text['words']['text', 'normalized_form'].attribute_names == ('text', 'normalized_form')
+    selection = text['words']['text', 'normalized_form']
+    assert selection.attribute_names == ('text', 'normalized_form')
     # use str, because create_amb_attribute_list cannot mock 'text' attr:
-    assert str( text['words']['text', 'normalized_form'] ) == \
+    assert str(selection) == \
         "[['Tere', None], ['!', None], ['Mis', None], ['värk', None], ['on', None], ['?', None]]"
+
+    # select 1 index attribute from multiple spans of an unambiguous layer
+    selection = text['words'].attribute_values([], index_attributes=['start'])
+    assert selection.attribute_names == ('start',)
+    assert str(selection) == "[[0], [4], [6], [10], [15], [17]]"
+    # TODO: in principle, it could be AttributeList, but previous versions of estnltk also
+    # returned AttributeTupleList on this occasion. should we correct this behavior?
+
+    # select 1 index attribute from a level 1 enveloping layer
+    selection = text['sentences'].attribute_values([], index_attributes=['start'])
+    assert selection.attribute_names == ('start',)
+    assert str(selection) == "[[0], [6]]"
+
+    # select multiple index attributes from an unambiguous layer
+    selection = text['words'].attribute_values([], index_attributes=['start', 'end', 'text'])
+    assert selection.attribute_names == ('start', 'end', 'text')
+    assert str(selection) == \
+        "[[0, 4, 'Tere'], [4, 5, '!'], [6, 9, 'Mis'], [10, 14, 'värk'], [15, 17, 'on'], [17, 18, '?']]"
+    
+    # select multiple index attributes from a level 1 enveloping layer
+    selection = text['sentences'].attribute_values([], index_attributes=['start', 'end', 'text'])
+    assert selection.attribute_names == ('start', 'end', 'text')
+    assert str(selection) == "[[0, 5, ['Tere', '!']], [6, 18, ['Mis', 'värk', 'on', '?']]]"
     
     # AmbiguousAttributeTupleList
     # ===========================
@@ -660,4 +685,19 @@ def test_attribute_values_selection():
     assert text['morph_analysis']['lemma', 'form'] == \
         create_amb_attribute_list( [[['tere', '']], [['!', '']], [['mis', 'sg n'], ['mis', 'pl n']], [['värk', 'sg n']], 
                                     [['olema', 'b'], ['olema', 'vad']], [['?', '']]], ('lemma', 'form') )
+
+    # select 1 index attribute from multiple spans of an ambiguous layer
+    selection = text['morph_analysis'].attribute_values([], index_attributes=['start'])
+    assert selection.attribute_names == ('start',)
+    assert str(selection) == "[[[0]], [[4]], [[6], [6]], [[10]], [[15], [15]], [[17]]]"
+    # TODO: index attributes mimic the layer ambiguity, although there is no ambiguity in index 
+    # attributes themselves. should we correct this behavior?
+    
+    # select multiple index attributes from an ambiguous layer
+    selection = text['morph_analysis'].attribute_values([], index_attributes=['start', 'end', 'text'])
+    assert selection.attribute_names == ('start', 'end', 'text')
+    assert str(selection) == \
+        "[[[0, 4, 'Tere']], [[4, 5, '!']], [[6, 9, 'Mis'], [6, 9, 'Mis']], [[10, 14, 'värk']], "+\
+        "[[15, 17, 'on'], [15, 17, 'on']], [[17, 18, '?']]]"
+
 
