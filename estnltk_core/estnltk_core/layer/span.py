@@ -1,6 +1,6 @@
 from copy import deepcopy
 from reprlib import recursive_repr
-from typing import Any, Sequence
+from typing import Any, Sequence, Union, Dict
 
 from estnltk_core.common import _create_attr_val_repr
 
@@ -63,14 +63,63 @@ class Span:
         result._layer = deepcopy(self._layer, memo)
         return result
 
-    def add_annotation(self, annotation: Annotation) -> Annotation:
-        if not isinstance(annotation, Annotation):
-            raise TypeError('expected Annotation, got {}'.format(type(annotation)))
-        if annotation.span is not self:
-            raise ValueError('the annotation has a different span {}'.format(annotation.span))
-        if set(annotation) != set(self.layer.attributes):
-            raise ValueError('the annotation has unexpected or missing attributes {}!={}'.format(
-                    set(annotation), set(self.layer.attributes)))
+    def add_annotation(self, annotation: Union[Dict[str, Any], Annotation]={}, **annotation_kwargs) -> Annotation:
+        """Adds new annotation (from `annotation` / `annotation_kwargs`) to this span.
+           
+           `annotation` can be either an Annotation object initiated with this span.
+           Example:
+           
+               span.add_annotation(Annotation(span, {'attr1': ..., 'attr2': ...}))
+           
+           Or it can be a dictionary of attributes and values. Example:
+           
+               span.add_annotation( {'attr1': ..., 'attr2': ...} )
+           
+           Missing attributes will be filled in with span layer's default_values 
+           (None values, if defaults have not been explicitly set). 
+           Redundant attributes (attributes not in `span.layer.attributes`) 
+           will be discarded. 
+           Optionally, you can leave `annotation` unspecified and pass keyword 
+           arguments to the method via `annotation_kwargs`, for example: 
+           
+               span.add_annotation( attr1=..., attr2=... )
+           
+           Note that keyword arguments can only be valid Python keywords 
+           (excluding the keyword 'annotation'), and using `annotation` 
+           dictionary enables to bypass these restrictions.
+           
+           Note that you cannot pass Annotation object and keyword arguments 
+           simultaneously, this will result in TypeError. 
+           However, you can pass annotation dictionary and keyword arguments 
+           simultaneously. In that case, keyword arguments override annotation 
+           dictionary in case of an overlap in attributes. Overall, the 
+           priority order in setting value of an attribute is: 
+           `annotation_kwargs` > `annotation(dict)` > `default attributes`.
+            
+           The method returns added Annotation object.
+           
+           Note: you can add two or more annotations to this span only if 
+           the layer is ambiguous.
+        """
+        if isinstance(annotation, Annotation):
+            # Annotation object
+            if annotation.span is not self:
+                raise ValueError('the annotation has a different span {}'.format(annotation.span))
+            if set(annotation) != set(self.layer.attributes):
+                raise ValueError('the annotation has unexpected or missing attributes {}!={}'.format(
+                        set(annotation), set(self.layer.attributes)))
+            if len(annotation_kwargs.items()) > 0:
+                # If Annotation object is already provided, cannot add additional keywords
+                raise TypeError(('cannot add keyword arguments {!r} to an existing Annotation object.'+\
+                                 'please pass keywords as a dict instead of Annotation object.').format(annotation_kwargs))
+        elif isinstance(annotation, dict):
+            # annotation dict
+            annotation_dict = {**self.layer.default_values, \
+                               **{k: v for k, v in annotation.items() if k in self.layer.attributes}, \
+                               **{k: v for k, v in annotation_kwargs.items() if k in self.layer.attributes}}
+            annotation = Annotation(self, annotation_dict)
+        else:
+            raise TypeError('expected Annotation object or dict, but got {}'.format(type(annotation)))
 
         if annotation not in self._annotations:
             if self.layer.ambiguous or len(self._annotations) == 0:

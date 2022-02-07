@@ -11,6 +11,13 @@ from estnltk_core.common import load_text_class
 from estnltk_core.tests import create_amb_attribute_list
 
 def test_add_annotation():
+    # Add empty annotation(s)
+    span_0 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=(), ambiguous=True))
+    span_0.add_annotation()
+    span_0.add_annotation()
+    assert len(span_0.annotations) == 1
+    
+    # Add annotation as an object
     span_1 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
 
     span_1.add_annotation(Annotation(span_1, attr_1=0))
@@ -27,6 +34,34 @@ def test_add_annotation():
     span_2.add_annotation(Annotation(span_2, attr_1=0))
 
     assert span_1 == span_2
+
+    # Add annotation as dictionary
+    span_3 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
+    span_3.add_annotation( {'attr_1': 0} )
+    span_3.add_annotation( {'attr_1': 3} )
+    span_3.add_annotation( {'attr_1': 3} )
+    
+    assert len(span_3.annotations) == 2
+    
+    # Add annotation as keyword arguments
+    span_4 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1'], ambiguous=True))
+    span_4.add_annotation( attr_1=3 )
+    span_4.add_annotation( attr_1=0 )
+    span_4.add_annotation( attr_1=3 )
+    span_4.add_annotation( attr_1=0 )
+    
+    assert span_3 == span_4
+
+    # Add annotation from mixed keyword & dictionary arguments
+    span_5 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1', 'attr_2']))
+    span_5.add_annotation( {'attr_1': 1}, attr_2=2 )
+    assert span_5.annotations == [Annotation(None, attr_1=1, attr_2=2)]
+    span_5 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1', 'attr_2']))
+    span_5.add_annotation( {'attr_1': 1}, attr_1=2, attr_2=2 )
+    assert span_5.annotations == [Annotation(None, attr_1=2, attr_2=2)]
+    span_5 = Span(ElementaryBaseSpan(0, 1), BaseLayer('test', attributes=['attr_1', 'attr_2']))
+    span_5.add_annotation( {'attr_1': 1}, attr_1=2, attr_extra_1=11, attr_extra_2=12 )
+    assert span_5.annotations == [Annotation(None, attr_1=2, attr_2=None)]
 
 
 def test_getattr():
