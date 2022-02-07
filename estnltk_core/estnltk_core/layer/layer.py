@@ -1,4 +1,5 @@
 import keyword
+import warnings
 from typing import Union, List, Sequence
 import pandas
 import collections
@@ -29,6 +30,26 @@ class Layer(BaseLayer):
        * get rolling window over spans (generate n-grams);
        * visualise markup in text (only available with the full estnltk);
     """
+
+    def __setattr__(self, key, value):
+        if key == 'attributes':
+            # check attributes: add userwarnings in case of 
+            # problematic attribute names
+            attributes = value
+            if isinstance(attributes, (list, tuple)) and all([isinstance(attr,str) for attr in attributes]):
+                # Warn if user wants to use non-identifiers as argument names
+                nonidentifiers = [attr for attr in attributes if not attr.isidentifier()]
+                if nonidentifiers:
+                    warnings.warn(('Attribute names {!r} are not valid Python identifiers. '+\
+                                   'This can hinder setting and accessing attribute values.'+\
+                                   '').format(nonidentifiers))
+                # Warn if user wants to use 'text', 'start', 'end' as attribute names
+                overlapping_props = [attr for attr in attributes if attr in ['text', 'start', 'end']]
+                if overlapping_props:
+                    warnings.warn(('Attribute names {!r} overlap with Span/Annotation property names. '+\
+                                   'This can hinder setting and accessing attribute values.'+\
+                                   '').format(overlapping_props))
+        super().__setattr__(key, value)
 
     def ancestor_layers(self) -> List[str]:
         """Finds all layers that given layer depends on (ancestor layers).

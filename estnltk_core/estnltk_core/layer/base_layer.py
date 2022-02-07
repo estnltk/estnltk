@@ -204,9 +204,6 @@ class BaseLayer:
             assert not isinstance(attributes, str), \
                 'attributes must be a list or tuple of strings, not a single string {!r}'.format(attributes)
             attributes = tuple(attributes)
-            # TODO: do we need the following constraint?
-            assert all(attr.isidentifier() for attr in attributes), \
-                'unexpected attribute name: all names should be identifiers in {!r}'.format(attributes)
             assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
             # set attributes
             super().__setattr__('attributes', attributes)

@@ -36,6 +36,7 @@ def test_shallow_copy():
         s_copy = copy(text)
 
 
+@pytest.mark.filterwarnings("ignore:Attribute names")
 def test_deepcopy_constructor():
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
@@ -107,7 +108,8 @@ def test_deepcopy_constructor():
     
     text = Text("Rekursiivsete kihtidega teksti kopeerimine")
     text.add_layer(Layer('empty_layer', attributes=[]))
-    text.add_layer(Layer('nonempty_layer', attributes=['text', 'layer', 'espan']))
+    with pytest.warns(UserWarning, match='Attribute names.+overlap with Span/Annotation property names.+'):
+        text.add_layer(Layer('nonempty_layer', attributes=['text', 'layer', 'espan']))
     text['nonempty_layer'].add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text['nonempty_layer'])
     text['nonempty_layer'][0].espan = text['nonempty_layer'][0]
     text.add_layer(Layer('text', attributes=['text', 'layer', 'espan']))

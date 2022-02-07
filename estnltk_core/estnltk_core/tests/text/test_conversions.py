@@ -9,6 +9,7 @@ from estnltk_core.converters import records_to_layer
 
 from estnltk_core.tests import create_amb_attribute_list
 
+@pytest.mark.filterwarnings("ignore:Attribute names")
 def test_pickle():
     import pickle
 
@@ -51,10 +52,12 @@ def test_pickle():
 
     text = Text("Rekursiivsete kihtidega teksti kopeerimine")
     text.add_layer(Layer('empty_layer', attributes=[]))
-    text.add_layer(Layer('nonempty_layer', attributes=['text', 'layer', 'espan']))
+    with pytest.warns(UserWarning, match='Attribute names.+overlap with Span/Annotation property names.+'):
+        text.add_layer(Layer('nonempty_layer', attributes=['text', 'layer', 'espan']))
     text['nonempty_layer'].add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text['nonempty_layer'])
     text['nonempty_layer'][0].espan = text['nonempty_layer'][0]
-    text.add_layer(Layer('text', attributes=['text', 'layer', 'espan']))
+    with pytest.warns(UserWarning, match='Attribute names.+overlap with Span/Annotation property names.+'):
+        text.add_layer(Layer('text', attributes=['text', 'layer', 'espan']))
     text['text'].add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text['text'], espan=None)
     text['text'][0].espan = text['text'][0]
     text['text'].add_annotation(ElementaryBaseSpan(5, 8), text=text, layer=text['nonempty_layer'], espan=None)

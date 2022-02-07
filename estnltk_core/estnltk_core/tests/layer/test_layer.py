@@ -17,6 +17,24 @@ from estnltk_core.common import load_text_class
 
 from estnltk_core.tests import create_amb_attribute_list
 
+
+@pytest.mark.filterwarnings("ignore:Attribute names")
+def test_attributes():
+    # Test that warnings will be risen in case of problematic attribute names
+    layer = Layer('test', attributes=['attr_1', 'attr_2'])
+    with pytest.warns(UserWarning, match='Attribute names.+are not valid Python identifiers.+'):
+        layer.attributes = ['1attr', '2attr']
+    assert ('1attr', '2attr') == layer.attributes
+
+    with pytest.warns(UserWarning, match='Attribute names.+are not valid Python identifiers.+'):
+        layer.attributes = ['3attr', 'attr 4']
+    assert ('3attr', 'attr 4') == layer.attributes
+
+    with pytest.warns(UserWarning, match='Attribute names.+overlap with Span/Annotation property.+'):
+        layer.attributes = ['start', 'text']
+    assert ('start', 'text') == layer.attributes
+
+
 def test_layer_indexing():
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()

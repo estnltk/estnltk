@@ -36,13 +36,7 @@ def test_attributes_and_default_values():
         layer.attributes = 3
 
     with pytest.raises(AssertionError):
-        layer.attributes = ['1attr', '2attr']
-
-    with pytest.raises(AssertionError):
         layer.attributes = ['attr_1', 'attr_2', 'attr_1']
-
-    with pytest.raises(AssertionError):
-        layer.attributes = ['3attr']
 
     assert ('attr_1', 'attr_2') == layer.attributes
 

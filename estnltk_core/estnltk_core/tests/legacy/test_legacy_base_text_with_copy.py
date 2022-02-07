@@ -2,6 +2,8 @@
 #  Legacy tests for BaseText that supports shallow copy
 #  Note that shallow copying deprecated and no longer supported
 #
+import pytest
+
 from copy import copy
 
 from estnltk_core.legacy.base_text_with_copy import BaseTextWithCopy
@@ -11,6 +13,7 @@ from estnltk_core import EnvelopingBaseSpan, EnvelopingSpan
 
 from estnltk_core.converters import layer_to_dict, dict_to_layer
 
+@pytest.mark.filterwarnings("ignore:Attribute names")
 def test_shallow_copy_constructor():
     Text = BaseTextWithCopy
     
@@ -68,7 +71,8 @@ def test_shallow_copy_constructor():
 
     text = Text("Rekursiivsete kihtidega teksti kopeerimine")
     text.add_layer(Layer('empty_layer', attributes=[]))
-    text.add_layer(Layer('nonempty_layer', attributes=['text', 'layer', 'espan']))
+    with pytest.warns(UserWarning, match='Attribute names.+overlap with Span/Annotation property names.+'):
+        text.add_layer(Layer('nonempty_layer', attributes=['text', 'layer', 'espan']))
     text['nonempty_layer'].add_annotation(ElementaryBaseSpan(0, 4), text=text, layer=text['nonempty_layer'])
     text['nonempty_layer'][0].espan = text['nonempty_layer'][0]
     text.add_layer(Layer('text', attributes=['text', 'layer', 'espan']))
