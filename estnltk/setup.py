@@ -82,7 +82,7 @@ setup(
         'estnltk.taggers.miscellaneous':  ['*.csv', 
                                            'verb_chains/v1_4_1/res/*.*'],
         'estnltk.tests.converters': ['*.conll'], 
-        'estnltk.tests.test_corpus_processing': ['*.vert'], 
+        'estnltk.tests.corpus_processing': ['*.vert'], 
         'estnltk.tests.taggers': ['standard/morph_analysis/*.csv',
                                   'standard/syntax/preprocessing/*.txt',
                                   'test_dict_taggers/*.csv', 

@@ -25,7 +25,7 @@ graft estnltk/wordnet
 graft estnltk/visualisation/attribute_visualiser
 graft estnltk/visualisation/span_visualiser
 graft estnltk/tests/converters
-graft estnltk/tests/test_corpus_processing
+graft estnltk/tests/corpus_processing
 graft estnltk/tests/taggers/standard/morph_analysis
 graft estnltk/tests/taggers/standard/syntax/preprocessing
 graft estnltk/tests/taggers/test_dict_taggers

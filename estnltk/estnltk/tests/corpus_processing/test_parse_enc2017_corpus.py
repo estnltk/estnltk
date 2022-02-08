@@ -22,7 +22,7 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_1():
     # Parse Texts from the ENC 2017 file (web17 subcorpus)
     texts = []
     inputfile_path = \
-        os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_1)
+        os.path.join(PACKAGE_PATH, 'tests', 'corpus_processing', inputfile_1)
     for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve'):
         texts.append( text_obj )
@@ -67,7 +67,7 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_2():
     # Parse Texts from the ENC 2017 file (NC subcorpus)
     texts = []
     inputfile_path = \
-        os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_2)
+        os.path.join(PACKAGE_PATH, 'tests', 'corpus_processing', inputfile_2)
     for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve'):
         texts.append( text_obj )
@@ -114,7 +114,7 @@ def test_parse_enc2017_file_iterator_extract_specific_docs():
     texts = []
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
         inputfile_path = \
-            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
+            os.path.join(PACKAGE_PATH, 'tests', 'corpus_processing', inputfile)
         for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                      focus_doc_ids=focus_doc_ids ):
             texts.append( text_obj )
@@ -136,7 +136,7 @@ def test_parse_enc2017_file_iterator_extract_specific_docs():
     texts = []
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
         inputfile_path = \
-            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
+            os.path.join(PACKAGE_PATH, 'tests', 'corpus_processing', inputfile)
         for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                      focus_srcs=focus_srcs ):
             texts.append( text_obj )
@@ -159,7 +159,7 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
     # 1) Discard empty fragments, including empty documents (default option)
     texts = []
     inputfile_path = \
-        os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
+        os.path.join(PACKAGE_PATH, 'tests', 'corpus_processing', inputfile_3)
     for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve'):
         texts.append( text_obj )
@@ -170,7 +170,7 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
     original_upper_layers = ['original_sentences', 'original_paragraphs']
     texts = []
     inputfile_path = \
-        os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
+        os.path.join(PACKAGE_PATH, 'tests', 'corpus_processing', inputfile_3)
     # Create VertXMLFileParser that does not discard empty fragments
     reconstructor = ENCTextReconstructor(layer_name_prefix='original_')
     vertParser = VertXMLFileParser(discard_empty_fragments=False,\
@@ -206,7 +206,7 @@ def test_parse_enc2017_with_original_tokens_use_split_by():
     # 1) Collect texts
     texts = []
     inputfile_path = \
-            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_1)
+            os.path.join(PACKAGE_PATH, 'tests', 'corpus_processing', inputfile_1)
     for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve',\
                                                  restore_morph_analysis=True ):
@@ -262,7 +262,7 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
     texts = []
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
         inputfile_path = \
-            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
+            os.path.join(PACKAGE_PATH, 'tests', 'corpus_processing', inputfile)
         for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                      textReconstructor=reconstructor,\
                                                      vertParser=parser):
@@ -296,7 +296,7 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
     #    argument
     texts = []
     inputfile_path = \
-            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
+            os.path.join(PACKAGE_PATH, 'tests', 'corpus_processing', inputfile_3)
     for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve',\
                                                  restore_morph_analysis=True ):
@@ -324,7 +324,7 @@ def test_parse_enc2017_with_original_tokens_and_add_morph_analysis():
     texts = []
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
         inputfile_path = \
-            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
+            os.path.join(PACKAGE_PATH, 'tests', 'corpus_processing', inputfile)
         for text_obj in parse_enc_file_iterator( inputfile_path, encoding='utf-8',\
                                                      textReconstructor=textReconstructor ):
             # Assert that required layers exist (and have correct names)
