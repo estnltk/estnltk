@@ -2,7 +2,6 @@ import pkgutil
 import pytest
 import tempfile, os
 
-from estnltk.common import abs_path
 from estnltk.converters import dict_to_text
 from estnltk.converters import layer_to_dict
 

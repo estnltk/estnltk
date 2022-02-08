@@ -280,7 +280,7 @@ def test_conll_importers():
     from estnltk.converters.conll.conll_importer import conll_to_text
     from estnltk.converters.conll.conll_importer import add_layer_from_conll
     
-    file = abs_path('tests/test_converters/test_conll.conll')
+    file = abs_path('tests/converters/test_conll.conll')
     text = conll_to_text(file, syntax_layer='syntax')
 
     assert text_to_dict(text) == text_dict
