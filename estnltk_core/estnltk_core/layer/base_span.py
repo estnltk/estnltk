@@ -7,9 +7,23 @@ class BaseSpan:
     A BaseSpan can be given a level, start and end of a Span which then make sure that the Span is
     in the right position in a Layer.
 
-    An ElementaryBaseSpan is a BaseSpan which has no level. An EnvelopingBaseSpan is a BaseSpan
-    that is made up of other BaseSpans.
+    Level of a BaseSpan determines its positional structure: whether it is a raw text position 
+    or is enveloping around sequences of smaller level text positions.
+    
+    *) ElementaryBaseSpan has level = 0, and it corresponds to a raw text position: 
+         (start, end);
+    
+    *) EnvelopingBaseSpan at level = 1 corresponds to a sequence of ElementaryBaseSpan-s:
+         [(start_1, end_1), ..., (start_N, end_N)]
 
+    *) EnvelopingBaseSpan at level = 2 corresponds to a sequence of level 1 EnvelopingBaseSpans:
+         [((start_11, end_11), ... ), ... ((start_N1, end_N1), ...)]
+
+    And so on.
+
+    Note #1: In case of layers in parent-child relation, a child span has the same level as 
+    the parent span. So, if the parent layer is made of level 0 spans (ElementaryBaseSpan-s), 
+    then the child layer also has level 0 spans.
     '''
     __slots__ = ['_raw', '_hash', 'start', 'end', 'level']
 
@@ -43,6 +57,9 @@ class BaseSpan:
 
 
 class ElementaryBaseSpan(BaseSpan):
+    '''An ElementaryBaseSpan is a BaseSpan which has level 0. 
+       It corresponds to a raw text position: (start, end). 
+    ''' 
     __slots__ = []
 
     def __init__(self, start: int, end: int):
@@ -76,6 +93,17 @@ class ElementaryBaseSpan(BaseSpan):
 
 
 class EnvelopingBaseSpan(BaseSpan):
+    '''An EnvelopingBaseSpan is a BaseSpan that is made up of other BaseSpans.
+       Its level determines the depth of its nested structure:
+
+       *) EnvelopingBaseSpan at level = 1 corresponds to a sequence of ElementaryBaseSpan-s:
+            [(start_1, end_1), ..., (start_N, end_N)]
+
+       *) EnvelopingBaseSpan at level = 2 corresponds to a sequence of level 1 EnvelopingBaseSpans:
+            [((start_11, end_11), ... ), ... ((start_N1, end_N1), ...)]
+
+        And so on.
+    ''' 
     __slots__ = ['_spans']
 
     def __init__(self, spans: Iterable[BaseSpan]):

@@ -19,8 +19,8 @@ from estnltk_core.tests import create_amb_attribute_list
 
 
 @pytest.mark.filterwarnings("ignore:Attribute names")
-def test_attributes():
-    # Test that warnings will be risen in case of problematic attribute names
+def test_problematic_attribute_names():
+    # Test that warnings/errors will be risen in case of problematic attribute names
     layer = Layer('test', attributes=['attr_1', 'attr_2'])
     with pytest.warns(UserWarning, match='Attribute names.+are not valid Python identifiers.+'):
         layer.attributes = ['1attr', '2attr']
@@ -33,6 +33,10 @@ def test_attributes():
     with pytest.warns(UserWarning, match='Attribute names.+overlap with Span/Annotation property.+'):
         layer.attributes = ['start', 'text']
     assert ('start', 'text') == layer.attributes
+
+    # Test that BaseLayer's check about duplicate attribute names also works
+    with pytest.raises(AssertionError):
+        layer.attributes = ['attr_1', 'attr_2', 'attr_1']
 
 
 def test_layer_indexing():
