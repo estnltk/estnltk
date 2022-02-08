@@ -339,7 +339,7 @@ class SubstringTagger(Tagger):
                 decorator = subindex[(group, priority)] if subindex is not None else None
                 # No dynamic rules to change the annotation
                 if decorator is None:
-                    annotation = Annotation(span,annotation)gi
+                    annotation = Annotation(span,annotation)
                     yield annotation, group, priority
                     continue
                 else:
