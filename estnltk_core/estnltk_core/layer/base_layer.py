@@ -403,6 +403,20 @@ class BaseLayer:
 
     @property
     def span_level(self):
+        """Returns an integer conveying depth of enveloping 
+           structure of this layer, or None if the structure 
+           has not been initiated yet (no spans have been 
+           added to this layer).
+           
+           span_level=0 indicates that spans of the layer 
+           mark raw text positions (start, end), and 
+           span_level > 0 indicates that spans of the 
+           layer envelop around smaller level spans 
+           (see the BaseSpan docstring for details).
+           
+           Note: if this layer has a parent layer, then this 
+           layer has the same span_level as the parent layer.
+        """
         return self._span_list.span_level
 
     @property
