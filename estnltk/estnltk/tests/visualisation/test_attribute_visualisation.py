@@ -13,7 +13,7 @@ def test_html():
     text.add_layer(layer_0)
     result = display.html_output(text.layer_0)
     file = abs_path(
-        "tests/test_visualisation/expected_outputs/attribute_visualiser_outputs/attribute_visualiser_html.txt")
+        "tests/visualisation/expected_outputs/attribute_visualiser_outputs/attribute_visualiser_html.txt")
     with open(file, encoding="UTF-8") as expected_file:
         expected = expected_file.read()
     assert result == expected
@@ -23,7 +23,7 @@ def test_javascript():
     display = DisplayAttributes()
     js = display.insert_script_tag()
     file = abs_path(
-        "tests/test_visualisation/expected_outputs/attribute_visualiser_outputs/attribute_visualiser_js.txt")
+        "tests/visualisation/expected_outputs/attribute_visualiser_outputs/attribute_visualiser_js.txt")
     with open(file, encoding="UTF-8") as expected_file:
         expected = expected_file.read()
     assert js == expected
@@ -56,7 +56,7 @@ def test_mark_chosen_spans():
     display.original_layer = new_text(5).layer_1
     new_layer = str(display.mark_chosen_spans())  # Layer with an extra attribute to show if the span was chosen
     file = abs_path(
-        "tests/test_visualisation/expected_outputs/attribute_visualiser_outputs/mark_chosen_spans_output.txt")
+        "tests/visualisation/expected_outputs/attribute_visualiser_outputs/mark_chosen_spans_output.txt")
     with open(file, encoding="UTF-8") as expected_file:
         expected = expected_file.read()
     assert new_layer == expected
@@ -84,7 +84,7 @@ def test_delete_chosen_spans():
     display.original_layer = new_text(5).layer_1
     new_layer = str(display.delete_chosen_spans())  # Layer where not chosen spans are deleted
     file = abs_path(
-        "tests/test_visualisation/expected_outputs/attribute_visualiser_outputs/delete_chosen_spans_output.txt")
+        "tests/visualisation/expected_outputs/attribute_visualiser_outputs/delete_chosen_spans_output.txt")
     with open(file, encoding="UTF-8") as expected_file:
         expected = expected_file.read()
     assert new_layer == expected
