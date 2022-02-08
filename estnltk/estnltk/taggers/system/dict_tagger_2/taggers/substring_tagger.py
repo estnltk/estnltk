@@ -84,11 +84,12 @@ class SubstringTagger(Tagger):
             Specify your own layer assembler if none of the predefined strategies does not work.
             A custom function must be take in two arguments:
             * layer: a layer to which spans must be added
-            * triples: a list of (span, group, priority) triples
+            * triples: a list of (annotation, group, priority) triples
             and must output the updated layer which hopefully containing some spans.
             These triples can come in canonical order which means:
                 span[i].start <= span[i+1].start
                 span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
+            where the span is annotation.span
         ignore_case:
             If True, then matches do not depend on capitalisation of letters
             If False, then capitalisation of letters is important
@@ -114,7 +115,8 @@ class SubstringTagger(Tagger):
             'token_separators',
             'conflict_resolver',
             'global_decorator',
-            'ignore_case']
+            'ignore_case',
+            'dynamic_ruleset_map']
 
         self.input_layers = ()
         self.output_layer = output_layer
@@ -132,6 +134,20 @@ class SubstringTagger(Tagger):
                     raise AttributeError("Dynamic rules with the same left hand side have to have the same group.")
                 if rule.pattern == rule_2.pattern and rule.priority != rule_2.priority:
                     raise AttributeError("Dynamic rules with the same left hand side have to have the same priority.")
+
+        # Lets index dynamic rulesets in optimal way
+        self.dynamic_ruleset_map: Dict[str, Dict[Tuple[int, int], Callable]]
+
+        dynamic_ruleset_map = dict()
+        for rule in ruleset.dynamic_rules:
+            subindex = dynamic_ruleset_map.get(rule.pattern, dict())
+            if (rule.group, rule.priority) in subindex:
+                raise AttributeError('There are multiple rules with the same pattern, group and priority')
+            subindex[rule.group, rule.priority] = rule.decorator
+            dynamic_ruleset_map[rule.pattern] = subindex
+
+        # No errors were detected
+        self.dynamic_ruleset_map = dynamic_ruleset_map
 
         self.ruleset = copy(ruleset)
         self.token_separators = token_separators
@@ -282,9 +298,9 @@ class SubstringTagger(Tagger):
             self,
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]
-    ) -> Generator[Tuple[Span, int, int], None, None]:
+    ) -> Generator[Tuple[Annotation, int, int], None, None]:
         """
-        Returns a triple (span, group, priority) for each match that passes validation test.
+        Returns a triple (annotation, group, priority) for each match that passes validation test.
 
         Group and priority information is lifted form the matching extraction rules.
         By construction a dynamic and static rule must have the same group and priority attributes.
@@ -302,51 +318,38 @@ class SubstringTagger(Tagger):
         # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
         dummy_annotation = {attribute: None for attribute in self.output_attributes}
         while current is not None:
-            span = Span(base_span=current[0], layer=layer)
+            base_span = current[0]
+            subindex = self.dynamic_ruleset_map.get(current[1],None)
+            span = Span(base_span=base_span, layer=layer)
             # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
             static_rulelist = self._rule_map.get(current[1], None)[0]
-            group = None
-            priority = None
             for static_rule in static_rulelist:
-                # add static annotation
-                span.add_annotation(Annotation(span, **{**dummy_annotation, **static_rule.attributes}))
+                group = static_rule.group
+                priority = static_rule.priority
+                # create static annotation
+                annotation = Annotation(span, **{**dummy_annotation, **static_rule.attributes})
                 # apply global decorator
-                # Drop spans for which the global decorator fails
+                # Drop annotations for which the global decorator fails
                 if self.global_decorator is not None:
-                    new_annotations = []
-                    for annotation in span.annotations:
-                        new_annotations.append(self.global_decorator(text_object, span, annotation))
-                        if not isinstance(annotation, dict):
-                            current = next(sorted_tuples, None)
-                            continue
-                    for annotation in new_annotations:
-                        span.add_annotation(annotation)
-                    group = static_rule.group
-                    priority = static_rule.priority
+                    annotation = self.global_decorator(text_object,span,annotation)
+                    if not isinstance(annotation, dict):
+                        continue
 
-            # apply dynamic_decorator --- it must be unique or have matching priority and group
-            dynamic_rule = self._rule_map.get(current[1], None)[1]
-            # No dynamic rules to change the annotation
-            if len(dynamic_rule) == 0:
-                for annotation in span.annotations:
+                # apply dynamic_decorator
+                decorator = subindex[(group, priority)] if subindex is not None else None
+                # No dynamic rules to change the annotation
+                if decorator is None:
+                    annotation = Annotation(span,annotation)gi
                     yield annotation, group, priority
-                current = next(sorted_tuples, None)
-                continue
-            else:
-                for rule in dynamic_rule:
+                    continue
+                else:
                     # Drop all spans for which the decorator fails
-                    decorator = rule.decorator
-                    new_annotations = []
-                    for annotation in span.annotations:
-                        new_annotations.append(decorator(text_object, span, annotation))
-                    span.clear_annotations()
-                    for annotation in new_annotations:
-                        span.add_annotation(Annotation(span, annotation))
-                    if isinstance(span.annotations[0], Annotation):
-                        for annotation in span.annotations:
-                            yield annotation, rule.group, rule.priority
+                    annotation = decorator(text_object, span, annotation)
+                    if isinstance(annotation, dict):
+                        annotation = Annotation(span,annotation)
+                        yield annotation, group, priority
 
-                    current = next(sorted_tuples, None)
+            current = next(sorted_tuples, None)
 
     @staticmethod
     def keep_maximal_matches(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]]) \
