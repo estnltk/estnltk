@@ -1,6 +1,7 @@
 class ImmutableList:
-    """Currently this looks like Python tuple.
-    The intention is to add features in the feature."""
+    """Read-only list of (attribute) values.
+       Currently this looks like Python tuple.
+       The intention is to add features in the future."""
     def __init__(self, attr_list):
         self._list = list(attr_list)
 

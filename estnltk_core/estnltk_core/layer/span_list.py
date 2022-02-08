@@ -7,6 +7,15 @@ from estnltk_core import BaseSpan, Span
 
 class SpanList(Sequence):
     """
+    SpanList is a container of Spans sorted by start indexes.
+    
+    Note: all spans of a spanlist must have the same (base 
+    span) level, but SpanList does not validate that span 
+    levels match. It is the responsibility of a programmer 
+    to assure that the spanlist is populated with equal-level 
+    spans (for more about span levels, see the the BaseSpan 
+    docstring).
+    
     # TODO replace with SortedDict
     """
 
