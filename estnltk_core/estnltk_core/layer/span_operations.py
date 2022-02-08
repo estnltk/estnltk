@@ -2,8 +2,8 @@ from typing import Sequence
 from estnltk_core import Span
 
 
-#  Layer operations are ported from:
-#    https://github.com/estnltk/estnltk/blob/master/estnltk/single_layer_operations/layer_positions.py
+#  Span operations were adapted from:
+#    https://github.com/estnltk/estnltk/blob/93163829bff223e2840b53c0480d00a5e817d406/estnltk/single_layer_operations/layer_positions.py
 
 
 def touching_right(x: Span, y: Span) -> bool:

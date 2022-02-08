@@ -1,4 +1,4 @@
-# Core components of EstNLTK Layer object
+# Core data structures of EstNLTK
 
 * Layer is a sorted dictionary of spans.
 * Each span specifies a segment or a list of segments in a text.
