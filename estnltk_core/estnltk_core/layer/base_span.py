@@ -37,12 +37,12 @@ class BaseSpan:
         super().__setattr__('end',   end)
 
     def __getstate__(self):
-        return dict( _raw=self._raw, _hash=self._hash, level=self.level, 
+        return dict( _raw=self._raw, level=self.level, 
                      start=self.start, end=self.end )
 
     def __setstate__(self, state):
         super().__setattr__('_raw',  state['_raw'])
-        super().__setattr__('_hash', state['_hash'])
+        super().__setattr__('_hash', hash(state['_raw']))
         super().__setattr__('level', state['level'])
         super().__setattr__('start', state['start'])
         super().__setattr__('end',   state['end'])
@@ -54,8 +54,25 @@ class BaseSpan:
         raise AttributeError('Basespans are immutable')
 
     def flatten(self):
+        """Returns this basespan flattened to a tuple of raw text positions.
+           For ElementaryBaseSpan, returns ((start, end),). 
+           For EnvelopingBaseSpan at any level, returns 
+           ((start1, end1), ..., (startN, endN)).
+        """
         raise NotImplementedError
 
+    def reduce(self, level):
+        """Returns this basespan reduced down to the given level. 
+           
+           Parameter `level` must be smaller than or equal to the 
+           level of this basespan. If `level` equals to the level 
+           of this basespan, then returns this basespan. 
+           If `level` is smaller, then returns a tuple containing 
+           basespans of this basespan, all reduced to the given 
+           `level`.
+        """
+        raise NotImplementedError
+        
     def raw(self):
         return self._raw
 
