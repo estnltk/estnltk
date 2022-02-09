@@ -19,20 +19,39 @@ class BaseSpan:
     *) EnvelopingBaseSpan at level = 2 corresponds to a sequence of level 1 EnvelopingBaseSpans:
          [((start_11, end_11), ... ), ... ((start_N1, end_N1), ...)]
 
-    And so on.
+    And so forth.
 
     Note #1: In case of layers in parent-child relation, a child span has the same level as 
     the parent span. So, if the parent layer is made of level 0 spans (ElementaryBaseSpan-s), 
     then the child layer also has level 0 spans.
+    
+    Note #2: BaseSpans are immutable: once initialized, they cannot be changed anymore.
     '''
     __slots__ = ['_raw', '_hash', 'start', 'end', 'level']
 
     def __init__(self, raw, level: int, start: int, end: int):
-        self._raw = raw
-        self._hash = hash(raw)
-        self.level = level
-        self.start = start
-        self.end = end
+        super().__setattr__('_raw',  raw)
+        super().__setattr__('_hash', hash(raw))
+        super().__setattr__('level', level)
+        super().__setattr__('start', start)
+        super().__setattr__('end',   end)
+
+    def __getstate__(self):
+        return dict( _raw=self._raw, _hash=self._hash, level=self.level, 
+                     start=self.start, end=self.end )
+
+    def __setstate__(self, state):
+        super().__setattr__('_raw',  state['_raw'])
+        super().__setattr__('_hash', state['_hash'])
+        super().__setattr__('level', state['level'])
+        super().__setattr__('start', state['start'])
+        super().__setattr__('end',   state['end'])
+
+    def __setattr__(self, *ignored):
+        raise AttributeError('Basespans are immutable')
+
+    def __delattr__(self, *ignored):
+        raise AttributeError('Basespans are immutable')
 
     def flatten(self):
         raise NotImplementedError
@@ -125,8 +144,17 @@ class EnvelopingBaseSpan(BaseSpan):
 
         raw = tuple(span.raw() for span in spans)
 
-        self._spans = spans
+        object.__setattr__(self, '_spans', spans)
         super().__init__(raw=raw, level=base_level+1, start=spans[0].start, end=spans[-1].end)
+
+    def __getstate__(self):
+        state = super().__getstate__()
+        state['_spans'] = self._spans
+        return state
+
+    def __setstate__(self, state):
+        object.__setattr__(self, '_spans', state['_spans'])
+        super().__setstate__(state)
 
     def flatten(self):
         return tuple(sp for span in self._spans for sp in span.flatten())

@@ -39,6 +39,28 @@ def test_pickle():
     for layer in result.layers:
         assert result[layer] == text[layer]
 
+    text = Text("Ümbriskihtidega teksti kopeerimine")
+    text.meta = {'a': 15, 'b': 13}
+    text.add_layer(Layer('words'))
+    text.add_layer(Layer('sentences', enveloping='words'))
+    text.add_layer(Layer('paragraphs', enveloping='sentences'))
+    text['words'].add_annotation(ElementaryBaseSpan(0, 15))
+    text['words'].add_annotation(ElementaryBaseSpan(16, 22))
+    text['words'].add_annotation(ElementaryBaseSpan(23, 34))
+    text['sentences'].add_annotation( [(0, 15), (16, 22), (23, 34)] )
+    text['paragraphs'].add_annotation( [((0, 15), (16, 22), (23, 34),)] )
+    assert text['words'].span_level == 0
+    assert text['sentences'].span_level == 1
+    assert text['paragraphs'].span_level == 2
+    result = save_restore(text)
+    assert result.text == text.text
+    assert result.meta == text.meta
+    assert result.layers == text.layers
+    assert result['words'].span_level == 0
+    assert result['sentences'].span_level == 1
+    assert result['paragraphs'].span_level == 2
+    for layer in result.layers:
+        assert result[layer] == text[layer]
 
     text = Text("Rekursiivse metaga teksti kopeerimine")
     text.meta = {'text': text}

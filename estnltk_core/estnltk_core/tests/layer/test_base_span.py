@@ -35,6 +35,12 @@ def test_elementary_base_span():
     with pytest.raises(AttributeError):
         span.illegal_attribute = None
 
+    # Test that BaseSpan's are immutable
+    with pytest.raises(Exception):
+        span.start = 1
+    with pytest.raises(Exception):
+        span.level = 5
+
     assert span.flatten() == ((23, 30),)
 
     assert span.raw() == (23, 30)
@@ -128,6 +134,12 @@ def test_enveloping_base_span():
 
     with pytest.raises(AttributeError):
         span.illegal_attribute = None
+
+    # Test that BaseSpan's are immutable
+    with pytest.raises(Exception):
+        span.start = 1
+    with pytest.raises(Exception):
+        span.level = 5
 
     assert span.flatten() == ((4, 10), (11, 20))
     assert span.raw() == ((4, 10), (11, 20))
