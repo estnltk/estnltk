@@ -2,7 +2,10 @@ from estnltk_core import Layer, ElementaryBaseSpan
 
 from estnltk_core.tests import new_text
 
+from estnltk_core.converters import dict_to_layer
+
 from estnltk_core.layer_operations import diff_layer
+from estnltk_core.layer_operations import create_ngram_fingerprint_index
 
 from estnltk_core.common import load_text_class
 
@@ -186,4 +189,118 @@ def test_diff_layer():
     assert result == expected
 
 
+def test_create_ngram_fingerprint_index():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    # Create test Text for testing
+    text = Text("Koomik paarutab perimeetril.")
+    words_layer = dict_to_layer( \
+        {'ambiguous': True,
+         'attributes': ('normalized_form',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'words',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 6)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (7, 15)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (16, 27)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (27, 28)}]}
+    )
+    text.add_layer( words_layer )
+    morph_layer = dict_to_layer( \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'koomik',
+                                     'normalized_text': 'Koomik',
+                                     'partofspeech': 'S',
+                                     'root': 'koomik',
+                                     'root_tokens': ['koomik']}],
+                    'base_span': (0, 6)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'b',
+                                     'form': 'b',
+                                     'lemma': 'paarutama',
+                                     'normalized_text': 'paarutab',
+                                     'partofspeech': 'V',
+                                     'root': 'paaruta',
+                                     'root_tokens': ['paaruta']}],
+                    'base_span': (7, 15)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'l',
+                                     'form': 'sg ad',
+                                     'lemma': 'perimeeter',
+                                     'normalized_text': 'perimeetril',
+                                     'partofspeech': 'S',
+                                     'root': 'perimeeter',
+                                     'root_tokens': ['perimeeter']}],
+                    'base_span': (16, 27)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (27, 28)}]}
+    )
+    text.add_layer( morph_layer )
+    
+    # 1) Test N-gram fingerprinting (no ambiguities)
+    bigram_fingerprint = create_ngram_fingerprint_index(layer=text["morph_analysis"], 
+                                                        attribute='lemma', n=2)
+    assert set(bigram_fingerprint) == \
+        {'perimeeter', '.', 'koomik', 'paarutama', \
+         'koomik-paarutama', 'perimeeter-.', 'paarutama-perimeeter'}
+    
+    trigram_fingerprint = create_ngram_fingerprint_index(layer=text["morph_analysis"], 
+                                                         attribute='lemma', n=3)
+    assert set(trigram_fingerprint) == \
+        {'.', 'paarutama', 'koomik', 'perimeeter', \
+         'perimeeter-.', 'paarutama-perimeeter', 'koomik-paarutama', \
+         'paarutama-perimeeter-.', 'koomik-paarutama-perimeeter'}
 
+    # 2) Test N-gram fingerprinting (ambiguities)
+    # Make the first word ambiguous
+    text["morph_analysis"][0].add_annotation( \
+        {'clitic': '',
+         'ending': '0',
+         'form': 'sg n',
+         'lemma': 'roomik',
+         'normalized_text': 'Roomik',
+         'partofspeech': 'S',
+         'root': 'roomik',
+         'root_tokens': ['roomik']} )
+    assert len(text["morph_analysis"][0].annotations) == 2
+    
+    bigram_fingerprint = create_ngram_fingerprint_index(layer=text["morph_analysis"], 
+                                                        attribute='lemma', n=2)
+    assert set(bigram_fingerprint) == \
+        {'.', 'paarutama', 'perimeeter', 'roomik', 'koomik', \
+         'paarutama-perimeeter', 'roomik-paarutama', 'koomik-paarutama', 'perimeeter-.'}
+
+    trigram_fingerprint = create_ngram_fingerprint_index(layer=text["morph_analysis"], 
+                                                         attribute='lemma', n=3)
+    assert set(trigram_fingerprint) == \
+        {'.', 'paarutama', 'perimeeter', 'roomik', 'koomik', \
+         'paarutama-perimeeter', 'roomik-paarutama', 'koomik-paarutama', 'perimeeter-.', \
+         'koomik-paarutama-perimeeter', 'roomik-paarutama-perimeeter', 'paarutama-perimeeter-.'}
+    
+    
+    
