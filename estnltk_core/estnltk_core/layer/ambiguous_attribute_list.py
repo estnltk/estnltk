@@ -32,6 +32,5 @@ class AmbiguousAttributeList(AmbiguousAttributeTupleList):
 
     def __getitem__(self, item):
         if isinstance(item, slice):
-            return AmbiguousAttributeList([[v[0] for v in t] for t in self.amb_attr_tuple_list[item]],
-                                          self.attribute_names)
+            return ImmutableList([[v[0] for v in t] for t in self.amb_attr_tuple_list[item]])
         return ImmutableList([v[0] for v in self.amb_attr_tuple_list[item]])

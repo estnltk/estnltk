@@ -171,7 +171,7 @@ class AmbiguousAttributeTupleList:
 
     def __getitem__(self, item):
         if isinstance(item, slice):
-            return AmbiguousAttributeTupleList(self.amb_attr_tuple_list[item], self.attribute_names)
+            return ImmutableList(self.amb_attr_tuple_list[item])
         return self.amb_attr_tuple_list[item]
 
     def __len__(self):
