@@ -154,22 +154,25 @@ class TestPgSubCollectionSample(unittest.TestCase):
 
 
     def test_pgsubcollection_sample_query_based_on_simple_select_and_fixed_amount(self):
+        # This is works with psql version 10.19, but earlier versions gave 
+        # different results on the same seed values
+        
         # Create testing collection
         collection = self._create_test_collection_of_docs(size=200)
         cur_selection = collection.select()
         # Default select with sample size of approx. 15 elements
         res = list( collection.select().sample(15, amount_type='SIZE', seed=105, method='BERNOULLI') )
-        self.assertEqual(len(res), 13)
+        self.assertEqual(len(res), 15)
         self.assertEqual(len(res[0]), 2)
-        self.assertListEqual([t[0] for t in res] , [2, 27, 30, 52, 61, 118, 131, 137, 153, 156, 163, 167, 184])
+        self.assertListEqual([t[0] for t in res] , [2, 25, 28, 49, 57, 112, 124, 130, 144, 147, 154, 158, 174, 190, 198])
         # Default select with sample size of approx. 45 elements
         res = list( collection.select().sample(45, amount_type='SIZE', seed=125, method='BERNOULLI') )
-        self.assertEqual(len(res), 42)
+        self.assertEqual(len(res), 43)
         self.assertEqual(len(res[0]), 2)
-        self.assertListEqual([t[0] for t in res] , [1, 6, 14, 18, 23, 24, 35, 42, 43, 44, 48, 57, 59, 60, 62, \
-                                                    69, 74, 82, 85, 90, 96, 99, 100, 104, 106, 108, 123, 124, \
-                                                    147, 153, 157, 164, 168, 169, 172, 175, 184, 185, 189, 190, \
-                                                    197, 199])
+        self.assertListEqual([t[0] for t in res] , [1, 6, 13, 17, 22, 33, 40, 41, 42, 45, 54, 55, 56, 58, 
+                                                    65, 70, 78, 81, 86, 91, 94, 95, 100, 102, 117, 118, 139, 
+                                                    144, 148, 155, 159, 160, 163, 165, 174, 175, 179, 180, 
+                                                    187, 189, 190, 191, 197])
         collection.delete()
 
 
