@@ -6,8 +6,8 @@ from estnltk import Annotation, EnvelopingBaseSpan
 from estnltk import EnvelopingSpan
 from estnltk import Layer
 from estnltk.taggers import Tagger
-from estnltk.taggers.system.dict_tagger_2.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
-from estnltk.taggers.system.dict_tagger_2.extraction_rules.ruleset import Ruleset
+from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
+from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
 from estnltk_core.layer_operations import resolve_conflicts
 
 

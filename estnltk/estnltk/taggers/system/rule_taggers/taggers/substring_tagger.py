@@ -5,8 +5,8 @@ from estnltk import Text, Layer, Tagger
 from estnltk import ElementaryBaseSpan, Span, Annotation
 from typing import Tuple, List, Dict, Sequence, Union, Any, Callable, Iterator, Generator, Optional
 
-from estnltk.taggers.system.dict_tagger_2 import Ruleset
-from estnltk.taggers.system.dict_tagger_2.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
+from estnltk.taggers.system.rule_taggers import Ruleset
+from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
 
 
 class SubstringTagger(Tagger):

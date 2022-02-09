@@ -1,7 +1,7 @@
 from estnltk_core.taggers.tagger_tester import TaggerTester
-from estnltk.taggers.system.dict_tagger_2 import SpanTagger
+from estnltk.taggers.system.rule_taggers import SpanTagger
 from estnltk.common import abs_path
-from estnltk.taggers.system.dict_tagger_2 import Ruleset
+from estnltk.taggers.system.rule_taggers import Ruleset
 import pytest
 
 @pytest.mark.skip(reason="work in progress")

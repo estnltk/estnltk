@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from estnltk.taggers.system.dict_tagger_2.extraction_rules.ambiguous_ruleset import AmbiguousRuleset, ExtractionRule
+from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset, ExtractionRule
 
 
 class Ruleset(AmbiguousRuleset):

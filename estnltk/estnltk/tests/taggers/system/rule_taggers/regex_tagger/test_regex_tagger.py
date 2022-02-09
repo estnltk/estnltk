@@ -1,5 +1,5 @@
 from estnltk_core.taggers.tagger_tester import TaggerTester
-from estnltk.taggers.system.dict_tagger_2 import RegexTagger, Ruleset
+from estnltk.taggers.system.rule_taggers import RegexTagger, Ruleset
 from estnltk.common import abs_path
 
 import pytest

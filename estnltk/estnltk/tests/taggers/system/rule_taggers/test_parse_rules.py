@@ -1,6 +1,6 @@
-from estnltk.taggers.system.dict_tagger_2 import Ruleset, AmbiguousRuleset
+from estnltk.taggers.system.rule_taggers import Ruleset, AmbiguousRuleset
 import pytest
-from estnltk.taggers.system.dict_tagger_2.extraction_rules.static_extraction_rule import StaticExtractionRule
+from estnltk.taggers.system.rule_taggers.extraction_rules.static_extraction_rule import StaticExtractionRule
 from estnltk.common import abs_path
 
 @pytest.mark.skip(reason="work in progress")

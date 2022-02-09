@@ -1,4 +1,4 @@
-from estnltk.taggers.system.dict_tagger_2 import Ruleset, AmbiguousRuleset
+from estnltk.taggers.system.rule_taggers import Ruleset, AmbiguousRuleset
 import pytest
 from estnltk.common import abs_path
 

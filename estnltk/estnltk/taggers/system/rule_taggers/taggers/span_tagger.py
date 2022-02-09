@@ -1,8 +1,9 @@
 import copy
-from typing import Sequence, Union
+from typing import Sequence
 
 from estnltk.taggers import Tagger
-from estnltk.taggers.system.dict_tagger_2 import Ruleset, AmbiguousRuleset
+from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
+from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
 from estnltk import Span
 from estnltk import Layer
 from estnltk import Annotation
@@ -100,10 +101,11 @@ class SpanTagger(Tagger):
                     values = {v.lower() for v in attr_list}
                 for value in values:
                     if value in [rule.pattern for rule in ruleset.static_rules]:
-                        span = Span(base_span=parent_span.base_span, layer=layer) #TODO check that it's fine with non-ambiguous
+                        if layer.ambiguous:
+                            span = Span(base_span=parent_span.base_span, layer=layer) #TODO check that it's fine with non-ambiguous
                         for rec in [rule.attributes for rule in ruleset.static_rules if rule.pattern==value]:
                             attributes = {attr: rec[attr] for attr in layer.attributes}
-                            annotation = Annotation(span, **attributes)
+                            annotation = Annotation(span, attributes)
                             annotation = self.global_decorator(raw_text, span, annotation)
                             if validator_key is None or rec[validator_key](raw_text, annotation):
                                 span.add_annotation(annotation)
@@ -119,7 +121,7 @@ class SpanTagger(Tagger):
                     span = Span(base_span=parent_span.base_span, layer=layer)
                     for rec in [rule.pattern for rule in ruleset.static_rules]:
                         attributes = {attr: rec[attr] for attr in layer.attributes}
-                        annotation = Annotation(span, **attributes)
+                        annotation = Annotation(span, attributes)
                         if self.global_decorator(raw_text, annotation):
                             if validator_key is None or rec[validator_key](raw_text, annotation):
                                 span.add_annotation(Annotation(span, **attributes))
