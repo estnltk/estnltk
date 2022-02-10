@@ -4,7 +4,37 @@ from estnltk import Tagger
 
 
 class SegmentTagger(Tagger):
-    """ Tags and decorates text segments according to the input layer.
+    """ Tags and decorates text segments on the input layer.
+    
+    The parameter start_predicate should be a callable function 
+    that detects spans that start segments. The function should 
+    take a span as an input and return boolean, indicating if the 
+    given span starts a (new) segment. If a segment is started, it 
+    consumes all the following spans until the end of the layer 
+    or until start of a new segment, whichever comes first. 
+    
+    Example:
+    >>> text=Text('00 aa bb 11 cc 22 ??').tag_layer('tokens')
+    >>> tagger = SegmentTagger('segments', 'tokens', 
+                 start_predicate=lambda s: s.text.isalpha())
+    >>> tagger.tag(text)
+    >>> text['segments'].text
+    ['aa ', 'bb 11 ', 'cc 22 ??']
+    Note that the first token '00' is not annotated, because 
+    it does not start any segment.
+    
+    If start_predicate is not specified, a default function 
+    lambda span: True is used, which means that all the spans of 
+    the input layer will be annotated (as separate segments).
+    
+    Extracted text segments will be annotated by a decorator 
+    function. 
+    The decorator function takes span as an input and returns 
+    corresponding annotation dictionary.
+    
+    If the decorator function is not specified, default_decorator 
+    is used, which returns {} on any input. This means that each 
+    attribute obtains None value.
     """
     conf_param = ['decorator', 'start_predicate']
 
@@ -48,9 +78,9 @@ class SegmentTagger(Tagger):
         for span in input_layer:
             if self.start_predicate(span):
                 if last_start_span is not None:
-                    layer.add_annotation(Span(last_start_span.start, span.start), **self.decorator(last_start_span))
+                    layer.add_annotation( (last_start_span.start, span.start), **self.decorator(last_start_span))
                 last_start_span = span
         if last_start_span is not None:
-            layer.add_annotation(Span(last_start_span.start, len(text.text)), **self.decorator(last_start_span))
+            layer.add_annotation( (last_start_span.start, len(text.text)), **self.decorator(last_start_span))
 
         return layer
