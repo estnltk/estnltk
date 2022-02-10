@@ -5,9 +5,31 @@ from estnltk.taggers import Tagger
 
 
 class GapTagger(Tagger):
-    """Tags all text regions that are not covered by any span of any input layer.
-    These regions can be trimmed by trim function and annotated by decorator function.
-
+    """ Tags gaps: all text regions that are not covered by any span of any input layer.
+   
+    A gap is a maximal span of consecutive characters (including 
+    whitespace) that are not covered by any span of any input layer. 
+    A character is covered by a span if it lays between the start 
+    and end of that span. 
+    This means that gaps between spans of enveloping spans are not 
+    considered.
+    
+    Example:
+    <pre>
+     text:                  'Üks kaks kolm neli viis kuus seitse.'
+     layer_1_spans:             'kaks'kolm'         'kuus'      
+     layer_2_spans:             'kaks'kolm neli'               '.'
+     gaps:                  'Üks '  ' '       ' viis '  ' seitse'
+    </pre>
+    
+    Gaps can be trimmed by trim function and annotated by decorator 
+    function.
+    The decorator function takes string of the gap as an input and 
+    should return corresponding annotation as a dictionary.
+    The trim function takes string of the gap as an input and is 
+    expected to return a trimmed variant of the input (characters 
+    can be removed from left and right side of the string). If the 
+    trim function returns an empty string, the gap will be discarded.
     """
     conf_param = ['decorator','trim', 'ambiguous']
 

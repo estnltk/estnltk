@@ -8,8 +8,28 @@ def default_decorator(span, raw_text):
 
 class DisambiguatingTagger(Tagger):
     """Disambiguates ambiguous layer.
+    In other words: assigns a single annotation 
+    to each span of the layer.
 
+    Disambiguation is done by a decorator function, 
+    which is applied on every span of the input 
+    layer.
+    The decorator function takes 2 input parameters: 
+    span and raw_text corresponding to the span. 
+    The function is expected to pick one of the span's 
+    annotations (or, alternatively, create a new 
+    annotation based on existing ones) and return 
+    as the result of the disambiguation. 
+    Returned annotation should be in form of a 
+    dictionary containing attributes & values. 
+   
+    If the decorator function is not specified, 
+    default_decorator is used, which returns {} 
+    on any input. This means that each annotation 
+    obtains default values of the layer (None 
+    values, if defaults are not set).
     """
+    
     conf_param = ('decorator',)
 
     def __init__(self,

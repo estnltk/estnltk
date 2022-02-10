@@ -9,8 +9,33 @@ def default_decorator(gap):
 
 
 class EnvelopingGapTagger(Tagger):
-    """ Tags all spans that are not covered by any span of any input layer.
-        The resulting spans can be annotated with a decorator function.
+    """ Tags gaps: all spans that are not covered by any span of any enveloping input layer.
+    Here, a gap is a maximal SpanList of consequtive spans of enveloped 
+    layer that are not enveloped by any input layer. All input layers 
+    must be enveloping the same layer. The resulting gaps layer of these 
+    layers is an unambiguous enveloping layer. 
+    
+    Example:
+    <pre>
+     text:                  'Üks kaks kolm neli viis kuus seitse .'
+     words_layer:           'Üks'kaks'kolm'neli'viis'kuus'seitse'.'
+     env_layer_1_spans:     'Üks'kaks'    'neli'                   
+     env_layer_2_spans:                   'neli'viis'              
+     gaps:                           'kolm'         'kuus'seitse'.'
+    </pre>
+    In the example above, layers 'env_layer_1' and 'env_layer_1' are 
+    enveloping the 'words' layer. So, EnvelopingGapTagger finds out, 
+    which spans of the 'words' layer are not enveloped by 'env_layer_1' 
+    and 'env_layer_1'.
+
+    The resulting spans can be annotated with a decorator function. 
+    The decorator function takes spans of the gap as an input and 
+    should return corresponding annotation as a dictionary.
+    
+    If the decorator function is not specified, default_decorator is 
+    used, which returns {} on any input. This means that each 
+    annotation obtains default values of the layer (None values, if 
+    defaults are not set).
     """
     conf_param = ['decorator', 'layers_with_gaps', 'enveloped_layer']
 
