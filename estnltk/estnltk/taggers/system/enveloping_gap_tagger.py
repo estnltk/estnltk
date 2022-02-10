@@ -10,7 +10,7 @@ def default_decorator(gap):
 
 class EnvelopingGapTagger(Tagger):
     """ Tags gaps: all spans that are not covered by any span of any enveloping input layer.
-    Here, a gap is a maximal SpanList of consequtive spans of enveloped 
+    Here, a gap is a maximal SpanList of consecutive spans of enveloped 
     layer that are not enveloped by any input layer. All input layers 
     must be enveloping the same layer. The resulting gaps layer of these 
     layers is an unambiguous enveloping layer. 

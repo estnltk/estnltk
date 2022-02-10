@@ -6,9 +6,18 @@ from estnltk_core import Layer
 
 
 class Atomizer(Tagger):
-    """Forgets the parents of the input layer.
-
-    Outputs an enveloping or simple (enveloping=None, parent=None) layer."""
+    """ Forgets the parent of the input layer. 
+    In other words, makes the input layer independent of the parent 
+    (parent=None), while preserving its span level (if the input is 
+    an enveloping layer, it remains an enveloping layer with the same 
+    span level). 
+    Outputs an enveloping or simple (enveloping=None, parent=None) 
+    layer. 
+    
+    Note #1: layer's attributes can be reduced to a smaller subset 
+    of attributes during the atomizing process. Use parameter 
+    output_attributes to specify the subset.
+    """
     conf_param = ('enveloping',)
 
     def __init__(self,
@@ -55,7 +64,7 @@ class Atomizer(Tagger):
 
 def _rebase_span(span, legal_attributes):
     if isinstance(span, SpanList):
-        new_span = SpanList()
+        new_span = SpanList(span_level=span.span_level)
         new_span.spans = span.spans
         return new_span
 
