@@ -10,7 +10,7 @@ class SegmentTagger(Tagger):
     that detects spans that start segments. The function should 
     take a span as an input and return boolean, indicating if the 
     given span starts a (new) segment. If a segment is started, it 
-    consumes all the following spans until the end of the layer 
+    covers all the following spans until the end of the text 
     or until start of a new segment, whichever comes first. 
     
     Example:

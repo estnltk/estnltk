@@ -7,7 +7,7 @@ from estnltk_core import Layer
 
 class Atomizer(Tagger):
     """ Forgets the parent of the input layer. 
-    In other words, makes the input layer independent of the parent 
+    In detail: makes the input layer independent of the parent 
     (parent=None), while preserving its span level (if the input is 
     an enveloping layer, it remains an enveloping layer with the same 
     span level). 

@@ -15,8 +15,39 @@ def default_validator(span):
 
 
 class TextSegmentsTagger(Tagger):
-    """Segments text by header layer.
+    """Segments text by a header layer.
+    In detail: splits texts into segments in a way 
+    that each segment will be started by a span from the 
+    header layer. 
+    
+    This tool can be useful if the input text has headers 
+    clearly distinguishable from the following textual 
+    content -- if the headers have been annotated as a 
+    layer, then TextSegmentsTagger can be used to split 
+    the text into segments by headers.
+    Another example: you can use this tool in dialogue 
+    format texts, where names of the speakers can be 
+    systematically separated from their speech transcrip-
+    tions. In such settings, if speaker names are detected 
+    and annotated as a header layer, TextSegmentsTagger 
+    can be used to annotate speech acts corresponding to 
+    speaker names on the header layer.
 
+    Optionally, you can provide a validator function, 
+    which validates the spans of the header layer. 
+    It takes a span as an input and returns boolean, 
+    indicating whether the header is suitable for 
+    starting a new segment or not.
+    If the validator function is not specified, a default 
+    function lambda span: True is used, which means that 
+    all the spans of the header layer will start a segment.
+    
+    You can also provide a decorator function that takes 
+    header span as an input and returns annotation to be 
+    attached to the segment.
+    The default_decorator returns {} on any input. This 
+    means that each attribute of the layer obtains None 
+    value.
     """
     conf_param = ['decorator', 'validator', 'include_header']
 
