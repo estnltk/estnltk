@@ -62,14 +62,12 @@ class BaseSpan:
         raise NotImplementedError
 
     def reduce(self, level):
-        """Returns this basespan reduced down to the given level. 
-           
+        """Returns this basespan reduced down to a tuple of basespans on a given level.
+
+           A higher level basespan is a tree of lower-level basespans. 
+           This function returns all basespans in the requested level.
            Parameter `level` must be smaller than or equal to the 
-           level of this basespan. If `level` equals to the level 
-           of this basespan, then returns this basespan. 
-           If `level` is smaller, then returns a tuple containing 
-           basespans of this basespan, all reduced to the given 
-           `level`.
+           level of this basespan.
         """
         raise NotImplementedError
         
