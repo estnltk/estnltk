@@ -5,7 +5,13 @@ from estnltk_core.layer_operations import merge_layers
 
 
 class MergeTagger(Tagger):
-    """ Merges input layers.
+    """ Merges input layers into one layer.
+    
+    Creates a new layer which spans are an union of spans of 
+    input layers. The input layers must be of the same type 
+    (same parent, enveloping and ambiguous status), and they 
+    must belong to the same Text object. Missing attribute 
+    values will be set to None.
     """
     conf_param = ()
 

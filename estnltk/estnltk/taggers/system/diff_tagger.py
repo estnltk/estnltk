@@ -17,6 +17,52 @@ from estnltk_core.layer_operations.iterators import iterate_intersecting_spans
 class DiffTagger(Tagger):
     """Finds differences of input layers.
 
+    DiffTagger compares two layers (layer_a and layer_b),
+    and finds differences in spans and annotations.
+    The output layer contains spans marking differences:
+    *) missing span -- base span is in layer_a but not in layer_b;
+    *) extra span -- base span is in layer_b but not in layer_a;
+    *) modified span -- base span exists in both layer_a and layer_b, 
+       but the annotations are different;
+    Note: in case of a partial overlap between spans of two layers, 
+    corresponding missing and extra spans are produced and annotations 
+    are not compared.
+
+    By default, the diff layer has 2 attributes:
+    *) 'input_layer_name' -- name of the layer where the different span 
+        belongs to;
+    *) 'span_status' -- type of the difference: 'missing', 'extra' or 
+       'modified';
+    You can use output_attributes to add more attributes from comparable 
+    layers to the diff layer. This helps to inspect which specific 
+    annotations were different. 
+    
+    The diff layer's meta contains summary of differences (counts of 
+    unchanged, extra and missing spans/annotations). The following
+    conditions about statistics hold:
+    
+    unchanged_spans + modified_spans + missing_spans = length_of_old_layer
+    unchanged_spans + modified_spans + extra_spans = length_of_new_layer
+    unchanged_annotations + missing_annotations = number_of_annotations_in_old_layer
+    unchanged_annotations + extra_annotations = number_of_annotations_in_new_layer
+    overlapped + prolonged + shortened = conflicts <= missing_spans * extra_spans
+    
+    Notes:
+    *) In case of a modified span, DiffTagger finds a symmetric difference 
+       of annotations. If a modified span contains both different and 
+       common annotations, DiffTagger only outputs different annotations, 
+       and excludes common ones. 
+       If you need the "complete picture of annotations", you can 
+       use the basespan of the diff span to retrieve corresponding spans 
+       from comparable layers and then find common annotations;
+       
+    *) DiffTagger is rather sensitive while comparing enveloping layers: 
+       if two enveloping spans cover exactly the same text region, but 
+       their content spans are different (e.g. there is tokenization 
+       difference such as ['H', '.', 'L', '.'] vs ['H.', 'L.']), then 
+       DiffTagger records the difference. If you only need to detect 
+       mismatching text regions, you should flatten enveloping layers 
+       before the comparison;
     """
     conf_param = ['input_layer_attribute', 'span_status_attribute', 'compare_function']
 
