@@ -11,7 +11,6 @@ from estnltk.taggers.system.flatten_tagger import FlattenTagger
 from estnltk.taggers.system.gap_tagger import GapTagger
 from estnltk.taggers.system.layer_merge_tagger import MergeTagger
 from estnltk.taggers.system.diff_tagger import DiffTagger
-from estnltk.taggers.system.text_segments_tagger import TextSegmentsTagger
 
 from estnltk.taggers.system.dict_taggers.vocabulary import Vocabulary
 from estnltk.taggers.system.dict_taggers.phrase_tagger import PhraseTagger
@@ -29,6 +28,7 @@ from estnltk.taggers.standard.text_segmentation.compound_token_tagger import Com
 from estnltk.taggers.standard.text_segmentation.clause_segmenter import ClauseSegmenter
 from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 from estnltk.taggers.standard.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
+from estnltk.taggers.standard.text_segmentation.text_segments_tagger import TextSegmentsTagger
 
 from estnltk.taggers.standard.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 from estnltk.taggers.standard.morph_analysis.morf import VabamorfTagger
