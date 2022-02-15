@@ -22,6 +22,9 @@ text.add_layer(layer_2)
 
 text.add_layer(Layer('test_3'))
 
+# ============================================
+#     Test GapTagger's default mode
+# ============================================
 
 def test_gaps_trim():
     def trim(t):
@@ -65,3 +68,51 @@ def test_tagger():
     tester = TaggerTester(tagger, input_file, target_file)
     tester.load()
     tester.run_tests()
+
+
+# ============================================
+#     Test GapTagger's EnvelopingGap mode
+# ============================================
+
+def test_gaps_tagger_enveloping_mode():
+    text = Text('Üks kaks kolm neli viis kuus seitse.')
+    text.tag_layer(['words'])
+
+    layer = Layer('test_3', enveloping='words')
+    layer.add_annotation(text.words[0:2])
+
+    layer.add_annotation(text.words[3:4])
+    text.add_layer(layer)
+
+    layer = Layer('test_4', enveloping='words', ambiguous=True)
+    layer.add_annotation(text.words[3:5])
+
+    layer.add_annotation(text.words[3:5])
+    text.add_layer(layer)
+
+    text.add_layer(Layer('test_5', enveloping='words'))
+
+    def decorator(spans):
+        return {'gap_word_count': len(spans)}
+
+    gaps_tagger = GapTagger(output_layer='gaps',
+                            input_layers=['test_3', 'test_4', 'test_5'],
+                            enveloped_layer='words',
+                            enveloping_mode=True,
+                            decorator=decorator,
+                            output_attributes=['gap_word_count'])
+
+    gaps_tagger.tag(text)
+    assert text.gaps.text == ['kolm', 'kuus', 'seitse', '.']
+    assert list(text.gaps.gap_word_count) == [1, 3]
+
+    # gaps in empty layer
+    gaps_tagger_2 = GapTagger(output_layer='gaps_2',
+                              input_layers=['test_5'],
+                              enveloped_layer='words',
+                              enveloping_mode=True,
+                              decorator=decorator,
+                              output_attributes=['gap_word_count'])
+    gaps_tagger_2.tag(text)
+    assert text.gaps_2.text == ['Üks', 'kaks', 'kolm', 'neli', 'viis', 'kuus', 'seitse', '.']
+    assert list(text.gaps_2.gap_word_count) == [8]
