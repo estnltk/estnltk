@@ -19,7 +19,7 @@ from estnltk import SpanList
 from estnltk import Layer
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
-from estnltk.taggers import DisambiguatingTagger
+from estnltk.taggers import Disambiguator
 from estnltk.taggers.standard.morph_analysis.proxy import MorphAnalyzedToken
 from estnltk_core.layer_operations import resolve_conflicts
 
@@ -420,10 +420,10 @@ class CompoundTokenTagger( Tagger ):
             return {name: getattr(span.annotations[0], name) for name in self.output_attributes}
 
         # TODO: initialize disamb_tagger in __init__ (for performance purposes)
-        disamb_tagger = DisambiguatingTagger(output_layer=self.output_layer,
-                                             input_layer=self.output_layer,
-                                             output_attributes=self.output_attributes,
-                                             decorator=decorator)
+        disamb_tagger = Disambiguator(output_layer=self.output_layer,
+                                      input_layer=self.output_layer,
+                                      output_attributes=self.output_attributes,
+                                      decorator=decorator)
         temp_layers = layers.copy()
         temp_layers[self.output_layer] = layer
         layer = disamb_tagger.make_layer(text=text, layers=temp_layers, status=status)

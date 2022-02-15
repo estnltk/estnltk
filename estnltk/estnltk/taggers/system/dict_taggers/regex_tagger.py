@@ -68,15 +68,15 @@ class RegexTagger(Tagger):
         # output_attributes needed by tagger
         self._internal_attributes = set(self.output_attributes) | {'_group_', '_priority_'}
 
-        from estnltk.taggers import DisambiguatingTagger
+        from estnltk.taggers import Disambiguator
 
         def decorator(span, raw_text):
             return {name: getattr(span.annotations[0], name) for name in self.output_attributes}
 
-        self._disamb_tagger = DisambiguatingTagger(output_layer=self.output_layer,
-                                                   input_layer=self.output_layer,
-                                                   output_attributes=self.output_attributes,
-                                                   decorator=decorator)
+        self._disamb_tagger = Disambiguator(output_layer=self.output_layer,
+                                            input_layer=self.output_layer,
+                                            output_attributes=self.output_attributes,
+                                            decorator=decorator)
 
         def default_validator(s):
             return True

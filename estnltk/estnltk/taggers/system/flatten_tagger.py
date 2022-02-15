@@ -16,8 +16,8 @@ class FlattenTagger(Tagger):
     function works. If you want to get unambiguous layer, please 
     apply the flatten function manually with disambiguation_strategy 
     parameter ( the function can be imported from module:
-    estnltk_core.layer_operations.flatten ) or apply the 
-    DisambiguatingTagger on the output layer. 
+    estnltk_core.layer_operations.flatten ) or apply a 
+    Disambiguator on the output layer. 
     
     Note #2: layer's attributes and their names and default values 
     can be changed during the flattening process. Please consult the 

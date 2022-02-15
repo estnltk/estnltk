@@ -1,5 +1,5 @@
 from estnltk import Text, Layer
-from estnltk.taggers import DisambiguatingTagger
+from estnltk.taggers import Disambiguator
 from estnltk_core.converters import layer_to_dict
 
 def test_1():
@@ -23,10 +23,10 @@ def test_1():
             attr_1 += annotation.attr_1
         return {'attr_1': attr_1}
 
-    tagger_1 = DisambiguatingTagger(output_layer='simple',
-                                    input_layer='simple_ambiguous',
-                                    output_attributes=['attr_1'],
-                                    decorator=decorator)
+    tagger_1 = Disambiguator(output_layer='simple',
+                             input_layer='simple_ambiguous',
+                             output_attributes=['attr_1'],
+                             decorator=decorator)
     tagger_1.tag(text)
 
     assert layer_to_dict( text.simple ) == \
@@ -60,11 +60,11 @@ def test_1():
     def decorator(ambiguous_span, raw_text):
         return {'attr_1': len(ambiguous_span)}
 
-    tagger_2 = DisambiguatingTagger(output_layer='enveloping',
-                                    input_layer='enveloping_ambiguous',
-                                    output_attributes=['attr_1', ],
-                                    decorator=decorator
-                                    )
+    tagger_2 = Disambiguator(output_layer='enveloping',
+                             input_layer='enveloping_ambiguous',
+                             output_attributes=['attr_1', ],
+                             decorator=decorator
+                            )
     tagger_2.tag(text)
     
     assert layer_to_dict( text.enveloping ) == \

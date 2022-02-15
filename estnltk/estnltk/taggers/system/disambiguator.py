@@ -6,10 +6,15 @@ def default_decorator(span, raw_text):
     return {}
 
 
-class DisambiguatingTagger(Tagger):
+class Disambiguator(Tagger):
     """Disambiguates ambiguous layer.
     In other words: assigns a single annotation 
     to each span of the layer.
+    
+    Note: this is a system level tagger for 
+    creating a disambiguator. Not to be confused 
+    with concrete linguistic disambiguators, 
+    such as VabamorfDisambiguator.
 
     Disambiguation is done by a decorator function, 
     which is applied on every span of the input 

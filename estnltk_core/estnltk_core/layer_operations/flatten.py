@@ -11,7 +11,7 @@ def flatten(input_layer: Union['BaseLayer', 'Layer'], output_layer: str, output_
        disambiguation_strategy = 'pick_first', then only the first annotation of 
        every span will be preserved and an unambiguous layer will be returned. 
        If you need to customize the disambiguation strategy, use a 
-       DisambiguatingTagger. 
+       Disambiguator. 
        
        Parameters
        ----------
