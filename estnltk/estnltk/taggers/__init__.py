@@ -28,7 +28,7 @@ from estnltk.taggers.standard.text_segmentation.compound_token_tagger import Com
 from estnltk.taggers.standard.text_segmentation.clause_segmenter import ClauseSegmenter
 from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 from estnltk.taggers.standard.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
-from estnltk.taggers.standard.text_segmentation.text_segments_tagger import TextSegmentsTagger
+from estnltk.taggers.standard.text_segmentation.header_based_segmenter import HeaderBasedSegmenter
 
 from estnltk.taggers.standard.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
 from estnltk.taggers.standard.morph_analysis.morf import VabamorfTagger

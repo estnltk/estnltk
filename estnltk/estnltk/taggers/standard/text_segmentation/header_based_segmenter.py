@@ -14,22 +14,22 @@ def default_validator(span):
     return True
 
 
-class TextSegmentsTagger(Tagger):
+class HeaderBasedSegmenter(Tagger):
     """Segments text by a header layer.
     In detail: splits texts into segments in a way 
     that each segment will be started by a span from the 
     header layer. 
     
-    This tool can be useful if the input text has headers 
+    This tagger can be useful if the input text has headers 
     clearly distinguishable from the following textual 
     content -- if the headers have been annotated as a 
-    layer, then TextSegmentsTagger can be used to split 
+    layer, then HeaderBasedSegmenter can be used to split 
     the text into segments by headers.
-    Another example: you can use this tool in dialogue 
+    Another example: you can use this tagger in dialogue 
     format texts, where names of the speakers can be 
     systematically separated from their speech transcrip-
     tions. In such settings, if speaker names are detected 
-    and annotated as a header layer, TextSegmentsTagger 
+    and annotated as a header layer, HeaderBasedSegmenter 
     can be used to annotate speech acts corresponding to 
     speaker names on the header layer.
 

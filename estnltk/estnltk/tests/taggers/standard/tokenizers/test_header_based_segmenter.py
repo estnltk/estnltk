@@ -1,13 +1,13 @@
 from estnltk import Text
 from estnltk import Layer
-from estnltk.taggers import TextSegmentsTagger
+from estnltk.taggers import HeaderBasedSegmenter
 
 
 def test_segments_tagger_exclude_headers():
     text = Text('Üks kaks kolm neli viis kuus seitse.')
     layer = Layer('headers', text_object=text)
 
-    tagger = TextSegmentsTagger(input_layer='headers', output_layer='segments')
+    tagger = HeaderBasedSegmenter(input_layer='headers', output_layer='segments')
 
     result = tagger.make_layer(text, layers={'headers': layer})
     assert len(result) == 1
@@ -35,7 +35,7 @@ def test_segments_tagger_include_headers():
     text = Text('Üks kaks kolm neli viis kuus seitse.')
     layer = Layer('headers', text_object=text)
 
-    tagger = TextSegmentsTagger(input_layer='headers', output_layer='segments', include_header=True)
+    tagger = HeaderBasedSegmenter(input_layer='headers', output_layer='segments', include_header=True)
 
     result = tagger.make_layer(text, layers={'headers': layer})
     assert len(result) == 1
@@ -68,8 +68,8 @@ def test_segments_tagger_decorator():
     text = Text('Üks kaks kolm neli viis kuus seitse.')
     layer = Layer('headers', attributes=['attr'], text_object=text)
 
-    tagger = TextSegmentsTagger(input_layer='headers', output_layer='segments', output_attributes=['attr_1', 'attr_2'],
-                                decorator=decorator)
+    tagger = HeaderBasedSegmenter(input_layer='headers', output_layer='segments', output_attributes=['attr_1', 'attr_2'],
+                                  decorator=decorator)
 
     result = tagger.make_layer(text, layers={'headers': layer})
     assert len(result) == 1
