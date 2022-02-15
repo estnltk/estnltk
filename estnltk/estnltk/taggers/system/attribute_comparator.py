@@ -4,7 +4,7 @@ from typing import Sequence, Iterable
 from estnltk import Layer
 from estnltk.taggers import Tagger
 
-class AttributeComparisonTagger(Tagger):
+class AttributeComparator(Tagger):
     """Compares the specified attributes of input layers.
     The new layer created will have attributes corresponding to
     the comparable attributes in all input layers and an attribute

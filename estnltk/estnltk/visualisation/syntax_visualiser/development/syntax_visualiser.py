@@ -7,7 +7,7 @@ from estnltk.layer.span import Span
 from estnltk.converters import layer_to_dict, dict_to_layer
 from estnltk.visualisation.core import format_tag_attributes
 from estnltk.visualisation.core import header_cell, value_cell, dropdown_cell
-from estnltk.taggers import AttributeComparisonTagger
+from estnltk.taggers import AttributeComparator
 
 
 class SyntaxVisualiser:
@@ -117,7 +117,7 @@ class SyntaxVisualiser:
         #attr = self.new_layer_attributes(layers, self.changeable_attributes, layers[0].attributes)
         attributes_to_compare = [a for a in self.changeable_attributes]
         attributes_to_compare.insert(0, 'head')
-        new_layer = AttributeComparisonTagger("new", [layer.name for layer in layers], layers[0].attributes[:-4], attributes_to_compare)\
+        new_layer = AttributeComparator("new", [layer.name for layer in layers], layers[0].attributes[:-4], attributes_to_compare)\
             .make_layer(layers[0].text_object, {layer.name: layer for layer in layers})
 
         # this is so attributes would get a working default value, but could also be changed

@@ -4,7 +4,7 @@ from estnltk_core.taggers.annotation_rewriter import AnnotationRewriter
 from estnltk_core.taggers.span_annotations_rewriter import SpanAnnotationsRewriter
 
 from estnltk.taggers.system.atomizer import Atomizer
-from estnltk.taggers.system.attribute_comparison_tagger import AttributeComparisonTagger
+from estnltk.taggers.system.attribute_comparator import AttributeComparator
 from estnltk.taggers.system.disambiguating_tagger import DisambiguatingTagger
 from estnltk.taggers.system.enveloping_gap_tagger import EnvelopingGapTagger
 from estnltk.taggers.system.flatten_tagger import FlattenTagger

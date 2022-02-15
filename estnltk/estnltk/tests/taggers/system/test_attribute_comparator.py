@@ -1,15 +1,15 @@
 from collections import OrderedDict
 
-from estnltk.taggers import AttributeComparisonTagger
+from estnltk.taggers import AttributeComparator
 from estnltk import Text, Layer
 
 from estnltk.converters import layer_to_dict
 
 def test_attribute_comparison_tagger_init():
-    tagger = AttributeComparisonTagger(output_layer="new_layer",
-                                       input_layers=["layer_1", "layer_2"],
-                                       input_attributes=["id", "lemma", "head", "deprel"],
-                                       attributes_to_compare=["head", "deprel"])
+    tagger = AttributeComparator(output_layer="new_layer",
+                                 input_layers=["layer_1", "layer_2"],
+                                 input_attributes=["id", "lemma", "head", "deprel"],
+                                 attributes_to_compare=["head", "deprel"])
 
     assert tagger.constant_attributes == ["id", "lemma"]
     assert tagger.output_attributes == ("id", "lemma", "head", "head_1", "head_2", "deprel", "deprel_1", "deprel_2")
@@ -37,10 +37,10 @@ def test_head_attribute_comparison():
     layer_2.add_annotation((37, 43), head=4)
     layer_2.add_annotation((43, 44), head=7)
 
-    tagger = AttributeComparisonTagger(output_layer="new_layer",
-                                       input_layers=["layer_1", "layer_2"],
-                                       input_attributes=["head"],
-                                       attributes_to_compare=["head"])
+    tagger = AttributeComparator(output_layer="new_layer",
+                                 input_layers=["layer_1", "layer_2"],
+                                 input_attributes=["head"],
+                                 attributes_to_compare=["head"])
 
     new_layer = tagger.make_layer(text=text, layers=OrderedDict([('layer_1', layer_1), ('layer_2', layer_2)]))
 
@@ -84,10 +84,10 @@ def test_deprel_attribute_comparison():
     layer_2.add_annotation((14, 16), deprel='@ADVL')
     layer_2.add_annotation((17, 19), deprel='@<Q')
 
-    tagger = AttributeComparisonTagger(output_layer="new_layer",
-                                       input_layers=["layer_1", "layer_2"],
-                                       input_attributes=["deprel"],
-                                       attributes_to_compare=["deprel"])
+    tagger = AttributeComparator(output_layer="new_layer",
+                                 input_layers=["layer_1", "layer_2"],
+                                 input_attributes=["deprel"],
+                                 attributes_to_compare=["deprel"])
 
     new_layer = tagger.make_layer(text=text, layers=OrderedDict([('layer_1', layer_1), ('layer_2', layer_2)]))
 

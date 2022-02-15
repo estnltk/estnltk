@@ -1,4 +1,4 @@
-from estnltk.taggers import AttributeComparisonTagger
+from estnltk.taggers import AttributeComparator
 
 
 class SyntaxEditor:
@@ -6,5 +6,5 @@ class SyntaxEditor:
         input_layers = [layer.name for layer in layers]
         text = layers[0].text_object
         layers_dict = {layer.name: layer for layer in layers}
-        tagger = AttributeComparisonTagger(output_layer, input_layers, input_attributes, attributes_to_compare)
+        tagger = AttributeComparator(output_layer, input_layers, input_attributes, attributes_to_compare)
         self.layer = tagger.make_layer(text, layers_dict)
