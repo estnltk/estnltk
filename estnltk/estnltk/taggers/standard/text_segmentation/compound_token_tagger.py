@@ -56,9 +56,9 @@ class CompoundTokenTagger( Tagger ):
                   'tag_email_and_www', 'tag_emoticons', 'tag_hashtags_and_usernames', 'tag_xml', 
                   'tag_initials', 'tag_abbreviations', 'tag_case_endings', 'tag_hyphenations',
                   'use_custom_abbreviations', 'do_not_join_on_strings',
-                  # Inner parameters
+                  # Inner components & parameters
                   '_tokenization_hints_tagger_1', '_tokenization_hints_tagger_2',
-                  '_conflict_resolving_strategy', '_input_tokens_layer',
+                  '_disamb_tagger', '_conflict_resolving_strategy', '_input_tokens_layer',
                   ]
 
     def __init__(self,
@@ -257,6 +257,15 @@ class CompoundTokenTagger( Tagger ):
                                                             )
         # Load words that should be ignored during normalization of words with hyphens
         self.ignored_words = self._load_ignore_words_from_csv( DEFAULT_IGNORE_LIST )
+        # =========================
+        #  Disambiguation tagger
+        # =========================
+        def decorator(span, raw_text):
+            return {name: getattr(span.annotations[0], name) for name in self.output_attributes}
+        self._disamb_tagger = Disambiguator(output_layer=self.output_layer,
+                                            input_layer=self.output_layer,
+                                            output_attributes=self.output_attributes,
+                                            decorator=decorator)
 
     def _make_layer_template(self):
         """Creates and returns a template of the layer."""
@@ -416,17 +425,9 @@ class CompoundTokenTagger( Tagger ):
                           priority_attribute=None,
                           keep_equal=False)
 
-        def decorator(span, raw_text):
-            return {name: getattr(span.annotations[0], name) for name in self.output_attributes}
-
-        # TODO: initialize disamb_tagger in __init__ (for performance purposes)
-        disamb_tagger = Disambiguator(output_layer=self.output_layer,
-                                      input_layer=self.output_layer,
-                                      output_attributes=self.output_attributes,
-                                      decorator=decorator)
         temp_layers = layers.copy()
         temp_layers[self.output_layer] = layer
-        layer = disamb_tagger.make_layer(text=text, layers=temp_layers, status=status)
+        layer = self._disamb_tagger.make_layer(text=text, layers=temp_layers, status=status)
 
         # TODO: remove
         for span in layer:
