@@ -8,6 +8,30 @@ from estnltk_core.layer.base_layer import BaseLayer
 from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
 
 class BaseText:
+    """
+    Base class for EstNLTK's Text. BaseText stores raw text along with annotation layers and metadata.
+
+    Raw text can simply be accessed via attribute ``.text``.
+
+    BaseText allows to add and remove annotation layers, and checks for layer dependencies.
+    A layer can be added to text only if its dependency layers already exist, and removing a layer results
+    in removing its descendant layers.
+
+    BaseText provides access to annotation layers via indexing, where index value should be the
+    name of the layer, e.g. text['words'] or text['sentences'].
+
+    It is possible to add meta-information about text as a whole by specifying text.meta,
+    which is a dictionary of type MutableMapping[str, Any]. However we strongly advise to
+    use the following value types:
+        str
+        int
+        float
+        DateTime
+    as database serialisation does not work for other types. See [estnltk.storage.postgres] for further documentation.
+
+    Note: BaseText does not provide any linguistic analysis / NLP pipeline. Use the Text class from the full EstNLTK
+    package for NLP.
+    """
     __slots__ = ['text', 'meta', '_layers']
 
     def __init__(self, text: str = None) -> None:
@@ -210,10 +234,8 @@ class BaseText:
         """
         Returns a brief diagnostic message that explains why two BaseText/Text objects are different.
 
-        # TODO: Use memo dict to break infinite loops ??
-
         # BUGS:
-          - Loops with recursive self-references.
+          - Inf loops with recursive self-references in meta dictionary.
         """
         if self is other:
             return None
