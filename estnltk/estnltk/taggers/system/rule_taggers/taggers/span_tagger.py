@@ -1,12 +1,13 @@
 import copy
-from typing import Sequence
+from typing import Sequence, Callable, Dict, Any, Optional, Tuple
 
 from estnltk.taggers import Tagger
 from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
 from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
-from estnltk import Span
+from estnltk import Span, Text
 from estnltk import Layer
 from estnltk import Annotation
+from estnltk_core import ElementaryBaseSpan
 from estnltk_core.layer_operations import resolve_conflicts
 
 
@@ -21,7 +22,8 @@ class SpanTagger(Tagger):
                  input_attribute: str,
                  ruleset: AmbiguousRuleset,
                  output_attributes: Sequence[str] = (),
-                 decorator: callable = None,
+                 decorator: Callable[
+                     [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  validator_attribute: str = None,
                  priority_attribute: str = None,
                  case_sensitive=True
@@ -48,7 +50,7 @@ class SpanTagger(Tagger):
             The name
         """
         self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator', 'validator_attribute',
-                           'priority_attribute', 'ambiguous', 'case_sensitive', '_ruleset')
+                           'priority_attribute', 'ambiguous', 'case_sensitive', '_ruleset', 'dynamic_ruleset_map')
         self.priority_attribute = priority_attribute
         self.output_layer = output_layer
         self.input_attribute = input_attribute
@@ -62,6 +64,20 @@ class SpanTagger(Tagger):
         self.global_decorator = decorator
 
         self.input_layers = [input_layer]
+
+        # Lets index dynamic rulesets in optimal way
+        self.dynamic_ruleset_map: Dict[str, Dict[Tuple[int, int], Callable]]
+
+        dynamic_ruleset_map = dict()
+        for rule in ruleset.dynamic_rules:
+            subindex = dynamic_ruleset_map.get(rule.pattern, dict())
+            if (rule.group, rule.priority) in subindex:
+                raise AttributeError('There are multiple rules with the same pattern, group and priority')
+            subindex[rule.group, rule.priority] = rule.decorator
+            dynamic_ruleset_map[rule.pattern] = subindex
+
+        # No errors were detected
+        self.dynamic_ruleset_map = dynamic_ruleset_map
 
         self._ruleset = copy.deepcopy(ruleset)
         self.case_sensitive = case_sensitive
@@ -101,14 +117,24 @@ class SpanTagger(Tagger):
                     values = {v.lower() for v in attr_list}
                 for value in values:
                     if value in [rule.pattern for rule in ruleset.static_rules]:
-                        if layer.ambiguous:
-                            span = Span(base_span=parent_span.base_span, layer=layer) #TODO check that it's fine with non-ambiguous
-                        for rec in [rule.attributes for rule in ruleset.static_rules if rule.pattern==value]:
-                            attributes = {attr: rec[attr] for attr in layer.attributes}
-                            annotation = Annotation(span, attributes)
-                            annotation = self.global_decorator(raw_text, span, annotation)
-                            if validator_key is None or rec[validator_key](raw_text, annotation):
-                                span.add_annotation(annotation)
+                        span = Span(base_span=parent_span.base_span, layer=layer)
+                        for rule in ruleset.static_rules:
+                            if rule.pattern == value:
+                                rec = rule.attributes
+                                attributes = {attr: rec[attr] for attr in layer.attributes}
+                                annotation = self.global_decorator(raw_text, parent_span.base_span, attributes)
+                                annotation = Annotation(span, annotation)
+
+                                subindex = self.dynamic_ruleset_map.get(rule.pattern, None)
+                                group = rule.group
+                                priority = rule.priority
+                                decorator = subindex[(group, priority)] if subindex is not None else None
+                                if decorator is None:
+                                    span.add_annotation(annotation)
+                                    continue
+                                annotation = decorator(layer.text_object, span, annotation)
+                                if validator_key is None or rec[validator_key](raw_text, annotation):
+                                    span.add_annotation(annotation)
 
                         if span.annotations:
                             layer.add_span(span)
@@ -119,12 +145,23 @@ class SpanTagger(Tagger):
                     value = value.lower()
                 if value in [rule.pattern for rule in ruleset.static_rules]:
                     span = Span(base_span=parent_span.base_span, layer=layer)
-                    for rec in [rule.pattern for rule in ruleset.static_rules]:
-                        attributes = {attr: rec[attr] for attr in layer.attributes}
-                        annotation = Annotation(span, attributes)
-                        if self.global_decorator(raw_text, annotation):
+                    for rule in ruleset.static_rules:
+                        if rule.pattern == value:
+                            rec = rule.attributes
+                            attributes = {attr: rec[attr] for attr in layer.attributes}
+                            annotation = self.global_decorator(raw_text, parent_span.base_span, attributes)
+                            annotation = Annotation(span, annotation)
+
+                            subindex = self.dynamic_ruleset_map.get(rule.pattern, None)
+                            group = rule.group
+                            priority = rule.priority
+                            decorator = subindex[(group, priority)] if subindex is not None else None
+                            if decorator is None:
+                                span.add_annotation(annotation)
+                                continue
+                            annotation = decorator(layer.text_object, span, annotation)
                             if validator_key is None or rec[validator_key](raw_text, annotation):
-                                span.add_annotation(Annotation(span, **attributes))
+                                span.add_annotation(annotation)
 
                     if span.annotations:
                         layer.add_span(span)

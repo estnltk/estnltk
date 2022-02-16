@@ -128,13 +128,6 @@ class SubstringTagger(Tagger):
             raise ValueError('Argument ruleset must be of type Ruleset or AmbiguousRuleset')
         if not (set(ruleset.output_attributes) <= set(self.output_attributes)):
             raise ValueError('Output attributes of a ruleset must match the output attributes of a tagger')
-        # Restrictions on the groups and priorities in the ruleset
-        for rule in ruleset.dynamic_rules:
-            for rule_2 in ruleset.dynamic_rules:
-                if rule.pattern == rule_2.pattern and rule.group != rule_2.group:
-                    raise AttributeError("Dynamic rules with the same left hand side have to have the same group.")
-                if rule.pattern == rule_2.pattern and rule.priority != rule_2.priority:
-                    raise AttributeError("Dynamic rules with the same left hand side have to have the same priority.")
 
         # Lets index dynamic rulesets in optimal way
         self.dynamic_ruleset_map: Dict[str, Dict[Tuple[int, int], Callable]]
