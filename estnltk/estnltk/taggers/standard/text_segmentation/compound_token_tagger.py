@@ -140,16 +140,16 @@ class CompoundTokenTagger( Tagger ):
             Note that user-defined abbreviations must be strings that 
             TokensTagger does not split into smaller tokens.
         
-        do_not_join_on_strings: list (default: ['\n\n'])
+        do_not_join_on_strings: list (default: ['\\n\\n'])
             A list of separator strings that will cancel the creation 
             of a compound token if any of them happens to be inside 
             the compound token.
             If you have separated sentences and paragraphs in text with 
-            special strings (e.g. sentences by '\n', and paragraphs by 
-            '\n\n'), then you can use this list to discard compound tokens 
+            special strings (e.g. sentences by '\\n', and paragraphs by
+            '\\n\\n'), then you can use this list to discard compound tokens
             annotations at the locations of sentence and paragraph 
             boundaries.
-            By default, the list only contains '\n\n', intending to keep 
+            By default, the list only contains '\\n\\n', intending to keep
             compound tokens off from the paragraph boundaries.
         
         patterns_1 : list ( default: ALL_1ST_LEVEL_PATTERNS )
