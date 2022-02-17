@@ -14,17 +14,20 @@ from estnltk_core.layer import AmbiguousAttributeTupleList, AmbiguousAttributeLi
 
 def to_base_span(x) -> BaseSpan:
     """Reduces estnltk's annotation structure to BaseSpan or creates BaseSpan from raw location.
-       If param x is estnltk's structure, reduces it to base span and returns:
-        *) BaseSpan -> BaseSpan (returns input);
-        *) Span -> ElementaryBaseSpan;
-        *) EnvelopingSpan -> EnvelopingBaseSpan;
+
+       If parameter `x` is estnltk's structure, returns corresponding base span:
+
+       * BaseSpan -> BaseSpan (returns input);
+       * Span -> ElementaryBaseSpan;
+       * EnvelopingSpan -> EnvelopingBaseSpan;
        
-       If param x is BaseLayer, returns EnvelopingBaseSpan enveloping all 
+       If parameter `x` is BaseLayer, returns EnvelopingBaseSpan enveloping all
        spans of the layer. 
        
-       If param x is a raw location, creates and returns appropriate base span:
-        *) (start, end) -> ElementaryBaseSpan;
-        *) [(start_1, end_1), ... (start_N, end_N)] -> EnvelopingBaseSpan;
+       If parameter `x` is a raw location, creates and returns appropriate base span:
+
+       * (start, end) -> ElementaryBaseSpan;
+       * [(start_1, end_1), ... (start_N, end_N)] -> EnvelopingBaseSpan;
     """
     if isinstance(x, BaseSpan):
         return x
@@ -327,7 +330,7 @@ class BaseLayer:
     def get(self, item):
         """ Finds and returns Span (or EnvelopingSpan) corresponding to the given (Base)Span item(s).
             If this layer is empty, returns None.
-            If the parameter item is a sequence of BaseSpan-s, then returns a new Layer populated 
+            If the parameter item is a sequence of BaseSpans, then returns a new Layer populated
             with specified spans and bearing the same configuration as this layer. For instance, 
             if you pass a span of the enveloping layer as item, then you'll get a snapshot layer 
             with all the spans of this layer wrapped by the enveloping span:
@@ -412,7 +415,8 @@ class BaseLayer:
            mark raw text positions (start, end), and 
            span_level > 0 indicates that spans of the 
            layer envelop around smaller level spans 
-           (see the BaseSpan docstring for details).
+           (for details, see the BaseSpan docstring from
+           estnltk_core).
            
            Note: if this layer has a parent layer, then this 
            layer has the same span_level as the parent layer.
@@ -424,9 +428,9 @@ class BaseLayer:
         """Returns a list of text fragments corresponding to 
            spans/annotations of this layer.
            Normally, this is a list of strings, but in case 
-           of an envloping layer, a list of lists of strings 
+           of an enveloping layer, a list of lists of strings
            will be returned, as each enveloping span is made 
-           of a list of spans of the the enveloped layer.
+           of a list of spans of the enveloped layer.
         """
         result = []
         for span in self._span_list.spans:
@@ -438,38 +442,53 @@ class BaseLayer:
 
     @property
     def enclosing_text(self):
+        """Returns a whole text region covered by this layer.
+        The region starts from the first span of the layer
+        and extends to the end of the farthest span of the layer."""
         return self.text_object.text[self.start:self.end]
 
     def attribute_values(self, attributes, index_attributes=[]):
-        """ Returns a matrix-like data structure containing all annotations of this layer with the selected attributes.
-            Usage examples:
-            
-                >> text = Text('Kirjule kassile').tag_layer('morph_analysis')
-                >> # select 'partofspeech' attributes from the 'morph_analysis' layer
-                >> text['morph_analysis'].attribute_values('partofspeech')
-                [['A'], ['S']]
-                
-                >> # select 'lemma' & 'partofspeech' attributes from the 'morph_analysis' layer
-                >> text['morph_analysis'].attribute_values(['lemma', 'partofspeech'])
-                [[['kirju', 'A']], [['kass', 'S']]]
-            
-            Optional parameter `index_attributes` can be a list of span's indexing 
-            attributes ('start', 'end', 'text'), which will be prepended to attributes.
-            Example:
-            
-                >> text = Text('Kirjule kassile').tag_layer('morph_analysis')
-                >> # select 'partofspeech' from the 'morph_analysis' layer and prepend surface text strings
-                >> text['morph_analysis'].attribute_values('partofspeech', index_attributes=['text'])
-                [[['Kirjule', 'A']], [['kassile', 'S']]]
-            
-            Note: for a successful selection, you should provide at least one regular or index 
-            attribute; a selection without any attributes raises IndexError.
-            
-            Returns:
-                AttributeList -- if the layer is not ambiguous and only one attribute was selected;
-                AttributeTupleList -- if the layer is not ambiguous and more than one attributes were selected;
-                AmbiguousAttributeList -- if the layer is ambiguous and only one attribute was selected;
-                AmbiguousAttributeTupleList -- if the layer is ambiguous and more than one attributes were selected;
+        """Returns a matrix-like data structure containing all annotations of this layer with the selected attributes.
+
+        Usage examples:
+
+        >>> from estnltk import Text
+        >>> text = Text('Kirjule kassile').tag_layer('morph_analysis')
+        >>> # select 'partofspeech' attributes from the 'morph_analysis' layer
+        >>> text['morph_analysis'].attribute_values('partofspeech')
+        [['A'], ['S']]
+
+        >>> text = Text('Kirjule kassile').tag_layer('morph_analysis')
+        >>> # select 'lemma' & 'partofspeech' attributes from the 'morph_analysis' layer
+        >>> text['morph_analysis'].attribute_values(['lemma', 'partofspeech'])
+        [[['kirju', 'A']], [['kass', 'S']]]
+
+        Optional parameter `index_attributes` can be a list of span's indexing
+        attributes ('start', 'end', 'text'), which will be prepended to attributes:
+        Example:
+
+        >>> text = Text('Kirjule kassile').tag_layer('morph_analysis')
+        >>> # select 'partofspeech' from the 'morph_analysis' layer and prepend surface text strings
+        >>> text['morph_analysis'].attribute_values('partofspeech', index_attributes=['text'])
+        [[['Kirjule', 'A']], [['kassile', 'S']]]
+
+        Note: for a successful selection, you should provide at least one regular or index
+        attribute; a selection without any attributes raises IndexError.
+
+        Parameters
+        ----------
+        attributes: Union[str, List[str]]
+            layer's attribute or attributes which values will be selected
+        index_attributes: Union[str, List[str]]
+            layer's indexing attributes ('start', 'end' or 'text') which values will be selected
+
+        Returns
+        --------
+        AmbiguousAttributeTupleList
+            * AttributeList -- if the layer is not ambiguous and only one attribute was selected;
+            * AttributeTupleList -- if the layer is not ambiguous and more than one attributes were selected;
+            * AmbiguousAttributeList -- if the layer is ambiguous and only one attribute was selected;
+            * AmbiguousAttributeTupleList -- if the layer is ambiguous and more than one attributes were selected;
         """
         if not isinstance(attributes, (str, list, tuple)):
             raise TypeError( 'Unexpected type for attributes:'.format( str(type(attributes)) ) )
@@ -512,9 +531,9 @@ class BaseLayer:
            * the span must have exactly one annotation (if the layer is not ambiguous);
            * the span belongs to this layer;
            * the base_span of the new span matches the span level of this layer;
-           
-           Note that you cannot add two Spans (EnvelopingSpans) that 
-           have exactly the same text location (base span); however, 
+
+           Note that you cannot add two Spans (EnvelopingSpans) that
+           have exactly the same text location (base span); however,
            partially overlapping spans are allowed.
         """
         assert isinstance(span, Span), str(type(span))
@@ -540,18 +559,19 @@ class BaseLayer:
         """Adds new annotation (from `attribute_dict` / `attribute_kwargs`) to given text location `base_span`.
         
            For non-enveloping layer, the location `base_span` can be:
+
            * (start, end) -- integer tuple;
            * ElementaryBaseSpan;
            * Span;
            
            For enveloping layer, the `base_span` can be:
+
            * [(start_1, end_1), ... (start_N, end_N)] -- list of integer tuples;
            * EnvelopingBaseSpan;
            * EnvelopingSpan;
            * BaseLayer if the layer is enveloping;
            
-           `attribute_dict` should contain attribute assignments for the annotation. 
-           Example:
+           `attribute_dict` should contain attribute assignments for the annotation. Example:
 
                layer.add_annotation( base_span, {'attr1': ..., 'attr2': ...} )
                
@@ -682,7 +702,7 @@ class BaseLayer:
                 if last_span.base_span == span.base_span:
                     return 'duplicate spans: {!r} and {!r} (both have basespan {})'.format( \
                                     last_span, span, last_span.base_span )
-                return 'ordering problem: {!r} should preceed {!r}'.format(last_span, span)
+                return 'ordering problem: {!r} should precede {!r}'.format(last_span, span)
             last_span = span
 
             annotations = span.annotations
