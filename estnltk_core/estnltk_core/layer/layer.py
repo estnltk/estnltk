@@ -82,20 +82,30 @@ class Layer(BaseLayer):
 
     def groupby(self, by: Union[str, Sequence[str], 'Layer'], return_type: str = 'spans') -> GroupBy:
         """Groups layer by attribute values of annotations or by an enveloping layer.
-           
-           The parameter `by` can be:
-           *) name of an attribute of this layer;
-           *) list of attribute names of this layer;
-           *) name of a Layer enveloping around this layer;
-           *) Layer object which is a layer enveloping around this layer;
-           Note: you can also use 'text' as an attribute name, 
-           which groups spans / annotations by their surface 
-           text strings.
-           
-           The parameter `return_type` specifies, whether "spans" or "annotations" will 
-           be grouped. 
-           
-           Returns estnltk_core.layer_operations.GroupBy object.
+
+           Parameters
+           -----------
+           by: Union[str, Sequence[str], 'Layer']
+                specifies basis for grouping, which can be either
+                matching attribute values or containment in an
+                enveloping span. More specifically, the parameter
+                `by` can be::
+                1) name of an attribute of this layer,
+                2) list of attribute names of this layer,
+                3) name of a Layer enveloping around this layer, or
+                4) Layer object which is a layer enveloping around this layer.
+                Note: you can also use 'text' as an attribute name; in that
+                case, spans / annotations are grouped by their surface text
+                strings.
+
+           return_type: str (default: 'spans')
+                specifies layer's units which will be grouped.
+                Possible values: "spans" or "annotations".
+
+           Returns
+           --------
+           estnltk_core.layer_operations.GroupBy
+                estnltk_core.layer_operations.GroupBy object.
         """
         if isinstance(by, str):
             if by in self.attributes:
@@ -118,20 +128,29 @@ class Layer(BaseLayer):
 
     def rolling(self, window: int, min_periods: int = None, inside: str = None) -> Rolling:
         """Creates an iterable object yielding span sequences from a window rolling over the layer.
-           Parameters:
-           *) window -- length of the window (in spans);
-           *) min_periods -- the minimal length of the window for borderline cases;
-              allows to shrink the window to meet this minimal length. If not specified, 
-              then `min_periods == window`, which means that the shrinking is not allowed, 
-              and contexts smaller than the `window` will be discarded.
-              Note: `0 < min_periods <= window` must hold;
-           *) inside -- an enveloping layer to be used for constraining the rolling window. 
-              The rolling window is applied on each span of the enveloping layer separately, 
-              thus ensuring that the window does not exceed boundaries of enveloping spans. 
-              For instance, if you create a rolling window over 'words', you can spacify
-              inside='sentences', ensuring that the generated word N-grams do not exceed 
-              sentence boundaries;
-            Returns estnltk_core.layer_operations.Rolling object.
+
+           Parameters
+           -----------
+           window
+                length of the window (in spans);
+           min_periods
+                the minimal length of the window for borderline cases;
+                allows to shrink the window to meet this minimal length. If not specified,
+                then `min_periods == window`, which means that the shrinking is not allowed,
+                and contexts smaller than the `window` will be discarded.
+                Note: `0 < min_periods <= window` must hold;
+           inside
+                an enveloping layer to be used for constraining the rolling window.
+                The rolling window is applied on each span of the enveloping layer separately,
+                thus ensuring that the window does not exceed boundaries of enveloping spans.
+                For instance, if you create a rolling window over 'words', you can specify
+                inside='sentences', ensuring that the generated word N-grams do not exceed
+                sentence boundaries;
+
+           Returns
+           --------
+           estnltk_core.layer_operations.Rolling
+                estnltk_core.layer_operations.Rolling object.
         """
         return Rolling(self, window=window, min_periods=min_periods, inside=inside)
 

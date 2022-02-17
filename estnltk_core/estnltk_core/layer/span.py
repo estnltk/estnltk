@@ -65,41 +65,40 @@ class Span:
 
     def add_annotation(self, annotation: Union[Dict[str, Any], Annotation]={}, **annotation_kwargs) -> Annotation:
         """Adds new annotation (from `annotation` / `annotation_kwargs`) to this span.
+
+        `annotation` can be either an Annotation object initiated with this span. For example::
+
+            span.add_annotation(Annotation(span, {'attr1': ..., 'attr2': ...}))
            
-           `annotation` can be either an Annotation object initiated with this span.
-           Example:
+        Or it can be a dictionary of attributes and values::
+
+            span.add_annotation( {'attr1': ..., 'attr2': ...} )
            
-               span.add_annotation(Annotation(span, {'attr1': ..., 'attr2': ...}))
+        Missing attributes will be filled in with span layer's default_values
+        (None values, if defaults have not been explicitly set).
+        Redundant attributes (attributes not in `span.layer.attributes`)
+        will be discarded.
+        Optionally, you can leave `annotation` unspecified and pass keyword
+        arguments to the method via `annotation_kwargs`, for example::
            
-           Or it can be a dictionary of attributes and values. Example:
+            span.add_annotation( attr1=..., attr2=... )
            
-               span.add_annotation( {'attr1': ..., 'attr2': ...} )
+        Note that keyword arguments can only be valid Python keywords
+        (excluding the keyword 'annotation'), and using `annotation`
+        dictionary enables to bypass these restrictions.
            
-           Missing attributes will be filled in with span layer's default_values 
-           (None values, if defaults have not been explicitly set). 
-           Redundant attributes (attributes not in `span.layer.attributes`) 
-           will be discarded. 
-           Optionally, you can leave `annotation` unspecified and pass keyword 
-           arguments to the method via `annotation_kwargs`, for example: 
-           
-               span.add_annotation( attr1=..., attr2=... )
-           
-           Note that keyword arguments can only be valid Python keywords 
-           (excluding the keyword 'annotation'), and using `annotation` 
-           dictionary enables to bypass these restrictions.
-           
-           Note that you cannot pass Annotation object and keyword arguments 
-           simultaneously, this will result in TypeError. 
-           However, you can pass annotation dictionary and keyword arguments 
-           simultaneously. In that case, keyword arguments override annotation 
-           dictionary in case of an overlap in attributes. Overall, the 
-           priority order in setting value of an attribute is: 
-           `annotation_kwargs` > `annotation(dict)` > `default attributes`.
+        Note that you cannot pass Annotation object and keyword arguments
+        simultaneously, this will result in TypeError.
+        However, you can pass annotation dictionary and keyword arguments
+        simultaneously. In that case, keyword arguments override annotation
+        dictionary in case of an overlap in attributes. Overall, the
+        priority order in setting value of an attribute is:
+        `annotation_kwargs` > `annotation(dict)` > `default attributes`.
             
-           The method returns added Annotation object.
+        The method returns added Annotation object.
            
-           Note: you can add two or more annotations to this span only if 
-           the layer is ambiguous.
+        Note: you can add two or more annotations to this span only if
+        the layer is ambiguous.
         """
         if isinstance(annotation, Annotation):
             # Annotation object
@@ -129,9 +128,17 @@ class Span:
             raise ValueError('The layer is not ambiguous and this span already has a different annotation.')
 
     def del_annotation(self, idx):
+        """Deletes annotation by index `idx`.
+        """
         del self._annotations[idx]
 
     def clear_annotations(self):
+        """Removes all annotations from this span.
+        Warning: Span without any annotations is dysfunctional.
+        It is the responsibility of a programmer to either add new annotations
+        to span after clearing it, or to remove the span from the layer
+        altogether.
+        """
         self._annotations.clear()
 
     @property

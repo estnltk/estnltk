@@ -1,11 +1,11 @@
 #   
 #   This is a registry for serialisation modules. 
-#   Basic serialisation functions (such as text_to_json(...), json_to_text(...)) are 
-#   defined in the 'estnltk_core' package, but used commonly across all the packages 
+#   Basic serialisation functions (such as text_to_json(...) and json_to_text(...)) are
+#   defined in the estnltk_core package, but used commonly across all the packages
 #   of EstNLTK. 
 #   Other packages of EstNLTK also extend the serialisation possibilities. 
 #   In order to make serialisation extensions usable across all the packages of EstNLTK, 
-#   we use a global serialisation registry, which is defined in 'estnltk_core' and 
+#   we use a global serialisation registry, which is defined in estnltk_core and
 #   updated in other packages. 
 #
 from types import ModuleType
@@ -32,3 +32,13 @@ class SerialisationRegistry:
 # default serialisation is always used when serialisation module is unspecified.
 # do not use 'default' to call out default serialisation module
 SERIALISATION_REGISTRY = SerialisationRegistry()
+"""
+This is a registry for serialisation modules. 
+Basic serialisation functions (such as text_to_json(...) and json_to_text(...)) are 
+defined in the estnltk_core package, but used commonly across all the packages 
+of EstNLTK. 
+Other packages of EstNLTK also extend the serialisation possibilities. 
+In order to make serialisation extensions usable across all the packages of EstNLTK, 
+we use a global serialisation registry, which is defined in estnltk_core and 
+updated in other packages. 
+"""
