@@ -38,7 +38,7 @@ class Tagger(metaclass=TaggerChecker):
     Use this class as a superclass in creating concrete 
     implementations of taggers.
     
-    Tagger's derived class needs to implement the following: 
+    Tagger's derived class needs to implement the following:
     conf_param
     output_layer
     output_attributes
@@ -78,7 +78,6 @@ class Tagger(metaclass=TaggerChecker):
     You can create a new layer in the following way:
     
         from estnltk_core import Layer
-        
         new_layer = Layer(name=self.output_layer,
                           text_object=text,
                           attributes=self.output_attributes,
@@ -119,40 +118,41 @@ class Tagger(metaclass=TaggerChecker):
     and populate different types of layers, see the tutorial 
     "low_level_layer_operations.ipynb"
     
-    Adding spans 
-    ============ 
+    Adding annotations
+    ===================
     
     Once you've created the layer, you can populate it with data:
     spans and corresponding annotations. 
     
-    You can use layer's methods add_annotation(...) and add_span(...) 
-    to add new spans. The add_annotation(...) method is the most straight-
-    forward one. It takes two inputs: the location of the span (start,end), 
-    and the dictionary of an annotation (attributes-values), and adds 
-    annotations to the layer at the specified location:
+    You can use layer's add_annotation(...) method to add new annotations
+    to the specific (text) locations. The method takes two inputs: the
+    location of the span (start,end), and the dictionary of an annotation
+    (attributes-values), and adds annotations to the layer at the specified
+    location:
     
         assert isinstance(annotations, dict)
-        
-        new_layer.add_annotation( (start,end),**annotations )
-    
-    In case of an ambiguous layer, you can also add multiple annotations 
-    to the same location via layer.add_annotation(...).
-    
-    The add_span(...) method adds a new Span or EnvelopingSpan to the 
-    layer:
-    
-        from estnltk_core import Span
+        new_layer.add_annotation( (start,end), annotations )
 
-        new_layer.add_span( Span(...) )
-    
-    Initializing a new Span or EnvelopingSpan is a nuanced operation, 
-    please consult the tutorial "low_level_layer_operations.ipynb" for 
-    more information about that.
-    
-    Note that you cannot add two Spans (or EnvelopingSpan-s) that have 
-    exactly the same text location, however, partially overlapping spans
-    are allowed.
+    If all attribute names are valid Python identifiers, you can also pass
+    annotation as keyword assignments, e.g.:
 
+        new_layer.add_annotation( (start,end), attr1=..., attr2=... )
+
+    In case of an ambiguous layer, you can add multiple annotations to the
+    same location via layer.add_annotation(...), but this is not allowed
+    for unambiguous layers.
+
+    Note #1: if the layer does not define any attributes, you can use
+    new_layer.add_annotation( (start,end) ) to create a markup without
+    attributes-values (an empty annotation).
+
+    Note #2: location of the span can be given as (start,end) only if the
+    output layer is not enveloping. In case of an enveloping layer, a more
+    complex structure should be used, please consult the documentation of
+    BaseSpan (from estnltk_core) for details.
+
+    Note #3: you cannot add two Spans (or EnvelopingSpan-s) that have exactly the
+    same text location, however, partially overlapping spans are allowed.
     """
     __slots__ = ['_initialized', 'conf_param', 'output_layer', 'output_attributes', 'input_layers']
 

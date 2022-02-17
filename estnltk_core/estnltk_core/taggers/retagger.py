@@ -41,47 +41,54 @@ class Retagger(Tagger):
     Basically, you can iterate over spans of the layer, remove old 
     annotations and add new ones: 
     
-        from estnltk_core import Annotation 
-
-        for span in layers[self.output_layer]: 
+        for span in layers[self.output_layer]:
+            # remove old annotations
             span.clear_annotations()
-            span.add_annotation( Annotation(span, ...) )
+            # create a dictionary of new annotation
+            new_annotation = ...
+            assert isinstance(new_annotation, dict)
+            # add new annotation
+            span.add_annotation( new_annotation )
     
-    Note, however, that the new Annotation must have the same 
-    attributes as the old annotation(s) had.
-    Consult the tutorial "low_level_layer_operations.ipynb" for 
-    more information about creating Annotation objects. 
+    Note, however, that the new annotation (a dictionary of attributes
+    and values) should have the same attributes as the layer has.
+    Any attributes of the new annotation that are not present in
+    the layer will be discarded. And if the new annotation misses
+    some of the layer's attributes, these will be replaced by default
+    values (None values, if the layer does not define default values).
+
+    Adding annotations
+    ==================
     
-    Adding spans 
-    ============ 
-    
-    You can use layer's methods add_annotation(...) and add_span(...) 
-    to add new spans. The add_annotation(...) method is the most straight-
-    forward one. It takes two inputs: the location of the span (start,end), 
-    and the dictionary of an annotation (attributes-values), and adds 
-    annotations to the layer at the specified location:
+    You can use layer's add_annotation(...) method to add new annotations
+    to the specific (text) locations. The method takes two inputs: the
+    location of the span (start,end), and the dictionary of an annotation
+    (attributes-values), and adds annotations to the layer at the specified
+    location:
     
         assert isinstance(annotations, dict)
-        
-        layers[self.output_layer].add_annotation( (start,end),**annotations )
+        layers[self.output_layer].add_annotation( (start,end), annotations )
     
-    In case of an ambiguous layer, you can also add multiple annotations 
-    to the same location via layer.add_annotation(...).
-    
-    The add_span(...) method adds a new Span or EnvelopingSpan to the 
-    layer:
-    
-        from estnltk_core import Span
+    If all attribute names are valid Python identifiers, you can also pass
+    annotation as keyword assignments, e.g.:
 
-        layers[self.output_layer].add_span( Span(...) )
+        layers[self.output_layer].add_annotation( (start,end), attr1=..., attr2=... )
+
+    In case of an ambiguous layer, you can add multiple annotations to the
+    same location via layer.add_annotation(...), but this is not allowed
+    for unambiguous layers.
     
-    Initializing a new Span or EnvelopingSpan is a nuanced operation, 
-    please consult the tutorial "low_level_layer_operations.ipynb" for 
-    more information about that.
-    
-    Note that you cannot add two Spans (or EnvelopingSpan-s) that have 
-    exactly the same text location, however, partially overlapping spans
-    are allowed.
+    Note #1: if the layer does not define any attributes, you can use
+    layers[self.output_layer].add_annotation( (start,end) ) to create a
+    markup without attributes-values (an empty annotation).
+
+    Note #2: location of the span can be given as (start,end) only if the
+    output layer is not enveloping. In case of an enveloping layer, a more
+    complex structure should be used, please consult the documentation of
+    BaseSpan (from estnltk_core) for details.
+
+    Note #3: you cannot add two Spans (or EnvelopingSpan-s) that have exactly the
+    same text location, however, partially overlapping spans are allowed.
     
     Removing spans 
     ============== 
