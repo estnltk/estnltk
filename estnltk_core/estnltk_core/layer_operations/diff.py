@@ -27,10 +27,9 @@ def diff_layer(a: Union[BaseLayer, 'Layer'], b: Union[BaseLayer, 'Layer'], comp=
         Only layer elements with equal spans are compared.
 
     Yields
-    ------
-    tuple(Span)
-        Pairs of different spans. In place of missing layer element,
-        None is returned.
+    -------
+    Tuple[Optional[Span], Optional[Span]]
+        Pairs of different spans. In place of missing layer element, None is returned.
     """
     a = iter(a)
     b = iter(b)

@@ -35,6 +35,11 @@ def flatten(input_layer: Union['BaseLayer', 'Layer'], output_layer: str, output_
            the output layer will be ambiguous.
            If set to 'pick_first', then the first annotation of every span will be 
            preserved.
+
+       Returns
+       -------
+       Union['BaseLayer', 'Layer']
+            flattened version of the input_layer
     """
     layer_attributes = input_layer.attributes
 

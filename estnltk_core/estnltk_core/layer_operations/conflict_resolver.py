@@ -51,8 +51,8 @@ def resolve_conflicts(layer: Union[BaseLayer, 'Layer'],
 
     Returns
     -------
-    Input layer with removed conflicts.
-
+    Layer
+        Input layer with removed conflicts.
     """
     if conflict_resolving_strategy not in {'ALL', 'MAX', 'MIN'}:
         raise ValueError('unexpected conflict_resolving_strategy: ' + str(conflict_resolving_strategy))

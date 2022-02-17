@@ -16,6 +16,11 @@ def rebase(text, layer, new_base):
         Name of the new parent layer. Rebasing can be applied successfully
         only if the new parent layer is direct or indirect parent of the
         current parent layer.
+
+    Returns
+    -------
+    Union[BaseText, 'Text']
+        Text object in which the target layer has been rebased
     """
     dependency_layers = find_layer_dependencies(text, layer, 
                                                  include_enveloping=False,
