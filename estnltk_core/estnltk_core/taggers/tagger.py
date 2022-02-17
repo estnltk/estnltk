@@ -38,11 +38,13 @@ class Tagger(metaclass=TaggerChecker):
     Use this class as a superclass in creating concrete 
     implementations of taggers.
     
-    Tagger's derived class needs to implement the following:
+    Tagger's derived class needs to set the instance variables:
     conf_param
     output_layer
     output_attributes
     input_layers
+
+    ... and implement the following methods:
     __init__(...)
     _make_layer(...)
 
@@ -182,17 +184,65 @@ class Tagger(metaclass=TaggerChecker):
     # TODO: rename layers -> detached_layers ?
     # TODO: remove status parameter, use Layer.meta instead
     def _make_layer(self, text: Union['BaseText', 'Text'], layers: MutableMapping[str, Layer], status: dict) -> Layer:
+        """ Creates and returns a new layer, based on the given `text` and its `layers`.
+
+        **This method needs to be implemented in a derived class.**
+
+        Parameters
+        ----------
+        text: Union['BaseText', 'Text']
+            Text object to be annotated.
+        layers: MutableMapping[str, Layer]
+            A mapping from layer names to corresponding Layer objects.
+            Layers in the mapping can be detached from the Text object.
+            It can be assumed that all tagger's `input_layers` are in
+            the mapping.
+            IMPORTANT: input_layers should always be accessed via the
+            layers parameter, and NOT VIA THE TEXT OBJECT, because
+            the Text object is not guaranteed to have the input layers
+            as attached layers at this processing stage.
+        status: dict
+            Dictionary for recording status messages about tagging.
+            Note: the status parameter is **deprecated**.
+            To store any metadata, use ``layer.meta`` instead.
+
+        Returns
+        ----------
+        Layer
+            Created Layer object, which is detached from the Text object.
+        """
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
     # TODO: rename layers -> detached_layers ?
     # TODO: change argument type layers: Set[str]
     def make_layer(self, text: Union['BaseText', 'Text'], layers: Union[MutableMapping[str, Layer], Set[str]] = None, status: dict = None) -> Layer:
-        """
-        # TODO: Add documentation
-        :param text:
-        :param layers:
-        :param status:
-        :return:
+        """ Creates and returns a new layer, based on the given `text` and its `layers`.
+
+        Note: derived classes **should not override** this method.
+
+        Parameters
+        ----------
+        text: Union['BaseText', 'Text']
+            Text object to be annotated.
+        layers: MutableMapping[str, Layer]
+            A mapping from layer names to corresponding Layer objects.
+            Layers in the mapping can be detached from the Text object.
+            It is assumed that all tagger's `input_layers` are in the
+            mapping.
+            IMPORTANT: the new layer is created based on input_layers
+            in the mapping, and not based on layers attached to the
+            Text object.
+        status: dict
+            Dictionary with status messages about tagging.
+            Note: the status parameter is **deprecated**.
+            To store/access metadata, use ``layer.meta`` instead.
+
+        Returns
+        ----------
+        Layer
+            Created Layer object, which is detached from the Text object.
+
+        =============================================================================
 
         # QUICK FIXES:
         layers should be a dictionary of layers but due to the changes in the Text object signature, it is actually a
@@ -251,10 +301,22 @@ class Tagger(metaclass=TaggerChecker):
         return layer
 
     def tag(self, text: Union['BaseText', 'Text'], status: dict = None) -> Union['BaseText', 'Text']:
-        """
-        text: Text object to be tagged
+        """Annotates Text object with this tagger.
+
+        Note: derived classes **should not override** this method.
+
+        Parameters
+        -----------
+        text: Union['BaseText', 'Text']
+            Text object to be tagged.
+
         status: dict, default {}
             This can be used to store layer creation metadata.
+
+        Returns
+        -------
+        Union['BaseText', 'Text']
+            Input Text object which has a new (attached) layer created by this tagger.
         """
         text.add_layer(self.make_layer(text=text, layers=text.layers, status=status))
         return text

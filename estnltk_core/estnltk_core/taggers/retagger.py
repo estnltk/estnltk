@@ -9,11 +9,13 @@ class Retagger(Tagger):
     Use this class as a superclass in creating concrete 
     implementations of retaggers.
     
-    Retagger's derived class needs to implement the following: 
+    Retagger's derived class needs to set the instance variables:
     conf_param
     input_layers
     output_layer
     output_attributes
+
+    ... and implement the following methods:
     __init__(...)
     _change_layer(...)
     
@@ -167,20 +169,78 @@ class Retagger(Tagger):
     # TODO: text.layers will be Set[str]. Make sure that this does not cause problems
     
     """
-    # check_output_consistency:
-    #    If set, then applies layer's method check_span_consistency()
-    #    after modification of the layer.
+
     check_output_consistency=True,
+    """
+    check_output_consistency: if ``True`` (default), then applies layer's method `check_span_consistency()`
+    after the modification to validate the layer. 
+    Do not turn this off unless you know what you are doing! 
+    """
 
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
     def _change_layer(self, text: Union['BaseText', 'Text'], layers: MutableMapping[str, Layer], status: dict) -> None:
+        """Changes `output_layer` in the given `text`.
+
+        **This method needs to be implemented in a derived class.**
+
+        Parameters
+        ----------
+        text: Union['BaseText', 'Text']
+            Text object which layer is changed
+        layers: MutableMapping[str, Layer]
+            A mapping from layer names to Layer objects.
+            Layers in the mapping can be detached from the Text object.
+            It can be assumed that `output_layer` is in the mapping and
+            all tagger's `input_layers` are also in the mapping.
+            IMPORTANT: input_layers and output_layer should always be
+            accessed via the layers parameter, and NOT VIA THE TEXT
+            OBJECT, because the Text object is not guaranteed to have
+            them as attached layers at this processing stage.
+        status: dict
+            Dictionary for recording status messages about tagging.
+            Note: the status parameter is **deprecated**.
+            To store any metadata, use ``layer.meta`` instead.
+
+        Returns
+        ----------
+        NoneType
+            None
+        """
         raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
 
     def change_layer(self, text: Union['BaseText', 'Text'], layers: Union[MutableMapping[str, Layer], Set[str]], status: dict = None) -> None:
-        """
+        """Changes `output_layer` in the given `text`.
+
+        Note: derived classes **should not override** this method.
+
+        Parameters
+        ----------
+        text: Union['BaseText', 'Text']
+            Text object which layer is changed
+        layers: MutableMapping[str, Layer]
+            A mapping from layer names to Layer objects.
+            Layers in the mapping can be detached from the Text object.
+            It can be assumed that `output_layer` is in the mapping and
+            all tagger's `input_layers` are also in the mapping.
+            IMPORTANT: the output_layer is changed based on input_layers
+            and output_layer in the mapping, and not based on the layers
+            attached to the Text object.
+        status: dict
+            Dictionary with status messages about retagging.
+            Note: the status parameter is **deprecated**.
+            To store/access metadata, use ``layer.meta`` instead.
+
+        Returns
+        ----------
+        NoneType
+            None
+
+        =============================================================================
+
         # QUICK FIXES:
+
         layers should be a dictionary of layers but due to the changes in the Text object signature, it is actually a
         list of layer names which will cause a lot of problems in refactoring. Hence, we convert list of layer names
         to dictionary of layers.
@@ -226,13 +286,20 @@ class Retagger(Tagger):
     def retag(self, text: Union['BaseText', 'Text'], status: dict = None ) -> Union['BaseText', 'Text']:
         """
         Modifies output_layer of given Text object.
-        
+
+        Note: derived classes **should not override** this method.
+
         Parameters
         ----------
         text: 
             Text object to be retagged
         status: dict, default {}
             This can be used to store metadata on layer modification.
+
+        Returns
+        -------
+        Union['BaseText', 'Text']
+            Input Text object which has a output_layer changed by this retagger.
         """
         # Used change_layer to get the retagged variant of the layer
         self.change_layer(text, text.layers, status)
