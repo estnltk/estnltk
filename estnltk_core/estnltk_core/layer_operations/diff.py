@@ -7,10 +7,21 @@ from estnltk_core.layer.base_layer import BaseLayer
 def diff_layer(a: Union[BaseLayer, 'Layer'], b: Union[BaseLayer, 'Layer'], comp=eq):
     """Generator of layer differences.
 
+    In detail: iterates over spans of two layers and yields spans that are:
+    1) missing from the second layer, 2) missing from the first layer, or
+    3) present in both layers, but different according to the comparator
+    function (e.g. contain different annotations).
+    Spans of two layers are considered as matching (by their positions) only
+    if their base spans are matching. If there is a partial overlap between
+    the base spans, then the comparator function is not applied and the
+    corresponding spans are yielded as missing spans (cases 1 and 2).
+
     Parameters
     ----------
     a: Union[BaseLayer, 'Layer']
+        First layer to be compared
     b: Union[BaseLayer, 'Layer']
+        Second layer to be compared
     comp: compare function, default: operator.eq
         Function that returns True if layer elements are equal and False otherwise.
         Only layer elements with equal spans are compared.
