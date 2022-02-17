@@ -20,26 +20,33 @@ def extract_discontinuous_sections(text: Union['Text', 'BaseText'],
                                    trim_overlapping: bool = False):
     """Split text into a list of texts by discontinuous sections.
     
-       A discontinuous section is a list of ``(start, end)`` pairs:
-       text inside the pairs will be extracted,  and  gaps between
-       every two pairs will be kept out.
-       Note: pairs ``(start, end)`` must be sorted increasingly;
+    A discontinuous section is a list of ``(start, end)`` pairs:
+    text inside the pairs will be extracted,  and  gaps between
+    every two pairs will be kept out.
+    Note: pairs ``(start, end)`` must be sorted increasingly.
 
-       This method is slow on long texts.
+    This method is slow on long texts.
 
-       :param text: `Text` object
-       :param sections: list of lists of ``(start, end)`` pairs
-       :param layers_to_keep: list of layer names to be kept
-           The dependencies must be included, that is, if a layer in the list
-           has a parent or is enveloping, then the parent or enveloped layer
-           must also be in this list.
-           If None (default), all layers are kept
-       :param trim_overlapping
-           If `False` (default), overlapping spans are not kept.
-           If `True`, overlapping spans are trimmed to fit the boundaries.
-       :return list of texts
-           A `Text` object for every discontinuous section in `sections`.
+    Parameters
+    ----------
+    text: Union['Text', 'BaseText']
+        text object which will be split
+    sections: List[Tuple(int, int)]
+        list of lists of ``(start, end)`` pairs defining discontinuous sections
+    layers_to_keep: List[str]
+        list of layers to be kept while splitting.
+        The dependencies must be included, that is, if a layer in the list
+        has a parent or is enveloping, then the parent or enveloped layer
+        must also be in this list.
+        If None (default), all layers are kept
+    trim_overlapping: bool
+        If `False` (default), overlapping spans are not kept.
+        If `True`, overlapping spans are trimmed to fit the boundaries.
 
+    Returns
+    -------
+    List[Union['Text', 'BaseText']]
+        list containing a `Text` object for every discontinuous section in `sections`.
     """
     if layers_to_keep:
         for layer in layers_to_keep:
@@ -166,52 +173,69 @@ def layers_to_keep_default(text, layer):
 
 
 def group_consecutive_spans( text_str, spans, reduce_spans=True, correct_left_boundary=True ):
-    """ Groups consecutive spans in a following way:
-        *) consecutive spans that are separated by whitespaces strings will be joined 
-          into one group. For instance: 
-           text: 'Mees oli tuttav' -> 
-           spans: ['Mees', 'oli', 'tuttav'] -> 
-           one group: [['Mees', 'oli', 'tuttav']]
-        *) consecutive spans that are separated by empty strings will be joined 
-          into one group. For instance: 
-           text: 'keegi,' -> 
-           spans: ['keegi', ','] -> 
-           one group: [['keegi', ',']]
-        *) in case of a discontinuity of spans, different groups are formed. 
-           For instance:
-           text: 'Mees, keda kohtasime, oli tuttav' -> 
-           spans: ['Mees', 'oli', 'tuttav'] -> 
-           two groups: [['Mees'], ['oli', 'tuttav']]
-        Returns a grouping of spans: a list of list of span locations (start, end);
-        
-       :param text_str:        text covered by the spans (a string)
-       :param spans:           a list of `Span` objects that need to be grouped
-       :param reduce_spans:   
-              If `True` (default), then groups of continuous spans are reduced to 
-                    (start, end) of the whole group, e.g. if [(s1, e1), ... , (sN, eN)]
-                    is a list of continuous spans, then it is reduced to [(s1, eN)];
-              If `False`, groups of continuous spans will remain as they are.
-       :param correct_left_boundary:
-              If `True` (default), then before adding a new group after a group of
-                    discontinuous spans, the beginning of the new group is checked
-                    for a preceding whitespace and if the whitespace precedes, it 
-                    is added at the beginning of the new group. For instance:
-                         old text: 'Mees, keda kohtasime, oli tuttav' -> 
-                         spans: ['Mees', 'oli', 'tuttav'] -> 
-                         two groups: [['Mees'], [' oli', 'tuttav']]
-                           ( whitespace added before 'oli' )
-                         new_text: 'Mees oli tuttav'
-              If `False`, then no whitespace corrections will be made. As a result,
-                    you may stumble upon a problem:
-                         old text: 'Mees, keda kohtasime, oli tuttav' -> 
-                         spans: ['Mees', 'oli', 'tuttav'] -> 
-                         two groups: [['Mees'], ['oli', 'tuttav']]
-                         new_text: 'Meesoli tuttav'
-                           ( because of missing whitespace corrections, 
-                             'Mees' and 'oli' will be joined mistakenly )
-       :return list of list of span locations (start, end)
-           start, end indexes of all spans grouped in a way that all consecutive spans
-           are grouped together, and discontinuous spans are in separate groups;
+    """Groups consecutive spans while taking account of the whitespace between the spans.
+
+    Uses the following logic for grouping the spans:
+
+    * consecutive spans that are separated by whitespaces strings will be joined into one group. For instance::
+
+       text: 'Mees oli tuttav' ->
+       spans: ['Mees', 'oli', 'tuttav'] ->
+       return one group: [['Mees', 'oli', 'tuttav']]
+
+    * consecutive spans that are separated by empty strings will be joined into one group. For instance::
+
+       text: 'kohtasime,' ->
+       spans: ['kohtasime', ','] ->
+       return one group: [['kohtasime', ',']]
+
+    * in case of a discontinuity of spans, different groups are formed. For instance::
+
+       text: 'Mees, keda kohtasime, oli tuttav' ->
+       spans: ['Mees', 'oli', 'tuttav'] ->
+       return two groups: [['Mees'], ['oli', 'tuttav']]
+
+    Returns a grouping of spans: a list of list of span locations (start, end).
+
+    Parameters
+    ----------
+    text_str: str
+        raw text covered by the spans (a string)
+    spans:
+        a list of `Span` objects that need to be grouped
+    reduce_spans: bool
+        If `True` (default), then groups of continuous spans are reduced to
+        (start, end) of the whole group, e.g. if [(s1, e1), ... , (sN, eN)]
+        is a list of continuous spans, then it is reduced to [(s1, eN)].
+        If `False`, groups of continuous spans will remain as they are.
+    correct_left_boundary: bool
+        If `True` (default), then before adding a new group after a group of
+        discontinuous spans, the beginning of the new group is checked for
+        a preceding whitespace and if the whitespace precedes, it is added
+        at the beginning of the new group. For instance::
+
+             old text: 'Mees, keda kohtasime, oli tuttav' ->
+             spans: ['Mees', 'oli', 'tuttav'] ->
+             return two groups: [['Mees'], [' oli', 'tuttav']]
+               ( note whitespace added before 'oli' )
+             new_text: 'Mees oli tuttav'.
+
+        If `False`, then no whitespace corrections will be made. As a result,
+        you may stumble upon a problem::
+
+             old text: 'Mees, keda kohtasime, oli tuttav' ->
+             spans: ['Mees', 'oli', 'tuttav'] ->
+             return two groups: [['Mees'], ['oli', 'tuttav']]
+             new_text: 'Meesoli tuttav'
+           ( because of missing whitespace corrections,
+             'Mees' and 'oli' will be joined mistakenly )
+
+    Returns
+    -------
+    List[List[Tuple(int, int)]]
+       list of list of span locations (start, end). start, end indexes of input spans
+       grouped in a way that all consecutive spans are grouped together, and discontinuous
+       spans are in separate groups.
     """
     i = 0
     consecutive_span_locs = []
@@ -261,23 +285,36 @@ def group_consecutive_spans( text_str, spans, reduce_spans=True, correct_left_bo
 def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequence[str]=None, 
                                   trim_overlapping: bool=False, _post_chk: bool=False ) -> List[Union['Text', 'BaseText']]:
     """Split text into a list of texts by a discontinuous layer.
-       This splitting method should handle correctly layers with 
-       discontinuous annotation spans, such as the clauses 
-       layer, and the verb chains layer.
-       
-       :param text: `Text` object
-       :param layer: name of the discontinuous layer to split by
-       :param layers_to_keep: list of layer names to be kept
-       :param trim_overlapping
-           If `False` (default), overlapping spans are not kept.
-           If `True`, overlapping spans are trimmed to fit the boundaries.
-       :param _post_chk:
-           If `False` (default), then no post-checking will be done.
-           If `True`, then applies post-checking to make sure that there 
-                      are no conflicts/intersections between extracted 
-                      discontinuous sections.
-       :return list of texts
-           A `Text` object for every span in the `layer`.
+
+    This splitting method should handle correctly layers with
+    discontinuous annotation spans, such as the clauses
+    layer, and the verb chains layer.
+
+    Parameters
+    ----------
+    text: Union['Text', 'BaseText']
+        text object which will be split
+    layer: str
+        name of the discontinuous layer to split by
+    layers_to_keep: List[str]
+        list of layers to be kept while splitting.
+        The dependencies must be included, that is, if a layer in the list
+        has a parent or is enveloping, then the parent or enveloped layer
+        must also be in this list.
+        If None (default), all layers are kept
+    trim_overlapping: bool
+        If `False` (default), overlapping spans are not kept.
+        If `True`, overlapping spans are trimmed to fit the boundaries.
+    _post_chk: bool
+        If `False` (default), then no post-checking will be done.
+        If `True`, then applies post-checking to make sure that there
+        are no conflicts/intersections between extracted discontinuous
+        sections.
+
+    Returns
+    -------
+    List[Union['Text', 'BaseText']]
+        list containing a `Text` object for every span in the `layer`.
     """
     if layers_to_keep is None:
         raise ValueError('(!) Unexpected None value for layers_to_keep. '+

@@ -17,18 +17,26 @@ def extract_sections(text: Union['Text', 'BaseText'],
 
     This method is slow on long texts.
 
-    :param text: `Text` object
-    :param sections: list of ``(start, end)`` pairs
-    :param layers_to_keep: list of layer names to be kept
+    Parameters
+    ----------
+    text: Union['Text', 'BaseText']
+        text object which will be split
+    sections: List[Tuple(int, int)]
+        list of ``(start, end)`` pairs defining the sections
+    layers_to_keep: List[str]
+        list of layers to be kept in section texts.
         The dependencies must be included, that is, if a layer in the list
         has a parent or is enveloping, then the parent or enveloped layer
         must also be in this list.
         If None (default), all layers are kept
-    :param trim_overlapping
+    trim_overlapping: bool
         If `False` (default), overlapping spans are not kept.
         If `True`, overlapping spans are trimmed to fit the boundaries.
-    :return list of texts
-        A `Text` object for every section in `sections`.
+
+    Returns
+    -------
+    List[Union['Text', 'BaseText']]
+          list containing a `Text` object for every section in `sections`.
 
     """
     if layers_to_keep:
@@ -136,6 +144,8 @@ def extract_section(text,
                     end: int,
                     layers_to_keep: list=None,
                     trim_overlapping: bool=False):
+    """Shorthand for ``extract_sections(text, [(start, end)], layers_to_keep, trim_overlapping)[0]``.
+    """
     return extract_sections(text, [(start, end)], layers_to_keep, trim_overlapping)[0]
 
 
@@ -155,18 +165,25 @@ def split_by(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequen
 
     This method is slow on long texts.
 
-    :param text: `Text` object
-    :param layer: name of the layer to split by
-    :param layers_to_keep: list of layer names to be kept
-        The dependencies must be included, that is, if a layer in the list
-        has a parent or is enveloping, then the parent or enveloped layer
-        must also be in this list.
-        If None (default), all layers are kept
-    :param trim_overlapping
+    Parameters
+    ----------
+    text: Union['Text', 'BaseText']
+        text object which will be split
+    layer: str
+        name of the layer to split by
+    layers_to_keep: List[str]
+        list of layers to be kept while splitting. The dependencies must be
+        included, that is, if a layer in the list has a parent or is
+        enveloping, then the parent or enveloped layer must also be in this
+        list. If None (default), all layers are kept
+    trim_overlapping: bool
         If `False` (default), overlapping spans are not kept.
         If `True`, overlapping spans are trimmed to fit the boundaries.
-    :return list of texts
-        A `Text` object for every span in the `layer`.
+
+    Returns
+    -------
+    List[Union['Text', 'BaseText']]
+         list containing a `Text` object for every span in the `layer`.
 
     """
     if layers_to_keep is None:
@@ -180,8 +197,6 @@ def split_by(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequen
 
 
 def split_by_sentences(text, layers_to_keep=None, trim_overlapping=False, input_sentences_layer='sentences'):
-    """The same as
-    >>> split_by(text, 'sentences', layers_to_keep, trim_overlapping)
-
+    """Shorthand for ``split_by(text, 'sentences', layers_to_keep, trim_overlapping)``
     """
     return split_by(text, input_sentences_layer, layers_to_keep, trim_overlapping)

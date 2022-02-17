@@ -8,19 +8,24 @@ class Rolling:
     """Yields span lists from a window rolling over a layer."""
 
     def __init__(self, layer: Union[BaseLayer, 'Layer'], window: int, min_periods: int = None, inside: str = None):
-        """Initiates Rolling object yielding span sequences from a window rolling over the layer. 
-           Parameters:
-           *) layer -- layer over which the rolling window will be created;
-           *) window -- length of the window (in spans);
-           *) min_periods -- the minimal length of the window for borderline cases;
-              allows to shrink the window to meet this minimal length. If not specified, 
-              then `min_periods == window`, which means that the shrinking is not allowed, 
-              and contexts smaller than the `window` will be discarded.
-              Note: `0 < min_periods <= window` must hold;
-           *) inside -- an enveloping layer to be used for constraining the rolling window. 
+        """Initiates Rolling object yielding span sequences from a window rolling over the layer.
+
+           Parameters
+           -----------
+           layer
+              layer over which the rolling window will be created;
+           window
+              length of the window (in spans);
+           min_periods
+              the minimal length of the window for borderline cases; allows to shrink the window
+              to meet this minimal length. If not specified, then `min_periods == window`, which
+              means that the shrinking is not allowed, and contexts smaller than the `window`
+              will be discarded. Note: condition `0 < min_periods <= window` must hold;
+           inside
+              (name of) an enveloping layer to be used for constraining the rolling window.
               The rolling window is applied on each span of the enveloping layer separately, 
               thus ensuring that the window does not exceed boundaries of enveloping spans. 
-              For instance, if you create a rolling window over 'words', you can spacify
+              For instance, if you create a rolling window over 'words', you can specify
               inside='sentences', ensuring that the generated word N-grams do not exceed 
               sentence boundaries;
         """
