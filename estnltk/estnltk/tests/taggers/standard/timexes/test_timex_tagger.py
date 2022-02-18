@@ -2,18 +2,24 @@ import pytest
 
 from estnltk import Text
 from estnltk.taggers import TimexTagger
-from estnltk.taggers.standard.timexes.timex_tagger_preprocessing import TIMEXES_RESOLVER
 
-timexes_tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
-TIMEXES_RESOLVER.update( timexes_tagger )
+from estnltk.taggers.standard.timexes.timex_tagger import TimexTagger
+from estnltk.taggers.standard.timexes.core_timex_tagger import CoreTimexTagger
+from estnltk.taggers.standard.timexes.timex_tagger_preprocessing import make_adapted_cp_tagger
+
+# TimexTagger with output layer enveloping around 'words'
+timexes_tagger_enveloping = \
+    TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False, enveloped_words_layer='words' )
 
 def test_timex_tagging_1():
     # Test the basic functionality of the TimexTagger
-    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)
+    all_timex_attributes = ['text']+list(CoreTimexTagger.output_attributes)
     
     # 1) Test Timex tagger on empty text
     text = Text('')
-    text.tag_layer(['words', 'sentences', 'morph_analysis', 'timexes'] , resolver=TIMEXES_RESOLVER)
+    text.tag_layer(['words', 'sentences', 'morph_analysis'])
+    timexes_tagger_enveloping.tag( text )
+
     # Execution should not produce any errors
     assert len(text.words) == 0
     assert len(text.timexes) == 0
@@ -55,7 +61,8 @@ def test_timex_tagging_1():
         text = Text(test_item['text'])
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
-        text.tag_layer(['timexes'] , resolver=TIMEXES_RESOLVER)
+        text.tag_layer('words')
+        timexes_tagger_enveloping.tag( text )
         # Compare attributes and values of all timexes
         for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
             # Expected attributes & values
@@ -71,10 +78,9 @@ def test_timex_tagging_1():
             assert expected_vals == result_vals
 
 
-
 def test_timex_tagging_2_implicit_durations():
     # Test TimexTagger on detecting timexes with implicit durations/intervals ('part_of_interval' attrib):
-    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
+    all_timex_attributes = ['text']+list(CoreTimexTagger.output_attributes)+['part_of_interval']
     test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini 2012.',\
                    'dct':'2012-04-15',\
                    'expected_timexes': [ \
@@ -121,7 +127,8 @@ def test_timex_tagging_2_implicit_durations():
         text = Text(test_item['text'])
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
-        text.tag_layer(['words', 'sentences', 'morph_analysis', 'timexes'], resolver=TIMEXES_RESOLVER)
+        text.tag_layer('words')
+        timexes_tagger_enveloping.tag( text )
         # Compare attributes and values of all timexes
         for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
             # Expected attributes & values
@@ -137,10 +144,9 @@ def test_timex_tagging_2_implicit_durations():
             assert expected_vals == result_vals
 
 
-
 def test_timex_tagging_3_gaps_in_dct():
     # Test TimexTagger on texts that have gaps in their document creation dates
-    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
+    all_timex_attributes = ['text']+list(CoreTimexTagger.output_attributes)+['part_of_interval']
     test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini.',\
                    'dct':'2012-04-XX',\
                    'expected_timexes': [ \
@@ -169,7 +175,8 @@ def test_timex_tagging_3_gaps_in_dct():
         text = Text(test_item['text'])
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
-        text.tag_layer(['timexes'] , resolver=TIMEXES_RESOLVER)
+        text.tag_layer('words')
+        timexes_tagger_enveloping.tag( text )
         # Compare attributes and values of all timexes
         for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
             # Expected attributes & values
@@ -188,7 +195,7 @@ def test_timex_tagging_3_gaps_in_dct():
 
 def test_timex_tagging_4_additional_rules():
     # Test TimexTagger with some additional rules
-    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
+    all_timex_attributes = ['text']+list(CoreTimexTagger.output_attributes)+['part_of_interval']+['']
     test_data = [ # eile-täna
                   {'text': 'Ma just käisin eile-täna seal jalgrattaga.',\
                    'dct':'2011-08-24',\
@@ -254,7 +261,8 @@ def test_timex_tagging_4_additional_rules():
         text = Text( test_item['text'] )
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
-        text.tag_layer(['words', 'sentences', 'morph_analysis', 'timexes'] , resolver=TIMEXES_RESOLVER)
+        text.tag_layer('words')
+        timexes_tagger_enveloping.tag( text )
         # Compare attributes and values of all timexes
         for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
             # Expected attributes & values
@@ -273,13 +281,73 @@ def test_timex_tagging_4_additional_rules():
 
 
 
-def test_timex_tagger_context_tear_down():
-    # Tests after exiting TimexTagger's context manager, the process has been 
+def test_timex_tagging_flat_output_layer():
+    # TimexTagger with flat output layer (default settings)
+    timexes_tagger = \
+        TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False)
+    all_timex_attributes = ['text']+list(timexes_tagger.output_attributes)
+    
+    test_data = [ {'text': 'Järgmisel kolmapäeval, kõige hiljemalt kell 18.00 algab viiepäevane koosolek, mida korraldatakse igal aastal.',\
+                   'dct':'1999-10-02TXX:XX',\
+                   'expected_timexes': [ \
+                                 {'text': 'Järgmisel kolmapäeval', 'tid':'t1', 'type':'DATE', 'value':'1999-10-06', 'temporal_function':True , 'anchor_time_id':'t0'}, \
+                                 {'text': 'kell 18.00','tid':'t2', 'type':'TIME', 'value':'1999-10-06T18:00', 'temporal_function':True , 'anchor_time_id':'t1'},\
+                                 {'text': 'viiepäevane', 'tid':'t3', 'type':'DURATION', 'value':'P5D', 'temporal_function':False},\
+                                 {'text': 'igal aastal', 'tid':'t4', 'type':'SET', 'value':'P1Y', 'temporal_function':True, 'quant':'EVERY'}, \
+                              ]  }, \
+                  # Timexes with implicit interval endpoints ('begin_point' & 'end_point'):
+                  {'text': 'Viimase viie aasta jooksul on tuulikute koguvõimsus kasvanud igal aastal ca 33 %.',\
+                   'dct':'2012-09-18',\
+                   'expected_timexes': [ \
+                                 {'text': 'Viimase viie aasta jooksul', 'tid':'t1', 'type':'DURATION', 'value':'P5Y', 'temporal_function':True , 'anchor_time_id':None, 'begin_point': {'temporalFunction': 'true', 'tid': 't2', 'type': 'DATE', 'value': '2007'}, 'end_point':'t0' }, \
+                                 {'text': 'igal aastal','tid':'t3', 'type':'SET', 'value':'P1Y', 'temporal_function':True, 'quant':'EVERY'}, \
+                              ]
+                  },\
+                  # Timexes that require different tokenization than the standard pipeline provides
+                 {'text': '( 14.11.2001 jõust.01.01.2002 - RT I 2001 , 95 , 587 )',\
+                   'dct':'2001-09-18',\
+                   'expected_timexes': [ \
+                                 {'text': '14.11.2001', 'tid':'t1', 'type':'DATE', 'value':'2001-11-14', 'temporal_function':False , 'anchor_time_id':None}, 
+                              ]
+                  },\
+                 {'text': '24. detsembril kell 18 , 25. detsembril kell 10.30 , 26. ja 31. detsembril kell 17 ja 1. jaanuaril kell 10.30.',\
+                   'dct':'2021-12-18',\
+                   'expected_timexes': [ \
+                                 {'text': '24. detsembril kell 18', 'tid':'t1', 'type':'TIME', 'value':'2021-12-24T18', 'temporal_function':True , 'anchor_time_id':None}, 
+                                 {'text': '25. detsembril kell 10.30', 'tid':'t2', 'type':'TIME', 'value':'2021-12-25T10:30', 'temporal_function':True , 'anchor_time_id':None}, 
+                                 #  Unfortunately, elliptic '26. (detsembril)' will be missed 
+                                 {'text': '31. detsembril kell 17', 'tid':'t3', 'type':'TIME', 'value':'2021-12-31T17', 'temporal_function':True , 'anchor_time_id':None}, 
+                                 {'text': '1. jaanuaril kell 10.30', 'tid':'t4', 'type':'TIME', 'value':'2022-01-01T10:30', 'temporal_function':True , 'anchor_time_id':None}, 
+                              ]
+                  },\
+    ]
+    for test_item in test_data:
+        # Prepare text
+        text = Text(test_item['text'])
+        if 'dct' in test_item:
+            text.meta['dct'] = test_item['dct']
+        timexes_tagger.tag( text )
+        # Compare attributes and values of all timexes
+        for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
+            # Expected attributes & values
+            expected_attribs = [attr for attr in all_timex_attributes if attr in expected_timex]
+            expected_vals    = [expected_timex[attr] for attr in all_timex_attributes if attr in expected_timex]
+            # Obtained attributes & values
+            result_vals      = list(text.timexes[timex_id, expected_attribs])
+            #print(expected_vals, result_vals)
+            # Make assertions
+            assert expected_vals == result_vals
+    timexes_tagger.close()
+
+
+
+def test_core_timex_tagger_context_tear_down():
+    # Tests after exiting CoreTimexTagger's context manager, the process has been 
     # torn down and no longer available
     text = Text( 'Testimise tekst.' )
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
     # 1) Apply tagger as a context manager
-    with TimexTagger() as tagger:
+    with CoreTimexTagger() as tagger:
         tagger.tag(text)
     # Check: polling the process should not return None
     assert tagger._java_process._process.poll() is not None
@@ -288,7 +356,7 @@ def test_timex_tagger_context_tear_down():
         tagger.tag(text)
     
     # 2) Apply tagger outside with, and use the __exit__() method
-    tagger2 = TimexTagger()
+    tagger2 = CoreTimexTagger()
     # Check that there is no process at first (lazy initialization)
     assert tagger2._java_process._process is None
     text = Text( 'Testimise tekst.' )
@@ -302,14 +370,12 @@ def test_timex_tagger_context_tear_down():
     assert tagger2._java_process._process.poll() is not None
 
 
-
 #########################################################
 #    Preprocessing for TimexTagger
 #########################################################
 
-from estnltk.taggers.standard.timexes.timex_tagger_preprocessing import CP_TAGGER_ADAPTED
-
 def test_timex_tagger_preprocessing():
+    CP_TAGGER_ADAPTED = make_adapted_cp_tagger()
     # Case 1
     test_text = Text('1991. a. jaanuaris, 2001. aasta lõpul või 1. jaanuaril 2001. a.').tag_layer(['tokens'])
     CP_TAGGER_ADAPTED.tag( test_text )

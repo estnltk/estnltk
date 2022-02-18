@@ -28,12 +28,17 @@ from estnltk.java.javaprocess import JavaProcess
 from estnltk.common import JAVARES_PATH
 
 
-class TimexTagger( Tagger ):
+class CoreTimexTagger( Tagger ):
     """Detects and normalizes temporal expressions (timexes).
        Normalization involves providing calendrical dates, times 
        and durations corresponding to the expressions.
        Uses a Java-based temporal tagger (Ajavt) to perform the 
        tagging.
+       
+       Note: CoreTimexTagger requires adapted EstNLTK's tokenization
+       and therefore it is not recommended to use this tagger directly,
+       but inside a wrapper class TimexTagger, which provides correct 
+       tokenization/preprocessing.
     """
     output_layer = 'timexes'
     output_attributes = ('tid', 'type', 'value', 'temporal_function', 'anchor_time_id', \
