@@ -22,7 +22,29 @@ class Retagger(Tagger):
     Optionally, you can also add implementations of: 
     __copy__
     __deepcopy__
-    
+
+    Constructor
+    =============
+    Every subclass of Retagger should have __init__(...) constructor,
+    in which retagger's configuration and instance variables are set.
+    The following instance variables should be set:
+
+    * input_layers: Sequence[str] -- names of all layers that are needed
+    by the retagger for input;
+    * output_layer: str -- name of the layer modified by the retagger;
+    * output_attributes: Sequence[str] -- (final) attributes of the output_layer;
+    * conf_param: Sequence[str] -- names of all additional attributes of
+    the retagger object, which are set in the constructor. If retagger tries
+    to set an attribute not declared in conf_param, an exception will be
+    raised.
+
+    Note that instance variables (the configuration of the retagger) can only
+    be set inside the constructor. After the retagger has been initialized,
+    changing values of instance variables is no longer allowed.
+
+    _change_layer(...) method
+    ==========================
+
     The layer is modified inside the _change_layer(...) method, 
     which always returns None, indicating that the method does 
     not produce a new layer, but only changes the target layer.

@@ -52,7 +52,29 @@ class Tagger(metaclass=TaggerChecker):
     _make_layer_template
     __copy__
     __deepcopy__
-    
+
+    Constructor
+    =============
+    Every subclass of Tagger should have __init__(...) constructor,
+    in which tagger's configuration and instance variables are set.
+    The following instance variables should be set:
+
+    * input_layers: Sequence[str] -- names of all layers that are needed
+    by the tagger for input;
+    * output_layer: str -- name of the layer created by the tagger;
+    * output_attributes: Sequence[str] -- attributes of the output_layer;
+    * conf_param: Sequence[str] -- names of all additional attributes of
+    the tagger object, which are set in the constructor. If tagger tries
+    to set an attribute not declared in conf_param, an exception will be
+    raised.
+
+    Note that instance variables (the configuration of the tagger) can only
+    be set inside the constructor. After the tagger has been initialized,
+    changing values of instance variables is no longer allowed.
+
+    _make_layer(...) method
+    =========================
+
     The new layer is created inside the _make_layer(...) method, 
     which returns Layer object. Optionally, you can also 
     implement _make_layer_template() method, which returns an 
