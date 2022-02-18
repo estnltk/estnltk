@@ -16,7 +16,6 @@ def layer_to_dict(layer: Layer):
         } for span in layer
     ]
 
-@pytest.mark.skip(reason="work in progress")
 def test_matching_without_separators():
     rules = Ruleset([
         StaticExtractionRule('first'),
@@ -55,7 +54,6 @@ def test_matching_without_separators():
 
     assert layer_to_dict(text.terms) == expected_output, "Maximal matches must be returned"
 
-@pytest.mark.xfail(reason="work in progress")
 def test_separator_effect():
     rules = Ruleset([StaticExtractionRule('match')])
 
@@ -83,7 +81,6 @@ def test_separator_effect():
         {'start': 21, 'end': 26, 'text': 'match'}]
     assert layer_to_dict(text.terms) == expected_output, "Multiple separators do not work"
 
-@pytest.mark.xfail(reason="work in progress")
 def test_annotations():
     rules = Ruleset([
         StaticExtractionRule('first', {'a': 1, 'b': 1}),
@@ -99,7 +96,6 @@ def test_annotations():
         {'start': 13, 'end': 17, 'text': 'last', 'a': 3, 'b': 5}]
     assert layer_to_dict(text.terms) == expected_outcome, "Annotations do not work"
 
-@pytest.mark.xfail(reason="work in progress")
 def test_global_decorator():
     rules = Ruleset([
         StaticExtractionRule('first'),
@@ -109,14 +105,14 @@ def test_global_decorator():
         StaticExtractionRule('last')
     ])
 
-    def decorator(text, span):
-        if span.text == 'first':
+    def decorator(text, span, annotation):
+        if text.text[span.start:span.end] == 'first':
             return {'value': 1}
-        elif span.text == 'second':
+        elif text.text[span.start:span.end] == 'second':
             return {'value': 2}
-        elif span.text == 'third':
+        elif text.text[span.start:span.end] == 'third':
             return {'value': 3}
-        elif span.text == 'fourth':
+        elif text.text[span.start:span.end] == 'fourth':
             return {'value': 4}
 
         return None
@@ -131,7 +127,7 @@ def test_global_decorator():
         {'start': 15, 'end': 20, 'text': 'third', 'value': 3}]
     assert layer_to_dict(text.terms) == expected_outcome, "Global decorator does not work"
 
-    def text_analyzer(text, span):
+    def text_analyzer(text, span,annotation):
         layer = span.layer
         value = -1
         for prev in layer:
@@ -160,7 +156,6 @@ def test_global_decorator():
     assert layer_to_dict(text.terms) == expected_outcome, "Dynamic decorator does not work"
 
 
-@pytest.mark.xfail(reason="work in progress")
 def test_minimal_and_maximal_matching():
     rules = Ruleset([
         StaticExtractionRule('abcd'),

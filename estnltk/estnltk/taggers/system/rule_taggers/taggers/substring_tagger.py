@@ -50,6 +50,7 @@ class SubstringTagger(Tagger):
                  ruleset: AmbiguousRuleset,
                  token_separators: str = '',
                  output_layer: str = 'terms',
+                 ambiguous_output_layer: bool = True,
                  output_attributes: Sequence = None,
                  global_decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
@@ -73,6 +74,10 @@ class SubstringTagger(Tagger):
             To mach a multi-token string the extraction pattern must contain correct separator.
         output_layer:
             The name of the new layer (default: 'terms').
+        ambiguous_output_layer: bool (default: True)
+            Determines if the output layer will be ambiguous or not.
+            Error will be thrown if False is chosen but there are two rules with the same pattern in the ruleset.
+            If ignore_case=True, patterns that are identical when ignoring case are also considered the same
         global_decorator:
             A global decorator that is applied for all matches and can update attribute values or invalidate match.
             It must take in three arguments:
@@ -117,7 +122,9 @@ class SubstringTagger(Tagger):
             'conflict_resolver',
             'global_decorator',
             'ignore_case',
-            'dynamic_ruleset_map']
+            'dynamic_ruleset_map',
+            'static_ruleset_map',
+            'ambiguous_output_layer']
 
         self.input_layers = ()
         self.output_layer = output_layer
@@ -129,16 +136,55 @@ class SubstringTagger(Tagger):
         if not (set(ruleset.output_attributes) <= set(self.output_attributes)):
             raise ValueError('Output attributes of a ruleset must match the output attributes of a tagger')
 
+        self.static_ruleset_map: Dict[str, Dict[Tuple[int,int], Dict[str, Any]]]
+
+        static_ruleset_map = dict()
+
+        self.ignore_case = ignore_case
+
+        for rule in ruleset.static_rules:
+            if self.ignore_case:
+                subindex = static_ruleset_map.get(rule.pattern.lower(), dict())
+                if (rule.group, rule.priority) in subindex:
+                    raise AttributeError('There are multiple rules with the same pattern, group and priority')
+                subindex[rule.group, rule.priority] = rule.attributes
+                static_ruleset_map[rule.pattern.lower()] = subindex
+            else:
+                subindex = static_ruleset_map.get(rule.pattern, dict())
+                if (rule.group, rule.priority) in subindex:
+                    raise AttributeError('There are multiple rules with the same pattern, group and priority')
+                subindex[rule.group, rule.priority] = rule.attributes
+                static_ruleset_map[rule.pattern] = subindex
+
+        self.static_ruleset_map = static_ruleset_map
+
         # Lets index dynamic rulesets in optimal way
         self.dynamic_ruleset_map: Dict[str, Dict[Tuple[int, int], Callable]]
 
         dynamic_ruleset_map = dict()
         for rule in ruleset.dynamic_rules:
-            subindex = dynamic_ruleset_map.get(rule.pattern, dict())
-            if (rule.group, rule.priority) in subindex:
-                raise AttributeError('There are multiple rules with the same pattern, group and priority')
-            subindex[rule.group, rule.priority] = rule.decorator
-            dynamic_ruleset_map[rule.pattern] = subindex
+            if self.ignore_case:
+                subindex = dynamic_ruleset_map.get(rule.pattern.lower(), dict())
+                if (rule.group, rule.priority) in subindex:
+                    raise AttributeError('There are multiple rules with the same pattern, group and priority')
+                subindex[rule.group, rule.priority] = rule.decorator
+                dynamic_ruleset_map[rule.pattern.lower()] = subindex
+                # create corresponding static rule if it does not exist yet
+                if static_ruleset_map.get(rule.pattern.lower(),None) is None:
+                    static_ruleset_map[rule.pattern.lower()] = {(rule.group,rule.priority): dict()}
+                elif (rule.group, rule.priority) not in static_ruleset_map.get(rule.pattern.lower()):
+                    static_ruleset_map[rule.pattern.lower()][(rule.group, rule.priority)] = dict()
+            else:
+                subindex = dynamic_ruleset_map.get(rule.pattern, dict())
+                if (rule.group, rule.priority) in subindex:
+                    raise AttributeError('There are multiple rules with the same pattern, group and priority')
+                subindex[rule.group, rule.priority] = rule.decorator
+                dynamic_ruleset_map[rule.pattern] = subindex
+                # create corresponding static rule if it does not exist yet
+                if static_ruleset_map.get(rule.pattern, None) is None:
+                    static_ruleset_map[rule.pattern] = {(rule.group, rule.priority): dict()}
+                elif (rule.group, rule.priority) not in static_ruleset_map.get(rule.pattern):
+                    static_ruleset_map[rule.pattern][(rule.group, rule.priority)] = dict()
 
         # No errors were detected
         self.dynamic_ruleset_map = dynamic_ruleset_map
@@ -147,19 +193,20 @@ class SubstringTagger(Tagger):
         self.token_separators = token_separators
         self.global_decorator = global_decorator
         self.conflict_resolver = conflict_resolver
-        self.ignore_case = ignore_case
+        self.ambiguous_output_layer = ambiguous_output_layer
 
         # We bypass restrictions of Tagger class to set some private attributes
         super(Tagger, self).__setattr__('_automaton', Automaton())
-        super(Tagger, self).__setattr__('_rule_map', self.ruleset.rule_map)
 
         # Configures automaton to match the patters in the ruleset
         # Each pattern is here exactly once
         if self.ignore_case:
-            for pattern in self._rule_map:
+            for rule in ruleset.static_rules:
+                pattern = rule.pattern
                 self._automaton.add_word(pattern.lower(), len(pattern))
         else:
-            for pattern in self._rule_map:
+            for rule in ruleset.static_rules:
+                pattern = rule.pattern
                 self._automaton.add_word(pattern, len(pattern))
 
         self._automaton.make_automaton()
@@ -170,20 +217,20 @@ class SubstringTagger(Tagger):
             name=self.output_layer,
             attributes=self.output_attributes,
             text_object=text,
-            ambiguous=not isinstance(self.ruleset, Ruleset)
+            ambiguous=self.ambiguous_output_layer
         )
 
         raw_text = text.text.lower() if self.ignore_case else text.text
         all_matches = self.extract_matches(raw_text, self.token_separators)
 
         if self.conflict_resolver == 'KEEP_ALL':
-            return self.add_decorated_spans_to_layer(layer, iter(all_matches))
+            return self.add_redecorated_annotations_to_layer(layer, iter(all_matches))
         elif self.conflict_resolver == 'KEEP_MAXIMAL':
-            return self.add_decorated_spans_to_layer(layer, self.keep_maximal_matches(all_matches))
+            return self.add_redecorated_annotations_to_layer(layer, self.keep_maximal_matches(all_matches))
         elif self.conflict_resolver == 'KEEP_MINIMAL':
-            return self.add_decorated_spans_to_layer(layer, self.keep_minimal_matches(all_matches))
+            return self.add_redecorated_annotations_to_layer(layer, self.keep_minimal_matches(all_matches))
         elif callable(self.conflict_resolver):
-            return self.conflict_resolver(layer, self.iterate_over_decorated_spans(layer, iter(all_matches)))
+            return self.conflict_resolver(layer, self.iterate_over_redecorated_annotations(layer, iter(all_matches)))
 
         raise ValueError("Data field conflict_resolver is inconsistent")
 
@@ -225,7 +272,7 @@ class SubstringTagger(Tagger):
         return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
 
     # noinspection PyUnresolvedReferences
-    def add_decorated_spans_to_layer(
+    def add_redecorated_annotations_to_layer(
             self,
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]) -> Layer:
@@ -243,10 +290,8 @@ class SubstringTagger(Tagger):
         base_span, pattern = next(sorted_tuples, (None, None))
         while base_span is not None:
             span = Span(base_span=base_span, layer=layer)
-            static_rulelist = self._rule_map.get(pattern, None)[0]
-            for static_rule in static_rulelist:
-                # add static annotation
-                annotation = static_rule.attributes
+            static_rulelist = self.static_ruleset_map.get(pattern, None)
+            for metadata, annotation in static_rulelist.items():
                 # apply global decorator
                 # Drop annotations for which the global decorator fails
                 if self.global_decorator is not None:
@@ -257,8 +302,8 @@ class SubstringTagger(Tagger):
                 # apply dynamic_decorator --- it must be unique or have matching priority and group
                 # No dynamic rules to change the annotation
                 subindex = self.dynamic_ruleset_map.get(pattern, None)
-                group = static_rule.group
-                priority = static_rule.priority
+                group = metadata[0]
+                priority = metadata[1]
                 decorator = subindex[(group, priority)] if subindex is not None else None
                 if decorator is None:
                     span.add_annotation(annotation)
@@ -266,13 +311,14 @@ class SubstringTagger(Tagger):
                 annotation = decorator(text_object, span, annotation)
                 span.add_annotation(annotation)
 
-            layer.add_span(span)
+            if len(span.annotations) > 0:
+                layer.add_span(span)
             base_span, pattern = next(sorted_tuples, (None, None))
 
         return layer
 
     # noinspection PyUnresolvedReferences
-    def iterate_over_decorated_spans(
+    def iterate_over_redecorated_annotations(
             self,
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]
@@ -297,12 +343,10 @@ class SubstringTagger(Tagger):
         while base_span is not None:
             span = Span(base_span=base_span, layer=layer)
             # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
-            static_rulelist = self._rule_map.get(pattern, None)[0]
-            for static_rule in static_rulelist:
-                group = static_rule.group
-                priority = static_rule.priority
-                # dict of attributes for the annotation
-                annotation_dict = static_rule.attributes
+            static_rulelist = self.static_ruleset_map.get(pattern, None)
+            for metadata, annotation_dict in static_rulelist.items():
+                group = metadata[0]
+                priority = metadata[1]
                 # apply global decorator
                 # Drop annotations for which the global decorator fails
                 if self.global_decorator is not None:
