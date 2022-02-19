@@ -35,10 +35,11 @@ class CoreTimexTagger( Tagger ):
        Uses a Java-based temporal tagger (Ajavt) to perform the 
        tagging.
        
-       Note: CoreTimexTagger requires adapted EstNLTK's tokenization
-       and therefore it is not recommended to use this tagger directly,
-       but inside a wrapper class TimexTagger, which provides correct 
-       tokenization/preprocessing.
+       Note: CoreTimexTagger requires different tokenization than
+       provided by EstNLTK's default pipeline.
+       Therefore, using this class directly is not recommended .
+       Instead, use TimexTagger, which provides timex tagging with
+       the necessary preprocessing.
     """
     output_layer = 'timexes'
     output_attributes = ('tid', 'type', 'value', 'temporal_function', 'anchor_time_id', \

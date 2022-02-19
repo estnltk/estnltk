@@ -10,15 +10,7 @@
 #  some rules not suitable for timex tagging.
 # 
 
-import re
-import os
-import json
-import os.path
-import datetime
-
 from typing import Optional
-
-from collections import OrderedDict
 
 from estnltk import Text, Layer
 
@@ -42,6 +34,17 @@ class TimexTagger( Tagger ):
     The goal of this class is to provide better tokenization for 
     CoreTimexTagger, as EstNLTK's standard tokenization contains 
     some rules not suitable for timex tagging.
+    
+    Important: after tagging is done and TimexTagger is no 
+    longer needed, Java process should be released. 
+    This can be done by calling tagger's close() method. 
+    Alternatively, you can use TimexTagger inside a with context, 
+    so that resources are released after the context automatically:
+    
+        with TimexTagger() as timex_tagger: 
+            ...
+            timex_tagger.tag( text )
+            ...
     
     TimexTagger creates all the prerequisite layers of CoreTimexTagger 
     (words, sentences, morph_analysis) from the scratch. 
@@ -167,12 +170,14 @@ class TimexTagger( Tagger ):
 
     def __enter__(self):
         # Initialize Java-based TimexTagger
-        return self._timex_tagger.__enter__()
+        self._timex_tagger.__enter__()
+        return self
 
 
     def __exit__(self, *args):
         # Close Java-based TimexTagger
-        return self._timex_tagger.__exit__(*args)
+        self._timex_tagger.__exit__(*args)
+        return False
 
 
     def close(self):
@@ -207,7 +212,6 @@ class TimexTagger( Tagger ):
         """
         
         # A) create auxiliary layers that provide custom tokenization
-        required_layers = {}
         pipeline = [self._tokens_tagger, self._cp_tokens_tagger, \
                     self._words_tagger, self._sentence_tokenizer, \
                     self._morph_analyser]
