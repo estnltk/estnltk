@@ -2,7 +2,8 @@ from typing import Union
 
 from estnltk_core import Layer
 from estnltk_core.taggers import Tagger, Retagger
-from estnltk_core.layer_resolver import LayerResolver, TaggersRegistry
+from estnltk_core.taggers_registry import TaggersRegistry
+from estnltk_core.layer_resolver import LayerResolver
 from estnltk_core.common import create_text_object
 
 import pytest

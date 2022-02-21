@@ -1,7 +1,8 @@
 #
 #  Default LayerResolver for EstNLTK v1.6
 #
-from estnltk_core.layer_resolver import TaggersRegistry, LayerResolver
+from estnltk_core.taggers_registry import TaggersRegistry
+from estnltk_core.layer_resolver import LayerResolver
 
 from .taggers.standard.text_segmentation.tokens_tagger import TokensTagger
 from .taggers.standard.text_segmentation.word_tagger import WordTagger
