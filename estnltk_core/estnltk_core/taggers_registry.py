@@ -3,6 +3,9 @@ import networkx as nx
 import warnings
 
 from estnltk_core.taggers import Tagger, Retagger
+from estnltk_core.taggers import TaggerLoader
+from estnltk_core.taggers import TaggerLoaded
+
 
 class TaggersRegistry:
     """Registry of taggers required for layer creation. 
@@ -20,25 +23,40 @@ class TaggersRegistry:
     
     Entries / nodes are organised as a directed acyclic graph, 
     in which arcs point from prerequisite layers to dependent 
-    layers. 
+    layers.
+    
+    TaggerLoaders
+    ==============
+    TaggersRegistry tries to avoid the initialization of a 
+    Tagger or a Retagger until it is really needed by the user 
+    (the method create_layer_for_text(...) is called). 
+    Therefore, TaggersRegistry's constructor accepts taggers 
+    as TaggerLoaders. 
+    TaggerLoader declares input layers, output layer and 
+    importing path of a tagger, but does not load the tagger 
+    until explicitly demanded.
     """
     def __init__(self, taggers: List):
         self._rules = {}
         self._composite_rules = set()
         for tagger_entry in taggers:
             if isinstance(tagger_entry, list):
-                # Check the first entry is a tagger, 
-                # and others are retaggers
-                TaggersRegistry.validate_taggers_node_list( tagger_entry )
+                # Check that list is not empty
+                if len(tagger_entry) == 0:
+                    raise ValuerError( '(!) Expected a list of TaggerLoaders, but got an empty list.' )
+                # Check that all entries are tagger loaders
+                for tagger_loader in tagger_entry:
+                    if not isinstance( tagger_loader, TaggerLoader ):
+                        raise TypeError( '(!) Expected instance of TaggerLoader, '+\
+                                         'but got {!r}'.format( type(tagger_loader) ) )
                 self._composite_rules.add( tagger_entry[0].output_layer )
                 # Add a composite entry: tagger followed by retaggers
                 self._rules[tagger_entry[0].output_layer] = tagger_entry
             else:
-                # Add a single tagger
-                if not issubclass( type(tagger_entry), Tagger ):
-                    raise TypeError('(!) Expected a subclass of Tagger, but got {}.'.format( type(tagger_entry) ) )
-                if issubclass( type(tagger_entry), Retagger ):
-                    raise TypeError('(!) Expected a subclass of Tagger, not Retagger ({}).'.format( tagger_entry.__class__.__name__ ) )
+                # Add a single tagger loader
+                if not isinstance( tagger_entry, TaggerLoader ):
+                    raise TypeError( '(!) Expected instance of TaggerLoader, '+\
+                                     'but got {!r}'.format( type(tagger_entry) ) )
                 self._rules[tagger_entry.output_layer] = tagger_entry
         self._graph = self._make_graph()
 
@@ -66,12 +84,9 @@ class TaggersRegistry:
             raise TypeError('(!) Expected a subclass of Tagger, not Retagger ({}).'.format( tagger.__class__.__name__ ) )
         output_layer = tagger.output_layer
         if output_layer not in self._composite_rules:
-            self._rules[output_layer] = tagger
+            self._rules[output_layer] = TaggerLoaded( tagger )
         else:
-            new_listing = self._rules[output_layer].copy()
-            new_listing[0] = tagger
-            TaggersRegistry.validate_taggers_node_list( new_listing )
-            self._rules[output_layer][0] = tagger
+            self._rules[output_layer][0] = TaggerLoaded( tagger )
         self._graph = self._make_graph()
 
     def add_retagger(self, retagger: Retagger) -> None:
@@ -89,7 +104,7 @@ class TaggersRegistry:
         if output_layer not in self._composite_rules:
             self._rules[output_layer] = [ self._rules[output_layer] ]
             self._composite_rules.add( output_layer )
-        self._rules[output_layer].append( retagger )
+        self._rules[output_layer].append( TaggerLoaded(retagger) )
         self._graph = self._make_graph()
 
     def get_tagger(self, layer_name: str) -> Tagger:
@@ -97,16 +112,16 @@ class TaggersRegistry:
         if layer_name not in self._rules:
             raise Exception('(!) No tagger registered for layer {!r}.'.format( layer_name ) )
         if layer_name in self._composite_rules:
-            return self._rules[layer_name][0]
+            return self._rules[layer_name][0].tagger
         else:
-            return self._rules[layer_name]
+            return self._rules[layer_name].tagger
 
     def get_retaggers(self, layer_name: str) -> List[Retagger]:
         '''Returns list of retaggers modifying given layer.'''
         if layer_name not in self._rules:
             raise Exception('(!) No tagger registered for layer {!r}.'.format( layer_name ) )
         if layer_name in self._composite_rules:
-            return self._rules[layer_name][1:]
+            return [rt.tagger for rt in self._rules[layer_name][1:]]
         else:
             return []
 
@@ -130,7 +145,7 @@ class TaggersRegistry:
                 taggers_listing = [ tagger_entry ]
             for tagger in taggers_listing:
                 for dep in tagger.input_layers:
-                    if dep != tagger.output_layer:
+                    if dep != layer_name:
                         if dep not in graph.nodes:
                             warning_msg = ("(!) {}'s input layer {!r} is missing from the layer graph. "+
                                            "Layer {!r} cannot be created.").format( tagger.__class__.__name__, \
@@ -143,47 +158,98 @@ class TaggersRegistry:
                             'between taggers/retaggers.')
         return graph
 
-    @staticmethod
-    def validate_taggers_node_list( taggers: List[ Union[Tagger, Retagger] ] ) -> None:
-        '''Validates that the taggers list is suitable for registry's entry.
-           A suitable list contains either a single tagger, or a tagger 
-           followed by one or more retaggers modifying the same layer.
+    def _load_and_validate_taggers( self, layer_name: str ) -> None:
+        '''Loads and validates taggers that are required for creating the given layer.
+           In case of a successful validation, returns list with required taggers. 
+           Otherwise, raises an exception describing the problem. 
+           
+           Validates that:
+           * layer_name is a layer that can be created by taggers of this registry;
+           * in case of a composite entry (the layer is created by a tagger and then modified 
+             by one or more retaggers), validates that the first item in entry is a tagger and 
+             all the following items are retaggers;
+           * configuration of taggers/retaggers (output_layer, input_layers, output 
+             attributes) matches the configuration declared by tagger loaders;
         '''
-        expect_msg = 'Expected a list containing a tagger creating a layer, '+\
-                     'followed by one or more retaggers modifying the layer.'
-        if not isinstance( taggers, list ):
-            raise TypeError('(!) '+expect_msg )
-        if len(taggers) < 1:
-            raise ValueError('(!) Unexpected empty list! ' + expect_msg )
-        first_tagger = taggers[0]
-        if not issubclass( type(first_tagger), Tagger ):
-            raise TypeError('(!) Expected a subclass of Tagger for the first list entry, but got {}.'.format( type(first_tagger) ) )
-        if issubclass( type(first_tagger), Retagger ):
-            raise TypeError('(!) The first entry in the taggers list should be a tagger, not retagger ({}).'.format( type(first_tagger) ) )
-        target_layer = first_tagger.output_layer
-        for tagger in taggers[1:]:
-            if not issubclass( type(tagger), Retagger ):
-                raise TypeError('(!) Expected a subclass of Retagger, but got {}'.format(type(tagger)))
-            if tagger.output_layer != target_layer:
-                raise ValueError( ('(!) Unexpected output_layer {!r} in {}!'+\
-                                   ' Expecting {!r} as the output_layer.').format( \
-                                           tagger.output_layer, \
-                                           tagger.__class__.__name__, \
-                                           target_layer ) )
+        if layer_name not in self._rules:
+            raise Exception('(!) No tagger registered for creating layer {!r}.'.format( layer_name ) )
+        expected_output = layer_name
+        expected_inputs = [dep for dep in self._graph.predecessors(layer_name)]
+        if layer_name in self._composite_rules:
+            tagger_loaders = self._rules[layer_name]
+        else:
+            tagger_loaders = [self._rules[layer_name]]
+        all_loaded_taggers = []
+        is_first_tagger = True
+        covered_inputs = []
+        for tagger_loader in tagger_loaders:
+            # Sanity check
+            assert isinstance(tagger_loader, (TaggerLoader, TaggerLoaded))
+            # Get the tagger (if not loaded, load it)
+            loaded_tagger = tagger_loader.tagger
+            # Check loaded tagger's type
+            if is_first_tagger:
+                if not issubclass( type(loaded_tagger), Tagger ):
+                    raise TypeError(('(!) Error at loading taggers for layer {!r}: '+\
+                                     'Expected a subclass of Tagger, but got {}.'+\
+                                     '').format( layer_name, type(loaded_tagger) ) )
+                if issubclass( type(loaded_tagger), Retagger ):
+                    raise TypeError(('(!) Error at loading taggers for layer {!r}: '+\
+                                     'Expected a subclass of Tagger, not Retagger {}.'+\
+                                     '').format( layer_name, type(loaded_tagger) ) )
+            else:
+                if not issubclass( type(loaded_tagger), Retagger ):
+                    raise TypeError(('(!) Error at loading taggers for layer {!r}: '+\
+                                     'Expected a subclass of Retagger, but got {}.'+\
+                                     '').format( layer_name, type(loaded_tagger) ) )
+            # Check tagger's parameters
+            # output layer
+            if loaded_tagger.output_layer != expected_output:
+                raise ValueError( ('(!) Error at loading taggers for layer {!r}: '+\
+                                   "Expected {!r} with output_layer {!r}, not {!r}"+\
+                                   '').format( layer_name, loaded_tagger.__class__.__name__, 
+                                               expected_output, 
+                                               loaded_tagger.output_layer ) )
+            # input layers
+            for input_layer in loaded_tagger.input_layers:
+                if not is_first_tagger and input_layer == layer_name:
+                    # Skip retagger's input_layer if it matches with the target layer
+                    continue
+                if input_layer not in expected_inputs:
+                    raise ValueError( ('(!) Error at loading taggers for layer {!r}: '+\
+                                       "{!r}'s input_layer {!r} is not listed in layer's expected prerequisites {!r}"+\
+                                       '').format( layer_name, loaded_tagger.__class__.__name__, 
+                                                   input_layer, expected_inputs) )
+                else:
+                    covered_inputs.append( input_layer )
+            # output attributes (if declared)
+            if tagger_loader.output_attributes is not None:
+                if tuple(tagger_loader.output_attributes) != tuple(loaded_tagger.output_attributes):
+                    raise ValueError( ('(!) Error at loading taggers for layer {!r}: '+\
+                                       "{!r}'s output_attributes {!r} to not match with taggerloader's output_attributes {!r}"+\
+                                       '').format( layer_name, loaded_tagger.__class__.__name__, 
+                                                   loaded_tagger.output_attributes, 
+                                                   tagger_loader.output_attributes ) )
+            all_loaded_taggers.append( tagger_loader.tagger )
+            is_first_tagger = False
+        # leftover input layers
+        if set(covered_inputs) != set(expected_inputs):
+            redundant_inputs = set(expected_inputs) - set(covered_inputs)
+            raise ValueError( ('(!) Error at loading taggers for layer {!r}: '+\
+                              'input layers {!r} declared, but not used by any Tagger or Retagger.'+\
+                              ''.format( layer_name, redundant_inputs) ))
+        return all_loaded_taggers
 
     def create_layer_for_text(self,  layer_name: str,  text: Union['BaseText', 'Text']) -> None:
         '''Creates given layer for the given text using the available taggers/retaggers.
            The method returns None, as the created layer will be attached to the given 
            Text object.
         '''
-        if layer_name not in self._rules:
-            raise Exception('(!) No tagger registered for creating layer {!r}.'.format( layer_name ) )
+        loaded_taggers = self._load_and_validate_taggers( layer_name )
+        loaded_taggers[0].tag( text )
         if layer_name in self._composite_rules:
-            self._rules[layer_name][0].tag( text )
-            for retagger in self._rules[layer_name][1:]:
+            for retagger in loaded_taggers[1:]:
                 retagger.retag( text )
-        else:
-            self._rules[layer_name].tag(text)
 
     def list_layers(self) -> List[str]:
         '''Lists creatable layers in a topological order.'''
@@ -213,7 +279,7 @@ class TaggersRegistry:
                                                              'layer',
                                                              'attributes',
                                                              'depends_on',
-                                                             'configuration'])
+                                                             'is_loaded'])
         return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+df.to_html(index=False)
 
 

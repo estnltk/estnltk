@@ -1,6 +1,9 @@
 from estnltk_core.taggers.tagger import Tagger
 from estnltk_core.taggers.retagger import Retagger
 
+from estnltk_core.taggers.tagger_loader import TaggerLoader
+from estnltk_core.taggers.tagger_loader import TaggerLoaded
+
 #from estnltk_core.taggers.combined_tagger import CombinedTagger
 
 #from estnltk_core.taggers.sequential_tagger import SequentialTagger
