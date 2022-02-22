@@ -206,7 +206,7 @@ class TaggersRegistry:
             # output layer
             if loaded_tagger.output_layer != expected_output:
                 raise ValueError( ('(!) Error at loading taggers for layer {!r}: '+\
-                                   "Expected {!r} with output_layer {!r}, not {!r}"+\
+                                   "Expected {} with output_layer {!r}, not {!r}"+\
                                    '').format( layer_name, loaded_tagger.__class__.__name__, 
                                                expected_output, 
                                                loaded_tagger.output_layer ) )
@@ -217,7 +217,7 @@ class TaggersRegistry:
                     continue
                 if input_layer not in expected_inputs:
                     raise ValueError( ('(!) Error at loading taggers for layer {!r}: '+\
-                                       "{!r}'s input_layer {!r} is not listed in layer's expected prerequisites {!r}"+\
+                                       "{}'s input_layer {!r} is not listed in TaggerLoader's input layers {!r}"+\
                                        '').format( layer_name, loaded_tagger.__class__.__name__, 
                                                    input_layer, expected_inputs) )
                 else:
@@ -226,7 +226,7 @@ class TaggersRegistry:
             if tagger_loader.output_attributes is not None:
                 if tuple(tagger_loader.output_attributes) != tuple(loaded_tagger.output_attributes):
                     raise ValueError( ('(!) Error at loading taggers for layer {!r}: '+\
-                                       "{!r}'s output_attributes {!r} to not match with taggerloader's output_attributes {!r}"+\
+                                       "{}'s output_attributes {!r} do not match with TaggerLoader's output_attributes {!r}"+\
                                        '').format( layer_name, loaded_tagger.__class__.__name__, 
                                                    loaded_tagger.output_attributes, 
                                                    tagger_loader.output_attributes ) )
@@ -237,7 +237,7 @@ class TaggersRegistry:
             redundant_inputs = set(expected_inputs) - set(covered_inputs)
             raise ValueError( ('(!) Error at loading taggers for layer {!r}: '+\
                               'input layers {!r} declared, but not used by any Tagger or Retagger.'+\
-                              ''.format( layer_name, redundant_inputs) ))
+                              '').format( layer_name, redundant_inputs) )
         return all_loaded_taggers
 
     def create_layer_for_text(self,  layer_name: str,  text: Union['BaseText', 'Text']) -> None:

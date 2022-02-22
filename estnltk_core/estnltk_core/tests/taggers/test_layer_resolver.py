@@ -4,6 +4,7 @@ from estnltk_core import Layer
 from estnltk_core.taggers import Tagger, Retagger
 from estnltk_core.taggers import TaggerLoader
 from estnltk_core.taggers import TaggerLoaded
+from estnltk_core.taggers.tagger_loader import TaggerClassNotFound
 from estnltk_core.taggers_registry import TaggersRegistry
 from estnltk_core.layer_resolver import LayerResolver
 from estnltk_core.common import create_text_object
@@ -77,6 +78,33 @@ def test_tagger_loader():
     assert isinstance( tagger_loader2.tagger, StubTagger )
 
 
+def test_tagger_loader_exceptions():
+    # Test taggerloader with wrong module path (wrong path in the middle)
+    tagger_loader = TaggerLoader( 'compound_tokens', ['tokens'], 
+                                  'estnltk_core.tests.taggers2.test_layer_resolver.StubTagger', 
+                                  {'output_layer': 'compound_tokens', 'input_layers': ['tokens']} )
+    with pytest.raises(ModuleNotFoundError):
+        # (!) Unable to load 'StubTagger'. 
+        # Please check that the module path 'estnltk_core.tests.taggers2.test_layer_resolver' is correct.
+        tagger = tagger_loader.tagger
+    # Test taggerloader with wrong module path (wrong first module)
+    tagger_loader = TaggerLoader( 'compound_tokens', ['tokens'], 
+                                  'estnltk_core2.StubTagger', 
+                                  {'output_layer': 'compound_tokens', 'input_layers': ['tokens']} )
+    with pytest.raises(TaggerClassNotFound):
+        # (!) Unable to load Tagger class from 'estnltk_core2.StubTagger'. 
+        # Please check that the import path is correct.
+        tagger = tagger_loader.tagger
+    # Test taggerloader with wrong tagger name
+    tagger_loader = TaggerLoader( 'compound_tokens', ['tokens'], 
+                                  'estnltk_core.tests.taggers.test_layer_resolver.StubTagger2', 
+                                  {'output_layer': 'compound_tokens', 'input_layers': ['tokens']} )
+    with pytest.raises(TaggerClassNotFound):
+        # (!) Unable to load 'StubTagger2' from the module 'estnltk_core.tests.taggers.test_layer_resolver'. 
+        # Please check that the Tagger's name and path are correct.
+        tagger = tagger_loader.tagger
+
+
 def test_create_resolver():
     # Test that the resolver can be created in two ways:
     # 1) providing the list of taggers upon creation
@@ -128,7 +156,7 @@ def test_create_resolver_exceptions():
         taggers = TaggersRegistry([])
         # TypeError: (!) Expected a subclass of Tagger or Retagger, not <class 'str'>.
         taggers.update( "Tere!" )
-    
+
     # Case 2: missing dependencies and missing taggers
     # Note that the resolver can be created even if some layers are missing. 
     # But an UserWarning will be encountered
@@ -156,61 +184,127 @@ def test_create_resolver_exceptions():
     with pytest.raises(Exception):
         # Exception: (!) No tagger registered for creating layer 'morph_analysis'.
         resolver1.apply(text1, 'morph_analysis')
+
+
+def test_apply_resolver_exceptions():
+    # Test that exceptions will be thrown upon using problematic tagger's registry / resolver
+    # Note that a conflicting taggers registry can be created (because of lazy loading), 
+    # errors occur if layer creation is requested
     
-    # Case 3: retaggers instead of taggers; adding retagger before tagger
+    # retaggers instead of taggers; adding retagger before tagger
+    text1 = create_text_object('test')
+    taggers = TaggersRegistry([TaggerLoader( 'words', [], 
+                                             stubtagger_import_path, 
+                                             {'output_layer': 'words', 'input_layers': []} ),
+                               TaggerLoader( 'sentences', ['words', 'sentences'], 
+                                             stubretagger_import_path, 
+                                             {'output_layer': 'sentences', 
+                                             'input_layers': ['words', 'sentences']} )
+                              ])
     with pytest.raises(TypeError):
-        taggers = TaggersRegistry([TaggerLoader( 'words', [], 
-                                                 stubtagger_import_path, 
-                                                 {'output_layer': 'words', 'input_layers': []} ),
-                                   TaggerLoader( 'sentences', ['words', 'sentences'], 
-                                                 stubretagger_import_path, 
-                                                 {'output_layer': 'sentences', 
-                                                 'input_layers': ['words', 'sentences']} )
-                                  ])
         # TypeError: (!) Error at loading taggers for layer 'sentences': Expected a subclass of Tagger, not Retagger 
         taggers.create_layer_for_text( 'sentences',  text1 )
     with pytest.raises(Exception):
         # Exception: (!) Cannot add a retagger for the layer 'morph_analysis': no tagger for creating the layer!
         resolver1.update( StubRetagger('morph_analysis', input_layers=['words', 'morph_analysis']) )
+    # wrong output_layer in retagger
+    taggers = TaggersRegistry([ [TaggerLoader( 'words', [], 
+                                               stubtagger_import_path, 
+                                               {'output_layer': 'words', 'input_layers': []} ),
+                                 TaggerLoader( 'words_2', ['words'], 
+                                               stubretagger_import_path, 
+                                               {'output_layer': 'words_2', 'input_layers': ['words']} ),
+                                ]])
     with pytest.raises(ValueError):
-        # wrong output_layer in retagger
-        taggers = TaggersRegistry([ [TaggerLoader( 'words', [], 
-                                                   stubtagger_import_path, 
-                                                   {'output_layer': 'words', 'input_layers': []} ),
-                                     TaggerLoader( 'words_2', ['words'], 
-                                                   stubretagger_import_path, 
-                                                   {'output_layer': 'words_2', 'input_layers': ['words']} ),
-                                    ]])
-        #  ValueError: (!) Error at loading taggers for layer 'words': (!) Expected StubRetagger with output_layer 'words', not 'words_2'
+        # ValueError: (!) Error at loading taggers for layer 'words': 
+        # Expected StubRetagger with output_layer 'words', not 'words_2'
         taggers.create_layer_for_text( 'words',  text1 )
+    # wrong order: first retagger, then tagger
+    taggers = TaggersRegistry([ [TaggerLoader( 'words', ['words'], 
+                                               stubretagger_import_path, 
+                                               {'output_layer': 'words', 'input_layers': ['words']} ),
+                                 TaggerLoader( 'words_2', ['words'], 
+                                               stubtagger_import_path, 
+                                               {'output_layer': 'words', 'input_layers': []} ),
+                                ]])
     with pytest.raises(TypeError):
-        # wrong order: first retagger, then tagger
-        taggers = TaggersRegistry([ [TaggerLoader( 'words', ['words'], 
-                                                   stubretagger_import_path, 
-                                                   {'output_layer': 'words', 'input_layers': ['words']} ),
-                                     TaggerLoader( 'words_2', ['words'], 
-                                                   stubtagger_import_path, 
-                                                   {'output_layer': 'words', 'input_layers': []} ),
-                                    ]])
-        # TypeError: (!) Error at loading taggers for layer 'words': Expected a subclass of Tagger, not Retagger StubRetagger
+        # TypeError: (!) Error at loading taggers for layer 'words': 
+        # Expected a subclass of Tagger, not Retagger StubRetagger
         taggers.create_layer_for_text( 'words',  text1 )
+    # wrong order: retagger followed by tagger in the end
+    taggers = TaggersRegistry([ [TaggerLoader( 'words', [], 
+                                               stubtagger_import_path, 
+                                               {'output_layer': 'words', 'input_layers': []} ),
+                                 TaggerLoader( 'words', ['words'], 
+                                               stubretagger_import_path, 
+                                               {'output_layer': 'words', 'input_layers': ['words']} ),
+                                 TaggerLoader( 'words', ['words'], 
+                                               stubtagger_import_path, 
+                                               {'output_layer': 'words', 'input_layers': ['words']} ),
+                                ]] )
     with pytest.raises(TypeError):
-        # wrong order: retagger followed by tagger in the end
-        taggers = TaggersRegistry([ [TaggerLoader( 'words', [], 
-                                                   stubtagger_import_path, 
-                                                   {'output_layer': 'words', 'input_layers': []} ),
-                                     TaggerLoader( 'words', ['words'], 
-                                                   stubretagger_import_path, 
-                                                   {'output_layer': 'words', 'input_layers': ['words']} ),
-                                     TaggerLoader( 'words', ['words'], 
-                                                   stubtagger_import_path, 
-                                                   {'output_layer': 'words', 'input_layers': ['words']} ),
-                                    ]] )
-        # TypeError: (!) Error at loading taggers for layer 'words': Expected a subclass of Retagger, but got StubTagger
+        # TypeError: (!) Error at loading taggers for layer 'words': 
+        # Expected a subclass of Retagger, but got StubTagger
         taggers.create_layer_for_text( 'words',  text1 )
+    
     #
-    # TODO: test mismatches between TaggerLoader's conf declarations and Tagger's actual configuration
+    # Test mismatches between TaggerLoader's configuration declarations and Tagger's actual configuration
     #
+    # Mismatching tagger's output layer
+    taggers = TaggersRegistry([ TaggerLoader( 'words', [], 
+                                              stubtagger_import_path, 
+                                              {'output_layer': 'words2', 'input_layers': []} )
+                              ])
+    with pytest.raises(ValueError):
+        # ValueError: (!) Error at loading taggers for layer 'words': 
+        # Expected StubTagger with output_layer 'words', not 'words2'
+        taggers.create_layer_for_text( 'words',  text1 )
+    # Mismatching retagger's output layer
+    taggers = TaggersRegistry([[ TaggerLoader( 'words', [], 
+                                              stubtagger_import_path, 
+                                              {'output_layer': 'words', 'input_layers': []} ),
+                                TaggerLoader( 'words', [], 
+                                              stubretagger_import_path, 
+                                              {'output_layer': 'words2', 'input_layers': ['words2']} )
+                               ]])
+    with pytest.raises(ValueError):
+        # ValueError: (!) Error at loading taggers for layer 'words': 
+        # Expected StubRetagger with output_layer 'words', not 'words2'
+        taggers.create_layer_for_text( 'words',  text1 )
+    # Mismatching (missing) input layers
+    taggers = TaggersRegistry([ TaggerLoader( 'words', [], 
+                                              stubtagger_import_path, 
+                                              {'output_layer': 'words', 'input_layers': []} ),
+                                TaggerLoader( 'phrases', ['words'], 
+                                              stubtagger_import_path, 
+                                              {'output_layer': 'phrases', 'input_layers': ['words2']} ),
+                              ])
+    with pytest.raises(ValueError):
+        # ValueError: (!) Error at loading taggers for layer 'phrases': 
+        # StubTagger's input_layer 'words2' is not listed in TaggerLoader's input layers ['words']
+        taggers.create_layer_for_text( 'phrases',  text1 )
+    # Mismatching (redundant) input layers
+    taggers = TaggersRegistry([ TaggerLoader( 'tokens', [], 
+                                              stubtagger_import_path, 
+                                              {'output_layer': 'tokens', 'input_layers': []} ),
+                                TaggerLoader( 'merged_tokens', ['tokens', 'lower_tokens'], 
+                                              stubtagger_import_path, 
+                                              {'output_layer': 'merged_tokens', 'input_layers': ['tokens']} ),
+                              ])
+    with pytest.raises(ValueError):
+        # ValueError: (!) Error at loading taggers for layer 'merged_tokens': 
+        # input layers {'lower_tokens'} declared, but not used by any Tagger or Retagger.
+        taggers.create_layer_for_text( 'merged_tokens',  text1 )
+    # Mismatching output_attributes
+    taggers = TaggersRegistry([ TaggerLoader( 'my_words', [], 
+                                              stubtagger_import_path, 
+                                              {'output_layer': 'my_words', 'input_layers': []},
+                                              output_attributes=['normalized_form'] ) 
+                              ])
+    with pytest.raises(ValueError):
+        # ValueError: (!) Error at loading taggers for layer 'my_words': 
+        # StubTagger's output_attributes () do not match with TaggerLoader's output_attributes ['normalized_form']
+        taggers.create_layer_for_text( 'my_words',  text1 )
 
 
 def test_create_resolver_circular_dependencies():

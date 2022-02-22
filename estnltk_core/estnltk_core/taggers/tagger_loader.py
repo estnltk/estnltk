@@ -78,7 +78,7 @@ class TaggerLoader:
         except ModuleNotFoundError as module_err:
             raise ModuleNotFoundError( ("(!) Unable to load {!r}. "+\
                                             "Please check that the module path {!r} is correct.").format( self._tagger_class_name, 
-                                                                                                          self._tagger_module_path ))
+                                                                                                          self._tagger_module_path )) from module_err
         except:
             raise
         # Second, try to load the class from the module
@@ -88,14 +88,15 @@ class TaggerLoader:
             except AttributeError as attr_err:
                 raise TaggerClassNotFound( ("(!) Unable to load {!r} from the module {!r}. "+\
                                             "Please check that the Tagger's name and path are correct.").format( self._tagger_class_name, 
-                                                                                                                 self._tagger_module_path ))
+                                                                                                                 self._tagger_module_path )) from attr_err
             except:
                 raise
         # Finally, create the instance of the class
         if tagger_class is not None:
             tagger = tagger_class( **self._parameters )
         else:
-            raise TaggerClassNotFound('(!) Unable to load Tagger class from {!r}'.format( self.import_path ))
+            raise TaggerClassNotFound( ('(!) Unable to load Tagger class from {!r}. '+\
+                                        'Please check that the import path is correct.').format( self.import_path ))
         return tagger
 
     def is_loaded(self):
