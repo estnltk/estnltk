@@ -23,9 +23,10 @@ class AddressPartTagger(Tagger):
                  # conflict_resolving_strategy: str = 'MAX',
                  # overlapped: bool = True,
                  output_layer: str = 'address_parts',
+                 input_words_layer: str = 'words',
                  # output_nodes={'ADDRESS'}
                  ):
-        self.input_layers = ['words']
+        self.input_layers = [input_words_layer]
         self.output_attributes = tuple(output_attributes)
         self.output_layer = output_layer
         # priority_attribute = '_priority_'
@@ -62,7 +63,7 @@ class AddressPartTagger(Tagger):
         vocabulary_file1 = path.join(path.dirname(__file__), 'asula_vocabulary.csv')
 
         self.place_name_tagger = PhraseTagger(output_layer='place_name',
-                                              input_layer='words',
+                                              input_layer=input_words_layer,
                                               input_attribute='text',
                                               vocabulary=vocabulary_file1,
                                               key='_phrase_',
@@ -73,7 +74,7 @@ class AddressPartTagger(Tagger):
         vocabulary_file2 = path.join(path.dirname(__file__), 'street_vocabulary.csv')
 
         self.street_name_tagger = PhraseTagger(output_layer='street_name',
-                                         input_layer='words',
+                                         input_layer=input_words_layer,
                                          input_attribute='text',
                                          vocabulary=vocabulary_file2,
                                          key='_phrase_',
@@ -84,7 +85,7 @@ class AddressPartTagger(Tagger):
         '''vocabulary_file3 = path.join(path.dirname(__file__), 'farm_vocabulary.csv')
 
         self.farm_name_tagger = PhraseTagger(output_layer='farm_name',
-                                         input_layer='words',
+                                         input_layer=input_words_layer,
                                          input_attribute='text',
                                          vocabulary=vocabulary_file3,
                                          key='_phrase_',
@@ -95,7 +96,7 @@ class AddressPartTagger(Tagger):
         spec_word_vocabulary = path.join(path.dirname(__file__), 'spec_word_voc.csv')
 
         self.spec_voc_tagger = SpanTagger(output_layer='spec_word',
-                                          input_layer='words',
+                                          input_layer=input_words_layer,
                                           input_attribute='text',
                                           ambiguous=True,
                                           output_attributes=('type', 'grammar_symbol'),
@@ -215,7 +216,6 @@ class AddressGrammarTagger(Tagger):
             #if node.name != 'SPEC':
             #    composition[node.name] = node.text
         return {'grammar_symbol': 'ADDRESS', 'ASULA': asula, 'TÄNAV': t2nav, 'INDEKS': indeks, 'MAAKOND': maakond, 'MAJA': maja}
-    
 
 
     grammar = Grammar(start_symbols=[ 'ADDRESS'],
