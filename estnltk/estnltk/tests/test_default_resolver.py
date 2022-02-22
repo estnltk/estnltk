@@ -2,6 +2,8 @@ from estnltk_core.taggers import Tagger, Retagger
 from estnltk.default_resolver import make_resolver
 from estnltk import Text
 
+from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line import check_if_hfst_is_in_path
+
 def test_simple_resolver_update():
     # Example: Modifying the pipeline -- replacing an existing tagger
     my_resolver = make_resolver()  # Create a copy of the default pipeline
@@ -24,6 +26,10 @@ def test_loading_and_applying_all_taggers_of_default_resolver():
     my_resolver = make_resolver()
     # 1: Test that all taggers of the default resolver can be loaded 
     for layer_name in my_resolver.list_layers():
+        if layer_name == 'hfst_gt_morph_analysis':
+            # If hfst command line tool is not available, can't test it
+            if not check_if_hfst_is_in_path():
+                continue
         # Test that the tagger can be loaded
         try:
             tagger = my_resolver.get_tagger(layer_name)
@@ -44,6 +50,10 @@ def test_loading_and_applying_all_taggers_of_default_resolver():
     # 2: Test that all taggers of the default resolver can be applied
     test_text = Text('tere')
     for layer_name in my_resolver.list_layers():
+        if layer_name == 'hfst_gt_morph_analysis':
+            # If hfst command line tool is not available, can't test it
+            if not check_if_hfst_is_in_path():
+                continue
         try:
             my_resolver.apply( test_text, layer_name )
         except Exception as ex:

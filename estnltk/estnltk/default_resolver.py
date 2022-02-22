@@ -60,6 +60,12 @@ def make_resolver(
                       'estnltk.taggers.standard.morph_analysis.morf.VabamorfTagger', 
                       output_attributes=vabamorf_tagger_output_attributes,
                       parameters=vabamorf_tagger_parameters ),
+        TaggerLoader( 'clauses', ['words', 'sentences', 'morph_analysis'], 
+                      'estnltk.taggers.standard.text_segmentation.clause_segmenter.ClauseSegmenter',  # Requires Java
+                      output_attributes= ('clause_type',) ),
+        # ==================================================
+        #             Specific morph                        
+        # ==================================================
         TaggerLoader( 'morph_analysis_est', ['morph_analysis'], 
                       'estnltk.taggers.standard.morph_analysis.vm_est_cat_names.VabamorfEstCatConverter', 
                       output_attributes=('normaliseeritud_sõne', 'algvorm', 'lõpp', 'sõnaliik', 'vormi_nimetus', 'kliitik') ),
@@ -68,12 +74,12 @@ def make_resolver(
                       output_attributes= (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES + \
                                          ('punctuation_type', 'pronoun_type', 'letter_case', \
                                           'fin', 'verb_extension_suffix', 'subcat') ),
-        TaggerLoader( 'clauses', ['words', 'sentences', 'morph_analysis'], 
-                      'estnltk.taggers.standard.text_segmentation.clause_segmenter.ClauseSegmenter',  # Requires Java
-                      output_attributes= ('clause_type',) ),
         TaggerLoader( 'gt_morph_analysis', ['words', 'sentences', 'morph_analysis', 'clauses'], 
                       'estnltk.taggers.standard.morph_analysis.gt_morf.GTMorphConverter', 
                       output_attributes=(NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES ),
+        TaggerLoader( 'hfst_gt_morph_analysis', ['words'], 
+                      'estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line.HfstClMorphAnalyser',  # Requires HFST cmd 
+                      output_attributes=('morphemes_lemmas', 'postags', 'forms', 'is_guessed', 'has_clitic', 'usage', 'weight') ),
         # ==================================================
         #             Information extraction                
         # ==================================================
