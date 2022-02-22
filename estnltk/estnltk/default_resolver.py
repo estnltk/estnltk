@@ -90,10 +90,6 @@ def make_resolver(
         TaggerLoader( 'addresses', ['address_parts'], 
                       'estnltk.taggers.miscellaneous.address_tagger.AddressGrammarTagger', 
                       output_attributes=('grammar_symbol', 'TÄNAV', 'MAJA', 'ASULA', 'MAAKOND', 'INDEKS') ),
-        TaggerLoader( 'verb_chains', ['words', 'sentences', 'morph_analysis', 'clauses'], 
-                      'estnltk.taggers.miscellaneous.verb_chains.verbchain_detector_tagger.VerbChainDetector', 
-                      output_attributes=('pattern', 'roots', 'word_ids', 'mood', 'polarity', 'tense', \
-                                         'voice', 'remaining_verbs' ) ),
         # ==================================================
         #             Default syntax                        
         # ==================================================
@@ -110,7 +106,16 @@ def make_resolver(
                                          'deps', 'misc', 'parent_span', 'children'),
                       parameters={ 'input_conll_morph_layer': 'maltparser_conll_morph', 
                                    'input_type': 'morph_analysis'} ),
-
+        # ==================================================
+        #             Experimental stuff                    
+        # ==================================================
+        TaggerLoader( 'verb_chains', ['words', 'sentences', 'morph_analysis', 'clauses'], 
+                      'estnltk.taggers.miscellaneous.verb_chains.verbchain_detector_tagger.VerbChainDetector', 
+                      output_attributes=('pattern', 'roots', 'word_ids', 'mood', 'polarity', 'tense', \
+                                         'voice', 'remaining_verbs' ) ),
+        TaggerLoader( 'np_chunks', ['words', 'sentences', 'morph_analysis', 'maltparser_syntax'], 
+                      'estnltk.taggers.miscellaneous.np_chunker.NounPhraseChunker', 
+                      output_attributes=(), parameters={'syntax_layer':'maltparser_syntax'} ),
     ])
     return LayerResolver( taggers, default_layers=('morph_analysis', 'sentences') )
 
