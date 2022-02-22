@@ -140,8 +140,8 @@ class PhraseTagger(Tagger):
                                                            for s in input_layer[i:i + len(tail) + 1])
                             span = EnvelopingSpan(base_span=base_span, layer=layer)
                             for record in self.vocabulary[phrase]:
-                                print(record)
-                                print(output_attributes)
+                                #print(record)
+                                #print(output_attributes)
                                 annotation = Annotation(span, **{attr: record[attr]
                                                                  for attr in output_attributes})
                                 is_valid =  self.decorator(span, annotation)
