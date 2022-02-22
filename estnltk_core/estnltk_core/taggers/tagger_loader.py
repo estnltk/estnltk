@@ -8,6 +8,8 @@ from estnltk_core.taggers.retagger import Retagger
 class TaggerClassNotFound(Exception):
     pass
 
+DEFAULT_DESCRIPTION = 'No description provided.'
+
 class TaggerLoader:
     """TaggerLoader describes tagger's input layers, output layer and importing path, and allows to load the tagger on demand.
        
@@ -23,11 +25,12 @@ class TaggerLoader:
        Note: TaggerLoader does not validate that declared inputs and output match with the actual inputs and 
        output of the tagger after it has been loaded. This validation should be done by users of the class. 
     """
-    __slots__ = ['output_layer', 'input_layers', 'import_path', 'output_attributes', 
+    __slots__ = ['output_layer', 'input_layers', 'import_path', 'output_attributes', 'description',
                  '_parameters', '_tagger', '_tagger_class_name', '_tagger_module_path']
 
     def __init__(self, output_layer:str, input_layers:Sequence[str], import_path:str, 
-                       parameters:Dict[str, Any]={}, output_attributes:Sequence[str]=None):
+                       parameters:Dict[str, Any]={}, output_attributes:Sequence[str]=None, 
+                       description:str=DEFAULT_DESCRIPTION):
         """Initializes TaggerLoader, which can be used to load given Tagger/Retagger on demand.
         
         Parameters
@@ -44,11 +47,15 @@ class TaggerLoader:
         output_attributes: Sequence[str]
             attributes of the layer produced by the tagger.
             optional, defaults to None.
+        description:str
+            description of the tagger / layer. 
+            optional, defaults to "No description provided."
         """
         self.output_layer = output_layer
         self.input_layers = input_layers
         self.import_path = import_path
         self.output_attributes = output_attributes
+        self.description = description
         self._parameters = parameters
         if '.' in import_path:
             path_tokens = import_path.split('.')
@@ -120,7 +127,8 @@ class TaggerLoader:
                   'layer': self.output_layer,
                   'attributes': self.output_attributes,
                   'depends_on': self.input_layers,
-                  'is_loaded': self.is_loaded()
+                  'is_loaded': self.is_loaded(),
+                  'description': self.description
                   }
         return record
 
@@ -140,13 +148,16 @@ class TaggerLoaded(TaggerLoader):
     VabamorfTagger(('words', 'sentences', 'compound_tokens')->morph_analysis)
     """
 
-    def __init__(self, tagger):
+    def __init__(self, tagger, description:str=None):
         """Initializes TaggerLoaded with the given tagger instance.
         
         Parameters
         ----------
         tagger
             A tagger instance; should be from a subclass of Tagger or Retagger.
+        description:str
+            description of the tagger / layer. 
+            optional, defaults to the first line in Tagger's docstring.
         """
         if not isinstance( tagger, (Tagger, Retagger) ):
             raise TypeError( '(!) Expected an instance of Tagger or Retagger, but got {}'.format( type(tagger) ) )
@@ -158,4 +169,7 @@ class TaggerLoaded(TaggerLoader):
         self._tagger_class_name = tagger.__class__.__name__
         self._tagger_module_path = tagger.__class__.__module__
         self.import_path = self._tagger_module_path + '.' + self._tagger_class_name
+        self.description = description
+        if description is None and tagger.__doc__ is not None:
+            description = tagger.__doc__.strip().split('\n', 1)[0]
 

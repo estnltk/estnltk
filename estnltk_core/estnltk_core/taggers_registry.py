@@ -35,6 +35,21 @@ class TaggersRegistry:
     TaggerLoader declares input layers, output layer and 
     importing path of a tagger, but does not load the tagger 
     until explicitly demanded.
+    TaggerLoaders are held in entries / nodes of the graph, 
+    and if a layer needs to be created, corresponding tagger 
+    is loaded and used for tagging. 
+    Once a tagger has been loaded, it stays in that state 
+    until the TaggersRegistry object itself is disposed.
+    
+    TaggerLoaded
+    ==============
+    For convenience, TaggersRegistry can be updated (after 
+    its initialization) with new taggers or retaggers without 
+    creating corresponding TaggerLoaders. You can simply pass 
+    Tagger/Retagger object to the update(...) method. Under 
+    the hood, a TaggerLoaded object is created, which is a 
+    subclass of TaggerLoader and has its tagger always at the 
+    loaded state. 
     """
     def __init__(self, taggers: List):
         self._rules = {}
@@ -255,15 +270,16 @@ class TaggersRegistry:
         '''Lists creatable layers in a topological order.'''
         return nx.topological_sort(self._graph)
 
-    def __str__(self):
-        creatable_layers_str = 'creatable_layers={!r}'.format( list(self.list_layers()) )
-        return '{classname}({creatable_layers})'.format( classname=self.__class__.__name__, \
-                                                         creatable_layers=creatable_layers_str )
-
-    def __repr__(self):
-        return str(self)
-
-    def _repr_html_(self):
+    def get_taggers_metadata(self):
+        '''Returns a list containing metadata about each tagger/retagger in this registry.
+           Metadata comes in the form of a dictionary which has the following fields:
+           * 'name' -- name of the tagger class responsible for creating / modifying the layer;
+           * 'layer' -- name of the created / modified layer;
+           * 'attributes' -- attributes of the created / modified layer (if specified);
+           * 'depends_on' -- prerequisite layers of the creatable layer;
+           * 'is_loaded' -- is the tagger loaded?
+           * 'description' -- description of the tagger / layer (if provided);
+        '''
         records = []
         for layer_name in self.list_layers():
             if layer_name in self._composite_rules:
@@ -274,6 +290,19 @@ class TaggersRegistry:
             else:
                 # A single tagger
                 records.append( self._rules[layer_name].parameters() )
+        return records
+
+    def __str__(self):
+        creatable_layers_str = 'creatable_layers={!r}'.format( list(self.list_layers()) )
+        return '{classname}({creatable_layers})'.format( classname=self.__class__.__name__, \
+                                                         creatable_layers=creatable_layers_str )
+
+    def __repr__(self):
+        return str(self)
+
+    def _repr_html_(self):
+        # Get metadata / descriptions of the taggers
+        records = self.get_taggers_metadata()
         import pandas
         df = pandas.DataFrame.from_records(records, columns=['name',
                                                              'layer',
