@@ -65,12 +65,52 @@ def make_resolver(
                       output_attributes=('normaliseeritud_sõne', 'algvorm', 'lõpp', 'sõnaliik', 'vormi_nimetus', 'kliitik') ),
         TaggerLoader( 'morph_extended', ['morph_analysis'], 
                       'estnltk.taggers.standard.syntax.preprocessing.morph_extended_tagger.MorphExtendedTagger', 
-                      output_attributes= vabamorf_tagger_output_attributes + \
+                      output_attributes= (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES + \
                                          ('punctuation_type', 'pronoun_type', 'letter_case', \
                                           'fin', 'verb_extension_suffix', 'subcat') ),
         TaggerLoader( 'clauses', ['words', 'sentences', 'morph_analysis'], 
                       'estnltk.taggers.standard.text_segmentation.clause_segmenter.ClauseSegmenter',  # Requires Java
-                      output_attributes= ('clause_type',) )
+                      output_attributes= ('clause_type',) ),
+        TaggerLoader( 'gt_morph_analysis', ['words', 'sentences', 'morph_analysis', 'clauses'], 
+                      'estnltk.taggers.standard.morph_analysis.gt_morf.GTMorphConverter', 
+                      output_attributes=(NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES ),
+        # ==================================================
+        #             Information extraction                
+        # ==================================================
+        TaggerLoader( 'ner', ['morph_analysis', 'words', 'sentences'], 
+                      'estnltk.taggers.standard.ner.ner_tagger.NerTagger', 
+                      output_attributes=('nertag',) ),
+        TaggerLoader( 'timexes', [], 
+                      'estnltk.taggers.standard.timexes.timex_tagger.TimexTagger',  # Requires Java
+                      output_attributes=('tid', 'type', 'value', 'temporal_function', 'anchor_time_id', \
+                                         'mod', 'quant', 'freq', 'begin_point', 'end_point', 'part_of_interval' ) ),
+        TaggerLoader( 'address_parts', ['words'], 
+                      'estnltk.taggers.miscellaneous.address_tagger.AddressPartTagger', 
+                      output_attributes=('grammar_symbol', 'type') ),
+        TaggerLoader( 'addresses', ['address_parts'], 
+                      'estnltk.taggers.miscellaneous.address_tagger.AddressGrammarTagger', 
+                      output_attributes=('grammar_symbol', 'TÄNAV', 'MAJA', 'ASULA', 'MAAKOND', 'INDEKS') ),
+        TaggerLoader( 'verb_chains', ['words', 'sentences', 'morph_analysis', 'clauses'], 
+                      'estnltk.taggers.miscellaneous.verb_chains.verbchain_detector_tagger.VerbChainDetector', 
+                      output_attributes=('pattern', 'roots', 'word_ids', 'mood', 'polarity', 'tense', \
+                                         'voice', 'remaining_verbs' ) ),
+        # ==================================================
+        #             Default syntax                        
+        # ==================================================
+        TaggerLoader( 'maltparser_conll_morph', ['sentences', 'morph_analysis'], 
+                      'estnltk.taggers.standard.syntax.conll_morph_tagger.ConllMorphTagger', 
+                      output_attributes=('id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', \
+                                         'head', 'deprel', 'deps', 'misc'),
+                      parameters={ 'output_layer': 'maltparser_conll_morph', 
+                                   'morph_extended_layer': 'morph_analysis', 
+                                   'no_visl': True} ),
+        TaggerLoader( 'maltparser_syntax', ['words', 'sentences', 'maltparser_conll_morph'], 
+                      'estnltk.taggers.standard.syntax.maltparser_tagger.maltparser_tagger.MaltParserTagger',  # Requires Java
+                      output_attributes=('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', \
+                                         'deps', 'misc', 'parent_span', 'children'),
+                      parameters={ 'input_conll_morph_layer': 'maltparser_conll_morph', 
+                                   'input_type': 'morph_analysis'} ),
+
     ])
     return LayerResolver( taggers, default_layers=('morph_analysis', 'sentences') )
 
