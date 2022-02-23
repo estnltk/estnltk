@@ -77,9 +77,6 @@ def make_resolver(
         TaggerLoader( 'gt_morph_analysis', ['words', 'sentences', 'morph_analysis', 'clauses'], 
                       'estnltk.taggers.standard.morph_analysis.gt_morf.GTMorphConverter', 
                       output_attributes=(NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES ),
-        TaggerLoader( 'hfst_gt_morph_analysis', ['words'], 
-                      'estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line.HfstClMorphAnalyser',  # Requires HFST cmd 
-                      output_attributes=('morphemes_lemmas', 'postags', 'forms', 'is_guessed', 'has_clitic', 'usage', 'weight') ),
         # ==================================================
         #             Information extraction                
         # ==================================================

@@ -284,13 +284,14 @@ def test_apply_resolver_exceptions():
         # StubTagger's input_layer 'words2' is not listed in TaggerLoader's input layers ['words']
         taggers.create_layer_for_text( 'phrases',  text1 )
     # Mismatching (redundant) input layers
-    taggers = TaggersRegistry([ TaggerLoader( 'tokens', [], 
-                                              stubtagger_import_path, 
-                                              {'output_layer': 'tokens', 'input_layers': []} ),
-                                TaggerLoader( 'merged_tokens', ['tokens', 'lower_tokens'], 
-                                              stubtagger_import_path, 
-                                              {'output_layer': 'merged_tokens', 'input_layers': ['tokens']} ),
-                              ])
+    with pytest.warns(UserWarning, match=".+'lower_tokens' is missing.+Layer 'merged_tokens' cannot be created"):
+        taggers = TaggersRegistry([ TaggerLoader( 'tokens', [], 
+                                                  stubtagger_import_path, 
+                                                  {'output_layer': 'tokens', 'input_layers': []} ),
+                                    TaggerLoader( 'merged_tokens', ['tokens', 'lower_tokens'], 
+                                                  stubtagger_import_path, 
+                                                  {'output_layer': 'merged_tokens', 'input_layers': ['tokens']} ),
+                                  ])
     with pytest.raises(ValueError):
         # ValueError: (!) Error at loading taggers for layer 'merged_tokens': 
         # input layers {'lower_tokens'} declared, but not used by any Tagger or Retagger.
