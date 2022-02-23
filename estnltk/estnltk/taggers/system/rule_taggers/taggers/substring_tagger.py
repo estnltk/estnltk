@@ -136,7 +136,7 @@ class SubstringTagger(Tagger):
         if not (set(ruleset.output_attributes) <= set(self.output_attributes)):
             raise ValueError('Output attributes of a ruleset must match the output attributes of a tagger')
 
-        self.static_ruleset_map: Dict[str, Dict[Tuple[int,int], Dict[str, Any]]]
+        self.static_ruleset_map: Dict[str, List[Tuple[int, int, Dict[str, any]]]]
 
         static_ruleset_map = dict()
 
@@ -144,16 +144,12 @@ class SubstringTagger(Tagger):
 
         for rule in ruleset.static_rules:
             if self.ignore_case:
-                subindex = static_ruleset_map.get(rule.pattern.lower(), dict())
-                if (rule.group, rule.priority) in subindex:
-                    raise AttributeError('There are multiple rules with the same pattern, group and priority')
-                subindex[rule.group, rule.priority] = rule.attributes
+                subindex = static_ruleset_map.get(rule.pattern.lower(), [])
+                subindex.append((rule.group, rule.priority, rule.attributes))
                 static_ruleset_map[rule.pattern.lower()] = subindex
             else:
-                subindex = static_ruleset_map.get(rule.pattern, dict())
-                if (rule.group, rule.priority) in subindex:
-                    raise AttributeError('There are multiple rules with the same pattern, group and priority')
-                subindex[rule.group, rule.priority] = rule.attributes
+                subindex = static_ruleset_map.get(rule.pattern, [])
+                subindex.append((rule.group, rule.priority, rule.attributes))
                 static_ruleset_map[rule.pattern] = subindex
 
         self.static_ruleset_map = static_ruleset_map
@@ -170,10 +166,11 @@ class SubstringTagger(Tagger):
                 subindex[rule.group, rule.priority] = rule.decorator
                 dynamic_ruleset_map[rule.pattern.lower()] = subindex
                 # create corresponding static rule if it does not exist yet
-                if static_ruleset_map.get(rule.pattern.lower(),None) is None:
-                    static_ruleset_map[rule.pattern.lower()] = {(rule.group,rule.priority): dict()}
-                elif (rule.group, rule.priority) not in static_ruleset_map.get(rule.pattern.lower()):
-                    static_ruleset_map[rule.pattern.lower()][(rule.group, rule.priority)] = dict()
+                if static_ruleset_map.get(rule.pattern.lower(), None) is None:
+                    static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
+                elif len([item for item in static_ruleset_map.get(rule.pattern.lower())
+                          if item[0] == rule.group and item[1] == rule.priority]) == 0:
+                    static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
             else:
                 subindex = dynamic_ruleset_map.get(rule.pattern, dict())
                 if (rule.group, rule.priority) in subindex:
@@ -182,9 +179,10 @@ class SubstringTagger(Tagger):
                 dynamic_ruleset_map[rule.pattern] = subindex
                 # create corresponding static rule if it does not exist yet
                 if static_ruleset_map.get(rule.pattern, None) is None:
-                    static_ruleset_map[rule.pattern] = {(rule.group, rule.priority): dict()}
-                elif (rule.group, rule.priority) not in static_ruleset_map.get(rule.pattern):
-                    static_ruleset_map[rule.pattern][(rule.group, rule.priority)] = dict()
+                    static_ruleset_map[rule.pattern] = [(rule.group, rule.priority, dict())]
+                elif len([item for item in static_ruleset_map.get(rule.pattern)
+                          if item[0] == rule.group and item[1] == rule.priority]) == 0:
+                    static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
 
         # No errors were detected
         self.dynamic_ruleset_map = dynamic_ruleset_map
@@ -291,7 +289,7 @@ class SubstringTagger(Tagger):
         while base_span is not None:
             span = Span(base_span=base_span, layer=layer)
             static_rulelist = self.static_ruleset_map.get(pattern, None)
-            for metadata, annotation in static_rulelist.items():
+            for group, priority, annotation in static_rulelist:
                 # apply global decorator
                 # Drop annotations for which the global decorator fails
                 if self.global_decorator is not None:
@@ -302,8 +300,6 @@ class SubstringTagger(Tagger):
                 # apply dynamic_decorator --- it must be unique or have matching priority and group
                 # No dynamic rules to change the annotation
                 subindex = self.dynamic_ruleset_map.get(pattern, None)
-                group = metadata[0]
-                priority = metadata[1]
                 decorator = subindex[(group, priority)] if subindex is not None else None
                 if decorator is None:
                     span.add_annotation(annotation)
@@ -344,9 +340,7 @@ class SubstringTagger(Tagger):
             span = Span(base_span=base_span, layer=layer)
             # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
             static_rulelist = self.static_ruleset_map.get(pattern, None)
-            for metadata, annotation_dict in static_rulelist.items():
-                group = metadata[0]
-                priority = metadata[1]
+            for group, priority, annotation_dict in static_rulelist:
                 # apply global decorator
                 # Drop annotations for which the global decorator fails
                 if self.global_decorator is not None:
