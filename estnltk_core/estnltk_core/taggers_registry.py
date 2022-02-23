@@ -343,13 +343,16 @@ class TaggersRegistry:
 
     def get_taggers_metadata(self):
         '''Returns a list containing metadata about each tagger/retagger in this registry.
-           Metadata comes in the form of a dictionary which has the following fields:
-           * 'name' -- name of the tagger class responsible for creating / modifying the layer;
-           * 'layer' -- name of the created / modified layer;
-           * 'attributes' -- attributes of the created / modified layer (if specified);
-           * 'depends_on' -- prerequisite layers of the creatable layer;
-           * 'is_loaded' -- is the tagger loaded?
-           * 'description' -- description of the tagger / layer (if provided);
+        
+        Metadata comes in the form of a dictionary which has the following keys:
+        * 'name' -- name of the tagger class responsible for creating / modifying the layer;
+        * 'layer' -- name of the created / modified layer;
+        * 'attributes' -- attributes of the created / modified layer (if specified);
+        * 'depends_on' -- prerequisite layers of the creatable layer;
+        * 'is_loaded' -- is the tagger loaded?
+        * 'description' -- description of the tagger / layer (if provided);
+        
+        The returned list is sorted in topological order of layers.
         '''
         records = []
         for layer_name in self.list_layers():
@@ -363,13 +366,30 @@ class TaggersRegistry:
                 records.append( self._rules[layer_name].parameters() )
         return records
 
-    def __str__(self):
+    def overview(self, in_adding_order:bool=True):
+        '''Returns TaggersRegistryOverview describing registered layers and taggers.
+        Purpose of the overview is to provide brief / distilled information, skipping 
+        the technical details. This is an alternative to TaggersRegistry._repr_html_(),
+        which provides more technical information about registered layers and taggers.
+        
+        TaggersRegistryOverview (a formatted pandas DataFrame) has the following columns:
+        * 'layer' -- name of the created / modified layer;
+        * 'attributes' -- attributes of the created / modified layer (if specified);
+        * 'tagger name' -- name of the tagger class responsible for creating / modifying the layer;
+        * 'description' -- description of the tagger (if provided);
+        
+        By default, layers in the overview are sorted by the 
+        order in which the corresponding taggers were added 
+        to the registry.
+        However, setting in_adding_order=False changes the 
+        order to the topological order of layers.
+        '''
+        return TaggersRegistryOverview(self, in_adding_order=in_adding_order)
+
+    def __repr__(self):
         creatable_layers_str = 'creatable_layers={!r}'.format( list(self.list_layers()) )
         return '{classname}({creatable_layers})'.format( classname=self.__class__.__name__, \
                                                          creatable_layers=creatable_layers_str )
-
-    def __repr__(self):
-        return str(self)
 
     def _repr_html_(self):
         # Get metadata / descriptions of the taggers
@@ -383,3 +403,68 @@ class TaggersRegistry:
         return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+df.to_html(index=False)
 
 
+
+class TaggersRegistryOverview:
+    """Provides nicely formatted overview about layers and taggers in TaggersRegistry.
+    """
+
+    def __init__(self, taggers_registry: TaggersRegistry,
+                       in_adding_order:bool=True ):
+        """
+        Initializes TaggersRegistryOverview with the given TaggersRegistry.
+        
+        If in_adding_order=True (default), then layers in the 
+        overview are sorted by the order in which the corresponding 
+        taggers were added to the registry. Otherwise 
+        (in_adding_order=False) layers are sorted in the topological 
+        order.
+        """
+        assert isinstance(taggers_registry, TaggersRegistry)
+        self._taggers_registry = taggers_registry
+        self._in_adding_order = in_adding_order
+    
+    def as_dataframe(self):
+        '''Returns an overview DataFrame describing registered layers and taggers.
+        
+        DataFrame has the following columns:
+        * 'layer' -- name of the created / modified layer;
+        * 'attributes' -- attributes of the created / modified layer (if specified);
+        * 'tagger name' -- name of the tagger class responsible for creating / modifying the layer;
+        * 'description' -- description of the tagger (if provided);
+        
+        If parameter in_adding_order=True, layers are sorted 
+        by the order in which the corresponding taggers were 
+        added to the registry. Otherwise (if in_adding_order=False) 
+        layers are sorted in topological order.
+        '''
+        # Get metadata / descriptions of the taggers
+        records = self._taggers_registry.get_taggers_metadata()
+        # Add 'tagger name' column
+        for rec in records:
+            rec['tagger name']=rec['name']
+        if self._in_adding_order:
+            # Reorder records by the order in which they
+            # were added to the registry (requires 
+            # python >= 3.7)
+            reordered_records = []
+            for layer in self._taggers_registry._rules.keys():
+                for rec in records:
+                    if rec['layer'] == layer:
+                        reordered_records.append( rec )
+            records = reordered_records
+        import pandas
+        df = pandas.DataFrame.from_records(records, columns=['layer',
+                                                             'attributes',
+                                                             'tagger name',
+                                                             'description'])
+        return df
+
+    def __repr__(self):
+        # TODO: could be better formatted ?!
+        return str( self.as_dataframe() )
+
+    def _repr_html_(self):
+        df = self.as_dataframe()
+        df = df.style.hide(axis='index').set_properties(**{'text-align': 'left'}).\
+                      set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
+        return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+df.to_html(index=False)
