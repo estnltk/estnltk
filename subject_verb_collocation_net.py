@@ -34,3 +34,6 @@ class SubjectVerbCollocationNet(BaseCollocationNet):
 
     def predict_topic_for_several_subjects(self, subjects: list, number_of_topics: int = 10, number_of_verbs: int = 10):
         return super().predict_topic_for_several_rows(subjects, number_of_topics, number_of_verbs)
+
+    def examples(self, subject: str, verb: str, table_name="subj_verb_koondkorpus"):
+        return super().examples(subject, verb, table_name)

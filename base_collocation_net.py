@@ -1,4 +1,5 @@
 import os
+import sqlite3
 import pandas as pd
 import numpy as np
 from typing import List
@@ -16,6 +17,7 @@ class BaseCollocationNet:
 
     def __init__(self, collocation_type: str = 'noun_adjective'):
         path = f"{os.path.dirname(os.path.abspath(__file__))}/data/{collocation_type}"
+        self.path = path
         self.row_dist = np.load(f"{path}/lda_row_distribution.npy")
         self.column_dist = np.load(f"{path}/lda_column_distribution.npy")
         self.rows = np.load(f"{path}/rows.npy", allow_pickle=True)
@@ -347,3 +349,17 @@ class BaseCollocationNet:
                     return True
 
         return False
+
+    def examples(self, row: str, column: str, table_name: str) -> List[str]:
+        conn = sqlite3.connect(f"{self.path}/collocations.db")
+        cur = conn.cursor()
+        cur.execute(f"SELECT example1, example2, example3 FROM {table_name} WHERE lemma1 = '{row}' AND lemma2 = '{column}';")
+        examples = cur.fetchall()
+        final_sentences = []
+
+        for sents in examples:
+            for sent in sents:
+                if sent is not None:
+                    final_sentences.append(sent)
+
+        return final_sentences
