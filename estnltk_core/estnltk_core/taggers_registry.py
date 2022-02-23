@@ -40,16 +40,18 @@ class TaggersRegistry:
     is loaded and used for tagging. 
     Once a tagger has been loaded, it stays in that state 
     until the TaggersRegistry object itself is disposed.
+    The method add_tagger_loader(...) can be used to add 
+    new (unloaded) TaggerLoaders to the registry.
     
     TaggerLoaded
     ==============
-    For convenience, TaggersRegistry can be updated (after 
-    its initialization) with new taggers or retaggers without 
-    creating corresponding TaggerLoaders. You can simply pass 
-    Tagger/Retagger object to the update(...) method. Under 
-    the hood, a TaggerLoaded object is created, which is a 
-    subclass of TaggerLoader and has its tagger always at the 
-    loaded state. 
+    For convenience, TaggersRegistry can also be updated 
+    (after its initialization) with new taggers or retaggers 
+    without creating corresponding TaggerLoaders. You can 
+    simply pass Tagger/Retagger object to the update(...) 
+    method. Under the hood, a TaggerLoaded object is created, 
+    which is a subclass of TaggerLoader and has its tagger 
+    always at the loaded state. 
     """
     def __init__(self, taggers: List):
         self._rules = {}
@@ -120,6 +122,75 @@ class TaggersRegistry:
             self._rules[output_layer] = [ self._rules[output_layer] ]
             self._composite_rules.add( output_layer )
         self._rules[output_layer].append( TaggerLoaded(retagger) )
+        self._graph = self._make_graph()
+
+    def add_tagger_loader(self, tagger_loader: TaggerLoader, 
+                                is_retagger: bool=False) -> None:
+        '''Adds a new tagger loader to the registry. 
+           
+           Note that this method only accepts TaggerLoaders that 
+           have their taggers in the unloaded state. In case the 
+           output_layer of the tagger loader already exists in 
+           the registry, all tagger loaders responsible for 
+           creating the layer in the registry must also have their 
+           taggers in the unloaded state. If you want to change 
+           or add a loaded Tagger or loaded Retagger, please use 
+           methods add_tagger(...)/add_retagger(...) instead.
+           
+           By default, assumes that the loader loads a Tagger; if 
+           is_retagger=True, then assumes a Retagger loader and 
+           appends the loader at the end of retaggers list of the 
+           layer. A Retagger loader can be added only if a Tagger 
+           loader for the layer already exists in the registry. 
+           Note: if a Tagger loader is added for an existing layer, 
+           the old Tagger loader will be overwritten with the new 
+           one. '''
+        if not isinstance( tagger_loader, TaggerLoader ):
+            raise TypeError( ('(!) Expected an instance of TaggerLoader, but got {}.'+\
+                              '').format( type(tagger_loader) ) )
+        if tagger_loader.is_loaded():
+            raise ValueError( ('(!) Method add_tagger_loader() only accepts '+\
+                              'TaggerLoaders with unloaded taggers. Please use '+\
+                              'method update(...) to add a loaded Tagger/Retagger.') )
+        output_layer = tagger_loader.output_layer
+        if output_layer in self._rules:
+            # The output layer already exists 
+            # Check that all taggers are unloaded
+            if output_layer not in self._composite_rules:
+                if self._rules[output_layer].is_loaded():
+                    raise ValueError( ('(!) A tagger creating for layer {!r} already '+\
+                                       'exists and has been loaded. Please use method '+\
+                                       'update(...) to change it.').format(output_layer) )
+                if not is_retagger:
+                    # change tagger loader
+                    self._rules[output_layer] = tagger_loader
+                else:
+                    # add retagger loader
+                    self._rules[output_layer] = [ self._rules[output_layer] ]
+                    self._rules[output_layer].append( tagger_loader )
+                    self._composite_rules.add( output_layer )
+            else:
+                for existing_tagger_loader in self._rules[output_layer]:
+                    if existing_tagger_loader.is_loaded():
+                        raise ValueError( ('(!) A tagger creating for layer {!r} already '+\
+                                           'exists and has been loaded. Please use method '+\
+                                           'update(...) to change it.').format(output_layer) )
+                if not is_retagger:
+                    # change Tagger loader
+                    self._rules[output_layer][0] = tagger_loader
+                else:
+                    # add Retagger loader
+                    self._rules[output_layer].append( tagger_loader )
+        else:
+            # The output layer does not exist yet
+            if not is_retagger:
+                # add brand new tagger loader
+                self._rules[output_layer] = tagger_loader
+            else:
+                # can't add retagger before tagger
+                raise ValueError( ('(!) Cannot add a TaggerLoader for a retagger: '+\
+                                   'there is no tagger for creating the layer {!r}'+\
+                                   '').format(output_layer) )
         self._graph = self._make_graph()
 
     def get_tagger(self, layer_name: str) -> Tagger:

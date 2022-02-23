@@ -139,6 +139,27 @@ def test_create_resolver():
     text2 = create_text_object('test')
     resolver2.apply(text2, 'morph_analysis')
     assert set(text2.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
+    
+    # 3) new tagger loaders can also be added 
+    # (but only for new layers or layers that have their tagger loaders uninitialized)
+    resolver2.taggers().add_tagger_loader( TaggerLoader( 'syntax_preprocessing', ['sentences', 'morph_analysis'], 
+                                                         stubtagger_import_path, 
+                                                         {'output_layer': 'syntax_preprocessing', 
+                                                         'input_layers': ['sentences', 'morph_analysis']} ) )
+    resolver2.taggers().add_tagger_loader( TaggerLoader( 'syntax_preprocessing', 
+                                                         ['syntax_preprocessing', 'compound_tokens'], 
+                                                         stubretagger_import_path, 
+                                                         {'output_layer': 'syntax_preprocessing', 
+                                                          'input_layers': ['syntax_preprocessing', 'compound_tokens']} ),
+                                         is_retagger=True )
+    resolver2.taggers().add_tagger_loader( TaggerLoader( 'syntax', ['sentences', 'syntax_preprocessing'], 
+                                                         stubtagger_import_path, 
+                                                         {'output_layer': 'syntax', 
+                                                         'input_layers': ['sentences', 'syntax_preprocessing']} ) )
+    resolver2.apply(text2, 'syntax')
+    assert set(text2.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', \
+                                 'morph_analysis', 'syntax_preprocessing', 'syntax'}
+    assert text2['syntax_preprocessing'].meta['modified'] == 1
 
 
 def test_create_resolver_exceptions():
