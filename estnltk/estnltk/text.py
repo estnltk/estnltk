@@ -4,6 +4,7 @@ from typing import Dict
 import networkx as nx
 
 from estnltk_core.base_text import BaseText
+from estnltk.default_resolver import DEFAULT_RESOLVER
 
 class Text( BaseText ):
     # All methods for BaseText/Text object
@@ -35,7 +36,6 @@ class Text( BaseText ):
     )
 
     def tag_layer(self, layer_names: Union[str, Sequence[str]]=None, resolver=None) -> 'Text':
-        from estnltk.default_resolver import DEFAULT_RESOLVER
         if resolver is None:
             resolver = DEFAULT_RESOLVER
         if isinstance(layer_names, str):
@@ -51,7 +51,6 @@ class Text( BaseText ):
         Analyses text by adding standard NLP layers. Analysis level specifies what layers must be present.
         # TODO: Complete documentation by explicitly stating what levels are present for which level
         """
-        from estnltk.default_resolver import DEFAULT_RESOLVER
         if resolver is None:
             resolver = DEFAULT_RESOLVER
         if t == 'segmentation':

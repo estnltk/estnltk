@@ -18,27 +18,27 @@ from estnltk.vabamorf.morf import get_root
 
 # Default parameters to be passed to Vabamorf
 # Note: these defaults are from  estnltk.vabamorf.morf
-DEFAULT_PARAM_DISAMBIGUATE = True
-DEFAULT_PARAM_GUESS        = True
-DEFAULT_PARAM_PROPERNAME   = True
-DEFAULT_PARAM_PHONETIC     = False
-DEFAULT_PARAM_COMPOUND     = True
+from estnltk.common import DEFAULT_PARAM_DISAMBIGUATE
+from estnltk.common import DEFAULT_PARAM_GUESS
+from estnltk.common import DEFAULT_PARAM_PROPERNAME
+from estnltk.common import DEFAULT_PARAM_PHONETIC
+from estnltk.common import DEFAULT_PARAM_COMPOUND
 
 # Morphological analysis attributes used by Vabamorf
-VABAMORF_ATTRIBUTES = ('root', 'ending', 'clitic', 'form', 'partofspeech')
+from estnltk.common import VABAMORF_ATTRIBUTES
 
 # Morphological analysis attributes used by ESTNLTK's Vabamorf
-ESTNLTK_MORPH_ATTRIBUTES = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
+from estnltk.common import ESTNLTK_MORPH_ATTRIBUTES
 
 # Name of the normalized text attribute. This refers to 
 # the normalized word form that was used as a basis in 
 # morphological analysis.
-NORMALIZED_TEXT = 'normalized_text'
+from estnltk.common import NORMALIZED_TEXT
 
 # Name of the ignore attribute. During the morphological 
 # disambiguation, all spans of "morph_analysis" that have 
 # ignore attribute set to True will be skipped;
-IGNORE_ATTR = '_ignore'
+from estnltk.common import IGNORE_ATTR
 
 # =================================
 #    Helper functions

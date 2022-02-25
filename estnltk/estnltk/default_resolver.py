@@ -6,12 +6,12 @@ from estnltk_core.taggers_registry import TaggersRegistry
 from estnltk_core.layer_resolver import LayerResolver
 
 # Load default configuration for morph analyser
-from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
-from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
-from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_COMPOUND
-from estnltk.taggers.standard.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.standard.morph_analysis.morf_common import NORMALIZED_TEXT
-from estnltk.taggers.standard.morph_analysis.morf_common import IGNORE_ATTR
+from estnltk.common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
+from estnltk.common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
+from estnltk.common import DEFAULT_PARAM_COMPOUND
+from estnltk.common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.common import NORMALIZED_TEXT
+from estnltk.common import IGNORE_ATTR
 
 def make_resolver(
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
