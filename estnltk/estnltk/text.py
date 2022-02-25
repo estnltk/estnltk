@@ -34,10 +34,13 @@ class Text( BaseText ):
         'morph_analysis',
         'morph_extended'
     )
+    
+    # layer resolver that is used for computing layers
+    layer_resolver = DEFAULT_RESOLVER
 
     def tag_layer(self, layer_names: Union[str, Sequence[str]]=None, resolver=None) -> 'Text':
         if resolver is None:
-            resolver = DEFAULT_RESOLVER
+            resolver = self.layer_resolver
         if isinstance(layer_names, str):
             layer_names = [layer_names]
         if layer_names is None:
@@ -52,7 +55,7 @@ class Text( BaseText ):
         # TODO: Complete documentation by explicitly stating what levels are present for which level
         """
         if resolver is None:
-            resolver = DEFAULT_RESOLVER
+            resolver = self.layer_resolver
         if t == 'segmentation':
             self.tag_layer(['paragraphs'], resolver)
         elif t == 'morphology':

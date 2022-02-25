@@ -350,6 +350,7 @@ def test_access_of_shadowed_layers():
     else:
         public_variables = [ 'attribute_mapping_for_elementary_layers', \
                              'attribute_mapping_for_enveloping_layers', \
+                             'layer_resolver', \
                              'methods',
                              'presorted_layers' ]
     slots = ['text', 'meta', '_layers']
