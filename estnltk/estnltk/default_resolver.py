@@ -6,12 +6,12 @@ from estnltk_core.taggers_registry import TaggersRegistry
 from estnltk_core.layer_resolver import LayerResolver
 
 # Load default configuration for morph analyser
-from .taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
-from .taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
-from .taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_COMPOUND
-from .taggers.standard.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from .taggers.standard.morph_analysis.morf_common import NORMALIZED_TEXT
-from .taggers.standard.morph_analysis.morf_common import IGNORE_ATTR
+from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
+from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
+from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_COMPOUND
+from estnltk.taggers.standard.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.standard.morph_analysis.morf_common import NORMALIZED_TEXT
+from estnltk.taggers.standard.morph_analysis.morf_common import IGNORE_ATTR
 
 def make_resolver(
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
@@ -48,7 +48,7 @@ def make_resolver(
         TaggerLoader( 'compound_tokens', ['tokens'], 
                       'estnltk.taggers.standard.text_segmentation.compound_token_tagger.CompoundTokenTagger', 
                       output_attributes=('type', 'normalized'),
-                      description="Preprocessing for word segmentation: joins word-like tokens into compound tokens." ),
+                      description="Preprocessing for word segmentation: joins tokens into compound tokens." ),
         TaggerLoader( 'words', ['tokens', 'compound_tokens'], 
                       'estnltk.taggers.standard.text_segmentation.word_tagger.WordTagger', 
                       output_attributes=('normalized_form',),

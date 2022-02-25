@@ -82,25 +82,17 @@ class LayerResolver:
         self._taggers.create_layer_for_text( layer_name, text )
         return text
 
-    def __str__(self):
+    def __repr__(self):
         parameters_str = ''
         if self._taggers:
             default_layers = list(self.get_default_layers())
             parameters_str = 'taggers={},default_layers={!r}'.format(self._taggers, default_layers)
         return '{classname}({parameters})'.format(classname=self.__class__.__name__, parameters=parameters_str)
 
-    def __repr__(self):
-        return str(self)
-
     def _repr_html_(self):
         if self._taggers:
-            creatable_layers = list(self.list_layers())
             default_layers = list(self.get_default_layers())
-            creatable_layers_str = "No creatable layers available. Update taggers registry to enable layer creation."
-            if len(creatable_layers) > 0:
-                if default_layers:
-                    creatable_layers = ['<b>{} (default)</b>'.format(layer) if layer in default_layers else layer for layer in creatable_layers]
-                creatable_layers_str = 'Creatable layers: '+(', '.join(creatable_layers))
-            return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+\
-                    creatable_layers_str+'\n</br>'+self._taggers._repr_html_()
+            default_layers_str = 'Default layers: <b>'+(', '.join(default_layers))+'</b>'
+            return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n<br>'+\
+                    default_layers_str+'\n</br>'+self._taggers._repr_html_()
 

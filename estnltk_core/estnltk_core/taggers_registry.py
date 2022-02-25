@@ -510,7 +510,7 @@ class TaggersRegistryOverview:
         return ''.join(table_lines)
 
     def __repr__(self):
-        records = self._taggers_registry_records
+        records = list(self._taggers_registry_records)
         lengths = { 'layer': 18, 'attributes': 28, \
                     'tagger name': 19, 'description': 28 }
         table = TaggersRegistryOverview._pretty_print_records_table( records, lengths )
