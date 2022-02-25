@@ -420,8 +420,28 @@ class TaggersRegistryOverview:
         order.
         """
         assert isinstance(taggers_registry, TaggersRegistry)
-        self._taggers_registry = taggers_registry
-        self._in_adding_order = in_adding_order
+        self._taggers_registry_records = \
+                self._get_records( taggers_registry, 
+                                   in_adding_order=in_adding_order)
+    
+    def _get_records(self, taggers_registry: TaggersRegistry, \
+                           in_adding_order:bool=True ):
+        # Get metadata / descriptions of the taggers
+        records = taggers_registry.get_taggers_metadata()
+        # Add 'tagger name' column
+        for rec in records:
+            rec['tagger name']=rec['name']
+        if in_adding_order:
+            # Reorder records by the order in which they
+            # were added to the registry (requires 
+            # python >= 3.7)
+            reordered_records = []
+            for layer in taggers_registry._rules.keys():
+                for rec in records:
+                    if rec['layer'] == layer:
+                        reordered_records.append( rec )
+            records = reordered_records
+        return records
     
     def as_dataframe(self):
         '''Returns an overview DataFrame describing registered layers and taggers.
@@ -437,31 +457,64 @@ class TaggersRegistryOverview:
         added to the registry. Otherwise (if in_adding_order=False) 
         layers are sorted in topological order.
         '''
-        # Get metadata / descriptions of the taggers
-        records = self._taggers_registry.get_taggers_metadata()
-        # Add 'tagger name' column
-        for rec in records:
-            rec['tagger name']=rec['name']
-        if self._in_adding_order:
-            # Reorder records by the order in which they
-            # were added to the registry (requires 
-            # python >= 3.7)
-            reordered_records = []
-            for layer in self._taggers_registry._rules.keys():
-                for rec in records:
-                    if rec['layer'] == layer:
-                        reordered_records.append( rec )
-            records = reordered_records
         import pandas
-        df = pandas.DataFrame.from_records(records, columns=['layer',
+        df = pandas.DataFrame.from_records( self._taggers_registry_records, 
+                                                    columns=['layer',
                                                              'attributes',
                                                              'tagger name',
                                                              'description'])
         return df
 
+    # Pretty-prints records table in a way that textual data in cells 
+    # is nicely wrapped on multiple lines
+    @staticmethod
+    def _pretty_print_records_table( records, lengths ):
+        # Computes text wrapping for each cell of the row: cells which 
+        # values exceed the given cell length will be placed on multiple 
+        # lines
+        def _wrap_records_table_row( row_dict, lengths_dict ):
+            from textwrap  import wrap
+            assert list(lengths_dict.keys()) <= list(row_dict.keys())
+            assert all({lengths_dict[k] > 0 for k in lengths_dict.keys()})
+            # Wrap values of every colum: if a value exceeds column 
+            # length, then split the value and place on next rows(s)
+            formatted = { k:[] for k in lengths_dict.keys() }
+            max_rows = 1
+            for k in lengths_dict.keys():
+                value = str( row_dict[k] )
+                wrapped_lines = wrap( value, width=lengths_dict[k] )
+                for l in wrapped_lines:
+                    snippet = ('{:'+str(lengths_dict[k])+'}').format(l)
+                    formatted[k].append( snippet )
+                cur_max_rows = len( formatted[k] )
+                if cur_max_rows > max_rows:
+                    max_rows = cur_max_rows
+            # Make number of rows equal in every column
+            for k in lengths_dict.keys():
+                while len(formatted[k]) < max_rows:
+                    formatted[k].append( ' '*lengths_dict[k] )
+            return formatted
+        table_lines = []
+        records.insert(0, { k:k for k in lengths.keys()} )
+        records.insert(1, { k:'='*len(k) for k in lengths.keys()} )
+        for rec in records:
+            table_lines.append('')
+            rows_padded = _wrap_records_table_row( rec, lengths )
+            max_len = len(rows_padded['layer'])
+            for i in range(max_len):
+                for k in rows_padded.keys():
+                    table_lines[-1] += rows_padded[k][i]
+                    table_lines[-1] += '  '
+                table_lines[-1] += '\n'
+            table_lines[-1] += '\n'
+        return ''.join(table_lines)
+
     def __repr__(self):
-        # TODO: could be better formatted ?!
-        return str( self.as_dataframe() )
+        records = self._taggers_registry_records
+        lengths = { 'layer': 18, 'attributes': 28, \
+                    'tagger name': 19, 'description': 28 }
+        table = TaggersRegistryOverview._pretty_print_records_table( records, lengths )
+        return table
 
     def _repr_html_(self):
         df = self.as_dataframe()
