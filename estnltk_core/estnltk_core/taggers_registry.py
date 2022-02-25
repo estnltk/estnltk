@@ -341,18 +341,22 @@ class TaggersRegistry:
         '''Lists creatable layers in a topological order.'''
         return nx.topological_sort(self._graph)
 
-    def get_taggers_metadata(self):
+    def get_taggers_metadata(self, in_adding_order:bool=True):
         '''Returns a list containing metadata about each tagger/retagger in this registry.
         
         Metadata comes in the form of a dictionary which has the following keys:
-        * 'name' -- name of the tagger class responsible for creating / modifying the layer;
+        * 'tagger_name' -- name of the tagger class responsible for creating / modifying the layer;
         * 'layer' -- name of the created / modified layer;
         * 'attributes' -- attributes of the created / modified layer (if specified);
         * 'depends_on' -- prerequisite layers of the creatable layer;
         * 'is_loaded' -- is the tagger loaded?
         * 'description' -- description of the tagger / layer (if provided);
         
-        The returned list is sorted in topological order of layers.
+        By default, layers in the returned list are sorted by the 
+        order in which the corresponding taggers were added to the 
+        registry.
+        However, setting in_adding_order=False changes the order to 
+        the topological order of layers.
         '''
         records = []
         for layer_name in self.list_layers():
@@ -364,160 +368,120 @@ class TaggersRegistry:
             else:
                 # A single tagger
                 records.append( self._rules[layer_name].parameters() )
-        return records
-
-    def overview(self, in_adding_order:bool=True):
-        '''Returns TaggersRegistryOverview describing registered layers and taggers.
-        Purpose of the overview is to provide brief / distilled information, skipping 
-        the technical details. This is an alternative to TaggersRegistry._repr_html_(),
-        which provides more technical information about registered layers and taggers.
-        
-        TaggersRegistryOverview (a formatted pandas DataFrame) has the following columns:
-        * 'layer' -- name of the created / modified layer;
-        * 'attributes' -- attributes of the created / modified layer (if specified);
-        * 'tagger name' -- name of the tagger class responsible for creating / modifying the layer;
-        * 'description' -- description of the tagger (if provided);
-        
-        By default, layers in the overview are sorted by the 
-        order in which the corresponding taggers were added 
-        to the registry.
-        However, setting in_adding_order=False changes the 
-        order to the topological order of layers.
-        '''
-        return TaggersRegistryOverview(self, in_adding_order=in_adding_order)
-
-    def __repr__(self):
-        creatable_layers_str = 'creatable_layers={!r}'.format( list(self.list_layers()) )
-        return '{classname}({creatable_layers})'.format( classname=self.__class__.__name__, \
-                                                         creatable_layers=creatable_layers_str )
-
-    def _repr_html_(self):
-        # Get metadata / descriptions of the taggers
-        records = self.get_taggers_metadata()
-        import pandas
-        df = pandas.DataFrame.from_records(records, columns=['name',
-                                                             'layer',
-                                                             'attributes',
-                                                             'depends_on',
-                                                             'is_loaded'])
-        return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+df.to_html(index=False)
-
-
-
-class TaggersRegistryOverview:
-    """Provides nicely formatted overview about layers and taggers in TaggersRegistry.
-    """
-
-    def __init__(self, taggers_registry: TaggersRegistry,
-                       in_adding_order:bool=True ):
-        """
-        Initializes TaggersRegistryOverview with the given TaggersRegistry.
-        
-        If in_adding_order=True (default), then layers in the 
-        overview are sorted by the order in which the corresponding 
-        taggers were added to the registry. Otherwise 
-        (in_adding_order=False) layers are sorted in the topological 
-        order.
-        """
-        assert isinstance(taggers_registry, TaggersRegistry)
-        self._taggers_registry_records = \
-                self._get_records( taggers_registry, 
-                                   in_adding_order=in_adding_order)
-    
-    def _get_records(self, taggers_registry: TaggersRegistry, \
-                           in_adding_order:bool=True ):
-        # Get metadata / descriptions of the taggers
-        records = taggers_registry.get_taggers_metadata()
-        # Add 'tagger name' column
+        # Rename 'name' to 'tagger name'
         for rec in records:
-            rec['tagger name']=rec['name']
+            rec['tagger_name'] = rec.pop('name')
         if in_adding_order:
             # Reorder records by the order in which they
             # were added to the registry (requires 
             # python >= 3.7)
             reordered_records = []
-            for layer in taggers_registry._rules.keys():
+            for layer in self._rules.keys():
                 for rec in records:
                     if rec['layer'] == layer:
                         reordered_records.append( rec )
             records = reordered_records
         return records
+
+    repr_format = 'brief'
+    """TaggersRegistry's HTML/str representation format. Two possible values:
     
-    def as_dataframe(self):
-        '''Returns an overview DataFrame describing registered layers and taggers.
-        
-        DataFrame has the following columns:
+       'brief' (default) -- the representation has the following columns:
+       
         * 'layer' -- name of the created / modified layer;
         * 'attributes' -- attributes of the created / modified layer (if specified);
-        * 'tagger name' -- name of the tagger class responsible for creating / modifying the layer;
+        * 'tagger_name' -- name of the tagger class responsible for creating / modifying the layer;
         * 'description' -- description of the tagger (if provided);
         
-        If parameter in_adding_order=True, layers are sorted 
-        by the order in which the corresponding taggers were 
-        added to the registry. Otherwise (if in_adding_order=False) 
-        layers are sorted in topological order.
-        '''
-        import pandas
-        df = pandas.DataFrame.from_records( self._taggers_registry_records, 
-                                                    columns=['layer',
-                                                             'attributes',
-                                                             'tagger name',
-                                                             'description'])
-        return df
-
-    # Pretty-prints records table in a way that textual data in cells 
-    # is nicely wrapped on multiple lines
-    @staticmethod
-    def _pretty_print_records_table( records, lengths ):
-        # Computes text wrapping for each cell of the row: cells which 
-        # values exceed the given cell length will be placed on multiple 
-        # lines
-        def _wrap_records_table_row( row_dict, lengths_dict ):
-            from textwrap  import wrap
-            assert list(lengths_dict.keys()) <= list(row_dict.keys())
-            assert all({lengths_dict[k] > 0 for k in lengths_dict.keys()})
-            # Wrap values of every colum: if a value exceeds column 
-            # length, then split the value and place on next rows(s)
-            formatted = { k:[] for k in lengths_dict.keys() }
-            max_rows = 1
-            for k in lengths_dict.keys():
-                value = str( row_dict[k] )
-                wrapped_lines = wrap( value, width=lengths_dict[k] )
-                for l in wrapped_lines:
-                    snippet = ('{:'+str(lengths_dict[k])+'}').format(l)
-                    formatted[k].append( snippet )
-                cur_max_rows = len( formatted[k] )
-                if cur_max_rows > max_rows:
-                    max_rows = cur_max_rows
-            # Make number of rows equal in every column
-            for k in lengths_dict.keys():
-                while len(formatted[k]) < max_rows:
-                    formatted[k].append( ' '*lengths_dict[k] )
-            return formatted
-        table_lines = []
-        records.insert(0, { k:k for k in lengths.keys()} )
-        records.insert(1, { k:'='*len(k) for k in lengths.keys()} )
-        for rec in records:
-            table_lines.append('')
-            rows_padded = _wrap_records_table_row( rec, lengths )
-            max_len = len(rows_padded['layer'])
-            for i in range(max_len):
-                for k in rows_padded.keys():
-                    table_lines[-1] += rows_padded[k][i]
-                    table_lines[-1] += '  '
-                table_lines[-1] += '\n'
-            table_lines[-1] += '\n'
-        return ''.join(table_lines)
+       'detailed' -- the representation has the following columns:
+       
+        * 'tagger_name' -- name of the tagger class responsible for creating / modifying the layer;
+        * 'layer' -- name of the created / modified layer;
+        * 'attributes' -- attributes of the created / modified layer (if specified);
+        * 'depends_on' -- prerequisite layers of the creatable layer;
+        * 'is_loaded' -- is the tagger loaded?
+    """
 
     def __repr__(self):
-        records = list(self._taggers_registry_records)
-        lengths = { 'layer': 18, 'attributes': 28, \
-                    'tagger name': 19, 'description': 28 }
-        table = TaggersRegistryOverview._pretty_print_records_table( records, lengths )
-        return table
+        if self.repr_format not in ['brief', 'detailed']:
+            raise ValueError( ('(!) Unexpected TaggersRegistry.repr_format={!r}. '+\
+                               "Expected a value from ['brief', 'detailed'].").format( \
+                                                        self.repr_format) )
+        # Get metadata / descriptions of the taggers
+        metadata_records = self.get_taggers_metadata( in_adding_order=True )
+        # Pretty-print taggers / layer table
+        if self.repr_format == 'brief':
+            lengths = { 'layer': 18, 'attributes': 28, \
+                        'tagger_name': 19, 'description': 28 }
+            table = _pretty_print_records_table( metadata_records, lengths )
+        else:
+            lengths = { 'tagger_name': 19, 'layer': 16, 'attributes': 28, \
+                        'depends_on': 18, 'is_loaded': 9 }
+            table = _pretty_print_records_table( metadata_records, lengths )
+        return '{classname}\n{info_table}'.format( classname=self.__class__.__name__, \
+                                                   info_table=table )
 
     def _repr_html_(self):
-        df = self.as_dataframe()
-        df = df.style.hide(axis='index').set_properties(**{'text-align': 'left'}).\
+        if self.repr_format not in ['brief', 'detailed']:
+            raise ValueError( ('(!) Unexpected TaggersRegistry.repr_format={!r}. '+\
+                               "Expected a value from ['brief', 'detailed'].").format( \
+                                                        self.repr_format) )
+        # Get metadata / descriptions of the taggers
+        metadata_records = self.get_taggers_metadata( in_adding_order=True )
+        import pandas
+        if self.repr_format == 'brief':
+            columns = ['layer', 'attributes', 'tagger_name', 'description']
+        else:
+            columns = ['tagger_name', 'layer', 'attributes', 'depends_on', 'is_loaded']
+        df = pandas.DataFrame.from_records(metadata_records, columns=columns)
+        if self.repr_format == 'brief':
+            df = df.style.hide(axis='index').set_properties(**{'text-align': 'left'}).\
                       set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
         return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+df.to_html(index=False)
+
+
+# Pretty-prints records table in a way that textual data in cells 
+# is nicely wrapped on multiple lines
+def _pretty_print_records_table( records, lengths ):
+    # Computes text wrapping for each cell of the row: cells which 
+    # values exceed the given cell length will be placed on multiple 
+    # lines
+    def _wrap_records_table_row( row_dict, lengths_dict ):
+        from textwrap import wrap
+        assert len(lengths_dict.keys()) <= len(row_dict.keys()), \
+            '{!r} vs {!r}'.format(lengths_dict.keys(), row_dict.keys())
+        assert all({lengths_dict[k] > 0 for k in lengths_dict.keys()})
+        # Wrap values of every colum: if a value exceeds column 
+        # length, then split the value and place on next rows(s)
+        formatted = { k:[] for k in lengths_dict.keys() }
+        max_rows = 1
+        for k in lengths_dict.keys():
+            value = str( row_dict[k] )
+            wrapped_lines = wrap( value, width=lengths_dict[k] )
+            for l in wrapped_lines:
+                snippet = ('{:'+str(lengths_dict[k])+'}').format(l)
+                formatted[k].append( snippet )
+            cur_max_rows = len( formatted[k] )
+            if cur_max_rows > max_rows:
+                max_rows = cur_max_rows
+        # Make number of rows equal in every column
+        for k in lengths_dict.keys():
+            while len(formatted[k]) < max_rows:
+                formatted[k].append( ' '*lengths_dict[k] )
+        return formatted
+    table_lines = []
+    records.insert(0, { k:k for k in lengths.keys()} )
+    records.insert(1, { k:'='*len(k) for k in lengths.keys()} )
+    for row_id, rec in enumerate(records):
+        table_lines.append('')
+        rows_padded = _wrap_records_table_row( rec, lengths )
+        max_len = len(rows_padded['layer'])
+        for i in range(max_len):
+            for k in rows_padded.keys():
+                table_lines[-1] += rows_padded[k][i]
+                table_lines[-1] += '  '
+            table_lines[-1] += '\n'
+        if row_id > 0:
+            # Skip double newline in header row
+            table_lines[-1] += '\n'
+    return ''.join(table_lines)

@@ -84,10 +84,14 @@ class LayerResolver:
 
     def __repr__(self):
         parameters_str = ''
+        default_layers = list(self.get_default_layers())
+        default_layers_str = 'default_layers={!r}'.format(default_layers)
+        taggers_str = ''
         if self._taggers:
-            default_layers = list(self.get_default_layers())
-            parameters_str = 'taggers={},default_layers={!r}'.format(self._taggers, default_layers)
-        return '{classname}({parameters})'.format(classname=self.__class__.__name__, parameters=parameters_str)
+            taggers_str = str(self._taggers) # this is a formatted table
+        return '{classname}({default_layers})\n{info_table}'.format( classname=self.__class__.__name__, 
+                                                                    default_layers=default_layers_str, 
+                                                                    info_table=taggers_str)
 
     def _repr_html_(self):
         if self._taggers:
