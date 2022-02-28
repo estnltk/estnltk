@@ -1,7 +1,7 @@
 from typing import Union, List
 
-from estnltk_core.layer import AmbiguousAttributeTupleList
-from estnltk_core.layer.immutable_list import ImmutableList
+from estnltk_core.layer.attribute_list.ambiguous_attribute_tuple_list import AmbiguousAttributeTupleList
+from estnltk_core.layer.attribute_list.immutable_list import ImmutableList
 
 
 class AmbiguousAttributeList(AmbiguousAttributeTupleList):

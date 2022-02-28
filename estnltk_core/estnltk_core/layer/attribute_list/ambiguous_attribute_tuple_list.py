@@ -2,7 +2,7 @@ import pandas
 
 from typing import Union, List
 
-from estnltk_core.layer.immutable_list import ImmutableList
+from estnltk_core.layer.attribute_list.immutable_list import ImmutableList
 from estnltk_core.layer.to_html import to_str
 
 class AmbiguousAttributeTupleList:

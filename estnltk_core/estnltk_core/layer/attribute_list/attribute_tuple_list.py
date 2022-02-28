@@ -1,6 +1,6 @@
 from typing import Iterable, Union, List
-from estnltk_core.layer import AmbiguousAttributeTupleList
-
+from estnltk_core.layer.attribute_list.ambiguous_attribute_tuple_list import AmbiguousAttributeTupleList
+from estnltk_core.layer.attribute_list.immutable_list import ImmutableList
 
 class AttributeTupleList(AmbiguousAttributeTupleList):
     """Immutable lists for representing values of multiple attributes.
