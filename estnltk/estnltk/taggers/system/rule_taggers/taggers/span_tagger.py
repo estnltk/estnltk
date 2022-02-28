@@ -62,7 +62,7 @@ class SpanTagger(Tagger):
         """
         self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator', 'validator_attribute',
                            'priority_attribute', 'ambiguous', 'case_sensitive', '_ruleset', 'dynamic_ruleset_map',
-                           'conflict_resolver')
+                           'conflict_resolver', 'static_ruleset_map')
         self.priority_attribute = priority_attribute
         self.output_layer = output_layer
         self.input_attribute = input_attribute
@@ -79,6 +79,17 @@ class SpanTagger(Tagger):
 
         self.input_layers = [input_layer]
 
+        self.static_ruleset_map: Dict[str, List[Tuple[int, int, Dict[str, any]]]]
+
+        static_ruleset_map = dict()
+
+        for rule in ruleset.static_rules:
+            subindex = static_ruleset_map.get(rule.pattern, [])
+            subindex.append((rule.group, rule.priority, rule.attributes))
+            static_ruleset_map[rule.pattern] = subindex
+
+        self.static_ruleset_map = static_ruleset_map
+
         # Lets index dynamic rulesets in optimal way
         self.dynamic_ruleset_map: Dict[str, Dict[Tuple[int, int], Callable]]
 
@@ -89,6 +100,12 @@ class SpanTagger(Tagger):
                 raise AttributeError('There are multiple rules with the same pattern, group and priority')
             subindex[rule.group, rule.priority] = rule.decorator
             dynamic_ruleset_map[rule.pattern] = subindex
+            # create corresponding static rule if it does not exist yet
+            if static_ruleset_map.get(rule.pattern.lower(), None) is None:
+                self.static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
+            elif len([item for item in static_ruleset_map.get(rule.pattern.lower())
+                      if item[0] == rule.group and item[1] == rule.priority]) == 0:
+                self.static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
 
         # No errors were detected
         self.dynamic_ruleset_map = dynamic_ruleset_map
@@ -118,23 +135,9 @@ class SpanTagger(Tagger):
         input_layer = layers[self.input_layers[0]]
         match_tuples = []
 
-        if input_layer.ambiguous:
-            for parent_span in input_layer:
-                attr_list = getattr(parent_span, input_attribute)  # TODO get rid of getattr
-                if isinstance(attr_list, str):
-                    # If we ask for 'text', then we get str instead of
-                    # AttributeList, so we have to package it into list
-                    attr_list = [attr_list]
-                if case_sensitive:
-                    values = set(attr_list)
-                else:
-                    values = {v.lower() for v in attr_list}
-                for value in values:
-                    if value in [rule.pattern for rule in ruleset.static_rules]:
-                        match_tuples.append((parent_span.base_span, value))
-        else:
-            for parent_span in input_layer:
-                value = getattr(parent_span, input_attribute)  # TODO get rid of getattr
+        for parent_span in input_layer:
+            for annotation in parent_span.annotations:
+                value = annotation[input_attribute]
                 if not case_sensitive:
                     value = value.lower()
                 if value in [rule.pattern for rule in ruleset.static_rules]:
@@ -147,29 +150,25 @@ class SpanTagger(Tagger):
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]) -> Layer:
 
-        ruleset = self._ruleset
-
         raw_text = layer.text_object
 
         for tuple in sorted_tuples:
-            value = tuple[1]
+            pattern = tuple[1]
             span = Span(base_span=tuple[0], layer=layer)
-            for rule in ruleset.static_rules:
-                if rule.pattern == value:
-                    rec = rule.attributes
-                    attributes = {attr: rec[attr] for attr in layer.attributes}
-                    annotation = self.global_decorator(raw_text, tuple[0], attributes)
-                    annotation = Annotation(span, annotation)
+            static_rulelist = self.static_ruleset_map.get(pattern, None)
+            for group, priority, annotation in static_rulelist:
+                rec = annotation
+                attributes = {attr: rec[attr] for attr in layer.attributes}
+                annotation = self.global_decorator(raw_text, tuple[0], attributes)
+                annotation = Annotation(span, annotation)
 
-                    subindex = self.dynamic_ruleset_map.get(rule.pattern, None)
-                    group = rule.group
-                    priority = rule.priority
-                    decorator = subindex[(group, priority)] if subindex is not None else None
-                    if decorator is None:
-                        span.add_annotation(annotation)
-                        continue
-                    annotation = decorator(layer.text_object, span, annotation)
+                subindex = self.dynamic_ruleset_map.get(pattern, None)
+                decorator = subindex[(group, priority)] if subindex is not None else None
+                if decorator is None:
                     span.add_annotation(annotation)
+                    continue
+                annotation = decorator(layer.text_object, span, annotation)
+                span.add_annotation(annotation)
 
             if span.annotations:
                 layer.add_span(span)
@@ -181,29 +180,26 @@ class SpanTagger(Tagger):
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]
     ) -> Generator[Tuple[Annotation, int, int], None, None]:
-        ruleset = self._ruleset
 
         raw_text = layer.text_object
 
         for element in sorted_tuples:
-            value = element[1]
+            pattern = element[1]
             span = Span(base_span=element[0], layer=layer)
-            for rule in ruleset.static_rules:
-                if rule.pattern == value:
-                    rec = rule.attributes
-                    attributes = {attr: rec[attr] for attr in layer.attributes}
-                    annotation = self.global_decorator(raw_text, element[0], attributes)
-                    annotation = Annotation(span, annotation)
+            static_rulelist = self.static_ruleset_map.get(pattern, None)
+            for group, priority, annotation in static_rulelist:
+                rec = annotation
+                attributes = {attr: rec[attr] for attr in layer.attributes}
+                annotation = self.global_decorator(raw_text, element[0], attributes)
+                annotation = Annotation(span, annotation)
 
-                    subindex = self.dynamic_ruleset_map.get(rule.pattern, None)
-                    group = rule.group
-                    priority = rule.priority
-                    decorator = subindex[(group, priority)] if subindex is not None else None
-                    if decorator is None:
-                        yield annotation, group, priority
-                        continue
-                    annotation = decorator(layer.text_object, span, annotation)
+                subindex = self.dynamic_ruleset_map.get(pattern, None)
+                decorator = subindex[(group, priority)] if subindex is not None else None
+                if decorator is None:
                     yield annotation, group, priority
+                    continue
+                annotation = decorator(layer.text_object, span, annotation)
+                yield annotation, group, priority
 
     def _make_layer(self, text, layers: dict, status: dict):
         raw_text = text.text

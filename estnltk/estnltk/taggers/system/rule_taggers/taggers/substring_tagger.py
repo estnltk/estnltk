@@ -167,10 +167,10 @@ class SubstringTagger(Tagger):
                 dynamic_ruleset_map[rule.pattern.lower()] = subindex
                 # create corresponding static rule if it does not exist yet
                 if static_ruleset_map.get(rule.pattern.lower(), None) is None:
-                    static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
+                    self.static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
                 elif len([item for item in static_ruleset_map.get(rule.pattern.lower())
                           if item[0] == rule.group and item[1] == rule.priority]) == 0:
-                    static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
+                    self.static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
             else:
                 subindex = dynamic_ruleset_map.get(rule.pattern, dict())
                 if (rule.group, rule.priority) in subindex:
