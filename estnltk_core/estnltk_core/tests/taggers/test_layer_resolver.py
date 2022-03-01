@@ -363,7 +363,7 @@ def test_resolver_list_layers():
                                               {'output_layer': 'tokens', 'input_layers': []} ),
                               ])
     resolver = LayerResolver(taggers)
-    assert list(resolver.list_layers()) == ['tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'] 
+    assert list(resolver.layers) == ['tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'] 
 
 
 def test_resolver_access_and_update_default_layers():
@@ -385,17 +385,17 @@ def test_resolver_access_and_update_default_layers():
                                               {'output_layer': 'tokens', 'input_layers': []} ),
                               ])
     resolver = LayerResolver(taggers)
-    assert resolver.get_default_layers() == ()
-    resolver.set_default_layers( ['morph_analysis', 'sentences'] )
-    assert resolver.get_default_layers() == ('morph_analysis', 'sentences')
+    assert resolver.default_layers == ()
+    resolver.default_layers = ['morph_analysis', 'sentences']
+    assert resolver.default_layers == ('morph_analysis', 'sentences')
     # Passing a tuple instead of a list should also work
-    resolver.set_default_layers( resolver.get_default_layers() )
-    resolver.set_default_layers( 'morph_analysis' )
-    assert resolver.get_default_layers() == ('morph_analysis',)
+    resolver.default_layers = resolver.default_layers
+    resolver.default_layers = 'morph_analysis'
+    assert resolver.default_layers == ('morph_analysis',)
     with pytest.raises(ValueError):
         # ValueError: (!) TaggersRegistry has no entry for layer 'morph_extended'. Registered layers are: 
         # ['tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis']
-        resolver.set_default_layers( 'morph_extended' )
+        resolver.default_layers = 'morph_extended'
 
 
 def test_resolver_access_taggers_retaggers():

@@ -23,7 +23,7 @@ def test_loading_and_applying_all_taggers_of_default_resolver():
     # Create a copy of the default pipeline
     my_resolver = make_resolver()
     # 1: Test that all taggers of the default resolver can be loaded 
-    for layer_name in my_resolver.list_layers():
+    for layer_name in my_resolver.layers:
         # Test that the tagger can be loaded
         try:
             tagger = my_resolver.get_tagger(layer_name)
@@ -43,7 +43,7 @@ def test_loading_and_applying_all_taggers_of_default_resolver():
 
     # 2: Test that all taggers of the default resolver can be applied
     test_text = Text('tere')
-    for layer_name in my_resolver.list_layers():
+    for layer_name in my_resolver.layers:
         try:
             my_resolver.apply( test_text, layer_name )
         except Exception as ex:

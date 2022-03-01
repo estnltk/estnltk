@@ -44,7 +44,7 @@ class Text( BaseText ):
         if isinstance(layer_names, str):
             layer_names = [layer_names]
         if layer_names is None:
-            layer_names = resolver.get_default_layers()
+            layer_names = resolver.default_layers
         for layer_name in layer_names:
             resolver.apply(self, layer_name)
         return self

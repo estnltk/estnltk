@@ -8,13 +8,59 @@ class LayerResolver:
     """LayerResolver handles layer creation, and resolves layer dependencies automatically. 
        Upon creating a layer, it uses the TaggersRegistry to (recursively) find 
        and create all the prerequisite layers of the target layer.
-       Also holds default layers: the layers that are created when Text object's tag_layer() 
-       is called without layer name arguments. """
+       LayerResolver also holds default layers: the layers that are created when Text object's 
+       tag_layer() is called without layer name arguments.
+    """
+
+    __slots__ = ['_initialized', '_taggers', 'default_layers']
 
     def __init__(self, taggers: TaggersRegistry, default_layers: Union[str, Sequence[str]] = []):
+        object.__setattr__(self, '_initialized', False)
         self._taggers = taggers
-        self._default_layers = []
-        self.set_default_layers( default_layers )
+        self.default_layers = default_layers
+
+    def __setattr__(self, key, value):
+        if key == 'default_layers':
+            """
+            Assign default layers to this resolver.
+            Default layers are the layers created when Text object's tag_layer() 
+            is called without layer name arguments. 
+            Raises a ValueError if given layers are not registered in resolver's
+            TaggersRegistry, and TypeError in case of wrong input type.
+            """
+            layers = value
+            # Check that default_layers have expected format
+            if not isinstance( layers, (list, tuple) ) and not isinstance( layers, str ):
+                raise TypeError('(!) A list of layer names or a single layer name was expected.' )
+            if isinstance( layers, str ):
+                layers = tuple([layers])
+            elif isinstance( layers, list ):
+                layers = tuple(layers)
+            creatable_layers = list(self.layers)
+            for layer in layers:
+                if layer not in creatable_layers:
+                    raise ValueError( ('(!) TaggersRegistry has no entry for layer {!r}. '+
+                                       'Registered layers are: {!r}').format( layer, creatable_layers ) )
+            super().__setattr__('default_layers', layers)
+            return
+        elif key == '_taggers':
+            """
+            Assign _taggers. Can be done only in constructor.
+            """
+            if not self._initialized:
+                if not isinstance( value, TaggersRegistry ):
+                    raise TypeError( ('(!) Expected an instance of TaggersRegistry, '+
+                                      'but got {}').format(type(value)) )
+                super().__setattr__('_taggers', value)
+                super().__setattr__('_initialized', True)
+                return
+        raise AttributeError('{} attribute {!r} cannot be changed'.format(self.__class__.__name__, key))
+
+    @property
+    def layers(self) -> List[str]:
+        '''Lists layers that can be created by this resolver in the order 
+           in which they should be created.'''
+        return list(self._taggers.list_layers())
 
     def update(self, tagger: Union[Tagger, Retagger]) -> None:
         '''Updates the Taggers registry with the given tagger or retagger.'''
@@ -23,31 +69,6 @@ class LayerResolver:
     def taggers(self):
         '''Returns TaggersRegistry of this Resolver.'''
         return self._taggers
-
-    def get_default_layers(self):
-        '''Returns default layers of this resolver.
-           Default layers are the layers created when Text object's tag_layer() 
-           is called without layer name arguments. '''
-        return self._default_layers
-
-    def set_default_layers(self, layers: Union[str, Sequence[str]]):
-        '''Assigns default layers to this resolver.
-           Default layers are the layers created when Text object's tag_layer() 
-           is called without layer name arguments. 
-           Raises a ValueError if given layers are not registered in resolver's
-           TaggersRegistry. '''
-        if not isinstance( layers, (list, tuple) ) and not isinstance( layers, str ):
-            raise TypeError('(!) A list of layer names or a single layer name was expected.' )
-        if isinstance( layers, str ):
-            layers = tuple([layers])
-        elif isinstance( layers, list ):
-            layers = tuple(layers)
-        creatable_layers = list(self.list_layers())
-        for layer in layers:
-            if layer not in creatable_layers:
-                raise ValueError( ('(!) TaggersRegistry has no entry for layer {!r}. '+
-                                   'Registered layers are: {!r}').format( layer, creatable_layers ) )
-        self._default_layers = layers
 
     def get_tagger(self, layer_name: str) -> Tagger:
         '''Returns tagger responsible for creating the given layer.'''
@@ -61,11 +82,6 @@ class LayerResolver:
         '''Removes all the retaggers modifying the given layer.
            Note: the tagger creating the layer will remain. '''
         self._taggers.clear_retaggers(layer_name)
-
-    def list_layers(self) -> List[str]:
-        '''Lists layers that can be created by this resolver in the order 
-           in which they should be created.'''
-        return self._taggers.list_layers()
 
     def apply(self, text: Union['BaseText', 'Text'], layer_name: str) -> Union['BaseText', 'Text']:
         '''Creates the given layer along with all the prerequisite layers. 
@@ -84,7 +100,7 @@ class LayerResolver:
 
     def __repr__(self):
         parameters_str = ''
-        default_layers = list(self.get_default_layers())
+        default_layers = list(self.default_layers)
         default_layers_str = 'default_layers={!r}'.format(default_layers)
         taggers_str = ''
         if self._taggers:
@@ -95,7 +111,7 @@ class LayerResolver:
 
     def _repr_html_(self):
         if self._taggers:
-            default_layers = list(self.get_default_layers())
+            default_layers = list(self.default_layers)
             default_layers_str = 'Default layers: <b>'+(', '.join(default_layers))+'</b>'
             return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n<br>'+\
                     default_layers_str+'\n</br>'+self._taggers._repr_html_()
