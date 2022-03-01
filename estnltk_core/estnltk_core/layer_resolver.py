@@ -54,7 +54,7 @@ class LayerResolver:
                 super().__setattr__('_taggers', value)
                 super().__setattr__('_initialized', True)
                 return
-        raise AttributeError('{} attribute {!r} cannot be changed'.format(self.__class__.__name__, key))
+        raise AttributeError('{} attribute {!r} cannot be set'.format(self.__class__.__name__, key))
 
     @property
     def layers(self) -> List[str]:

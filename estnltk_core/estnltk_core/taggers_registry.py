@@ -52,8 +52,38 @@ class TaggersRegistry:
     method. Under the hood, a TaggerLoaded object is created, 
     which is a subclass of TaggerLoader and has its tagger 
     always at the loaded state. 
+
+    repr_format
+    ==============
+    HTML/str representation of TaggersRegistry can be 
+    changed via attribute repr_format. The attribute
+    accepts the following string values:
+    
+   'brief' (default) -- representation with the columns:
+   
+    * 'layer' -- name of the created / modified layer;
+    * 'attributes' -- attributes of the created / modified layer 
+      (if specified);
+    * 'tagger_name' -- name of the tagger class responsible for 
+      creating / modifying the layer;
+    * 'description' -- description of the tagger (if provided);
+    
+   'detailed' -- representation with the following columns:
+   
+    * 'tagger_name' -- name of the tagger class responsible for 
+       creating / modifying the layer;
+    * 'layer' -- name of the created / modified layer;
+    * 'attributes' -- attributes of the created / modified layer 
+      (if specified);
+    * 'depends_on' -- prerequisite layers of the creatable layer;
+    * 'is_loaded' -- is the tagger loaded?
+    
     """
+    
+    __slots__ = ['_initialized', '_rules', '_composite_rules', '_graph', 'repr_format']
+    
     def __init__(self, taggers: List):
+        object.__setattr__(self, '_initialized', False)
         self._rules = {}
         self._composite_rules = set()
         for tagger_entry in taggers:
@@ -76,6 +106,25 @@ class TaggersRegistry:
                                      'but got {!r}'.format( type(tagger_entry) ) )
                 self._rules[tagger_entry.output_layer] = tagger_entry
         self._graph = self._make_graph()
+        self.repr_format = 'brief'
+        object.__setattr__(self, '_initialized', True)
+
+    def __setattr__(self, key, value):
+        if key == '_graph':
+            super().__setattr__(key, value)
+            return
+        elif key == 'repr_format':
+            if value not in ['brief', 'detailed']:
+                raise ValueError( ('(!) Unexpected TaggersRegistry.repr_format={!r}. '+\
+                                   "Expecting a value from list: ['brief', 'detailed'].").format( \
+                                                            value) )
+            super().__setattr__(key, value)
+            return            
+        elif key in ['_initialized', '_rules', '_composite_rules']:
+            if not self._initialized:
+                super().__setattr__(key, value)
+                return
+        raise AttributeError('{} attribute {!r} cannot be set'.format(self.__class__.__name__, key))
 
     def update(self, tagger: Union[Tagger, Retagger] ) -> None:
         '''Updates the registry with the given tagger or retagger.
@@ -383,30 +432,7 @@ class TaggersRegistry:
             records = reordered_records
         return records
 
-    repr_format = 'brief'
-    """TaggersRegistry's HTML/str representation format. Two possible values:
-    
-       'brief' (default) -- the representation has the following columns:
-       
-        * 'layer' -- name of the created / modified layer;
-        * 'attributes' -- attributes of the created / modified layer (if specified);
-        * 'tagger_name' -- name of the tagger class responsible for creating / modifying the layer;
-        * 'description' -- description of the tagger (if provided);
-        
-       'detailed' -- the representation has the following columns:
-       
-        * 'tagger_name' -- name of the tagger class responsible for creating / modifying the layer;
-        * 'layer' -- name of the created / modified layer;
-        * 'attributes' -- attributes of the created / modified layer (if specified);
-        * 'depends_on' -- prerequisite layers of the creatable layer;
-        * 'is_loaded' -- is the tagger loaded?
-    """
-
     def __repr__(self):
-        if self.repr_format not in ['brief', 'detailed']:
-            raise ValueError( ('(!) Unexpected TaggersRegistry.repr_format={!r}. '+\
-                               "Expected a value from ['brief', 'detailed'].").format( \
-                                                        self.repr_format) )
         # Get metadata / descriptions of the taggers
         metadata_records = self.get_taggers_metadata( in_adding_order=True )
         # Pretty-print taggers / layer table
@@ -422,10 +448,6 @@ class TaggersRegistry:
                                                    info_table=table )
 
     def _repr_html_(self):
-        if self.repr_format not in ['brief', 'detailed']:
-            raise ValueError( ('(!) Unexpected TaggersRegistry.repr_format={!r}. '+\
-                               "Expected a value from ['brief', 'detailed'].").format( \
-                                                        self.repr_format) )
         # Get metadata / descriptions of the taggers
         metadata_records = self.get_taggers_metadata( in_adding_order=True )
         import pandas
