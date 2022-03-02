@@ -172,6 +172,7 @@ class BaseLayer:
             serialisation_module=self.serialisation_module)
         result.meta = copy(self.meta)
         result._span_list = copy(self._span_list)
+        # TODO: fix the span level ?
         return result
     
     def __deepcopy__(self, memo=None):
@@ -290,7 +291,8 @@ class BaseLayer:
                                enveloping=self.enveloping,
                                ambiguous=self.ambiguous,
                                default_values=self.default_values)
-
+        # keep the span level same
+        layer._span_list = SpanList(span_level=self.span_level)
         if isinstance(item, slice):
             # Expected call: layer[start:end]
             # Returns Layer
@@ -356,7 +358,8 @@ class BaseLayer:
                                    enveloping=self.enveloping,
                                    ambiguous=self.ambiguous,
                                    default_values=self.default_values)
-
+            # keep the span level same
+            layer._span_list = SpanList(span_level=self.span_level)
             wrapped = [self._span_list.get(i) for i in item]
             assert all(s is not None for s in wrapped)
             layer._span_list.spans = wrapped
