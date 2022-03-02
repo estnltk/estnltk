@@ -67,7 +67,15 @@ class TaggersRegistry:
     * 'tagger_name' -- name of the tagger class responsible for 
       creating / modifying the layer;
     * 'description' -- description of the tagger (if provided);
-    
+   
+   'brief_deps' -- representation with the columns:
+   
+    * 'layer' -- name of the created / modified layer;
+    * 'depends_on' -- prerequisite layers of the creatable layer;
+    * 'tagger_name' -- name of the tagger class responsible for 
+      creating / modifying the layer;
+    * 'description' -- description of the tagger (if provided);
+   
    'detailed' -- representation with the following columns:
    
     * 'tagger_name' -- name of the tagger class responsible for 
@@ -114,10 +122,11 @@ class TaggersRegistry:
             super().__setattr__(key, value)
             return
         elif key == 'repr_format':
-            if value not in ['brief', 'detailed']:
+            if value not in ['brief', 'brief_deps', 'detailed']:
                 raise ValueError( ('(!) Unexpected TaggersRegistry.repr_format={!r}. '+\
-                                   "Expecting a value from list: ['brief', 'detailed'].").format( \
-                                                            value) )
+                                   "Expecting a value from list: "+\
+                                   "['brief', 'brief_deps', 'detailed'].").format( \
+                                                             value ) )
             super().__setattr__(key, value)
             return            
         elif key in ['_initialized', '_rules', '_composite_rules']:
@@ -440,6 +449,10 @@ class TaggersRegistry:
             lengths = { 'layer': 18, 'attributes': 28, \
                         'tagger_name': 19, 'description': 28 }
             table = _pretty_print_records_table( metadata_records, lengths )
+        elif self.repr_format == 'brief_deps':
+            lengths = { 'layer': 18, 'depends_on': 28, \
+                        'tagger_name': 19, 'description': 28 }
+            table = _pretty_print_records_table( metadata_records, lengths )
         else:
             lengths = { 'tagger_name': 19, 'layer': 16, 'attributes': 28, \
                         'depends_on': 18, 'is_loaded': 9 }
@@ -453,6 +466,8 @@ class TaggersRegistry:
         import pandas
         if self.repr_format == 'brief':
             columns = ['layer', 'attributes', 'tagger_name', 'description']
+        elif self.repr_format == 'brief_deps':
+            columns = ['layer', 'depends_on', 'tagger_name', 'description']
         else:
             columns = ['tagger_name', 'layer', 'attributes', 'depends_on', 'is_loaded']
         df = pandas.DataFrame.from_records(metadata_records, columns=columns)

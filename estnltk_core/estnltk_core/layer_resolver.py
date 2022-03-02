@@ -61,6 +61,22 @@ class LayerResolver:
         '''Lists layers that can be created by this resolver in the order 
            in which they should be created.'''
         return list(self._taggers.list_layers())
+    
+    @property
+    def layer_attributes(self) -> 'LayerResolver':
+        """Changes TaggersRegistry's representation to show attributes of each layer.
+        Returns self.
+        """
+        self._taggers.repr_format='brief'
+        return self
+    
+    @property
+    def layer_dependencies(self) -> 'LayerResolver':
+        """Changes TaggersRegistry's representation to show dependencies of each layer.
+        Returns self.
+        """
+        self._taggers.repr_format='brief_deps'
+        return self
 
     def update(self, tagger: Union[Tagger, Retagger]) -> None:
         '''Updates the Taggers registry with the given tagger or retagger.'''
