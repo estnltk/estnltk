@@ -116,12 +116,12 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
-        'estnltk-core',                          # EstNLTK's basic datastructures and conversion methods
-        'nltk>=3.4.1 ; python_version >= "3.6"', # NLTK mainly required for tokenization
+        'estnltk-core',                           # EstNLTK's basic datastructures and conversion methods
+        'nltk>=3.4.1 ; python_version >= "3.6"',  # NLTK mainly required for tokenization
         'regex>=2015.07.19',       # improved Python regular expressions
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
-        'bs4', # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
+        'bs4',           # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
         'html5lib',      # for processing XML files of the Estonian Reference Corpus
         'lxml',          # required for importing/exporting TCF format data
         'networkx ; python_version >  "3.6"',      # building graphs: required for layers, WordNet and grammars (> py36)
@@ -130,13 +130,12 @@ setup(
         'matplotlib==3.3.4 ; python_version == "3.6"', # required for visualizing layer graph (= py36)
         'requests',   # required for TextA export and WebTagger
         'tqdm',       # progressbar: for showing progress on time-hungry operations
-        'ipython ; python_version >  "3.6"',         # required for integration with Jupyter Notebook-s (> py36)
+        'ipython ; python_version >  "3.7"',         # required for integration with Jupyter Notebook-s (> py37)
+        'ipython<=7.32.0 ; python_version == "3.7"', # required for integration with Jupyter Notebook-s (= py37)
         'ipython< 7.17.0 ; python_version == "3.6"', # required for integration with Jupyter Notebook-s (= py36)
-        'conllu>=3.1.1 ; python_version >= "3.6"', # CONLLU for syntax
-        'numpy==1.19.4 ; python_version == "3.6"', # This is the last numpy version that supports py36
-        'pandas>=1.1.5 ; python_version >  "3.6"', # Panel Data Analysis library for Python (> py36)
-        'pandas<=1.1.5 ; python_version == "3.6"', # Panel Data Analysis library for Python (= py36)
-        'pyahocorasick',
+        'conllu',                                    # CONLLU for syntax
+        'pandas',                                    # Panel Data Analysis library for Python (exact version fixed in estnltk_core)
+        'pyahocorasick',                             # Fast multi-pattern string search 
     ],
     #
     #  Note: if you need to build and install for Python 3.5, you need 
