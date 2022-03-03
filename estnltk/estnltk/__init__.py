@@ -16,8 +16,6 @@ from estnltk_core.taggers.retagger import Retagger
 
 from estnltk.text import Text
 
-from distutils.version import LooseVersion
-
 import pandas
 
 # Set the maximum width in characters of a column in 
