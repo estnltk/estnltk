@@ -67,7 +67,7 @@ class LayerResolver:
         """Changes TaggersRegistry's representation to show attributes of each layer.
         Returns self.
         """
-        self._taggers.repr_format='brief'
+        self._taggers.repr_format='brief_attr'
         return self
     
     @property
@@ -75,7 +75,7 @@ class LayerResolver:
         """Changes TaggersRegistry's representation to show dependencies of each layer.
         Returns self.
         """
-        self._taggers.repr_format='brief_deps'
+        self._taggers.repr_format='brief_dep'
         return self
 
     def update(self, tagger: Union[Tagger, Retagger]) -> None:

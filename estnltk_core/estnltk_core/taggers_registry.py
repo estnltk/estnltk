@@ -58,24 +58,24 @@ class TaggersRegistry:
     HTML/str representation of TaggersRegistry can be 
     changed via attribute repr_format. The attribute
     accepts the following string values:
-    
-   'brief' (default) -- representation with the columns:
-   
+
+   'brief_dep' (default) -- representation with the columns:
+
+    * 'layer' -- name of the created / modified layer;
+    * 'depends_on' -- prerequisite layers of the creatable layer;
+    * 'tagger_name' -- name of the tagger class responsible for 
+      creating / modifying the layer;
+    * 'description' -- description of the tagger (if provided);
+
+   'brief_attr' -- representation with the columns:
+
     * 'layer' -- name of the created / modified layer;
     * 'attributes' -- attributes of the created / modified layer 
       (if specified);
     * 'tagger_name' -- name of the tagger class responsible for 
       creating / modifying the layer;
     * 'description' -- description of the tagger (if provided);
-   
-   'brief_deps' -- representation with the columns:
-   
-    * 'layer' -- name of the created / modified layer;
-    * 'depends_on' -- prerequisite layers of the creatable layer;
-    * 'tagger_name' -- name of the tagger class responsible for 
-      creating / modifying the layer;
-    * 'description' -- description of the tagger (if provided);
-   
+
    'detailed' -- representation with the following columns:
    
     * 'tagger_name' -- name of the tagger class responsible for 
@@ -114,7 +114,7 @@ class TaggersRegistry:
                                      'but got {!r}'.format( type(tagger_entry) ) )
                 self._rules[tagger_entry.output_layer] = tagger_entry
         self._graph = self._make_graph()
-        self.repr_format = 'brief'
+        self.repr_format = 'brief_dep'
         object.__setattr__(self, '_initialized', True)
 
     def __setattr__(self, key, value):
@@ -122,10 +122,10 @@ class TaggersRegistry:
             super().__setattr__(key, value)
             return
         elif key == 'repr_format':
-            if value not in ['brief', 'brief_deps', 'detailed']:
+            if value not in ['brief_attr', 'brief_dep', 'detailed']:
                 raise ValueError( ('(!) Unexpected TaggersRegistry.repr_format={!r}. '+\
                                    "Expecting a value from list: "+\
-                                   "['brief', 'brief_deps', 'detailed'].").format( \
+                                   "['brief_attr', 'brief_dep', 'detailed'].").format( \
                                                              value ) )
             super().__setattr__(key, value)
             return            
@@ -445,11 +445,11 @@ class TaggersRegistry:
         # Get metadata / descriptions of the taggers
         metadata_records = self.get_taggers_metadata( in_adding_order=True )
         # Pretty-print taggers / layer table
-        if self.repr_format == 'brief':
+        if self.repr_format == 'brief_attr':
             lengths = { 'layer': 18, 'attributes': 28, \
                         'tagger_name': 19, 'description': 28 }
             table = _pretty_print_records_table( metadata_records, lengths )
-        elif self.repr_format == 'brief_deps':
+        elif self.repr_format == 'brief_dep':
             lengths = { 'layer': 18, 'depends_on': 28, \
                         'tagger_name': 19, 'description': 28 }
             table = _pretty_print_records_table( metadata_records, lengths )
@@ -464,9 +464,9 @@ class TaggersRegistry:
         # Get metadata / descriptions of the taggers
         metadata_records = self.get_taggers_metadata( in_adding_order=True )
         import pandas
-        if self.repr_format == 'brief':
+        if self.repr_format == 'brief_attr':
             columns = ['layer', 'attributes', 'tagger_name', 'description']
-        elif self.repr_format == 'brief_deps':
+        elif self.repr_format == 'brief_dep':
             columns = ['layer', 'depends_on', 'tagger_name', 'description']
         else:
             columns = ['tagger_name', 'layer', 'attributes', 'depends_on', 'is_loaded']
