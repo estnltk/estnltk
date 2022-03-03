@@ -23,6 +23,58 @@ def make_resolver(
                  use_reorderer=True,
                  predisambiguate =False,
                  postdisambiguate=False):
+    """
+    Creates and returns LayerResolver with EstNLTK's default NLP pipeline.
+
+    Parameters change settings of Vabamorf's morphological analysis.
+
+    **Warning**: changing Vabamorf's parameters `guess`, `propername`,
+    `disambiguate`, `compound` and `phonetic` can tamper the quality of
+    taggers that are dependent on morphological analysis, and some
+    downstream taggers can also become non-functional (run into errors).
+    So, you should not use downstream taggers if you change these
+    parameters (unless you know what you are doing).
+
+    Parameters
+    ----------
+    guess: boolean (default: True)
+        Use guessing in case of unknown words (Vabamorf's parameter).
+    propername: boolean (default: True)
+        Propose additional analysis variants for proper names
+        (a.k.a. proper name guessing) (Vabamorf's parameter).
+    disambiguate: boolean (default: True)
+        Disambiguate morphological analyses with Vabamorf's
+        disambiguator.
+    compound: boolean (default: True)
+        Add compound word markers to root forms (Vabamorf's parameter).
+    phonetic: boolean (default: False)
+        Add phonetic information to root forms (Vabamorf's parameter).
+    slang_lex: boolean (default: False)
+        If True, then uses an extended version of Vabamorf's binary lexicon,
+        which provides valid analyses to spoken and slang words, such as
+        'kodukas', 'mõnsa', 'mersu', 'kippelt'. However, using "the slang
+        lexicon" also hinders Vabamorf's ability to clearly distinguish
+        between written language and slang words, and this is the reason
+        that "the slang lexicon" is not switched on by default;
+        Note: this only works if you leave the parameter vm_instance
+        unspecified (Vabamorf's parameter);
+    use_reorderer: boolean (default: True)
+        Whether analysis_reorderer will be applied for re-arranging
+        ambiguous morphological analyses after disambiguation.
+        Note: reorderings made by the default analysis_reorderer will
+        only have effect together with the default disambiguation
+        (disambiguate=True). That's why iff disambiguate=False, then
+        use_reorderer will be forced to False (Vabamorf's parameter).
+    predisambiguate: boolean (default: False)
+        Whether text-based predisambiguation of ambiguous proper name
+        analyses will be applied before Vabamorf's morphological
+        disambiguation.
+    postdisambiguate: boolean (default: False)
+        Whether text-based post-disambiguation of remaining ambiguous
+        analyses will be applied after Vabamorf's morphological
+        disambiguation.
+
+    """
     vabamorf_tagger_parameters = { \
         'disambiguate': disambiguate,
         'guess': guess,
@@ -144,3 +196,6 @@ def make_resolver(
 
 
 DEFAULT_RESOLVER = make_resolver()
+"""
+LayerResolver with EstNLTK's default NLP pipeline.
+"""
