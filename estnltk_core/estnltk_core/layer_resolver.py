@@ -19,6 +19,12 @@ class LayerResolver:
         self._taggers = taggers
         self.default_layers = default_layers
 
+    def __copy__(self):
+        raise Exception('Shallow copying of {} object is not allowed.'.format( self.__class__.__name__ ) )
+
+    def __deepcopy__(self, memo={}):
+        raise Exception('Deep copying of {} object is not allowed.'.format( self.__class__.__name__ ) )
+
     def __setattr__(self, key, value):
         if key == 'default_layers':
             """
