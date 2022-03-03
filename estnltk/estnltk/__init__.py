@@ -17,12 +17,13 @@ from estnltk_core.taggers.retagger import Retagger
 from estnltk.text import Text
 
 from distutils.version import LooseVersion
+
 import pandas
 
-if LooseVersion(pandas.__version__) < LooseVersion('1'):
-    pandas.set_option('display.max_colwidth', -1)
-else:
-    pandas.set_option('display.max_colwidth', None)
+# Set the maximum width in characters of a column in 
+# a pandas data structure. ‘None’ value means unlimited.
+# (Note: assuming pandas.__version__ >= 1.0.0)
+pandas.set_option('display.max_colwidth', None)
 
 # Update global serialization registry: add syntax & legacy serialization modules
 from estnltk_core.converters.serialisation_registry import SERIALISATION_REGISTRY

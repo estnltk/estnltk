@@ -12,11 +12,10 @@ from estnltk_core.layer.layer import Layer
 from estnltk_core.taggers.tagger import Tagger
 from estnltk_core.taggers.retagger import Retagger
 
-from distutils.version import LooseVersion
 import pandas
 
-if LooseVersion(pandas.__version__) < LooseVersion('1'):
-    pandas.set_option('display.max_colwidth', -1)
-else:
-    pandas.set_option('display.max_colwidth', None)
+# Set the maximum width in characters of a column in 
+# a pandas data structure. ‘None’ value means unlimited.
+# (Note: assuming pandas.__version__ >= 1.0.0)
+pandas.set_option('display.max_colwidth', None)
 
