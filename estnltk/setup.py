@@ -1,7 +1,21 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages, Extension
-import os
+import os, os.path, re
 import sys
+
+# Get version number from __init__.py
+# Based on: 
+#  https://milkr.io/kfei/5-common-patterns-to-version-your-Python-package/3
+def get_version():
+    VERSIONFILE = os.path.join('estnltk', '__init__.py')
+    initfile_lines = open(VERSIONFILE, 'rt', errors='ignore').readlines()
+    VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
+    for line in initfile_lines:
+        mo = re.search(VSRE, line, re.M)
+        if mo:
+            return mo.group(1)
+    raise RuntimeError('Unable to find version string in {!r}.'.format(VERSIONFILE))
+
 
 os.environ['CC'] = 'g++'
 os.environ['CXX'] = 'g++'
@@ -57,7 +71,7 @@ create_caches()
 
 setup(
     name="estnltk",
-    version="1.6.10b0",
+    version=get_version(),
 
     packages=find_packages(exclude=exclude_package_dirs),
     # the list of package data used by "build", "bdist" and "install"
@@ -103,7 +117,7 @@ setup(
     author="University of Tartu",
     author_email="siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description="Estnltk — open source tools for Estonian natural language processing",
-    long_description=open('README.md').read(),
+    long_description=open('README.md', errors='replace').read(),
     long_description_content_type='text/markdown',
     license="GPLv2",
     url="https://github.com/estnltk/estnltk",

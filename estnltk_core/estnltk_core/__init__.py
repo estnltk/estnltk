@@ -1,3 +1,6 @@
+# The current version of EstNLTK. Should be readable from setup.py
+__version__ = '1.7.0rc0'
+
 from estnltk_core.common import CORE_PACKAGE_PATH
 
 from estnltk_core.layer.annotation import Annotation

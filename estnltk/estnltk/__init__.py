@@ -1,3 +1,6 @@
+# The current version of EstNLTK. Should be readable from setup.py
+__version__ = '1.7.0rc0'
+
 from estnltk.common import PACKAGE_PATH
 from estnltk.helpers.logger import logger
 from estnltk.helpers.progressbar import Progressbar
