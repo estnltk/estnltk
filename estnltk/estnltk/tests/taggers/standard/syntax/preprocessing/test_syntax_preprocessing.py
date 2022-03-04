@@ -10,7 +10,7 @@ from estnltk.converters import export_CG3
 
 def test():
     t = Text('Tere maailm! Kuidas Sul läheb?')
-    t.analyse('syntax_preprocessing')
+    t.tag_layer('morph_extended')
     expected = ['"<s>"',
                 '"<Tere>"',
                 '    "tere" L0 I cap',

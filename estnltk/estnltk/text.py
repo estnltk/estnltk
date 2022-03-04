@@ -7,8 +7,9 @@ from estnltk_core.base_text import BaseText
 from estnltk.default_resolver import DEFAULT_RESOLVER
 
 class Text( BaseText ):
-    """Central component of EstNLTK. Encapsulates the raw text and allows calling text analysers ( taggers ).
-    Text analysis results ( annotations ) are also stored in the Text object and can be accessed when needed.
+    """Central component of EstNLTK. Encapsulates the raw text and allows applying text analysers (taggers).
+    Text analysis results (annotations) are also stored in the Text object, and can be accessed and explored 
+    as layers.
 
     Text 101
     =========
@@ -116,14 +117,16 @@ class Text( BaseText ):
     
     Note 2: if you want to use Python's multiprocessing, you 
     should make a separate LayerResolver for each process/job, 
-    otherwise you'll likely run into errors. Both tag_layer and
-    analyse methods can take resolver as a parameter.
+    otherwise you'll likely run into errors. tag_layer method 
+    can take resolver as a parameter.
     """
 
     def tag_layer(self, layer_names: Union[str, Sequence[str]]=None, resolver=None) -> 'Text':
         """
         Tags given layers along with their prerequisite layers.
         Returns this Text object with added layers.
+
+        Use Text.layer_resolver to get more information about which layers can be tagged.
 
         If you don't pass any parameters, defaults to tagging 'sentences' and
         'morph_analysis' layers along with their prerequisite layers (segmentation
@@ -164,39 +167,32 @@ class Text( BaseText ):
 
     def analyse(self, t: str, resolver=None) -> 'Text':
         """
-        [Legacy method] Analyses text by adding NLP layers corresponding to the given level `t`.
-        Possible levels:
-
-        * 'segmentation' -- adds only segmentation layers: compound_tokens, words, sentences,
-          paragraphs. Prunes tokens layer.
-        * 'morphology' -- adds morph_analysis layer along with its dependencies: compound_tokens,
-          words, sentences. Prunes tokens layer.
-        * 'syntax_preprocessing' -- adds morph_extended layer along with its dependencies:
-          compound_tokens, words, sentences, morph_analysis. Prunes tokens layer.
-        * 'all' -- adds layers: tokens, compound_tokens, words, sentences, morph_analysis and
-          morph_extended. Note: this is not the complete list of layers available in
-          `Text.layer_resolver`.
-
-        Note: this is a legacy method which does not allow to tag all the layers that are
-        available in `Text.layer_resolver`. So, we recommend to use `tag_layer` method
-        instead. The `analyse` method will likely be deprecated in the future.
+        Analyses text by adding NLP layers corresponding to the given level `t`.
+        **Important**: this method is deprecated, please use Text.tag_layer instead!
+        
+        How to replace Text.analyse functionality with Text.tag_layer?
+        
+        * text.analyse('segmentation') is same as text.tag_layer('paragraphs'); 
+          text.pop_layer('tokens');
+        
+        * text.analyse('morphology') is same as text.tag_layer('morph_analysis'); 
+          text.pop_layer('tokens');
+        
+        * text.analyse('syntax_preprocessing') is same as text.tag_layer(['sentences','morph_extended']);
+          text.pop_layer('tokens');
+        
+        * text.analyse('all') is same as text.tag_layer(['paragraphs','morph_extended']);
         """
-        if resolver is None:
-            resolver = self.layer_resolver
-        if t == 'segmentation':
-            self.tag_layer(['paragraphs'], resolver)
-        elif t == 'morphology':
-            self.tag_layer(['morph_analysis'], resolver)
-        elif t == 'syntax_preprocessing':
-            self.tag_layer(['sentences', 'morph_extended'], resolver)
-        elif t == 'all':
-            self.tag_layer(['paragraphs', 'morph_extended'], resolver)
-        else:
-            raise ValueError("invalid argument: '" + str(t) +
-                             "', use 'segmentation', 'morphology' or 'syntax' instead")
-        if 'tokens' in self._layers and t != 'all':
-            self.pop_layer('tokens')
-        return self
+        raise Exception("(!) Text.analyse method is deprecated. Please use Text.tag_layer instead.\n\n"+\
+            "How to replace Text.analyse function with Text.tag_layer? \n"+\
+            "1) text.analyse('segmentation') is same as text.tag_layer('paragraphs');"+\
+            "text.pop_layer('tokens');\n"+\
+            "2) text.analyse('morphology') is same as text.tag_layer('morph_analysis');"+\
+            "text.pop_layer('tokens');\n"+\
+            "3) text.analyse('syntax_preprocessing') is same as text.tag_layer(['sentences','morph_extended']);"+\
+            "text.pop_layer('tokens');\n"+\
+            "4) text.analyse('all') is same as text.tag_layer(['paragraphs','morph_extended']);\n\n"+\
+            "Also, you can use Text.layer_resolver to explore which layers can be tagged.")
 
     @property
     def layer_attributes(self) -> Dict[str, List[str]]:

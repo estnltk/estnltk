@@ -205,7 +205,7 @@ def test_udpipe_tagger():
     from estnltk.taggers.standard.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
     text = Text(
         'Nuriseti , et hääbuvale kultuurile rõhumine mõjus pigem masendavalt ega omanud seost etnofuturismiga .')
-    text.analyse('all')
+    text.tag_layer('morph_extended')
     conll = ConllMorphTagger() # requires vislcg3
     conll.tag(text)
     tagger = UDPipeTagger( resources_path = UDPIPE_SYNTAX_MODELS_PATH )

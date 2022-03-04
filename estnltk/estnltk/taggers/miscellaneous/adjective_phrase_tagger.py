@@ -168,7 +168,7 @@ class AdjectivePhraseGrammarTagger(Tagger):
     def adj_phrase_decorator(self, nodes):
         participle = False
 
-        possible_verb = Text(nodes[-1].text[0]).analyse('morphology', resolver=self.resolver)
+        possible_verb = Text(nodes[-1].text[0]).tag_layer('morph_analysis', resolver=self.resolver)
         if 'V' in possible_verb.partofspeech[0]:
             if possible_verb.text[-1] == 'v' or (possible_verb.text[-1] == 'd' and possible_verb.text[-2] == 'u'):
                 participle = True
@@ -214,7 +214,7 @@ class AdjectivePhraseGrammarTagger(Tagger):
     def part_phrase_validator(self, nodes):
         if nodes[0].text[0] in NOT_ADJ_MODIFIERS:
             return False
-        possible_verb = Text(nodes[-1].text[0]).analyse('morphology', resolver=self.resolver)
+        possible_verb = Text(nodes[-1].text[0]).tag_layer('morph_analysis', resolver=self.resolver)
         if 'V' in possible_verb.partofspeech[0]:
             return possible_verb.text[-1] == 'v' or (possible_verb.text[-1] == 'd' and possible_verb.text[-2] == 'u')
 

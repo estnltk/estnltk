@@ -3,7 +3,7 @@ from estnltk import Text
 from estnltk_core.converters import layer_to_dict
 
 def test_adjective_phrase_tagger():
-    text = Text("Eile leitud koer oli väga energiline ja mänguhimuline.").analyse('morphology')
+    text = Text("Eile leitud koer oli väga energiline ja mänguhimuline.").tag_layer('morph_analysis')
 
     tagger = AdjectivePhraseTagger()
     tagger.tag(text)

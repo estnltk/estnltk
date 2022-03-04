@@ -97,7 +97,7 @@ def test_serialization():
         bytes = pickle.dumps(text)
         return pickle.loads(bytes)
 
-    text = Text('Tavaline analüüsitud teksti serialiseerimine.').analyse('all')
+    text = Text('Tavaline analüüsitud teksti serialiseerimine.').tag_layer(['paragraphs','morph_extended'])
     result = save_restore(text)
     assert result.text == text.text
     assert result.meta == text.meta

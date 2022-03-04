@@ -15,7 +15,7 @@ def test_simple_resolver_update():
 
     # Test out the new tokenizer
     t = Text('No mida teksti :) Äge!')
-    t.analyse('segmentation', resolver=my_resolver)  # Use new resolver instead of the default one
+    t.tag_layer('sentences', resolver=my_resolver)  # Use new resolver instead of the default one
     assert t.sentences.text == ['No', 'mida', 'teksti', ':)', 'Äge', '!']
 
 

@@ -8,20 +8,11 @@ from estnltk_core.converters import layer_to_dict
 
 from estnltk_core.tests import create_amb_attribute_list
 
-def test_analyse_segmentation_and_morphology():
-    # Analysing first for 'segmentation', and then for 'morphology'
-    # should not produce any errors 
-    # (no errors due to missing dependencies)
-    text = Text('Tere, maailm!')
-    text.analyse('segmentation')
-    text.analyse('morphology')
-    assert 'morph_analysis' in text.layers
-
 
 def test_default_morph_analysis():
     # Case 1
     text = Text("Aga kõik juhtus iseenesest.")
-    text.analyse('morphology')
+    text.tag_layer('morph_analysis')
     # Check results
     assert 'morph_analysis' in text.layers
     assert layer_to_dict( text['morph_analysis'] ) == \
@@ -96,7 +87,7 @@ def test_default_morph_analysis():
     
     # Case 2 (contains ambiguities that should be resolved)
     text = Text("Kärbes hulbib mees ja naeris puhub sädelevaid mulle.")
-    text.analyse('morphology')
+    text.tag_layer('morph_analysis')
     # Check results
     # Note that this example sentence is a little out of the ordinary and 
     # hence the bad performance of disambiguator. The more 'normal' your 
@@ -402,7 +393,7 @@ def test_default_morph_analysis_without_propername():
     # Create text and tag all
     text = Text("Ida-Euroopas sai valmis Parlament, suure algustähega.")
     # Analyse 'morphology' without without propername guessing
-    text.analyse('morphology', resolver=resolver)
+    text.tag_layer('morph_analysis', resolver=resolver)
     # Check results
     assert layer_to_dict( text['morph_analysis'] ) == \
         {'ambiguous': True,
@@ -765,7 +756,7 @@ def test_default_morph_analysis_without_guessing():
 def test_default_morph_analysis_on_compound_tokens():
     # Case 1
     text = Text("Mis lil-li müüs Tiit Mac'ile 10'e krooniga?")
-    text.analyse('morphology')
+    text.tag_layer('morph_analysis')
     #from pprint import pprint
     #pprint( layer_to_dict( text['morph_analysis'] ) )
     # Check results
@@ -869,7 +860,7 @@ def test_default_morph_analysis_on_compound_tokens():
 
 def test_default_morph_analysis_on_empty_input():
     text = Text("")
-    text.analyse('morphology')
+    text.tag_layer('morph_analysis')
     # Check results
     assert len(text['morph_analysis']) == 0
     assert layer_to_dict( text['morph_analysis'] ) == \

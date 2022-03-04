@@ -6,7 +6,7 @@ from estnltk.tests import new_text
 
 def test_export_CG3():
     t = Text('Tere, maailm! Kuidas Sul läheb?')
-    t.analyse('syntax_preprocessing')
+    t.tag_layer(['sentences','morph_extended'])
     expected = ['"<s>"',
                 '"<Tere>"',
                 '    "tere" L0 I cap',
@@ -56,8 +56,8 @@ def test_TCF_export_import():
     assert TCF_text == export_TCF(text_import)
 
     text = Text('Karin, kes lendab New Yorki, tahab seal veeta puhkuse. Ta tuleb teisel augustil tagasi.')
-    text.analyse('segmentation')
-    text.analyse('morphology')
+    text.tag_layer(['paragraphs','morph_analysis'])
+    text.pop_layer('tokens')
     # clauses layer
     layer = Layer(name='clauses', enveloping='words')
     layer.add_annotation(text.words[2:6])

@@ -63,8 +63,12 @@ A. H. Tammsaare 1935. aastal: 1,0 m / s = 3,67 km/h.'''
     #
     # Test: tag_layer vs analyse
     #
+    # (note: analyse is deprecated, 
+    #        use tag_layer instead)
+    #
     text1 = Text(T).tag_layer(['paragraphs'])
-    text2 = Text(T).analyse('segmentation')
+    text2 = Text(T).tag_layer(['paragraphs'])
+    text2.pop_layer('tokens')
     # Validate that elements match
     assert text1['words'].text == text2['words'].text
     assert text1['sentences'].text == text2['sentences'].text
