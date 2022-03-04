@@ -277,9 +277,9 @@ class TestPgCollection(unittest.TestCase):
 
         # test select (on attached layers)
         with collection.insert() as collection_insert:
-            text1 = Text('mis kell on?').analyse('morphology')
+            text1 = Text('mis kell on?').tag_layer('morph_analysis')
             collection_insert(text1, key=3)
-            text2 = Text('palju kell on?').analyse('morphology')
+            text2 = Text('palju kell on?').tag_layer('morph_analysis')
             collection_insert(text2, key=4)
         
         res = list(collection.select(query=LayerQuery('morph_analysis', lemma='mis')))

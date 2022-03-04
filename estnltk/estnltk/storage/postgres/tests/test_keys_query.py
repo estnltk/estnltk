@@ -30,13 +30,13 @@ class TestKeysQuery(unittest.TestCase):
         collection.create()
 
         with collection.insert() as collection_insert:
-            text1 = Text('mis kell on?').analyse('morphology')
+            text1 = Text('mis kell on?').tag_layer('morph_analysis')
             collection_insert(text1, key=3)
-            text2 = Text('palju kell on?').analyse('morphology')
+            text2 = Text('palju kell on?').tag_layer('morph_analysis')
             collection_insert(text2, key=4)
-            text2 = Text('kus kell on?').analyse('morphology')
+            text2 = Text('kus kell on?').tag_layer('morph_analysis')
             collection_insert(text2, key=5)
-            text2 = Text('kes Kell on?').analyse('morphology')
+            text2 = Text('kes Kell on?').tag_layer('morph_analysis')
             collection_insert(text2, key=6)
 
         res = list(collection.select(pg.IndexQuery(keys=[])))
