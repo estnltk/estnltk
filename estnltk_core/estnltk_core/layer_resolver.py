@@ -20,10 +20,16 @@ class LayerResolver:
         self.default_layers = default_layers
 
     def __copy__(self):
-        raise Exception('Shallow copying of {} object is not allowed.'.format( self.__class__.__name__ ) )
+        raise Exception( ("Copying of {} object is not allowed. "+\
+                          "If you want to create a new instance of EstNLTK's DEFAULT_RESOLVER, "+\
+                          "use the make_resolver() function from module estnltk.default_resolver."+\
+                          "").format( self.__class__.__name__ ) )
 
     def __deepcopy__(self, memo={}):
-        raise Exception('Deep copying of {} object is not allowed.'.format( self.__class__.__name__ ) )
+        raise Exception( ("Copying of {} object is not allowed. "+\
+                          "If you want to create a new instance of EstNLTK's DEFAULT_RESOLVER, "+\
+                          "use the make_resolver() function from module estnltk.default_resolver."+\
+                          "").format( self.__class__.__name__ ) )
 
     def __setattr__(self, key, value):
         if key == 'default_layers':
