@@ -30,7 +30,7 @@ def test_bert_tagger():
     bert_tagger = BertTagger(MODEL_PATH)
     text = Text(
         'Ilus suur karvane kass nurrus punasel diivanil. Ta on ise tee esimesel poolel. Valge jänes jooksis metsa!')
-    text.analyse('segmentation')
+    text.tag_layer('sentences')
     bert_tagger.tag(text)
     assert 'bert_embeddings' in text.layers
 
@@ -110,7 +110,7 @@ def test_bert_tagger():
         assert len(embedding_span.bert_embedding[0]) == 1536
 
     text = Text(' '.join(['Tere ']*513))
-    text.analyse('segmentation')
+    text.tag_layer('sentences')
     bert_long_seq_tagger = BertTagger(MODEL_PATH, output_layer='bert_embeddings_long_seq')
     bert_long_seq_tagger.tag(text)
     assert 'bert_embeddings_long_seq' in text.layers
