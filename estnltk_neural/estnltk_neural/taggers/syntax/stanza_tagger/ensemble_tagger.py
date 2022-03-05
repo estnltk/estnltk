@@ -6,7 +6,7 @@ from typing import Tuple
 
 from estnltk.common import PACKAGE_PATH
 from estnltk import Layer
-from estnltk_neural.estnltk_neural.taggers.syntax.stanza_tagger.stanza_tagger import feats_to_ordereddict
+from estnltk_neural.taggers.syntax.stanza_tagger.stanza_tagger import feats_to_ordereddict
 from estnltk.taggers.standard.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
 from estnltk.taggers.standard.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 from estnltk.taggers.standard.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger

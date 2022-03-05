@@ -98,7 +98,7 @@ class TestNeuralModel(TestCase):
 @unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow < 2.0.0 is required for this test")
 class TestNeuralTagger(TestCase):
     def setUp(self):
-        from estnltk_neural.estnltk_neural.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger
+        from estnltk_neural.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger
         self.tagger = NeuralMorphTagger()
 
     def tearDown(self):

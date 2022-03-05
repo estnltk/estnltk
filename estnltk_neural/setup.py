@@ -31,6 +31,7 @@ setup(
     include_package_data=True,
     package_data={
         'license_headers' : ['*.*'],
+        'estnltk_neural.tests.taggers.neural_morph': ['*.txt'],
     },
     url="https://github.com/estnltk/estnltk",
     install_requires=[
