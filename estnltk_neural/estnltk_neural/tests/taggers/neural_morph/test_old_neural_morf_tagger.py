@@ -3,13 +3,23 @@ import pkgutil
 import os
 from unittest import TestCase
 
+from packaging.version import Version, parse
+
 from estnltk import Text
 from estnltk_neural.taggers.neural_morph.old_neural_morph.data_utils import ConfigHolder
 from estnltk_neural.taggers.neural_morph.old_neural_morph.general_utils import load_config_from_file
 
 def check_if_tensorflow_is_available():
-    # Check if tensorflow is available
-    return pkgutil.find_loader("tensorflow") is not None
+    # 1) Check if tensorflow is available
+    tensorflow_available = pkgutil.find_loader("tensorflow") is not None
+    if tensorflow_available:
+        # 2) Check that tensorflow has version < 2.x.x
+        # (needs to have module tensorflow.contrib, 
+        #  which is not present in tf version 2)
+        import tensorflow
+        correct_version = parse(tensorflow.__version__) <  Version("2.0")
+        return correct_version
+    return tensorflow_available
 
 NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
 
@@ -26,7 +36,7 @@ class DummyTagger:
         return tags
 
 
-@unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow is required for this test")
+@unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow < 2.0.0 is required for this test")
 class TestDummyTagger(TestCase):
     def test(self):
         from estnltk_neural.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger
@@ -62,7 +72,7 @@ kvalifikatsiooninorme	_S_|com|pl|part	S pl p
 
 
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
-@unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow is required for this test")
+@unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow < 2.0.0 is required for this test")
 class TestNeuralModel(TestCase):
     def setUp(self):
         from estnltk_core.neural_morph import Model
@@ -85,7 +95,7 @@ class TestNeuralModel(TestCase):
 
 
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
-@unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow is required for this test")
+@unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow < 2.0.0 is required for this test")
 class TestNeuralTagger(TestCase):
     def setUp(self):
         from estnltk_neural.estnltk_neural.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger

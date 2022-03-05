@@ -31,8 +31,6 @@ setup(
     include_package_data=True,
     package_data={
         'license_headers' : ['*.*'],
-        'estnltk.visualisation': ['span_visualiser/*.css',
-                                  'span_visualiser/*.js']
     },
     url="https://github.com/estnltk/estnltk",
     install_requires=[
@@ -41,7 +39,8 @@ setup(
         'tensorflow',      
         'torch',
         'transformers',
-        'stanza'
+        'stanza',
+        'packaging'
     ],
     classifiers=['Intended Audience :: Developers',
                  'Intended Audience :: Education',

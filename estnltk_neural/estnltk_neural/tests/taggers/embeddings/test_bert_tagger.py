@@ -16,7 +16,14 @@ def check_if_pytorch_is_available():
 
 
 def check_if_model_present():
-    return len(os.listdir(MODEL_PATH)) != 0
+    # Check that expected Bert model files are present
+    # (this is a minimum, there can be more files)
+    expected_model_files = ['bert_config.json',
+        'config.json', 'pytorch_model.bin', 
+        'special_tokens_map.json', 'tokenizer_config.json',
+        'vocab.txt']
+    model_dir_files = list( os.listdir(MODEL_PATH) )
+    return all([exp_file in model_dir_files for exp_file in expected_model_files])
 
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
@@ -26,7 +33,7 @@ def check_if_model_present():
 @pytest.mark.skipif(not check_if_model_present(),
                     reason="Model is not available in the models directory")
 def test_bert_tagger():
-    from estnltk_neural.estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
+    from estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
     bert_tagger = BertTagger(MODEL_PATH)
     text = Text(
         'Ilus suur karvane kass nurrus punasel diivanil. Ta on ise tee esimesel poolel. Valge jänes jooksis metsa!')

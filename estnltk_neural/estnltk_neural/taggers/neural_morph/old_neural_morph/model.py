@@ -6,7 +6,6 @@ from multiprocessing import Queue, Process
 import tensorflow as tf
 import numpy as np
 
-from . import rnn_util
 from .general_utils import Progbar
 from .data_utils import iter_minibatches, pad_batch, create_numpy_embeddings_matrix
 
@@ -307,6 +306,9 @@ class Model(object):
         self.sess.run(init)
 
     def add_encoder_op(self):
+        # Made this an inner import, because otherwise it produces ImportError 
+        # due to the missing tensorflow.contrib (requires tensorflow < 2.0.0)
+        from . import rnn_util
         with tf.variable_scope("bi-lstm"):
             cell_fw_list = [rnn_util.StatefulLSTMCell(self.config.hidden_size_lstm)
                             for _ in range(self.config.lstm_layers_num)]
