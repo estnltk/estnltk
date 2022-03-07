@@ -3,6 +3,65 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.7.0-rc0] - 2022-03-XX
+
+EstNLTK has gone through a major package restructuring and refactoring process. 
+
+# Package restructuring
+
+ EstNLTK has been split into 3 Python packages:
+
+* `estnltk-core` -- package containing core datastructures, interfaces and data conversion functions of the EstNLTK library;
+* `estnltk` -- the standard package, which contains basic linguistic analysis (incl Vabamorf morphological analysis, syntactic parsing and information extraction models),  system taggers and Postgres database tools;
+* `estnltk-neural` -- package containing linguistic analysis based on neural models (Bert embeddings tagger, Stanza syntax taggers and neural morphological tagger);
+
+Normally, end users only need to install `estnltk` (as `estnltk-core` will be installed automatically). 
+
+Taggers in `estnltk-neural` require installation of deep learning frameworks (`tensorflow`, `pytorch`), and are demanding for computational resources; they also rely on large models (which need to be downloaded separately).
+
+## Changed
+
+* `Text` API:
+
+	* method `text.analyse` is deprecated and no longer functional. Use `text.tag_layer` to create layers ( calling `text.analyse` will display an error message with additional information on migrating from `analyse` to `tag_layer` );
+	* added instance variable `text.layer_resolver` which uses EstNLTK's default pipeline to create layers. The following new layers were added to the pipeline: `'timexes'`,` 'address_parts`', `'addresses'`, `'ner'`, `'maltparser_conll_morph'`, `'gt_morph_analysis'`, `'maltparser_syntax'`,`'verb_chains'`, `'np_chunks'`.
+	* `Text` is now a subclass of `BaseText` (from `estnltk-core`); 
+	* 
+
+* `Tagger` API:
+	* trying to `copy` or `deepcopy` a tagger now raises `NotImplementedError`. Copying a tagger is a specific operation, requires handling of tagger's resources and therefore no copying should attempted by default. Instead, you should create a new tagger instance.
+	*  
+
+* `PgCollection`: Removed obsolete `create_layer_table` method. Use `add_layer` method instead.
+
+* `estnltk.layer_operations`
+	*  moved obsolete functions `compute_layer_intersection`, `apply_simple_filter`, `count_by_document`, `dict_to_df`, `group_by_spans`, `conflicts` to `estnltk_core.legacy.layer_operations`;
+	*  
+
+* Renamed `Resolver` -> `LayerResolver` and changed:
+	* 
+	* `DEFAULT_RESOLVER` is now available from `estnltk.default_resolver`. Former location `resolve_layer_dag` was preserved for legacy purposes, but will be removed in future;
+	*   
+
+* Renamed `Taggers` -> `TaggersRegistry` and changed:
+	* now retaggers can also be added to the registry. For every tagger creating a layer, there can be 1 or more retaggers modifying the layer. Also, retaggers of a layer can be removed via `clear_retaggers`;
+	* taggers and retaggers can now be added as `TaggerLoader` objects: they declare input layers, output layer and importing path of a tagger, but do not load the tagger     until explicitly demanded ( _lazy loading_ );
+
+* ...
+* Dropped Python 3.6 support;
+
+
+## Added
+
+* ... 
+
+## Fixed
+
+* `PgCollection`: `collection.layers` now returns `[]` in case of an empty collection;
+* `PgCollection`: added proper exception throwing for cases where user wants to modify an empty collection;
+* ... 
+
+
 # [1.6.9.1-beta] - 2021-09-20
 
 This is an intermediate release of PyPI packages. The version 1.6.9b0  and 1.6.9.1b0 are equal considering the main functionalities, so no conda packages will be generated. The list of changes will be documented in the next release.
