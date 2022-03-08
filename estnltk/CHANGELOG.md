@@ -5,61 +5,91 @@ All notable changes to this project will be documented in this file.
 
 # [1.7.0-rc0] - 2022-03-XX
 
-EstNLTK has gone through a major package restructuring and refactoring process. 
+EstNLTK has gone through a major package restructuring and refactoring process.
 
 # Package restructuring
 
  EstNLTK has been split into 3 Python packages:
 
 * `estnltk-core` -- package containing core datastructures, interfaces and data conversion functions of the EstNLTK library;
-* `estnltk` -- the standard package, which contains basic linguistic analysis (incl Vabamorf morphological analysis, syntactic parsing and information extraction models),  system taggers and Postgres database tools;
+* `estnltk` -- the standard package, which contains basic linguistic analysis (including Vabamorf morphological analysis, syntactic parsing and information extraction models), system taggers and Postgres database tools;
 * `estnltk-neural` -- package containing linguistic analysis based on neural models (Bert embeddings tagger, Stanza syntax taggers and neural morphological tagger);
 
 Normally, end users only need to install `estnltk` (as `estnltk-core` will be installed automatically). 
 
-Taggers in `estnltk-neural` require installation of deep learning frameworks (`tensorflow`, `pytorch`), and are demanding for computational resources; they also rely on large models (which need to be downloaded separately).
+Tools in `estnltk-neural` require installation of deep learning frameworks (`tensorflow`, `pytorch`), and are demanding for computational resources; they also rely on large models (which need to be downloaded separately).
 
 ## Changed
 
 * `Text` API:
 
 	* method `text.analyse` is deprecated and no longer functional. Use `text.tag_layer` to create layers ( calling `text.analyse` will display an error message with additional information on migrating from `analyse` to `tag_layer` );
-	* added instance variable `text.layer_resolver` which uses EstNLTK's default pipeline to create layers. The following new layers were added to the pipeline: `'timexes'`,` 'address_parts`', `'addresses'`, `'ner'`, `'maltparser_conll_morph'`, `'gt_morph_analysis'`, `'maltparser_syntax'`,`'verb_chains'`, `'np_chunks'`.
-	* `Text` is now a subclass of `BaseText` (from `estnltk-core`); 
+	* added instance variable `text.layer_resolver` which uses EstNLTK's default pipeline to create layers. The following new layers were added to the pipeline: `'timexes'`,` 'address_parts`', `'addresses'`, `'ner'`, `'maltparser_conll_morph'`, `'gt_morph_analysis'`, `'maltparser_syntax'`,`'verb_chains'`, `'np_chunks'`
+	* `Text` is now a subclass of `BaseText` (from `estnltk-core`). `BaseText` stores raw text, metadata and layers, has functions for adding and removing layers, and provides layer access (via square brackets). `Text` provides an alternative access to layers (layers as attributes), and allows to call for text analysers / NLP pipeline (`tag_layer`)
+	* Shallow copying of a `Text` is no longer allowed. Only `deepcopy` can be used;
+	* Renamed method: `text.list_layers` -> `text.sorted_layers`;
+	* 
+
+* `Layer` API:
+	* Removed `to_dict()` and `from_dict()` methods. Used `layer_to_dict` and `dict_to_layer` from `estnltk.converters`;
+	* Shallow copying of a `Text` is no longer allowed. Only `deepcopy` can be used;
 	* 
 
 * `Tagger` API:
-	* trying to `copy` or `deepcopy` a tagger now raises `NotImplementedError`. Copying a tagger is a specific operation, requires handling of tagger's resources and therefore no copying should attempted by default. Instead, you should create a new tagger instance.
+	* trying to `copy` or `deepcopy` a tagger now raises `NotImplementedError`. Copying a tagger is a specific operation, requires handling of tagger's resources and therefore no copying should attempted by default. Instead, you should create a new tagger instance;
 	*  
 
 * `PgCollection`: Removed obsolete `create_layer_table` method. Use `add_layer` method instead.
 
 * `estnltk.layer_operations`
-	*  moved obsolete functions `compute_layer_intersection`, `apply_simple_filter`, `count_by_document`, `dict_to_df`, `group_by_spans`, `conflicts` to `estnltk_core.legacy.layer_operations`;
-	*  
+	*  moved obsolete functions `compute_layer_intersection`, `apply_simple_filter`, `count_by_document`, `dict_to_df`, `group_by_spans`, `conflicts`, `iterate_conflicting_spans`, `combine`, `count_by`, `unique_texts`, `get_enclosing_spans`, `apply_filter`, `drop_annotations`, `keep_annotations`, `copy_layer` (former `Layer.copy()`) to `estnltk_core.legacy`;
+	*
 
 * Renamed `Resolver` -> `LayerResolver` and changed:
-	* 
+	* `default_layers` (used by `Text.tag_layer`) are held at the `LayerResolver` and can be changed;
 	* `DEFAULT_RESOLVER` is now available from `estnltk.default_resolver`. Former location `resolve_layer_dag` was preserved for legacy purposes, but will be removed in future;
-	*   
 
 * Renamed `Taggers` -> `TaggersRegistry` and changed:
 	* now retaggers can also be added to the registry. For every tagger creating a layer, there can be 1 or more retaggers modifying the layer. Also, retaggers of a layer can be removed via `clear_retaggers`;
-	* taggers and retaggers can now be added as `TaggerLoader` objects: they declare input layers, output layer and importing path of a tagger, but do not load the tagger     until explicitly demanded ( _lazy loading_ );
+	* taggers and retaggers can now be added as `TaggerLoader` objects: they declare input layers, output layer and importing path of a tagger, but do not load the tagger until explicitly demanded ( _lazy loading_ );
 
-* ...
+* Refactored `AnnotationRewriter`:
+	* tagger should now clearly define whether it only changes attribute values (default) or modifies the set of attributes in the layer;
+	* tagger should not add or delete annotations (this is job for `SpanAnnotationsRewriter`); 
+
+* Restructured `estnltk.taggers` into 3 submodules:
+	* `standard` -- tools for standard NLP tasks in Estonian, such as text segmentation, morphological processing, syntactic parsing, named entity recognition and temporal expression tagging;
+	* `system` -- system level taggers for finding layer differences, flattening and merging layers, but also taggers for rule-based information extraction, such as phrase tagger and grammar parsing tagger;
+	* `miscellaneous` -- taggers made for very specific analysis purposes (such as date extraction from medical records), and experimental taggers (verb chain detection, noun phrase chunking);
+	* _Note_: this should not affect importing taggers: you can still import most of the taggers from `estnltk.taggers` (except neural ones, which are now in the separate package `estnltk-neural`);
+
+* `serialisation_map` (in `estnltk.converters`) was replaced with `SERIALISATION_REGISTRY`:
+	* `SERIALISATION_REGISTRY` is a common registry used by all serialisation functions (such as `text_to_json` and `json_to_text` in `estnltk_core.converters`). The registry is defined in the package `estnltk_core` (contains only the `default` serialization module), and augmented in `estnltk` package (with `legacy_v0` and `syntax_v0` serialization modules);
+
+* Relocated TCF, CONLL and CG3 conversion utils to submodules in `estnltk.converters`;
+
+* Relocated `estnltk.layer_operations` to `estnltk_core.layer_operations`.  
+
+* Moved functionality of `layer_operations.group_by_layer` into `GroupBy` class; 
+
+* Relocated `TextaExporter` to `estnltk.legacy` (not actively developed);
+
 * Dropped Python 3.6 support;
 
 
 ## Added
 
-* ... 
+* `find_layer_dependencies` function to `estnltk_core.layer_operations` -- finds all layers that the given layer depends on. Can also be used for reverse search: find all layers depending on the given layer (e.g. enveloping layers and child layers);
+
+* `SpanAnnotationsRewriter` (a replacement for legacy `SpanRewriter`) -- a tagger that applies a modifying function on each span's annotations.  The function takes span's annotations (a list of Annotation objects) as an input and is allowed to change, delete and add new annotations to the list. The function must return a list with modified annotations. Removing all annotations of a span is forbidden.  
 
 ## Fixed
 
+* Fixed `TokensTagger`, `TokenSplitter` and `WhiteSpaceTokensTagger`: rely on tagger's `output_attributes` instead of `attributes`;
+* `Layer.ancestor_layers` and `Layer.descendant_layers` having their functionalities swaped (`ancestor_layers` returned descendants instead of ancestors), now they return what the function names insist;
 * `PgCollection`: `collection.layers` now returns `[]` in case of an empty collection;
 * `PgCollection`: added proper exception throwing for cases where user wants to modify an empty collection;
-* ... 
+ 
 
 
 # [1.6.9.1-beta] - 2021-09-20
