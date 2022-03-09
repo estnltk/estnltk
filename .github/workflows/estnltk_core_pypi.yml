@@ -1,10 +1,15 @@
 name: Build estnltk_core (and upload to PyPI later)
 
 on: 
-  # Manual run
-  workflow_dispatch:
+  push:
     branches:
       - devel_1.6_split
+    paths:
+      - '.github/workflows/estnltk_core_pypi.yml'
+      
+  # Manual run (works only in the default branch)
+  workflow_dispatch:
+
 
 jobs:
   build_estnltk_core_wheels:
