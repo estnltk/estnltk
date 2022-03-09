@@ -25,26 +25,19 @@ jobs:
       - uses: actions/setup-python@v2
         name: Install Python
 
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA
-          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: 3.9
+          conda-channels: anaconda, conda-forge
 
-      - name: Update conda
+      - name: Install conda-build & conda-verify
         run: |
-          conda update conda
-
-      - name: Create environment and install conda-build 
-        run: |
-          conda init bash
-          conda create -n conda_build python=3.9
-          conda activate conda_build
           conda install conda-build conda-verify
 
       - name: Build estntlk_core conda pckge
         run: |
-          conda activate conda_build
           cd ./estnltk_core/conda-recipe
           conda build -c conda-forge  .
           conda build --output conda-recipe
