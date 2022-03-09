@@ -38,6 +38,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           path: |
-            ./dist/*.whl
-            ./dist/*.tar.gz
+            ./estnltk_core/dist/*.whl
+            ./estnltk_core/dist/*.tar.gz
           
