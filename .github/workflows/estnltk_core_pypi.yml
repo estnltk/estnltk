@@ -30,8 +30,6 @@ jobs:
         with:
           package-dir: ./estnltk_core
           output-dir:  ./estnltk_core/wheelhouse
-        env:
-          #CIBW_BEFORE_BUILD: cd estnltk_core
 
       - uses: actions/upload-artifact@v2
         with:
