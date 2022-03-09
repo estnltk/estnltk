@@ -50,12 +50,16 @@ class PhraseTagger(Tagger):
                 span[i].start <= span[i+1].start
                 span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
             where the span is annotation.span
+        :param key: str
+            The name of the ruleset index
         :param decorator: Callable
             Decorator function for spans
         :param output_attributes
             Names of the output layer attributes.
         :param priority_attribute: str
             Name of the attribute that is used to resolve conflicts.
+        :param ignore_case: bool
+            If True, matches will be searched for using lowercased rule patterns
         """
         self.conf_param = ('input_attribute', 'ruleset', 'decorator',
                            'priority_attribute', '_heads',

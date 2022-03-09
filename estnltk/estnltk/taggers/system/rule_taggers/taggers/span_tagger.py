@@ -26,10 +26,10 @@ class SpanTagger(Tagger):
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  validator_attribute: str = None,
                  priority_attribute: str = None,
-                 case_sensitive=True,
+                 ignore_case=False,
                  conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL'
                  ):
-        """Initialize a new TokenListTagger instance.
+        """Initialize a new SpanTagger instance.
 
         :param output_layer: str
             The name of the new layer.
@@ -48,6 +48,9 @@ class SpanTagger(Tagger):
             The name of the attribute that points to the global_validator function in the vocabulary.
         :param priority_attribute
             The name
+        :param ignore_case
+            If True, then matches do not depend on capitalisation of letters
+            If False, then capitalisation of letters is important
         :param conflict_resolver: 'KEEP_ALL', 'KEEP_MAXIMAL', 'KEEP_MINIMAL' (default: 'KEEP_MAXIMAL')
             Strategy to choose between overlapping matches.
             Specify your own layer assembler if none of the predefined strategies does not work.
@@ -61,7 +64,7 @@ class SpanTagger(Tagger):
             where the span is annotation.span
         """
         self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator', 'validator_attribute',
-                           'priority_attribute', 'ambiguous', 'case_sensitive', '_ruleset', 'dynamic_ruleset_map',
+                           'priority_attribute', 'ambiguous', 'ignore_case', '_ruleset', 'dynamic_ruleset_map',
                            'conflict_resolver', 'static_ruleset_map')
         self.priority_attribute = priority_attribute
         self.output_layer = output_layer
@@ -71,8 +74,6 @@ class SpanTagger(Tagger):
 
         self.validator_attribute = validator_attribute
 
-        if decorator is None:
-            decorator = default_decorator
         self.global_decorator = decorator
 
         self.conflict_resolver = conflict_resolver
@@ -110,9 +111,9 @@ class SpanTagger(Tagger):
         # No errors were detected
         self.dynamic_ruleset_map = dynamic_ruleset_map
 
-        self._ruleset = copy.deepcopy(ruleset)
-        self.case_sensitive = case_sensitive
-        if not self.case_sensitive:
+        self._ruleset = copy.copy(ruleset)
+        self.ignore_case = ignore_case
+        if self.ignore_case:
             for rule in self._ruleset.static_rules:
                 for i in range(len(rule.pattern)):
                     rule.pattern[i] = rule.pattern[i].lower()
@@ -131,14 +132,13 @@ class SpanTagger(Tagger):
         ruleset = self._ruleset
         input_attribute = self.input_attribute
 
-        case_sensitive = self.case_sensitive
         input_layer = layers[self.input_layers[0]]
         match_tuples = []
 
         for parent_span in input_layer:
             for annotation in parent_span.annotations:
                 value = annotation[input_attribute]
-                if not case_sensitive:
+                if not self.case_sensitive:
                     value = value.lower()
                 if value in [rule.pattern for rule in ruleset.static_rules]:
                     match_tuples.append((parent_span.base_span, value))
@@ -159,15 +159,17 @@ class SpanTagger(Tagger):
             for group, priority, annotation in static_rulelist:
                 rec = annotation
                 attributes = {attr: rec[attr] for attr in layer.attributes}
-                annotation = self.global_decorator(raw_text, tuple[0], attributes)
-                annotation = Annotation(span, annotation)
+                if self.global_decorator is not None:
+                    annotation = self.global_decorator(raw_text, tuple[0], attributes)
 
                 subindex = self.dynamic_ruleset_map.get(pattern, None)
                 decorator = subindex[(group, priority)] if subindex is not None else None
                 if decorator is None:
+                    annotation = Annotation(span, annotation)
                     span.add_annotation(annotation)
                     continue
                 annotation = decorator(layer.text_object, span, annotation)
+                annotation = Annotation(span, annotation)
                 span.add_annotation(annotation)
 
             if span.annotations:
@@ -191,14 +193,15 @@ class SpanTagger(Tagger):
                 rec = annotation
                 attributes = {attr: rec[attr] for attr in layer.attributes}
                 annotation = self.global_decorator(raw_text, element[0], attributes)
-                annotation = Annotation(span, annotation)
 
                 subindex = self.dynamic_ruleset_map.get(pattern, None)
                 decorator = subindex[(group, priority)] if subindex is not None else None
                 if decorator is None:
+                    annotation = Annotation(span, annotation)
                     yield annotation, group, priority
                     continue
                 annotation = decorator(layer.text_object, span, annotation)
+                annotation = Annotation(span, annotation)
                 yield annotation, group, priority
 
     def _make_layer(self, text, layers: dict, status: dict):
@@ -218,8 +221,3 @@ class SpanTagger(Tagger):
             return self.conflict_resolver(layer, self.iterate_over_redecorated_annotations(layer, iter(all_matches)))
 
         raise ValueError("Data field conflict_resolver is inconsistent")
-
-
-
-def default_decorator(text, span, annotation):
-    return annotation

@@ -40,7 +40,10 @@ class RegexTagger(Tagger):
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  match_attribute: str = 'match'
                  ):
-        """Initialize a new RegexTagger instance.
+        """Initialize a new RegexTagger instance. Note that previously it was possible to
+        have callables as attributes in the ruleset. This functionality is now replaced by
+        dynamic rules. The new created layer will be ambiguous. Disambiguator tagger can be
+        used downstream to make it a non-ambiguous layer.
 
         Parameters
         ----------
