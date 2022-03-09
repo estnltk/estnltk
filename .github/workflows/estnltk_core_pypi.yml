@@ -29,6 +29,7 @@ jobs:
         run: |
           cd estnltk_core
           mkdir wheels
+          pip install wheel
           pip wheel -w wheels .
 
       - uses: actions/upload-artifact@v2
