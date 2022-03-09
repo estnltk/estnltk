@@ -28,10 +28,9 @@ jobs:
       - name: Build pure-Python wheels
         run: |
           cd estnltk_core
-          mkdir wheels
           pip install wheel
           pip wheel -w wheels .
 
       - uses: actions/upload-artifact@v2
         with:
-          path: ./estnltk_core/wheels/*.whls
+          path: ./wheels/*.whls
