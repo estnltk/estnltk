@@ -21,29 +21,33 @@ Tools in `estnltk-neural` require installation of deep learning frameworks (`ten
 
 ## Changed
 
-* `Text` API:
+* `Text`:
 
-	* method `text.analyse` is deprecated and no longer functional. Use `text.tag_layer` to create layers ( calling `text.analyse` will display an error message with additional information on migrating from `analyse` to `tag_layer` );
+	* method `text.analyse` is deprecated and no longer functional. Use `text.tag_layer` to create layers. Calling `text.analyse` will display an error message with additional information on migrating from `analyse` to `tag_layer`;
 	* added instance variable `text.layer_resolver` which uses EstNLTK's default pipeline to create layers. The following new layers were added to the pipeline: `'timexes'`,` 'address_parts`', `'addresses'`, `'ner'`, `'maltparser_conll_morph'`, `'gt_morph_analysis'`, `'maltparser_syntax'`,`'verb_chains'`, `'np_chunks'`
-	* `Text` is now a subclass of `BaseText` (from `estnltk-core`). `BaseText` stores raw text, metadata and layers, has functions for adding and removing layers, and provides layer access (via square brackets). `Text` provides an alternative access to layers (layers as attributes), and allows to call for text analysers / NLP pipeline (`tag_layer`)
 	* Shallow copying of a `Text` is no longer allowed. Only `deepcopy` can be used;
 	* Renamed method: `text.list_layers` -> `text.sorted_layers`;
-	* 
+	* Renamed property: `text.attributes` -> `text.layer_attributes`;
+	* `Text` is now a subclass of `BaseText` (from `estnltk-core`). `BaseText` stores raw text, metadata and layers, has methods for adding and removing layers, and provides layer access via indexing (square brackets). `Text` provides an alternative access to layers (layers as attributes), and allows to call for text analysers / NLP pipeline (`tag_layer`)
 
-* `Layer` API:
-	* Removed `to_dict()` and `from_dict()` methods. Used `layer_to_dict` and `dict_to_layer` from `estnltk.converters`;
-	* Shallow copying of a `Text` is no longer allowed. Only `deepcopy` can be used;
-	* 
+* `Layer`:
+	* Removed `to_dict()` and `from_dict()` methods. Use `layer_to_dict` and `dict_to_layer` from `estnltk.converters` instead;
+	* Shallow copying of a `Layer` is no longer allowed. Only `deepcopy` can be used;
+	* Renamed `Layer.metadata()` to `Layer.get_overview_dataframe()`;
+	* Method `Layer.add_annotation(base_span, annotations)` now allows to pass `annotations` as a dictionary (formerly, annotations could be passed only as keyword arguments);
+	* HTML representation: maximum length of a column is 100 characters and longer strings will be truncated; however, you can change the maximum length via `OUTPUT_CONFIG['html_str_max_len']` (a configuration dictionary in `estnltk_core.common`);
+	* `Layer` is now a subclass of `BaseLayer` (from `estnltk-core`). `BaseLayer` stores text's annotations, attributes of annotations and metadata, has methods for adding and removing annotations, and provides span/attribute access via indexing (square brackets). `Layer` adds layer operations (such as finding descendant and ancestor layers, and grouping spans or annotations of the layer), provides an alternative access to local attributes (via dot operator), and adds possibility to access foreign attributes (e.g. attributes of a parent layer).  
 
-* `Tagger` API:
+* ` SpanList/Envelopingspan/Span/Annotation`:
+	* Removed `to_records()`/`to_record()` methods. The same functionality is provided by function `span_to_records` (from `estnltk_core.converters`), but note that the conversion to records does not support all EstNLTK's data structures and may result in information loss. Therefore, we recommend converting via functions `layer_to_dict`/`text_to_dict` instead;
+
+* `Tagger`:
 	* trying to `copy` or `deepcopy` a tagger now raises `NotImplementedError`. Copying a tagger is a specific operation, requires handling of tagger's resources and therefore no copying should attempted by default. Instead, you should create a new tagger instance;
-	*  
 
 * `PgCollection`: Removed obsolete `create_layer_table` method. Use `add_layer` method instead.
 
 * `estnltk.layer_operations`
 	*  moved obsolete functions `compute_layer_intersection`, `apply_simple_filter`, `count_by_document`, `dict_to_df`, `group_by_spans`, `conflicts`, `iterate_conflicting_spans`, `combine`, `count_by`, `unique_texts`, `get_enclosing_spans`, `apply_filter`, `drop_annotations`, `keep_annotations`, `copy_layer` (former `Layer.copy()`) to `estnltk_core.legacy`;
-	*
 
 * Renamed `Resolver` -> `LayerResolver` and changed:
 	* `default_layers` (used by `Text.tag_layer`) are held at the `LayerResolver` and can be changed;
@@ -79,6 +83,8 @@ Tools in `estnltk-neural` require installation of deep learning frameworks (`ten
 
 ## Added
 
+* `Layer.clear_spans()` method that removes all spans (and annotations) from the layer. Note that clearing does not change the `span_level` of the layer, so spans added after the clearing must have the same level as before clearing;
+
 * `find_layer_dependencies` function to `estnltk_core.layer_operations` -- finds all layers that the given layer depends on. Can also be used for reverse search: find all layers depending on the given layer (e.g. enveloping layers and child layers);
 
 * `SpanAnnotationsRewriter` (a replacement for legacy `SpanRewriter`) -- a tagger that applies a modifying function on each span's annotations.  The function takes span's annotations (a list of Annotation objects) as an input and is allowed to change, delete and add new annotations to the list. The function must return a list with modified annotations. Removing all annotations of a span is forbidden.  
@@ -86,7 +92,9 @@ Tools in `estnltk-neural` require installation of deep learning frameworks (`ten
 ## Fixed
 
 * Fixed `TokensTagger`, `TokenSplitter` and `WhiteSpaceTokensTagger`: rely on tagger's `output_attributes` instead of `attributes`;
+* Property `Layer.end` giving wrong ending index;
 * `Layer.ancestor_layers` and `Layer.descendant_layers` having their functionalities swaped (`ancestor_layers` returned descendants instead of ancestors), now they return what the function names insist;
+* `Span.__repr__` now avoids overly long representations and renders fully only values of basic data types (such as `str`, `int`, `list`);
 * `PgCollection`: `collection.layers` now returns `[]` in case of an empty collection;
 * `PgCollection`: added proper exception throwing for cases where user wants to modify an empty collection;
  
