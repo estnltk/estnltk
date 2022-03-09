@@ -1,10 +1,11 @@
+import copy
 from typing import Sequence, Union, Generator, Tuple, Iterator, List, Callable, Dict, Any, Optional
 
 from estnltk.taggers import Tagger
 from estnltk import Layer, Text
 from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches
 from estnltk_core import Annotation, ElementaryBaseSpan, Span
-from estnltk.taggers.system.rule_taggers import Ruleset, StaticExtractionRule, DynamicExtractionRule
+from estnltk.taggers.system.rule_taggers import Ruleset, StaticExtractionRule
 from typing.re import Match
 
 
@@ -12,21 +13,21 @@ class RegexTagger(Tagger):
     """Tags regular expression matches on the text.
 
     Searches matches for regular expressions in the text, solves the possible
-    conflicts and creates a new layer of the matches.
+    conflicts and creates a new layer of the matches. The new created layer
+    will be ambiguous. Disambiguator tagger can be used to make it a
+    non-ambiguous layer.
 
     """
     __slots__ = ['conflict_resolver',
                  'overlapped',
-                 'priority_attribute',
-                 '_illegal_keywords',
                  '_internal_attributes',
                  'ruleset',
                  '_disamb_tagger',
-                 'ambiguous',
                  'global_decorator',
                  'match_attribute',
                  'static_ruleset_map',
-                 'dynamic_ruleset_map']
+                 'dynamic_ruleset_map',
+                 'lowercase_text']
 
     def __init__(self,
                  ruleset: Union[str, dict, list, Ruleset],
@@ -34,9 +35,7 @@ class RegexTagger(Tagger):
                  output_attributes: Sequence = None,
                  conflict_resolver: str = 'KEEP_MAXIMAL',
                  overlapped: bool = False,
-                 priority_attribute: str = None,
-                 ambiguous: bool = False,
-                 ignore_case: bool = False,
+                 lowercase_text: bool = False,
                  decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  match_attribute: str = 'match'
@@ -49,6 +48,8 @@ class RegexTagger(Tagger):
             regexes and output_attributes to annotate
         output_layer: str (Default: 'regexes')
             The name of the new layer.
+        output_attributes: Sequence[str]
+            New layer attributes.
         conflict_resolver: 'KEEP_ALL', 'KEEP_MAXIMAL', 'KEEP_MINIMAL' (default: 'KEEP_MAXIMAL')
             Strategy to choose between overlapping matches.
             Specify your own layer assembler if none of the predefined strategies does not work.
@@ -65,24 +66,24 @@ class RegexTagger(Tagger):
             of the same regular expression.
             Note that this default setting will be overwritten by a pattern-
             specific setting if a pattern defines attribute 'overlapped';
-        ambiguous
-            If True, then the output layer is ambiguous
-            If False, then the output layer is not ambiguous
+        lowercase_text: bool (Default: False)
+            If True, the regex patterns are matched to the lowercase version of the input text
         decorator: callable
             Global decorator function.
+        match_attribute: str (Default: 'match')
+            Name of the attribute in which the match object of the annotation is stored.
+            The attribute can be used by the decorator or dynamic rules to change the annotation.
         """
         self.conf_param = ['conflict_resolver',
                            'overlapped',
-                           'priority_attribute',
-                           '_illegal_keywords',
                            '_internal_attributes',
                            'ruleset',
                            '_disamb_tagger',
-                           'ambiguous',
                            'global_decorator',
                            'match_attribute',
                            'static_ruleset_map',
-                           'dynamic_ruleset_map']
+                           'dynamic_ruleset_map',
+                           'lowercase_text']
         self.input_layers = ()
         self.output_layer = output_layer
         if output_attributes is None:
@@ -90,10 +91,6 @@ class RegexTagger(Tagger):
         else:
             self.output_attributes = tuple(output_attributes)
 
-        self._illegal_keywords = {'start', 'end'}
-
-        if decorator is None:
-            decorator = default_decorator
         self.global_decorator = decorator
 
         self.static_ruleset_map: Dict[str, List[Tuple[int, int, Dict[str, any]]]]
@@ -128,31 +125,18 @@ class RegexTagger(Tagger):
         self.dynamic_ruleset_map = dynamic_ruleset_map
 
         self.match_attribute = match_attribute
+        if not isinstance(match_attribute, str):
+            raise AttributeError("Match attribute must be str")
 
         # output_attributes needed by tagger
         self._internal_attributes = set(self.output_attributes) | {'_group_', '_priority_'}
 
-        from estnltk.taggers import Disambiguator
+        self.ruleset = copy.copy(ruleset)
 
-        def disamb_decorator(span, raw_text):
-            return {name: getattr(span.annotations[0], name) for name in self.output_attributes}
-
-        self._disamb_tagger = Disambiguator(output_layer=self.output_layer,
-                                            input_layer=self.output_layer,
-                                            output_attributes=self.output_attributes,
-                                            decorator=disamb_decorator)
-
-        self.ruleset = ruleset
-
-        if ignore_case:
-            for rule in self.ruleset.static_rules:
-                for i in range(len(rule.pattern)):
-                    rule.pattern[i] = rule.pattern[i].lower()
+        self.lowercase_text = lowercase_text
 
         self.overlapped = overlapped
         self.conflict_resolver = conflict_resolver
-        self.priority_attribute = priority_attribute
-        self.ambiguous = ambiguous
 
     def _make_layer_template(self):
         return Layer(name=self.output_layer,
@@ -163,14 +147,13 @@ class RegexTagger(Tagger):
     def _make_layer(self, text, layers=None, status=None):
         layer = self._make_layer_template()
         layer.text_object = text
-        # for record in self._match(text.text):
-        #    layer.add_annotation((record['start'], record['end']), **record)
-        # layer = resolve_conflicts(layer=layer,
-        #                          conflict_resolving_strategy=self.conflict_resolving_strategy,
-        #                         priority_attribute=self.priority_attribute,
-        #                          status=status)
 
-        all_matches = self.extract_annotations(text.text)
+        if self.lowercase_text:
+            raw_text = text.text.lower()
+        else:
+            raw_text = text.text
+
+        all_matches = self.extract_annotations(raw_text)
 
         if self.conflict_resolver == 'KEEP_ALL':
             layer = self.add_decorated_annotations_to_layer(layer, iter(all_matches))
@@ -183,31 +166,7 @@ class RegexTagger(Tagger):
         else:
             raise ValueError("Data field conflict_resolver is inconsistent")
 
-        if not self.ambiguous:
-            layer = self._disamb_tagger.make_layer(text=text, layers={self.output_layer: layer}, status=status)
-
         return layer
-
-    def _match(self, text):
-        for rule in self.ruleset.static_rules:
-            reg = rule.pattern
-            rec = rule.attributes
-            for matchobj in reg.finditer(text, overlapped=self.overlapped):
-                start, end = matchobj.span(rec['_group_'])
-                if start == end:
-                    continue
-                if not rec['_validator_'](matchobj):
-                    continue
-                record = {
-                    'start': start,
-                    'end': end
-                }
-                for a in self._internal_attributes:
-                    v = rec.get(a, 0)
-                    if callable(v):
-                        v = v(matchobj)
-                    record[a] = v
-                yield record
 
     def extract_annotations(self, text: str) -> List[Tuple[ElementaryBaseSpan, Match, StaticExtractionRule]]:
         match_tuples = []
@@ -218,8 +177,6 @@ class RegexTagger(Tagger):
                 start, end = matchobj.span(rec['_group_'])
                 if start == end:
                     continue
-                if not rec['_validator_'](matchobj):
-                    continue
                 match_tuples.append((ElementaryBaseSpan(start=start, end=end), matchobj, rule))
 
         return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
@@ -227,58 +184,56 @@ class RegexTagger(Tagger):
     def add_decorated_annotations_to_layer(
             self,
             layer: Layer,
-            sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, Match]]) -> Layer:
+            sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, Match, StaticExtractionRule]]) -> Layer:
 
         raw_text = layer.text_object
 
-        element = next(sorted_tuples)
-
-        span = Span(base_span=element[0], layer=layer)
-        while element is not None:
+        for element in sorted_tuples:
+            span = Span(base_span=element[0], layer=layer)
             rule = element[2]
             matchobj = element[1]
             rec = rule.attributes
-            record = {
-                'start': element[0].start,
-                'end': element[0].end,
+            annotation_dict = {
                 self.match_attribute: matchobj
             }
             for a in self._internal_attributes:
-                v = rec.get(a, 0)
-                if callable(v):
-                    v = v(matchobj)
-                record[a] = v
+                annotation_dict[a] = rec.get(a, None)
 
-            annotation = self.global_decorator(raw_text, element[0], record)
+            if self.global_decorator is not None:
+                annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)
             if rule.pattern in self.dynamic_ruleset_map:
                 dynamic_decorator = self.dynamic_ruleset_map[rule.pattern].get((rule.group, rule.priority), None)
                 if dynamic_decorator is not None:
-                    annotation = dynamic_decorator(layer.text_object, span, annotation)
-            if annotation is not None:
-                span.add_annotation(annotation)
-
-            element = next(sorted_tuples, None)
-
-            #this span ended, add it to layer
-            if element is None:
-                if span.annotations:
-                    layer.add_span(span)
-                continue
-            if element[0] is not span.base_span:
-                if span.annotations:
-                    layer.add_span(span)
-                span = Span(base_span=element[0], layer=layer)
+                    annotation_dict = dynamic_decorator(layer.text_object, span, annotation_dict)
+            if annotation_dict is not None:
+                layer.add_annotation(element[0], annotation_dict)
 
         return layer
 
     def iterate_over_decorated_annotations(
             self,
             layer: Layer,
-            sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]
+            sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str, StaticExtractionRule]]
     ) -> Generator[Tuple[Annotation, int, int], None, None]:
 
-        pass
+        raw_text = layer.text_object
 
+        for element in sorted_tuples:
+            span = Span(base_span=element[0], layer=layer)
+            rule = element[2]
+            matchobj = element[1]
+            rec = rule.attributes
+            annotation_dict = {
+                self.match_attribute: matchobj
+            }
+            for a in self._internal_attributes:
+                annotation_dict[a] = rec.get(a, None)
 
-def default_decorator(text, span, annotation):
-    return annotation
+            if self.global_decorator is not None:
+                annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)
+            if rule.pattern in self.dynamic_ruleset_map:
+                dynamic_decorator = self.dynamic_ruleset_map[rule.pattern].get((rule.group, rule.priority), None)
+                if dynamic_decorator is not None:
+                    annotation_dict = dynamic_decorator(layer.text_object, span, annotation_dict)
+            if annotation_dict is not None:
+                yield annotation_dict, rule.group, rule.priority
