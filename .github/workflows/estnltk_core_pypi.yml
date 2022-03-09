@@ -25,7 +25,11 @@ jobs:
       - uses: actions/setup-python@v2
         name: Install Python
 
-      - name: Build pure-Python wheels
+      - name: Install pypa/build
+        run: |
+          python -m pip install build --user
+
+      - name: Build pure-Python wheels & sdict
         run: |
           cd estnltk_core
           python -m build --sdist --wheel --outdir dist/ .
