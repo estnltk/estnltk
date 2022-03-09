@@ -1,6 +1,6 @@
 import copy
 from collections import defaultdict
-from typing import Sequence
+from typing import Sequence, List, Tuple, Iterator, Generator, Dict, Callable, Any
 
 from estnltk import Annotation, EnvelopingBaseSpan
 from estnltk import EnvelopingSpan
@@ -8,7 +8,8 @@ from estnltk import Layer
 from estnltk.taggers import Tagger
 from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
 from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
-from estnltk_core.layer_operations import resolve_conflicts
+from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches
+from estnltk_core import ElementaryBaseSpan
 
 
 class PhraseTagger(Tagger):
@@ -21,14 +22,14 @@ class PhraseTagger(Tagger):
                  input_layer: str,
                  input_attribute: str,
                  ruleset: AmbiguousRuleset,
-                 key: str = '_phrase_',
+                 conflict_resolver: str = 'KEEP_MAXIMAL',
                  output_attributes: Sequence = None,
+                 key: str = '_phrase_',
                  decorator=None,
-                 conflict_resolving_strategy: str = 'MAX',
                  priority_attribute: str = None,
                  ignore_case=False
                  ):
-        """Initialize a new EventSequenceTagger instance.
+        """Initialize a new PhraseTagger instance.
 
         :param output_layer: str
             The name of the new layer.
@@ -38,20 +39,28 @@ class PhraseTagger(Tagger):
             The name of the input layer attribute.
         :param ruleset: AmbiguousRuleset
             Ruleset of type Ruleset or AmbiguousRuleset
-        :param key: str
-            The name of the vocabulary index if the input vocabulary is a list of records, a dict or a csv file.
+        :param conflict_resolver: 'KEEP_ALL', 'KEEP_MAXIMAL', 'KEEP_MINIMAL' (default: 'KEEP_MAXIMAL')
+            Strategy to choose between overlapping matches.
+            Specify your own layer assembler if none of the predefined strategies does not work.
+            A custom function must be take in two arguments:
+            * layer: a layer to which spans must be added
+            * triples: a list of (annotation, group, priority) triples
+            and must output the updated layer which hopefully containing some spans.
+            These triples can come in canonical order which means:
+                span[i].start <= span[i+1].start
+                span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
+            where the span is annotation.span
         :param decorator: Callable
             Decorator function for spans
         :param output_attributes
             Names of the output layer attributes.
-        :param  conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
-            Strategy to choose between overlapping events.
         :param priority_attribute: str
             Name of the attribute that is used to resolve conflicts.
         """
         self.conf_param = ('input_attribute', 'ruleset', 'decorator',
-                           'conflict_resolving_strategy', 'priority_attribute', '_heads',
-                           'ignore_case')
+                           'priority_attribute', '_heads',
+                           'ignore_case', 'conflict_resolver',
+                           'static_ruleset_map', 'dynamic_ruleset_map')
 
         self.output_layer = output_layer
         self.input_layers = [input_layer]
@@ -61,13 +70,68 @@ class PhraseTagger(Tagger):
         if priority_attribute is not None and priority_attribute not in output_attributes:
             output_attributes.append(priority_attribute)
         self.output_attributes = tuple(output_attributes)
-        self.decorator = decorator or default_decorator
+        self.decorator = decorator
 
-        self.conflict_resolving_strategy = conflict_resolving_strategy
+        self.conflict_resolver = conflict_resolver
         self.priority_attribute = priority_attribute
+
+        # Validate ruleset. It must exist
+        if not isinstance(ruleset, AmbiguousRuleset):
+            raise ValueError('Argument ruleset must be of type Ruleset or AmbiguousRuleset')
+        if not (set(ruleset.output_attributes) <= set(self.output_attributes)):
+            raise ValueError('Output attributes of a ruleset must match the output attributes of a tagger')
 
         self.extend_ruleset(ruleset, key)
 
+        self.static_ruleset_map: Dict[str, List[Tuple[int, int, Dict[str, any]]]]
+
+        static_ruleset_map = dict()
+
+        self.ignore_case = ignore_case
+
+        for rule in ruleset.static_rules:
+            if self.ignore_case:
+                subindex = static_ruleset_map.get(rule.pattern.lower(), [])
+                subindex.append((rule.group, rule.priority, rule.attributes))
+                static_ruleset_map[rule.pattern.lower()] = subindex
+            else:
+                subindex = static_ruleset_map.get(rule.pattern, [])
+                subindex.append((rule.group, rule.priority, rule.attributes))
+                static_ruleset_map[rule.pattern] = subindex
+
+        self.static_ruleset_map = static_ruleset_map
+
+        # Lets index dynamic rulesets in optimal way
+        self.dynamic_ruleset_map: Dict[str, Dict[Tuple[int, int], Callable]]
+
+        dynamic_ruleset_map = dict()
+        for rule in ruleset.dynamic_rules:
+            if self.ignore_case:
+                subindex = dynamic_ruleset_map.get(rule.pattern.lower(), dict())
+                if (rule.group, rule.priority) in subindex:
+                    raise AttributeError('There are multiple rules with the same pattern, group and priority')
+                subindex[rule.group, rule.priority] = rule.decorator
+                dynamic_ruleset_map[rule.pattern.lower()] = subindex
+                # create corresponding static rule if it does not exist yet
+                if static_ruleset_map.get(rule.pattern.lower(), None) is None:
+                    self.static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
+                elif len([item for item in static_ruleset_map.get(rule.pattern.lower())
+                          if item[0] == rule.group and item[1] == rule.priority]) == 0:
+                    self.static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
+            else:
+                subindex = dynamic_ruleset_map.get(rule.pattern, dict())
+                if (rule.group, rule.priority) in subindex:
+                    raise AttributeError('There are multiple rules with the same pattern, group and priority')
+                subindex[rule.group, rule.priority] = rule.decorator
+                dynamic_ruleset_map[rule.pattern] = subindex
+                # create corresponding static rule if it does not exist yet
+                if static_ruleset_map.get(rule.pattern, None) is None:
+                    static_ruleset_map[rule.pattern] = [(rule.group, rule.priority, dict())]
+                elif len([item for item in static_ruleset_map.get(rule.pattern)
+                          if item[0] == rule.group and item[1] == rule.priority]) == 0:
+                    static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
+
+        self.dynamic_ruleset_map = dynamic_ruleset_map
 
         self.ignore_case = ignore_case
 
@@ -76,22 +140,14 @@ class PhraseTagger(Tagger):
                 for i in range(len(rule.pattern)):
                     rule.pattern[i] = rule.pattern[i].lower()
 
-        # assert key is None or key == self.vocabulary.key,\
-        #    'mismatching key and vocabulary.key: {}!={}'.format(key, self.vocabulary.key)
-        ## key can not be tested like this anymore because ruleset does not have the key attribute
-        # assert set(self.output_attributes) <= set(self.vocabulary.attributes),\
-        #    'some output_attributes missing in vocabulary attributes: {}'.format(
-        #        set(self.output_attributes)-set(self.vocabulary.attributes))
-        # assert self.priority_attribute is None or self.priority_attribute in self.vocabulary.attributes,\
-        #    'priority attribute is not among the vocabulary attributes: ' + str(self.priority_attribute)
-
-        # TODO would be better if this was a dict instead of defaultdict for safety and memory
-        self._heads = defaultdict(set)
+        self._heads = {}
         for phrase in self.ruleset.static_rules:
-            self._heads[phrase.pattern[0]].add(phrase.pattern[1:])
+            current_phrase = self._heads.get(phrase.pattern[0], set())
+            current_phrase.add(phrase.pattern[1:])
+            self._heads[phrase.pattern[0]] = current_phrase
 
     def extend_ruleset(self, ruleset, key):
-        self.ruleset = copy.deepcopy(ruleset)
+        self.ruleset = copy.copy(ruleset)
 
         addable_attributes = []
         for attribute in self.output_attributes:
@@ -112,6 +168,26 @@ class PhraseTagger(Tagger):
                      ambiguous=not isinstance(self.ruleset, Ruleset))
 
     def _make_layer(self, text, layers: dict, status=None):
+        layer = self._make_layer_template()
+        layer.text_object = text
+        raw_text = text.text
+        all_matches = self.extract_annotations(raw_text,layers)
+
+        if self.conflict_resolver == 'KEEP_ALL':
+            layer = self.add_decorated_annotations_to_layer(layer, iter(all_matches))
+        elif self.conflict_resolver == 'KEEP_MAXIMAL':
+            layer = self.add_decorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_MINIMAL':
+            layer = self.add_decorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
+        elif callable(self.conflict_resolver):
+            layer = self.conflict_resolver(layer, self.iterate_over_decorated_annotations(layer, iter(all_matches)))
+        else:
+            raise ValueError("Data field conflict_resolver is inconsistent")
+
+        return layer
+
+    def extract_annotations(self, text: str, layers: dict) -> List[Tuple[EnvelopingBaseSpan, str, Any]]:
+        match_tuples = []
         input_layer = layers[self.input_layers[0]]
         layer = self._make_layer_template()
         layer.text_object = text
@@ -130,7 +206,6 @@ class PhraseTagger(Tagger):
         value_list = [{get_value(annotation) for annotation in span.annotations} for span in input_layer]
 
         heads = self._heads
-        output_attributes = self.output_attributes
         for i, values in enumerate(value_list):
             for value in values:
                 if value not in heads:
@@ -141,27 +216,59 @@ class PhraseTagger(Tagger):
                             if a not in b:
                                 break
                         else:  # no break
-                            phrase = (value, *tail)
                             base_span = EnvelopingBaseSpan(s.base_span
                                                            for s in input_layer[i:i + len(tail) + 1])
-                            span = EnvelopingSpan(base_span=base_span, layer=layer)
-                            records = [rule.attributes for rule in self.ruleset.static_rules if rule.pattern == phrase]
-                            for record in records:
-                                annotation = Annotation(span, **{attr: record[attr]
-                                                             for attr in output_attributes})
-                                annotation = self.decorator(text,span,annotation)
-                                if annotation is None:
-                                    continue
-                                span.add_annotation(annotation)
-                            if span.annotations:
-                                layer.add_span(span)
+                            phrase = (value, *tail)
+                            match_tuples.append((base_span, text[base_span.start:base_span.end], phrase))
 
-        resolve_conflicts(layer,
-                          conflict_resolving_strategy=self.conflict_resolving_strategy,
-                          priority_attribute=self.priority_attribute,
-                          keep_equal=True)
+        return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
+
+    def add_decorated_annotations_to_layer(
+            self,
+            layer: Layer,
+            sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]) -> Layer:
+
+        text = layer.text_object
+
+        for base_span, _, phrase in sorted_tuples:
+            span = EnvelopingSpan(base_span=base_span, layer=layer)
+            static_rulelist = self.static_ruleset_map.get(phrase, None)
+            for group, priority, annotation in static_rulelist:
+                if self.decorator is not None:
+                    annotation = self.decorator(text, base_span, annotation)
+                    if not isinstance(annotation, dict):
+                        continue
+                subindex = self.dynamic_ruleset_map.get(phrase, None)
+                decorator = subindex[(group, priority)] if subindex is not None else None
+                if decorator is None:
+                    layer.add_annotation(base_span, annotation)
+                    continue
+                annotation = decorator(text, span, annotation)
+                if annotation is not None:
+                    layer.add_annotation(base_span, annotation)
+
         return layer
 
+    def iterate_over_decorated_annotations(
+            self,
+            layer: Layer,
+            sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]
+    ) -> Generator[Tuple[Annotation, int, int], None, None]:
+        text = layer.text_object
 
-def default_decorator(text, span, annotation):
-    return annotation
+        for base_span, _, phrase in sorted_tuples:
+            span = EnvelopingSpan(base_span=base_span, layer=layer)
+            static_rulelist = self.static_ruleset_map.get(phrase, None)
+            for group, priority, annotation in static_rulelist:
+                if self.decorator is not None:
+                    annotation = self.decorator(text, base_span, annotation)
+                    if not isinstance(annotation, dict):
+                        continue
+                subindex = self.dynamic_ruleset_map.get(phrase, None)
+                decorator = subindex[(group, priority)] if subindex is not None else None
+                if decorator is None:
+                    yield annotation, group, priority
+                    continue
+                annotation = decorator(text, span, annotation)
+                if annotation is not None:
+                    yield annotation, group, priority
