@@ -25,12 +25,12 @@ jobs:
       - uses: actions/setup-python@v2
         name: Install Python
 
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.3.1
-        with:
-          package-dir: ./estnltk_core
-          output-dir:  ./estnltk_core/wheelhouse
+      - name: Build pure-Python wheels
+        run: |
+          cd estnltk_core
+          mkdir wheels
+          pip wheel -w wheels .
 
       - uses: actions/upload-artifact@v2
         with:
-          path: ./estnltk_core/wheelhouse/*.whls
+          path: ./estnltk_core/wheels/*.whls
