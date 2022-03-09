@@ -12,8 +12,8 @@ on:
 
 
 jobs:
-  build_estnltk_core_wheels:
-    name: Build estnltk_core wheels on ${{ matrix.os }}
+  build_estnltk_core_wheels_and_sdist:
+    name: Build estnltk_core wheels and source distribution on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -28,9 +28,9 @@ jobs:
       - name: Build pure-Python wheels
         run: |
           cd estnltk_core
-          pip install wheel
-          pip wheel -w wheels .
+          python -m build --sdist --wheel --outdir dist/ .
+          ls dist
 
       - uses: actions/upload-artifact@v2
         with:
-          path: ./wheels/*.whls
+          path: ./dist/*.whls
