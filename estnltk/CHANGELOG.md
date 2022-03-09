@@ -33,13 +33,19 @@ Tools in `estnltk-neural` require installation of deep learning frameworks (`ten
 * `Layer`:
 	* Removed `to_dict()` and `from_dict()` methods. Use `layer_to_dict` and `dict_to_layer` from `estnltk.converters` instead;
 	* Shallow copying of a `Layer` is no longer allowed. Only `deepcopy` can be used;
+	* Renamed `Layer.attribute_list()` to `Layer.attribute_values()`;
+		* indexing attributes (`start`, `end`, `text`) should now be passed to the method via keyword argument `index_attributes`. They will be prepended to the selection of normal attributes;
 	* Renamed `Layer.metadata()` to `Layer.get_overview_dataframe()`;
-	* Method `Layer.add_annotation(base_span, annotations)` now allows to pass `annotations` as a dictionary (formerly, annotations could be passed only as keyword arguments);
+	* Method `Layer.add_annotation(base_span, annotations)`:
+		* now allows to pass `annotations` as a dictionary (formerly, `annotations` could be passed only as keyword arguments);
+		* `Annotation` object cannot be passed as a `base_span`; 
 	* HTML representation: maximum length of a column is 100 characters and longer strings will be truncated; however, you can change the maximum length via `OUTPUT_CONFIG['html_str_max_len']` (a configuration dictionary in `estnltk_core.common`);
 	* `Layer` is now a subclass of `BaseLayer` (from `estnltk-core`). `BaseLayer` stores text's annotations, attributes of annotations and metadata, has methods for adding and removing annotations, and provides span/attribute access via indexing (square brackets). `Layer` adds layer operations (such as finding descendant and ancestor layers, and grouping spans or annotations of the layer), provides an alternative access to local attributes (via dot operator), and adds possibility to access foreign attributes (e.g. attributes of a parent layer).  
 
 * ` SpanList/Envelopingspan/Span/Annotation`:
 	* Removed `to_records()`/`to_record()` methods. The same functionality is provided by function `span_to_records` (from `estnltk_core.converters`), but note that the conversion to records does not support all EstNLTK's data structures and may result in information loss. Therefore, we recommend converting via functions `layer_to_dict`/`text_to_dict` instead;
+	* Method `Span.add_annotation(annotation)` now allows to pass `annotation` as a dictionary (formerly, `annotation` could be passed only as keyword arguments);
+	* Constructor `Annotation(span, attributes)` now allows to pass `attributes` as a dictionary (formerly, `attributes` could be passed only as keyword arguments);
 
 * `Tagger`:
 	* trying to `copy` or `deepcopy` a tagger now raises `NotImplementedError`. Copying a tagger is a specific operation, requires handling of tagger's resources and therefore no copying should attempted by default. Instead, you should create a new tagger instance;
@@ -51,7 +57,10 @@ Tools in `estnltk-neural` require installation of deep learning frameworks (`ten
 
 * Renamed `Resolver` -> `LayerResolver` and changed:
 	* `default_layers` (used by `Text.tag_layer`) are held at the `LayerResolver` and can be changed;
-	* `DEFAULT_RESOLVER` is now available from `estnltk.default_resolver`. Former location `resolve_layer_dag` was preserved for legacy purposes, but will be removed in future;
+	* `DEFAULT_RESOLVER` is now available from `estnltk.default_resolver`. Former location `estnltk.resolve_layer_dag` was preserved for legacy purposes, but will be removed in future;
+	* Renamed property `list_layers` -> `layers`;
+	* HTML/string represenations now display default_layers and a table, which lists names of creatable layers, their prerequisite layers, names of taggers responsible for creating the layers and descriptions of corresponding taggers;  
+	* Trying to `copy` or `deepcopy` a layer resolver results in an exception. You should only create new instances of `LayerResolver` -- use function `make_resolver()` from `estnltk.default_resolver` to create a new default resolver;
 
 * Renamed `Taggers` -> `TaggersRegistry` and changed:
 	* now retaggers can also be added to the registry. For every tagger creating a layer, there can be 1 or more retaggers modifying the layer. Also, retaggers of a layer can be removed via `clear_retaggers`;
@@ -72,29 +81,53 @@ Tools in `estnltk-neural` require installation of deep learning frameworks (`ten
 
 * Relocated TCF, CONLL and CG3 conversion utils to submodules in `estnltk.converters`;
 
-* Relocated `estnltk.layer_operations` to `estnltk_core.layer_operations`.  
+* Relocated `estnltk.layer` to `estnltk_core.layer`;
+
+* Relocated `estnltk.layer_operations` to `estnltk_core.layer_operations`;
 
 * Moved functionality of `layer_operations.group_by_layer` into `GroupBy` class; 
 
 * Relocated `TextaExporter` to `estnltk.legacy` (not actively developed);
+
+* Renamed `TextSegmentsTagger` -> `HeaderBasedSegmenter`;
+ 
+* Renamed `DisambiguatingTagger` -> `Disambiguator`;
+
+* Rename `AttributeComparisonTagger` --> `AttributeComparator`;
+
+* Relocated Vabamorf's default parameters from `estnltk.taggers.standard.morph_analysis.morf_common` to `estnltk.common`;
+
+* Merged `EnvelopingGapTagger` into `GapTagger`:
+	* `GapTagger` now has 2 working modes: 
+		* Default mode: look for sequences of consecutive characters not covered by input layers;
+		* EnvelopingGap mode: look for sequences of enveloped layer's spans not enveloped by input enveloping layers;
+
+* Refactored `TimexTagger`: 
+	* removed `TIMEXES_RESOLVER` and moved all necessary preprocessing (text segmentation and morphological analysis) inside `TimexTagger`;
+	* `'timexes'` is now a flat layer by default. It can be made enveloping `'words'`, but this can result in broken timex phrases due to differences in `TimexTagger`'s tokenization and EstNLTK's default tokenization;
 
 * Dropped Python 3.6 support;
 
 
 ## Added
 
+* `Layer.secondary_attributes`: a list of layer's attributes which will be skipped while comparing two layers. Usually this means that these attributes contain redundant information. Another reason for marking attribute as _secondary_ is the attribute being recursive, thus skipping the attribute avoids infinite recursion in comparison;
+
+* `Layer.span_level` property: an integer conveying depth of enveloping structure of this layer; `span_level=0` indicates no enveloping structure: spans of the layer mark raw text positions `(start, end)`, and `span_level` > 0 indicates that spans of the layer envelop around smaller level spans (for details, see the `BaseSpan` docstring in `estnltk_core.layer.base_span`);
+
 * `Layer.clear_spans()` method that removes all spans (and annotations) from the layer. Note that clearing does not change the `span_level` of the layer, so spans added after the clearing must have the same level as before clearing;
 
 * `find_layer_dependencies` function to `estnltk_core.layer_operations` -- finds all layers that the given layer depends on. Can also be used for reverse search: find all layers depending on the given layer (e.g. enveloping layers and child layers);
 
-* `SpanAnnotationsRewriter` (a replacement for legacy `SpanRewriter`) -- a tagger that applies a modifying function on each span's annotations.  The function takes span's annotations (a list of Annotation objects) as an input and is allowed to change, delete and add new annotations to the list. The function must return a list with modified annotations. Removing all annotations of a span is forbidden.  
+* `SpanAnnotationsRewriter` (a replacement for legacy `SpanRewriter`) -- a tagger that applies a modifying function on each span's annotations.  The function takes span's annotations (a list of `Annotation` objects) as an input and is allowed to change, delete and add new annotations to the list. The function must return a list with modified annotations. Removing all annotations of a span is forbidden.  
 
 ## Fixed
 
-* Fixed `TokensTagger`, `TokenSplitter` and `WhiteSpaceTokensTagger`: rely on tagger's `output_attributes` instead of `attributes`;
 * Property `Layer.end` giving wrong ending index;
+* `Text` HTML representation: Fixed "FutureWarning: The frame.append method is deprecated /.../ Use pandas.concat instead";
 * `Layer.ancestor_layers` and `Layer.descendant_layers` having their functionalities swaped (`ancestor_layers` returned descendants instead of ancestors), now they return what the function names insist;
 * `Span.__repr__` now avoids overly long representations and renders fully only values of basic data types (such as `str`, `int`, `list`);
+* `SyntaxDependencyRetagger` now marks `parent_span` and `children` as `secondary_attributes` in order to avoid infinite recursion in syntax layer comparison;
 * `PgCollection`: `collection.layers` now returns `[]` in case of an empty collection;
 * `PgCollection`: added proper exception throwing for cases where user wants to modify an empty collection;
  
