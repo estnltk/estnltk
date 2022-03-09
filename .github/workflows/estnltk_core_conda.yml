@@ -38,7 +38,7 @@ jobs:
 
       - name: Build estntlk_core conda pckge
         run: |
-          cd ./estnltk_core/conda-recipe
+          cd estnltk_core/conda-recipe
           conda build -c conda-forge  .
           conda build --output conda-recipe
           
