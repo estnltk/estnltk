@@ -1,0 +1,31 @@
+name: Build estnltk_core (and upload to PyPI later)
+
+on: 
+  # Manual run
+  workflow_dispatch:
+    branches:
+      - devel_1.6_split
+
+jobs:
+  build_estnltk_core_wheels:
+    name: Build estnltk_core wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.3.1
+        env:
+          # Go to the sub-repository of estnltk_core
+          CIBW_BEFORE_BUILD: cd estnltk_core
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./estnltk_core/wheelhouse/*.whls
