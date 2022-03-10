@@ -38,11 +38,10 @@ jobs:
           #    runs `build_ext` as the last command and then the package will
           #    be missing auto-generated `vabamorf.py`;
           CIBW_BEFORE_BUILD:  >
-            cd .. && 
+            ls -1 && 
             cd estnltk_core && 
             python setup.py install && 
-            cd .. && 
-            cd estnltk && 
+            cd {project} && 
             python setup.py build_ext 
 
           CIBW_BUILD:  cp37-*64
