@@ -32,11 +32,11 @@ jobs:
           python-version: 3.9
           conda-channels: anaconda, conda-forge
 
-      - name: Install conda-build & conda-verify
+      - name: Install conda-build and conda-verify
         run: |
           conda install conda-build conda-verify
 
-      - name: Build estntlk_core conda pckge
+      - name: Build estntlk_core conda package
         run: |
           mkdir conda-out
           cd estnltk_core/conda_recipe
@@ -46,4 +46,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           path: |
-            ./estnltk_core/conda_recipe/linux-64/*.tar.bz2
+            ./estnltk_core/conda_recipe/noarch/*.tar.bz2
