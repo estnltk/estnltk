@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v2
@@ -45,12 +45,12 @@ jobs:
             python setup.py build_ext && 
             echo --- build_ext completed ---
 
-          CIBW_BUILD:  cp38-manylinux*64
+          CIBW_BUILD:  cp38-*64
           #CIBW_BUILD:  cp37-*64  cp38-*64  cp39-*64  cp310-*64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
-          #CIBW_SKIP: pp*
+          CIBW_SKIP: pp* *arm64 *musllinux_x86_64 *musllinux_aarch64
 
       - uses: actions/upload-artifact@v2
         with:
