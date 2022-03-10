@@ -1,6 +1,5 @@
 {% set data = load_setup_py_data() %}
 
-
 package:
   name: estnltk-core
   version: {{ data.get('version')  }}
@@ -9,6 +8,7 @@ source:
     path: ..
 
 build:
+ noarch: python
  number: {{ environ.get('GIT_DESCRIBE_NUMBER', '0') }}
  string: {{ environ.get('PY_VER', '') }}
 
@@ -29,4 +29,4 @@ requirements:
 about:
   home: https://github.com/estnltk/estnltk
   license: GPLv2
-  summary: 'EstNLTK core - basic components of the EstNLTK library'
+  summary: 'EstNLTK core - basic data structures and components of the EstNLTK library'
