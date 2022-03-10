@@ -40,9 +40,9 @@ jobs:
         run: |
           cd estnltk_core/conda_recipe
           conda build -c conda-forge  .
-          conda build --output conda_recipe
-          
 
+
+      # conda build --output conda_recipe
       #- uses: actions/upload-artifact@v2
       #  with:
       #    path: |
