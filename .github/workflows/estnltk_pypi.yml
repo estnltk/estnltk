@@ -41,7 +41,7 @@ jobs:
             cd estnltk_core && 
             python setup.py install && 
             echo --- estntlk_core completed --- &&
-            cd {project} && 
+            cd {project}/estnltk && 
             python setup.py build_ext && 
             echo --- build_ext completed ---
 
