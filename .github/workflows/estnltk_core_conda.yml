@@ -38,7 +38,6 @@ jobs:
 
       - name: Build estntlk_core conda package
         run: |
-          mkdir conda-out
           cd estnltk_core/conda_recipe
           conda build -c conda-forge --output-folder . .
           dir .
