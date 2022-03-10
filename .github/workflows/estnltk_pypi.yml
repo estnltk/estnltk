@@ -25,22 +25,25 @@ jobs:
       - uses: actions/setup-python@v2
         name: Install Python
 
-      - name: Install estnltk_core
-        run: |
-          cd estnltk_core
-          python setup.py install
-          pip list | grep estntlk-core
-
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.3.1
         with:
           package-dir: ./estnltk
           output-dir:  ./estnltk/wheelhouse
         env:
-          # Run `build_ext` before creating the wheel, because `pip wheel`
-          # runs `build_ext` as the last command and then the package will
-          # be missing auto-generated `vabamorf.py`.
-          CIBW_BEFORE_BUILD: python setup.py build_ext
+          # Before build:
+          # 1) install estnltk_core, because the package is not yet 
+          #    available from the pypi;
+          # 2) run `build_ext` before creating the wheel, because `pip wheel`
+          #    runs `build_ext` as the last command and then the package will
+          #    be missing auto-generated `vabamorf.py`;
+          CIBW_BEFORE_BUILD:  >
+            cd .. && 
+            cd estnltk_core && 
+            python setup.py install && 
+            cd .. && 
+            cd estnltk && 
+            python setup.py build_ext 
 
           CIBW_BUILD:  cp37-*64
           #CIBW_BUILD:  cp37-*64  cp38-*64  cp39-*64  cp310-*64
