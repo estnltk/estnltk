@@ -41,10 +41,12 @@ jobs:
             cd estnltk_core && 
             python setup.py install && 
             echo --- estntlk_core completed --- &&
-            cd {project}/estnltk && 
+            cd estnltk && 
             python setup.py build_ext && 
             echo --- build_ext completed ---
 
+          # List of available platforms: 
+          # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
           CIBW_BUILD:  cp38-*64
           #CIBW_BUILD:  cp37-*64  cp38-*64  cp39-*64  cp310-*64
 
