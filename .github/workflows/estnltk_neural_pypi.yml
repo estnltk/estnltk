@@ -68,7 +68,7 @@ jobs:
           echo --- estntlk_core completed --- 
           cd ..
           wheelfile=$(ls -1 estnltk/wheelhouse/*.whl) 
-          python -m pip install estnltk/wheelhouse/$wheelfile
+          python -m pip install $wheelfile
           echo --- estntlk completed ---
           cd estnltk_neural
           python -m build --wheel --sdist --outdir dist/ .
