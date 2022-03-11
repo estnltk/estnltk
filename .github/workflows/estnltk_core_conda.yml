@@ -42,7 +42,7 @@ jobs:
           conda build -c conda-forge --output-folder . conda_recipe
           echo --- estntlk_core completed --- 
           dir .
-          echo --- dir completed --- 
+          echo --- dir completed ---
 
       - uses: actions/upload-artifact@v2
         with:
