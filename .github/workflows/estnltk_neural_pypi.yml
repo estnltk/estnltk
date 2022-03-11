@@ -1,0 +1,83 @@
+name: Build estnltk_neural (and upload to PyPI later)
+
+on: 
+  push:
+    branches:
+      - devel_1.6_split
+    paths:
+      - '.github/workflows/estnltk_neural_pypi.yml'
+      
+  # Manual run (works only in the default branch)
+  #workflow_dispatch:
+
+
+jobs:
+  build_estnltk_neural_and_sdist:
+    name: Build estnltk_neural wheels and source distribution on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.8'
+
+      - name: Install pypa/build
+        run: |
+          python -m pip install build --user
+
+      - name: Build estnltk
+        uses: pypa/cibuildwheel@v2.3.1
+        with:
+          package-dir: ./estnltk
+          output-dir:  ./estnltk/wheelhouse
+        env:
+          # Before build:
+          # 1) install estnltk_core, because the package is not yet 
+          #    available from the pypi;
+          # 2) run `build_ext` before creating the wheel, because `pip wheel`
+          #    runs `build_ext` as the last command and then the package will
+          #    be missing auto-generated `vabamorf.py`;
+          CIBW_BEFORE_BUILD:  >
+            cd estnltk_core && 
+            python setup.py install && 
+            echo --- estntlk_core completed --- && 
+            cd .. && 
+            cd estnltk && 
+            python setup.py build_ext && 
+            echo --- build_ext completed ---
+
+          # List of available platforms: 
+          # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
+          CIBW_BUILD:  cp38-*64
+          #CIBW_BUILD:  cp37-*64  cp38-*64  cp39-*64  cp310-*64
+
+          # Disable building PyPy wheels on all platforms.
+          # Enable if you get it working.
+          CIBW_SKIP: pp* *arm64 *musllinux_x86_64 *musllinux_aarch64
+
+      - name: Build estnltk_neural wheel
+        run: |
+          cd estnltk_core
+          python setup.py install 
+          echo --- estntlk_core completed --- 
+          cd ..
+          wheelfile=$(ls -1 estnltk/wheelhouse/*.whl) 
+          python -m pip install estnltk/wheelhouse/$wheelfile
+          echo --- estntlk completed ---
+          cd estnltk_neural
+          python -m build --wheel --sdist --outdir dist/ .
+          echo --- estntlk_neural completed --- 
+          ls dist
+          echo --- ls dist completed --- 
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            ./estnltk_neural/dist/*.whl
+            ./estnltk_neural/dist/*.tar.gz
