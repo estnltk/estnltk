@@ -38,11 +38,12 @@ jobs:
 
       - name: Build estntlk_core conda package
         run: |
-          cd estnltk_core/conda_recipe
-          conda build -c conda-forge --output-folder . .
+          cd estnltk_core
+          conda build -c conda-forge --output-folder . conda_recipe
+          echo --- estntlk_core completed --- 
           dir .
 
       - uses: actions/upload-artifact@v2
         with:
           path: |
-            ./estnltk_core/conda_recipe/noarch/*.tar.bz2
+            ./estnltk_core/noarch/*.tar.bz2
