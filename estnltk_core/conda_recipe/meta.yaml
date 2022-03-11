@@ -1,11 +1,11 @@
 {% set data = load_setup_py_data() %}
 
 package:
-  name: estnltk-core
+  name: estnltk_core
   version: {{ data.get('version')  }}
 
 source:
-    path: ../../
+    path: ../../estnltk_core
 
 build:
  noarch: python
