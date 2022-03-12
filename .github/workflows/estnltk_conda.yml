@@ -50,7 +50,9 @@ jobs:
           echo --- dir completed ---
 
       - if: matrix.os == 'windows-latest'
-        uses: TheMrMilchmann/setup-mvsc-dev@v1
+        # Configure Developer Command Prompt for Microsoft Visual C++
+        # https://github.com/ilammy/msvc-dev-cmd
+        uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
