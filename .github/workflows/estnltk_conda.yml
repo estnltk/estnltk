@@ -61,7 +61,7 @@ jobs:
         run: |
           conda build -c conda-forge -c file:///%cd%/estnltk_core/my_channel --output-folder estnltk/my_channel_2 estnltk/conda-recipe/windows
           echo --- estnltk completed --- 
-          dir estnltk\my_channel_2\win-64
+          dir estnltk\my_channel_2
           echo --- dir completed ---
 
       - if: matrix.os != 'windows-latest'
@@ -69,13 +69,12 @@ jobs:
         run: |
           conda build -c conda-forge -c file:///$PWD/estnltk_core/my_channel --output-folder estnltk/my_channel_2 estnltk/conda-recipe/linux_and_osx
           echo --- estnltk completed --- 
-          dir estnltk\my_channel_2\linux-64
-          echo --- dir linux completed ---
-          dir estnltk\my_channel_2\osx-64
-          echo --- dir osx completed ---
+          dir estnltk/my_channel_2
+          echo --- dir completed ---
 
       - uses: actions/upload-artifact@v2
         with:
+          name: estnltk-conda-packages
           path: |
             ./estnltk/my_channel_2/win-64/*.tar.bz2
             ./estnltk/my_channel_2/linux-64/*.tar.bz2
