@@ -41,34 +41,34 @@ jobs:
         run: |
           conda install conda-build conda-verify swig cython
 
-      - name: Build estntlk_core conda package
+      - name: Build estnltk_core conda package
         run: |
           cd estnltk_core
           conda build -c conda-forge --output-folder my_channel conda_recipe
-          echo --- estntlk_core completed --- 
+          echo --- estnltk_core completed --- 
           dir .
           echo --- dir completed ---
 
       - if: matrix.os == 'windows-latest'
-        # Configure Developer Command Prompt for Microsoft Visual C++
+        name: Configure Dev Command Prompt for MS Visual C++ (windows-only)
         # https://github.com/ilammy/msvc-dev-cmd
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
       - if: matrix.os == 'windows-latest'
-        name: Build estntlk conda package (windows-latest)
+        name: Build estnltk conda package (windows-latest)
         run: |
           conda build -c conda-forge -c file:///%cd%/estnltk_core/my_channel --output-folder my_channel_2 conda-recipe\windows
-          echo --- estntlk completed --- 
+          echo --- estnltk completed --- 
           dir .
           echo --- dir completed ---
 
       - if: matrix.os != 'windows-latest'
-        name: Build estntlk conda package (${{ matrix.os }})
+        name: Build estnltk conda package (${{ matrix.os }})
         run: |
-          conda build -c conda-forge -c file:///$PWD/estnltk_core/my_channel --output-folder my_channel_2 conda-recipe\linux_and_osx
-          echo --- estntlk completed --- 
+          conda build -c conda-forge -c file:///$PWD/estnltk_core/my_channel --output-folder my_channel_2 conda-recipe/linux_and_osx
+          echo --- estnltk completed --- 
           dir .
           echo --- dir completed ---
 
