@@ -16,10 +16,8 @@ build:
 requirements:
   build:
     - python 
+    - estnltk_core
     - swig >=3.0.8
-    #- gcc
-    #- libgcc
-    - six >=1.9.0
     - nltk >=3.4.1
     - regex >=2015.11.22
     - pandas
@@ -31,7 +29,7 @@ requirements:
     - lxml
   run:
     - python
-    - six >=1.9.0
+    - estnltk_core
     - nltk >=3.4.1
     - regex >=2015.11.22
     - conllu >=3.1.1
@@ -46,6 +44,7 @@ requirements:
     - IPython
     - requests
     - matplotlib
+    - pyahocorasick
 
 about:
   home: https://github.com/estnltk/estnltk

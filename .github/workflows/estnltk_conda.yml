@@ -1,0 +1,78 @@
+name: Build estnltk conda package (and upload to conda later)
+
+on: 
+  push:
+    branches:
+      - devel_1.6_split
+    paths:
+      - '.github/workflows/estnltk_conda.yml'
+      
+  # Manual run (works only in the default branch)
+  #workflow_dispatch:
+
+
+jobs:
+  build_estnltk_conda_package:
+    name: Build estnltk conda package on ${{ matrix.os }} (py ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        #os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8']
+        #python-version: ['3.7', '3.8', '3.9', '3.10']
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: ${{ matrix.python-version }}
+          conda-channels: anaconda, conda-forge
+
+      - name: Install conda-build and building prerequisites
+        run: |
+          conda install conda-build conda-verify swig cython
+
+      - name: Build estntlk_core conda package
+        run: |
+          cd estnltk_core
+          conda build -c conda-forge --output-folder my_channel conda_recipe
+          echo --- estntlk_core completed --- 
+          dir .
+          echo --- dir completed ---
+
+      - if: matrix.os == 'windows-latest'
+        uses: TheMrMilchmann/setup-mvsc-dev@v1
+        with:
+          arch: x64
+
+      - if: matrix.os == 'windows-latest'
+        name: Build estntlk conda package (windows-latest)
+        run: |
+          conda build -c conda-forge -c file:///%cd%/estnltk_core/my_channel --output-folder my_channel_2 conda-recipe\windows
+          echo --- estntlk completed --- 
+          dir .
+          echo --- dir completed ---
+
+      - if: matrix.os != 'windows-latest'
+        name: Build estntlk conda package (${{ matrix.os }})
+        run: |
+          conda build -c conda-forge -c file:///$PWD/estnltk_core/my_channel --output-folder my_channel_2 conda-recipe\linux_and_osx
+          echo --- estntlk completed --- 
+          dir .
+          echo --- dir completed ---
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            ./estnltk/my_channel_2/win-64/*.tar.bz2
+            ./estnltk/my_channel_2/linux-64/*.tar.bz2
+            ./estnltk/my_channel_2/osx-64/*.tar.bz2
