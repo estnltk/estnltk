@@ -41,13 +41,25 @@ jobs:
         run: |
           conda install conda-build conda-verify swig cython
 
-      - name: Build estnltk_core conda package
+      #- name: Build estnltk_core conda package
+      #  run: |
+      #    cd estnltk_core
+      #    conda build -c conda-forge --output-folder ec_channel conda_recipe
+      #    echo --- estnltk_core completed --- 
+      #    dir ec_channel
+      #    echo --- dir completed ---
+
+      - uses: actions/download-artifact@v2
+        name: Download pre-built estnltk_core conda channel
+        with:
+          name: estnltk-core-conda-channel
+          path: ./estnltk_core/ec_channel
+
+      - name: Content of downloaded estnltk-core-conda-channel
         run: |
-          cd estnltk_core
-          conda build -c conda-forge --output-folder my_channel conda_recipe
-          echo --- estnltk_core completed --- 
-          dir .
-          echo --- dir completed ---
+          echo ----------------------
+          ls -lah estnltk_core/ec_channel
+          echo ----------------------
 
       - if: matrix.os == 'windows-latest'
         name: Configure Dev Command Prompt for MS Visual C++ (windows-only)
@@ -59,23 +71,31 @@ jobs:
       - if: matrix.os == 'windows-latest'
         name: Build estnltk conda package (windows-latest)
         run: |
-          conda build -c conda-forge -c file:///%cd%/estnltk_core/my_channel --output-folder estnltk/my_channel_2 estnltk/conda-recipe/windows
+          conda build -c conda-forge -c file:///%cd%/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
           echo --- estnltk completed --- 
-          dir estnltk\my_channel_2
+          dir estnltk\e_channel
           echo --- dir completed ---
 
       - if: matrix.os != 'windows-latest'
         name: Build estnltk conda package (${{ matrix.os }})
         run: |
-          conda build -c conda-forge -c file:///$PWD/estnltk_core/my_channel --output-folder estnltk/my_channel_2 estnltk/conda-recipe/linux_and_osx
+          conda build -c conda-forge -c file:///$PWD/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
           echo --- estnltk completed --- 
-          dir estnltk/my_channel_2
+          dir estnltk/e_channel
           echo --- dir completed ---
+
+      - if: matrix.os == 'ubuntu-latest'
+        name: Upload estnltk conda channel (only on ${{ matrix.os }})
+        uses: actions/upload-artifact@v2
+        with:
+          name: estnltk-conda-channel
+          path: |
+            ./estnltk/e_channel
 
       - uses: actions/upload-artifact@v2
         with:
           name: estnltk-conda-packages
           path: |
-            ./estnltk/my_channel_2/win-64/*.tar.bz2
-            ./estnltk/my_channel_2/linux-64/*.tar.bz2
-            ./estnltk/my_channel_2/osx-64/*.tar.bz2
+            ./estnltk/e_channel/win-64/*.tar.bz2
+            ./estnltk/e_channel/linux-64/*.tar.bz2
+            ./estnltk/e_channel/osx-64/*.tar.bz2
