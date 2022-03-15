@@ -17,7 +17,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [windows-latest]
+        #os: [ubuntu-latest]
         #os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.8']
         #python-version: ['3.7', '3.8', '3.9', '3.10']
@@ -41,25 +42,13 @@ jobs:
         run: |
           conda install conda-build conda-verify swig cython
 
-      #- name: Build estnltk_core conda package
-      #  run: |
-      #    cd estnltk_core
-      #    conda build -c conda-forge --output-folder ec_channel conda_recipe
-      #    echo --- estnltk_core completed --- 
-      #    dir ec_channel
-      #    echo --- dir completed ---
-
-      - uses: actions/download-artifact@v2
-        name: Download pre-built estnltk_core conda channel
-        with:
-          name: estnltk-core-conda-channel
-          path: ./estnltk_core/ec_channel
-
-      - name: Content of downloaded estnltk-core-conda-channel
+      - name: Build estnltk_core conda package
         run: |
-          echo ----------------------
-          ls -lah estnltk_core/ec_channel
-          echo ----------------------
+          cd estnltk_core
+          conda build -c conda-forge --output-folder ec_channel conda_recipe
+          echo --- estnltk_core completed --- 
+          dir ec_channel
+          echo --- dir completed ---
 
       - if: matrix.os == 'windows-latest'
         name: Configure Dev Command Prompt for MS Visual C++ (windows-only)
@@ -83,14 +72,6 @@ jobs:
           echo --- estnltk completed --- 
           dir estnltk/e_channel
           echo --- dir completed ---
-
-      - if: matrix.os == 'ubuntu-latest'
-        name: Upload estnltk conda channel (only on ${{ matrix.os }})
-        uses: actions/upload-artifact@v2
-        with:
-          name: estnltk-conda-channel
-          path: |
-            ./estnltk/e_channel
 
       - uses: actions/upload-artifact@v2
         with:
