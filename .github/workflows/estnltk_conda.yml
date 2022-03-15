@@ -58,15 +58,17 @@ jobs:
           arch: x64
 
       - if: matrix.os == 'windows-latest'
-        name: Build estnltk conda package (windows-latest)
+        name: Build estnltk conda package (windows)
         run: |
-          conda build -c conda-forge -c file:///%cd%/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
+          set cwd=%cd%
+          echo The working directory is: "%cwd%"
+          conda build -c conda-forge -c file:///%cwd%/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
           echo --- estnltk completed --- 
           dir estnltk\e_channel
           echo --- dir completed ---
 
       - if: matrix.os != 'windows-latest'
-        name: Build estnltk conda package (${{ matrix.os }})
+        name: Build estnltk conda package (linux or macos)
         run: |
           conda build -c conda-forge -c file:///$PWD/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
           echo --- estnltk completed --- 
