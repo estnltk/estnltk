@@ -33,5 +33,7 @@ jobs:
         name: Test windows commands #2
         run: |
           echo ---------------
+          cd 
+          echo ---------------
           echo "Step 1 test: ${{ steps.get_path.outputs.cwd }}"
           echo ---------------
