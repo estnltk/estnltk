@@ -26,18 +26,12 @@ jobs:
 
       - if: matrix.os == 'windows-latest'
         name: Test windows commands #1
-        run: |
-          echo ---------------
-          echo ${{ env.working-directory }}
-          echo ---------------
-          cd
-          echo ---------------
-          echo "action_state="cd >> $GITHUB_ENV
-          echo ---------------
-          
+        id:   get_path
+        run:  echo "::set-output name=cwd::$(cd)"
+
       - if: matrix.os == 'windows-latest'
         name: Test windows commands #2
         run: |
           echo ---------------
-          echo "${{ env.action_state }}"
+          echo "Step 1 test: ${{ steps.get_path.outputs.cwd }}"
           echo ---------------
