@@ -1,0 +1,35 @@
+name: Test windows environment
+
+on: 
+  push:
+    branches:
+      - devel_1.6_split
+    paths:
+      - '.github/workflows/test_windows.yml'
+      
+  # Manual run (works only in the default branch)
+  #workflow_dispatch:
+
+
+jobs:
+  test_windows_environment:
+    name: Test environment ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - if: matrix.os == 'windows-latest'
+        name: Test windows commands #1
+        run: |
+          echo ---------------
+          echo ${GITHUB_REF}
+          echo ---------------
+          echo "%cd%"
+          echo ---------------
+          set cwd=%cd%
+          echo ---------------
+          echo The working directory is: "%cwd%"
