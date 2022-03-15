@@ -16,7 +16,7 @@ jobs:
     name: Test environment ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
-        working-directory: .
+        working-directory: ./
     strategy:
       matrix:
         os: [windows-latest]
@@ -30,8 +30,14 @@ jobs:
           echo ---------------
           echo ${{ env.working-directory }}
           echo ---------------
-          echo "%cd%"
+          cd
           echo ---------------
-          set cwd=${{ env.working-directory }}
+          echo "action_state="cd >> $GITHUB_ENV
           echo ---------------
-          echo The working directory is: "%cwd%"
+          
+      - if: matrix.os == 'windows-latest'
+        name: Test windows commands #2
+        run: |
+          echo ---------------
+          echo "${{ env.action_state }}"
+          echo ---------------
