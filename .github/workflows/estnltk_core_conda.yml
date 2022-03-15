@@ -39,12 +39,21 @@ jobs:
       - name: Build estntlk_core conda package
         run: |
           cd estnltk_core
-          conda build -c conda-forge --output-folder . conda_recipe
+          conda build -c conda-forge --output-folder ec_channel conda_recipe
           echo --- estntlk_core completed --- 
-          dir .
+          dir ec_channel
           echo --- dir completed --- 
 
       - uses: actions/upload-artifact@v2
         with:
+          name: estnltk-core-conda-channel
           path: |
-            ./estnltk_core/noarch/*.tar.bz2
+            ./estnltk_core/ec_channel
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: estnltk-core-conda-package
+          path: |
+            ./estnltk_core/ec_channel/noarch/*.tar.bz2
+          retention-days: 7
