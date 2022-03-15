@@ -46,13 +46,6 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: estnltk-core-conda-channel
-          path: |
-            ./estnltk_core/ec_channel
-          retention-days: 7
-
-      - uses: actions/upload-artifact@v2
-        with:
           name: estnltk-core-conda-package
           path: |
             ./estnltk_core/ec_channel/noarch/*.tar.bz2
