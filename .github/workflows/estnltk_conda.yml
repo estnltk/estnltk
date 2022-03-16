@@ -17,9 +17,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        #os: [windows-latest]
         #os: [ubuntu-latest]
-        #os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.8']
         #python-version: ['3.7', '3.8', '3.9', '3.10']
 
@@ -60,9 +60,7 @@ jobs:
       - if: matrix.os == 'windows-latest'
         name: Build estnltk conda package (windows)
         run: |
-          set cwd=%cd%
-          echo The working directory is: "%cwd%"
-          conda build -c conda-forge -c file:///%cwd%/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
+          conda build -c conda-forge -c estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
           echo --- estnltk completed --- 
           dir estnltk\e_channel
           echo --- dir completed ---
@@ -70,7 +68,7 @@ jobs:
       - if: matrix.os != 'windows-latest'
         name: Build estnltk conda package (linux or macos)
         run: |
-          conda build -c conda-forge -c file:///$PWD/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
+          conda build -c conda-forge -c estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
           echo --- estnltk completed --- 
           dir estnltk/e_channel
           echo --- dir completed ---
