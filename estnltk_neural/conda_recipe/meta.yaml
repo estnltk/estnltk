@@ -1,0 +1,33 @@
+{% set data = load_setup_py_data() %}
+
+package:
+  name: estnltk_neural
+  version: {{ data.get('version')  }}
+
+source:
+    path: ../../estnltk_neural
+
+build:
+ noarch: python
+ number: 0
+
+requirements:
+  build:
+    - python 
+    - estnltk_core
+    - estnltk
+
+  run:
+    - python 
+    - estnltk_core
+    - estnltk
+    - tensorflow
+    - torch
+    - transformers
+    - stanza
+    - packaging
+
+about:
+  home: https://github.com/estnltk/estnltk
+  license: GPLv2
+  summary: 'EstNLTK neural -- linguistic analysis of Estonian based on neural models'
