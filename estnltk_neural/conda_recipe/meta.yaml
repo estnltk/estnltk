@@ -16,6 +16,11 @@ requirements:
     - python 
     - estnltk_core
     - estnltk
+    - tensorflow
+    - torch
+    - transformers
+    - stanza
+    - packaging
 
   run:
     - python 

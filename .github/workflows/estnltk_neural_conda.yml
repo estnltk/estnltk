@@ -56,9 +56,9 @@ jobs:
       - name: Build estnltk_neural conda package (noarch)
         run: |
           conda build -c conda-forge -c estnltk_core/ec_channel -c estnltk/e_channel --output-folder estnltk_neural/en_channel estnltk_neural/conda_recipe
-          echo --------------------- 
+          echo ---------------------- 
           ls estnltk_neural/en_channel
-          echo --------------------- 
+          echo ----------------------
 
       - uses: actions/upload-artifact@v2
         with:
