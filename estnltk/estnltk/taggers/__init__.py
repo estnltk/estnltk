@@ -75,3 +75,9 @@ from estnltk.taggers.miscellaneous.address_tagger import AddressGrammarTagger
 from estnltk.taggers.miscellaneous.adjective_phrase_tagger import AdjectivePhraseTagger
 from estnltk.taggers.miscellaneous.flesch_tagger import SentenceFleschScoreRetagger
 from estnltk.taggers.miscellaneous.verb_chains import VerbChainDetector
+
+from estnltk.web_taggers.v01.web_tagger import WebTagger
+from estnltk.web_taggers.v01.batch_processing_web_tagger import BatchProcessingWebTagger
+from estnltk.web_taggers.v01.bert_embeddings_web_tagger import BertEmbeddingsWebTagger
+from estnltk.web_taggers.v01.stanza_syntax_web_tagger import StanzaSyntaxWebTagger
+from estnltk.web_taggers.v01.stanza_syntax_ensemble_web_tagger import StanzaSyntaxEnsembleWebTagger
