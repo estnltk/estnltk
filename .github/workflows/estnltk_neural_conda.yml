@@ -82,5 +82,5 @@ jobs:
         run: |
           cd conda-packages
           echo --------------------- 
-          ls -lah noarch
+          ls -lah
           echo --------------------- 
