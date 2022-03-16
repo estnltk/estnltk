@@ -12,7 +12,7 @@ on:
 
 
 jobs:
-  build_estnltk_conda_package:
+  build_estnltk_conda_packages:
     name: Build estnltk conda package on ${{ matrix.os }} (py ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     strategy:
@@ -46,9 +46,7 @@ jobs:
         run: |
           cd estnltk_core
           conda build -c conda-forge --output-folder ec_channel conda_recipe
-          echo --- estnltk_core completed --- 
-          dir ec_channel
-          echo --- dir completed ---
+          echo --------------------- 
 
       - if: matrix.os == 'windows-latest'
         name: Configure Dev Command Prompt for MS Visual C++ (windows-only)
@@ -61,17 +59,17 @@ jobs:
         name: Build estnltk conda package (windows)
         run: |
           conda build -c conda-forge -c estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
-          echo --- estnltk completed --- 
+          echo --------------------- 
           dir estnltk\e_channel
-          echo --- dir completed ---
+          echo --------------------- 
 
       - if: matrix.os != 'windows-latest'
         name: Build estnltk conda package (linux or macos)
         run: |
           conda build -c conda-forge -c estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
-          echo --- estnltk completed --- 
-          dir estnltk/e_channel
-          echo --- dir completed ---
+          echo --------------------- 
+          ls estnltk/e_channel
+          echo --------------------- 
 
       - uses: actions/upload-artifact@v2
         with:
@@ -80,3 +78,21 @@ jobs:
             ./estnltk/e_channel/win-64/*.tar.bz2
             ./estnltk/e_channel/linux-64/*.tar.bz2
             ./estnltk/e_channel/osx-64/*.tar.bz2
+
+
+  upload_to_conda:
+    name: Upload estnltk packages to conda
+    needs: [build_estnltk_conda_packages]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: estnltk-conda-packages
+          path: conda-packages
+
+      - name: Display built estnltk conda packages
+        run: |
+          cd conda-packages
+          echo --------------------- 
+          ls -lah
+          echo --------------------- 
