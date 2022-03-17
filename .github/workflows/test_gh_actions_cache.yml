@@ -22,10 +22,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Create empty cache folder
-        run: |
-          cd estnltk_core
-          mkdir ec_channel
+      #- name: Create empty cache folder
+      #  run: |
+      #    cd estnltk_core
+      #    mkdir ec_channel
 
       - name: Cache ec-channel
         id: cache-ec-channel
@@ -34,23 +34,31 @@ jobs:
           path: estnltk_core/ec_channel
           key: ${{ runner.os }}-ec-channel
 
+      - name: Display ec-channel cache (1)
+        run: |
+          cd estnltk_core
+          echo -----------------------
+          cd ec_channel
+          ls -lah
+          echo -----------------------
+
       - name: Create content for caching
-        if: steps.cache-ec-channel.outputs.cache-hit != 'true'
+        #if: steps.cache-ec-channel.outputs.cache-hit != 'true'
         run: |
           echo Creating content for caching!
           cd estnltk_core
           cd ec_channel
           touch file1.txt
-          echo 'Hello!' >> file1.txt
+          echo ' Hello!' >> file1.txt
           touch file2.txt
-          mkdir subdir1
-          mkdir subdir2
+          mkdir -p subdir1
+          mkdir -p subdir2
           cd subdir1
           touch subdir1_file1.txt
           touch subdir1_file2.txt
-          echo 'Hello-hello!' >> subdir1_file2.txt
+          echo ' Hello-hello!' >> subdir1_file2.txt
 
-      - name: Display ec-channel cache
+      - name: Display ec-channel cache (2)
         run: |
           cd estnltk_core
           echo -----------------------
