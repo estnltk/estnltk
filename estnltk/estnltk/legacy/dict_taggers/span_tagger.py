@@ -1,6 +1,7 @@
 from typing import Sequence, Union
 
-from estnltk.taggers import Tagger, Vocabulary
+from estnltk.taggers import Tagger
+from estnltk.legacy.dict_taggers.vocabulary import Vocabulary
 from estnltk import Span
 from estnltk import Layer
 from estnltk import Annotation

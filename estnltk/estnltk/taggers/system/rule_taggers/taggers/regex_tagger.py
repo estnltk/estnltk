@@ -12,10 +12,15 @@ from typing.re import Match
 class RegexTagger(Tagger):
     """Tags regular expression matches on the text.
 
-    Searches matches for regular expressions in the text, solves the possible
-    conflicts and creates a new layer of the matches. The new created layer
-    will be ambiguous. Disambiguator tagger can be used to make it a
-    non-ambiguous layer.
+    Searches matches for regular expressions in the text, resolves the possible
+    conflicts based on 'conflict_resolver' and creates a new layer of the matches.
+    The new created layer will be ambiguous. Disambiguator tagger can be used to
+    make it a non-ambiguous layer.
+
+    The regular expressions to look for are given as patterns in the ruleset and
+    the annotation is built based on the same rule. To validate the annotation,
+    a global decorator can be used. The match object is an attribute of the
+    annotation so the decorator can use it to modify the annotation.
 
     """
     __slots__ = ['conflict_resolver',
@@ -172,6 +177,15 @@ class RegexTagger(Tagger):
         return layer
 
     def extract_annotations(self, text: str) -> List[Tuple[ElementaryBaseSpan, Match, StaticExtractionRule]]:
+        """
+        Returns a list of matches of the defined by the list of extraction rules that are canonically ordered:
+            span[i].start <= span[i+1].start
+            span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
+
+        Matches can overlap and do not have to be maximal -- a span may be enclosed by another span.
+
+        The matches are given as a tuple of base span, match object and the rule based on which the match was found.
+        """
         match_tuples = []
         for rule in self.ruleset.static_rules:
             reg = rule.pattern
@@ -188,6 +202,15 @@ class RegexTagger(Tagger):
             self,
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, Match, StaticExtractionRule]]) -> Layer:
+        """
+        Adds annotations to extracted matches and assembles them into a layer.
+        Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
+        * First statical rules are applied to specify fixed attributes. No spans are dropped!
+        * Next the global decorator is applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        * Finally decorators from dynamical rules are applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        """
 
         raw_text = layer.text_object
 
@@ -218,6 +241,19 @@ class RegexTagger(Tagger):
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str, StaticExtractionRule]]
     ) -> Generator[Tuple[Annotation, int, int], None, None]:
+        """
+        Returns a triple (annotation, group, priority) for each match that passes validation test.
+
+        Group and priority information is lifted form the matching extraction rules.
+        By construction a dynamic and static rule must have the same group and priority attributes.
+
+        Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
+        * First statical rules are applied to specify fixed attributes. No spans are dropped!
+        * Next the global decorator is applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        * Finally decorators from dynamical rules are applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        """
 
         raw_text = layer.text_object
 

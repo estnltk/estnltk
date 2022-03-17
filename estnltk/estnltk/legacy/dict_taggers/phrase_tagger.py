@@ -4,7 +4,8 @@ from typing import Sequence, Union
 from estnltk import Annotation, EnvelopingBaseSpan
 from estnltk import EnvelopingSpan
 from estnltk import Layer
-from estnltk.taggers import Tagger, Vocabulary
+from estnltk.taggers import Tagger
+from estnltk.legacy.dict_taggers.vocabulary import Vocabulary
 from estnltk_core.layer_operations import resolve_conflicts
 
 

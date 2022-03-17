@@ -3,7 +3,7 @@ from typing import Sequence, Union
 from estnltk.taggers import Tagger
 from estnltk import Layer
 from estnltk_core.layer_operations import resolve_conflicts
-from estnltk.taggers import Vocabulary
+from estnltk.legacy.dict_taggers.vocabulary import Vocabulary
 
 
 class RegexTagger(Tagger):

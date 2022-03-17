@@ -21,7 +21,6 @@ def test_static_extraction_rules():
     assert(rule.attributes['pattern'])
     assert(rule.attributes['attributes'] == 'Estonian')
 
-@pytest.mark.xfail(reason="work in progress")
 def test_dynamic_extraction_rules():
     # Standard rule
     rule = DynamicExtractionRule('word', lambda x:

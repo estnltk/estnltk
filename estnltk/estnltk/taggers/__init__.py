@@ -11,10 +11,9 @@ from estnltk.taggers.system.gap_tagger import GapTagger
 from estnltk.taggers.system.layer_merge_tagger import MergeTagger
 from estnltk.taggers.system.diff_tagger import DiffTagger
 
-from estnltk.taggers.system.dict_taggers.vocabulary import Vocabulary
-from estnltk.taggers.system.dict_taggers.phrase_tagger import PhraseTagger
-from estnltk.taggers.system.dict_taggers.regex_tagger import RegexTagger
-from estnltk.taggers.system.dict_taggers.span_tagger import SpanTagger
+from estnltk.taggers.system.rule_taggers.taggers.phrase_tagger import PhraseTagger
+from estnltk.taggers.system.rule_taggers.taggers.regex_tagger import RegexTagger
+from estnltk.taggers.system.rule_taggers.taggers.span_tagger import SpanTagger
 
 from estnltk.taggers.system.grammar_taggers.grammar_parsing_tagger import GrammarParsingTagger
 
@@ -58,13 +57,6 @@ from estnltk.taggers.standard.syntax.syntax_diff_retagger import SyntaxDiffRetag
 from estnltk.taggers.standard.syntax.scoring.syntax_las_tagger import SyntaxLasTagger
 from estnltk.taggers.standard.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
 
-from estnltk.taggers.standard.ner.ner_tagger import NerTagger
-from estnltk.taggers.standard.ner.word_level_ner_tagger import WordLevelNerTagger
-from estnltk.taggers.standard.ner.fex import NerGazetteerFeatureTagger
-from estnltk.taggers.standard.ner.fex import NerGlobalContextFeatureTagger
-from estnltk.taggers.standard.ner.fex import NerLocalFeatureTagger
-from estnltk.taggers.standard.ner.fex import NerMorphFeatureTagger
-from estnltk.taggers.standard.ner.fex import NerSentenceFeatureTagger
 
 from estnltk.taggers.standard.timexes.timex_tagger import TimexTagger
 

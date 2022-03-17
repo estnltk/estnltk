@@ -1,5 +1,4 @@
 import copy
-from collections import defaultdict
 from typing import Sequence, List, Tuple, Iterator, Generator, Dict, Callable, Any
 
 from estnltk import Annotation, EnvelopingBaseSpan
@@ -14,7 +13,17 @@ from estnltk_core import ElementaryBaseSpan
 
 class PhraseTagger(Tagger):
     """
-    Tags phrases on a given layer. Creates an enveloping layer.
+    Can be used to tag sequential attribute values (phrases)
+    of a layer. Results in an enveloping layer.
+
+    Takes as input a layer ('input_layer'), an attribute ('input_attribute')
+    and a ruleset ('ruleset'). The pattern of each rule in the ruleset has
+    to be a tuple of input attributes: so for example if the attribute is
+    'lemma' then the pattern is a tuple of lemmas. These lemmas are then
+    searched for in the input layer and if that sequence of lemmas is found
+    in the layer, the annotation is created based on the rule. A global
+    decorator ('decorator') can be used to validate the annotations.
+    Overlapping spans are resolved based on the choice of 'conflict_resolver'.
     """
 
     def __init__(self,
@@ -24,9 +33,7 @@ class PhraseTagger(Tagger):
                  ruleset: AmbiguousRuleset,
                  conflict_resolver: str = 'KEEP_MAXIMAL',
                  output_attributes: Sequence = None,
-                 key: str = '_phrase_',
                  decorator=None,
-                 priority_attribute: str = None,
                  ignore_case=False
                  ):
         """Initialize a new PhraseTagger instance.
@@ -50,14 +57,10 @@ class PhraseTagger(Tagger):
                 span[i].start <= span[i+1].start
                 span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
             where the span is annotation.span
-        :param key: str
-            The name of the ruleset index
         :param decorator: Callable
             Decorator function for spans
         :param output_attributes
             Names of the output layer attributes.
-        :param priority_attribute: str
-            Name of the attribute that is used to resolve conflicts.
         :param ignore_case: bool
             If True, matches will be searched for using lowercased rule patterns
         """
@@ -71,13 +74,10 @@ class PhraseTagger(Tagger):
         self.input_attribute = input_attribute
 
         output_attributes = output_attributes or []
-        if priority_attribute is not None and priority_attribute not in output_attributes:
-            output_attributes.append(priority_attribute)
         self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
 
         self.conflict_resolver = conflict_resolver
-        self.priority_attribute = priority_attribute
 
         # Validate ruleset. It must exist
         if not isinstance(ruleset, AmbiguousRuleset):
@@ -85,7 +85,7 @@ class PhraseTagger(Tagger):
         if not (set(ruleset.output_attributes) <= set(self.output_attributes)):
             raise ValueError('Output attributes of a ruleset must match the output attributes of a tagger')
 
-        self.extend_ruleset(ruleset, key)
+        self.ruleset = copy.copy(ruleset)
 
         self.static_ruleset_map: Dict[str, List[Tuple[int, int, Dict[str, any]]]]
 
@@ -150,20 +150,6 @@ class PhraseTagger(Tagger):
             current_phrase.add(phrase.pattern[1:])
             self._heads[phrase.pattern[0]] = current_phrase
 
-    def extend_ruleset(self, ruleset, key):
-        self.ruleset = copy.copy(ruleset)
-
-        addable_attributes = []
-        for attribute in self.output_attributes:
-            if attribute not in self.ruleset.static_rules[0].attributes:
-                addable_attributes.append(attribute)
-        for rule in self.ruleset.static_rules:
-            for attribute in addable_attributes:
-                if attribute == key:
-                    rule.attributes[attribute] = rule.pattern
-                else:
-                    rule.attributes[attribute] = None
-
     def _make_layer_template(self):
         return Layer(name=self.output_layer,
                      attributes=self.output_attributes,
@@ -191,6 +177,13 @@ class PhraseTagger(Tagger):
         return layer
 
     def extract_annotations(self, text: str, layers: dict) -> List[Tuple[EnvelopingBaseSpan, str, Any]]:
+        """
+        Returns a list of matches of the defined by the list of extraction rules that are canonically ordered:
+            span[i].start <= span[i+1].start
+            span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
+
+        Matches can overlap and do not have to be maximal -- a span may be enclosed by another span.
+        """
         match_tuples = []
         input_layer = layers[self.input_layers[0]]
         layer = self._make_layer_template()
@@ -209,7 +202,7 @@ class PhraseTagger(Tagger):
 
         value_list = [{get_value(annotation) for annotation in span.annotations} for span in input_layer]
 
-        heads = self._heads
+        heads = self._heads #TODO this logic could be replaced by trie
         for i, values in enumerate(value_list):
             for value in values:
                 if value not in heads:
@@ -231,6 +224,15 @@ class PhraseTagger(Tagger):
             self,
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]) -> Layer:
+        """
+        Adds annotations to extracted matches and assembles them into a layer.
+        Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
+        * First statical rules are applied to specify fixed attributes. No spans are dropped!
+        * Next the global decorator is applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        * Finally decorators from dynamical rules are applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        """
 
         text = layer.text_object
 
@@ -258,6 +260,20 @@ class PhraseTagger(Tagger):
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]
     ) -> Generator[Tuple[Annotation, int, int], None, None]:
+        """
+        Returns a triple (annotation, group, priority) for each match that passes validation test.
+
+        Group and priority information is lifted form the matching extraction rules.
+        By construction a dynamic and static rule must have the same group and priority attributes.
+
+        Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
+        * First statical rules are applied to specify fixed attributes. No spans are dropped!
+        * Next the global decorator is applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        * Finally decorators from dynamical rules are applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        """
+
         text = layer.text_object
 
         for base_span, _, phrase in sorted_tuples:

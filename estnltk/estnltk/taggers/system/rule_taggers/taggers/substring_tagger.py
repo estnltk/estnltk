@@ -303,14 +303,12 @@ class SubstringTagger(Tagger):
                 subindex = self.dynamic_ruleset_map.get(pattern, None)
                 decorator = subindex[(group, priority)] if subindex is not None else None
                 if decorator is None:
-                    span.add_annotation(annotation)
+                    layer.add_annotation(base_span,annotation)
                     continue
                 annotation = decorator(text_object, span, annotation)
                 if annotation is not None:
-                    span.add_annotation(annotation)
+                    layer.add_annotation(base_span,annotation)
 
-            if len(span.annotations) > 0:
-                layer.add_span(span)
             base_span, pattern = next(sorted_tuples, (None, None))
 
         return layer

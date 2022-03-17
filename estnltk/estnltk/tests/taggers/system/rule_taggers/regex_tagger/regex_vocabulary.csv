@@ -1,4 +1,4 @@
-_regex_pattern_,_group_,_priority_,_validator_,normalized,comment,example
-regex,callable,callable,callable,callable,string,string
-"-?(\d[\s\.]?)+(,\s?(\d[\s\.]?)+)?",0,1,lambda m: True,"lambda m: re.sub('[\s\.]' ,'' , m.group(0))",number,"-34 567 000 123 , 456"
-([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+),1,2,lambda m: True,lambda m: None,e-mail,bla@bla.bl
+_regex_pattern_,_group_,_priority_,_validator_,comment,example
+regex,callable,callable,callable,string,string
+"-?(\d[\s\.]?)+(,\s?(\d[\s\.]?)+)?",0,1,lambda m: True,number,"-34 567 000 123 , 456"
+([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+),1,2,lambda m: True,e-mail,bla@bla.bl

@@ -14,6 +14,15 @@ from estnltk_core import ElementaryBaseSpan
 class SpanTagger(Tagger):
     """Tags spans on a given layer. Creates a layer for which the input layer is the parent layer.
 
+    Takes as input a layer ('input_layer'), an attribute ('input_attribute')
+    and a ruleset ('ruleset'). The pattern of each rule in the ruleset is the
+    value of the input attribute so for example if the attribute : for example if
+    the attribute is 'lemma' then the pattern should be a lemma. These lemmas are
+    then searched for in the input layer and if the lemma is found
+    in the layer, an annotation is created based on the rule. A global
+    decorator ('decorator') can be used to validate the annotations.
+    Overlapping spans are resolved based on the choice of 'conflict_resolver'.
+
     """
 
     def __init__(self,
@@ -24,8 +33,6 @@ class SpanTagger(Tagger):
                  output_attributes: Sequence[str] = (),
                  decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
-                 validator_attribute: str = None,
-                 priority_attribute: str = None,
                  ignore_case=False,
                  conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL'
                  ):
@@ -44,10 +51,6 @@ class SpanTagger(Tagger):
             Output layer attributes.
         :param decorator: callable
             Global decorator function.
-        :param validator_attribute: str
-            The name of the attribute that points to the global_validator function in the vocabulary.
-        :param priority_attribute
-            The name
         :param ignore_case
             If True, then matches do not depend on capitalisation of letters
             If False, then capitalisation of letters is important
@@ -63,16 +66,13 @@ class SpanTagger(Tagger):
                 span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
             where the span is annotation.span
         """
-        self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator', 'validator_attribute',
-                           'priority_attribute', 'ambiguous', 'ignore_case', '_ruleset', 'dynamic_ruleset_map',
+        self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator',
+                           'ambiguous', 'ignore_case', '_ruleset', 'dynamic_ruleset_map',
                            'conflict_resolver', 'static_ruleset_map')
-        self.priority_attribute = priority_attribute
         self.output_layer = output_layer
         self.input_attribute = input_attribute
 
         self.output_attributes = tuple(output_attributes)
-
-        self.validator_attribute = validator_attribute
 
         self.global_decorator = decorator
 
@@ -126,6 +126,13 @@ class SpanTagger(Tagger):
                      ambiguous=not isinstance(self._ruleset, Ruleset))
 
     def extract_annotations(self, text: str, layers: dict) -> List[Tuple[ElementaryBaseSpan, str]]:
+        """
+        Returns a list of matches of the defined by the list of extraction rules that are canonically ordered:
+            span[i].start <= span[i+1].start
+            span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
+
+        Matches can overlap and do not have to be maximal -- a span may be enclosed by another span.
+        """
         layer = self._make_layer_template()
         layer.text_object = text
 
@@ -138,7 +145,7 @@ class SpanTagger(Tagger):
         for parent_span in input_layer:
             for annotation in parent_span.annotations:
                 value = annotation[input_attribute]
-                if not self.case_sensitive:
+                if self.ignore_case:
                     value = value.lower()
                 if value in [rule.pattern for rule in ruleset.static_rules]:
                     match_tuples.append((parent_span.base_span, value))
@@ -149,6 +156,15 @@ class SpanTagger(Tagger):
             self,
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]) -> Layer:
+        """
+        Adds annotations to extracted matches and assembles them into a layer.
+        Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
+        * First statical rules are applied to specify fixed attributes. No spans are dropped!
+        * Next the global decorator is applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        * Finally decorators from dynamical rules are applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        """
 
         raw_text = layer.text_object
 
@@ -182,6 +198,19 @@ class SpanTagger(Tagger):
             layer: Layer,
             sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]
     ) -> Generator[Tuple[Annotation, int, int], None, None]:
+        """
+        Returns a triple (annotation, group, priority) for each match that passes validation test.
+
+        Group and priority information is lifted form the matching extraction rules.
+        By construction a dynamic and static rule must have the same group and priority attributes.
+
+        Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
+        * First statical rules are applied to specify fixed attributes. No spans are dropped!
+        * Next the global decorator is applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        * Finally decorators from dynamical rules are applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        """
 
         raw_text = layer.text_object
 
