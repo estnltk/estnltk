@@ -2,9 +2,7 @@ from estnltk_core.taggers.tagger_tester import TaggerTester
 from estnltk.taggers.system.rule_taggers import SpanTagger
 from estnltk.common import abs_path
 from estnltk.taggers.system.rule_taggers import Ruleset
-import pytest
 
-@pytest.mark.skip(reason="work in progress")
 def test_tagger():
     vocabulary_file = abs_path('tests/taggers/system/rule_taggers/span_tagger/span_vocabulary.csv')
     ruleset = Ruleset()

@@ -4,10 +4,7 @@ from estnltk import Text
 from estnltk.taggers.system.rule_taggers import StaticExtractionRule
 from estnltk.taggers.system.rule_taggers import DynamicExtractionRule
 
-import pytest
 
-
-@pytest.mark.skip(reason="work in progress")
 def test_static_extraction_rules():
     # Standard rule
     rule = StaticExtractionRule('no', {'value': False, 'language': 'English'})
