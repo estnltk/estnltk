@@ -2,7 +2,7 @@
 #  Tags text snippets that should be ignored during the syntactic analysis.
 #  
 from estnltk.taggers import Tagger
-from estnltk.taggers import RegexTagger
+from estnltk.legacy.dict_taggers.regex_tagger import RegexTagger
 from estnltk import Annotation, EnvelopingBaseSpan, EnvelopingSpan, Layer
 
 import regex as re

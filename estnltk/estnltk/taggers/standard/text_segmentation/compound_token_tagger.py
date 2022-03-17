@@ -18,7 +18,7 @@ from estnltk import EnvelopingSpan
 from estnltk import SpanList
 from estnltk import Layer
 from estnltk.taggers import Tagger
-from estnltk.taggers import RegexTagger
+from estnltk.legacy.dict_taggers.regex_tagger import RegexTagger
 from estnltk.taggers import Disambiguator
 from estnltk.taggers.standard.morph_analysis.proxy import MorphAnalyzedToken
 from estnltk_core.layer_operations import resolve_conflicts

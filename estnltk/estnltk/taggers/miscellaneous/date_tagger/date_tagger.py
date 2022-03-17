@@ -1,6 +1,6 @@
 import datetime
 
-from estnltk.taggers import RegexTagger
+from estnltk.legacy.dict_taggers.regex_tagger import RegexTagger
 from estnltk.taggers.miscellaneous.date_tagger.regexes_v import regexes
 
 

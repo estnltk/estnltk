@@ -1,4 +1,6 @@
-from estnltk.taggers import RegexTagger, SpanTagger, PhraseTagger
+from estnltk.legacy.dict_taggers.span_tagger import SpanTagger
+from estnltk.legacy.dict_taggers.regex_tagger import RegexTagger
+from estnltk.legacy.dict_taggers.phrase_tagger import PhraseTagger
 import re
 from estnltk.taggers.system.grammar_taggers.finite_grammar import Rule, Grammar
 from estnltk.taggers import Tagger

@@ -1,6 +1,0 @@
-_phrase_,number,letter,_priority_
-callable,callable,string,callable
-"'L0-3', 'L0-4'",1,A,0
-"'L0-3',",2,B,0
-"'L0-3', 'L0-4'",3,C,0
-"'L0-3', 'L0-4', 'L0-5'",4,D,0

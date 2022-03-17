@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from estnltk.taggers import Tagger
-from estnltk.taggers import RegexTagger
+from estnltk.legacy.dict_taggers.regex_tagger import RegexTagger
 
 from .robust_date_number_vocabulary import vocabulary as voc
 
