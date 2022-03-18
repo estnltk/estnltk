@@ -40,13 +40,41 @@ jobs:
         run: |
           conda install conda-build conda-verify swig cython
 
+      # Use estnltk-core-channel cache
+      # load data from the cache if it exists.
+      # this enables to skip the building 
+      # step below.
+      # Look for the cache key in the workflow 
+      # of building estnltk_core conda package
+      - name: Cache ec_channel
+        id: cache-ec-channel
+        uses: actions/cache@v2
+        with:
+          path: estnltk_core/ec_channel
+          key: estnltk-core-channel-2022-03-18
+
       - name: Build estnltk_core conda package (noarch)
+        if: steps.cache-ec-channel.outputs.cache-hit != 'true'
         run: |
           cd estnltk_core
           conda build -c conda-forge --output-folder ec_channel conda_recipe
           echo --------------------- 
 
+      # Use estnltk-channel cache
+      # load data from the cache if it exists.
+      # this enables to skip the building 
+      # step below.
+      # Look for the cache key in the workflow 
+      # of building estnltk conda package
+      - name: Cache e_channel
+        id: cache-e-channel
+        uses: actions/cache@v2
+        with:
+          path: estnltk/e_channel
+          key: estnltk-channel-2022-03-18
+
       - name: Build estnltk conda package (${{ matrix.os }})
+        if: steps.cache-e-channel.outputs.cache-hit != 'true'
         run: |
           conda build -c conda-forge -c estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
           echo --------------------- 
