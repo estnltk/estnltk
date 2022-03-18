@@ -17,9 +17,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        #os: [windows-latest]
+        os: [ubuntu-latest, windows-latest]
         #os: [ubuntu-latest]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        #os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.8']
         #python-version: ['3.7', '3.8', '3.9', '3.10']
 
@@ -42,7 +42,21 @@ jobs:
         run: |
           conda install conda-build conda-verify swig cython
 
+      # Use estnltk-core-channel cache
+      # load data from the cache if it exists.
+      # this enables to skip the building 
+      # step below.
+      # Look for the cache key in the workflow 
+      # of building estnltk_core conda package
+      - name: Cache ec_channel
+        id: cache-ec-channel
+        uses: actions/cache@v2
+        with:
+          path: estnltk_core/ec_channel
+          key: estnltk-core-channel-2022-03-18
+
       - name: Build estnltk_core conda package
+        if: steps.cache-ec-channel.outputs.cache-hit != 'true'
         run: |
           cd estnltk_core
           conda build -c conda-forge --output-folder ec_channel conda_recipe
@@ -62,6 +76,23 @@ jobs:
           echo --------------------- 
           dir estnltk\e_channel
           echo --------------------- 
+
+      # Use estnltk-channel cache on Ubuntu. 
+      # The goal is to store the channel data, so 
+      # that it can be used to speed up the building 
+      # process of estnltk-neural conda package.
+      # Note that if the cache exists, conda build 
+      # will overwrite the data, but it is not stored 
+      # in cache unless the cache key has been changed.
+      # (so, you should change the key if you want 
+      #  to store a new build)
+      - if: matrix.os == 'ubuntu-latest'
+        name: Cache e_channel
+        id: cache-e-channel
+        uses: actions/cache@v2
+        with:
+          path: estnltk/e_channel
+          key: estnltk-channel-2022-03-18
 
       - if: matrix.os != 'windows-latest'
         name: Build estnltk conda package (linux or macos)
