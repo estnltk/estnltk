@@ -42,6 +42,12 @@ jobs:
         run: |
           conda install conda-build conda-verify swig cython
 
+      # A fix from here: https://github.com/actions/cache/issues/591 
+      - name: "Use GNU tar instead BSD tar (fix for windows caching)"
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
+
       # Use estnltk-core-channel cache
       # load data from the cache if it exists.
       # this enables to skip the building 
@@ -86,7 +92,7 @@ jobs:
       # in cache unless the cache key has been changed.
       # (so, you should change the key if you want 
       #  to store a new build)
-      - if: matrix.os == 'ubuntu-latest'
+      - if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8'
         name: Cache e_channel
         id: cache-e-channel
         uses: actions/cache@v2
