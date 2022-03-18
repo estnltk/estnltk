@@ -22,10 +22,9 @@ setup(
     packages=find_packages(),
     author="University of Tartu",
     author_email="siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
-    description="EstNLTK neural -- package containing linguistic analysis based on neural models",
-    # TODO: long_description
-    long_description="EstNLTK neural -- linguistic analysis of Estonian based on neural models",
-    #long_description=open('description.txt').read(),
+    description="EstNLTK neural -- EstNLTK's linguistic analysis based on neural models",
+    long_description=open('README.md', errors='replace').read(),
+    long_description_content_type='text/markdown',
     license="GPLv2",
     # the list of package data used by "build", "bdist" and "install"
     include_package_data=True,
