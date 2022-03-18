@@ -1,6 +1,6 @@
-## EstNLTK v1.6 packages
+## EstNLTK v1.7 packages
 
-* [estnltk-core](estnltk_core) -- package containing core components of the EstNLTK v1.6 library:
+* [estnltk-core](estnltk_core) -- package containing core data structures and components of the EstNLTK library:
 	* data structures: BaseText, BaseLayer, Layer, Span, EnvelopingSpan, SpanList, Annotation;
 	* tagger component interfaces: Tagger, Retagger;
 	* basic layer operations: flatten, merge, rebase, split layers etc.
