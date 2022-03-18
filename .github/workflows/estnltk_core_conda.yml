@@ -36,6 +36,22 @@ jobs:
         run: |
           conda install conda-build conda-verify
 
+      # Use estnltk-core-channel cache. 
+      # The goal is to store the channel data, so 
+      # that it can be used to speed up the building 
+      # process of estnltk conda package.
+      # Note that if the cache exists, conda build 
+      # will overwrite the data, but it is not stored 
+      # in cache unless the cache key has been changed.
+      # (so, you should change the key if you want 
+      #  to store a new build)
+      - name: Cache ec_channel
+        id: cache-ec-channel
+        uses: actions/cache@v2
+        with:
+          path: estnltk_core/ec_channel
+          key: estnltk-core-channel-2022-03-18
+
       - name: Build estntlk_core conda package
         run: |
           cd estnltk_core
@@ -50,3 +66,21 @@ jobs:
           path: |
             ./estnltk_core/ec_channel/noarch/*.tar.bz2
           retention-days: 7
+
+
+  upload_to_conda:
+    name: Upload estnltk_core package to conda
+    needs: [build_estnltk_core_conda_package]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: estnltk-core-conda-package
+          path: conda-packages
+
+      - name: Display built estnltk_core conda package
+        run: |
+          cd conda-packages
+          echo --------------------- 
+          ls -lah
+          echo --------------------- 
