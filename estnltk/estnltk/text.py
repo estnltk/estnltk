@@ -23,7 +23,7 @@ class Text( BaseText ):
         # add morphological analysis to the text
         my_text.tag_layer('morph_analysis')
 
-    `Text.layer_resolver` gives more information about which layers can be added.
+    Type `Text.layer_resolver` to get more information about layers that can be tagged. 
 
     Added layer can be accessed via indexing (square brackets):
 
@@ -57,8 +57,8 @@ class Text( BaseText ):
         # get all morph analysis annotations of the first word
         my_text['morph_analysis'][0].annotations
 
-    Note that in both cases, a list is returned, because annotations can
-    be ambiguous, e.g. list multiple alternative interpretations.
+    In both cases, a list is returned, because annotations can be ambiguous, 
+    so list holds multiple alternative interpretations.
 
     Metadata
     =========
@@ -71,6 +71,36 @@ class Text( BaseText ):
         DateTime
     as database serialisation does not work for other types.
     See [estnltk.storage.postgres] for further documentation.
+    
+    More tools
+    ===========
+    `Text.layer_resolver` contains taggers of the default NLP pipeline. More taggers can 
+    be found in `estnltk.taggers`:
+    
+        import estnltk.taggers
+        # List names of taggers that can be imported
+        dir( estnltk.taggers )
+        
+    How to use manually a tagger imported from `estnltk.taggers` ?
+    
+    1) Initialize the tagger, e.g.
+
+        from estnltk.taggers import VabamorfTagger
+        tagger = VabamorfTagger()
+    
+    2) Create input layers required by the tagger, e.g.
+    
+        new_text = Text(...)
+        new_text.tag_layer( tagger.input_layers )
+    
+    3) Tag layer with the tagger:
+    
+        tagger.tag( new_text )
+    
+    Note that some of the taggers are retaggers, which means that 
+    instead of creating a layer they modify an existing layer. 
+    In that case, you should use `tagger.retag( new_text )` instead.
+    ---
     """
     
     # All methods for BaseText/Text object
@@ -126,7 +156,8 @@ class Text( BaseText ):
         Tags given layers along with their prerequisite layers.
         Returns this Text object with added layers.
 
-        Use Text.layer_resolver to get more information about which layers can be tagged.
+        Type `Text.layer_resolver` to get more information about layers that can be 
+        tagged by default. 
 
         If you don't pass any parameters, defaults to tagging 'sentences' and
         'morph_analysis' layers along with their prerequisite layers (segmentation

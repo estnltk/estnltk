@@ -33,7 +33,6 @@ Neural models for syntactic parsing can be downloaded from [https://entu.keelere
 ### Documentation
 
 Updating tutorials is currently work-in-progress. 
-The information is provided in docstrings of classes and methods.
 You can find old tutorials [here](https://github.com/estnltk/estnltk/tree/version_1.6/tutorials).
 
 ### Source
