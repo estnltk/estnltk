@@ -106,6 +106,9 @@ Tools in `estnltk-neural` require installation of deep learning frameworks (`ten
 	* removed `TIMEXES_RESOLVER` and moved all necessary preprocessing (text segmentation and morphological analysis) inside `TimexTagger`;
 	* `'timexes'` is now a flat layer by default. It can be made enveloping `'words'`, but this can result in broken timex phrases due to differences in `TimexTagger`'s tokenization and EstNLTK's default tokenization;
 
+* `Vabamorf`'s optimization:
+	* Disabled [Swig proxy classes](http://www.swig.org/Doc3.0/Python.html#Python_builtin_types). As a result, the morphological analysis is faster. However, this update is under testing and may not be permanent, because disabled proxy classes are known to cause conflicts with other Python Swig extensions compiled under different settings (for more details, see [here](https://stackoverflow.com/q/21103242) and [here](https://github.com/estnltk/estnltk/blob/b0d0ba6d943fb42b923fa6999c752fead927c992/dev_documentation/hfst_integration_problems/solving_stringvector_segfault.md));
+
 * Dropped Python 3.6 support;
 
 
