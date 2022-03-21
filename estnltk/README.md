@@ -46,13 +46,15 @@ You can install EstNLTK on [Google Colab](https://colab.research.google.com) env
 
 ### Documentation
 
-Updating tutorials is currently work-in-progress. 
-Most of the tutorials for version 1.6 should also work for version 1.7, although imports need fixing. 
-Version 1.6 tutorials come in the form of [jupyter notebooks](http://jupyter.org), which are available here: https://github.com/estnltk/estnltk/tree/version_1.6/tutorials
+EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org). However, updating tutorials is work-in-progress. Most of the tutorials of version 1.6 should also work for version 1.7, although imports may need fixing:
 
+  * [Basics of EstNLTK 1.6 / 1.7](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials/basics_of_estnltk.ipynb) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials/basics_of_estnltk.ipynb))
+  * [Tutorials root folder](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials)) 
+  
 Additional educational materials on EstNLTK are available on web pages of an NLP course taught at the University of Tartu:
 
-  * [https://github.com/d009/EstNLP](https://github.com/d009/EstNLP) (in Estonian)
+  * [https://github.com/d009/EstNLP](https://github.com/d009/EstNLP) (in Estonian)  
+
 
 Note: if you have trouble viewing jupyter notebooks in github (you get an error message _Sorry, something went wrong. Reload?_ at loading a notebook), then try to open notebooks with the help of [https://nbviewer.jupyter.org](https://nbviewer.jupyter.org)
 
@@ -60,6 +62,8 @@ Note: if you have trouble viewing jupyter notebooks in github (you get an error 
 
 The source of the package development can be found at branch [devel\_1.6\_split](https://github.com/estnltk/estnltk/tree/devel_1.6_split/estnltk).
 The main repository is https://github.com/estnltk/estnltk
+
+Development [changelog.](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk/CHANGELOG.md)
 
 ## Citation
 
