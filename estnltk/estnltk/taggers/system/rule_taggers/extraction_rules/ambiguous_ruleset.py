@@ -38,7 +38,6 @@ class AmbiguousRuleset:
     Raises ValueError if two rules of the same type have the same left-hand-side.
     There can be static and a dynamic extraction rule with the same left-hand-side.
 
-    TODO: Harden attribute access
     """
 
     def __init__(self, rules: List[ExtractionRule] = ()):

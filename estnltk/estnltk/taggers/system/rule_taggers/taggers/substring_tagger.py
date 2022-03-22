@@ -43,7 +43,6 @@ class SubstringTagger(Tagger):
     Rules can be specified during the initialisation and cannot be changed afterwards.
     Use the class AmbiguousRuleset or Ruleset to load static rules from csv files before initialising the tagger.
 
-    TODO: Harden attribute access
     """
 
     # noinspection PyMissingConstructor,PyUnresolvedReferences

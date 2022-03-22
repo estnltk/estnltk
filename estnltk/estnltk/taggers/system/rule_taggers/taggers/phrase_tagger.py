@@ -34,7 +34,8 @@ class PhraseTagger(Tagger):
                  conflict_resolver: str = 'KEEP_MAXIMAL',
                  output_attributes: Sequence = None,
                  decorator=None,
-                 ignore_case=False
+                 ignore_case=False,
+                 phrase_attribute='phrase'
                  ):
         """Initialize a new PhraseTagger instance.
 
@@ -63,10 +64,12 @@ class PhraseTagger(Tagger):
             Names of the output layer attributes.
         :param ignore_case: bool
             If True, matches will be searched for using lowercased rule patterns
+        :param phrase_attribute: str (Default: 'phrase')
+            Name of the attribute in which the phrase object of the annotation is stored.
+            The attribute can be used by the decorator or dynamic rules to change the annotation.
         """
-        self.conf_param = ('input_attribute', 'ruleset', 'decorator',
-                           'priority_attribute', '_heads',
-                           'ignore_case', 'conflict_resolver',
+        self.conf_param = ('input_attribute', 'ruleset', 'decorator', '_heads',
+                           'ignore_case', 'conflict_resolver', 'phrase_attribute',
                            'static_ruleset_map', 'dynamic_ruleset_map')
 
         self.output_layer = output_layer
@@ -95,9 +98,13 @@ class PhraseTagger(Tagger):
 
         for rule in ruleset.static_rules:
             if self.ignore_case:
-                subindex = static_ruleset_map.get(rule.pattern.lower(), [])
+                lower_pattern = []
+                for word in rule.pattern:
+                    lower_pattern.append(word.lower())
+                lower_pattern = tuple(lower_pattern)
+                subindex = static_ruleset_map.get(lower_pattern, [])
                 subindex.append((rule.group, rule.priority, rule.attributes))
-                static_ruleset_map[rule.pattern.lower()] = subindex
+                static_ruleset_map[lower_pattern] = subindex
             else:
                 subindex = static_ruleset_map.get(rule.pattern, [])
                 subindex.append((rule.group, rule.priority, rule.attributes))
@@ -111,17 +118,21 @@ class PhraseTagger(Tagger):
         dynamic_ruleset_map = dict()
         for rule in ruleset.dynamic_rules:
             if self.ignore_case:
-                subindex = dynamic_ruleset_map.get(rule.pattern.lower(), dict())
+                lower_pattern = []
+                for word in rule.pattern:
+                    lower_pattern.append(word.lower())
+                lower_pattern = tuple(lower_pattern)
+                subindex = dynamic_ruleset_map.get(lower_pattern, dict())
                 if (rule.group, rule.priority) in subindex:
                     raise AttributeError('There are multiple rules with the same pattern, group and priority')
                 subindex[rule.group, rule.priority] = rule.decorator
-                dynamic_ruleset_map[rule.pattern.lower()] = subindex
+                dynamic_ruleset_map[lower_pattern] = subindex
                 # create corresponding static rule if it does not exist yet
-                if static_ruleset_map.get(rule.pattern.lower(), None) is None:
-                    self.static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
-                elif len([item for item in static_ruleset_map.get(rule.pattern.lower())
+                if static_ruleset_map.get(lower_pattern, None) is None:
+                    self.static_ruleset_map[lower_pattern] = [(rule.group, rule.priority, dict())]
+                elif len([item for item in static_ruleset_map.get(lower_pattern)
                           if item[0] == rule.group and item[1] == rule.priority]) == 0:
-                    self.static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
+                    self.static_ruleset_map[lower_pattern] = [(rule.group, rule.priority, dict())]
             else:
                 subindex = dynamic_ruleset_map.get(rule.pattern, dict())
                 if (rule.group, rule.priority) in subindex:
@@ -139,16 +150,15 @@ class PhraseTagger(Tagger):
 
         self.ignore_case = ignore_case
 
-        if ignore_case:
-            for rule in self.ruleset.static_rules:
-                for i in range(len(rule.pattern)):
-                    rule.pattern[i] = rule.pattern[i].lower()
+        self.phrase_attribute = phrase_attribute
+        if not isinstance(phrase_attribute, str):
+            raise AttributeError("Phrase attribute must be str")
 
         self._heads = {}
-        for phrase in self.ruleset.static_rules:
-            current_phrase = self._heads.get(phrase.pattern[0], set())
-            current_phrase.add(phrase.pattern[1:])
-            self._heads[phrase.pattern[0]] = current_phrase
+        for phrase in self.static_ruleset_map.keys():
+            current_phrase = self._heads.get(phrase[0], set())
+            current_phrase.add(phrase[1:])
+            self._heads[phrase[0]] = current_phrase
 
     def _make_layer_template(self):
         return Layer(name=self.output_layer,
@@ -240,6 +250,8 @@ class PhraseTagger(Tagger):
             span = EnvelopingSpan(base_span=base_span, layer=layer)
             static_rulelist = self.static_ruleset_map.get(phrase, None)
             for group, priority, annotation in static_rulelist:
+                annotation = annotation.copy()
+                annotation[self.phrase_attribute] = phrase
                 if self.decorator is not None:
                     annotation = self.decorator(text, base_span, annotation)
                     if not isinstance(annotation, dict):

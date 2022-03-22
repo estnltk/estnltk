@@ -26,7 +26,6 @@ class DynamicExtractionRule:
     In the most obvious protocol, the decorator outputs None to indicate that the span should not be added to the layer.
     The latter is a safe default, as this would most probably reveal when the tagger is incompatible.
 
-    TODO: Update documentation! decorator changed
     """
 
     pattern: str
