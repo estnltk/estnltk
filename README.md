@@ -6,13 +6,13 @@ morphological analysis, named entity recognition, etc. for the Estonian language
 
 The project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](https://www.keeletehnoloogia.ee/)).
 
-As of version v1.7, the EstNLTK library is split into 3 Python packages:
+As of version 1.7, the EstNLTK library is split into 3 Python packages:
 
-* `estnltk-core` -- package containing core datastructures, interfaces and data conversion functions of the EstNLTK library;
-* `estnltk` -- the standard package, which contains basic linguistic analysis (including Vabamorf's morphological analysis, syntactic parsing and information extraction models), system taggers and Postgres database tools;
-* `estnltk-neural` -- package containing additional linguistic analysis tools based on neural models (Bert embeddings tagger, Stanza syntax taggers and neural morphological tagger);
+* `estnltk_core` -- package containing core data structures, interfaces and data conversion functions of the EstNLTK library;
+* `estnltk` -- the standard package, which contains basic linguistic analysis (including Vabamorf's morphological analysis, syntactic parsing and information extraction tools), system taggers and Postgres database tools;
+* `estnltk_neural` -- package containing additional linguistic analysis based on neural models (Bert embeddings tagger, Stanza syntax taggers and neural morphological tagger);
 
-Source of the packages is available at the [estnltk's monorepository](https://github.com/estnltk/estnltk/tree/devel_1.6_split).  
+Source code of packages is available at the [EstNLTK's monorepository](https://github.com/estnltk/estnltk/tree/devel_1.6_split).  
 
 ## `estnltk`
 
@@ -68,16 +68,15 @@ Note: if you have trouble viewing jupyter notebooks in github (you get an error 
 
 ### Source
 
-The source of the package development can be found at branch [devel\_1.6\_split](https://github.com/estnltk/estnltk/tree/devel_1.6_split/estnltk).
+The development source of the package can be found at branch [devel\_1.6\_split/estnltk](https://github.com/estnltk/estnltk/tree/devel_1.6_split/estnltk).
 The main repository is https://github.com/estnltk/estnltk
 
 Development [changelog.](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk/CHANGELOG.md)
 
-## `estnltk-neural`
+## `estnltk_neural`
 
-Tools in `estnltk-neural` require installation of deep learning frameworks (`tensorflow`, `pytorch`), and are demanding for computational resources; they also rely on large models (which need to be downloaded separately).
-
-Instructions for installing the neural package can be found [here](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk_neural/README.md).
+Tools in `estnltk_neural` require installation of deep learning frameworks (`tensorflow`, `pytorch`), and are demanding for computational resources; they also rely on large models which need to be downloaded separately. 
+Instructions for installing the package can be found [here](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk_neural/README.md).
 
 
 ## Citation

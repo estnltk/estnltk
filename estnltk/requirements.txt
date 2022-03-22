@@ -1,3 +1,4 @@
+estnltk-core
 pytest
 networkx
 six
