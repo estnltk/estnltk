@@ -1,5 +1,6 @@
 from estnltk_core.taggers.tagger import Tagger
 from estnltk_core.taggers.retagger import Retagger
+from estnltk_core.taggers.combined_tagger import CombinedTagger
 from estnltk_core.taggers.annotation_rewriter import AnnotationRewriter
 from estnltk_core.taggers.span_annotations_rewriter import SpanAnnotationsRewriter
 
@@ -57,6 +58,8 @@ from estnltk.taggers.standard.syntax.syntax_diff_retagger import SyntaxDiffRetag
 from estnltk.taggers.standard.syntax.scoring.syntax_las_tagger import SyntaxLasTagger
 from estnltk.taggers.standard.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
 
+from estnltk.taggers.standard.ner.ner_tagger import NerTagger
+from estnltk.taggers.standard.ner.word_level_ner_tagger import WordLevelNerTagger
 
 from estnltk.taggers.standard.timexes.timex_tagger import TimexTagger
 
