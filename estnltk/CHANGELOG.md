@@ -79,6 +79,12 @@ Tools in `estnltk-neural` require installation of deep learning frameworks (`ten
 * `serialisation_map` (in `estnltk.converters`) was replaced with `SERIALISATION_REGISTRY`:
 	* `SERIALISATION_REGISTRY` is a common registry used by all serialisation functions (such as `text_to_json` and `json_to_text` in `estnltk_core.converters`). The registry is defined in the package `estnltk_core` (contains only the `default` serialization module), and augmented in `estnltk` package (with `legacy_v0` and `syntax_v0` serialization modules);
 
+* Renamed `estnltk.taggers.dict_taggers` -> `estnltk.taggers.system.rule_taggers` and changed:
+	* `Vocabulary` class is replaced by `Ruleset` and `AmbiguousRuleset` classes
+	* All taggers now follow a common structure based on a pipeline of static rules, dynamic rules and a global decorator
+	* Added new tagger `SubstringTagger` to tag occurences of substrings in text
+	* Old versions of the taggers are moved to `estnltk.legacy` for backward compatibility
+
 * Relocated TCF, CONLL and CG3 conversion utils to submodules in `estnltk.converters`;
 
 * Relocated `estnltk.layer` to `estnltk_core.layer`;
