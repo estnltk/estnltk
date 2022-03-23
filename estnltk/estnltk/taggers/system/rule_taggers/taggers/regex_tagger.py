@@ -106,6 +106,8 @@ class RegexTagger(Tagger):
         static_ruleset_map = dict()
 
         for rule in ruleset.static_rules:
+            if '_group_' not in rule.attributes:
+                rule.attributes['_group_'] = 0
             subindex = static_ruleset_map.get(rule.pattern, [])
             subindex.append((rule.group, rule.priority, rule.attributes))
             static_ruleset_map[rule.pattern] = subindex
@@ -117,6 +119,8 @@ class RegexTagger(Tagger):
 
         dynamic_ruleset_map = dict()
         for rule in ruleset.dynamic_rules:
+            if '_group_' not in rule.attributes:
+                rule.attributes['_group_'] = 0
             subindex = dynamic_ruleset_map.get(rule.pattern, dict())
             if (rule.group, rule.priority) in subindex:
                 raise AttributeError('There are multiple rules with the same pattern, group and priority')
