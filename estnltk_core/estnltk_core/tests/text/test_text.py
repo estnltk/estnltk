@@ -673,6 +673,12 @@ def test_attribute_values_selection():
     assert str(selection) == \
         "[[0, 4, 'Tere'], [4, 5, '!'], [6, 9, 'Mis'], [10, 14, 'värk'], [15, 17, 'on'], [17, 18, '?']]"
     
+    # select multiple index attributes from an unambiguous layer via layer[attributes]
+    selection = text['words'][['start', 'end', 'text']]
+    assert selection.attribute_names == ('start', 'end', 'text')
+    assert str(selection) == \
+        "[[0, 4, 'Tere'], [4, 5, '!'], [6, 9, 'Mis'], [10, 14, 'värk'], [15, 17, 'on'], [17, 18, '?']]"
+        
     # select multiple index attributes from a level 1 enveloping layer
     selection = text['sentences'].attribute_values([], index_attributes=['start', 'end', 'text'])
     assert selection.attribute_names == ('start', 'end', 'text')

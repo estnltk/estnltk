@@ -256,6 +256,13 @@ class BaseLayer:
         if isinstance(item, str) or isinstance(item, (list, tuple)) and all(isinstance(s, str) for s in item):
             # Expected call: layer[attribute] or layer[attributes]
             # Returns AmbiguousAttributeTupleList
+            if isinstance(item, (list, tuple)):
+                # Separate regular attributes from index attributes
+                attributes = \
+                    [attr for attr in item if attr not in ['start', 'end'] or attr in self.attributes]
+                index_attributes = \
+                    [attr for attr in item if attr in ['start', 'end'] and attr not in self.attributes]
+                return self.attribute_values(attributes, index_attributes=index_attributes)
             return self.attribute_values(item)
 
         if isinstance(item, tuple) and len(item) == 2:
