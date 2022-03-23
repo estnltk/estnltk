@@ -84,10 +84,17 @@ class SpanTagger(Tagger):
 
         static_ruleset_map = dict()
 
+        self.ignore_case = ignore_case
+
         for rule in ruleset.static_rules:
-            subindex = static_ruleset_map.get(rule.pattern, [])
-            subindex.append((rule.group, rule.priority, rule.attributes))
-            static_ruleset_map[rule.pattern] = subindex
+            if self.ignore_case:
+                subindex = static_ruleset_map.get(rule.pattern.lower(), [])
+                subindex.append((rule.group, rule.priority, rule.attributes))
+                static_ruleset_map[rule.pattern.lower()] = subindex
+            else:
+                subindex = static_ruleset_map.get(rule.pattern, [])
+                subindex.append((rule.group, rule.priority, rule.attributes))
+                static_ruleset_map[rule.pattern] = subindex
 
         self.static_ruleset_map = static_ruleset_map
 
@@ -112,11 +119,6 @@ class SpanTagger(Tagger):
         self.dynamic_ruleset_map = dynamic_ruleset_map
 
         self._ruleset = copy.copy(ruleset)
-        self.ignore_case = ignore_case
-        if self.ignore_case:
-            for rule in self._ruleset.static_rules:
-                for i in range(len(rule.pattern)):
-                    rule.pattern[i] = rule.pattern[i].lower()
 
     def _make_layer_template(self):
         return Layer(name=self.output_layer,
@@ -136,7 +138,6 @@ class SpanTagger(Tagger):
         layer = self._make_layer_template()
         layer.text_object = text
 
-        ruleset = self._ruleset
         input_attribute = self.input_attribute
 
         input_layer = layers[self.input_layers[0]]
@@ -144,10 +145,10 @@ class SpanTagger(Tagger):
 
         for parent_span in input_layer:
             for annotation in parent_span.annotations:
-                value = annotation[input_attribute]
+                value = getattr(annotation,input_attribute)
                 if self.ignore_case:
                     value = value.lower()
-                if value in [rule.pattern for rule in ruleset.static_rules]:
+                if value in self.static_ruleset_map.keys():
                     match_tuples.append((parent_span.base_span, value))
 
         return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
