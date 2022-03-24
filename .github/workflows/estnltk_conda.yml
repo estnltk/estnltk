@@ -52,7 +52,7 @@ jobs:
       # A fix for the fix ...
       - name: "Rename link cmd to avoid overriding msvc link (windows caching)"
         if: matrix.os == 'windows-latest'
-        run: rename C:\Program Files\Git\usr\bin\link.exe link__disabled.exe
+        run: Rename-Item -Path "C:\Program Files\Git\usr\bin\link.exe" -NewName "link__disabled.exe"
 
       # Use estnltk-core-channel cache
       # load data from the cache if it exists.
