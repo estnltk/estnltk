@@ -47,10 +47,12 @@ jobs:
       - name: "Use GNU tar instead BSD tar (fix for windows caching)"
         if: matrix.os == 'windows-latest'
         shell: cmd
-        run: |
-          echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
-          rem *** rename link cmd to avoid overriding msvc link ***
-          rename C:\Program Files\Git\usr\bin\link.exe link__disabled.exe
+        run: echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
+
+      # A fix for the fix ...
+      - name: "Rename link cmd to avoid overriding msvc link (windows caching)"
+        if: matrix.os == 'windows-latest'
+        run: rename C:\Program Files\Git\usr\bin\link.exe link__disabled.exe
 
       # Use estnltk-core-channel cache
       # load data from the cache if it exists.
