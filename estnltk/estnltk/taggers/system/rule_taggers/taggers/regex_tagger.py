@@ -106,8 +106,6 @@ class RegexTagger(Tagger):
         static_ruleset_map = dict()
 
         for rule in ruleset.static_rules:
-            if '_group_' not in rule.attributes:
-                rule.attributes['_group_'] = 0
             subindex = static_ruleset_map.get(rule.pattern, [])
             subindex.append((rule.group, rule.priority, rule.attributes))
             static_ruleset_map[rule.pattern] = subindex
@@ -119,8 +117,6 @@ class RegexTagger(Tagger):
 
         dynamic_ruleset_map = dict()
         for rule in ruleset.dynamic_rules:
-            if '_group_' not in rule.attributes:
-                rule.attributes['_group_'] = 0
             subindex = dynamic_ruleset_map.get(rule.pattern, dict())
             if (rule.group, rule.priority) in subindex:
                 raise AttributeError('There are multiple rules with the same pattern, group and priority')
@@ -139,9 +135,6 @@ class RegexTagger(Tagger):
         self.match_attribute = match_attribute
         if not isinstance(match_attribute, str):
             raise AttributeError("Match attribute must be str")
-
-        # output_attributes needed by tagger
-        self._internal_attributes = set(self.output_attributes) | {'_group_', '_priority_'}
 
         self.ruleset = copy.copy(ruleset)
 
@@ -193,9 +186,8 @@ class RegexTagger(Tagger):
         match_tuples = []
         for rule in self.ruleset.static_rules:
             reg = rule.pattern
-            rec = rule.attributes
             for matchobj in reg.finditer(text, overlapped=self.overlapped):
-                start, end = matchobj.span(rec['_group_'])
+                start, end = matchobj.span(rule.group)
                 if start == end:
                     continue
                 match_tuples.append((ElementaryBaseSpan(start=start, end=end), matchobj, rule))
@@ -222,12 +214,8 @@ class RegexTagger(Tagger):
             span = Span(base_span=element[0], layer=layer)
             rule = element[2]
             matchobj = element[1]
-            rec = rule.attributes
-            annotation_dict = {
-                self.match_attribute: matchobj
-            }
-            for a in self._internal_attributes:
-                annotation_dict[a] = rec.get(a, None)
+            annotation_dict = rule.attributes
+            annotation_dict[self.match_attribute] = matchobj
 
             if self.global_decorator is not None:
                 annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)
@@ -265,12 +253,8 @@ class RegexTagger(Tagger):
             span = Span(base_span=element[0], layer=layer)
             rule = element[2]
             matchobj = element[1]
-            rec = rule.attributes
-            annotation_dict = {
-                self.match_attribute: matchobj
-            }
-            for a in self._internal_attributes:
-                annotation_dict[a] = rec.get(a, None)
+            annotation_dict = rule.attributes
+            annotation_dict[self.match_attribute] = matchobj
 
             if self.global_decorator is not None:
                 annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)
