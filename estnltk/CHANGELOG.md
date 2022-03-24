@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-# [1.7.0-rc0] - 2022-03-XX
+# [1.7.0-rc0] - 2022-03-24
 
 EstNLTK has gone through a major package restructuring and refactoring process.
 
