@@ -13,6 +13,7 @@ on:
 
 jobs:
   build_estnltk_conda_packages:
+    if: ${{ false }}  # disable for now
     name: Build estnltk conda package on ${{ matrix.os }} (py ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     strategy:
@@ -125,7 +126,7 @@ jobs:
 
   upload_to_conda:
     name: Upload estnltk packages to conda
-    needs: [build_estnltk_conda_packages]
+    #needs: [build_estnltk_conda_packages]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
@@ -148,7 +149,11 @@ jobs:
         run: |
           cd conda-packages
           echo --------------------- 
-          ls -lah
+          ls -lah linux-64
+          ls -lah osx-64
+          ls -lah win-64
           echo --------------------- 
-          packagefiles=$(ls -1 *.tar.bz2) 
-          anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $packagefiles
+          linux_packages=$(ls -1 linux-64/*.tar.bz2)
+          win_packages=$(ls -1 win-64/*.tar.bz2)
+          osx_packages=$(ls -1 osx-64/*.tar.bz2)
+          anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $linux_packages $win_packages $osx_packages
