@@ -17,10 +17,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
-        #os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.9']
-        #python-version: ['3.7', '3.8', '3.9']
+        #os: [windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        #python-version: ['3.9']
+        python-version: ['3.7', '3.8', '3.9']
         #python-version: ['3.7', '3.8', '3.9', '3.10']
 
     steps:
@@ -124,7 +124,6 @@ jobs:
 
 
   upload_to_conda:
-    if: ${{ false }}  # disable for now
     name: Upload estnltk packages to conda
     needs: [build_estnltk_conda_packages]
     runs-on: ubuntu-latest
