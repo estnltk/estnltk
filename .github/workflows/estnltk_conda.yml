@@ -17,10 +17,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        #os: [ubuntu-latest]
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        #python-version: ['3.8']
-        python-version: ['3.7', '3.8', '3.9']
+        os: [windows-latest]
+        #os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9']
+        #python-version: ['3.7', '3.8', '3.9']
         #python-version: ['3.7', '3.8', '3.9', '3.10']
 
     steps:
@@ -47,7 +47,10 @@ jobs:
       - name: "Use GNU tar instead BSD tar (fix for windows caching)"
         if: matrix.os == 'windows-latest'
         shell: cmd
-        run: echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
+        run: |
+          echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
+          rem *** rename link cmd to avoid overriding msvc link ***
+          rename C:\Program Files\Git\usr\bin\link.exe link__disabled.exe
 
       # Use estnltk-core-channel cache
       # load data from the cache if it exists.
@@ -119,6 +122,7 @@ jobs:
 
 
   upload_to_conda:
+    if: ${{ false }}  # disable for now
     name: Upload estnltk packages to conda
     needs: [build_estnltk_conda_packages]
     runs-on: ubuntu-latest
