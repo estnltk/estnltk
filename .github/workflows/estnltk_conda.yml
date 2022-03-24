@@ -13,7 +13,6 @@ on:
 
 jobs:
   build_estnltk_conda_packages:
-    if: ${{ false }}  # disable for now
     name: Build estnltk conda package on ${{ matrix.os }} (py ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     strategy:
@@ -126,7 +125,7 @@ jobs:
 
   upload_to_conda:
     name: Upload estnltk packages to conda
-    #needs: [build_estnltk_conda_packages]
+    needs: [build_estnltk_conda_packages]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
