@@ -1,4 +1,4 @@
-name: Build estnltk_neural conda package (and upload to conda later)
+name: Build estnltk_neural conda package and upload to conda
 
 on: 
   push:
@@ -39,6 +39,7 @@ jobs:
       - name: Install conda-build and building prerequisites
         run: |
           conda install conda-build conda-verify swig cython
+          conda update conda-build
 
       # Use estnltk-core-channel cache
       # load data from the cache if it exists.
