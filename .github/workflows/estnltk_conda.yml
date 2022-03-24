@@ -1,4 +1,4 @@
-name: Build estnltk conda package (and upload to conda later)
+name: Build estnltk conda packages and upload to conda
 
 on: 
   push:
@@ -17,10 +17,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
         #os: [ubuntu-latest]
-        #os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.8']
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        #python-version: ['3.8']
+        python-version: ['3.7', '3.8', '3.9']
         #python-version: ['3.7', '3.8', '3.9', '3.10']
 
     steps:
@@ -41,6 +41,7 @@ jobs:
       - name: Install conda-build and building prerequisites
         run: |
           conda install conda-build conda-verify swig cython
+          conda update conda-build
 
       # A fix from here: https://github.com/actions/cache/issues/591 
       - name: "Use GNU tar instead BSD tar (fix for windows caching)"
@@ -59,7 +60,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2022-03-18
+          key: estnltk-core-channel-2022-03-24
 
       - name: Build estnltk_core conda package
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
@@ -98,7 +99,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk/e_channel
-          key: estnltk-channel-2022-03-18
+          key: estnltk-channel-2022-03-24
 
       - if: matrix.os != 'windows-latest'
         name: Build estnltk conda package (linux or macos)
@@ -127,9 +128,22 @@ jobs:
           name: estnltk-conda-packages
           path: conda-packages
 
-      - name: Display built estnltk conda packages
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: 3.9
+          conda-channels: anaconda, conda-forge
+
+      - name: Install anaconda-client
+        run: |
+          conda install anaconda-client
+
+      - name: Upload estnltk conda packages
         run: |
           cd conda-packages
           echo --------------------- 
           ls -lah
           echo --------------------- 
+          packagefiles=$(ls -1 *.tar.bz2) 
+          anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $packagefiles
