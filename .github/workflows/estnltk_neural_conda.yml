@@ -51,7 +51,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2022-03-18
+          key: estnltk-core-channel-2022-03-24
 
       - name: Build estnltk_core conda package (noarch)
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
@@ -71,7 +71,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk/e_channel
-          key: estnltk-channel-2022-03-18
+          key: estnltk-channel-2022-03-24
 
       - name: Build estnltk conda package (${{ matrix.os }})
         if: steps.cache-e-channel.outputs.cache-hit != 'true'
@@ -93,7 +93,7 @@ jobs:
           name: estnltk-neural-conda-package
           path: |
             ./estnltk_neural/en_channel/noarch/*.tar.bz2
-          retention-days: 7
+          retention-days: 14
 
 
   upload_to_conda:
@@ -106,9 +106,22 @@ jobs:
           name: estnltk-neural-conda-package
           path: conda-packages
 
-      - name: Display built estnltk_neural conda package
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: 3.9
+          conda-channels: anaconda, conda-forge
+
+      - name: Install anaconda-client
+        run: |
+          conda install anaconda-client
+
+      - name: Upload estnltk_core conda package
         run: |
           cd conda-packages
           echo --------------------- 
           ls -lah
           echo --------------------- 
+          packagefile=$(ls -1 *.tar.bz2) 
+          anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $packagefile
