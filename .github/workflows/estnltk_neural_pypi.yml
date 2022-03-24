@@ -81,7 +81,7 @@ jobs:
           path: |
             ./estnltk_neural/dist/*.whl
             ./estnltk_neural/dist/*.tar.gz
-
+          retention-days: 14
 
   upload_pypi:
     name: Push to PyPI
@@ -96,6 +96,6 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
-          password: ${{ secrets.test_pypi_token }}
+          password: ${{ secrets.pypi_token }}
           # Use https://test.pypi.org instead of the default pypi:
-          repository_url: https://test.pypi.org/legacy/
+          #repository_url: https://test.pypi.org/legacy/
