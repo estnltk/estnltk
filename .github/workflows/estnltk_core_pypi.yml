@@ -40,4 +40,20 @@ jobs:
           path: |
             ./estnltk_core/dist/*.whl
             ./estnltk_core/dist/*.tar.gz
-          
+
+  upload_pypi:
+    name: Push to PyPI
+    needs: [build_estnltk_core_wheels_and_sdist]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.test_pypi_token }}
+          # Use https://test.pypi.org instead of the default pypi:
+          repository_url: https://test.pypi.org/legacy/
