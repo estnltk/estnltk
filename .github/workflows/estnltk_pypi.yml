@@ -12,6 +12,25 @@ on:
 
 
 jobs:
+  build_estnltk_sdist:
+    name: Build estnltk source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+
+      - name: Build sdist
+        run: |
+          cd estnltk
+          python setup.py sdist
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.tar.gz
+          retention-days: 14
+
   build_estnltk_wheels:
     name: Build estnltk wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -61,10 +80,9 @@ jobs:
           path: ./estnltk/wheelhouse/*.whl
           retention-days: 14
 
-
   upload_pypi:
     name: Push to PyPI
-    needs: [build_estnltk_wheels]
+    needs: [build_estnltk_wheels, build_estnltk_sdist]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
