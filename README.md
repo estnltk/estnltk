@@ -6,20 +6,26 @@ morphological analysis, named entity recognition, etc. for the Estonian language
 
 The project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](https://www.keeletehnoloogia.ee/)).
 
-Currently, there are two branches of EstNLTK:
+As of version 1.7, the EstNLTK library is split into 3 Python packages:
 
-* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.9beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). More recently, [PyPI wheels](https://pypi.org/project/estnltk/#history) have also been created and made available under the version 1.6.9.1beta. Due to the beta status, some of the tools are limited or incomplete. Supported Python versions are 3.6, 3.7 and 3.8. The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
-  
-* version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4, 3.5 and 2.7. Python versions 3.6, 3.7 and beyond are not supported;
+* `estnltk_core` -- package containing core data structures, interfaces and data conversion functions of the EstNLTK library;
+* `estnltk` -- the standard package, which contains basic linguistic analysis (including Vabamorf's morphological analysis, syntactic parsing and information extraction tools), system taggers and Postgres database tools;
+* `estnltk_neural` -- package containing additional linguistic analysis based on neural models (Bert embeddings tagger, Stanza syntax taggers and neural morphological tagger);
 
-## Version 1.6
+Source code of packages is available at the [EstNLTK's monorepository](https://github.com/estnltk/estnltk/tree/devel_1.6_split).  
+
+## `estnltk`
 
 ### Installation
-The recommended way of installing EstNLTK is by using the [anaconda python distribution](https://www.anaconda.com/download) and python 3.6+.
 
-Installable packages have been built for osx, windows-64, and linux-64.
+EstNLTK is available for osx-64, windows-64, and linux-64, and for python versions 3.7 to 3.9. 
+You can install the latest version via PyPI:
 
-Installation steps with conda:
+```
+pip install estnltk==1.7.0rc0
+```
+
+Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
 
 1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.8, for instance:
 ```
@@ -33,20 +39,8 @@ conda activate py38
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.6.9b
+conda install -c estnltk -c conda-forge estnltk=1.7.0rc0
 ```
-
-Alternatively, you can install EstNLTK via PyPI wheel.  
-Wheels are available for windows-64, linux-64 and osx_64, covering Python versions 3.6 - 3.9. 
-The corresponding version is 1.6.9.1beta, and it can be installed with command:
-
-```
-pip install estnltk==1.6.9.1b0
-```
-
-_Note_: The version 1.6.9b0 (conda) and 1.6.9.1b0 (PyPI) are equal considering the main functionalities. 
-While the version 1.6.9b0 (and earlier EstNLTK's versions) are also  available in PyPI, the support for different platforms and Python versions is very limited in earlier PyPI releases.
-If you need to use earlier versions of EstNLTK, please use our Anaconda packages. 
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 
@@ -55,87 +49,40 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.6.9.1b0
+!pip install estnltk==1.7.0rc0
 ```
-
-### Neural models
-
-Neural models of EstNLTK are not distributed with the package, but must be downloaded separately from the repository [https://entu.keeleressursid.ee/entity/folder/7510](https://entu.keeleressursid.ee/entity/folder/7510). Neural models for syntactic parsing can be downloaded from [https://entu.keeleressursid.ee/entity/folder/9785](https://entu.keeleressursid.ee/entity/folder/9785) (see also the [tutorial](https://github.com/estnltk/estnltk/blob/version_1.6/tutorials/syntax/syntax.ipynb) of syntactic parsers).
 
 ### Documentation
 
-Documentation for 1.6 currently comes in the form of [jupyter notebooks](http://jupyter.org), which are available here: https://github.com/estnltk/estnltk/tree/version_1.6/tutorials
+EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org). However, updating tutorials is currently work-in-progress. Most of the tutorials of version 1.6 should also work for version 1.7, although imports may need fixing:
 
-Additional educational materials on EstNLTK version 1.6 are available on web pages of an NLP course taught at the University of Tartu:
+  * [Basics of EstNLTK 1.6 / 1.7](https://github.com/estnltk/estnltk/blob/4acdb689eaf51b68d22fd5085362e2e45bac4577/estnltk/tutorials/basics_of_estnltk.ipynb) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/4acdb689eaf51b68d22fd5085362e2e45bac4577/estnltk/tutorials/basics_of_estnltk.ipynb))
+  * [Tutorials root folder](https://github.com/estnltk/estnltk/blob/4acdb689eaf51b68d22fd5085362e2e45bac4577/estnltk/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/4acdb689eaf51b68d22fd5085362e2e45bac4577/estnltk/tutorials)) 
+  
+Additional educational materials on EstNLTK are available on web pages of an NLP course taught at the University of Tartu:
 
-  * [https://github.com/d009/EstNLP](https://github.com/d009/EstNLP) (in Estonian)
+  * [https://github.com/d009/EstNLP](https://github.com/d009/EstNLP) (in Estonian)  
+
 
 Note: if you have trouble viewing jupyter notebooks in github (you get an error message _Sorry, something went wrong. Reload?_ at loading a notebook), then try to open notebooks with the help of [https://nbviewer.jupyter.org](https://nbviewer.jupyter.org)
 
 ### Source
 
-The source of the latest release is available at the branch [version_1.6](https://github.com/estnltk/estnltk/tree/version_1.6), and the development source can be found at [devel_1.6](https://github.com/estnltk/estnltk/tree/devel_1.6). 
+The source of the version 1.7.0rc0 can be found [here](https://github.com/estnltk/estnltk/tree/4acdb689eaf51b68d22fd5085362e2e45bac4577/estnltk).
+The development source can be found at branch [devel\_1.6\_split](https://github.com/estnltk/estnltk/tree/devel_1.6_split). 
+The main repository is https://github.com/estnltk/estnltk
 
-## Version 1.4.1
+Development [changelog.](https://github.com/estnltk/estnltk/blob/4acdb689eaf51b68d22fd5085362e2e45bac4577/estnltk/CHANGELOG.md)
 
-### Installation
-The recommended way of installing estnltk v1.4 is by using the [anaconda python distribution](https://www.anaconda.com/download) and python 3.5.
+## `estnltk_neural`
 
-We have installable packages built for osx, windows-64, and linux-64. Installation steps:
+Tools in `estnltk_neural` require installation of deep learning frameworks (`tensorflow`, `pytorch`), and are demanding for computational resources; they also rely on large models which need to be downloaded separately. 
+Instructions for installing the package can be found [here](https://github.com/estnltk/estnltk/blob/4acdb689eaf51b68d22fd5085362e2e45bac4577/estnltk_neural/README.md).
 
-1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.5, for instance:
-```
-conda create -n py35 python=3.5
-```
-
-2. [activate the environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment), for instance:
-```
-conda activate py35
-```
-
-3. install estnltk with the command:
-```
-conda install -c estnltk -c conda-forge nltk=3.4.4 estnltk=1.4.1
-```
-
-_Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
-
-If you have [jupyter notebook installed](https://test-jupyter.readthedocs.io/en/rtd-theme/install.html#using-anaconda-and-conda-recommended), you can use EstNLTK in an interactive web application. For that, type the command:
-
-```
-jupyter notebook
-```
-
-To run our tutorials, [download them as a zip file](https://github.com/estnltk/tutorials/archive/master.zip), unpack them to a directory and run the command `jupyter notebook` in that directory.  
-
----------
-
-The alternative way for installing if you are unable to use the anaconda distribution is:
-
-`python -m pip install estnltk==1.4.1.1`
-
-This is slower, more error-prone and requires you to have the appropriate compilers for building the scientific computation packages for your platform. 
-
-Find more details in the [installation tutorial for version 1.4](https://estnltk.github.io/estnltk/1.4/tutorials/installation.html).
-
-### Documentation
-
-Release 1.4.1 documentation is available at https://estnltk.github.io/estnltk/1.4.1/index.html.
-For previous versions refer to https://estnltk.github.io/estnltk.
-For more tools see https://estnltk.github.io.
-
-Additional educational materials on EstNLTK version 1.4 are available on web pages of the NLP courses taught at the University of Tartu:
-
-  * [https://github.com/d009/EstNLP/tree/v1.0\_estnltk\_v1.4](https://github.com/d009/EstNLP/tree/v1.0\_estnltk\_v1.4)
-  * https://courses.cs.ut.ee/2015/pynlp/fall
-
-### Source
-
-The source of the latest v1.4 release is available at the [master branch](https://github.com/estnltk/estnltk/tree/master).
 
 ## Citation
 
-In case you use EstNLTK 1.6 in your work, please cite us as follows:
+In case you use EstNLTK v1.6 / v1.7 in your work, please cite us as follows:
 
     @InProceedings{laur-EtAl:2020:LREC,
       author    = {Laur, Sven  and  Orasmaa, Siim  and  Särg, Dage  and  Tammo, Paul},
@@ -149,7 +96,7 @@ In case you use EstNLTK 1.6 in your work, please cite us as follows:
       url       = {https://www.aclweb.org/anthology/2020.lrec-1.884}
     }
 
-If you use EstNLTK 1.4.1 (or older), please cite:
+If you use EstNLTK v1.4.1 (or older), please cite:
 
     @InProceedings{ORASMAA16.332,
     author = {Siim Orasmaa and Timo Petmanson and Alexander Tkachenko and Sven Laur and Heiki-Jaan Kaalep},
