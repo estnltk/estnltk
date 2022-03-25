@@ -1,12 +1,12 @@
 from estnltk import Layer
-from estnltk.taggers import Tagger
+from estnltk.taggers import Retagger
 
 
 def default_decorator(span, raw_text):
     return {}
 
 
-class Disambiguator(Tagger):
+class Disambiguator(Retagger):
     """Disambiguates ambiguous layer.
     In other words: assigns a single annotation 
     to each span of the layer.
@@ -33,6 +33,18 @@ class Disambiguator(Tagger):
     on any input. This means that each annotation 
     obtains default values of the layer (None 
     values, if defaults are not set).
+    
+    Note: Disambiguator works either as a tagger or 
+    as a retagger, depending on whether the input 
+    layer is different than the output layer. 
+    If output_layer == input_layer, then Disambiguator
+    works as a retagger and the layer can be changed 
+    by calling tagger's retag(...) or change_layer(...)
+    methods.
+    If output_layer != input_layer, then Disambiguator
+    works as a tagger and new layer can be made by 
+    calling tagger's tag(...) or make_layer(...)
+    methods.
     """
     
     conf_param = ('decorator',)
@@ -55,7 +67,9 @@ class Disambiguator(Tagger):
     def _make_layer(self, text, layers, status):
         input_layer = layers[self.input_layers[0]]
         assert input_layer.ambiguous, 'the input layer is not ambguous'
-
+        assert self.input_layers[0] != self.output_layer, \
+            ('cannot make new layer: input_layer and output_layer have the same name: {!r}. '+\
+             'call retag() or change_layer() instead.').format(self.output_layer)
         parent = input_layer.parent
         enveloping = input_layer.enveloping
         layer = Layer(name=self.output_layer,
@@ -67,6 +81,22 @@ class Disambiguator(Tagger):
 
         decorator = self.decorator
         for input_span in input_layer:
-            layer.add_annotation(input_span.base_span, **decorator(input_span, text.text))
+            annotation = decorator(input_span, text.text)
+            layer.add_annotation(input_span.base_span, annotation)
 
         return layer
+
+    def _change_layer(self, text, layers, status):
+        input_layer = layers[self.input_layers[0]]
+        assert input_layer.ambiguous, 'the input layer is not ambguous'
+        assert self.input_layers[0] == self.output_layer, \
+            ('cannot modify layer: input_layer {!r} has different name than output_layer {!r}. '+\
+             'call tag() or make_layer() instead.').format(self.input_layers[0], self.output_layer)
+        input_layer.attributes = self.output_attributes
+        decorator = self.decorator
+        for input_span in input_layer:
+            annotation = decorator(input_span, text.text)
+            input_span.clear_annotations()
+            input_span.add_annotation( annotation )
+        input_layer.ambiguous = False
+

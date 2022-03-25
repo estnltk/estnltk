@@ -427,7 +427,7 @@ class CompoundTokenTagger( Tagger ):
 
         temp_layers = layers.copy()
         temp_layers[self.output_layer] = layer
-        layer = self._disamb_tagger.make_layer(text=text, layers=temp_layers, status=status)
+        self._disamb_tagger.change_layer(text=text, layers=temp_layers, status=status)
 
         # TODO: remove
         for span in layer:

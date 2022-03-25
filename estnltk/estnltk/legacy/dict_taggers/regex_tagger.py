@@ -111,7 +111,7 @@ class RegexTagger(Tagger):
                                   status=status)
 
         if not self.ambiguous:
-            layer = self._disamb_tagger.make_layer(text=text, layers={self.output_layer: layer}, status=status)
+            self._disamb_tagger.change_layer(text=text, layers={self.output_layer: layer}, status=status)
         return layer
 
     def _match(self, text):
