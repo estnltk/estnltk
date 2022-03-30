@@ -1,3 +1,4 @@
+import os
 import torch
 from typing import MutableMapping, List
 from transformers import BertTokenizer, logging, BertModel
@@ -12,7 +13,7 @@ import numpy as np
 class BertTagger(Tagger):
     """Tags BERT embeddings."""
 
-    def __init__(self, bert_location: str, sentences_layer: str = 'sentences',
+    def __init__(self, bert_location: str = None, sentences_layer: str = 'sentences',
                  token_level: bool = True,
                  output_layer: str = 'bert_embeddings', bert_layers: List[int] = None, method='concatenate'):
 
@@ -27,8 +28,15 @@ class BertTagger(Tagger):
                     raise Exception(msg)
         self.conf_param = ('bert_location', 'bert_model', 'tokenizer', 'method', 'token_level', 'bert_layers')
         if bert_location is None:
-            msg = "Directory containing BERT model must be specified."
-            raise Exception(msg)
+            # Try to load bert location from environment variable
+            default_bert_location = os.environ.get('ESTNLTK_BERT_MODEL_PATH', None)
+            if default_bert_location is not None:
+                self.bert_location = default_bert_location
+            else:
+                msg = "Directory containing BERT model (bert_location) must be specified at creating BertTagger. "+\
+                      "Alternatively, you can put the location of the BERT model into environment variable "+\
+                      "ESTNLTK_BERT_MODEL_PATH."
+                raise Exception(msg)
         else:
             self.bert_location = bert_location
         if method not in ('concatenate', 'add', 'all'):
@@ -38,7 +46,7 @@ class BertTagger(Tagger):
         self.output_layer = output_layer
         self.input_layers = [sentences_layer]
 
-        self.bert_model = BertModel.from_pretrained(bert_location, output_hidden_states=True)
+        self.bert_model = BertModel.from_pretrained(self.bert_location, output_hidden_states=True)
         self.tokenizer = BertTokenizer.from_pretrained(self.bert_location)
 
         self.output_attributes = ['token', 'bert_embedding']

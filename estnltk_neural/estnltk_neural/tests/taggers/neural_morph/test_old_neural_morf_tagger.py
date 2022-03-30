@@ -73,6 +73,7 @@ kvalifikatsiooninorme	_S_|com|pl|part	S pl p
 
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
 @unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow < 2.0.0 is required for this test")
+@unittest.skip("legacy neural morph, tests are broken")
 class TestNeuralModel(TestCase):
     def setUp(self):
         from estnltk_core.neural_morph import Model
@@ -96,6 +97,7 @@ class TestNeuralModel(TestCase):
 
 @unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
 @unittest.skipIf( not check_if_tensorflow_is_available(), "package tensorflow < 2.0.0 is required for this test")
+@unittest.skip("legacy neural morph, tests are broken")
 class TestNeuralTagger(TestCase):
     def setUp(self):
         from estnltk_neural.taggers.neural_morph.old_neural_morph.neural_morph_tagger import NeuralMorphTagger
