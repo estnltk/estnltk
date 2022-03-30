@@ -39,8 +39,8 @@ setup(
         'pandas<=1.3.5 ; python_version == "3.7"', # Panel Data Analysis library for Python (= py37)
         'pandas<=1.1.5 ; python_version == "3.6"', # Panel Data Analysis library for Python (= py36)
         'pandas ; python_version > "3.7"',         # Panel Data Analysis library for Python (> py37)
-        'numpy==1.19.4 ; python_version == "3.6"', # This is the last numpy version that supports py36
-        'numpy==1.21.5 ; python_version == "3.7"', # This is the last numpy version that supports py37
+        'numpy<=1.19.4 ; python_version == "3.6"', # This is the last numpy version that supports py36
+        'numpy<=1.21.5 ; python_version == "3.7"', # This is the last numpy version that supports py37
     ],
     classifiers=['Intended Audience :: Developers',
                  'Intended Audience :: Education',
