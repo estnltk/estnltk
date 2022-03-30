@@ -2,16 +2,17 @@ import os
 from collections import OrderedDict
 from random import Random
 
-from estnltk.common import PACKAGE_PATH
 from estnltk import Layer
 from estnltk.taggers.standard.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
 from estnltk.taggers.standard.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 from estnltk.taggers.standard.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
 from estnltk.taggers import Tagger
 
+from estnltk_neural.common import neural_abs_path
+
 from estnltk.converters.serialisation_modules import syntax_v0
 
-RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
+RESOURCES = os.environ.get('STANZA_SYNTAX_MODELS_PATH', neural_abs_path('taggers/syntax/stanza_tagger/stanza_resources'))
 
 
 class StanzaSyntaxTagger(Tagger):

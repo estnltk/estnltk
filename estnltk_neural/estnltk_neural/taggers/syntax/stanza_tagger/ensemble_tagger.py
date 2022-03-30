@@ -4,7 +4,6 @@ from decimal import Decimal, getcontext
 from random import Random
 from typing import Tuple
 
-from estnltk.common import PACKAGE_PATH
 from estnltk import Layer
 from estnltk_neural.taggers.syntax.stanza_tagger.stanza_tagger import feats_to_ordereddict
 from estnltk.taggers.standard.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
@@ -14,7 +13,9 @@ from estnltk.taggers import Tagger
 
 from estnltk.converters.serialisation_modules import syntax_v0
 
-RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'stanza_tagger', 'stanza_resources')
+from estnltk_neural.common import neural_abs_path
+
+RESOURCES = os.environ.get('STANZA_SYNTAX_MODELS_PATH', neural_abs_path('taggers/syntax/stanza_tagger/stanza_resources'))
 
 
 class StanzaSyntaxEnsembleTagger(Tagger):
