@@ -1,16 +1,10 @@
+from packaging.version import Version, parse
+import tensorflow as tf
 # ==================================================================================
 # Note: we need here tensorflow version < 2. Check for the correct version
-import pkg_resources
-tensorflow_version = ''
-try:
-    tensorflow_version = pkg_resources.get_distribution("tensorflow").version
-except:
-    raise Exception('(!) Unable to load tensorflow module ...')
-assert tensorflow_version is not None and tensorflow_version.startswith('1.'), \
-    '(!) Unexpected tensorflow version {!r}! Version < 2 is required for running this code.'.format(tensorflow_version)
+if not parse(tf.__version__) < Version("2.0"):
+    raise Exception('(!) Wrong tensorflow version {!r}! Version < 2 is required for running this code.'.format(tf.__version__))
 # ==================================================================================
-
-import tensorflow as tf
 from tensorflow.python.ops import variable_scope as vs
 from tensorflow.contrib.rnn import LSTMCell, LSTMStateTuple, LayerNormBasicLSTMCell
 from tensorflow.python.ops import array_ops
