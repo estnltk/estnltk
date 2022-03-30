@@ -4,11 +4,8 @@ from collections import OrderedDict
 
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
-from estnltk.common import PACKAGE_PATH
 from estnltk_neural.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
 
-
-RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', '', 'stanza_tagger', 'stanza_resources')
 
 # Variable must follow the structure of stanza_resources as in here:
 STANZA_SYNTAX_MODELS_PATH = os.environ.get('STANZA_SYNTAX_MODELS_PATH')

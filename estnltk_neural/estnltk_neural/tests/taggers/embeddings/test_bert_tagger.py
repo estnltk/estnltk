@@ -2,9 +2,9 @@ import pkgutil
 import pytest
 from estnltk import Text
 import os
+from estnltk_neural.common import neural_abs_path
 
-PACKAGE_PATH = os.path.dirname(__file__)
-MODEL_PATH = os.path.join(PACKAGE_PATH, '..', '..', '..', 'taggers', 'embeddings', 'bert', 'model-data')
+MODEL_PATH = neural_abs_path("taggers/embeddings/bert/model-data")
 
 
 def check_if_transformers_is_available():
