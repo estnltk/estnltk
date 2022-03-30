@@ -15,12 +15,12 @@ requirements:
   build:
     - python 
     - estnltk_core
-    - estnltk
+    - estnltk >= 1.7.0
 
   run:
     - python 
     - estnltk_core
-    - estnltk
+    - estnltk >= 1.7.0
     - tensorflow
     - pytorch
     - transformers
