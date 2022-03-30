@@ -1,4 +1,5 @@
 # the list of package data used by "sdist"
 include COPYRIGHT
 include LICENSE
-graft estnltk_neural/tests/taggers/neural_morph/neural_test_sentences.txt
+include estnltk_neural/taggers/syntax/stanza_tagger/stanza_resources/resources.json
+include estnltk_neural/tests/taggers/neural_morph/neural_test_sentences.txt

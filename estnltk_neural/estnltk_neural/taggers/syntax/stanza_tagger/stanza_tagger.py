@@ -8,9 +8,9 @@ from estnltk.taggers.standard.syntax.ud_validation.deprel_agreement_retagger imp
 from estnltk.taggers.standard.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
 from estnltk.taggers import Tagger
 
-from estnltk_neural.common import neural_abs_path
-
 from estnltk.converters.serialisation_modules import syntax_v0
+
+from estnltk_neural.common import neural_abs_path
 
 RESOURCES = os.environ.get('STANZA_SYNTAX_MODELS_PATH', neural_abs_path('taggers/syntax/stanza_tagger/stanza_resources'))
 
