@@ -7,10 +7,7 @@ from estnltk_neural.common import neural_abs_path
 from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
-
-NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
-
-skip_reason = "Environment variable NEURAL_MORPH_TAGGER_CONFIG is not defined."
+from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import get_model_path_from_env_var
 
 
 class DummyTagger:
@@ -25,11 +22,11 @@ class DummyTagger:
 
 class TestDummyTagger(TestCase):
     def test(self):
-        tagger = NeuralMorphTagger(model=DummyTagger())
+        dummy_tagger = NeuralMorphTagger(model=DummyTagger())
         
         text = Text("Ära mine sinna.")
         text.tag_layer(["morph_analysis"])
-        tagger.tag(text)
+        dummy_tagger.tag(text)
 
         for word, morf_pred in zip(text.words, text.neural_morph_analysis):
             morf_true = neural_model_tags(word.text, word.morph_analysis['partofspeech'][0], word.morph_analysis['form'][0])[0]
@@ -65,21 +62,46 @@ def get_test_sentences(filename):
         yield words, tags, analyses
     file.close()
 
+#
+#  The old / legacy way of specifying model location
+# 
+tagger = None
+NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
+skip_reason = "Could not load neural morph model location from environment variables."
 
 if NEURAL_MORPH_TAGGER_CONFIG is not None:
-    if "softmax_emb_tag_sum" in NEURAL_MORPH_TAGGER_CONFIG:
+    model_module = None
+    if "softmax_emb_tag_sum" in NEURAL_MORPH_TAGGER_CONFIG and \
+        get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM') is not None:
         import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
-    elif "softmax_emb_cat_sum" in NEURAL_MORPH_TAGGER_CONFIG:
+    elif "softmax_emb_cat_sum" in NEURAL_MORPH_TAGGER_CONFIG and \
+        get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM') is not None:
         import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
-    elif "seq2seq_emb_tag_sum" in NEURAL_MORPH_TAGGER_CONFIG:
+    elif "seq2seq_emb_tag_sum" in NEURAL_MORPH_TAGGER_CONFIG and \
+        get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM') is not None:
         import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
-    else:
+    elif get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM') is not None:
         import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
-        
-    tagger = NeuralMorphTagger(model_module=model_module)
+    if model_module is not None:
+        tagger = NeuralMorphTagger(model_module=model_module)
 
+#
+#  The new way of specifying model location
+#
+if tagger is None:
+    model_module = None
+    if get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM') is not None:
+        import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
+    elif get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM') is not None:
+        import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
+    elif get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM') is not None:
+        import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
+    elif get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM') is not None:
+        import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
+    if model_module is not None:
+        tagger = NeuralMorphTagger(model_module=model_module)
 
-@unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
+@unittest.skipIf(tagger is None, skip_reason)
 class TestNeuralModel(TestCase):
     def test(self):
         model = tagger.model
@@ -98,7 +120,7 @@ class TestNeuralModel(TestCase):
         self.assertTrue(correct_count/word_count >= 0.97)
                     
 
-@unittest.skipIf(NEURAL_MORPH_TAGGER_CONFIG is None, skip_reason)
+@unittest.skipIf(tagger is None, skip_reason)
 class TestNeuralTagger(TestCase):  
     def test(self):
         sentences = get_test_sentences(neural_abs_path("tests/taggers/neural_morph/neural_test_sentences.txt"))
