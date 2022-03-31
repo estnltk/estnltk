@@ -21,17 +21,22 @@ MODEL_FILES = {"data": ["analysis.txt",
 
 
 def check_model_files(model_dir):
-    if (os.path.exists(model_dir)):
+    check_failed = False
+    if os.path.exists(model_dir):
         for folder in MODEL_FILES:
             for file in MODEL_FILES[folder]:
                 if not os.path.exists(os.path.join(model_dir, folder, file)):
-                    msg = "Could not load location of NeuralMorphTagger's model from "+\
-                          "environment variables. Use environment variables "+\
-                          "ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM, ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM, "+\
-                          "ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM or ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM "+\
-                          "to point location of corresponding model folder (must contain subfolders "+\
-                          "'output/data' and 'output/results')."
-                    raise FileNotFoundError( msg )
+                    check_failed = True
+    else:
+        check_failed = True
+    if check_failed:
+        msg = "Could not load location of NeuralMorphTagger's model from "+\
+              "environment variables. Use environment variables "+\
+              "ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM, ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM, "+\
+              "ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM or ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM "+\
+              "to point the location of corresponding model folder (must contain subfolders "+\
+              "'output/data' and 'output/results')."
+        raise FileNotFoundError( msg )
 
 
 class NeuralMorphTagger(Tagger):
