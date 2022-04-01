@@ -4,7 +4,7 @@ import os
 from estnltk import Layer
 from estnltk.taggers import Tagger
 from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
-from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import override_config_paths_from_env_vars
+from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import override_config_paths_from_model_dir
 from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 
@@ -30,6 +30,8 @@ def check_model_files(model_dir):
     else:
         check_failed = True
     if check_failed:
+        # TODO: in future, we should use paths inside estnltk's resources 
+        # directory instead of environment variables 
         msg = "Could not load location of NeuralMorphTagger's model from "+\
               "environment variables. Use environment variables "+\
               "ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM, ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM, "+\
@@ -72,7 +74,7 @@ class NeuralMorphTagger(Tagger):
     conf_param = ('model',)
 
     def __init__(self, output_layer='neural_morph_analysis', module_name=None, module_package=None,
-                 model_module=None, model=None):
+                 model_module=None, model=None, model_dir=None):
         if module_name is not None and module_package is not None:
             model_module = importlib.import_module('.' + module_name, module_package)
         if model_module is not None:
@@ -84,15 +86,9 @@ class NeuralMorphTagger(Tagger):
                 assert (model_module.__name__).endswith(module_name)
             
             # Try to overwrite file paths in the configuration based on 
-            # the model directory in the environment variable
-            if module_name=='softmax_emb_tag_sum':
-                config = override_config_paths_from_env_vars(config, ['ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM'])
-            elif module_name=='softmax_emb_cat_sum':
-                config = override_config_paths_from_env_vars(config, ['ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM'])
-            elif module_name=='seq2seq_emb_tag_sum':
-                config = override_config_paths_from_env_vars(config, ['ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM'])
-            elif module_name=='seq2seq_emb_cat_sum':
-                config = override_config_paths_from_env_vars(config, ['ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM'])
+            # the given model directory. If model_dir is None, do nothing
+            config = override_config_paths_from_model_dir(config, model_dir)
+
             check_model_files(config.out_dir)
 
             config_holder = model_module.ConfigHolder(config)
@@ -146,7 +142,8 @@ class SoftmaxEmbTagSumTagger(NeuralMorphTagger):
     """
     def __init__(self, output_layer: str = 'neural_morph_analysis'):
         super().__init__(output_layer=output_layer, module_name='softmax_emb_tag_sum',
-                         module_package='estnltk_neural.taggers.neural_morph.new_neural_morph')
+                         module_package='estnltk_neural.taggers.neural_morph.new_neural_morph',
+                         model_dir=os.environ.get('ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM', None))
 
 
 class SoftmaxEmbCatSumTagger(NeuralMorphTagger):
@@ -155,7 +152,8 @@ class SoftmaxEmbCatSumTagger(NeuralMorphTagger):
     """
     def __init__(self, output_layer: str = 'neural_morph_analysis'):
         super().__init__(output_layer=output_layer, module_name='softmax_emb_cat_sum',
-                         module_package='estnltk_neural.taggers.neural_morph.new_neural_morph')
+                         module_package='estnltk_neural.taggers.neural_morph.new_neural_morph',
+                         model_dir=os.environ.get('ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM', None))
 
 
 class Seq2SeqEmbTagSumTagger(NeuralMorphTagger):
@@ -164,7 +162,8 @@ class Seq2SeqEmbTagSumTagger(NeuralMorphTagger):
     """
     def __init__(self, output_layer: str = 'neural_morph_analysis'):
         super().__init__(output_layer=output_layer, module_name='seq2seq_emb_tag_sum',
-                         module_package='estnltk_neural.taggers.neural_morph.new_neural_morph')
+                         module_package='estnltk_neural.taggers.neural_morph.new_neural_morph',
+                         model_dir=os.environ.get('ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM', None))
 
 
 class Seq2SeqEmbCatSumTagger(NeuralMorphTagger):
@@ -173,4 +172,5 @@ class Seq2SeqEmbCatSumTagger(NeuralMorphTagger):
     """
     def __init__(self, output_layer: str = 'neural_morph_analysis'):
         super().__init__(output_layer=output_layer, module_name='seq2seq_emb_cat_sum',
-                         module_package='estnltk_neural.taggers.neural_morph.new_neural_morph')
+                         module_package='estnltk_neural.taggers.neural_morph.new_neural_morph',
+                         model_dir=os.environ.get('ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM', None))
