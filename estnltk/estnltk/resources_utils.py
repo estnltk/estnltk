@@ -1,14 +1,23 @@
 #
-#  * EstNLTK's resources directory
-#  * Resource downloader and maintainer
+#  Utilities for handling EstNLTK's resources:
+#  * Detecting EstNLTK's resources directory/path
+#  * Downloading/updating resources index
 #
 
+from typing import Dict, Any
+
 import os
+import json
+import warnings
 from pathlib import Path
+from datetime import datetime
+
+import requests
+from tqdm import tqdm
 
 from estnltk.common import PACKAGE_PATH
 
-def _is_folder_writable(folder):
+def _is_folder_writable(folder) -> bool:
     """
     Checks if the given folder/path is writable. 
     Following the principle "It's easier to ask for forgiveness 
@@ -30,7 +39,7 @@ def _is_folder_writable(folder):
     return True
 
 
-def get_resources_dir():
+def get_resources_dir() -> str:
     """
     Returns the current ESTNLTK_RESOURCES directory.
     
@@ -57,8 +66,14 @@ def get_resources_dir():
         # Check if the folder is writable
         if _is_folder_writable(env_folder):
             return env_folder
-    # TODO: warn user that the directory from ESTNLTK_RESOURCES
-    # could not be used ...
+        else:
+            warning_msg = ("Cannot use resources folder {!r}: "+\
+                           "the folder is not writable.").format(env_folder)
+            warnings.warn( UserWarning(warning_msg) )
+    elif env_folder is not None:
+        warning_msg = ("Cannot use resources folder {!r}: "+\
+                       "no such folder exists.").format(env_folder)
+        warnings.warn( UserWarning(warning_msg) )
     # 2) get directory inside estnltk's installation folder
     resources_in_install = \
         os.path.join(PACKAGE_PATH, 'estnltk_resources')
@@ -91,5 +106,69 @@ def get_resources_dir():
                     "and it is also not possible to write into the home folder. Please "+\
                     "provide an environment variable 'ESTNLTK_RESOURCES' with the name of an "+\
                     "existing directory where resources can be downloaded and unpacked.")
+
+RESOURCES_INDEX_URL = \
+    'https://raw.githubusercontent.com/estnltk/estnltk_resources/master/resources_index.json'
+"""
+URL of the resources index.
+"""
+
+INDEX_TIMEOUT = 7200
+"""
+Freshness period of the index file in seconds.
+If this period has elapsed since the last update of the index file,
+the index will be re-downloaded.
+Default value: 7200 (2 h).
+"""
+
+def get_resources_index(force_update:bool=False) -> Dict[str, Any]:
+    """
+    Fetches and returns resources index (a dictionary).
     
+    If the current ESTNLTK_RESOURCES directory does not contain
+    'resources_index.json', then downloads the file from RESOURCES_INDEX_URL,
+    places into the ESTNLTK_RESOURCES directory, and returns it's content as 
+    a dict.
+    
+    If the current ESTNLTK_RESOURCES directory already contains
+    'resources_index.json', checks the modification time of the file. 
+    If the file is older than INDEX_TIMEOUT (by default: 2 hours), then it's 
+    content will be redownloaded; otherwise, the content of the old file will 
+    be returned.
+    
+    And, finally, if force_update=True, then 'resources_index.json'
+    is redownloaded from RESOURCES_INDEX_URL regardless the modification
+    time of the existing index file.
+    """
+    resources_dir = get_resources_dir()
+    resources_index = os.path.join(resources_dir, 'resources_index.json')
+    # Check if the resources file has already been downloaded
+    if os.path.exists(resources_index):
+        if not force_update:
+            assert isinstance(INDEX_TIMEOUT, int)
+            # Should we update the index? Check the last modification time
+            mod_time = \
+                datetime.fromtimestamp(Path(resources_index).stat().st_mtime)
+            if (datetime.now() - mod_time).seconds >= INDEX_TIMEOUT:
+                # Update if INDEX_TIMEOUT seconds has passed
+                # (default value: 2 hours)
+                force_update = True
+    if force_update or not os.path.exists(resources_index):
+        # Download resources index
+        response = requests.get(RESOURCES_INDEX_URL, stream=True)
+        if response.status_code == requests.codes.ok:
+            with open(resources_index, mode="wb") as out_f:
+                for chunk in tqdm( response.iter_content(chunk_size=1024), \
+                                   desc="Downloading resources index" ):
+                    if chunk:
+                        out_f.write(chunk)
+                        out_f.flush()
+        else:
+            response.raise_for_status()
+    if os.path.exists(resources_index):
+        with open(resources_index, 'r', encoding='utf-8') as in_f:
+            resources_index_dict = json.load(in_f)
+        return resources_index_dict
+    raise Exception('(!) Unable to get resources index.')
+
     
