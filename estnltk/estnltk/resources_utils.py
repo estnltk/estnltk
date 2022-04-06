@@ -5,7 +5,7 @@
 #  * Normalizing resource descriptions
 #
 
-from typing import Dict, Any
+from typing import Optional, List, Union, Dict, Any
 
 import os
 import re
@@ -180,7 +180,7 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
                                       check_existence:bool=True):
     '''
     Loads resources index, validates and normalizes resource descriptions.
-    Returns as a temporally sorted list of resource descriptions (latest 
+    Returns a temporally sorted list of resource descriptions (latest 
     resources first).
     
     If refresh_index==True (default: False), then loads a fresh resources 
@@ -200,7 +200,8 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
 
     If check_existence==True (default), then adds key 'downloaded' to 
     each normalized resource description, indicating whether the corresponding 
-    resource has been downloaded already ('unpack_target_path' exists). 
+    resource has been downloaded already ('unpack_target_path' exists inside
+    ESTNLTK_RESOURCES).
     
     Finally, resource descriptions are sorted by their publication dates, which 
     should be present in resource names. Each resource name should contain an 
@@ -293,3 +294,62 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
         sorted( normalized_resource_descriptions, \
                 key=lambda x:x["date"], reverse=True )
     return normalized_resource_descriptions
+
+
+def get_downloaded_resource_paths(resource: str, only_latest:bool=False) \
+                                                -> Union[Optional[str], List[str]]:
+    '''
+    Finds and returns full paths to (all versions of) downloaded resource.
+    
+    If there are multiple resources with the given name (i.e. multiple resources 
+    with the same alias), then returns a list of paths of downloaded resources, 
+    sorted by (publishing) dates of the resources (latest resources first). 
+    Resources that are not downloaded will not appear in the list.
+    
+    If there is no resource with the given name (or alias) or no such resources 
+    have been downloaded yet, returns an empty list.
+    
+    Also, parameter `only_latest` can be used to switch returning type from list 
+    to string (path of the latest resource) / None (no paths found).
+    
+    Parameters
+    ----------
+    resource: str
+        The name or alias of the resource.
+    only_latest: bool
+        If True, then returns only the path to the latest resource (a string). 
+        And if the resource is missing or not downloaded, then returns None. 
+        Default: False.
+
+    Returns
+    -------
+    Union[List[str], Optional[str]]
+        List of paths of downloaded resources if not `only_latest`.
+        String with path to the latest downloaded resource if `only_latest`.
+    '''
+    if not isinstance( resource, str ):
+        raise TypeError(('(!) Invalid resource name: '+\
+                         'expected a string, not {!r}').format(type(resource)))
+    # Get resources directory and normalized resource descriptions
+    resources_dir = get_resources_dir()
+    resource_descriptions = \
+        _normalized_resource_descriptions(refresh_index=False,
+                                          check_existence=True)
+    resource = resource.lower()
+    # Find resource by name or by alias
+    resource_paths = []
+    for resource_dict in resource_descriptions:
+        if resource == resource_dict['name'] or \
+           resource in resource_dict['aliases']:
+            # check that the resource has been downloaded already
+            if resource_dict["downloaded"]:
+                target_path = os.path.join(resources_dir, \
+                                           resource_dict["unpack_target_path"] )
+                target_path = target_path.replace('/', os.sep)
+                resource_paths.append( target_path )
+    if only_latest:
+        return resource_paths[0] if len(resource_paths)>0 else None
+    else:
+        return resource_paths
+
+
