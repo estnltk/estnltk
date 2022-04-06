@@ -3,6 +3,7 @@
 #  * Detecting EstNLTK's resources directory/path
 #  * Downloading/updating the index of resource descriptions
 #  * Normalizing resource descriptions
+#  * Getting full paths to downloaded resources
 #
 
 from typing import Optional, List, Union, Dict, Any
