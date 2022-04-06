@@ -261,16 +261,24 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
                     resource_dict["unpack_source_path"].replace('\\', '/')
             resource_dict["unpack_target_path"] = \
                 resource_dict["unpack_target_path"].replace('\\', '/')
+            # Construct target path
+            target_path = resource_dict["unpack_target_path"]
+            is_single_file = False
+            # If resource consist of a single file, then add file 
+            # name to the target path
+            if 'single_file' in resource_dict:
+                target_path += '/' + resource_dict['single_file']
+                is_single_file = True
             # Check that the "unpack_target_path" is unique
-            if resource_dict["unpack_target_path"] in seen_unpack_target_paths:
-                warning_msg = ("Invalid 'unpack_target_path' in resource "+\
+            if target_path in seen_unpack_target_paths:
+                warning_msg = ("Invalid target path from resource "+\
                                "description: \n {!r}\nThe path {!r} has already been "+\
                                "used by another resource. "+\
                                "Discarding the resource."+\
-                               "").format(resource_dict, resource_dict["unpack_target_path"])
+                               "").format(resource_dict, target_path)
                 warnings.warn( UserWarning(warning_msg) )
                 continue
-            seen_unpack_target_paths.add( resource_dict["unpack_target_path"] )
+            seen_unpack_target_paths.add( target_path )
             # Detect the ISO-like date from the name
             resource_dict["date"] = ''
             date_m = _date_pattern.search(resource_dict['name'])
@@ -284,10 +292,13 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
                 warnings.warn( UserWarning(warning_msg) )
             # Check if the resource has been downloaded already
             if check_existence:
-                target_path = os.path.join( resources_dir, \
-                                            resource_dict["unpack_target_path"] )
-                resource_dict["downloaded"] = \
-                    os.path.exists(target_path) and os.path.isdir(target_path)
+                target_path = os.path.join( resources_dir, target_path )
+                if is_single_file:
+                    resource_dict["downloaded"] = \
+                        os.path.exists(target_path) and os.path.isfile(target_path)
+                else:
+                    resource_dict["downloaded"] = \
+                        os.path.exists(target_path) and os.path.isdir(target_path)
             normalized_resource_descriptions.append( resource_dict )
     # Sort resource descriptions temporally (latest descriptions first)
     normalized_resource_descriptions = \
@@ -296,7 +307,8 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
     return normalized_resource_descriptions
 
 
-def get_downloaded_resource_paths(resource: str, only_latest:bool=False) \
+def get_downloaded_resource_paths(resource: str, only_latest:bool=False, 
+                                                 print_instructions:bool=False) \
                                                 -> Union[Optional[str], List[str]]:
     '''
     Finds and returns full paths to (all versions of) downloaded resource.
@@ -320,6 +332,11 @@ def get_downloaded_resource_paths(resource: str, only_latest:bool=False) \
         If True, then returns only the path to the latest resource (a string). 
         And if the resource is missing or not downloaded, then returns None. 
         Default: False.
+    print_instructions: bool
+        If True and no downloaded resources were found, but the resource was 
+        found in the index, then prints instructions about how to download 
+        the resource.
+        Default: False.        
 
     Returns
     -------
@@ -338,6 +355,7 @@ def get_downloaded_resource_paths(resource: str, only_latest:bool=False) \
     resource = resource.lower()
     # Find resource by name or by alias
     resource_paths = []
+    not_downloaded = False
     for resource_dict in resource_descriptions:
         if resource == resource_dict['name'] or \
            resource in resource_dict['aliases']:
@@ -346,7 +364,16 @@ def get_downloaded_resource_paths(resource: str, only_latest:bool=False) \
                 target_path = os.path.join(resources_dir, \
                                            resource_dict["unpack_target_path"] )
                 target_path = target_path.replace('/', os.sep)
+                if 'single_file' in resource_dict:
+                    target_path += os.sep + resource_dict['single_file']
                 resource_paths.append( target_path )
+            else:
+                # Resource has not been downloaded yet
+                not_downloaded = True
+    if print_instructions and not_downloaded and \
+       len(resource_paths) == 0:
+       # TODO: print download instructions
+       pass
     if only_latest:
         return resource_paths[0] if len(resource_paths)>0 else None
     else:
