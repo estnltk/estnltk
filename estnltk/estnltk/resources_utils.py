@@ -1,12 +1,14 @@
 #
 #  Utilities for handling EstNLTK's resources:
 #  * Detecting EstNLTK's resources directory/path
-#  * Downloading/updating resources index
+#  * Downloading/updating the index of resource descriptions
+#  * Normalizing resource descriptions
 #
 
 from typing import Dict, Any
 
 import os
+import re
 import json
 import warnings
 from pathlib import Path
@@ -171,4 +173,123 @@ def get_resources_index(force_update:bool=False) -> Dict[str, Any]:
         return resources_index_dict
     raise Exception('(!) Unable to get resources index.')
 
+
+_date_pattern = re.compile(r'(\d\d\d\d\D\d\d\D\d\d)')
+
+def _normalized_resource_descriptions(refresh_index:bool=False,
+                                      check_existence:bool=True):
+    '''
+    Loads resources index, validates and normalizes resource descriptions.
+    Returns as a temporally sorted list of resource descriptions (latest 
+    resources first).
     
+    If refresh_index==True (default: False), then loads a fresh resources 
+    index from RESOURCES_INDEX_URL.
+    
+    Validation: resources missing keys 'name', 'url', 'unpack_target_path' 
+    will be discarded with warning messages about invalid descriptions. 
+    Also, 'name' and 'unpack_target_path' must be unique among all resource
+    descriptions. If a resource description contains name or target path of 
+    another resource description, it will be discarded with a warning message.
+    
+    Normalisation: Resource 'name' and 'aliases' are converted to lowercase.
+    If key 'aliases' is missing, it is added with an empty list.
+    In 'unpack_source_path' and 'unpack_target_path', all slashes are converted
+    to POSIX slashes (/). This is requied for the zipfile module, which also 
+    uses POSIX slashes in paths.
+
+    If check_existence==True (default), then adds key 'downloaded' to 
+    each normalized resource description, indicating whether the corresponding 
+    resource has been downloaded already ('unpack_target_path' exists). 
+    
+    Finally, resource descriptions are sorted by their publication dates, which 
+    should be present in resource names. Each resource name should contain an 
+    ISO format date, e.g. "udpipe_syntax_2021-05-29" or 
+    "stanza_syntax_2021-05-29".
+    '''
+    resources_dir = get_resources_dir()
+    resources_index = get_resources_index(force_update=refresh_index)
+    if "resources" not in resources_index:
+        raise KeyError( ('(!) Invalid resources index: missing "resources" key:'+\
+                          '\n{!r}').format(resources_index) )
+    if not isinstance(resources_index["resources"], list):
+        raise TypeError( ('(!) Invalid resources index: "resources" should be a list,'+\
+                          'not {!r}').format(type(resources_index["resources"])) )
+    # Normalize resource descriptions
+    normalized_resource_descriptions = []
+    seen_resource_names = set()
+    seen_unpack_target_paths = set()
+    for resource_dict in resources_index["resources"]:
+        if not isinstance(resource_dict, dict):
+            raise TypeError( ('(!) Invalid resource description: should be '+\
+                              'a dict, not {!r}').format(type(resource_dict)) )
+        usable = True
+        # Check that all the required items are present in the rource
+        for required_key in ['name', 'url', 'unpack_target_path']:
+            if required_key not in resource_dict.keys():
+                warning_msg = ("Missing key {!r} in resource "+\
+                               "description: \n {!r}\nDiscarding the "+\
+                               "resource.").format(required_key, resource_dict)
+                if required_key == 'unpack_target_path':
+                    warning_msg = ("(!) Invalid resource description \n{!r}\n"+\
+                                  "the description is missing 'unpack_target_path' "+\
+                                  "which should define the local path of the "+\
+                                  "downloaded resource. Discarding the resource."+\
+                                  "").format(resource_dict)
+                warnings.warn( UserWarning(warning_msg) )
+                usable = False
+        if usable:
+            # Convert names und aliases to lowercase
+            resource_dict['name'] = resource_dict['name'].lower()
+            resource_dict['aliases'] = \
+                [a.lower() for a in resource_dict["aliases"]] \
+                if "aliases" in resource_dict else []
+            # Check that the resource name is unique
+            if resource_dict["name"] in seen_resource_names:
+                warning_msg = ("Invalid 'name' in resource "+\
+                               "description: \n {!r}\nThe name {!r} has already been "+\
+                               "used by another resource. "+\
+                               "Discarding the resource."+\
+                               "").format(resource_dict, resource_dict["name"])
+                warnings.warn( UserWarning(warning_msg) )
+                continue
+            seen_resource_names.add( resource_dict['name'] )
+            # Normalise slashes
+            if "unpack_source_path" in resource_dict:
+                resource_dict["unpack_source_path"] = \
+                    resource_dict["unpack_source_path"].replace('\\', '/')
+            resource_dict["unpack_target_path"] = \
+                resource_dict["unpack_target_path"].replace('\\', '/')
+            # Check that the "unpack_target_path" is unique
+            if resource_dict["unpack_target_path"] in seen_unpack_target_paths:
+                warning_msg = ("Invalid 'unpack_target_path' in resource "+\
+                               "description: \n {!r}\nThe path {!r} has already been "+\
+                               "used by another resource. "+\
+                               "Discarding the resource."+\
+                               "").format(resource_dict, resource_dict["unpack_target_path"])
+                warnings.warn( UserWarning(warning_msg) )
+                continue
+            seen_unpack_target_paths.add( resource_dict["unpack_target_path"] )
+            # Detect the ISO-like date from the name
+            resource_dict["date"] = ''
+            date_m = _date_pattern.search(resource_dict['name'])
+            if date_m:
+                date_str = date_m.group(1)
+                resource_dict["date"] = date_str
+            else:
+                warning_msg = ("(!) Unexpected resource name {!r}: "+\
+                               "could not parse date from the "+\
+                               "name.").format(resource_dict['name'])
+                warnings.warn( UserWarning(warning_msg) )
+            # Check if the resource has been downloaded already
+            if check_existence:
+                target_path = os.path.join( resources_dir, \
+                                            resource_dict["unpack_target_path"] )
+                resource_dict["downloaded"] = \
+                    os.path.exists(target_path) and os.path.isdir(target_path)
+            normalized_resource_descriptions.append( resource_dict )
+    # Sort resource descriptions temporally (latest descriptions first)
+    normalized_resource_descriptions = \
+        sorted( normalized_resource_descriptions, \
+                key=lambda x:x["date"], reverse=True )
+    return normalized_resource_descriptions
