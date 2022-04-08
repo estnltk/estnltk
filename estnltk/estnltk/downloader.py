@@ -252,7 +252,7 @@ def _unpack_gzip(gzip_file, resource_description, resources_dir):
                           resource_description['name'],
                           unpack_target_path )
         errors.append( error_msg )
-    if len("unpack_source_path") > 0:
+    if len(unpack_source_path) > 0:
         # Nothing to do with "unpack_source_path"
         warning_msg = ("Warning at unpacking gz resource {!r}: "+\
                        "unpack_source_path has been specified, "+\
