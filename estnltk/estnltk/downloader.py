@@ -13,6 +13,7 @@ import tempfile
 import warnings
 
 from zipfile import ZipFile
+import gzip
 
 from tqdm import tqdm
 
@@ -104,7 +105,9 @@ def _unpack_zip(zip_file, resource_description, resources_dir):
                                              "unpack_source_path {!r} and the "+\
                                              "unpack_target_path {!r} only lists "+\
                                              "a single file.").format( \
-                                    desc['name'], unpack_source_path, unpack_target_path )
+                                                    resource_description['name'], 
+                                                    unpack_source_path, 
+                                                    unpack_target_path )
                                 errors.append( error_msg )
                                 break
                 elif source_type == 'file':
@@ -114,7 +117,9 @@ def _unpack_zip(zip_file, resource_description, resources_dir):
                                      "if unpack_source_path {!r} is a file, "+\
                                      "then unpack_target_path {!r} must "+\
                                      "also be a file.").format( \
-                            desc['name'], unpack_source_path, unpack_target_path )
+                                            resource_description['name'], 
+                                            unpack_source_path, 
+                                            unpack_target_path )
                         errors.append( error_msg )
                         break
                     else:
@@ -135,7 +140,9 @@ def _unpack_zip(zip_file, resource_description, resources_dir):
                                              "unpack_source_path {!r} and the "+\
                                              "unpack_target_path {!r} only lists "+\
                                              "a single file.").format( \
-                                    desc['name'], unpack_source_path, unpack_target_path )
+                                                    resource_description['name'], 
+                                                    unpack_source_path, 
+                                                    unpack_target_path )
                                 errors.append( error_msg )
                                 break
                 else:
@@ -176,7 +183,8 @@ def _unpack_zip(zip_file, resource_description, resources_dir):
                                          "the file with the same name was "+\
                                          "already extracted from the archive."+\
                                          "").format( \
-                                desc['name'], unpack_target_file )
+                                                resource_description['name'], 
+                                                unpack_target_file )
                             errors.append( error_msg )
                             break
         # 2) No items found? Is source type is unspecified and target type 
@@ -194,14 +202,16 @@ def _unpack_zip(zip_file, resource_description, resources_dir):
         if len(unpack_source_path) > 0:
             error_msg = ("Error at unzipping resource {!r}: "+\
                          "the zip file did not contain any entries matching "+\
-                         "the unpack_source_path {!r}.").format( desc['name'],
-                              unpack_source_path )
+                         "the unpack_source_path {!r}.").format( \
+                                resource_description['name'],
+                                unpack_source_path )
             errors.append( error_msg )
         elif len(unpack_target_path) > 0:
             error_msg = ("Error at unzipping resource {!r}: "+\
                          "the zip file did not contain any entries matching "+\
-                         "the unpack_target_path {!r}.").format( desc['name'],
-                              unpack_target_path )
+                         "the unpack_target_path {!r}.").format( \
+                                resource_description['name'],
+                                unpack_target_path )
             errors.append( error_msg )
     if errors:
         # Clean up after errors
@@ -214,6 +224,55 @@ def _unpack_zip(zip_file, resource_description, resources_dir):
     return errors
 
 
+
+def _unpack_gzip(gzip_file, resource_description, resources_dir):
+    '''
+    Unpacks downloaded gzip file according to instructions in resource_description. 
+    The content will be unpacked into (a subdirectory of) resources_dir. 
+    Returns empty list if the extraction was successful. In case of errors 
+    encountered, returns a list with error messages.
+    
+    Note that "unpack_target_path" must be a file. Unpacking will 
+    fail with an error if it is a directory.
+    
+    Limitations: currently, does not support unpacking tar.gz files,
+    only a single file can be extracted from the archive.
+    '''
+    errors = []
+    assert isinstance(gzip_file, str) and os.path.isfile(gzip_file)
+    assert "unpack_target_path" in resource_description
+    unpack_source_path = resource_description.get("unpack_source_path", "")
+    unpack_target_path = resource_description.get("unpack_target_path")
+    if unpack_target_path.endswith('/'):
+        # Cannot unpack directory
+        error_msg = ("Error at unpacking gz resource {!r}: "+\
+                     "cannot unpack a directory from gzip file. "+\
+                     "Invalid unpack_target_path {!r}: expected "+\
+                     "file, not directory.").format( \
+                          resource_description['name'],
+                          unpack_target_path )
+        errors.append( error_msg )
+    if len("unpack_source_path") > 0:
+        # Nothing to do with "unpack_source_path"
+        warning_msg = ("Warning at unpacking gz resource {!r}: "+\
+                       "unpack_source_path has been specified, "+\
+                       "but this does not affect unpacking gz "+\
+                       "file any way. This only affects zip "+\
+                       "unpacking.").format( \
+                            resource_description['name'] )
+        warnings.warn( UserWarning(warning_msg) )
+    if not errors:
+        # Unpack the resource
+        with gzip.open(gzip_file, 'rb') as in_f:
+            file_content = in_f.read()
+            outpath = \
+                os.path.join(resources_dir, unpack_target_path)
+            with open(outpath, 'wb') as out_f:
+                out_f.write(file_content)
+    return errors
+
+
+
 def _download_and_unpack( resource_description, resources_dir ):
     """
     Downloads and unpacks the resource based on given resource_description. 
@@ -224,6 +283,7 @@ def _download_and_unpack( resource_description, resources_dir ):
     
     Currently supported downloadable file types:
     * application/zip
+    * application/gzip (excluding *.tar.gz)
     
     Throws an exception when:
     *) Content-Type missing from response headers (TODO: can that happen?);
@@ -249,7 +309,8 @@ def _download_and_unpack( resource_description, resources_dir ):
     if 'Content-Type' not in file_headers.keys():
         raise ValueError( ('Missing "Content-Type" in response headers '+\
                            'of the downloadable file: {!r}').format(file_headers) )
-    if file_headers['Content-Type'].startswith('application/zip'):
+    if file_headers['Content-Type'].startswith('application/zip') or \
+       file_headers['Content-Type'].startswith('application/gzip'):
         if response.status_code == requests.codes.ok:
             with open(temp_f.name, mode="wb") as out_f:
                 for chunk in tqdm( response.iter_content(chunk_size=1024), 
@@ -260,8 +321,7 @@ def _download_and_unpack( resource_description, resources_dir ):
         else:
             response.raise_for_status()
     else:
-        # TODO: application/gzip should also be allowed
-        raise ValueError( ('(!) File downloadable from {!r} is not a zip file.'+\
+        raise ValueError( ('(!) File downloadable from {!r} is not a zip or gz file.'+\
                            'Unexpected Content-Type: {!r}').format( url, 
                            file_headers['Content-Type']) )
     # =================================================
@@ -282,9 +342,12 @@ def _download_and_unpack( resource_description, resources_dir ):
     # =================================================
     # 3) Unpack resource into target path
     # =================================================
+    errors = []
     downloaded_file = temp_f.name
     if file_headers['Content-Type'].startswith('application/zip'):
         errors = _unpack_zip(downloaded_file, resource_description, resources_dir)
+    elif file_headers['Content-Type'].startswith('application/gzip'):
+        errors = _unpack_gzip(downloaded_file, resource_description, resources_dir)
     # =================================================
     # 4) Report errors if any
     # =================================================
