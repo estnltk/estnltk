@@ -16,9 +16,9 @@ from zipfile import ZipFile
 
 from tqdm import tqdm
 
-from estnltk.resources_utils import get_resources_dir
-from estnltk.resources_utils import get_resources_index
-from estnltk.resources_utils import _normalized_resource_descriptions
+from estnltk.resource_utils import get_resources_dir
+from estnltk.resource_utils import get_resources_index
+from estnltk.resource_utils import _normalized_resource_descriptions
 
 def _unpack_zip(zip_file, resource_description, resources_dir):
     '''

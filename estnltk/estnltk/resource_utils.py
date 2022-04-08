@@ -353,9 +353,9 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
     return normalized_resource_descriptions
 
 
-def get_downloaded_resource_paths(resource: str, only_latest:bool=False, 
-                                                 print_instructions:bool=False) \
-                                                -> Union[Optional[str], List[str]]:
+def get_resource_paths(resource: str, only_latest:bool=False, 
+                                      print_instructions:bool=False) \
+                                      -> Union[Optional[str], List[str]]:
     '''
     Finds and returns full paths to (all versions of) downloaded resource.
     
