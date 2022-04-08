@@ -175,6 +175,25 @@ def get_resources_index(force_update:bool=False) -> Dict[str, Any]:
     raise Exception('(!) Unable to get resources index.')
 
 
+def _target_path_exists( target_path: str, resources_dir: str ):
+    '''
+    Checks if the given target_path exists inside resources_dir,
+    and has expected type (file or directory).
+    Additional check: if the expected type is directory, the 
+    directory must contain at least one item.
+    '''
+    if target_path.endswith('/'):
+        # target_path is directory
+        dir_path = os.path.join(resources_dir, target_path[:-1])
+        return os.path.exists(dir_path) and \
+               os.path.isdir(dir_path) and \
+               len(os.listdir(dir_path)) > 0
+    else:
+        # target_path is file
+        file_path = os.path.join(resources_dir, target_path)
+        return os.path.exists(file_path) and os.path.isfile(file_path)
+
+
 _date_pattern = re.compile(r'(\d\d\d\d\D\d\d\D\d\d)')
 
 def _normalized_resource_descriptions(refresh_index:bool=False,
@@ -198,7 +217,13 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
     In 'unpack_source_path' and 'unpack_target_path', all slashes are converted
     to POSIX slashes (/). This is requied for the zipfile module, which also 
     uses POSIX slashes in paths.
-
+    Each resource should be placed into a folder, so 'unpack_target_path' must 
+    contain at least one path separator (/). Resource will be discarded if 
+    this condition is not met.
+    If 'unpack_source_path' is a file (does not end with /), then 
+    'unpack_target_path' must also be a file (not end with /) or otherwise 
+    the resource will be discarded.
+    
     If check_existence==True (default), then adds key 'downloaded' to 
     each normalized resource description, indicating whether the corresponding 
     resource has been downloaded already ('unpack_target_path' exists inside
@@ -255,21 +280,31 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
                                "").format(resource_dict, resource_dict["name"])
                 warnings.warn( UserWarning(warning_msg) )
                 continue
-            seen_resource_names.add( resource_dict['name'] )
             # Normalise slashes
             if "unpack_source_path" in resource_dict:
                 resource_dict["unpack_source_path"] = \
                     resource_dict["unpack_source_path"].replace('\\', '/')
             resource_dict["unpack_target_path"] = \
                 resource_dict["unpack_target_path"].replace('\\', '/')
-            # Construct target path
             target_path = resource_dict["unpack_target_path"]
-            is_single_file = False
-            # If resource consist of a single file, then add file 
-            # name to the target path
-            if 'single_file' in resource_dict:
-                target_path += '/' + resource_dict['single_file']
-                is_single_file = True
+            # Check that the "unpack_target_path" is not an empty string
+            if len(target_path) == 0:
+                warning_msg = ("Invalid target path from resource "+\
+                               "description: \n {!r}\nThe target path {!r} cannot "+\
+                               "be an empty string. A path containing at least one "+\
+                               "folder must be provided. Discarding the resource."+\
+                               "").format(resource_dict, target_path)
+                warnings.warn( UserWarning(warning_msg) )
+                continue
+            # Check that the "unpack_target_path" is contains at least one folder
+            if '/' not in target_path:
+                warning_msg = ("Invalid target path from resource "+\
+                               "description: \n {!r}\nThe target path {!r} does "+\
+                               "not contain any pathname separators '/'. The target "+\
+                               "path must contain at least one folder. Discarding "+\
+                               "the resource.").format(resource_dict, target_path)
+                warnings.warn( UserWarning(warning_msg) )
+                continue
             # Check that the "unpack_target_path" is unique
             if target_path in seen_unpack_target_paths:
                 warning_msg = ("Invalid target path from resource "+\
@@ -279,6 +314,21 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
                                "").format(resource_dict, target_path)
                 warnings.warn( UserWarning(warning_msg) )
                 continue
+            # Check that if "unpack_source_path" is a file, 
+            # then "unpack_target_path" is not a directory.
+            if "unpack_source_path" in resource_dict and \
+               not resource_dict["unpack_source_path"].endswith('/') and \
+               target_path.endswith('/'):
+                warning_msg = ("Invalid target path from resource "+\
+                               "description: \n {!r}\nThe source path {!r} points"+\
+                               "to a file, so the target path {!r} must also be a"+\
+                               "file, not a directory."+\
+                               "").format( resource_dict, 
+                                           resource_dict["unpack_source_path"], 
+                                           target_path )
+                warnings.warn( UserWarning(warning_msg) )
+                continue
+            seen_resource_names.add( resource_dict['name'] )
             seen_unpack_target_paths.add( target_path )
             # Detect the ISO-like date from the name
             resource_dict["date"] = ''
@@ -293,13 +343,8 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
                 warnings.warn( UserWarning(warning_msg) )
             # Check if the resource has been downloaded already
             if check_existence:
-                target_path = os.path.join( resources_dir, target_path )
-                if is_single_file:
-                    resource_dict["downloaded"] = \
-                        os.path.exists(target_path) and os.path.isfile(target_path)
-                else:
-                    resource_dict["downloaded"] = \
-                        os.path.exists(target_path) and os.path.isdir(target_path)
+                resource_dict["downloaded"] = \
+                    _target_path_exists(target_path, resources_dir)
             normalized_resource_descriptions.append( resource_dict )
     # Sort resource descriptions temporally (latest descriptions first)
     normalized_resource_descriptions = \
@@ -365,8 +410,6 @@ def get_downloaded_resource_paths(resource: str, only_latest:bool=False,
                 target_path = os.path.join(resources_dir, \
                                            resource_dict["unpack_target_path"] )
                 target_path = target_path.replace('/', os.sep)
-                if 'single_file' in resource_dict:
-                    target_path += os.sep + resource_dict['single_file']
                 resource_paths.append( target_path )
             else:
                 # Resource has not been downloaded yet
