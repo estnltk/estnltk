@@ -5,7 +5,7 @@
 #  * ...
 #
 
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Dict, Any
 
 import os
 import re
@@ -24,9 +24,36 @@ from estnltk.resource_utils import get_resources_index
 from estnltk.resource_utils import _normalized_resource_descriptions
 from estnltk.resource_utils import _normalize_resource_size
 
+ALLOW_ALL_DOWNLOADS = False
+"""
+If True, then missing resources (e.g. models required by taggers) 
+will be downloaded automatically without asking user's permission. 
+Otherwise, user's permission is asked before proceeding with a  
+download. 
+Default: False.
+"""
+
+
+def _ask_download_permission(resource_dict: Dict[str, Any]) -> bool:
+    '''
+    Asks user's permission for downloading the given resource. 
+    Command line prompt is used for asking the permission, meaning 
+    that the program flow will stop until the user has given an 
+    answer (Y or n). In case of an empty or a malformed answer, 
+    the "default answer" is Y.
+    '''
+    size_str = \
+        _normalize_resource_size(resource_dict['size']) if 'size' in resource_dict else ''
+    if len(size_str) > 0:
+        size_str = ' (size: {})'.format( size_str )
+    msg = ('This requires downloading resource {!r}{}. '+\
+           'Proceed with downloading? [Y/n]').format(resource_dict['name'], size_str)
+    answer = input(msg)
+    return not (answer.strip().lower() == 'n')
+
 
 def get_resource_paths(resource: str, only_latest:bool=False, 
-                                      print_instructions:bool=False) \
+                                      download_missing:bool=False) \
                                       -> Union[Optional[str], List[str]]:
     '''
     Finds and returns full paths to (all versions of) downloaded resource.
@@ -34,10 +61,15 @@ def get_resource_paths(resource: str, only_latest:bool=False,
     If there are multiple resources with the given name (i.e. multiple resources 
     with the same alias), then returns a list of paths of downloaded resources, 
     sorted by (publishing) dates of the resources (latest resources first). 
-    Resources that are not downloaded will not appear in the list.
+    Resources that have not been downloaded will not appear in the list.
     
-    If there is no resource with the given name (or alias) or no such resources 
-    have been downloaded yet, returns an empty list.
+    By default, if there is no resource with the given name (or alias) or no 
+    such resources have been downloaded yet, returns an empty list.
+    However, if download_missing==True, then attempts to download the missing 
+    resource. This stops the program flow with a command line prompt, asking
+    for user's permission to download the resource. 
+    If you set ALLOW_ALL_DOWNLOADS==True (in estnltk.downloader), then resources 
+    will be downloaded without asking permission. 
     
     Also, parameter `only_latest` can be used to switch returning type from list 
     to string (path of the latest resource) / None (no paths found).
@@ -50,10 +82,13 @@ def get_resource_paths(resource: str, only_latest:bool=False,
         If True, then returns only the path to the latest resource (a string). 
         And if the resource is missing or not downloaded, then returns None. 
         Default: False.
-    print_instructions: bool
+    download_missing: bool
         If True and no downloaded resources were found, but the resource was 
-        found in the index, then prints instructions about how to download 
-        the resource.
+        found in the index, then attempts to download resource. This stops the 
+        program flow with a command line prompt, asking for user's permission 
+        to download the resource. However, if you set ALLOW_ALL_DOWNLOADS==True 
+        (in module estnltk.downloader), then resources will be downloaded 
+        without asking permissions.
         Default: False.        
 
     Returns
@@ -73,7 +108,7 @@ def get_resource_paths(resource: str, only_latest:bool=False,
     resource = resource.lower()
     # Find resource by name or by alias
     resource_paths = []
-    not_downloaded = False
+    undownloaded_resources = []
     for resource_dict in resource_descriptions:
         if resource == resource_dict['name'] or \
            resource in resource_dict['aliases']:
@@ -85,11 +120,24 @@ def get_resource_paths(resource: str, only_latest:bool=False,
                 resource_paths.append( target_path )
             else:
                 # Resource has not been downloaded yet
-                not_downloaded = True
-    if print_instructions and not_downloaded and \
-       len(resource_paths) == 0:
-       # TODO: print download instructions
-       pass
+                undownloaded_resources.append( resource_dict )
+    # If no paths were found, but there are resources that can be downloaded
+    if len(undownloaded_resources) > 0 and \
+       len(resource_paths) == 0 and \
+       download_missing:
+        # Select the latest resource
+        target_resource = undownloaded_resources[0]
+        proceed_with_download = ALLOW_ALL_DOWNLOADS
+        if not proceed_with_download:
+            # Ask for user's permission 
+            proceed_with_download = \
+                _ask_download_permission( target_resource )
+        if proceed_with_download:
+            status = download(target_resource['name'])
+            if status:
+                # Recursively fetch the path to the 
+                # downloaded resource
+                return get_resource_paths(resource)
     if only_latest:
         return resource_paths[0] if len(resource_paths)>0 else None
     else:
