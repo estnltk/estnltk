@@ -1,8 +1,9 @@
 #
 #  Utilities downloading and maintaining EstNLTK's resources:
-#  * Download resources according to entries in resources index;
-#  * Unpack resource according to a resource description;
-#  * ...
+#  * Getting full paths to downloaded resources (incl. 
+#    autodownloading missing resources);
+#  * Downloading resources according to entries in resources index;
+#  * Unpacking a resource according to a resource description;
 #
 
 from typing import Optional, List, Union, Dict, Any
@@ -69,7 +70,12 @@ def get_resource_paths(resource: str, only_latest:bool=False,
     resource. This stops the program flow with a command line prompt, asking
     for user's permission to download the resource. 
     If you set ALLOW_ALL_DOWNLOADS==True (in estnltk.downloader), then resources 
-    will be downloaded without asking permission. 
+    will be downloaded without asking permission.
+    
+    Note also that if download_missing==True and there are multiple missing 
+    resources that can be downloaded, only the latest one will be automatically 
+    downloaded. 
+    Use esnltk.downloader.download(...) to download the remaining resources. 
     
     Also, parameter `only_latest` can be used to switch returning type from list 
     to string (path of the latest resource) / None (no paths found).
