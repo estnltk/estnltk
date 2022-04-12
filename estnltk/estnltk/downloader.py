@@ -5,6 +5,8 @@
 #  * ...
 #
 
+from typing import Optional, List, Union
+
 import os
 import re
 import sys
@@ -20,6 +22,79 @@ from tqdm import tqdm
 from estnltk.resource_utils import get_resources_dir
 from estnltk.resource_utils import get_resources_index
 from estnltk.resource_utils import _normalized_resource_descriptions
+from estnltk.resource_utils import _normalize_resource_size
+
+
+def get_resource_paths(resource: str, only_latest:bool=False, 
+                                      print_instructions:bool=False) \
+                                      -> Union[Optional[str], List[str]]:
+    '''
+    Finds and returns full paths to (all versions of) downloaded resource.
+    
+    If there are multiple resources with the given name (i.e. multiple resources 
+    with the same alias), then returns a list of paths of downloaded resources, 
+    sorted by (publishing) dates of the resources (latest resources first). 
+    Resources that are not downloaded will not appear in the list.
+    
+    If there is no resource with the given name (or alias) or no such resources 
+    have been downloaded yet, returns an empty list.
+    
+    Also, parameter `only_latest` can be used to switch returning type from list 
+    to string (path of the latest resource) / None (no paths found).
+    
+    Parameters
+    ----------
+    resource: str
+        The name or alias of the resource.
+    only_latest: bool
+        If True, then returns only the path to the latest resource (a string). 
+        And if the resource is missing or not downloaded, then returns None. 
+        Default: False.
+    print_instructions: bool
+        If True and no downloaded resources were found, but the resource was 
+        found in the index, then prints instructions about how to download 
+        the resource.
+        Default: False.        
+
+    Returns
+    -------
+    Union[List[str], Optional[str]]
+        List of paths of downloaded resources if not `only_latest`.
+        String with path to the latest downloaded resource if `only_latest`.
+    '''
+    if not isinstance( resource, str ):
+        raise TypeError(('(!) Invalid resource name: '+\
+                         'expected a string, not {!r}').format(type(resource)))
+    # Get resources directory and normalized resource descriptions
+    resources_dir = get_resources_dir()
+    resource_descriptions = \
+        _normalized_resource_descriptions(refresh_index=False,
+                                          check_existence=True)
+    resource = resource.lower()
+    # Find resource by name or by alias
+    resource_paths = []
+    not_downloaded = False
+    for resource_dict in resource_descriptions:
+        if resource == resource_dict['name'] or \
+           resource in resource_dict['aliases']:
+            # check that the resource has been downloaded already
+            if resource_dict["downloaded"]:
+                target_path = os.path.join(resources_dir, \
+                                           resource_dict["unpack_target_path"] )
+                target_path = target_path.replace('/', os.sep)
+                resource_paths.append( target_path )
+            else:
+                # Resource has not been downloaded yet
+                not_downloaded = True
+    if print_instructions and not_downloaded and \
+       len(resource_paths) == 0:
+       # TODO: print download instructions
+       pass
+    if only_latest:
+        return resource_paths[0] if len(resource_paths)>0 else None
+    else:
+        return resource_paths
+
 
 def _unpack_zip(zip_file, resource_description, resources_dir):
     '''
@@ -365,7 +440,7 @@ def _download_and_unpack( resource_description, resources_dir ):
 
 def download(resource:str, refresh_index:bool=False, 
                            redownload:bool=False, 
-                           only_latest:bool=True ):
+                           only_latest:bool=True ) -> bool:
     """
     Downloads and unpacks given resource into EstNLTK's resources folder.
     Returns True if the download was successful or if the resource already 
