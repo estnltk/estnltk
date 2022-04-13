@@ -22,7 +22,7 @@ def get_downloaded_resource_names(resource: str):
         if resource_dict["downloaded"]:
             if resource == resource_dict['name'] or \
                resource in resource_dict['aliases']:
-                resource_names.append( resource )
+                resource_names.append( resource_dict['name'] )
     return resource_names
 
 
