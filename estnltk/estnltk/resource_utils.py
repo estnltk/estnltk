@@ -384,23 +384,23 @@ def delete_resource(resource: str) -> bool:
     found_by_alias = []
     deleted = False
     for resource_dict in resource_descriptions:
-        if resource == resource_dict['name']:
-            # check that the resource has been downloaded already
-            if resource_dict["downloaded"]:
-                target_path = os.path.join(resources_dir, \
-                                           resource_dict["unpack_target_path"] )
-                target_path = target_path.replace('/', os.sep)
-                if target_path.endswith( os.sep ):
-                    # delete directory tree
-                    shutil.rmtree(target_path)
-                    deleted = True
-                else:
-                    # delete file
-                    os.remove(target_path)
-                    deleted = True
-                break
-        elif resource in resource_dict['aliases']:
-            found_by_alias.append(resource_dict['name'])
+        # only downloaded resources can be deleted ...
+        if resource_dict["downloaded"]:
+            if resource == resource_dict['name']:
+                    target_path = os.path.join(resources_dir, \
+                                               resource_dict["unpack_target_path"] )
+                    target_path = target_path.replace('/', os.sep)
+                    if target_path.endswith( os.sep ):
+                        # delete directory tree
+                        shutil.rmtree(target_path)
+                        deleted = True
+                    else:
+                        # delete file
+                        os.remove(target_path)
+                        deleted = True
+                    break
+            elif resource in resource_dict['aliases']:
+                found_by_alias.append(resource_dict['name'])
     if not deleted and found_by_alias:
         print( ('Cannot delete resource by alias. '+\
                 'Please use a specific resource name '+\
