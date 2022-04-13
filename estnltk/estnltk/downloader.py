@@ -400,9 +400,14 @@ def _get_file_md5(fpath: str):
     Computes and returns MD5 (hex)digest of the given file.
     '''
     assert os.path.isfile(fpath)
-    with open(fpath, 'rb') as in_file:
-        fdata = in_file.read()
-    return hashlib.md5(fdata).hexdigest()
+    # Do not try to fit the whole file into memory,
+    # feed MD5 one small chunk at time!
+    # Code from here: https://stackoverflow.com/a/3431838
+    hash_md5 = hashlib.md5()
+    with open(fpath, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
 
 def _download_and_unpack( resource_description, resources_dir ):
