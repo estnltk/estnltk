@@ -12,6 +12,7 @@ import os
 import re
 import sys
 import shutil
+import hashlib
 import requests
 import tempfile
 import warnings
@@ -40,7 +41,7 @@ def _ask_download_permission(resource_dict: Dict[str, Any]) -> bool:
     if len(size_str) > 0:
         size_str = ' (size: {})'.format( size_str )
     msg = ('This requires downloading resource {!r}{}. '+\
-           'Proceed with downloading? [Y/n]').format(resource_dict['name'], size_str)
+           'Proceed with downloading? [Y/n] ').format(resource_dict['name'], size_str)
     answer = input(msg)
     return not (answer.strip().lower() == 'n')
 
@@ -394,6 +395,15 @@ def _unpack_gzip(gzip_file, resource_description, resources_dir):
     return errors
 
 
+def _get_file_md5(fpath: str):
+    '''
+    Computes and returns MD5 (hex)digest of the given file.
+    '''
+    assert os.path.isfile(fpath)
+    with open(fpath, 'rb') as in_file:
+        fdata = in_file.read()
+    return hashlib.md5(fdata).hexdigest()
+
 
 def _download_and_unpack( resource_description, resources_dir ):
     """
@@ -447,38 +457,54 @@ def _download_and_unpack( resource_description, resources_dir ):
                            'Unexpected Content-Type: {!r}').format( url, 
                            file_headers['Content-Type']) )
     # =================================================
-    # 2) Create target path directory structure
+    # 2) Check MD5 digest (if provided)
     # =================================================
-    target_path = resource_description["unpack_target_path"]
-    if not target_path.endswith('/'):
-        # target_path is a file
-        target_path_dir, target_file = os.path.split(target_path)
-        assert len(target_path_dir) > 0, \
-            '(!) "unpack_target_path" must contain at least one directory!'
-        full_target_path = os.path.join(resources_dir, target_path_dir) 
-        os.makedirs(full_target_path, exist_ok=True)
-    else:
-        # target_path is a directory
-        full_target_path = os.path.join(resources_dir, target_path[:-1])
-        os.makedirs(full_target_path, exist_ok=True)
-    # =================================================
-    # 3) Unpack resource into target path
-    # =================================================
-    errors = []
     downloaded_file = temp_f.name
-    if file_headers['Content-Type'].startswith('application/zip'):
-        errors = _unpack_zip(downloaded_file, resource_description, resources_dir)
-    elif file_headers['Content-Type'].startswith('application/gzip'):
-        errors = _unpack_gzip(downloaded_file, resource_description, resources_dir)
+    proceed_with_unpacking = True
+    errors = []
+    if "md5" in resource_description:
+        md5checksum = _get_file_md5( downloaded_file )
+        if md5checksum != resource_description['md5']:
+            error_msg = ('(!) MD5 checksum of the packed resource {!r} '+\
+                         'does not match with the checksum in the '+\
+                         'resource description.\nPlease try redownloading '+\
+                         'and refreshing the resource index, and if that does '+\
+                         'not help, contact resource maintainers.'+\
+                         '').format( resource_description['name'] )
+            errors.append( error_msg )
+            proceed_with_unpacking = False
+    if proceed_with_unpacking:
+        # =================================================
+        # 3) Create target path directory structure
+        # =================================================
+        target_path = resource_description["unpack_target_path"]
+        if not target_path.endswith('/'):
+            # target_path is a file
+            target_path_dir, target_file = os.path.split(target_path)
+            assert len(target_path_dir) > 0, \
+                '(!) "unpack_target_path" must contain at least one directory!'
+            full_target_path = os.path.join(resources_dir, target_path_dir) 
+            os.makedirs(full_target_path, exist_ok=True)
+        else:
+            # target_path is a directory
+            full_target_path = os.path.join(resources_dir, target_path[:-1])
+            os.makedirs(full_target_path, exist_ok=True)
+        # =================================================
+        # 4) Unpack resource into target path
+        # =================================================
+        if file_headers['Content-Type'].startswith('application/zip'):
+            errors = _unpack_zip(downloaded_file, resource_description, resources_dir)
+        elif file_headers['Content-Type'].startswith('application/gzip'):
+            errors = _unpack_gzip(downloaded_file, resource_description, resources_dir)
     # =================================================
-    # 4) Report errors if any
+    # 5) Report errors if any
     # =================================================
     if errors:
         for error_msg in errors:
             print(error_msg, file=sys.stderr)
             # TODO: add logging or something like that
     # =================================================
-    # 5) Remove package
+    # 6) Remove downloaded package
     # =================================================
     os.unlink(downloaded_file)
     assert not os.path.exists(downloaded_file)
