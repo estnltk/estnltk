@@ -39,6 +39,18 @@ def rel_path(repo_path: str) -> str:
     """Relative path to repo_path."""
     return os.path.relpath(os.path.join(PACKAGE_PATH, repo_path))
 
+# ==================================================================
+#    Resource downloader's parameter(s)
+# ==================================================================
+
+ALLOW_DOWNLOADS = False
+"""
+If True, then missing resources (e.g. models required by taggers) 
+will be downloaded automatically without asking for user permission. 
+Otherwise, user's permission is asked every time when a resource 
+needs to be downloaded. 
+Default: False.
+"""
 
 # ==================================================================
 #    Vabamorf's parameters and attribute names                      

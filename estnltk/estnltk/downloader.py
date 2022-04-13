@@ -20,19 +20,11 @@ import gzip
 
 from tqdm import tqdm
 
+from estnltk.common import ALLOW_DOWNLOADS
 from estnltk.resource_utils import get_resources_dir
 from estnltk.resource_utils import get_resources_index
 from estnltk.resource_utils import _normalized_resource_descriptions
 from estnltk.resource_utils import _normalize_resource_size
-
-ALLOW_ALL_DOWNLOADS = False
-"""
-If True, then missing resources (e.g. models required by taggers) 
-will be downloaded automatically without asking user's permission. 
-Otherwise, user's permission is asked before proceeding with a  
-download. 
-Default: False.
-"""
 
 
 def _ask_download_permission(resource_dict: Dict[str, Any]) -> bool:
@@ -69,7 +61,7 @@ def get_resource_paths(resource: str, only_latest:bool=False,
     However, if download_missing==True, then attempts to download the missing 
     resource. This stops the program flow with a command line prompt, asking
     for user's permission to download the resource. 
-    If you set ALLOW_ALL_DOWNLOADS==True (in estnltk.downloader), then resources 
+    If you set ALLOW_DOWNLOADS==True (in estnltk.common), then resources 
     will be downloaded without asking permission.
     
     Note also that if download_missing==True and there are multiple missing 
@@ -92,8 +84,8 @@ def get_resource_paths(resource: str, only_latest:bool=False,
         If True and no downloaded resources were found, but the resource was 
         found in the index, then attempts to download resource. This stops the 
         program flow with a command line prompt, asking for user's permission 
-        to download the resource. However, if you set ALLOW_ALL_DOWNLOADS==True 
-        (in module estnltk.downloader), then resources will be downloaded 
+        to download the resource. However, if you set ALLOW_DOWNLOADS==True 
+        (in module estnltk.common), then resources will be downloaded 
         without asking permissions.
         Default: False.        
 
@@ -133,7 +125,7 @@ def get_resource_paths(resource: str, only_latest:bool=False,
        download_missing:
         # Select the latest resource
         target_resource = undownloaded_resources[0]
-        proceed_with_download = ALLOW_ALL_DOWNLOADS
+        proceed_with_download = ALLOW_DOWNLOADS
         if not proceed_with_download:
             # Ask for user's permission 
             proceed_with_download = \
