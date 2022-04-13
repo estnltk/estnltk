@@ -11,6 +11,7 @@ from typing import Optional, List, Union, Dict, Any
 import os
 import re
 import sys
+import shutil
 import requests
 import tempfile
 import warnings
@@ -338,7 +339,7 @@ def _unpack_zip(zip_file, resource_description, resources_dir):
         # Clean up after errors
         if os.path.exists(unpack_target_path):
             if target_type == 'dir':
-                os.removedirs(unpack_target_path)
+                shutil.rmtree(unpack_target_path)
             else:
                 os.remove(unpack_target_path)
     # Return a list of error messages. Emtpy list on success

@@ -10,6 +10,7 @@ from typing import Dict, Any
 import os
 import re
 import json
+import shutil
 import warnings
 from pathlib import Path
 from datetime import datetime
@@ -362,4 +363,47 @@ def _normalize_resource_size( resource_size: float ) -> str:
     else:
         return '{:.1f}G'.format(resource_size)
 
+
+def delete_resource(resource: str) -> bool:
+    '''
+    Deletes downloaded resource by name. 
+    Note that the resource name must be specific (e.g. "stanza_syntax_2020-11-30"), 
+    and not an alias ("stanza_syntax", "stanza").
+    Returns boolean indicating whether the resource was found and deleted.
+    '''
+    if not isinstance( resource, str ):
+        raise TypeError(('(!) Invalid resource name: '+\
+                         'expected a string, not {!r}').format(type(resource)))
+    # Get resources directory and normalized resource descriptions
+    resources_dir = get_resources_dir()
+    resource_descriptions = \
+        _normalized_resource_descriptions(refresh_index=False,
+                                          check_existence=True)
+    resource = resource.lower()
+    # Find resource by name
+    found_by_alias = []
+    deleted = False
+    for resource_dict in resource_descriptions:
+        if resource == resource_dict['name']:
+            # check that the resource has been downloaded already
+            if resource_dict["downloaded"]:
+                target_path = os.path.join(resources_dir, \
+                                           resource_dict["unpack_target_path"] )
+                target_path = target_path.replace('/', os.sep)
+                if target_path.endswith( os.sep ):
+                    # delete directory tree
+                    shutil.rmtree(target_path)
+                    deleted = True
+                else:
+                    # delete file
+                    os.remove(target_path)
+                    deleted = True
+                break
+        elif resource in resource_dict['aliases']:
+            found_by_alias.append(resource_dict['name'])
+    if not deleted and found_by_alias:
+        print( ('Cannot delete resource by alias. '+\
+                'Please use a specific resource name '+\
+                'from the list: {!r}').format( found_by_alias ) )
+    return deleted
 
