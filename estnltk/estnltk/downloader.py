@@ -564,7 +564,7 @@ def _download_and_install_hf_resource( resource_description, resources_dir ):
         repo_id = full_url.replace('huggingface.co/', '')
     if repo_id is None:
         raise ValueError( ('(!) Unable to parse huggingface repo_id '+\
-                           'from url {!r}').format(url) )
+                           'from url {!r}').format(full_url) )
     revision = resource_description.get('hf_revision', None)
     target_path = resource_description["unpack_target_path"]
     if target_path.endswith('/'):
