@@ -41,7 +41,7 @@ def test_resource_dir_download():
     download_successful = download(resource_name, redownload=True, only_latest=True)
     assert download_successful
     
-    dir_paths = get_resource_paths(resource_alias, download_missing=False)
+    dir_paths = get_resource_paths(resource_name, download_missing=False)
     assert len(dir_paths) > 0
     assert all([comp in dir_paths[0] for comp in resource_path_components])
     

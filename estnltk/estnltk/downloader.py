@@ -2,8 +2,9 @@
 #  Utilities downloading and maintaining EstNLTK's resources:
 #  * Getting full paths to downloaded resources (incl. 
 #    autodownloading missing resources);
-#  * Downloading resources according to entries in resources index;
-#  * Unpacking a resource according to a resource description;
+#  * Downloading and installing zip/gzip format resources;
+#  * Downloading and installing resources from huggingface.co
+#    ( with the help of the huggingface-hub package );
 #
 
 from typing import Optional, List, Union, Dict, Any
@@ -16,6 +17,7 @@ import hashlib
 import requests
 import tempfile
 import warnings
+import pkgutil
 
 from zipfile import ZipFile
 import gzip
@@ -26,7 +28,12 @@ from estnltk.resource_utils import get_resources_dir
 from estnltk.resource_utils import get_resources_index
 from estnltk.resource_utils import _normalized_resource_descriptions
 from estnltk.resource_utils import _normalize_resource_size
+from estnltk.resource_utils import is_huggingface_resource
 
+# ====================================================
+#  Getting full paths to downloaded resources (incl. 
+#  autodownloading missing resources);
+# ====================================================
 
 def _ask_download_permission(resource_dict: Dict[str, Any]) -> bool:
     '''
@@ -143,6 +150,10 @@ def get_resource_paths(resource: str, only_latest:bool=False,
     else:
         return resource_paths
 
+
+# ====================================================
+#  Downloading and unpacking regular resources        
+# ====================================================
 
 def _unpack_zip(zip_file, resource_description, resources_dir):
     '''
@@ -516,6 +527,68 @@ def _download_and_unpack( resource_description, resources_dir ):
     return len(errors) == 0
 
 
+# ====================================================
+#  Downloading and installing huggingface resources   
+# ====================================================
+
+def is_huggingface_hub_installed():
+    '''
+    Checks if the package huggingface-hub has been installed.
+    This package is required for downloading resources automatically
+    from huggingface_hub.
+    '''
+    return pkgutil.find_loader("huggingface_hub") is not None
+
+def _download_and_install_hf_resource( resource_description, resources_dir ):
+    '''
+    Downloads a resource with huggingface.co url and installs into 
+    resources_dir. 
+    Note that the url must point to a huggingface repository (like 
+    "https://huggingface.co/tartuNLP/EstBERT"), not to a single file 
+    or a folder inside the repository. 
+    The huggingface-hub is required for downloading the resource;
+    raises a ModuleNotFoundError if the package has not been 
+    installed.
+    '''
+    if not is_huggingface_hub_installed():
+        raise ModuleNotFoundError('Missing huggingface-hub module that is '+\
+              'required for downloading the resource. Please install the '+\
+              'module via conda or pip, e.g.\n pip install huggingface-hub')
+    from huggingface_hub import snapshot_download
+    # Get parameters
+    repo_id = None
+    full_url = resource_description['url']
+    if full_url.startswith('https://huggingface.co/'):
+        repo_id = full_url.replace('https://huggingface.co/', '')
+    elif full_url.startswith('huggingface.co/'):
+        repo_id = full_url.replace('huggingface.co/', '')
+    if repo_id is None:
+        raise ValueError( ('(!) Unable to parse huggingface repo_id '+\
+                           'from url {!r}').format(url) )
+    revision = resource_description.get('hf_revision', None)
+    target_path = resource_description["unpack_target_path"]
+    if target_path.endswith('/'):
+        target_path = target_path[:-1]
+    # Download the resource
+    download_path = \
+        snapshot_download(repo_id=repo_id, revision=revision, cache_dir=resources_dir)
+    assert os.path.isdir( download_path )
+    if download_path.endswith( target_path ):
+        # This is most unlikely, but: if download path already 
+        # matches target_path, then we have nothing left to do
+        return
+    full_target_path = os.path.join(resources_dir, target_path) 
+    # Remove old unpack_target_path [if redownloading]
+    if os.path.exists( full_target_path ):
+        shutil.rmtree( full_target_path )
+    # Rename download_path to unpack_target_path
+    os.renames(download_path, full_target_path)
+
+
+# ====================================================
+#  Downloading resources: the main function
+# ====================================================
+
 def download(resource:str, refresh_index:bool=False, 
                            redownload:bool=False, 
                            only_latest:bool=True ) -> bool:
@@ -584,9 +657,16 @@ def download(resource:str, refresh_index:bool=False,
                 print( ("Resource {!r} has already been downloaded."+
                         "").format(resource_desc["name"]) )
             else:
-                # Download the resource
-                success = \
-                    _download_and_unpack(resource_desc, resources_dir)
+
+                if is_huggingface_resource( resource_desc ):
+                    # Download huggingface resource
+                    success = \
+                        _download_and_install_hf_resource( \
+                            resource_desc, resources_dir )
+                else:
+                    # Download ordinary resource
+                    success = \
+                        _download_and_unpack(resource_desc, resources_dir)
         return success
     else:
         print( ("Unable to find resource {!r}. "+\

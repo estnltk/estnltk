@@ -229,6 +229,11 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
     resource has been downloaded already ('unpack_target_path' exists inside
     ESTNLTK_RESOURCES).
     
+    For resources pointing to a huggingface repository, the 'unpack_target_path' 
+    must be a directory, or the resource will be discarded. (Cannot download a 
+    single file from huggingface, only downloading a repository snapshot is 
+    allowed).
+    
     Finally, resource descriptions are sorted by their publication dates, which 
     should be present in resource names. Each resource name should contain an 
     ISO format date, e.g. "udpipe_syntax_2021-05-29" or 
@@ -314,6 +319,17 @@ def _normalized_resource_descriptions(refresh_index:bool=False,
                                "").format(resource_dict, target_path)
                 warnings.warn( UserWarning(warning_msg) )
                 continue
+            # If this is a huggingface resource, check that target_path
+            # is a directory, not a file
+            if is_huggingface_resource(resource_dict):
+                if not target_path.endswith('/') :
+                    warning_msg = ("Invalid target path {!r} from resource "+\
+                                   "description: \n {!r}\nThis is a huggingface "+\
+                                   "resource, so the path must be a directory "+\
+                                   "(must end with '/'). Discarding the resource."+\
+                                   "").format(target_path, resource_dict)
+                    warnings.warn( UserWarning(warning_msg) )
+                    continue
             # Check that if "unpack_source_path" is a file, 
             # then "unpack_target_path" is not a directory.
             if "unpack_source_path" in resource_dict and \
@@ -363,6 +379,14 @@ def _normalize_resource_size( resource_size: float ) -> str:
     else:
         return '{:.1f}G'.format(resource_size)
 
+
+_hf_url_pattern = re.compile(r'^(https://)?huggingface.co/([^/ ]+/[^/ ]+)$')
+
+def is_huggingface_resource(resource_dict: Dict[str, Any]) -> bool:
+    '''Checks if the given resource url points to a huggingface.co repository.
+    '''
+    return _hf_url_pattern.match(resource_dict['url']) is not None
+    
 
 def delete_resource(resource: str) -> bool:
     '''
