@@ -7,8 +7,11 @@ from estnltk.converters import dict_to_layer
 from estnltk.taggers import ConllMorphTagger
 from estnltk.taggers.standard.syntax.udpipe_tagger.udpipe_tagger import check_if_udpipe_is_in_path
 from estnltk.taggers.standard.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
+from estnltk.downloader import get_resource_paths
 
-UDPIPE_SYNTAX_MODELS_PATH = os.environ.get('UDPIPE_SYNTAX_MODELS_PATH')
+# Try to get the resources for udpipetagger. If missing, do nothing. It's up for the user to download the missing resources
+UDPIPE_SYNTAX_MODELS_PATH = get_resource_paths("udpipetagger", only_latest=True, download_missing=False)
+
 
 udpipe_dict = {
     'name': 'udpipe_syntax',
@@ -198,7 +201,7 @@ udpipe_dict = {
 @pytest.mark.skipif(not check_if_udpipe_is_in_path('udpipe'),
                     reason="a directory containing udpipe executable must be inside the system PATH")
 @pytest.mark.skipif(UDPIPE_SYNTAX_MODELS_PATH is None,
-                    reason="Environment variable UDPIPE_SYNTAX_MODELS_PATH is not defined.")
+                    reason="UDPipeTagger's resources have not been downloaded. Use estnltk.download('udpipetagger') to fetch the missing resources.")
 @pytest.mark.skipif(not check_if_vislcg_is_in_path('vislcg3'),
                     reason="a directory containing vislcg3 executable must be inside the system PATH")
 def test_udpipe_tagger():
@@ -208,6 +211,49 @@ def test_udpipe_tagger():
     text.tag_layer('morph_extended')
     conll = ConllMorphTagger() # requires vislcg3
     conll.tag(text)
-    tagger = UDPipeTagger( resources_path = UDPIPE_SYNTAX_MODELS_PATH )
+    tagger = UDPipeTagger()
     tagger.tag(text)
     assert dict_to_layer(udpipe_dict) == text.udpipe_syntax, text.udpipe_syntax.diff(dict_to_layer(udpipe_dict))
+
+
+@pytest.mark.skipif(not check_if_udpipe_is_in_path('udpipe'),
+                    reason="a directory containing udpipe executable must be inside the system PATH")
+@pytest.mark.skipif(UDPIPE_SYNTAX_MODELS_PATH is None,
+                    reason="UDPipeTagger's resources have not been downloaded. Use estnltk.download('udpipetagger') to fetch the missing resources.")
+@pytest.mark.skipif(not check_if_vislcg_is_in_path('vislcg3'),
+                    reason="a directory containing vislcg3 executable must be inside the system PATH")
+def test_udpipe_tagger_all_configurations():
+    from estnltk.taggers.standard.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
+    # Smoke test that all models/configurations of UDPipeTagger work
+    for conf in [{'version':'conllx', 'input_type':'visl_morph'}, # this is default! 
+                 {'version':'conllx', 'input_type':'morph_analysis'}, 
+                 {'version':'conllx', 'input_type':'morph_extended'}, 
+                 {'version':'conllu', 'input_type':'visl_morph'},
+                 {'version':'conllu', 'input_type':'morph_analysis'},
+                 {'version':'conllu', 'input_type':'morph_extended'}]:
+        text=Text('See on üks väga ilus lause!')
+        if conf['input_type'] == 'visl_morph':
+            text.tag_layer('morph_extended')
+            conll_morph = ConllMorphTagger(output_layer='conll_morph')
+            conll_morph.tag(text)
+            udpipe_tagger = UDPipeTagger(**conf)
+            udpipe_tagger.tag(text)
+            assert 'udpipe_syntax' in text.layers
+            assert len(text['udpipe_syntax']) == len(text['words'])
+        elif conf['input_type'] == 'morph_extended':
+            text.tag_layer('morph_extended')
+            conll_morph = ConllMorphTagger(output_layer='conll_morph', morph_extended_layer='morph_extended', no_visl=True)
+            conll_morph.tag(text)
+            udpipe_tagger = UDPipeTagger(**conf)
+            udpipe_tagger.tag(text)
+            assert 'udpipe_syntax' in text.layers
+            assert len(text['udpipe_syntax']) == len(text['words'])
+        elif conf['input_type'] == 'morph_analysis':
+            text.tag_layer('morph_analysis')
+            conll_morph = ConllMorphTagger(output_layer='conll_morph', morph_extended_layer='morph_analysis', no_visl=True)
+            conll_morph.tag(text)
+            udpipe_tagger = UDPipeTagger(**conf)
+            udpipe_tagger.tag(text)
+            assert 'udpipe_syntax' in text.layers
+            assert len(text['udpipe_syntax']) == len(text['words'])
+        

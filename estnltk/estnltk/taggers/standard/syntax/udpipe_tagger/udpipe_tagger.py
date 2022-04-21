@@ -7,11 +7,11 @@ from estnltk.common import PACKAGE_PATH
 from estnltk import Layer
 from estnltk.taggers import Tagger
 from estnltk.taggers import SyntaxDependencyRetagger
+from estnltk.downloader import get_resource_paths
 import subprocess
 
 from estnltk.converters.serialisation_modules import syntax_v0
 
-RESOURCES = os.path.join(PACKAGE_PATH, 'taggers', 'syntax', 'udpipe_tagger', 'resources')
 
 
 def check_if_udpipe_is_in_path(udpipe_cmd: str):
@@ -49,7 +49,8 @@ class UDPipeTagger(Tagger):
                  resources_path=None):    # default location of the models; only used iff model is None
 
         if not resources_path:
-            self.resources_path = RESOURCES
+            # Try to get the resources for udpipetagger. Attempt to download, if missing
+            self.resources_path = get_resource_paths("udpipetagger", only_latest=True, download_missing=True)
         else:
             self.resources_path = resources_path
         

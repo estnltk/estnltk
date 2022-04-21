@@ -72,10 +72,10 @@ def get_resource_paths(resource: str, only_latest:bool=False,
     If you set environment variable ALLOW_ESTNLTK_DOWNLOADS to a non-zero length 
     string, then resources will be downloaded without asking permission.
     
-    Note also that if download_missing==True and there are multiple missing 
-    resources that can be downloaded, only the latest one will be automatically 
-    downloaded. 
-    Use esnltk.downloader.download(...) to download the remaining resources. 
+    Note also that if download_missing==True and there are multiple versions of 
+    the missing resource that can be downloaded, only the latest one will be 
+    automatically downloaded. 
+    Use esnltk.downloader.download(...) to download the remaining versions. 
     
     Also, parameter `only_latest` can be used to switch returning type from list 
     to string (path of the latest resource) / None (no paths found).
@@ -144,7 +144,7 @@ def get_resource_paths(resource: str, only_latest:bool=False,
             if status:
                 # Recursively fetch the path to the 
                 # downloaded resource
-                return get_resource_paths(resource)
+                return get_resource_paths(resource, only_latest=only_latest)
     if only_latest:
         return resource_paths[0] if len(resource_paths)>0 else None
     else:
