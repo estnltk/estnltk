@@ -61,7 +61,7 @@ class UDPipeTagger(Tagger):
 
         if model is None:
             # Check for existence of the models path
-            if not os.path.exists( self.resources_path ):
+            if self.resources_path is None or not os.path.exists( self.resources_path ):
                 msg = " Could not find UDPipe's models directory: " + str(self.resources_path) + "!\n"
                 raise Exception( msg )
             if version == 'conllx':
