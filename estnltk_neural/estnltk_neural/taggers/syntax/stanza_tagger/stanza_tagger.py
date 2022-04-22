@@ -46,7 +46,7 @@ class StanzaSyntaxTagger(Tagger):
     Tutorial:
     """
 
-    conf_param = ['model_path', 'model_name', 'add_parent_and_children', 'syntax_dependency_retagger',
+    conf_param = ['model_path', 'add_parent_and_children', 'syntax_dependency_retagger',
                   'input_type', 'dir', 'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
                   'ud_validation_retagger', 'use_gpu', 'nlp']
 
@@ -84,14 +84,17 @@ class StanzaSyntaxTagger(Tagger):
             raise Exception('Models of StanzaSyntaxTagger are missing. '+\
                             'Please use estnltk.download("stanzasyntaxtagger") to download the models.')
 
+        self.syntax_dependency_retagger = None
         if add_parent_and_children:
             self.syntax_dependency_retagger = SyntaxDependencyRetagger(conll_syntax_layer=output_layer)
             self.output_attributes += ('parent_span', 'children')
 
+        self.ud_validation_retagger = None
         if mark_syntax_error:
             self.ud_validation_retagger = UDValidationRetagger(output_layer=output_layer)
             self.output_attributes += ('syntax_error', 'error_message')
 
+        self.agreement_error_retagger = None
         if mark_agreement_error:
             if not add_parent_and_children:
                 raise ValueError('`add_parent_and_children` must be True for marking agreement errors.')
