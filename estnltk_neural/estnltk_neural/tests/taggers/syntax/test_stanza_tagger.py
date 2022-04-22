@@ -5,10 +5,13 @@ from collections import OrderedDict
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
 from estnltk_neural.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
+from estnltk.downloader import get_resource_paths
 
+# Try to get the resources path for stanzasyntaxtagger. If missing, do nothing. It's up for the user to download the missing resources
+STANZA_SYNTAX_MODELS_PATH = get_resource_paths("stanzasyntaxtagger", only_latest=True, download_missing=False)
 
-# Variable must follow the structure of stanza_resources as in here:
-STANZA_SYNTAX_MODELS_PATH = os.environ.get('STANZA_SYNTAX_MODELS_PATH')
+skip_message_missing_models = \
+  "StanzaSyntaxTagger's resources have not been downloaded. Use estnltk.download('stanzasyntaxtagger') to fetch the missing resources."
 
 stanza_dict_sentences = {
     'name': 'stanza_syntax',
@@ -257,7 +260,19 @@ stanza_dict_morph_analysis = {
 
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
-                   "Environment variable STANZA_SYNTAX_MODELS_PATH is not defined. .")
+                 reason=skip_message_missing_models)
+def test_stanza_syntax_tagger_smoke():
+    # Test that StanzaSyntaxTagger runs OK with default options
+    text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
+    text.tag_layer('morph_analysis')
+    stanza_tagger = StanzaSyntaxTagger()  # default: input_morph_layer='morph_analysis'
+    stanza_tagger.tag(text)
+    assert stanza_tagger.output_layer in text.layers
+    assert len(text[stanza_tagger.output_layer]) == len(text['morph_analysis'])
+
+
+@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
+                 reason=skip_message_missing_models)
 def test_stanza_syntax_tagger_sentences():
     text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
 
@@ -274,7 +289,7 @@ def test_stanza_syntax_tagger_sentences():
 
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
-                   "Environment variable STANZA_SYNTAX_MODELS_PATH is not defined. .")
+                 reason=skip_message_missing_models)
 def test_stanza_syntax_tagger_analysis():
     text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
 
@@ -289,7 +304,7 @@ def test_stanza_syntax_tagger_analysis():
 
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
-                   reason="Environment variable STANZA_SYNTAX_MODELS_PATH is not defined.")
+                 reason=skip_message_missing_models)
 def test_stanza_ambiguous():
     """Testing seed on ambigous analysis"""
     text = Text('Vaata kaotatud ja leitud asjade nurgast')

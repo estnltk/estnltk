@@ -5,8 +5,14 @@ from collections import OrderedDict
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
 from estnltk_neural.taggers import StanzaSyntaxEnsembleTagger
+from estnltk.downloader import get_resource_paths
 
-STANZA_SYNTAX_MODELS_PATH = os.environ.get('STANZA_SYNTAX_MODELS_PATH', None)
+# Try to get the resources path for stanzasyntaxensembletagger. If missing, do nothing. It's up for the user to download the missing resources
+STANZA_SYNTAX_MODELS_PATH = get_resource_paths("stanzasyntaxensembletagger", only_latest=True, download_missing=False)
+
+skip_message_missing_models = \
+  "StanzaSyntaxEnsembleTagger's resources have not been downloaded. Use estnltk.download('stanzasyntaxensembletagger') to fetch the missing resources."
+
 
 # Check if the ensemble models exist @ STANZA_SYNTAX_MODELS_PATH and can be tested
 def ensemble_models_exist():
@@ -21,11 +27,8 @@ def ensemble_models_exist():
     return models_count > 0
     
  
-@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
-                   "Environment variable STANZA_SYNTAX_MODELS_PATH is not defined.")
-@unittest.skipIf(not ensemble_models_exist(),
-                   "Environment variable STANZA_SYNTAX_MODELS_PATH is not defined "+\
-                   "or is missing ensemble models (.../et/depparse/ensemble_models/*.pt).")
+@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None, skip_message_missing_models)
+@unittest.skipIf( not ensemble_models_exist(), skip_message_missing_models )
 def test_stanza_syntax_ensemble_tagger():
     # Smoke test StanzaSyntaxEnsembleTagger
     text = Text('Väike jänes jooksis metsa! Mina ei jookse kuhugi.')

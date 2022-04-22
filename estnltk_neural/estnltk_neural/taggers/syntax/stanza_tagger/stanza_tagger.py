@@ -7,12 +7,8 @@ from estnltk.taggers.standard.syntax.syntax_dependency_retagger import SyntaxDep
 from estnltk.taggers.standard.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 from estnltk.taggers.standard.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
 from estnltk.taggers import Tagger
-
 from estnltk.converters.serialisation_modules import syntax_v0
-
-from estnltk_neural.common import neural_abs_path
-
-RESOURCES = os.environ.get('STANZA_SYNTAX_MODELS_PATH', neural_abs_path('taggers/syntax/stanza_tagger/stanza_resources'))
+from estnltk.downloader import get_resource_paths
 
 
 class StanzaSyntaxTagger(Tagger):
@@ -79,9 +75,14 @@ class StanzaSyntaxTagger(Tagger):
         self.use_gpu = use_gpu
 
         if not resources_path:
-            self.dir = RESOURCES
+            # Try to get the resources path for stanzasyntaxtagger. Attempt to download resources, if missing
+            self.dir = get_resource_paths("stanzasyntaxtagger", only_latest=True, download_missing=True)
         else:
             self.dir = resources_path
+        # Check that resources path has been set
+        if self.dir is None:
+            raise Exception('Models of StanzaSyntaxTagger are missing. '+\
+                            'Please use estnltk.download("stanzasyntaxtagger") to download the models.')
 
         if add_parent_and_children:
             self.syntax_dependency_retagger = SyntaxDependencyRetagger(conll_syntax_layer=output_layer)

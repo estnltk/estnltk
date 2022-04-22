@@ -10,12 +10,9 @@ from estnltk.taggers.standard.syntax.syntax_dependency_retagger import SyntaxDep
 from estnltk.taggers.standard.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 from estnltk.taggers.standard.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
 from estnltk.taggers import Tagger
+from estnltk.downloader import get_resource_paths
 
 from estnltk.converters.serialisation_modules import syntax_v0
-
-from estnltk_neural.common import neural_abs_path
-
-RESOURCES = os.environ.get('STANZA_SYNTAX_MODELS_PATH', neural_abs_path('taggers/syntax/stanza_tagger/stanza_resources'))
 
 
 class StanzaSyntaxEnsembleTagger(Tagger):
@@ -68,10 +65,16 @@ class StanzaSyntaxEnsembleTagger(Tagger):
         self.mark_agreement_error = mark_agreement_error
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.use_gpu = use_gpu
+        
+        # Try to get the resources path for stanzasyntaxensembletagger. Attempt to download resources, if missing
+        resources_path = get_resource_paths("stanzasyntaxensembletagger", only_latest=True, download_missing=True)
+        if resources_path is None:
+            raise Exception('Models of StanzaSyntaxEnsembleTagger are missing. '+\
+                            'Please use estnltk.download("stanzasyntaxensembletagger") to download the models.')
 
         if not model_paths:
             self.model_paths = list()
-            ensemble_path = os.path.join(RESOURCES, 'et', 'depparse', 'ensemble_models')
+            ensemble_path = os.path.join(resources_path, 'et', 'depparse', 'ensemble_models')
             if not os.path.isdir(ensemble_path):
                 raise ValueError('Missing models under the subdirectory `stanza_resources/et/depparse/ensemble_models.')
             for model in os.listdir(ensemble_path):
@@ -83,7 +86,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                 raise ValueError('Invalid model path: {}'.format(model_path))
 
             nlp = stanza.Pipeline(lang='et', processors='depparse',
-                                  dir=RESOURCES,
+                                  dir=resources_path,
                                   depparse_pretagged=True,
                                   depparse_model_path=model_path,
                                   use_gpu=self.use_gpu,
