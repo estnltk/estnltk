@@ -10,8 +10,10 @@ from estnltk.taggers import ConllMorphTagger
 from estnltk.taggers.standard.syntax.maltparser_tagger.maltparser_tagger import MaltParserTagger
 
 from estnltk.taggers.standard.syntax.vislcg3_syntax import check_if_vislcg_is_in_path
+from estnltk.downloader import get_resource_paths
 
-MALTPARSER_SYNTAX_MODELS_PATH = os.environ.get('MALTPARSER_SYNTAX_MODELS_PATH')
+# Try to get the resources path for MaltParserTagger. If missing, do nothing. It's up for the user to download the missing resources
+MALTPARSER_SYNTAX_MODELS_PATH = get_resource_paths("maltparsertagger", only_latest=True, download_missing=False)
 
 def check_if_conllu_is_available():
     # Check if conllu is available
@@ -166,7 +168,7 @@ def test_maltparser_tagger_default_model():
 @pytest.mark.skipif(not check_if_vislcg_is_in_path('vislcg3'),
                     reason="a directory containing vislcg3 executable must be inside the system PATH")
 @pytest.mark.skipif(MALTPARSER_SYNTAX_MODELS_PATH is None,
-                    reason="Environment variable MALTPARSER_SYNTAX_MODELS_PATH is not defined.")
+                    reason="MaltParserTagger's resources have not been downloaded. Use estnltk.download('maltparsertagger') to get the missing resources.")
 def test_maltparser_tagger_vislcg3_model():
     # Use ConllMorphTagger to prepare text for MaltParser (requires visl)
     conll_morph_tagger = ConllMorphTagger()
@@ -545,3 +547,47 @@ def test_maltparser_tagger_vislcg3_model():
                     'base_span': (29, 30)}]}
     assert expected_layer_dict_2 == layer_to_dict( text2.maltparser_syntax )
 
+
+
+@pytest.mark.skipif(not check_if_conllu_is_available(),
+                    reason="package conllu is required for this test")
+@pytest.mark.skipif(not check_if_vislcg_is_in_path('vislcg3'),
+                    reason="a directory containing vislcg3 executable must be inside the system PATH")
+@pytest.mark.skipif(MALTPARSER_SYNTAX_MODELS_PATH is None,
+                    reason="MaltParserTagger's resources have not been downloaded. Use estnltk.download('maltparsertagger') to get the missing resources.")
+def test_maltparser_tagger_all_models():
+    # TODO: this test is time-consuming. Make it possible to switch it on/off by an environment variable
+    # Smoke test that all models / configurations of MaltparserTagger work
+    for conf in [{'version':'conllx', 'input_type':'visl_morph'}, # old!
+                 {'version':'conllx', 'input_type':'morph_analysis'}, 
+                 {'version':'conllx', 'input_type':'morph_extended'}, 
+                 {'version':'conllu', 'input_type':'morph_analysis'},
+                 {'version':'conllu', 'input_type':'morph_extended'}]:
+        text = Text('See on üks väga ilus lause! Ja teine ilus lause siia otsa!')
+        # TODO: MaltParserTagger should discover 'resources_path' automatically
+        conf['resources_path'] = MALTPARSER_SYNTAX_MODELS_PATH
+        conf['add_parent_and_children'] = False
+        if conf['input_type'] == 'visl_morph':
+            text.tag_layer('morph_extended')
+            conll_morph = ConllMorphTagger(output_layer='conll_morph') # adding conll_morph layer 
+            conll_morph.tag(text)
+            maltparser_tagger = MaltParserTagger(**conf)
+            maltparser_tagger.tag(text)
+            assert maltparser_tagger.output_layer in text.layers
+            assert len(text[maltparser_tagger.output_layer]) == len(text['words'])
+        elif conf['input_type'] == 'morph_extended':
+            text.tag_layer('morph_extended')
+            conll_morph = ConllMorphTagger(output_layer='conll_morph', morph_extended_layer='morph_extended', no_visl=True)
+            conll_morph.tag(text)
+            maltparser_tagger = MaltParserTagger(**conf)
+            maltparser_tagger.tag(text)
+            assert maltparser_tagger.output_layer in text.layers
+            assert len(text[maltparser_tagger.output_layer]) == len(text['words'])
+        elif conf['input_type'] == 'morph_analysis':
+            text.tag_layer('morph_analysis')
+            conll_morph = ConllMorphTagger(output_layer='conll_morph', morph_extended_layer='morph_analysis', no_visl=True)
+            conll_morph.tag(text)
+            maltparser_tagger = MaltParserTagger(**conf)
+            maltparser_tagger.tag(text)
+            assert maltparser_tagger.output_layer in text.layers
+            assert len(text[maltparser_tagger.output_layer]) == len(text['words'])
