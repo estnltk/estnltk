@@ -3,6 +3,8 @@ import unittest
 from unittest import TestCase
 
 from estnltk import Text
+from estnltk.downloader import get_resource_paths
+
 from estnltk_neural.common import neural_abs_path
 from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
@@ -63,58 +65,55 @@ def get_test_sentences(filename):
     file.close()
 
 
-def get_model_path_from_env_var( env_var ):
-    return os.environ.get(env_var, None)
+def get_model_dir_from_esnltk_resources( neural_morph_tagger_config=None ):
+    # Try to get the resources path for NeuralMorphTagger. If missing, do nothing. It's up for the user to download the missing resources
+    resource_name = "neuralmorphdisamb"  # by default, any NeuralMorphTagger's model will do 
+    if neural_morph_tagger_config is not None:
+        # Or try to get configuration-specific model
+        resource_name = NEURAL_MORPH_TAGGER_CONFIG.replace('_','')+'tagger'
+    neural_morph_models = get_resource_paths( resource_name, only_latest=False, download_missing=False )
+    if len(neural_morph_models) > 0:
+        return neural_morph_models[0]
+    else:
+        return None
 
 
-#
-#  The old / legacy way of specifying model location
-# 
 tagger = None
-NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG')
-skip_reason = "Could not load neural morph model location from environment variables."
+# Attempt to get specific neural morph model configuration that user wants to test
+NEURAL_MORPH_TAGGER_CONFIG = os.environ.get('NEURAL_MORPH_TAGGER_CONFIG', None)
+skip_reason_for_config = ''
+skip_reason_download_instruction = 'estnltk.download("neuralmorphtagger")'
+if isinstance(NEURAL_MORPH_TAGGER_CONFIG, str):
+    # Check for valid value
+    if NEURAL_MORPH_TAGGER_CONFIG not in ['softmax_emb_tag_sum', 'softmax_emb_cat_sum', \
+                                          'seq2seq_emb_tag_sum', 'seq2seq_emb_cat_sum']:
+        raise Exception( ("(!) Unexpected value for environment variable NEURAL_MORPH_TAGGER_CONFIG: {!r}."+\
+                          "Must be one of the following: 'softmax_emb_tag_sum', 'softmax_emb_cat_sum', "+\
+                          "'seq2seq_emb_tag_sum' or 'seq2seq_emb_cat_sum'.").format( model_dir ) )
+    skip_reason_for_config = ' (for configuration {!r})'.format(NEURAL_MORPH_TAGGER_CONFIG)
+    skip_reason_download_instruction = 'estnltk.download("{!r}")'.format(NEURAL_MORPH_TAGGER_CONFIG.replace('_','')+'tagger')
 
-if NEURAL_MORPH_TAGGER_CONFIG is not None:
-    model_module = None
-    model_dir = None
-    if "softmax_emb_tag_sum" in NEURAL_MORPH_TAGGER_CONFIG and \
-        get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM') is not None:
+skip_reason = ("Could not load neural morph model{}. "+\
+               'If the model has not been downloaded yet, please use {} to get the model for testing.').format( \
+                             skip_reason_for_config, skip_reason_download_instruction )
+model_module = None
+model_dir = get_model_dir_from_esnltk_resources( NEURAL_MORPH_TAGGER_CONFIG )
+if model_dir is not None:
+    if 'softmax_emb_tag_sum' in model_dir:
         import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
-        model_dir = get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM')
-    elif "softmax_emb_cat_sum" in NEURAL_MORPH_TAGGER_CONFIG and \
-        get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM') is not None:
+    elif 'softmax_emb_cat_sum' in model_dir:
         import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
-        model_dir = get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM')
-    elif "seq2seq_emb_tag_sum" in NEURAL_MORPH_TAGGER_CONFIG and \
-        get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM') is not None:
+    elif 'seq2seq_emb_tag_sum' in model_dir:
         import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
-        model_dir = get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM')
-    elif get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM') is not None:
+    elif 'seq2seq_emb_cat_sum' in model_dir:
         import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
-        model_dir = get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM')
-    if model_module is not None and model_dir is not None:
-        tagger = NeuralMorphTagger(model_module=model_module, model_dir=model_dir)
+    else:
+        raise Exception( ("(!) Unexpected NeuralMorphTagger's model path {!r}. Must contain string "+\
+                          "'softmax_emb_tag_sum', 'softmax_emb_cat_sum', 'seq2seq_emb_tag_sum' or "+\
+                          "'seq2seq_emb_cat_sum'.").format(model_dir) )
+if model_module is not None and model_dir is not None:
+    tagger = NeuralMorphTagger(model_module=model_module, model_dir=model_dir)
 
-#
-#  The new way of specifying model location
-#
-if tagger is None:
-    model_module = None
-    model_dir = None
-    if get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM') is not None:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
-        model_dir = get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM')
-    elif get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM') is not None:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
-        model_dir = get_model_path_from_env_var('ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM')
-    elif get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM') is not None:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
-        model_dir = get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM')
-    elif get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM') is not None:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
-        model_dir = get_model_path_from_env_var('ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM')
-    if model_module is not None and model_dir is not None:
-        tagger = NeuralMorphTagger(model_module=model_module, model_dir=model_dir)
 
 @unittest.skipIf(tagger is None, skip_reason)
 class TestNeuralModel(TestCase):

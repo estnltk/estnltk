@@ -3,6 +3,8 @@ import os
 
 from estnltk import Layer
 from estnltk.taggers import Tagger
+from estnltk.downloader import get_resource_paths
+
 from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
 from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import override_config_paths_from_model_dir
 from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
@@ -30,14 +32,15 @@ def check_model_files(model_dir):
     else:
         check_failed = True
     if check_failed:
-        # TODO: in future, we should use paths inside estnltk's resources 
-        # directory instead of environment variables 
-        msg = "Could not load location of NeuralMorphTagger's model from "+\
-              "environment variables. Use environment variables "+\
-              "ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM, ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM, "+\
-              "ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM or ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM "+\
-              "to point the location of corresponding model folder (must contain subfolders "+\
-              "'output/data' and 'output/results')."
+        msg = "Could not load location of NeuralMorphTagger's model. "+\
+              "For model autodownload and autoinitialization, do not use "+\
+              "NeuralMorphTagger class directly, but use classes "+\
+              "SoftmaxEmbTagSumTagger, SoftmaxEmbCatSumTagger, "+\
+              "Seq2SeqEmbTagSumTagger or Seq2SeqEmbCatSumTagger. "+\
+              "For manual pre-downloading of the models, use estnltk.download(MODEL_NAME) "+\
+              "where MODEL_NAME is one of the following: 'softmaxembcatsumtagger', "+\
+              "'softmaxembtagsumtagger', 'seq2seqembcatsumtagger' or "+\
+              "'seq2seqembtagsumtagger'."
         raise FileNotFoundError( msg )
 
 
@@ -143,7 +146,7 @@ class SoftmaxEmbTagSumTagger(NeuralMorphTagger):
     def __init__(self, output_layer: str = 'neural_morph_analysis'):
         super().__init__(output_layer=output_layer, module_name='softmax_emb_tag_sum',
                          module_package='estnltk_neural.taggers.neural_morph.new_neural_morph',
-                         model_dir=os.environ.get('ESTNLTK_MORPH_SOFTMAX_EMB_TAG_SUM', None))
+                         model_dir=get_resource_paths("softmaxembtagsumtagger", only_latest=True, download_missing=True))
 
 
 class SoftmaxEmbCatSumTagger(NeuralMorphTagger):
@@ -153,7 +156,7 @@ class SoftmaxEmbCatSumTagger(NeuralMorphTagger):
     def __init__(self, output_layer: str = 'neural_morph_analysis'):
         super().__init__(output_layer=output_layer, module_name='softmax_emb_cat_sum',
                          module_package='estnltk_neural.taggers.neural_morph.new_neural_morph',
-                         model_dir=os.environ.get('ESTNLTK_MORPH_SOFTMAX_EMB_CAT_SUM', None))
+                         model_dir=get_resource_paths("softmaxembcatsumtagger", only_latest=True, download_missing=True))
 
 
 class Seq2SeqEmbTagSumTagger(NeuralMorphTagger):
@@ -163,7 +166,7 @@ class Seq2SeqEmbTagSumTagger(NeuralMorphTagger):
     def __init__(self, output_layer: str = 'neural_morph_analysis'):
         super().__init__(output_layer=output_layer, module_name='seq2seq_emb_tag_sum',
                          module_package='estnltk_neural.taggers.neural_morph.new_neural_morph',
-                         model_dir=os.environ.get('ESTNLTK_MORPH_SEQ2SEQ_EMB_TAG_SUM', None))
+                         model_dir=get_resource_paths("seq2seqembtagsumtagger", only_latest=True, download_missing=True))
 
 
 class Seq2SeqEmbCatSumTagger(NeuralMorphTagger):
@@ -173,4 +176,4 @@ class Seq2SeqEmbCatSumTagger(NeuralMorphTagger):
     def __init__(self, output_layer: str = 'neural_morph_analysis'):
         super().__init__(output_layer=output_layer, module_name='seq2seq_emb_cat_sum',
                          module_package='estnltk_neural.taggers.neural_morph.new_neural_morph',
-                         model_dir=os.environ.get('ESTNLTK_MORPH_SEQ2SEQ_EMB_CAT_SUM', None))
+                         model_dir=get_resource_paths("seq2seqembcatsumtagger", only_latest=True, download_missing=True))
