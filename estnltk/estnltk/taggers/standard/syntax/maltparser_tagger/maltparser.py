@@ -11,9 +11,10 @@ import tempfile
 import subprocess
 from estnltk.taggers.standard.syntax.conll_morph_to_str import conll_to_str
 
+from estnltk.downloader import get_resource_paths
 
 MALTPARSER_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'standard', 'syntax', 'maltparser_tagger', 'java-res', 'maltparser')
-MALTPARSER_MODEL = 'model1'
+MALTPARSER_MODEL = 'model1'  # Note: this model is not distributed with EstNLTK by default and needs to be downloaded
 MALTPARSER_JAR = 'maltparser-1.9.0.jar'
 
 
@@ -71,6 +72,22 @@ class MaltParser(object):
             raise Exception('Missing input argument: MaltParser jar file name')
         elif not self.model_name:
             raise Exception('Missing input argument: MaltParser model name')
+        # Note: MaltParserTagger should always override the default model.
+        # If not, then "model1.mco" (that is not distributed with EstNLTK)
+        # needs to be downloaded separately.
+        if self.model_name == 'model1':
+            mpath = os.path.join(self.maltparser_dir, self.model_name+'.mco')
+            if not os.path.exists( mpath ):
+                # Try to download the missing model
+                resources_path = get_resource_paths("maltparsertagger", only_latest=True, download_missing=True)
+                if resources_path is None:
+                    raise Exception( "MaltParser's resources have not been downloaded. "+\
+                                     "Use estnltk.download('maltparsertagger') to get the missing resources." )
+                mpath2 = os.path.join(resources_path, self.model_name+'.mco')
+                if not os.path.exists( mpath2 ):
+                    raise Exception( ("Unable to find model {!r} from resources directory {!r}."+\
+                                      "").format(self.model_name, resources_path) )
+                self.maltparser_dir = resources_path
         self.java_check_completed = False
 
     @staticmethod
