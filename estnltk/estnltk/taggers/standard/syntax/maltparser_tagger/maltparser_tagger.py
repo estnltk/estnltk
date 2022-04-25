@@ -11,6 +11,7 @@ from estnltk.converters.serialisation_modules import syntax_v0
 from estnltk.taggers import SyntaxDependencyRetagger
 from estnltk.taggers.standard.syntax.maltparser_tagger.maltparser import MaltParser
 
+from estnltk.downloader import get_resource_paths
 
 class MaltParserTagger(Tagger):
     """Tags dependency syntactic analysis with MaltParser."""
@@ -26,14 +27,25 @@ class MaltParserTagger(Tagger):
                  version='conllu'):            # conllu or conllx
 
         maltparser_kwargs = {}
-        if resources_path is not None:
+        if resources_path is None:
+            if not (input_type == 'morph_analysis' and version == 'conllu'):
+                # If we are not using the default model, then resources_path is needed.
+                # Try to get the resources path for maltparsertagger. Attempt to download, if missing
+                resources_path = get_resource_paths("maltparsertagger", only_latest=True, download_missing=True)
+                if resources_path is None:
+                    raise Exception( "MaltParserTagger's resources have not been downloaded. "+\
+                                     "Use estnltk.download('maltparsertagger') to get the missing resources." )
+                self.resources_path = resources_path
+                maltparser_kwargs['maltparser_dir'] = self.resources_path
+            else:
+                # Use the default model that is distributed with the EstNLTK package
+                self.resources_path = MaltParser.maltparser_dir
+        else:
             # Override the default location of models
             if not os.path.isdir(resources_path):
                 raise ValueError('(!) resources_path must be a directory containing maltparser\'s models')
             self.resources_path = resources_path
-            maltparser_kwargs['maltparser_dir'] = resources_path
-        else:
-            self.resources_path = None
+            maltparser_kwargs['maltparser_dir'] = self.resources_path
 
         self.input_layers = [input_words_layer,
                              input_sentences_layer,
@@ -43,6 +55,7 @@ class MaltParserTagger(Tagger):
 
         if input_type == 'morph_analysis':
             if version == 'conllu':
+                # This is the default model that is distributed with EstNLTK package
                 self._maltparser_inst = MaltParser(model_name='morph_analysis_conllu', **maltparser_kwargs)
             else:
                 self._maltparser_inst = MaltParser(model_name='model_morph', **maltparser_kwargs)

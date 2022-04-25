@@ -555,8 +555,9 @@ def test_maltparser_tagger_vislcg3_model():
                     reason="a directory containing vislcg3 executable must be inside the system PATH")
 @pytest.mark.skipif(MALTPARSER_SYNTAX_MODELS_PATH is None,
                     reason="MaltParserTagger's resources have not been downloaded. Use estnltk.download('maltparsertagger') to get the missing resources.")
+@pytest.mark.skipif(len(os.environ.get("TEST_MALTPARSER_FULL", '')) == 0,
+                    reason="This test is time-consuming. Set environment variable TEST_MALTPARSER_FULL to a non-zero length value to enable this test.")
 def test_maltparser_tagger_all_models():
-    # TODO: this test is time-consuming. Make it possible to switch it on/off by an environment variable
     # Smoke test that all models / configurations of MaltparserTagger work
     for conf in [{'version':'conllx', 'input_type':'visl_morph'}, # old!
                  {'version':'conllx', 'input_type':'morph_analysis'}, 
@@ -564,8 +565,6 @@ def test_maltparser_tagger_all_models():
                  {'version':'conllu', 'input_type':'morph_analysis'},
                  {'version':'conllu', 'input_type':'morph_extended'}]:
         text = Text('See on üks väga ilus lause! Ja teine ilus lause siia otsa!')
-        # TODO: MaltParserTagger should discover 'resources_path' automatically
-        conf['resources_path'] = MALTPARSER_SYNTAX_MODELS_PATH
         conf['add_parent_and_children'] = False
         if conf['input_type'] == 'visl_morph':
             text.tag_layer('morph_extended')
