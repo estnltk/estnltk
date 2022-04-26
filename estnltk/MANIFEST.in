@@ -13,8 +13,6 @@ graft estnltk/taggers/standard/syntax/files
 graft estnltk/taggers/standard/syntax/maltparser_tagger/java-res/maltparser/lib
 include estnltk/taggers/standard/syntax/maltparser_tagger/java-res/maltparser/maltparser-1.9.0.jar
 include estnltk/taggers/standard/syntax/maltparser_tagger/java-res/maltparser/morph_analysis_conllu.mco
-include estnltk/taggers/standard/syntax/stanza_tagger/stanza_resources/readme.md
-include estnltk/taggers/standard/syntax/stanza_tagger/stanza_resources/resources.json
 graft estnltk/taggers/standard/syntax/ud_validation/agreement_resources
 graft estnltk/taggers/standard/syntax/ud_validation/data
 graft estnltk/taggers/standard/syntax/preprocessing/rules_files

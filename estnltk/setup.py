@@ -89,7 +89,6 @@ setup(
                                             'maltparser_tagger/java-res/maltparser/morph_analysis_conllu.mco', 
                                             'maltparser_tagger/java-res/maltparser/lib/*.*', 
                                             'preprocessing/rules_files/*.*',
-                                            'stanza_tagger/stanza_resources/*.*',
                                             'ud_validation/agreement_resources/*.*',
                                             'ud_validation/data/*.*'],
         'estnltk.taggers.standard.text_segmentation': ['*.csv'], 
