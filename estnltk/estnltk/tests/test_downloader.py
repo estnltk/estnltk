@@ -66,7 +66,7 @@ def test_resource_dir_download():
                     reason="set environment variable TEST_ESTNLTK_DOWNLOADER "+\
                             "to non-zero length value to enable this test.")
 def test_resource_file_download():
-    resource_name  = 'word2vec_2015-06-21_1'
+    resource_name  = "word2vec_lemmas_cbow_s100_2015-06-21"
     resource_alias = 'word2vec'
     resource_path_components = ['word2vec', 'lemmas.cbow.s100.w2v.bin']
     # The initial state of the resource: which models have been downloaded
