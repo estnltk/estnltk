@@ -3,10 +3,12 @@ import torch
 from typing import MutableMapping, List
 from transformers import BertTokenizer, logging, BertModel
 
+from estnltk.downloader import get_resource_paths
+
 logging.set_verbosity(30)
 from estnltk.text import Text
 from estnltk.taggers import Tagger
-from estnltk.layer.layer import Layer
+from estnltk import Layer
 import numpy as np
 
 
@@ -32,15 +34,14 @@ class BertTransformer(Tagger):
             'bert_location', 'bert_model', 'output_layers', 'tokenizer', 'method', 'token_level', 'bert_layers',
             'sentence_emb_attributes')
         if bert_location is None:
-            # Try to load bert location from environment variable
-            default_bert_location = os.environ.get('ESTNLTK_BERT_MODEL_PATH', None)
-            if default_bert_location is not None:
-                self.bert_location = default_bert_location
-            else:
-                msg = "Directory containing BERT model (bert_location) must be specified at creating BertTransformer. "+\
-                      "Alternatively, you can put the location of the BERT model into environment variable "+\
-                      "ESTNLTK_BERT_MODEL_PATH."
-                raise Exception(msg)
+            # Try to get the resources path for berttransformer. Attempt to download, if missing
+            resources_path = get_resource_paths("berttransformer", only_latest=True, download_missing=True)
+            if resources_path is None:
+                raise Exception( "BertTransformer's resources have not been downloaded. "+\
+                                 "Use estnltk.download('berttransformer') to get the missing resources. "+\
+                                 "Alternatively, you can specify the directory containing BERT model "+\
+                                 "via parameter bert_location at creating BertTransformer." )
+            self.bert_location = resources_path
         else:
             self.bert_location = bert_location
         if method not in ('concatenate', 'add', 'all'):

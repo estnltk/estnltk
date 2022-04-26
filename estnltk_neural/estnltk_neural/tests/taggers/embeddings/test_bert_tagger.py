@@ -2,9 +2,11 @@ import pkgutil
 import pytest
 from estnltk import Text
 import os
-from estnltk_neural.common import neural_abs_path
 
-MODEL_PATH = os.environ.get('ESTNLTK_BERT_MODEL_PATH', neural_abs_path("taggers/embeddings/bert/model-data"))
+from estnltk.downloader import get_resource_paths
+
+# Try to get the resources path for BertTagger. If missing, do nothing. It's up for the user to download the missing resources
+MODEL_PATH = get_resource_paths("berttagger", only_latest=True, download_missing=False)
 
 
 def check_if_transformers_is_available():
@@ -22,7 +24,7 @@ def check_if_model_present():
         'config.json', 'pytorch_model.bin', 
         'special_tokens_map.json', 'tokenizer_config.json',
         'vocab.txt']
-    model_dir_files = list( os.listdir(MODEL_PATH) )
+    model_dir_files = list(os.listdir(MODEL_PATH)) if MODEL_PATH is not None else []
     return all([exp_file in model_dir_files for exp_file in expected_model_files])
 
 
@@ -30,10 +32,11 @@ def check_if_model_present():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(os.environ.get('ESTNLTK_BERT_MODEL_PATH', None) is None,
-                    reason="Model path is not specified in the environment variable ESTNLTK_BERT_MODEL_PATH")
+@pytest.mark.skipif(not check_if_model_present(),
+                    reason="BertTagger's resources have not been downloaded. "+\
+                           "Use estnltk.download('berttagger') to get the missing resources.")
 def test_bert_tagger_out_of_the_box():
-    # Test that BertTagger works "out_of_the_box" if ESTNLTK_BERT_MODEL_PATH has been correctly set
+    # Test that BertTagger works "out_of_the_box" if resources have been downloaded
     from estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
     bert_tagger = BertTagger()
     text = Text(
@@ -51,8 +54,8 @@ def test_bert_tagger_out_of_the_box():
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(not check_if_model_present(),
-                    reason="Model is not available in the model-data directory nor "+\
-                           "via environment variable ESTNLTK_BERT_MODEL_PATH")
+                    reason="BertTagger's resources have not been downloaded. "+\
+                           "Use estnltk.download('berttagger') to get the missing resources.")
 def test_bert_tagger():
     # Test that BertTagger's different configurations
     from estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
@@ -143,8 +146,8 @@ def test_bert_tagger():
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(not check_if_model_present(),
-                    reason="Model is not available in the model-data directory nor "+\
-                           "via environment variable ESTNLTK_BERT_MODEL_PATH")
+                    reason="BertTagger's resources have not been downloaded. "+\
+                           "Use estnltk.download('berttagger') to get the missing resources.")
 @pytest.mark.xfail(reason='fails for some reason, needs to be fixed')
 def test_bert_tagger_word_embeddings_all():
     from estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
