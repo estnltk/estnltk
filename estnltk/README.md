@@ -17,6 +17,7 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 * web taggers -- such as bert embeddings web tagger, stanza syntax web tagger and stanza ensemble syntax web tagger;
 * corpus importing tools -- tools for importing data from large Estonian corpora, such as the Reference Corpus or the National Corpus of Estonia;
 * system taggers -- regex tagger, disambiguator, atomizer, merge tagger etc;
+* resource utils for downloading additional resources (e.g. model files required by taggers); 
 * Postgres database tools;
 
 ## Version 1.7
