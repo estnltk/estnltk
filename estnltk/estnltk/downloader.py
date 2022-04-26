@@ -660,9 +660,9 @@ def download(resource:str, refresh_index:bool=False,
 
                 if is_huggingface_resource( resource_desc ):
                     # Download huggingface resource
-                    success = \
-                        _download_and_install_hf_resource( \
-                            resource_desc, resources_dir )
+                    _download_and_install_hf_resource( \
+                              resource_desc, resources_dir )
+                    success = True
                 else:
                     # Download ordinary resource
                     success = \
