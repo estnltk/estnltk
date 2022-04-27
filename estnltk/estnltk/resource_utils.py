@@ -386,7 +386,19 @@ def is_huggingface_resource(resource_dict: Dict[str, Any]) -> bool:
     '''Checks if the given resource url points to a huggingface.co repository.
     '''
     return _hf_url_pattern.match(resource_dict['url']) is not None
-    
+
+
+def ping_resource(resource_dict: Dict[str, Any]) -> bool:
+    '''
+    Checks if the url of the resource is valid. 
+    Basically, makes a HTTP request (in streaming mode) and 
+    checks that the response status code is OK.
+    '''
+    status_code_ok = False
+    with requests.get(resource_dict['url'], stream=True) as resp:
+        status_code_ok = (resp.status_code == requests.codes.ok)
+    return status_code_ok
+
 
 def delete_resource(resource: str) -> bool:
     '''
