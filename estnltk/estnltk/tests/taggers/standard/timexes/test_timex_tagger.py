@@ -200,7 +200,7 @@ def test_timex_tagging_4_additional_rules():
                   {'text': 'Ma just käisin eile-täna seal jalgrattaga.',\
                    'dct':'2011-08-24',\
                    'expected_timexes': [ \
-                       {'text':['eile-täna'], 'enclosing_text': 'eile-täna', 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
+                       {'text':'eile-täna', 'enclosing_text': 'eile-täna', 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
                            'begin_point': {'tid': 't2', 'value': '2011-08-23', 'type': 'DATE', 'temporalFunction': 'true'},\
                            'end_point':   {'tid': 't3', 'value': '2011-08-24', 'type': 'DATE', 'temporalFunction': 'true'} }, \
                    ]
@@ -209,7 +209,7 @@ def test_timex_tagging_4_additional_rules():
                   {'text': 'Tundub, et täna-homme on paljudel plaanis ka ise sülti valmistada.',\
                    'dct':'2012-12-21',\
                    'expected_timexes': [ \
-                       {'text':['täna-homme'], 'enclosing_text': 'täna-homme', 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
+                       {'text':'täna-homme', 'enclosing_text': 'täna-homme', 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
                            'begin_point': {'tid': 't2', 'value': '2012-12-21', 'type': 'DATE', 'temporalFunction': 'true'},\
                            'end_point':   {'tid': 't3', 'value': '2012-12-22', 'type': 'DATE', 'temporalFunction': 'true'} }, \
                    ]
@@ -218,7 +218,7 @@ def test_timex_tagging_4_additional_rules():
                   {'text': 'Hea, et lugema juhtusin, just oli plaan ise homme-ülehomme minna Soome ... :)',\
                    'dct':'2011-08-15',\
                    'expected_timexes': [ \
-                       {'text':['homme-ülehomme'], 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
+                       {'text':'homme-ülehomme', 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
                            'begin_point': {'tid': 't2', 'value': '2011-08-16', 'type': 'DATE', 'temporalFunction': 'true'},\
                            'end_point':   {'tid': 't3', 'value': '2011-08-17', 'type': 'DATE', 'temporalFunction': 'true'} }, \
                    ]
@@ -227,7 +227,7 @@ def test_timex_tagging_4_additional_rules():
                   {'text': 'Eile-üleeile viibisin taas pikalt Den Helderis.',\
                    'dct':'2009-07-31',\
                    'expected_timexes': [ \
-                       {'text':['Eile-üleeile'], 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
+                       {'text':'Eile-üleeile', 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
                            'begin_point': {'tid': 't2', 'value': '2009-07-29', 'type': 'DATE', 'temporalFunction': 'true'},\
                            'end_point':   {'tid': 't3', 'value': '2009-07-30', 'type': 'DATE', 'temporalFunction': 'true'} }, \
                    ]
@@ -236,15 +236,23 @@ def test_timex_tagging_4_additional_rules():
                   {'text': '2007.05.03\n\nViinata volber möödus rahulikult',\
                    'dct':'2018-12-05',\
                    'expected_timexes': [ \
-                       {'text':['2007.05.03'], 'tid':'t1', 'type':'DATE', 'value':'2007-05-03', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                       {'text':'2007.05.03', 'tid':'t1', 'type':'DATE', 'value':'2007-05-03', 'temporal_function':False , 'anchor_time_id':None,  }, \
                    ]
                   },\
                   # ISO format date #2
                   {'text': 'Mõtteid ja ideid saab esitada kultuuripealinna kodulehel ning sündmus peab juhtuma ajavahemikus 2010.01.01 – 2010.12.31.',\
                    'dct':'2018-12-05',\
                    'expected_timexes': [ \
-                       {'text':['2010.01.01'], 'tid':'t1', 'type':'DATE', 'value':'2010-01-01', 'temporal_function':False , 'anchor_time_id':None,  }, \
-                       {'text':['2010.12.31'], 'tid':'t2', 'type':'DATE', 'value':'2010-12-31', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                       {'text':'2010.01.01', 'tid':'t1', 'type':'DATE', 'value':'2010-01-01', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                       {'text':'2010.12.31', 'tid':'t2', 'type':'DATE', 'value':'2010-12-31', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                   ]
+                  },\
+                  # Date with roman numeral months
+                  {'text': 'Kuidas tuvastada rooma numbriga kuupäevi 29. IV 2009 ja 13. XI 1995?',\
+                   'dct':'2018-12-05',\
+                   'expected_timexes': [ \
+                       {'text':'29. IV 2009', 'tid':'t1', 'type':'DATE', 'value':'2009-04-29', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                       {'text':'13. XI 1995', 'tid':'t2', 'type':'DATE', 'value':'1995-11-13', 'temporal_function':False , 'anchor_time_id':None,  }, \
                    ]
                   },\
                   # Negative rules:
@@ -256,13 +264,16 @@ def test_timex_tagging_4_additional_rules():
                   },\
                   
                 ]
+    # TimexTagger with flat output layer (default settings)
+    timexes_tagger = \
+        TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False)
     for test_item in test_data:
         # Prepare text
         text = Text( test_item['text'] )
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
         text.tag_layer('words')
-        timexes_tagger_enveloping.tag( text )
+        timexes_tagger.tag( text )
         # Compare attributes and values of all timexes
         for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
             # Expected attributes & values
@@ -278,6 +289,7 @@ def test_timex_tagging_4_additional_rules():
             assert expected_vals == result_vals
         if len( test_item['expected_timexes'] ) == 0:
             assert len( text.timexes ) == 0
+    timexes_tagger.close()
 
 
 
@@ -401,4 +413,15 @@ def test_timex_tagger_preprocessing():
     test_text.tag_layer( ['words'] )
     assert [t.text for t in test_text.words] == ['31.', 'detsembril', 'kell', '16', 'ja', '23.30', ',', '1.', 'jaanuaril', 'kell', '13.']
 
+    # Case 5 : Dates with Roman numeral months
+    test_text = Text('Kuidas tuvastada rooma numbriga kuupäevi 31. IV 2009 ja 13. XI 1995?').tag_layer(['tokens'])
+    CP_TAGGER_ADAPTED.tag( test_text )
+    test_text.tag_layer( ['words'] )
+    assert [t.text for t in test_text.words] == ['Kuidas', 'tuvastada', 'rooma', 'numbriga', 'kuupäevi', '31.', 'IV', '2009', 'ja', '13.', 'XI', '1995', '?']
+    
+    # Case 6 : Dates with slashes
+    test_text = Text('Ja mida teha kaigastega kuupäevadega 19/09/11 ja 11/02/2022?').tag_layer(['tokens'])
+    CP_TAGGER_ADAPTED.tag( test_text )
+    test_text.tag_layer( ['words'] )
+    assert [t.text for t in test_text.words] == ['Ja', 'mida', 'teha', 'kaigastega', 'kuupäevadega', '19', '/', '09', '/', '11', 'ja', '11', '/', '02', '/', '2022', '?']
 

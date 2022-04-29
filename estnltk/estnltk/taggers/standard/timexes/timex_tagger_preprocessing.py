@@ -40,13 +40,19 @@ def make_adapted_cp_tagger(**kwargs):
         if pat['comment'] == '*) Abbreviations of type <uppercase letter> + <numbers>;':
             # Skip this pattern
             continue 
+        if pat['comment'] == '*) Date patterns that contain month as a Roman numeral: "dd. roman_mm yyyy";':
+            # Skip this pattern (keep 'dd', 'roman_mm', 'yyyy' as separate tokens)
+            continue 
+        if pat['comment'] == '*) Date patterns in the commonly used form "dd/mm/yy";':
+            # Skip this pattern (keep 'dd', 'mm', 'yy' as separate tokens)
+            continue 
         if pat['comment'] == '*) A generic pattern for detecting long numbers (1 group).':
             new_1st_level_patterns.append( redefined_number_pat_1 )
         elif pat['comment'] == '*) A generic pattern for detecting long numbers (2 groups, point-separated, followed by comma-separated numbers).':
             new_1st_level_patterns.append( redefined_number_pat_2 )
         else:
             new_1st_level_patterns.append( pat )
-    assert len(new_1st_level_patterns)+1 == len(ALL_1ST_LEVEL_PATTERNS)
+    assert len(new_1st_level_patterns)+3 == len(ALL_1ST_LEVEL_PATTERNS)
     if kwargs is not None:
         assert 'patterns_1' not in kwargs.keys(), "(!) Cannot overwrite 'patterns_1' in adapted CompoundTokenTagger."
     return CompoundTokenTagger( patterns_1=new_1st_level_patterns, **kwargs )

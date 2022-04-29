@@ -400,10 +400,6 @@
           <Element tyyp="reg"     vaartus="(0?[1-9]|1[0-9]|2[0-9]|3[01])[.]?"                   semField="DAY_OF_MONTH" semValue="REF:1" />
       </SonaKlass>
 
-      <SonaKlass nimi="KUUPAEV_KALDKRIIPS_A">
-          <Element tyyp="reg" vaartus="(0?[1-9]|1[0-9]|2[0-9]|3[01])/"                          semField="DAY_OF_MONTH" semValue="REF:1" />
-      </SonaKlass>
-
       <!-- ********************************************************* -->
       <!-- *****************    Tähtpäevad    ********************** -->
       <!-- ********************************************************* -->
@@ -543,10 +539,6 @@
           <Element tyyp="reg"     vaartus="(0?[1-9]|1[012])[.,!]?"   semField="MONTH" semValue="REF:1" />
       </SonaKlass>
      
-      <SonaKlass nimi="KUU_KALDKRIIPS_A">
-          <Element tyyp="reg" vaartus="(0?[1-9]|1[012])/" semField="MONTH" semValue="REF:1" />
-      </SonaKlass>
-
       <SonaKlass nimi="KUU_KRIIPSUGA_A">
           <Element tyyp="reg"     vaartus="(0?[1-9]|1[012])[.]?-" semField="MONTH" semValue="REF:1" />
       </SonaKlass>
@@ -566,9 +558,21 @@
           <Element tyyp="algv"  vaartus="november|novembrikuu"       semField="MONTH" semValue="NOVEMBER" />
           <Element tyyp="algv"  vaartus="detsember|detsembrikuu"     semField="MONTH" semValue="DECEMBER" />                                                         
       </SonaKlass>
-      
+
       <SonaKlass nimi="KUU_ROOMA_NR">
-          <Element tyyp="eriArv" arvuLiik="_R_"  arvuPiirang="1-12"  semField="MONTH"  semValue="REF:1" /> <!-- rooma numbrid --> 
+          <!-- kuud rooma numbritega --> 
+          <Element tyyp="reg"   vaartus="(?i)(i)"    semField="MONTH" semValue="JANUARY" /> 
+          <Element tyyp="reg"   vaartus="(?i)(ii)"   semField="MONTH" semValue="FEBRUARY" />
+          <Element tyyp="reg"   vaartus="(?i)(iii)"  semField="MONTH" semValue="MARCH" />
+          <Element tyyp="reg"   vaartus="(?i)(iv)"   semField="MONTH" semValue="APRIL" />
+          <Element tyyp="reg"   vaartus="(?i)(v)"    semField="MONTH" semValue="MAY" />
+          <Element tyyp="reg"   vaartus="(?i)(vi)"   semField="MONTH" semValue="JUNE" />
+          <Element tyyp="reg"   vaartus="(?i)(vii)"  semField="MONTH" semValue="JULY" />
+          <Element tyyp="reg"   vaartus="(?i)(viii)" semField="MONTH" semValue="AUGUST" />
+          <Element tyyp="reg"   vaartus="(?i)(ix)"   semField="MONTH" semValue="SEPTEMBER" />
+          <Element tyyp="reg"   vaartus="(?i)(x)"    semField="MONTH" semValue="OCTOBER" />
+          <Element tyyp="reg"   vaartus="(?i)(xi)"   semField="MONTH" semValue="NOVEMBER" />
+          <Element tyyp="reg"   vaartus="(?i)(xii)"  semField="MONTH" semValue="DECEMBER" />
       </SonaKlass>
 
       <SonaKlass nimi="KUINE">
@@ -3476,23 +3480,13 @@
 
   <Reegel>
      <!--  Nt: 31. IV 2009  -->
-     <Muster> KUUPAEV_A  KUU_ROOMA_NR  AASTA_A </Muster>
-     <MustriTahis seotudMustriosa="0" tahised="KUUPAEV_ABS_AP, LIITUB_KELLAAJAGA" />     
+     <Muster> KUUPAEV_A /.*/ KUU_ROOMA_NR  AASTA_A </Muster>
+     <MustriTahis seotudMustriosa="0" tahised="KUUPAEV_ABS_AP, LIITUB_KELLAAJAGA" />
      <SemReegel priority="1" seotudMustriosa="AASTA_A"      op="SET" />
      <SemReegel priority="2" seotudMustriosa="KUU_ROOMA_NR" op="SET" />
-     <SemReegel priority="3" seotudMustriosa="KUUPAEV_A"    op="SET" /> 
-     <SemReegel priority="4" seotudMustriosa="0" op="SET_attrib" attrib="temporalFunction" semValue="false" />
+     <SemReegel priority="3" seotudMustriosa="KUUPAEV_A"    op="SET" />
+     <SemReegel priority="0" seotudMustriosa="0" op="SET_attrib" attrib="temporalFunction" semValue="false" />
      <!--  NB! See reegel läheb katki, kui katkestada mustri sobitamine lausepiirilt. (tml-korpus) -->
-  </Reegel>
-
-  <Reegel>
-     <!--  Nt:  30/12/1995  -->
-     <Muster>  KUUPAEV_KALDKRIIPS_A   KUU_KALDKRIIPS_A   /([1-9][0-9][0-9][0-9])/ </Muster>
-     <MustriTahis seotudMustriosa="0" tahised="KUUPAEV_ABS_AP" />
-     <SemReegel priority="1" seotudMustriosa="0"                     op="SET"  semField="YEAR"         semValue="PARSE_FROM_SELF:1"/>
-     <SemReegel priority="2" seotudMustriosa="KUU_KALDKRIIPS_A"      op="SET" />
-     <SemReegel priority="3" seotudMustriosa="KUUPAEV_KALDKRIIPS_A"  op="SET" />
-     <SemReegel priority="4" seotudMustriosa="0"                     op="SET_attrib" attrib="temporalFunction" semValue="false" />
   </Reegel>
 
   <Reegel>
