@@ -266,6 +266,14 @@ def test_timex_tagging_4_additional_rules():
                        {'text':'16. X. 1957.', 'tid':'t1', 'type':'DATE', 'value':'1957-10-16', 'temporal_function':False , 'anchor_time_id':None,  }, \
                    ]
                   },\
+                  # Date with slashes
+                  {'text': 'Mis ta teeb kaigastega kuupäevaga 30/12/1995? Või siis sellisega: 15/01/1999',\
+                   'dct':'2018-12-05',\
+                   'expected_timexes': [ \
+                       {'text':'30/12/1995', 'tid':'t1', 'type':'DATE', 'value':'1995-12-30', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                       {'text':'15/01/1999', 'tid':'t2', 'type':'DATE', 'value':'1999-01-15', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                   ]
+                  },\
                   # Negative rules:
                   # Do not extract any timexes from these sentences
                   {'text': 'Kõik , kellele on pakutud müüa arvuti Sun Ultra1 protsessoriplokki ( Part number : 600-3796-02 ; Serial number : 616M1751 ) ,'+\
