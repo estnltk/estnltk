@@ -561,18 +561,18 @@
 
       <SonaKlass nimi="KUU_ROOMA_NR">
           <!-- kuud rooma numbritega --> 
-          <Element tyyp="reg"   vaartus="(?i)(i)"    semField="MONTH" semValue="JANUARY" /> 
-          <Element tyyp="reg"   vaartus="(?i)(ii)"   semField="MONTH" semValue="FEBRUARY" />
-          <Element tyyp="reg"   vaartus="(?i)(iii)"  semField="MONTH" semValue="MARCH" />
-          <Element tyyp="reg"   vaartus="(?i)(iv)"   semField="MONTH" semValue="APRIL" />
-          <Element tyyp="reg"   vaartus="(?i)(v)"    semField="MONTH" semValue="MAY" />
-          <Element tyyp="reg"   vaartus="(?i)(vi)"   semField="MONTH" semValue="JUNE" />
-          <Element tyyp="reg"   vaartus="(?i)(vii)"  semField="MONTH" semValue="JULY" />
-          <Element tyyp="reg"   vaartus="(?i)(viii)" semField="MONTH" semValue="AUGUST" />
-          <Element tyyp="reg"   vaartus="(?i)(ix)"   semField="MONTH" semValue="SEPTEMBER" />
-          <Element tyyp="reg"   vaartus="(?i)(x)"    semField="MONTH" semValue="OCTOBER" />
-          <Element tyyp="reg"   vaartus="(?i)(xi)"   semField="MONTH" semValue="NOVEMBER" />
-          <Element tyyp="reg"   vaartus="(?i)(xii)"  semField="MONTH" semValue="DECEMBER" />
+          <Element tyyp="reg"   vaartus="(?i)(i)\.?"    semField="MONTH" semValue="JANUARY" /> 
+          <Element tyyp="reg"   vaartus="(?i)(ii)\.?"   semField="MONTH" semValue="FEBRUARY" />
+          <Element tyyp="reg"   vaartus="(?i)(iii)\.?"  semField="MONTH" semValue="MARCH" />
+          <Element tyyp="reg"   vaartus="(?i)(iv)\.?"   semField="MONTH" semValue="APRIL" />
+          <Element tyyp="reg"   vaartus="(?i)(v)\.?"    semField="MONTH" semValue="MAY" />
+          <Element tyyp="reg"   vaartus="(?i)(vi)\.?"   semField="MONTH" semValue="JUNE" />
+          <Element tyyp="reg"   vaartus="(?i)(vii)\.?"  semField="MONTH" semValue="JULY" />
+          <Element tyyp="reg"   vaartus="(?i)(viii)\.?" semField="MONTH" semValue="AUGUST" />
+          <Element tyyp="reg"   vaartus="(?i)(ix)\.?"   semField="MONTH" semValue="SEPTEMBER" />
+          <Element tyyp="reg"   vaartus="(?i)(x)\.?"    semField="MONTH" semValue="OCTOBER" />
+          <Element tyyp="reg"   vaartus="(?i)(xi)\.?"   semField="MONTH" semValue="NOVEMBER" />
+          <Element tyyp="reg"   vaartus="(?i)(xii)\.?"  semField="MONTH" semValue="DECEMBER" />
       </SonaKlass>
 
       <SonaKlass nimi="KUINE">
@@ -3479,8 +3479,8 @@
   </Reegel>
 
   <Reegel>
-     <!--  Nt: 31. IV 2009  -->
-     <Muster> KUUPAEV_A /.*/ KUU_ROOMA_NR  AASTA_A </Muster>
+     <!--  Nt: 31. IV 2009;  29. IV. 2009;  13. XI . 1995  -->
+     <Muster> KUUPAEV_A  KUU_ROOMA_NR  /\./?  AASTA_A </Muster>
      <MustriTahis seotudMustriosa="0" tahised="KUUPAEV_ABS_AP, LIITUB_KELLAAJAGA" />
      <SemReegel priority="1" seotudMustriosa="AASTA_A"      op="SET" />
      <SemReegel priority="2" seotudMustriosa="KUU_ROOMA_NR" op="SET" />

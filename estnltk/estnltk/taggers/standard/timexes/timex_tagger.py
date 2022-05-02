@@ -20,6 +20,7 @@ from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers.standard.timexes.timex_tagger_preprocessing import make_adapted_cp_tagger
+from estnltk.taggers.standard.timexes.timex_tagger_preprocessing import make_adapted_sentence_tokenizer
 from estnltk.taggers.standard.timexes.core_timex_tagger import CoreTimexTagger
 
 
@@ -132,7 +133,7 @@ class TimexTagger( Tagger ):
         self._words_tagger = WordTagger( input_compound_tokens_layer='timex_tagger_compound_tokens',
                                          input_tokens_layer='timex_tagger_tokens',
                                          output_layer='timex_tagger_words' )
-        self._sentence_tokenizer = SentenceTokenizer( \
+        self._sentence_tokenizer = make_adapted_sentence_tokenizer( \
                                 input_compound_tokens_layer='timex_tagger_compound_tokens',
                                 input_words_layer='timex_tagger_words',
                                 output_layer='timex_tagger_sentences' )
@@ -219,7 +220,7 @@ class TimexTagger( Tagger ):
             tagger.tag( text )
         self._timex_tagger.tag( text )
         timexes_layer = text[ self._timex_tagger.output_layer ]
-        
+       
         # B) Create output layer
         new_layer = self._make_layer_template()
         new_layer.text_object = text

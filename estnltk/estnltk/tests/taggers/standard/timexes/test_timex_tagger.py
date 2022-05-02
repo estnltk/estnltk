@@ -247,12 +247,23 @@ def test_timex_tagging_4_additional_rules():
                        {'text':'2010.12.31', 'tid':'t2', 'type':'DATE', 'value':'2010-12-31', 'temporal_function':False , 'anchor_time_id':None,  }, \
                    ]
                   },\
-                  # Date with roman numeral months
-                  {'text': 'Kuidas tuvastada rooma numbriga kuupäevi 29. IV 2009 ja 13. XI 1995?',\
+                  # Date with roman numeral months I
+                  # (if a roman numeral is followed by period, a sentence correction is required)
+                  {'text': 'Kuidas tuvastada rooma numbriga kuupäevi 29. IV 2009 ja 13. XI 1995? '+\
+                           'Aga mis saab siis, kui punkt on rooma numbri järel: 29. IV. 2009 ja 13. XI. 1995?',\
                    'dct':'2018-12-05',\
                    'expected_timexes': [ \
                        {'text':'29. IV 2009', 'tid':'t1', 'type':'DATE', 'value':'2009-04-29', 'temporal_function':False , 'anchor_time_id':None,  }, \
                        {'text':'13. XI 1995', 'tid':'t2', 'type':'DATE', 'value':'1995-11-13', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                       {'text':'29. IV. 2009', 'tid':'t3', 'type':'DATE', 'value':'2009-04-29', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                       {'text':'13. XI. 1995', 'tid':'t4', 'type':'DATE', 'value':'1995-11-13', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                   ]
+                  },\
+                  # Date with roman numeral months II
+                  {'text': 'Too kiri oli kirjutatud 16. X. 1957. Ja järgneb järgmine lause.',\
+                   'dct':'2018-12-05',\
+                   'expected_timexes': [ \
+                       {'text':'16. X. 1957.', 'tid':'t1', 'type':'DATE', 'value':'1957-10-16', 'temporal_function':False , 'anchor_time_id':None,  }, \
                    ]
                   },\
                   # Negative rules:
