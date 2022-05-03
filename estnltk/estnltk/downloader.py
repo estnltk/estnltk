@@ -461,11 +461,14 @@ def _download_and_unpack( resource_description, resources_dir ):
        file_headers['Content-Type'].startswith('application/gzip'):
         if response.status_code == requests.codes.ok:
             with open(temp_f.name, mode="wb") as out_f:
-                for chunk in tqdm( response.iter_content(chunk_size=1024), 
-                                   desc="Downloading {}".format(name) ):
+                progress = tqdm( desc="Downloading {}".format(name),
+                                 unit="B", unit_scale=True )
+                for chunk in response.iter_content(chunk_size=1024):
                     if chunk:
                         out_f.write(chunk)
                         out_f.flush()
+                        progress.update(len(chunk))
+                progress.close()
         else:
             response.raise_for_status()
     else:
