@@ -161,11 +161,14 @@ def get_resources_index(force_update:bool=False) -> Dict[str, Any]:
         response = requests.get(RESOURCES_INDEX_URL, stream=True)
         if response.status_code == requests.codes.ok:
             with open(resources_index, mode="wb") as out_f:
-                for chunk in tqdm( response.iter_content(chunk_size=1024), \
-                                   desc="Downloading resources index" ):
+                progress = tqdm( desc="Downloading resources index",
+                                 unit="B", unit_scale=True )
+                for chunk in response.iter_content(chunk_size=1024):
                     if chunk:
                         out_f.write(chunk)
                         out_f.flush()
+                        progress.update(len(chunk))
+                progress.close()
         else:
             response.raise_for_status()
     if os.path.exists(resources_index):
