@@ -197,7 +197,7 @@ def _unpack_zip(zip_file, resource_description, resources_dir):
                   ('file' if len(unpack_source_path) > 0 else '')
     target_type = 'dir' if unpack_target_path.endswith('/') else 'file'
     unpack_target_file = \
-        os.path.split(unpack_target_path)[1] if target_type is 'file' else None
+        os.path.split(unpack_target_path)[1] if target_type == 'file' else None
     items_extracted = 0
     errors = []
     with ZipFile(zip_file, mode='r') as opened_zip:
