@@ -122,7 +122,7 @@ class BaseText:
         text_string = self.text
         if len(text_string) > 10000:
             text_string = '{}\n\n<skipping {} characters>\n\n{}'.format(text_string[:8000],
-                                                                        len(text) - 9000,
+                                                                        len(text_string) - 9000,
                                                                         text_string[-1000:])
         return '{classname}(text={text_string!r})'.format(classname=self.__class__.__name__, text_string=text_string)
 
