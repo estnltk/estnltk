@@ -23,6 +23,8 @@ from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres import layer_table_name
+from estnltk.storage.postgres import count_rows
 from estnltk.taggers import ParagraphTokenizer
 from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import VabamorfTagger
@@ -589,6 +591,52 @@ class TestLayer(unittest.TestCase):
         self.assertTrue( layer_template_2.name in collection.layers )
         
         collection.create_layer(tagger=sent_tokenizer, mode='overwrite')
+        
+        collection.delete()
+
+    def test_create_layer_block(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+        
+        # Add some documents to the collection
+        with collection.insert() as collection_insert:
+            text1 = Text('see on esimene lause').tag_layer('words')
+            collection_insert(text1)
+            text2 = Text('see on teine lause').tag_layer('words')
+            collection_insert(text2)
+            text3 = Text('ja see paistab olevat kolmas').tag_layer('words')
+            collection_insert(text3)
+            text4 = Text('üks lause veel siia lõppu').tag_layer('words')
+            collection_insert(text4)
+            text5 = Text('ja veel üks').tag_layer('words')
+            collection_insert(text5)
+        
+        # Add layer from Tagger's layer template
+        sent_tokenizer = SentenceTokenizer()
+        layer_template = sent_tokenizer.get_layer_template()
+        collection.add_layer( layer_template )
+        
+        self.assertTrue( layer_table_exists(self.storage, collection.name, layer_template.name) )
+        self.assertTrue( layer_template.name in collection.layers )
+        initial_rows = count_rows( self.storage, 
+                                   table=layer_table_name(collection.name, layer_template.name) )
+        self.assertEqual( initial_rows, 0 )
+
+        # Tag the first block
+        collection.create_layer_block( sent_tokenizer, (2, 0) )
+        inserted_rows = count_rows( self.storage, 
+                                    table=layer_table_name(collection.name, layer_template.name))
+        self.assertEqual( inserted_rows, 3 )
+        # Tag the second block
+        collection.create_layer_block( sent_tokenizer, (2, 1) )
+        inserted_rows = count_rows( self.storage, 
+                                    table=layer_table_name(collection.name, layer_template.name) )
+        self.assertEqual( inserted_rows, 5 )
+        
+        for key, text in collection.select(layers=['sentences']):
+            self.assertTrue("sentences" in text.layers)
+            self.assertEqual( len(text['sentences']), 1 )
         
         collection.delete()
 
