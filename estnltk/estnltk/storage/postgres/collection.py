@@ -62,8 +62,10 @@ class PgCollection:
             self._structure = pg.v10.CollectionStructure(self)
         elif version == '2.0':
             self._structure = pg.v20.CollectionStructure(self)
+        elif version == '3.0':
+            self._structure = pg.v30.CollectionStructure(self)
         else:
-            raise ValueError("version must be '0.0', '1.0' or '2.0'")
+            raise ValueError("version must be '0.0', '1.0', '2.0' or '3.0'")
         self.version = version
 
         self.column_names = ['id', 'data'] + list(self.meta)
@@ -572,7 +574,7 @@ class PgCollection:
                             buffered_inserter.insert(layer, text_id, key=DEFAULT, extra_data=extra_data)
                             
                             if not structure_written:
-                                self._structure.insert(layer=layer, layer_type='fragmented', meta=meta)
+                                self._structure.insert(layer=layer, layer_type='fragmented', meta=meta, is_sparse=False)
                                 structure_written = True
             except Exception:
                 conn.rollback()
@@ -586,7 +588,7 @@ class PgCollection:
 
     def create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
                      create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,
-                     query_length_limit=5000000, mode=None):
+                     query_length_limit=5000000, mode=None, sparse=False):
         """
         Creates layer
 
@@ -629,10 +631,17 @@ class PgCollection:
                 * 'overwrite'  - deletes the old layer and creates a new layer in its place; 
                                  if the collection does not have the layer, then adds the new layer to the collection,
                                  and fills with data;
+            sparse: bool
+                Whether the layer table is created as a sparse tabel which means that empty layers are not stored in
+                the table. The layer search and iteration process is faster on sparse tables.
+                Note that collection version 3.0 is required for sparse tables.
         """
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer".format(
                 self.name))
+
+        if sparse and self.version < '3.0':
+            raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
 
         assert (layer_name is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
                'either tagger ({}) must be None or layer_name ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_name, data_iterator, row_mapper)
@@ -731,7 +740,7 @@ class PgCollection:
                         buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
 
                         if not structure_written:
-                            self._structure.insert(layer=layer, layer_type='detached', meta=meta)
+                            self._structure.insert(layer=layer, layer_type='detached', meta=meta, is_sparse=sparse)
                             structure_written = True
             except Exception:
                 conn.rollback()
@@ -747,7 +756,8 @@ class PgCollection:
                         fragmented_layer: bool = False,
                         meta: Dict[str, str] = None,
                         create_index: bool = False,
-                        ngram_index=None) -> None:
+                        ngram_index=None,
+                        sparse: bool = False) -> None:
         """
         Adds detached or fragmented layer to the collection. You can use this 
         method to add an empty layer to the collection that will be filled with
@@ -775,6 +785,12 @@ class PgCollection:
                 Whether to create an index on json column (default: False)
             ngram_index: list
                 A list of attributes for which to create an ngram index (default: None)
+                :param sparse:
+            sparse: bool
+                Whether the layer table is created as a sparse tabel which means
+                that empty layers are not stored in the table.
+                The layer search and iteration process is faster on sparse tables.
+                Note that collection version 3.0 is required for sparse tables.
         """
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't add layer".format(self.name))
@@ -787,6 +803,9 @@ class PgCollection:
 
         if self._is_empty:
             raise PgCollectionException("can't add layer {!r}, the collection is empty".format(layer_template.name))
+
+        if sparse and self.version < '3.0':
+            raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
 
         layer_table = layer_table_name(self.name, layer_template.name)
         if table_exists(self.storage, layer_table):
@@ -806,7 +825,7 @@ class PgCollection:
                     overwrite=False,
                     meta=meta)
 
-                self._structure.insert(layer=layer_template, layer_type=layer_type, meta=meta)
+                self._structure.insert(layer=layer_template, layer_type=layer_type, meta=meta, is_sparse=sparse)
 
             except Exception:
                 conn.rollback()
@@ -862,6 +881,7 @@ class PgCollection:
             layer_structure = None
             block_query = pg.BlockQuery(*block)
             if mode.lower() == 'append':
+                # TODO: do we allow mode == 'append' in case of sparse layers?
                 block_query &= MissingLayerQuery( missing_layer = tagger.output_layer )
             for collection_text_id, text in self.select(query=block_query, layers=tagger.input_layers):
                 layer = tagger.make_layer(text=text, status=None)
@@ -870,12 +890,15 @@ class PgCollection:
                     if layer_name not in self._structure:
                         self._structure.load()
                     if layer_name not in self._structure:
+                        # TODO: should we allow to insert the structure here?
+                        # the structure should already be created by add_layer(...) function
                         try:
                             self._structure.insert(layer, layer_type='detached', meta=meta)
                         except psycopg2.IntegrityError:
                             pass
                         self._structure.load()
                     struct = self._structure[layer_name]
+                    assert struct['layer_type'] == 'detached'
                     layer_structure = (layer_name, struct['attributes'], struct['ambiguous'], struct['parent'],
                                        struct['enveloping'])
 
