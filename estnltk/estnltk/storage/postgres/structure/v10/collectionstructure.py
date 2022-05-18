@@ -30,7 +30,9 @@ class CollectionStructure(pg.CollectionStructureBase):
                                                   table=table))
             logger.debug(c.query.decode())
 
-    def insert(self, layer, layer_type: str, meta: dict = None, loader: str = None):
+    def insert(self, layer, layer_type: str, meta: dict = None, loader: str = None, is_sparse: bool = False):
+        if is_sparse:
+            raise ValueError('(!) Sparse layers not supported in collectionstructure version {}'.format(__version__))
         self._modified = True
 
         meta = list(meta or [])
