@@ -841,7 +841,7 @@ class PgCollection:
         """Creates a layer block.
         
         Note: before the layer block can be created, the layer table must already exist.
-        You can use the method add_layer() to create an empty layer (table).
+        Use the method add_layer() to create an empty layer (table).
 
         :param tagger: Tagger
             tagger to be applied on collection's texts
@@ -852,8 +852,8 @@ class PgCollection:
             meta information. E.g. meta={"sum": "int", "average": "float"}.
             See `pytype2dbtype` in `pg_operations` for supported types.
         :param query_length_limit: int
-            soft approximate query length limit in unicode characters, can be exceeded by the length of last buffer
-            insert
+            soft approximate query length limit in unicode characters, can be exceeded by the length of 
+            last buffer insert
         :param mode: str 
             Specifies how layer creation should handle existing layers inside the block. 
             Possible modes:
@@ -888,17 +888,18 @@ class PgCollection:
 
                 if layer_structure is None:
                     if layer_name not in self._structure:
+                        # Attempt to load the structure
                         self._structure.load()
                     if layer_name not in self._structure:
-                        # TODO: should we allow to insert the structure here?
-                        # the structure should already be created by add_layer(...) function
-                        try:
-                            self._structure.insert(layer, layer_type='detached', meta=meta)
-                        except psycopg2.IntegrityError:
-                            pass
-                        self._structure.load()
+                        # Note: at this point, the structure should already exist
+                        # ( created by add_layer(...) function )
+                        raise PgCollectionException( ("Layer {!r} is missing from collection's structure. "+\
+                                                      "Use collection.add_layer(...) to update the structure "+\
+                                                      "before using this method.").format(layer_name) )
                     struct = self._structure[layer_name]
-                    assert struct['layer_type'] == 'detached'
+                    if struct['layer_type'] != 'detached':
+                        raise PgCollectionException( ("Wrong layer type: {!r}. This method can only be applied "+\
+                                                      "on 'detached' layers.").format(struct['layer_type']) )
                     layer_structure = (layer_name, struct['attributes'], struct['ambiguous'], struct['parent'],
                                        struct['enveloping'])
 
