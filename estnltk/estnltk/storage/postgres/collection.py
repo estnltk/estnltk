@@ -6,7 +6,6 @@ from contextlib import contextmanager
 from typing import Sequence, Dict
 
 import pandas
-import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
@@ -15,6 +14,7 @@ from estnltk_core import Layer
 from estnltk.converters import dict_to_layer
 from estnltk.converters import dict_to_text
 from estnltk.converters import layer_to_dict
+from estnltk.converters import layer_to_json
 from estnltk_core.layer_operations import create_ngram_fingerprint_index
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import BufferedTableInsert
@@ -1059,6 +1059,13 @@ class PgCollection:
             raise PgCollectionException("collection {!r} does not exist".format( self.name ))
         return fragment_name in self.get_fragment_names()
 
+    def is_sparse(self, layer_name):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+        if not self.has_layer(layer_name):
+            raise ValueError('collection does not have layer {!r}'.format(layer_name))
+        return self._structure[layer_name]['sparse'] if 'sparse' in self._structure[layer_name] else False
+
     def get_fragment_names(self):
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist".format( self.name ))
@@ -1095,6 +1102,19 @@ class PgCollection:
                 layer_table_identifier(self.storage, self.name, layer_name)))
             data = c.fetchall()
             return pandas.DataFrame(data=data, columns=columns)
+
+    def get_sparse_layer_template(self, layer_name, as_json=True):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+
+        if not self.is_sparse(layer_name):
+            raise ValueError('layer {!r} is not sparse'.format(layer_name))
+
+        layer_template_dict = self._structure[layer_name]['layer_template_dict']
+        layer_template = dict_to_layer(layer_template_dict) if layer_template_dict is not None else None
+        if as_json:
+            layer_template_json = layer_to_json(layer_template) if layer_template is not None else None
+        return layer_template_json if as_json else layer_template
 
     def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None, mode='NEW'):
         """

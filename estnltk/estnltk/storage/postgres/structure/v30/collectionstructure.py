@@ -97,6 +97,6 @@ class CollectionStructure(pg.CollectionStructureBase):
                                      'meta': row[6],
                                      'layer_type': row[7],
                                      'serialisation_module': row[8],
-                                     'layer_template_json': row[9]
+                                     'layer_template_dict': row[9]
                                      }
         return structure
