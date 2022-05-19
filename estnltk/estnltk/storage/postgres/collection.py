@@ -561,7 +561,8 @@ class PgCollection:
 
                 structure_written = False
                 with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
-                                                      query_length_limit=query_length_limit ) as buffered_inserter:
+                                                      query_length_limit=query_length_limit,
+                                                      sparse=False) as buffered_inserter:
 
                     for row in self.select(layers=tagger.input_layers, progressbar=progressbar):
                         text_id, text = row[0], row[1]
@@ -719,7 +720,8 @@ class PgCollection:
                 logger.info('inserting data into the {!r} layer table'.format(layer_name))
                 
                 with CollectionDetachedLayerInserter( self, layer_name, extra_columns=extra_columns, 
-                                                      query_length_limit=query_length_limit ) as buffered_inserter:
+                                                      query_length_limit=query_length_limit,
+                                                      sparse=sparse ) as buffered_inserter:
 
                     for row in data_iterator:
                         collection_text_id, text = row[0], row[1]
@@ -875,35 +877,41 @@ class PgCollection:
 
         logger.info('inserting data into the {!r} layer table block {}'.format(layer_name, block))
 
-        with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
-                                              query_length_limit=query_length_limit ) as buffered_inserter:
+        # Attempt to load the structure
+        if layer_name not in self._structure:
+            self._structure.load()
+        if layer_name not in self._structure:
+            # Note: at this point, the structure should already exist
+            # ( created by add_layer(...) function )
+            raise PgCollectionException(("Layer {!r} is missing from collection's structure. " + \
+                                         "Use collection.add_layer(...) to update the structure " + \
+                                         "before using this method.").format(layer_name))
+        struct = self._structure[layer_name]
+        if struct['layer_type'] != 'detached':
+            raise PgCollectionException(("Wrong layer type: {!r}. This method can only be applied " + \
+                                         "on 'detached' layers.").format(struct['layer_type']))
+        layer_structure = (layer_name, struct['attributes'], struct['ambiguous'],
+                           struct['parent'], struct['enveloping'])
+        sparse = struct['sparse'] if 'sparse' in struct else False
 
-            layer_structure = None
+        with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
+                                              query_length_limit=query_length_limit,
+                                              sparse=sparse) as buffered_inserter:
+
             block_query = pg.BlockQuery(*block)
             if mode.lower() == 'append':
                 # TODO: do we allow mode == 'append' in case of sparse layers?
                 block_query &= MissingLayerQuery( missing_layer = tagger.output_layer )
             for collection_text_id, text in self.select(query=block_query, layers=tagger.input_layers):
                 layer = tagger.make_layer(text=text, status=None)
-
-                if layer_structure is None:
-                    if layer_name not in self._structure:
-                        # Attempt to load the structure
-                        self._structure.load()
-                    if layer_name not in self._structure:
-                        # Note: at this point, the structure should already exist
-                        # ( created by add_layer(...) function )
-                        raise PgCollectionException( ("Layer {!r} is missing from collection's structure. "+\
-                                                      "Use collection.add_layer(...) to update the structure "+\
-                                                      "before using this method.").format(layer_name) )
-                    struct = self._structure[layer_name]
-                    if struct['layer_type'] != 'detached':
-                        raise PgCollectionException( ("Wrong layer type: {!r}. This method can only be applied "+\
-                                                      "on 'detached' layers.").format(struct['layer_type']) )
-                    layer_structure = (layer_name, struct['attributes'], struct['ambiguous'], struct['parent'],
-                                       struct['enveloping'])
-
-                assert layer_structure == (layer.name, layer.attributes, layer.ambiguous, layer.parent, layer.enveloping)
+                # Check layer structure
+                layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous,
+                                               layer.parent, layer.enveloping)
+                if layer_structure != layer_structure_from_tagger:
+                    raise ValueError( ('(!) Mismatching layer structures: '+
+                                       'structure in database: {!r} and '+
+                                       'structure created by tagger: {!r}').format(layer_structure,
+                                                                                   layer_structure_from_tagger) )
 
                 extra_values = []
                 if meta_columns:
