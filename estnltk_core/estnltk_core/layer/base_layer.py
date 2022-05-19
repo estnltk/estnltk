@@ -437,10 +437,10 @@ class BaseLayer:
     def text(self):
         """Returns a list of text fragments corresponding to 
            spans/annotations of this layer.
-           Normally, this is a list of strings, but in case 
-           of an enveloping layer, a list of lists of strings
-           will be returned, as each enveloping span is made 
-           of a list of spans of the enveloped layer.
+           The result is a list of strings. In case of an 
+           enveloping layer, the enveloping structure is 
+           flattened to elementary spans, and strings 
+           corresponding to elementary spans are returned.
         """
         result = []
         for span in self._span_list.spans:
