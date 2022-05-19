@@ -34,7 +34,7 @@ class CollectionStructure(pg.CollectionStructureBase):
                                                   table=table))
             logger.debug(c.query.decode())
 
-    def _remove_spans_from_layer_template_json( layer_json: str ):
+    def _remove_spans_from_layer_template_json( self, layer_json: str ):
         '''
         Removes spans from the template layer.
         The template layer must be given as a JSON string.
@@ -57,7 +57,7 @@ class CollectionStructure(pg.CollectionStructureBase):
             layer_template_json = layer_to_json(layer)
             if len(layer) > 0:
                 # Hack: remove spans from the layer (we need an empty template)
-                layer_template_json = _remove_spans_from_layer_template_json( layer_template_json )
+                layer_template_json = self._remove_spans_from_layer_template_json( layer_template_json )
         # Meta attributes
         meta = list(meta or [])
         with self.collection.storage.conn.cursor() as c:
