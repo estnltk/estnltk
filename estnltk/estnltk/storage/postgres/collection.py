@@ -1240,13 +1240,16 @@ class PgCollection:
                     'check if the collection name is correct.'
                    ).format(self=self)
         
+        if self.version < '3.0':
+            structure_columns = ['layer_type', 'attributes', 'ambiguous', 'parent', 'enveloping', 'meta']
+        else:
+            structure_columns = ['layer_type', 'attributes', 'ambiguous', 'sparse', 'parent', 'enveloping', 'meta']
         if self._is_empty:
             structure_html = '<br/>unknown'
         else:
             structure_html = pandas.DataFrame.from_dict(self._structure.structure,
                                                         orient='index',
-                                                        columns=['layer_type', 'attributes', 'ambiguous', 'parent',
-                                                                 'enveloping', 'meta']
+                                                        columns=structure_columns
                                                         ).to_html()
         column_meta = self._collection_table_meta()
         meta_html = ''

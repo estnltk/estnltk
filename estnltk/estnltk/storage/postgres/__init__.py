@@ -79,6 +79,7 @@ from .structure.base.collection_structure_base import CollectionStructureBase
 from .structure import v00
 from .structure import v10
 from .structure import v20
+from .structure import v30
 
 from .collection import RowMapperRecord
 from .collection import PgCollection

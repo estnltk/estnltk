@@ -91,7 +91,7 @@ class CollectionStructure(pg.CollectionStructureBase):
             for row in c.fetchall():
                 structure[row[0]] = {'attributes': tuple(row[1]),
                                      'ambiguous': row[2],
-                                     'is_sparse': row[3],
+                                     'sparse': row[3],
                                      'parent': row[4],
                                      'enveloping': row[5],
                                      'meta': row[6],
