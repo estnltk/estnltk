@@ -1060,7 +1060,23 @@ class PgSubCollection:
 
         # Otherwise each layer can be serialised differently
         dict_to_layer = default_serialisation.dict_to_layer
+        # Keep track of the selected layers
+        # (sparse layers can have None values which need to
+        #  be replaced by layer templates)
+        layer_index = 0
+        cur_selected_layer = \
+            selected_layers[layer_index] if layer_index < len(selected_layers) else None
         for layer_element in chain(text_dict['layers'], layer_dicts):
+            if layer_element is None:
+                # Handle sparse layers from LEFT JOIN query
+                assert structure is not None
+                assert structure.version >= '3.0'
+                layer_name = cur_selected_layer
+                assert layer_name is not None
+                assert structure[layer_name]['sparse']
+                # Fetch layer template from the structure
+                layer_element = structure[layer_name]['layer_template_dict']
+
             layer_name = layer_element['name']
             if layer_name in selected_layers:
                 serialisation_module = structure[layer_name]['serialisation_module']
@@ -1072,6 +1088,10 @@ class PgSubCollection:
                     text.add_layer( SERIALISATION_REGISTRY[serialisation_module].dict_to_layer(layer_element, text) )
                 else:
                     raise ValueError(('serialisation module {!r} not registered in serialisation map: '.format(serialisation_module))+SERIALISATION_REGISTRY.keys())
+                layer_index += 1
+                # Take the next selected layer
+                cur_selected_layer = \
+                    selected_layers[layer_index] if layer_index < len(selected_layers) else None
 
         return text
 

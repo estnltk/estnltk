@@ -395,16 +395,24 @@ class PgCollection:
                                               collection_meta=(), include_layer_ids=False)
         if selected_detached_layers:
             # Query includes detached_layers
-            required_layer_tables = [pg.layer_table_identifier(self.storage, self.name, layer)
-                                     for layer in sorted(set(selected_detached_layers)) ]
-            join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
-                                                                                    layer_table_identifier)
-                                               for layer_table_identifier in required_layer_tables)
-            required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
-            query = SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
-                                                                    required_tables,
-                                                                    join_condition,
-                                                                    select_by_key_sql)
+            all_layer_join_conditions = []
+            for layer in sorted(set(selected_detached_layers)):
+                layer_table_identifier = pg.layer_table_identifier(self.storage, self.name, layer)
+                join_on_condition = SQL('{}."id" = {}."text_id"').format(collection_identifier,
+                                                                         layer_table_identifier)
+                if self.is_sparse(layer):
+                    # Use LEFT JOIN for sparse layer tables
+                    all_layer_join_conditions.append(
+                        SQL('LEFT JOIN {} ON {}').format(layer_table_identifier, join_on_condition) )
+                else:
+                    # Use RIGHT JOIN for regular layer tables
+                    all_layer_join_conditions.append(
+                        SQL('JOIN {} ON {}').format(layer_table_identifier, join_on_condition) )
+            all_layer_join_conditions = SQL(" ").join(all_layer_join_conditions)
+            query = SQL("SELECT {} FROM {} {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                                       collection_identifier,
+                                                                       all_layer_join_conditions,
+                                                                       select_by_key_sql)
         else:
             # No detached_layers
             query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),

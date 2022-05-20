@@ -6,7 +6,7 @@ from psycopg2.sql import SQL, Identifier
 
 from estnltk import logger
 from estnltk import Text, Layer
-from estnltk.converters import layer_to_dict
+from estnltk.converters import layer_to_dict, text_to_dict
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import create_schema, delete_schema
@@ -88,6 +88,7 @@ class TestSparseLayerCreation(unittest.TestCase):
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
 
         create_schema(self.storage)
+        self.maxDiff = None
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -184,4 +185,146 @@ class TestSparseLayerCreation(unittest.TestCase):
                                              only_table_ids=True),
                           [0, 4, 8, 12, 16, 20, 24, 28] )
 
+        collection.delete()
+
+
+    def test_collection_select_by_key_on_sparse_layers(self):
+        collection_name = get_random_collection_name()
+        # Create collection with 3.0 structure
+        collection = PgCollection(collection_name, self.storage, version='3.0')
+        self.storage._load()
+        self.storage._collections[collection_name] = collection
+        collection.create()
+
+        # Add regular (non-sparse) layers
+        with collection.insert() as collection_insert:
+            for i in range(30):
+                text = Text('See on tekst number {}'.format(i)).tag_layer('words')
+                text.meta['number'] = i
+                collection_insert( text )
+
+        # Annotate sparse layers
+        odd_number_tagger = ModuleRemainderNumberTagger('odd_numbers', 2, 1)
+        fifth_number_tagger = ModuleRemainderNumberTagger('fifth_numbers', 5, 0)
+        collection.create_layer( tagger=odd_number_tagger, sparse=True )
+        collection.create_layer( tagger=fifth_number_tagger, sparse=True )
+        # Check results
+        self.assertEqual( _make_count_query( self.storage, collection_name, 
+                                             odd_number_tagger.output_layer ), 15 )
+        self.assertEqual( _make_count_query( self.storage, collection_name, 
+                                             fifth_number_tagger.output_layer ), 6 )
+        
+        # Test selection of a single document #1
+        collection.selected_layers=['words', 'odd_numbers', 'fifth_numbers']
+        text1 = collection[0]
+        expected_text_dict_1 = \
+            {'layers': [{'ambiguous': False,
+                         'attributes': ('normalized', 'module', 'remainder'),
+                         'enveloping': None,
+                         'meta': {},
+                         'name': 'fifth_numbers',
+                         'parent': None,
+                         'secondary_attributes': (),
+                         'serialisation_module': None,
+                         'spans': [{'annotations': [{'module': 5,
+                                                     'normalized': 0,
+                                                     'remainder': 0}],
+                                    'base_span': (20, 21)}]},
+                        {'ambiguous': False,
+                         'attributes': ('normalized', 'module', 'remainder'),
+                         'enveloping': None,
+                         'meta': {},
+                         'name': 'odd_numbers',
+                         'parent': None,
+                         'secondary_attributes': (),
+                         'serialisation_module': None,
+                         'spans': []},
+                        {'ambiguous': True,
+                         'attributes': ('normalized_form',),
+                         'enveloping': None,
+                         'meta': {},
+                         'name': 'words',
+                         'parent': None,
+                         'secondary_attributes': (),
+                         'serialisation_module': None,
+                         'spans': [{'annotations': [{'normalized_form': None}],
+                                    'base_span': (0, 3)},
+                                   {'annotations': [{'normalized_form': None}],
+                                    'base_span': (4, 6)},
+                                   {'annotations': [{'normalized_form': None}],
+                                    'base_span': (7, 12)},
+                                   {'annotations': [{'normalized_form': None}],
+                                    'base_span': (13, 19)},
+                                   {'annotations': [{'normalized_form': None}],
+                                    'base_span': (20, 21)}]}],
+             'meta': {'number': 0},
+             'text': 'See on tekst number 0'}
+        self.assertEqual( text_to_dict(text1), expected_text_dict_1 )
+        
+        # Test selection of a single document #2
+        text2 = collection[4]
+        expected_text_dict_2 = \
+            {'layers': [{'ambiguous': False,
+                         'attributes': ('normalized', 'module', 'remainder'),
+                         'enveloping': None,
+                         'meta': {},
+                         'name': 'fifth_numbers',
+                         'parent': None,
+                         'secondary_attributes': (),
+                         'serialisation_module': None,
+                         'spans': []},
+                        {'ambiguous': False,
+                         'attributes': ('normalized', 'module', 'remainder'),
+                         'enveloping': None,
+                         'meta': {},
+                         'name': 'odd_numbers',
+                         'parent': None,
+                         'secondary_attributes': (),
+                         'serialisation_module': None,
+                         'spans': []},
+                        {'ambiguous': True,
+                         'attributes': ('normalized_form',),
+                         'enveloping': None,
+                         'meta': {},
+                         'name': 'words',
+                         'parent': None,
+                         'secondary_attributes': (),
+                         'serialisation_module': None,
+                         'spans': [{'annotations': [{'normalized_form': None}],
+                                    'base_span': (0, 3)},
+                                   {'annotations': [{'normalized_form': None}],
+                                    'base_span': (4, 6)},
+                                   {'annotations': [{'normalized_form': None}],
+                                    'base_span': (7, 12)},
+                                   {'annotations': [{'normalized_form': None}],
+                                    'base_span': (13, 19)},
+                                   {'annotations': [{'normalized_form': None}],
+                                    'base_span': (20, 21)}]}],
+             'meta': {'number': 4},
+             'text': 'See on tekst number 4'}
+        self.assertEqual( text_to_dict(text2), expected_text_dict_2 )
+        
+        # Add more detached layers
+        sent_tokenizer = SentenceTokenizer()
+        para_tokenizer = ParagraphTokenizer()
+        collection.create_layer( tagger=sent_tokenizer )
+        collection.create_layer( tagger=para_tokenizer )
+        
+        # Test selecting all texts one by one
+        odd_number_annotations = 0
+        fifth_number_annotations = 0
+        collection.selected_layers=['words', 'odd_numbers', 'sentences', \
+                                    'fifth_numbers', 'paragraphs']
+        for i in range( len(collection) ):
+            text = collection[i]
+            # Check that all layers are present
+            for selected_layer in collection.selected_layers:
+                self.assertTrue( selected_layer in text.layers )
+            odd_number_annotations += \
+                len( text[odd_number_tagger.output_layer] )
+            fifth_number_annotations += \
+                len( text[fifth_number_tagger.output_layer] )
+        self.assertEqual( odd_number_annotations, 15 )
+        self.assertEqual( fifth_number_annotations, 6 )
+        
         collection.delete()
