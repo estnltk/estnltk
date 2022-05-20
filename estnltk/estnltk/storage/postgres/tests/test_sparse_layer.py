@@ -67,16 +67,19 @@ def _make_simple_query_on_table( storage, table_identifier ):
             rows.append( row )
     return rows
 
-
-def _make_index_query_on_layer( storage, collection, layer_name, only_table_ids=True ):
+def _make_index_query( storage, collection, layer_name, only_table_ids=True ):
     layer_table_identifier = SQL("{}.{}").format( \
-                               Identifier(storage.schema), 
-                               Identifier(layer_table_name(collection, layer_name)))
+                             Identifier(storage.schema), 
+                             Identifier(layer_table_name(collection, layer_name)))
     rows = _make_simple_query_on_table( storage, layer_table_identifier )
     if only_table_ids:
         return [ row[1] for row in rows ]
     else:
         return [ (row[0], row[1]) for row in rows ]
+
+def _make_count_query( storage, collection, layer_name ):
+    return count_rows( storage, table=layer_table_name(collection, layer_name) )
+
 
 
 class TestSparseLayerCreation(unittest.TestCase):
@@ -158,13 +161,12 @@ class TestSparseLayerCreation(unittest.TestCase):
         collection.create_layer( tagger=odd_number_tagger, sparse=True )
         # Assert results
         self.assertTrue( collection.is_sparse( odd_number_tagger.output_layer ) )
-        rows = count_rows( self.storage, 
-                           table=layer_table_name(collection_name, 
-                                                  odd_number_tagger.output_layer) )
-        self.assertEqual( rows, 15 )
-        self.assertEqual( _make_index_query_on_layer( self.storage, collection_name, 
-                                                      odd_number_tagger.output_layer,
-                                                      only_table_ids=True),
+        self.assertEqual( _make_count_query( self.storage, collection_name, 
+                                             odd_number_tagger.output_layer ), 
+                          15 )
+        self.assertEqual( _make_index_query( self.storage, collection_name, 
+                                             odd_number_tagger.output_layer,
+                                             only_table_ids=True),
                           [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29] )
 
         # Annotate sparse layer #2
@@ -174,13 +176,12 @@ class TestSparseLayerCreation(unittest.TestCase):
         collection.create_layer_block( fourth_number_tagger, (2, 1) )
         # Assert results
         self.assertTrue( collection.is_sparse( fourth_number_tagger.output_layer ) )
-        rows = count_rows( self.storage, 
-                           table=layer_table_name(collection_name, 
-                                                  fourth_number_tagger.output_layer) )
-        self.assertEqual( rows, 8 )
-        self.assertEqual( _make_index_query_on_layer( self.storage, collection_name, 
-                                                      fourth_number_tagger.output_layer,
-                                                      only_table_ids=True),
+        self.assertEqual( _make_count_query( self.storage, collection_name, 
+                                             fourth_number_tagger.output_layer ), 
+                          8 )
+        self.assertEqual( _make_index_query( self.storage, collection_name, 
+                                             fourth_number_tagger.output_layer,
+                                             only_table_ids=True),
                           [0, 4, 8, 12, 16, 20, 24, 28] )
 
         collection.delete()
