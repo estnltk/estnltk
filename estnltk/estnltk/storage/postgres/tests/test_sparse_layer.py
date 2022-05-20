@@ -188,6 +188,18 @@ class TestSparseLayerCreation(unittest.TestCase):
         collection.delete()
 
 
+class TestSparseLayerSelection(unittest.TestCase):
+    def setUp(self):
+        schema = "test_schema"
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+
+        create_schema(self.storage)
+        self.maxDiff = None
+
+    def tearDown(self):
+        delete_schema(self.storage)
+        self.storage.close()
+
     def test_collection_select_by_key_on_sparse_layers(self):
         collection_name = get_random_collection_name()
         # Create collection with 3.0 structure
