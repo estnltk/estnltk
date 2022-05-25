@@ -383,12 +383,11 @@ class BaseCollocationNet:
         conn = sqlite3.connect(f"{self.path}/examples.db")
         cur = conn.cursor()
         cur.execute(f"SELECT example1, example2, example3 FROM {table_name} WHERE word1 = '{row}' AND word2 = '{column}';")
-        examples = cur.fetchall()
+        examples = cur.fetchone()
         final_sentences = []
 
-        for sents in examples:
-            for sent in sents:
-                if sent is not None:
-                    final_sentences.append(sent)
+        for sent in examples:
+            if sent is not None:
+                final_sentences.append(sent)
 
         return final_sentences
