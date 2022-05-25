@@ -56,6 +56,8 @@ class PgSubCollectionLayer:
         assert structure[detached_layer]['layer_type'] == 'detached'
         assert structure[detached_layer]['parent'] is None
         assert structure[detached_layer]['enveloping'] is None
+        if collection.is_sparse( detached_layer ):
+            raise NotImplementedError('PgSubCollectionLayer not implemented for sparse layers')
 
     @property
     def sql_query(self):
