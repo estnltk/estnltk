@@ -1,12 +1,11 @@
 import os
 import sqlite3
+import pkgutil
 import pandas as pd
 import numpy as np
 from typing import List
 import matplotlib.pyplot as plt
-from wordcloud import WordCloud
 from collections import defaultdict
-from sklearn.neighbors import NearestNeighbors
 
 
 class BaseCollocationNet:
@@ -15,8 +14,10 @@ class BaseCollocationNet:
     with different collocation types.
     """
 
-    def __init__(self, collocation_type: str = 'noun_adjective'):
-        path = f"{os.path.dirname(os.path.abspath(__file__))}/data/{collocation_type}"
+    def __init__(self, collocation_type: str = 'noun_adjective', base_path: str = None):
+        if base_path is None:
+            base_path = os.path.dirname(os.path.abspath(__file__))
+        path = f"{base_path}/data/{collocation_type}"
         self.path = path
         self.row_dist = np.load(f"{path}/lda_row_distribution.npy")
         self.column_dist = np.load(f"{path}/lda_column_distribution.npy")
@@ -25,6 +26,13 @@ class BaseCollocationNet:
         self.topics = np.load(f"{path}/lda_topics.npy", allow_pickle=True)
 
         self.column_dist_probs = self.column_dist / self.column_dist.sum(axis=0)
+
+    def is_package_installed(self, module: str) -> bool:
+        """
+        Checks if the package sklearn has been installed.
+        This package is required for the similar words functions.
+        """
+        return pkgutil.find_loader(module) is not None
 
     def row_index(self, word: str) -> int:
         """
@@ -74,6 +82,13 @@ class BaseCollocationNet:
         Finds the most similar words to the given word using KNN based on
         the word distribution obtained from the LDA model.
         """
+        if not self.is_package_installed("sklearn"):
+            raise ModuleNotFoundError('Missing sklearn module that is ' + \
+                                      'required for the functions finding similar words. Please install the ' + \
+                                      'module via conda or pip, e.g.\n pip install -U scikit-learn')
+
+        from sklearn.neighbors import NearestNeighbors
+
         knn = NearestNeighbors(n_neighbors=number_of_words + 1).fit(self.row_dist)
         idx_of_word = self.row_index(word)
 
@@ -124,6 +139,13 @@ class BaseCollocationNet:
         Finds the most similar words to the given word using KNN based on
         the word distribution obtained from the LDA model.
         """
+        if not self.is_package_installed("sklearn"):
+            raise ModuleNotFoundError('Missing sklearn module that is ' + \
+                                      'required for the functions finding similar words. Please install the ' + \
+                                      'module via conda or pip, e.g.\n pip install -U scikit-learn')
+
+        from sklearn.neighbors import NearestNeighbors
+
         column_vals = self.column_dist.T
         knn = NearestNeighbors(n_neighbors=number_of_words + 1).fit(column_vals)
         idx_of_word = self.column_index(word)
@@ -189,6 +211,13 @@ class BaseCollocationNet:
         :param word: Word for which we want to find words it forms collocations with
         :param number_of_words: Number of words to include in the Word Cloud, default 100
         """
+
+        if not self.is_package_installed("wordcloud"):
+            raise ModuleNotFoundError('Missing Wordcloud module that is ' + \
+                                      'required for this function. Please install the ' + \
+                                      'module via conda or pip, e.g.\n pip install wordcloud')
+
+        from wordcloud import WordCloud
 
         topic_idx = None
 
@@ -351,9 +380,9 @@ class BaseCollocationNet:
         return False
 
     def examples(self, row: str, column: str, table_name: str) -> List[str]:
-        conn = sqlite3.connect(f"{self.path}/collocations.db")
+        conn = sqlite3.connect(f"{self.path}/examples.db")
         cur = conn.cursor()
-        cur.execute(f"SELECT example1, example2, example3 FROM {table_name} WHERE lemma1 = '{row}' AND lemma2 = '{column}';")
+        cur.execute(f"SELECT example1, example2, example3 FROM {table_name} WHERE word1 = '{row}' AND word2 = '{column}';")
         examples = cur.fetchall()
         final_sentences = []
 
