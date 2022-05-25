@@ -181,23 +181,26 @@ class PgSubCollection:
         # Required layers are part of the main collection
         if required_layers:
             # Build a join clauses to merge required detached layers by text_id
-            required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
-                                     for layer in required_layers]
-            join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
-                                                                                    layer_table_identifier)
-                                               for layer_table_identifier in required_layer_tables)
-
-            required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
+            join_clause = pg.JoinClause(self.collection, [])
+            for layer in required_layers:
+                join_type = None  # TODO: allow to change join type
+                join_clause &= pg.JoinClause(self.collection, [layer], join_type)
+            #
+            #required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
+            #                         for layer in required_layers]
+            #join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
+            #                                                                        layer_table_identifier)
+            #                                   for layer_table_identifier in required_layer_tables)
+            #required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
+            #
             if self._selection_criterion:
-                query = SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
-                                                                        required_tables,
-                                                                        join_condition,
+                query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                                        join_clause,
                                                                         self._selection_criterion)
 
             else:
-                query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                                 required_tables,
-                                                                 join_condition)
+                query = SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns),
+                                                                 join_clause)
         else:
             if self._selection_criterion:
                 query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),

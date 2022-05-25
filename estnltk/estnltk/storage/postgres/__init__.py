@@ -87,6 +87,7 @@ from .collection import PgCollectionException
 
 from .sql_composition.where_clause import WhereClause
 from .sql_composition.selected_columns import SelectedColumns
+from .sql_composition.join_clause import JoinClause
 
 from .pgpass_parsing import parse_pgpass
 
