@@ -12,10 +12,13 @@ from psycopg2.sql import SQL, Identifier
 from psycopg2.errors import DuplicateSchema
 
 from estnltk import Text
+from estnltk import Layer
 from estnltk import logger
 
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import PostgresStorage
+from estnltk.storage.postgres import PgCollection
+from estnltk.storage.postgres.collection import RowMapperRecord
 from estnltk.storage.postgres import create_schema, delete_schema
 
 logger.setLevel('DEBUG')
@@ -193,6 +196,52 @@ class TestPgCollectionExportLayer(unittest.TestCase):
         
         collection.delete()
 
+
+    def test_export_sparse_layer(self):
+        collection_name = get_random_collection_name()
+        # Create collection with 3.0 structure
+        collection = PgCollection(collection_name, self.storage, version='3.0')
+        self.storage._load()
+        self.storage._collections[collection_name] = collection
+        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+
+        text_1 = Text('Esimene tekst.')
+        text_2 = Text('Teine tekst')
+        text_3 = Text('Kolmas tekst')
+        text_4 = Text('Viimane tekst')
+
+        with collection.insert() as collection_insert:
+            collection_insert( text_1, meta_data={'text_id':1, 'text_name':'esimene yllitis'} )
+            collection_insert( text_2, meta_data={'text_id':2, 'text_name':'teine yllitis'} )
+            collection_insert( text_3, meta_data={'text_id':3, 'text_name':'kolmas yllitis'} )
+            collection_insert( text_4, meta_data={'text_id':4, 'text_name':'viimne yllitis'} )
+
+        # Create a sparse layer
+        def my_row_mapper(row):
+            text_id, text = row[0], row[1]
+            status = {}
+            layer = Layer('my_sparse_layer', attributes=['attr1'])
+            if text_id % 2 == 0:
+                # Fill in only every second layer
+                layer.add_annotation( (0, 4), attr1='{} snippet'.format(text_id) )
+            return RowMapperRecord(layer=layer, meta=status)
+        collection.create_layer( layer_name='my_sparse_layer', 
+                                 data_iterator=collection.select(), 
+                                 row_mapper=my_row_mapper, 
+                                 sparse=True )
+
+        # Export sparse table
+        collection.export_layer('my_sparse_layer', ('attr1',), collection_meta=('text_name',))
+        table_name='{}__{}__export'.format(collection_name, 'my_sparse_layer')
+        assert pg.table_exists(self.storage, table_name)
+        table_identifier = pg.table_identifier(storage=self.storage, table_name=table_name)
+        table_entries = self._make_simple_query_on_table( table_identifier )
+        expected_entries = \
+            [(1, 0, 0, 0, 4, '0 snippet', 'esimene yllitis'),
+             (2, 2, 0, 0, 4, '2 snippet', 'kolmas yllitis')]
+        assert table_entries == expected_entries
+        
+        collection.delete()
 
 if __name__ == '__main__':
     unittest.main()
