@@ -1063,12 +1063,26 @@ class PgSubCollection:
 
         # Otherwise each layer can be serialised differently
         dict_to_layer = default_serialisation.dict_to_layer
-        # Keep track of the selected layers
+        # First, we need to reorder selected layers in 
+        # the precise way they will be iterated
+        text_layer_names = \
+            [layer_dict['name'] for layer_dict in text_dict['layers']]
+        reordered_selected_layers = []
+        # 1) not all attached layers are selected: pick the selected ones
+        for layer_name in text_layer_names:
+            if layer_name in selected_layers:
+                reordered_selected_layers.append( layer_name )
+        # 2) remaining layer names belong to detached (selected) layers
+        for layer_name in selected_layers:
+            if layer_name not in text_layer_names:
+                reordered_selected_layers.append( layer_name )
+        assert len(reordered_selected_layers) == len(selected_layers)
+        # While iterating results, keep track of the selected layers
         # (sparse layers can have None values which need to
         #  be replaced by layer templates)
         layer_index = 0
         cur_selected_layer = \
-            selected_layers[layer_index] if layer_index < len(selected_layers) else None
+            reordered_selected_layers[layer_index] if layer_index < len(reordered_selected_layers) else None
         for layer_element in chain(text_dict['layers'], layer_dicts):
             if layer_element is None:
                 # Handle sparse layers from LEFT JOIN query
@@ -1081,7 +1095,7 @@ class PgSubCollection:
                 layer_element = structure[layer_name]['layer_template_dict']
 
             layer_name = layer_element['name']
-            if layer_name in selected_layers:
+            if layer_name in reordered_selected_layers:
                 serialisation_module = structure[layer_name]['serialisation_module']
 
                 # Use default serialisation if specification is missing
@@ -1094,8 +1108,7 @@ class PgSubCollection:
                 layer_index += 1
                 # Take the next selected layer
                 cur_selected_layer = \
-                    selected_layers[layer_index] if layer_index < len(selected_layers) else None
-
+                    reordered_selected_layers[layer_index] if layer_index < len(reordered_selected_layers) else None
         return text
 
     def _dict_to_layer(self, layer_dict: dict, text_object=None):

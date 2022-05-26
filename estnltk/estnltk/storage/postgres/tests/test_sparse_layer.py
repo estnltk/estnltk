@@ -340,3 +340,71 @@ class TestSparseLayerSelection(unittest.TestCase):
         self.assertEqual( fifth_number_annotations, 6 )
         
         collection.delete()
+        
+
+
+    def test_collection_default_select_on_sparse_layers(self):
+        collection_name = get_random_collection_name()
+        # Create collection with 3.0 structure
+        collection = PgCollection(collection_name, self.storage, version='3.0')
+        self.storage._load()
+        self.storage._collections[collection_name] = collection
+        collection.create()
+        
+        # Add regular (non-sparse) layers
+        with collection.insert() as collection_insert:
+            for i in range(30):
+                text = Text('See on tekst number {}'.format(i)).tag_layer('words')
+                text.meta['number'] = i
+                collection_insert( text )
+        # Add sparse layers
+        even_number_tagger = ModuleRemainderNumberTagger('even_numbers', 2, 0)
+        sixth_number_tagger = ModuleRemainderNumberTagger('sixth_numbers', 6, 0)
+        collection.create_layer( tagger=even_number_tagger, sparse=True )
+        collection.create_layer( tagger=sixth_number_tagger, sparse=True )
+        
+        # Try iteration over different kinds of orderings of non-sparse and sparse layer selection
+        for text_id, text in collection.select(layers=['words', 'sixth_numbers', 'even_numbers']):
+            # Assert that both sparse and non-spare layers exist
+            self.assertTrue( 'words' in text.layers )
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertTrue( 'sixth_numbers' in text.layers )
+        for text_id, text in collection.select(layers=['sixth_numbers', 'words', 'even_numbers']):
+            # Assert that both sparse and non-spare layers exist
+            self.assertTrue( 'words' in text.layers )
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertTrue( 'sixth_numbers' in text.layers )
+        for text_id, text in collection.select(layers=['sixth_numbers', 'even_numbers', 'words']):
+            # Assert that both sparse and non-spare layers exist
+            self.assertTrue( 'words' in text.layers )
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertTrue( 'sixth_numbers' in text.layers )        
+        
+        # Iteration over non-sparse and sparse layers with validation
+        text_ids_with_even_sparse_layers = []
+        text_ids_with_sixth_sparse_layers = []
+        all_texts_iterated = 0
+        for text_id, text in collection.select(layers=['sixth_numbers', 'words', 'even_numbers']):
+            # Assert that both sparse and non-spare layers exist
+            self.assertTrue( 'words' in text.layers )
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertTrue( 'sixth_numbers' in text.layers )
+            # Collect even layers
+            if len( text['even_numbers'] ) > 0:
+                self.assertEqual( len(text['even_numbers']), 1 )
+                text_ids_with_even_sparse_layers.append( text_id )
+            # Collect sixth layers
+            if len( text['sixth_numbers'] ) > 0:
+                self.assertEqual( len(text['sixth_numbers']), 1 )
+                text_ids_with_sixth_sparse_layers.append( text_id )
+            all_texts_iterated += 1
+        # Check that all texts were seen
+        self.assertEqual( all_texts_iterated, 30 )
+        # Check that only even texts had an 'even_numbers' layer
+        self.assertEqual( text_ids_with_even_sparse_layers, \
+                          [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28] )
+        # Check that only sixth texts had a 'sixth_numbers' layer
+        self.assertEqual( text_ids_with_sixth_sparse_layers, \
+                          [0, 6, 12, 18, 24] )
+        
+        collection.delete()
