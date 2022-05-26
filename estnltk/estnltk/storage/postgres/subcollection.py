@@ -180,11 +180,11 @@ class PgSubCollection:
 
         # Required layers are part of the main collection
         if required_layers:
-            # Build a join clauses to merge required detached layers by text_id
-            join_clause = pg.JoinClause(self.collection, [])
+            # Build a from clause with joins to merge required detached layers by text_id
+            from_clause = pg.FromClause(self.collection, [])
             for layer in required_layers:
                 join_type = None  # TODO: allow to change join type
-                join_clause &= pg.JoinClause(self.collection, [layer], join_type)
+                from_clause &= pg.FromClause(self.collection, [layer], join_type)
             #
             #required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
             #                         for layer in required_layers]
@@ -195,12 +195,12 @@ class PgSubCollection:
             #
             if self._selection_criterion:
                 query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                                        join_clause,
+                                                                        from_clause,
                                                                         self._selection_criterion)
 
             else:
                 query = SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns),
-                                                                 join_clause)
+                                                                 from_clause)
         else:
             if self._selection_criterion:
                 query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
