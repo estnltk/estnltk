@@ -1,3 +1,5 @@
+import warnings
+
 from psycopg2.sql import DEFAULT
 
 from estnltk import logger
@@ -58,6 +60,7 @@ class CollectionDetachedLayerInserter(object):
         self.sparse_insert = sparse
         self.insert_counter = 0
         self.sparse_insert_counter = 0
+        self.sparse_insert_extra_data_losses = 0
 
     def __enter__(self):
         """ Initializes the insertion buffer. """
@@ -83,6 +86,10 @@ class CollectionDetachedLayerInserter(object):
                 logger.info( 'inserted {} detached {!r} layers into the collection {!r}'.format(self.insert_counter,
                                                                                                 self.layer_name,
                                                                                                 self.collection.name) )
+            if self.sparse_insert_extra_data_losses > 0:
+                logger.warn( '{} skipped detached {!r} layers had metadata that was lost'.format( \
+                                    self.sparse_insert_extra_data_losses, 
+                                    self.layer_name ) )
 
 
     def insert(self, layer, text_id, key=None, extra_data=None):
@@ -100,6 +107,15 @@ class CollectionDetachedLayerInserter(object):
         if self.sparse_insert and len(layer) == 0:
             # Sparse table: skip insertion of an empty layer
             self.sparse_insert_counter += 1
+            # If extra metadata was provided, warn about the data loss
+            if extra_data is not None and len(extra_data) > 0:
+                # Display 5 warnings at maximum
+                if self.sparse_insert_extra_data_losses < 5:
+                    warnings.warn( ('Metadata items were lost during the sparse insertion '+\
+                                    'of layer {!r}. Do not use sparse layer if you want to '+\
+                                    'preserve metadata about an empty layer. Use non-sparse '+\
+                                    'layer instead.').format(layer.name) )
+                self.sparse_insert_extra_data_losses += 1
             return
         # Prepare data
         layer_json = layer_to_json( layer )

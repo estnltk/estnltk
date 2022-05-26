@@ -185,14 +185,7 @@ class PgSubCollection:
             for layer in required_layers:
                 join_type = None  # TODO: allow to change join type
                 from_clause &= pg.FromClause(self.collection, [layer], join_type)
-            #
-            #required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
-            #                         for layer in required_layers]
-            #join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
-            #                                                                        layer_table_identifier)
-            #                                   for layer_table_identifier in required_layer_tables)
-            #required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
-            #
+            # Build SELECT query
             if self._selection_criterion:
                 query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
                                                                         from_clause,
