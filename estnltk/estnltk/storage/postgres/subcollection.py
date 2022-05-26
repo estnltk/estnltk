@@ -180,7 +180,7 @@ class PgSubCollection:
 
         # Required layers are part of the main collection
         if required_layers:
-            # Build a from clause with joins to merge required detached layers by text_id
+            # Build a FROM clause with joins to required detached layers
             from_clause = pg.FromClause(self.collection, [])
             for layer in required_layers:
                 join_type = None  # TODO: allow to change join type

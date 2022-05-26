@@ -25,11 +25,14 @@ def get_random_collection_name():
 class ModuleRemainderNumberTagger(Tagger):
     '''Tagger for detecting numbers that match criterion: number % module = remainder'''
     
-    def __init__(self, layer_name, module, remainder):
+    def __init__(self, layer_name, module, remainder, parent_layer=None):
         self.output_layer = layer_name
         self.input_layers = ['words']
         self.output_attributes = ('normalized', 'module', 'remainder')
-        self.conf_param = ('module', 'remainder', 'number_regex')
+        self.conf_param = ('module', 'remainder', 'number_regex', 'parent_layer')
+        self.parent_layer = parent_layer
+        if self.parent_layer is not None:
+            self.input_layers.append( self.parent_layer )
         assert isinstance(module, int)
         assert isinstance(remainder, int)
         self.module = module
@@ -37,7 +40,8 @@ class ModuleRemainderNumberTagger(Tagger):
         self.number_regex = re.compile('([0-9]+)')
 
     def _make_layer_template(self):
-        return Layer(self.output_layer, attributes=self.output_attributes, text_object=None)
+        return Layer(self.output_layer, attributes=self.output_attributes, 
+                     text_object=None, parent=self.parent_layer)
 
     def _make_layer(self, text, layers, status):
         layer = self._make_layer_template()
@@ -272,6 +276,17 @@ class TestSparseLayerSelection(unittest.TestCase):
              'meta': {'number': 0},
              'text': 'See on tekst number 0'}
         self.assertEqual( text_to_dict(text1), expected_text_dict_1 )
+        # Test that selection also works after changing the order of selected layers
+        collection.selected_layers=['odd_numbers', 'words', 'fifth_numbers']
+        text11 = collection[0]
+        self.assertTrue( 'odd_numbers' in text11.layers )
+        self.assertTrue( 'words' in text11.layers )
+        self.assertTrue( 'fifth_numbers' in text11.layers )
+        collection.selected_layers=['odd_numbers', 'fifth_numbers', 'words']
+        text12 = collection[0]
+        self.assertTrue( 'odd_numbers' in text12.layers )
+        self.assertTrue( 'words' in text12.layers )
+        self.assertTrue( 'fifth_numbers' in text12.layers )
         
         # Test selection of a single document #2
         text2 = collection[4]
@@ -340,7 +355,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         self.assertEqual( fifth_number_annotations, 6 )
         
         collection.delete()
-        
+
 
 
     def test_collection_default_select_on_sparse_layers(self):
@@ -406,5 +421,36 @@ class TestSparseLayerSelection(unittest.TestCase):
         # Check that only sixth texts had a 'sixth_numbers' layer
         self.assertEqual( text_ids_with_sixth_sparse_layers, \
                           [0, 6, 12, 18, 24] )
+        
+        # Add a sparse layer that depends on another sparse layer
+        fourth_number_tagger = ModuleRemainderNumberTagger('fourth_numbers', 4, 0, 
+                                                            parent_layer='even_numbers')
+        collection.add_layer( fourth_number_tagger.get_layer_template(), sparse=True )
+        collection.create_layer_block( fourth_number_tagger, (2, 0) )
+        collection.create_layer_block( fourth_number_tagger, (2, 1) )
+
+        all_texts_iterated = 0
+        text_ids_with_fourth_sparse_layers = []
+        for text_id, text in collection.select(layers=['fourth_numbers', 'sixth_numbers', 'words']):
+            # Assert that all selected layers are present
+            self.assertTrue( 'words' in text.layers )
+            self.assertTrue( 'fourth_numbers' in text.layers )
+            self.assertTrue( 'sixth_numbers' in text.layers )
+            # Assert that the dependency layer is also present
+            self.assertTrue( 'even_numbers' in text.layers )
+            # Collect fourth layers
+            if len( text['fourth_numbers'] ) > 0:
+                # Check parent layer
+                self.assertEqual( len(text['even_numbers']), 1 )
+                # Check child layer
+                self.assertEqual( len(text['fourth_numbers']), 1 )
+                # Record text_id
+                text_ids_with_fourth_sparse_layers.append( text_id )
+            all_texts_iterated += 1
+        # Check that all texts were seen
+        self.assertEqual( all_texts_iterated, 30 )
+        # Check that only fourth texts had an 'fourth_numbers' layer
+        self.assertEqual( text_ids_with_fourth_sparse_layers, \
+                          [0, 4, 8, 12, 16, 20, 24, 28] )
         
         collection.delete()
