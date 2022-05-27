@@ -17,7 +17,6 @@ from estnltk import logger
 
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres.collection import RowMapperRecord
 from estnltk.storage.postgres import create_schema, delete_schema
 
@@ -199,11 +198,10 @@ class TestPgCollectionExportLayer(unittest.TestCase):
 
     def test_export_sparse_layer(self):
         collection_name = get_random_collection_name()
-        # Create collection with 3.0 structure
-        collection = PgCollection(collection_name, self.storage, version='3.0')
-        self.storage._load()
-        self.storage._collections[collection_name] = collection
+        collection = self.storage[collection_name]
         collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertTrue( collection.version >= '3.0' )
 
         text_1 = Text('Esimene tekst.')
         text_2 = Text('Teine tekst')

@@ -8,7 +8,6 @@ from estnltk import logger
 from estnltk import Text, Layer
 from estnltk.converters import layer_to_dict, text_to_dict
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import create_schema, delete_schema
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import count_rows
@@ -100,11 +99,10 @@ class TestSparseLayerCreation(unittest.TestCase):
 
     def test_create_sparse_layer_structure(self):
         collection_name = get_random_collection_name()
-        # Create collection with 3.0 structure
-        collection = PgCollection(collection_name, self.storage, version='3.0')
-        self.storage._load()
-        self.storage._collections[collection_name] = collection
+        collection = self.storage[collection_name]
         collection.create()
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertTrue( collection.version >= '3.0' )
 
         # Add regular (non-sparse) layers
         with collection.insert() as collection_insert:
@@ -148,11 +146,10 @@ class TestSparseLayerCreation(unittest.TestCase):
 
     def test_create_sparse_layer_insertion(self):
         collection_name = get_random_collection_name()
-        # Create collection with 3.0 structure
-        collection = PgCollection(collection_name, self.storage, version='3.0')
-        self.storage._load()
-        self.storage._collections[collection_name] = collection
+        collection = self.storage[collection_name]
         collection.create()
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertTrue( collection.version >= '3.0' )
         
         # Add regular (non-sparse) layers
         with collection.insert() as collection_insert:
@@ -206,11 +203,10 @@ class TestSparseLayerSelection(unittest.TestCase):
 
     def test_collection_select_by_key_on_sparse_layers(self):
         collection_name = get_random_collection_name()
-        # Create collection with 3.0 structure
-        collection = PgCollection(collection_name, self.storage, version='3.0')
-        self.storage._load()
-        self.storage._collections[collection_name] = collection
+        collection = self.storage[collection_name]
         collection.create()
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertTrue( collection.version >= '3.0' )
 
         # Add regular (non-sparse) layers
         with collection.insert() as collection_insert:
@@ -360,11 +356,10 @@ class TestSparseLayerSelection(unittest.TestCase):
 
     def test_collection_default_select_on_sparse_layers(self):
         collection_name = get_random_collection_name()
-        # Create collection with 3.0 structure
-        collection = PgCollection(collection_name, self.storage, version='3.0')
-        self.storage._load()
-        self.storage._collections[collection_name] = collection
+        collection = self.storage[collection_name]
         collection.create()
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertTrue( collection.version >= '3.0' )
         
         # Add regular (non-sparse) layers
         with collection.insert() as collection_insert:
@@ -454,3 +449,7 @@ class TestSparseLayerSelection(unittest.TestCase):
                           [0, 4, 8, 12, 16, 20, 24, 28] )
         
         collection.delete()
+
+
+if __name__ == '__main__':
+    unittest.main()
