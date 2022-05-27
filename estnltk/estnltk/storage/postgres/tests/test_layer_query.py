@@ -8,6 +8,8 @@ from estnltk.storage.postgres import create_schema, delete_schema, count_rows
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
 
+from estnltk.storage.postgres.tests.test_sparse_layer import ModuleRemainderNumberTagger
+
 logger.setLevel('DEBUG')
 
 
@@ -121,3 +123,74 @@ class TestDetachedLayerQuery(unittest.TestCase):
 
         collection.delete()
 
+
+class TestDetachedSparseLayerQuery(unittest.TestCase):
+    def setUp(self):
+        schema = "test_schema"
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+
+        create_schema(self.storage)
+
+    def tearDown(self):
+        delete_schema(self.storage)
+        self.storage.close()
+        
+    def test_detached_sparse_layer_query(self):
+        # Test that LayerQuery successfully works with detached sparse layers
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertGreaterEqual(collection.version , '3.0')
+        
+        # Add regular (non-sparse) layers
+        with collection.insert() as collection_insert:
+            for i in range(30):
+                text = Text('See on tekst number {}'.format(i)).tag_layer('words')
+                text.meta['number'] = i
+                collection_insert( text )
+        
+        # Add sparse layers
+        even_number_tagger = ModuleRemainderNumberTagger('even_numbers', 2, 0)
+        fourth_number_tagger = ModuleRemainderNumberTagger('fourth_numbers', 4, 0, 
+                                                            parent_layer='even_numbers')
+        collection.create_layer( tagger=even_number_tagger,   sparse=True )
+        collection.create_layer( tagger=fourth_number_tagger, sparse=True )
+        
+        # Make a small LayerQuery
+        q = LayerQuery(layer_name='even_numbers', normalized=2) | \
+            LayerQuery(layer_name='even_numbers', normalized=22)
+        q_result = list( collection.select(query=q, layers=['even_numbers']) )
+        self.assertEqual(len(q_result), 2)
+        self.assertEqual( q_result[0][0], 2 )
+        self.assertEqual( q_result[1][0], 22 )
+        self.assertTrue( 'even_numbers' in q_result[0][1].layers )
+        self.assertTrue( 'even_numbers' in q_result[1][1].layers )
+
+        # Make a larger LayerQuery
+        q = LayerQuery(layer_name='even_numbers', module=2)
+        q_result = list( collection.select(query=q, 
+                         layers=['even_numbers', 'fourth_numbers']) )
+        self.assertEqual(len(q_result), 15)
+        text_ids = []
+        for (text_id, text) in q_result:
+            # Assert that spare layer exists
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertTrue( 'fourth_numbers' in text.layers )
+            text_ids.append( text_id )
+        self.assertEqual(text_ids, \
+            [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28])
+
+        # Make a LayerQuery over a combination of sparse layers
+        q = LayerQuery(layer_name='even_numbers', module=2) & \
+            LayerQuery(layer_name='fourth_numbers', module=4)
+        q_result = list( collection.select(query=q, 
+                         layers=['even_numbers', 'fourth_numbers']) )
+        text_ids = []
+        for (text_id, text) in q_result:
+            # Assert that spare layer exists
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertTrue( 'fourth_numbers' in text.layers )
+            text_ids.append( text_id )
+        self.assertEqual(text_ids, [0, 4, 8, 12, 16, 20, 24, 28])
+        

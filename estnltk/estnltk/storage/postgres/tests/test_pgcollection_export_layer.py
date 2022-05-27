@@ -201,7 +201,7 @@ class TestPgCollectionExportLayer(unittest.TestCase):
         collection = self.storage[collection_name]
         collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
         # Assert structure version 3.0+ (required for sparse layers)
-        self.assertTrue( collection.version >= '3.0' )
+        assert collection.version >= '3.0'
 
         text_1 = Text('Esimene tekst.')
         text_2 = Text('Teine tekst')

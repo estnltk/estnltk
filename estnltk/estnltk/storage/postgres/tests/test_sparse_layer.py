@@ -102,7 +102,7 @@ class TestSparseLayerCreation(unittest.TestCase):
         collection = self.storage[collection_name]
         collection.create()
         # Assert structure version 3.0+ (required for sparse layers)
-        self.assertTrue( collection.version >= '3.0' )
+        self.assertGreaterEqual(collection.version , '3.0')
 
         # Add regular (non-sparse) layers
         with collection.insert() as collection_insert:
@@ -149,7 +149,7 @@ class TestSparseLayerCreation(unittest.TestCase):
         collection = self.storage[collection_name]
         collection.create()
         # Assert structure version 3.0+ (required for sparse layers)
-        self.assertTrue( collection.version >= '3.0' )
+        self.assertGreaterEqual(collection.version , '3.0')
         
         # Add regular (non-sparse) layers
         with collection.insert() as collection_insert:
@@ -206,7 +206,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         collection = self.storage[collection_name]
         collection.create()
         # Assert structure version 3.0+ (required for sparse layers)
-        self.assertTrue( collection.version >= '3.0' )
+        self.assertGreaterEqual(collection.version , '3.0')
 
         # Add regular (non-sparse) layers
         with collection.insert() as collection_insert:
@@ -359,7 +359,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         collection = self.storage[collection_name]
         collection.create()
         # Assert structure version 3.0+ (required for sparse layers)
-        self.assertTrue( collection.version >= '3.0' )
+        self.assertGreaterEqual(collection.version , '3.0')
         
         # Add regular (non-sparse) layers
         with collection.insert() as collection_insert:
