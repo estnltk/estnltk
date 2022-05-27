@@ -87,6 +87,15 @@ class TestPgSubCollection(unittest.TestCase):
 
         subcollection.selected_layers = ['tokens']
         assert set(subcollection.selected_layers) == {'tokens'}
+        
+        # Test that duplicates are removed from selected_layers
+        # (this is required for correct assembling of results)
+        subcollection.selected_layers = \
+            ['sentences', 'sentences', 'sentences']
+        assert subcollection.selected_layers == ['words', 'sentences']
+        subcollection.selected_layers = \
+            ['sentences', 'tokens', 'tokens', 'sentences', 'tokens']
+        assert subcollection.selected_layers == ['words', 'sentences', 'tokens']
 
     def test_layers(self):
         assert set(self.subcollection.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}

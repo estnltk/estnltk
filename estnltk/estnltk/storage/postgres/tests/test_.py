@@ -213,6 +213,38 @@ class TestPgCollection(unittest.TestCase):
         # assert isinstance(result, Layer)
         # assert result.name == 'paragraphs'
 
+    def test_collection_selected_layers_are_unique(self):
+        # Test that duplicates are removed from selected_layers
+        # (this is required for correct assembling of results)
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+
+        text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
+        text_2 = Text('Teine tekst')
+        text_1.tag_layer('sentences')
+        text_2.tag_layer('sentences')
+
+        with collection.insert() as collection_insert:
+            collection_insert(text_1, key=1)
+            collection_insert(text_2, key=2)
+            
+        tagger1 = VabamorfTagger(disambiguate=False)
+        collection.create_layer(tagger=tagger1)
+        tagger2 = ParagraphTokenizer()
+        collection.create_layer(tagger=tagger2)
+        # Test that a single selected layer cannot be duplicated
+        collection.selected_layers = \
+            ['words', 'words', 'words', 'words']
+        self.assertEqual( collection.selected_layers, ['words'] )
+        # Test that multiple selected layer cannot be duplicated
+        collection.selected_layers = \
+            ['morph_analysis', 'paragraphs', 'paragraphs', 'morph_analysis']
+        self.assertEqual( collection.selected_layers, \
+            ['words', 'morph_analysis', 'sentences', 'paragraphs'] )
+        
+        collection.delete()
+
     def test_create_and_drop_collection_table(self):
         collection_name = get_random_collection_name()
 
