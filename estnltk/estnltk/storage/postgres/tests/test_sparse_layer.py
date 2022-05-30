@@ -24,14 +24,17 @@ def get_random_collection_name():
 class ModuleRemainderNumberTagger(Tagger):
     '''Tagger for detecting numbers that match criterion: number % module = remainder'''
     
-    def __init__(self, layer_name, module, remainder, parent_layer=None):
+    def __init__(self, layer_name, module, remainder, parent_layer=None,
+                       force_str_values=False):
         self.output_layer = layer_name
         self.input_layers = ['words']
         self.output_attributes = ('normalized', 'module', 'remainder')
-        self.conf_param = ('module', 'remainder', 'number_regex', 'parent_layer')
+        self.conf_param = ('module', 'remainder', 'number_regex', 'parent_layer', 
+                           'force_str_values')
         self.parent_layer = parent_layer
         if self.parent_layer is not None:
             self.input_layers.append( self.parent_layer )
+        self.force_str_values = force_str_values
         assert isinstance(module, int)
         assert isinstance(remainder, int)
         self.module = module
@@ -54,6 +57,11 @@ class ModuleRemainderNumberTagger(Tagger):
                 annotations = {'normalized':m_normalized, 
                                'module': self.module,
                                'remainder': self.remainder}
+                if self.force_str_values:
+                    # Convert all values to strings
+                    annotations['normalized'] = str(annotations['normalized'])
+                    annotations['module'] = str(annotations['module'])
+                    annotations['remainder'] = str(annotations['remainder'])
                 layer.add_annotation( (m_start, m_end), **annotations )
         return layer
 

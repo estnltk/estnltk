@@ -87,7 +87,7 @@ class CollectionDetachedLayerInserter(object):
                                                                                                 self.layer_name,
                                                                                                 self.collection.name) )
             if self.sparse_insert_extra_data_losses > 0:
-                logger.warn( '{} skipped detached {!r} layers had metadata that was lost'.format( \
+                logger.warning( '{} skipped detached {!r} layers had metadata that was lost'.format( \
                                     self.sparse_insert_extra_data_losses, 
                                     self.layer_name ) )
 
