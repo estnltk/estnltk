@@ -8,8 +8,14 @@ from estnltk.storage.postgres.queries.query import Query
 
 
 class MissingLayerQuery(Query):
-    """Constructs database query to search `text` objects with provided key.
-
+    """
+    Selects `text` objects based on their missing detached layers.
+    * In case of non-sparse layer tables, returned text objects have 
+      incomplete (unfinished) layer annotation;
+    * In case of sparse layer tables, returned text objects have ambiguous 
+      status: they can have incomplete layer annotation or they can have 
+      an empty layer instead (insertion of empty layers is skipped in 
+      sparse tables).
     """
     __slots__ = ['missing_layer']
 

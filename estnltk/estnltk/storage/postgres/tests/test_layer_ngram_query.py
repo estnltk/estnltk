@@ -258,13 +258,36 @@ class TestLayerNgramQuery(unittest.TestCase):
         # Q3 : 'normalized': [("14", "16")] | 'normalized': [("18", "20")]
         res = list(collection.select( query = LayerNgramQuery( {'even_numbers': {'normalized': [("14", "16")]}} ) | 
                                               LayerNgramQuery( {'even_numbers': {'normalized': [("18", "20")]}} ),
-                                      layers=['even_numbers', 'sixth_numbers']) )
+                                      layers=['sixth_numbers']) )
         self.assertEqual(len(res), 2)
         self.assertEqual(res[0][1].text, 'Selle teksti number: 14, ülejärgmise number: 16')
         self.assertEqual(res[1][1].text, 'Selle teksti number: 18, ülejärgmise number: 20')
+        self.assertTrue('even_numbers' in res[0][1].layers)
+        self.assertTrue('even_numbers' in res[1][1].layers)
         self.assertTrue('sixth_numbers' in res[0][1].layers)
         self.assertTrue('sixth_numbers' in res[1][1].layers)
-        self.assertEqual(    len(res[0][1]['sixth_numbers']), 0 )
-        self.assertNotEqual( len(res[1][1]['sixth_numbers']), 0 )
+        self.assertEqual( len(res[0][1]['sixth_numbers']), 0 )
+        self.assertEqual( len(res[1][1]['sixth_numbers']), 1 )
+
+        # Q4 : LayerNgramQuery: 'normalized': [("8", "10")] | 'normalized': [("22", "24")] | 
+        #      LayerQuery:       sixth_numbers.normalized=12 | sixth_numbers.normalized=18
+        res = list(collection.select( query = LayerNgramQuery( {'even_numbers': {'normalized': [("8", "10")]}} ) | 
+                                              LayerNgramQuery( {'even_numbers': {'normalized': [("22", "24")]}} ) |
+                                              LayerQuery(layer_name='sixth_numbers', normalized='12') |
+                                              LayerQuery(layer_name='sixth_numbers', normalized='18'),
+                                      layers=['sixth_numbers']) )
+        self.assertEqual(len(res), 6)
+        self.assertEqual(res[0][1].text, 'Selle teksti number: 8, ülejärgmise number: 10')  # LayerNgramQuery
+        self.assertEqual(res[1][1].text, 'Selle teksti number: 10, ülejärgmise number: 12') # LayerQuery
+        self.assertEqual(res[2][1].text, 'Selle teksti number: 12, ülejärgmise number: 14') # LayerQuery
+        self.assertEqual(res[3][1].text, 'Selle teksti number: 16, ülejärgmise number: 18') # LayerQuery
+        self.assertEqual(res[4][1].text, 'Selle teksti number: 18, ülejärgmise number: 20') # LayerQuery
+        self.assertEqual(res[5][1].text, 'Selle teksti number: 22, ülejärgmise number: 24') # LayerNgramQuery
+        self.assertEqual( len(res[0][1]['sixth_numbers']), 0 )
+        self.assertEqual( len(res[1][1]['sixth_numbers']), 1 )
+        self.assertEqual( len(res[2][1]['sixth_numbers']), 1 )
+        self.assertEqual( len(res[3][1]['sixth_numbers']), 1 )
+        self.assertEqual( len(res[4][1]['sixth_numbers']), 1 )
+        self.assertEqual( len(res[5][1]['sixth_numbers']), 1 )
         
         collection.delete()
