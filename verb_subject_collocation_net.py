@@ -3,7 +3,7 @@ from base_collocation_net import BaseCollocationNet
 
 class VerbSubjectCollocationNet(BaseCollocationNet):
     def __init__(self):
-        super(VerbSubjectCollocationNet, self).__init__(collocation_type='verb_subject')
+        super(VerbSubjectCollocationNet, self).__init__(collocation_type='verb_subject', examples_file='subject_verb')
 
     def verbs_used_with_subject(self, word: str, number_of_words: int = 10):
         return super().rows_used_with(word, number_of_words)
@@ -34,3 +34,6 @@ class VerbSubjectCollocationNet(BaseCollocationNet):
 
     def predict_topic_for_several_verbs(self, verbs: list, number_of_topics: int = 10, number_of_subjects: int = 10):
         return super().predict_topic_for_several_rows(verbs, number_of_topics, number_of_subjects)
+
+    def examples(self, verb: str, subject: str, table_name="examples"):
+        return super().examples(subject, verb, table_name)

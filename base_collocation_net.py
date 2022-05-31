@@ -14,9 +14,12 @@ class BaseCollocationNet:
     with different collocation types.
     """
 
-    def __init__(self, collocation_type: str = 'noun_adjective', base_path: str = None):
+    def __init__(self, collocation_type: str = 'noun_adjective', base_path: str = None, examples_file: str = None):
         if base_path is None:
             base_path = os.path.dirname(os.path.abspath(__file__))
+        if examples_file is None:
+            examples_file = collocation_type
+        self.examples_path = f"{base_path}/examples/{examples_file}.db"
         path = f"{base_path}/data/{collocation_type}"
         self.path = path
         self.row_dist = np.load(f"{path}/lda_row_distribution.npy")
@@ -380,7 +383,7 @@ class BaseCollocationNet:
         return False
 
     def examples(self, row: str, column: str, table_name: str) -> List[str]:
-        conn = sqlite3.connect(f"{self.path}/examples.db")
+        conn = sqlite3.connect(self.examples_path)
         cur = conn.cursor()
         cur.execute(f"SELECT example1, example2, example3 FROM {table_name} WHERE word1 = '{row}' AND word2 = '{column}';")
         examples = cur.fetchone()

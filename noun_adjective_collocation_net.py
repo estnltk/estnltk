@@ -3,7 +3,7 @@ from base_collocation_net import BaseCollocationNet
 
 class NounAdjectiveCollocationNet(BaseCollocationNet):
     def __init__(self):
-        super(NounAdjectiveCollocationNet, self).__init__(collocation_type='noun_adjective')
+        super(NounAdjectiveCollocationNet, self).__init__(collocation_type='noun_adjective', examples_file='adjective_noun')
 
     def nouns_used_with_adjective(self, word: str, number_of_words: int = 10):
         return super().rows_used_with(word, number_of_words)
@@ -34,3 +34,6 @@ class NounAdjectiveCollocationNet(BaseCollocationNet):
 
     def predict_topic_for_several_nouns(self, nouns: list, number_of_topics: int = 10, number_of_adjectives: int = 10):
         return super().predict_topic_for_several_rows(nouns, number_of_topics, number_of_adjectives)
+
+    def examples(self, noun: str, adjective: str, table_name="examples"):
+        return super().examples(noun, adjective, table_name)

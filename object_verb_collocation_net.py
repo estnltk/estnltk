@@ -34,3 +34,6 @@ class ObjectVerbCollocationNet(BaseCollocationNet):
 
     def predict_topic_for_several_objects(self, objects: list, number_of_topics: int = 10, number_of_verbs: int = 10):
         return super().predict_topic_for_several_rows(objects, number_of_topics, number_of_verbs)
+
+    def examples(self, object: str, verb: str, table_name="examples"):
+        return super().examples(verb, object, table_name)

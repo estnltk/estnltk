@@ -3,7 +3,7 @@ from base_collocation_net import BaseCollocationNet
 
 class VerbAdverbCollocationNet(BaseCollocationNet):
     def __init__(self):
-        super(VerbAdverbCollocationNet, self).__init__(collocation_type='verb_adverb')
+        super(VerbAdverbCollocationNet, self).__init__(collocation_type='verb_adverb', examples_file='adverb_verb')
 
     def verbs_used_with_adverb(self, word: str, number_of_words: int = 10):
         return super().rows_used_with(word, number_of_words)
@@ -34,3 +34,6 @@ class VerbAdverbCollocationNet(BaseCollocationNet):
 
     def predict_topic_for_several_verbs(self, verbs: list, number_of_topics: int = 10, number_of_adverbs: int = 10):
         return super().predict_topic_for_several_rows(verbs, number_of_topics, number_of_adverbs)
+
+    def examples(self, verb: str, adverb: str, table_name="examples"):
+        return super().examples(verb, adverb, table_name)

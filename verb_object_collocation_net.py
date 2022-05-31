@@ -3,7 +3,7 @@ from base_collocation_net import BaseCollocationNet
 
 class VerbObjectCollocationNet(BaseCollocationNet):
     def __init__(self):
-        super(VerbObjectCollocationNet, self).__init__(collocation_type='verb_object')
+        super(VerbObjectCollocationNet, self).__init__(collocation_type='verb_object', examples_file='object_verb')
 
     def verbs_used_with_object(self, word: str, number_of_words: int = 10):
         return super().rows_used_with(word, number_of_words)
