@@ -55,7 +55,7 @@ class PgSubCollection:
     def __init__(self, collection: pg.PgCollection, selection_criterion: pg.WhereClause = None,
                  selected_layers: Sequence[str] = None, meta_attributes: Sequence[str] = None,
                  progressbar: str = None, return_index: bool = True, itersize: int = 50,
-                 skip_rows: int = None, limit_rows: int = None ):
+                 skip_rows: int = None, limit_rows: int = None, inner_join_sparse_layers: bool = False ):
         """
         :param collection: PgCollection
         :param selection_criterion: WhereClause
@@ -76,6 +76,14 @@ class PgSubCollection:
         :param limit_rows: int
             the limit for the number of first rows to be fetched from the subcollection query (PostgreSQL's LIMIT clause).
             should be a positive integer or None (if the limiting constraint is not used).
+        :param inner_join_sparse_layers: bool
+            forces using inner join for all required sparse layers. this can speed up 
+            the query, but the cost is excluding all collection's text objects which have 
+            an empty layer in any of the sparse layer tables.
+            by default, this option is switched off, and as a result, left outer join is 
+            used for all sparse tables. the default option retrieves collection's text 
+            objects even if their corresponding sparse layers are emtpy. 
+            this parameter affects both selected layers and selection_criterion layers.
         """
 
         #TODO: Make sure that all objects used by the class are independent copies and cannot be 
@@ -119,6 +127,9 @@ class PgSubCollection:
         self._sample_from_layer_auto_seed   = None  # an automatically assigned seed (for repeatability with the progressbar)
         self._sample_from_layer_alpha       = None
         self._sample_from_layer_is_attached = None
+        # force inner join for all required sparse layers
+        self._inner_join_sparse_layers = inner_join_sparse_layers
+        
 
 
     def __len__(self):
@@ -183,7 +194,12 @@ class PgSubCollection:
             # Build a FROM clause with joins to required detached layers
             from_clause = pg.FromClause(self.collection, [])
             for layer in required_layers:
-                join_type = None  # TODO: allow to change join type
+                join_type = None
+                if self._inner_join_sparse_layers:
+                    # check whether we have a sparse layer
+                    if self.collection.is_sparse( layer ):
+                        # force using inner join
+                        join_type = ['INNER JOIN']
                 from_clause &= pg.FromClause(self.collection, [layer], join_type)
             # Build SELECT query
             if self._selection_criterion:
@@ -475,7 +491,8 @@ class PgSubCollection:
                                progressbar=self.progressbar,
                                return_index=self.return_index,
                                limit_rows=self.limit_rows,
-                               skip_rows=self.skip_rows
+                               skip_rows=self.skip_rows,
+                               inner_join_sparse_layers=self._inner_join_sparse_layers
                                )
 
     __read_cursor_counter = 0
@@ -973,7 +990,8 @@ class PgSubCollection:
                progressbar=self.progressbar,
                return_index=self.return_index,
                limit_rows=limit_rows,
-               skip_rows=self.skip_rows
+               skip_rows=self.skip_rows,
+               inner_join_sparse_layers=self._inner_join_sparse_layers
         )
 
     def tail(self, n: int = 5) -> List[Text]:
@@ -995,7 +1013,8 @@ class PgSubCollection:
                    progressbar=self.progressbar,
                    return_index=self.return_index,
                    limit_rows=self.limit_rows,
-                   skip_rows=skip_rows
+                   skip_rows=skip_rows,
+                   inner_join_sparse_layers=self._inner_join_sparse_layers
             )
         else:
             return self

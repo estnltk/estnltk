@@ -459,5 +459,113 @@ class TestSparseLayerSelection(unittest.TestCase):
         collection.delete()
 
 
+    def test_collection_inner_join_select_on_sparse_layers(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertGreaterEqual(collection.version , '3.0')
+        
+        # Add regular (non-sparse) layers
+        with collection.insert() as collection_insert:
+            for i in range(30):
+                text = Text('See on tekst number {}'.format(i)).tag_layer('words')
+                text.meta['number'] = i
+                collection_insert( text )
+        # Add sparse layers
+        even_number_tagger = ModuleRemainderNumberTagger('even_numbers', 2, 0)
+        sixth_number_tagger = ModuleRemainderNumberTagger('sixth_numbers', 6, 0)
+        collection.create_layer( tagger=even_number_tagger, sparse=True )
+        collection.create_layer( tagger=sixth_number_tagger, sparse=True )
+
+        # Case 0: Select sparse layer with the default join: left outer join
+        all_texts_iterated = 0
+        collected_text_ids = []
+        for text_id, text in collection.select(layers=['words', 'even_numbers'],
+                                               inner_join_sparse_layers=False):
+            # Assert that both sparse and non-spare layers exist and have items
+            self.assertTrue( 'words' in text.layers )
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertGreaterEqual( 1, len(text['even_numbers']) )
+            collected_text_ids.append( text_id )
+            all_texts_iterated += 1
+        # Check results
+        self.assertEqual( all_texts_iterated, 30 )
+        self.assertEqual( collected_text_ids, \
+                          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
+                           16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29] )
+        
+        # Case 1: Select sparse layer with inner join
+        all_texts_iterated = 0
+        collected_text_ids = []
+        for text_id, text in collection.select(layers=['words', 'even_numbers'],
+                                               inner_join_sparse_layers=True):
+            # Assert that both sparse and non-spare layers exist and have items
+            self.assertTrue( 'words' in text.layers )
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertEqual( len(text['even_numbers']), 1 )
+            collected_text_ids.append( text_id )
+            all_texts_iterated += 1
+        # Check results
+        self.assertEqual( all_texts_iterated, 15 )
+        self.assertEqual( collected_text_ids, \
+                          [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28] )
+
+        # Case 2: Select two sparse layers with inner join
+        all_texts_iterated = 0
+        collected_text_ids = []
+        for text_id, text in collection.select(layers=['words', 'sixth_numbers', 'even_numbers'],
+                                               inner_join_sparse_layers=True):
+            # Assert that both sparse and non-spare layers exist and have items
+            self.assertTrue( 'words' in text.layers )
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertTrue( 'sixth_numbers' in text.layers )
+            self.assertEqual( len(text['even_numbers']), 1 )
+            self.assertEqual( len(text['sixth_numbers']), 1 )
+            collected_text_ids.append( text_id )
+            all_texts_iterated += 1
+
+        # Check results
+        self.assertEqual( all_texts_iterated, 5 )
+        self.assertEqual( collected_text_ids, [0, 6, 12, 18, 24] )
+
+        # Case 3: Select head of two sparse layers with inner join
+        all_texts_iterated = 0
+        collected_text_ids = []
+        for text_id, text in collection.select(layers=['words', 'sixth_numbers', 'even_numbers'],
+                                               inner_join_sparse_layers=True).head(3):
+            # Assert that both sparse and non-spare layers exist and have items
+            self.assertTrue( 'words' in text.layers )
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertTrue( 'sixth_numbers' in text.layers )
+            self.assertEqual( len(text['even_numbers']), 1 )
+            self.assertEqual( len(text['sixth_numbers']), 1 )
+            collected_text_ids.append( text_id )
+            all_texts_iterated += 1
+
+        # Check results
+        self.assertEqual( all_texts_iterated, 3 )
+        self.assertEqual( collected_text_ids, [0, 6, 12] )
+
+        # Case 4: Select tail of two sparse layers with inner join
+        all_texts_iterated = 0
+        collected_text_ids = []
+        for text_id, text in collection.select(layers=['words', 'sixth_numbers', 'even_numbers'],
+                                               inner_join_sparse_layers=True).tail(2):
+            # Assert that both sparse and non-spare layers exist and have items
+            self.assertTrue( 'words' in text.layers )
+            self.assertTrue( 'even_numbers' in text.layers )
+            self.assertTrue( 'sixth_numbers' in text.layers )
+            self.assertEqual( len(text['even_numbers']), 1 )
+            self.assertEqual( len(text['sixth_numbers']), 1 )
+            collected_text_ids.append( text_id )
+            all_texts_iterated += 1
+
+        # Check results
+        self.assertEqual( all_texts_iterated, 2 )
+        self.assertEqual( collected_text_ids, [18, 24] )
+
+        collection.delete()
+
 if __name__ == '__main__':
     unittest.main()

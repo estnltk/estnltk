@@ -348,7 +348,8 @@ class PgCollection:
                collection_meta: Sequence[str] = None,
                progressbar: str = None,
                return_index: bool = True,
-               itersize: int= 10):
+               itersize: int= 10,
+               inner_join_sparse_layers: bool = False):
         """
 
         :param query:
@@ -368,7 +369,8 @@ class PgCollection:
                                   meta_attributes=collection_meta,
                                   progressbar=progressbar,
                                   return_index=return_index,
-                                  itersize=itersize
+                                  itersize=itersize,
+                                  inner_join_sparse_layers=inner_join_sparse_layers
                                   )
 
     def __len__(self):
