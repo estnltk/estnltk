@@ -349,16 +349,40 @@ class PgCollection:
                progressbar: str = None,
                return_index: bool = True,
                itersize: int= 10,
-               inner_join_sparse_layers: bool = False):
+               keep_all_texts: bool = True):
         """
-
+        Creates a query / selection over text objects of the collection. 
+        
         :param query:
+            query objects specifying selection criteria. 
+            this can be a composition of multiple query objects, joined by 
+            "|" and "&" operators.
         :param layers:
+            names of selected layers that will be attached to returned text objects. 
+            dependencies are included automatically
         :param collection_meta:
+            names of collection's meta attributes that will be yielded with every 
+            text object.
         :param progressbar:
-        :param return_index:
+            progressbar for iteration. no progressbar by default.
+            possible values: None, 'ascii', 'unicode' or 'notebook'
+        :param return_index: bool
+            whether collection id-s will be yielded with text objects.
+            default: True
+        :param itersize: int
+            the number of simultaneously yielded elements
+        :param keep_all_texts: bool
+            whether collection's text objects are yielded even if they contain 
+            empty layers in quieried sparse layers. 
+            by default, this option is switched on, and as a result, collection's text 
+            objects are retrieved even if their sparse layers are emtpy. 
+            if switched off, then text objects that contain empty layers in any of the 
+            quieried sparse layer tables will be excluded from the results. 
+            this can speed up the query. 
+            this parameter affects both selected layers and layers specified in query.  
         :return: PgSubCollection
-
+            a read-only subset of this collection, which can be iterated and further 
+            sub-selected
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
@@ -370,7 +394,7 @@ class PgCollection:
                                   progressbar=progressbar,
                                   return_index=return_index,
                                   itersize=itersize,
-                                  inner_join_sparse_layers=inner_join_sparse_layers
+                                  keep_all_texts=keep_all_texts
                                   )
 
     def __len__(self):

@@ -22,6 +22,7 @@ class PgSubCollection:
     - the selection criterion and skip_rows/limit_rows constraints
     - the set of selected layers
     - the set of meta attributes
+    - the sparcity of layers (if texts with empty sparse layers are dropped)
 
     The main usecase for the class is iteration over its elements.
     It is possible to iterate several times over the subcollection.
@@ -55,7 +56,7 @@ class PgSubCollection:
     def __init__(self, collection: pg.PgCollection, selection_criterion: pg.WhereClause = None,
                  selected_layers: Sequence[str] = None, meta_attributes: Sequence[str] = None,
                  progressbar: str = None, return_index: bool = True, itersize: int = 50,
-                 skip_rows: int = None, limit_rows: int = None, inner_join_sparse_layers: bool = False ):
+                 skip_rows: int = None, limit_rows: int = None, keep_all_texts: bool = True ):
         """
         :param collection: PgCollection
         :param selection_criterion: WhereClause
@@ -76,14 +77,17 @@ class PgSubCollection:
         :param limit_rows: int
             the limit for the number of first rows to be fetched from the subcollection query (PostgreSQL's LIMIT clause).
             should be a positive integer or None (if the limiting constraint is not used).
-        :param inner_join_sparse_layers: bool
-            forces using inner join for all required sparse layers. this can speed up 
-            the query, but the cost is excluding all collection's text objects which have 
-            an empty layer in any of the sparse layer tables.
-            by default, this option is switched off, and as a result, left outer join is 
-            used for all sparse tables. the default option retrieves collection's text 
-            objects even if their corresponding sparse layers are emtpy. 
-            this parameter affects both selected layers and selection_criterion layers.
+        :param keep_all_texts: bool
+            whether collection's text objects are returned even if they contain 
+            empty layers in selected / required sparse layers. 
+            by default, this option is switched on, and as a result, collection's text 
+            objects are retrieved even if their sparse layers are emtpy. 
+            (under the hood, this means using left outer join on all sparse layer tables). 
+            if switched off, then text objects that contain empty layers in sparse layer 
+            tables will be excluded from the results. this can speed up the query. 
+            (under the hood, this means using inner join for all layer tables, including 
+            sparse ones). 
+            this parameter affects both selected layers and selection_criterion layers. 
         """
 
         #TODO: Make sure that all objects used by the class are independent copies and cannot be 
@@ -127,8 +131,9 @@ class PgSubCollection:
         self._sample_from_layer_auto_seed   = None  # an automatically assigned seed (for repeatability with the progressbar)
         self._sample_from_layer_alpha       = None
         self._sample_from_layer_is_attached = None
-        # force inner join for all required sparse layers
-        self._inner_join_sparse_layers = inner_join_sparse_layers
+        # use left outer join for all required sparse layers
+        # if False, then inner join is used instead
+        self._left_join_sparse_layers = keep_all_texts
         
 
 
@@ -195,7 +200,7 @@ class PgSubCollection:
             from_clause = pg.FromClause(self.collection, [])
             for layer in required_layers:
                 join_type = None
-                if self._inner_join_sparse_layers:
+                if not self._left_join_sparse_layers:
                     # check whether we have a sparse layer
                     if self.collection.is_sparse( layer ):
                         # force using inner join
@@ -492,7 +497,7 @@ class PgSubCollection:
                                return_index=self.return_index,
                                limit_rows=self.limit_rows,
                                skip_rows=self.skip_rows,
-                               inner_join_sparse_layers=self._inner_join_sparse_layers
+                               keep_all_texts=self._left_join_sparse_layers
                                )
 
     __read_cursor_counter = 0
@@ -991,7 +996,7 @@ class PgSubCollection:
                return_index=self.return_index,
                limit_rows=limit_rows,
                skip_rows=self.skip_rows,
-               inner_join_sparse_layers=self._inner_join_sparse_layers
+               keep_all_texts=self._left_join_sparse_layers
         )
 
     def tail(self, n: int = 5) -> List[Text]:
@@ -1014,7 +1019,7 @@ class PgSubCollection:
                    return_index=self.return_index,
                    limit_rows=self.limit_rows,
                    skip_rows=skip_rows,
-                   inner_join_sparse_layers=self._inner_join_sparse_layers
+                   keep_all_texts=self._left_join_sparse_layers
             )
         else:
             return self

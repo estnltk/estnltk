@@ -482,7 +482,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         all_texts_iterated = 0
         collected_text_ids = []
         for text_id, text in collection.select(layers=['words', 'even_numbers'],
-                                               inner_join_sparse_layers=False):
+                                               keep_all_texts=True):
             # Assert that both sparse and non-spare layers exist and have items
             self.assertTrue( 'words' in text.layers )
             self.assertTrue( 'even_numbers' in text.layers )
@@ -499,7 +499,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         all_texts_iterated = 0
         collected_text_ids = []
         for text_id, text in collection.select(layers=['words', 'even_numbers'],
-                                               inner_join_sparse_layers=True):
+                                               keep_all_texts=False):
             # Assert that both sparse and non-spare layers exist and have items
             self.assertTrue( 'words' in text.layers )
             self.assertTrue( 'even_numbers' in text.layers )
@@ -515,7 +515,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         all_texts_iterated = 0
         collected_text_ids = []
         for text_id, text in collection.select(layers=['words', 'sixth_numbers', 'even_numbers'],
-                                               inner_join_sparse_layers=True):
+                                               keep_all_texts=False):
             # Assert that both sparse and non-spare layers exist and have items
             self.assertTrue( 'words' in text.layers )
             self.assertTrue( 'even_numbers' in text.layers )
@@ -533,7 +533,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         all_texts_iterated = 0
         collected_text_ids = []
         for text_id, text in collection.select(layers=['words', 'sixth_numbers', 'even_numbers'],
-                                               inner_join_sparse_layers=True).head(3):
+                                               keep_all_texts=False).head(3):
             # Assert that both sparse and non-spare layers exist and have items
             self.assertTrue( 'words' in text.layers )
             self.assertTrue( 'even_numbers' in text.layers )
@@ -551,7 +551,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         all_texts_iterated = 0
         collected_text_ids = []
         for text_id, text in collection.select(layers=['words', 'sixth_numbers', 'even_numbers'],
-                                               inner_join_sparse_layers=True).tail(2):
+                                               keep_all_texts=False).tail(2):
             # Assert that both sparse and non-spare layers exist and have items
             self.assertTrue( 'words' in text.layers )
             self.assertTrue( 'even_numbers' in text.layers )
