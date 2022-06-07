@@ -1263,7 +1263,7 @@ class PgCollection:
                 logger.debug(c.query)
                 self.storage.conn.commit()
 
-        texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta)
+        texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta, keep_all_texts=False)
         i = 0
         initial_rows = 0
         if mode == 'APPEND':

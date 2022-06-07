@@ -22,7 +22,7 @@ class PgSubCollection:
     - the selection criterion and skip_rows/limit_rows constraints
     - the set of selected layers
     - the set of meta attributes
-    - the sparcity of layers (if texts with empty sparse layers are dropped)
+    - the sparsity of layers (if texts with empty sparse layers are dropped)
 
     The main usecase for the class is iteration over its elements.
     It is possible to iterate several times over the subcollection.
