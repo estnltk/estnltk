@@ -1,4 +1,5 @@
 import unittest
+import pytest
 import random
 from collections import OrderedDict
 
@@ -13,11 +14,22 @@ from estnltk.storage.postgres import create_schema, delete_schema
 
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 
+from estnltk.storage.postgres.tests.test_sparse_layer import ModuleRemainderNumberTagger
+
 logger.setLevel('DEBUG')
 
 
 def get_random_collection_name():
     return 'collection_{}'.format(random.randint(1, 1000000))
+
+
+def get_server_version():
+    schema = "test_schema"
+    storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+    # https://www.psycopg.org/docs/connection.html#connection.server_version
+    version = storage.conn.server_version
+    storage.close()
+    return version
 
 
 class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
@@ -359,3 +371,87 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         self.assertListEqual( sent_locations_1, sent_locations_2 )
         
         collection.delete()
+
+
+    # This test can only be launched on server versions where SETSEED() / RANDOM() 
+    # behaviour has been fixed across the platforms (so, we get same results everywhere)
+    @pytest.mark.skipif(get_server_version() < 120000,
+                        reason="PostgreSQL server version >= 12.0 is required for this test")
+    def test_pgsubcollection_sample_from_sparse_layer(self):
+        # Test that sampling works with sparse layers
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertGreaterEqual(collection.version , '3.0')
+        
+        # Add regular (non-sparse) layers
+        with collection.insert() as collection_insert:
+            for i in range(200):
+                text = Text('See on tekst number {}'.format(i))
+                text.tag_layer('words')
+                text.meta['number'] = i
+                collection_insert( text )
+        
+        # Add sparse layers
+        even_number_tagger = ModuleRemainderNumberTagger('even_numbers', 2, 0)
+        fourth_number_tagger = ModuleRemainderNumberTagger('fourth_numbers', 4, 0, 
+                                                            parent_layer='even_numbers')
+        collection.create_layer( tagger=even_number_tagger,  sparse=True )
+        collection.create_layer( tagger=fourth_number_tagger, sparse=True )
+        
+        # Select a sample from sparse layer (~5 %)
+        # Caveat: we get less than expected
+        res = list( collection.select(layers=['even_numbers']).sample_from_layer('even_numbers', 5, seed=0.0) )
+        annotation_locations = []
+        for (doc_id, dok) in res:
+            for span in dok['even_numbers']:
+                annotation_locations.append( (doc_id, span.start, span.end) )
+        self.assertListEqual( [t[0] for t in res], [0, 168] )
+        self.assertListEqual( annotation_locations, [(0, 20, 21), (168, 20, 23)] )
+        
+        # Select a sample from sparse layer (~25 %)
+        # Caveat: we get less than expected
+        res = list( collection.select(layers=['even_numbers']).sample_from_layer('even_numbers', 25, seed=0.0) )
+        annotation_locations = []
+        for (doc_id, dok) in res:
+            for span in dok['even_numbers']:
+                annotation_locations.append( (doc_id, span.start, span.end) )
+        self.assertListEqual( [t[0] for t in res],  [0, 2, 6, 24, 50, 98, 124, 136, 138] )
+        self.assertListEqual( annotation_locations, [(0, 20, 21), (2, 20, 21), (6, 20, 21), 
+                                                     (24, 20, 22), (50, 20, 22), (98, 20, 22), 
+                                                     (124, 20, 23), (136, 20, 23), (138, 20, 23)] )
+        
+        # Select a sample from sparse layer (~25 %) with keep_all_texts=False
+        # The result should not change
+        res = list( collection.select(layers=['even_numbers'], keep_all_texts=False).sample_from_layer('even_numbers', 25, seed=0.0) )
+        annotation_locations = []
+        for (doc_id, dok) in res:
+            for span in dok['even_numbers']:
+                annotation_locations.append( (doc_id, span.start, span.end) )
+        self.assertListEqual( [t[0] for t in res],  [0, 2, 6, 24, 50, 98, 124, 136, 138] )
+        self.assertListEqual( annotation_locations, [(0, 20, 21), (2, 20, 21), (6, 20, 21), 
+                                                     (24, 20, 22), (50, 20, 22), (98, 20, 22), 
+                                                     (124, 20, 23), (136, 20, 23), (138, 20, 23)] )
+
+        # Select a sample from another sparse layer (~~50 %)
+        # Caveat: we get less than expected
+        res = list( collection.select(layers=['fourth_numbers']).sample_from_layer('fourth_numbers', 50, seed=0.0) )
+        annotation_locations = []
+        for (doc_id, dok) in res:
+            for span in dok['even_numbers']:
+                annotation_locations.append( (doc_id, span.start, span.end) )
+        self.assertEqual(len(res), 25)
+        self.assertListEqual( [t[0] for t in res], 
+            [0, 4, 8, 12, 20, 40, 44, 48, 68, 76, 84, 92, 96, 112,
+             116, 124, 132, 136, 140, 144, 152, 164, 168, 172, 184] )
+        self.assertListEqual( [len(t[1]['fourth_numbers']) for t in res], 
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] )
+        self.assertListEqual( [len(t[1]['even_numbers']) for t in res], 
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] )
+
+        collection.delete()
+
+

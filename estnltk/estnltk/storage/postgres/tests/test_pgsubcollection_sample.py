@@ -14,6 +14,8 @@ from estnltk.storage.postgres import create_schema, delete_schema
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 
+from estnltk.storage.postgres.tests.test_sparse_layer import ModuleRemainderNumberTagger
+
 logger.setLevel('DEBUG')
 
 
@@ -297,4 +299,56 @@ class TestPgSubCollectionSample(unittest.TestCase):
         self.assertEqual(len(res[0]), 2)
         self.assertListEqual([t[1].meta['text_id'] for t in res], [26, 32, 37, 38, 40, 51, 66, 68, 72])
         collection.delete()
+
+
+
+    def test_pgsubcollection_sample_query_on_sparse_table(self):
+        # Test that sampling works with sparse layers
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertGreaterEqual(collection.version , '3.0')
         
+        # Add regular (non-sparse) layers
+        with collection.insert() as collection_insert:
+            for i in range(100):
+                text = Text('See on tekst number {}'.format(i))
+                text.tag_layer('words')
+                text.meta['number'] = i
+                collection_insert( text )
+        
+        # Add sparse layers
+        even_number_tagger = ModuleRemainderNumberTagger('even_numbers', 2, 0)
+        fourth_number_tagger = ModuleRemainderNumberTagger('fourth_numbers', 4, 0, 
+                                                            parent_layer='even_numbers')
+        collection.create_layer( tagger=even_number_tagger,  sparse=True )
+        collection.create_layer( tagger=fourth_number_tagger, sparse=True )
+        
+        # Select sparse layer with sampling (~5 %)
+        res = list(collection.select(layers=['even_numbers']).sample(5, seed=55, method='BERNOULLI', construction='JOIN'))
+        self.assertEqual(len(res), 4)
+        self.assertListEqual( [t[0] for t in res], [19, 37, 76, 97] )
+        self.assertListEqual( [len(t[1]['even_numbers']) for t in res], [0, 0, 1, 0] )
+        
+        # Select sparse layer with sampling (~25 items)
+        res = list(collection.select(layers=['fourth_numbers']).sample(25, amount_type='SIZE', seed=105, method='BERNOULLI', construction='JOIN'))
+        self.assertListEqual( [ t[0] for t in res ], \
+                              [0, 2, 11, 20, 22, 26, 30, 34, 39, 42, 47, 52, 53, 54, \
+                               56, 69, 70, 71, 72, 73, 81, 83, 84, 90, 92, 93, 96] )
+        self.assertListEqual( [ len(t[1]['fourth_numbers']) for t in res ], \
+                              [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, \
+                               0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1] )
+        
+        # Caveat: if we want to select only non-empty sparse layers (with keep_all_texts=False), 
+        # then the sampling returns less than expected: 
+        res = list(collection.select(layers=['even_numbers'], keep_all_texts=False).sample(5, seed=55, method='BERNOULLI', construction='JOIN'))
+        self.assertListEqual( [ t[0] for t in res ], [76] )
+        self.assertListEqual( [len(t[1]['even_numbers']) for t in res], [1] )
+        
+        # ... so we have to sample more than needed to get the needed amount:
+        res = list(collection.select(layers=['even_numbers'], keep_all_texts=False).sample(15, seed=55, method='BERNOULLI', construction='JOIN'))
+        self.assertListEqual( [ t[0] for t in res ], [16, 36, 50, 76, 80, 92, 94] )
+        self.assertListEqual( [len(t[1]['even_numbers']) for t in res], [1, 1, 1, 1, 1, 1, 1] )
+
+        collection.delete()
