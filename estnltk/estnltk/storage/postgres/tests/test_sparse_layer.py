@@ -174,7 +174,7 @@ class TestSparseLayerCreation(unittest.TestCase):
         self.assertEqual( _make_count_query( self.storage, collection_name, 
                                              odd_number_tagger.output_layer ), 
                           15 )
-        self.assertEqual( _make_index_query( self.storage, collection_name, 
+        self.assertListEqual( _make_index_query( self.storage, collection_name, 
                                              odd_number_tagger.output_layer,
                                              only_table_ids=True),
                           [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29] )
@@ -189,7 +189,7 @@ class TestSparseLayerCreation(unittest.TestCase):
         self.assertEqual( _make_count_query( self.storage, collection_name, 
                                              fourth_number_tagger.output_layer ), 
                           8 )
-        self.assertEqual( _make_index_query( self.storage, collection_name, 
+        self.assertListEqual( _make_index_query( self.storage, collection_name, 
                                              fourth_number_tagger.output_layer,
                                              only_table_ids=True),
                           [0, 4, 8, 12, 16, 20, 24, 28] )
@@ -419,10 +419,10 @@ class TestSparseLayerSelection(unittest.TestCase):
         # Check that all texts were seen
         self.assertEqual( all_texts_iterated, 30 )
         # Check that only even texts had an 'even_numbers' layer
-        self.assertEqual( text_ids_with_even_sparse_layers, \
+        self.assertListEqual( text_ids_with_even_sparse_layers, \
                           [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28] )
         # Check that only sixth texts had a 'sixth_numbers' layer
-        self.assertEqual( text_ids_with_sixth_sparse_layers, \
+        self.assertListEqual( text_ids_with_sixth_sparse_layers, \
                           [0, 6, 12, 18, 24] )
         
         # Add a sparse layer that depends on another sparse layer
@@ -453,8 +453,8 @@ class TestSparseLayerSelection(unittest.TestCase):
         # Check that all texts were seen
         self.assertEqual( all_texts_iterated, 30 )
         # Check that only fourth texts had an 'fourth_numbers' layer
-        self.assertEqual( text_ids_with_fourth_sparse_layers, \
-                          [0, 4, 8, 12, 16, 20, 24, 28] )
+        self.assertListEqual( text_ids_with_fourth_sparse_layers, \
+                              [0, 4, 8, 12, 16, 20, 24, 28] )
         
         collection.delete()
 
@@ -491,7 +491,7 @@ class TestSparseLayerSelection(unittest.TestCase):
             all_texts_iterated += 1
         # Check results
         self.assertEqual( all_texts_iterated, 30 )
-        self.assertEqual( collected_text_ids, \
+        self.assertListEqual( collected_text_ids, \
                           [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
                            16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29] )
         
@@ -508,7 +508,7 @@ class TestSparseLayerSelection(unittest.TestCase):
             all_texts_iterated += 1
         # Check results
         self.assertEqual( all_texts_iterated, 15 )
-        self.assertEqual( collected_text_ids, \
+        self.assertListEqual( collected_text_ids, \
                           [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28] )
 
         # Case 2: Select two sparse layers with inner join
@@ -527,7 +527,7 @@ class TestSparseLayerSelection(unittest.TestCase):
 
         # Check results
         self.assertEqual( all_texts_iterated, 5 )
-        self.assertEqual( collected_text_ids, [0, 6, 12, 18, 24] )
+        self.assertListEqual( collected_text_ids, [0, 6, 12, 18, 24] )
 
         # Case 3: Select head of two sparse layers with inner join
         all_texts_iterated = 0
@@ -545,7 +545,7 @@ class TestSparseLayerSelection(unittest.TestCase):
 
         # Check results
         self.assertEqual( all_texts_iterated, 3 )
-        self.assertEqual( collected_text_ids, [0, 6, 12] )
+        self.assertListEqual( collected_text_ids, [0, 6, 12] )
 
         # Case 4: Select tail of two sparse layers with inner join
         all_texts_iterated = 0
@@ -563,9 +563,58 @@ class TestSparseLayerSelection(unittest.TestCase):
 
         # Check results
         self.assertEqual( all_texts_iterated, 2 )
-        self.assertEqual( collected_text_ids, [18, 24] )
+        self.assertListEqual( collected_text_ids, [18, 24] )
 
         collection.delete()
+
+
+    def test_select_sparse_subcollection_layers(self):
+        # Test that PgSubCollectionLayer handles sparse layers properly
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertGreaterEqual(collection.version , '3.0')
+        
+        # Add regular (non-sparse) layers
+        with collection.insert() as collection_insert:
+            for i in range(30):
+                text = Text('See on tekst number {}'.format(i)).tag_layer('words')
+                text.meta['number'] = i
+                collection_insert( text )
+        # Add sparse layers
+        even_number_tagger = ModuleRemainderNumberTagger('even_numbers', 2, 0)
+        sixth_number_tagger = ModuleRemainderNumberTagger('sixth_numbers', 6, 0)
+        collection.create_layer( tagger=even_number_tagger, sparse=True )
+        collection.create_layer( tagger=sixth_number_tagger, sparse=True )
+        
+        # Default case: select a layer for every text, include empty layers
+        all_texts = 0
+        texts_with_nonempty_layers = []
+        for text_id, layer in collection.select(layers=['even_numbers']).\
+                                         detached_layer('even_numbers'):
+            if len(layer) > 0:
+                texts_with_nonempty_layers.append( text_id )
+            all_texts += 1
+        self.assertEqual( all_texts, 30 )
+        self.assertListEqual( texts_with_nonempty_layers, \
+            [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28] )
+
+        # Optimized case: select only filled sparse layers, skip empty ones
+        all_texts = 0
+        texts_with_nonempty_layers = []
+        for text_id, layer in collection.select(layers=['sixth_numbers'], \
+                                         keep_all_texts=False).\
+                                         detached_layer('sixth_numbers'):
+            self.assertEqual( len(layer), 1 )
+            texts_with_nonempty_layers.append( text_id )
+            all_texts += 1
+        self.assertEqual( all_texts, 5 )
+        self.assertListEqual( texts_with_nonempty_layers, \
+                              [0, 6, 12, 18, 24] )
+
+        collection.delete()
+        
 
 if __name__ == '__main__':
     unittest.main()

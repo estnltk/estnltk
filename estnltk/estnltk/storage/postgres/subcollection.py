@@ -1034,7 +1034,8 @@ class PgSubCollection:
                                        detached_layer=name,
                                        selection_criterion=self._selection_criterion,
                                        progressbar=self.progressbar,
-                                       return_index=self.return_index)
+                                       return_index=self.return_index,
+                                       skip_empty=not self._left_join_sparse_layers)
 
     def fragmented_layer(self, name):
         return pg.PgSubCollectionFragments(self.collection,

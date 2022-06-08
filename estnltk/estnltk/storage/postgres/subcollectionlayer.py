@@ -1,3 +1,5 @@
+import warnings
+
 from psycopg2.sql import SQL
 
 from estnltk import logger, Progressbar
@@ -28,7 +30,8 @@ class PgSubCollectionLayer:
     """
 
     def __init__(self, collection: pg.PgCollection, detached_layer: str = None,
-                 selection_criterion: pg.WhereClause = None, progressbar: str = None, return_index: bool = True):
+                 selection_criterion: pg.WhereClause = None, progressbar: str = None, return_index: bool = True,
+                 skip_empty: bool = False):
         """
         """
 
@@ -56,8 +59,13 @@ class PgSubCollectionLayer:
         assert structure[detached_layer]['layer_type'] == 'detached'
         assert structure[detached_layer]['parent'] is None
         assert structure[detached_layer]['enveloping'] is None
-        if collection.is_sparse( detached_layer ):
-            raise NotImplementedError('PgSubCollectionLayer not implemented for sparse layers')
+        # skip_empty -- whether empty sparse layers are skipped from the output;
+        # works only for sparse layers;
+        if skip_empty and not collection.is_sparse( detached_layer ):
+            warnings.warn( ('Setting skip_empty=True only affects sparse layers, '+\
+                            'but the input detached layer {!r} is not sparse. '+\
+                            '').format(detached_layer) )
+        self.skip_empty = skip_empty
 
     @property
     def sql_query(self):
@@ -80,30 +88,33 @@ class PgSubCollectionLayer:
 
         # Required layers are part of the main collection
         if not required_layers:
+            # TODO: why this branch? this cannot happen if we only allow detached layers
             if self._selection_criterion:
                 return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
                                                                 collection_identifier,
                                                                 self._selection_criterion)
             
             return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
-
-        # Build a join clauses to merge required detached layers by text_id
-        required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
-                                 for layer in required_layers]
-        join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
-                                                                                layer_table_identifier)
-                                           for layer_table_identifier in required_layer_tables)
-
-        required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
-        if self._selection_criterion:
-            return SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
-                                                                   required_tables,
-                                                                   join_condition,
-                                                                   self._selection_criterion)
-
-        return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                        required_tables,
-                                                        join_condition)
+        else:
+            # Detached layers
+            # Build a FROM clause with joins to required detached layers
+            from_clause = pg.FromClause(self.collection, [])
+            for layer in required_layers:
+                join_type = None
+                if self.skip_empty:
+                    # check whether we have a sparse layer
+                    if self.collection.is_sparse( layer ):
+                        # force using inner join
+                        join_type = ['INNER JOIN']
+                from_clause &= pg.FromClause(self.collection, [layer], join_type)
+            # Build SELECT query
+            if self._selection_criterion:
+                return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                                from_clause,
+                                                                self._selection_criterion)
+            else:
+                return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns),
+                                                       from_clause)
 
     @property
     def sql_query_text(self):
@@ -157,6 +168,8 @@ class PgSubCollectionLayer:
             logger.debug(c.query.decode())
             total = next(c)[0]
 
+        structure = self.collection.structure
+        
         with self.collection.storage.conn.cursor('read', withhold=True) as c:
             c.execute(self.sql_query)
             logger.debug(c.query.decode())
@@ -168,7 +181,18 @@ class PgSubCollectionLayer:
                 text_id = row[0]
                 data_iterator.set_description('text_id: {}'.format(text_id), refresh=False)
 
-                layer = dict_to_layer(row[1])
+                if row[1] is not None:
+                    layer = dict_to_layer( row[1] )
+                else:
+                    # In case of a sparse layer, None items can 
+                    # be retrieved from LEFT OUTER JOIN
+                    assert structure.version >= '3.0'
+                    assert self.detached_layer is not None
+                    assert structure[self.detached_layer]['sparse']
+                    # Fetch layer template from the structure
+                    layer_template = \
+                        structure[self.detached_layer]['layer_template_dict']
+                    layer = dict_to_layer(layer_template)
 
                 if return_index:
                     yield text_id, layer
