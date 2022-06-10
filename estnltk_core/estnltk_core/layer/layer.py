@@ -1,5 +1,4 @@
 import keyword
-import warnings
 from typing import Union, List, Sequence
 import pandas
 import collections

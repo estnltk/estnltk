@@ -3,7 +3,6 @@ from typing import Union, List, Sequence, Dict, Any, Optional
 import pandas
 import collections
 import warnings
-import pkgutil
 
 from copy import copy, deepcopy
 
