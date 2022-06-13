@@ -689,8 +689,9 @@ class PgCollection:
         row_mapper = row_mapper or default_row_mapper
 
         missing_layer = layer_name if mode == 'append' else None
-        data_iterator = data_iterator or self.select(layers=tagger.input_layers, progressbar=progressbar,
-                                                     query=MissingLayerQuery(missing_layer=missing_layer) if missing_layer is not None else None)
+        if data_iterator is None:
+            data_iterator = self.select(layers=tagger.input_layers, progressbar=progressbar,
+                                        query=MissingLayerQuery(missing_layer=missing_layer) if missing_layer is not None else None)
 
         logger.info('collection: {!r}'.format(self.name))
         if self._is_empty:
