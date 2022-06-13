@@ -204,4 +204,5 @@ class PgSubCollectionLayer:
                 'collection: {self.collection.name!r}, '
                 'detached_layer={self.detached_layer!r}, '
                 'progressbar={self.progressbar!r}, '
-                'return_index={self.return_index})').format(self=self)
+                'return_index={self.return_index}, '
+                'skip_empty={self.skip_empty})').format(self=self)

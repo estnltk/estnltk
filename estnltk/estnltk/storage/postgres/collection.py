@@ -865,16 +865,22 @@ class PgCollection:
 
         logger.info('{} layer {!r} created from template'.format(layer_type, layer_template.name))
 
-    def create_layer_block(self, tagger, block, meta=None, query_length_limit=5000000, mode=None):
+    def create_layer_block(self, tagger, block, data_iterator=None, meta=None, query_length_limit=5000000, mode=None):
         """Creates a layer block.
         
         Note: before the layer block can be created, the layer table must already exist.
         Use the method add_layer() to create an empty layer (table).
 
         :param tagger: Tagger
-            tagger to be applied on collection's texts
+            tagger to be applied on collection's texts.
+            Note: tagger's input_layers will be selected automatically, 
+            but the collection must have all the input layers. 
         :param block: Tuple[int, int]
             pair of integers `(module, remainder)`. Only texts with `id % module = remainder` are tagged.
+        :param data_iterator: iterator
+            Optional: iterator over Texts of this collection which generates tuples (`text_id`, `text`).
+            If not provided, then applies the block query over all texts of this collection. 
+            See method `PgCollection.select`.
         :param meta: dict of str -> str
             Specifies table column names and data types to create for storing additional
             meta information. E.g. meta={"sum": "int", "average": "float"}.
@@ -920,15 +926,45 @@ class PgCollection:
                            struct['parent'], struct['enveloping'])
         sparse = struct['sparse'] if 'sparse' in struct else False
 
+        if data_iterator is not None:
+            # Validate & extend input data_iterator
+            if not isinstance(data_iterator, pg.PgSubCollection):
+                raise TypeError( ('(!) Unexpected data_iterator type {!r}, '+
+                                   'expected PgSubCollection.').format( type(data_iterator) ) )
+            # Collection can only be self
+            if data_iterator.collection != self:
+                raise ValueError( "(!) wrong collection: data_iterator's collection should be "+\
+                                  "this collection." )
+            # Collect layers that should be added to selection
+            add_selected_layers = []
+            for required_layer in tagger.input_layers:
+                if required_layer not in data_iterator.selected_layers:
+                    if not self.has_layer( required_layer ):
+                        raise PgCollectionException(("Tagger's input layer {!r} is missing from " +\
+                                                     "this collection, cannot apply the tagger." +\
+                                                     "").format(required_layer))
+                    add_selected_layers.append( required_layer )
+            # Extend data_iterator by new constraints and layers
+            additional_constraint = pg.WhereClause(collection=self, query=pg.BlockQuery(*block))
+            if mode.lower() == 'append':
+                additional_constraint &= \
+                    pg.WhereClause( collection=self, 
+                                    query = MissingLayerQuery(missing_layer=tagger.output_layer))
+            data_iterator = data_iterator.select( \
+                additional_constraint=additional_constraint, 
+                selected_layers=data_iterator.selected_layers + add_selected_layers )
+        else:
+            # Use default data_iterator
+            block_query = pg.BlockQuery(*block)
+            if mode.lower() == 'append':
+                block_query &= MissingLayerQuery( missing_layer = tagger.output_layer )
+            data_iterator = self.select(query=block_query, layers=tagger.input_layers)
+        
         with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
                                               query_length_limit=query_length_limit,
                                               sparse=sparse) as buffered_inserter:
 
-            block_query = pg.BlockQuery(*block)
-            if mode.lower() == 'append':
-                # TODO: do we allow mode == 'append' in case of sparse layers?
-                block_query &= MissingLayerQuery( missing_layer = tagger.output_layer )
-            for collection_text_id, text in self.select(query=block_query, layers=tagger.input_layers):
+            for collection_text_id, text in data_iterator:
                 layer = tagger.make_layer(text=text, status=None)
                 # Check layer structure
                 layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous,

@@ -7,6 +7,8 @@ Schema/table creation and read/write rights are required.
 import random
 import unittest
 
+from psycopg2.errors import DuplicateSchema
+
 from estnltk_core import Layer
 from estnltk import Text
 from estnltk import logger
@@ -464,7 +466,13 @@ class TestFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_fragment"
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        create_schema(self.storage)
+        try:
+            create_schema(self.storage)
+        except DuplicateSchema as ds_error:
+            delete_schema(self.storage)
+            create_schema(self.storage)
+        except:
+            raise
 
     def tearDown(self):
         delete_schema(self.storage)
