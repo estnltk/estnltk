@@ -1,3 +1,5 @@
+import warnings
+
 from psycopg2.sql import DEFAULT
 
 from estnltk import logger
@@ -13,7 +15,8 @@ class CollectionDetachedLayerInserter(object):
     """
 
     def __init__(self, collection, layer_name, extra_columns=[], 
-                 buffer_size=10000, query_length_limit=5000000):
+                 buffer_size=10000, query_length_limit=5000000,
+                 sparse=False):
         """Initializes context manager for detached layer insertions.
         
         Parameters:
@@ -33,11 +36,17 @@ class CollectionDetachedLayerInserter(object):
             Soft approximate insert query length limit in unicode characters. 
             If the limit is met or exceeded, the insert buffer will be flushed.
             (Default: 5000000)
+        :param sparse: bool
+            Whether the layer table is created as a sparse tabel which means
+            that empty layers are not stored in the table.
+            Note: collection version >= 3.0 is required for sparse tables.
         """
         if collection is None or (isinstance(collection, pg.PgCollection) and not collection.exists()):
             raise pg.PgCollectionException("collection does not exist, can't create inserter")
         elif not isinstance(collection, pg.PgCollection):
             raise TypeError('collection must be an instance of PgCollection')
+        if sparse and collection.version < '3.0':
+            raise pg.PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(collection.version))
         self.collection = collection
         self.columns = ["id", "text_id", "data"]
         if extra_columns:
@@ -48,8 +57,10 @@ class CollectionDetachedLayerInserter(object):
         self.buffer_size = buffer_size
         self.query_length_limit = query_length_limit
         self.buffered_inserter = None
+        self.sparse_insert = sparse
         self.insert_counter = 0
-
+        self.sparse_insert_counter = 0
+        self.sparse_insert_extra_data_losses = 0
 
     def __enter__(self):
         """ Initializes the insertion buffer. """
@@ -67,7 +78,18 @@ class CollectionDetachedLayerInserter(object):
         """ Closes the insertion buffer. """
         if self.buffered_inserter is not None:
             self.buffered_inserter.close()
-            logger.info('inserted {} detached {!r} layers into the collection {!r}'.format(self.insert_counter, self.layer_name, self.collection.name))
+            if self.sparse_insert_counter > 0:
+                logger.info( ('inserted {} detached {!r} layers into the collection {!r}, '+\
+                              'skipped {} empty layers').format(self.insert_counter, self.layer_name,
+                                                                self.collection.name, self.sparse_insert_counter) )
+            else:
+                logger.info( 'inserted {} detached {!r} layers into the collection {!r}'.format(self.insert_counter,
+                                                                                                self.layer_name,
+                                                                                                self.collection.name) )
+            if self.sparse_insert_extra_data_losses > 0:
+                logger.warning( '{} skipped detached {!r} layers had metadata that was lost'.format( \
+                                    self.sparse_insert_extra_data_losses, 
+                                    self.layer_name ) )
 
 
     def insert(self, layer, text_id, key=None, extra_data=None):
@@ -82,6 +104,19 @@ class CollectionDetachedLayerInserter(object):
         assert isinstance(text_id, int), '(!) id of the Text object associated with the layer must be an integer.'
         assert key is None or key is DEFAULT or isinstance(key, int)
         assert extra_data is None or isinstance(extra_data, list)
+        if self.sparse_insert and len(layer) == 0:
+            # Sparse table: skip insertion of an empty layer
+            self.sparse_insert_counter += 1
+            # If extra metadata was provided, warn about the data loss
+            if extra_data is not None and len(extra_data) > 0:
+                # Display 5 warnings at maximum
+                if self.sparse_insert_extra_data_losses < 5:
+                    warnings.warn( ('Metadata items were lost during the sparse insertion '+\
+                                    'of layer {!r}. Do not use sparse layer if you want to '+\
+                                    'preserve metadata about an empty layer. Use non-sparse '+\
+                                    'layer instead.').format(layer.name) )
+                self.sparse_insert_extra_data_losses += 1
+            return
         # Prepare data
         layer_json = layer_to_json( layer )
         if key is None:

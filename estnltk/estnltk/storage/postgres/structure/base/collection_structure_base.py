@@ -40,7 +40,7 @@ class CollectionStructureBase:
     def create_table(self):
         raise NotImplementedError
 
-    def insert(self, layer, layer_type: str, meta: dict = None, loader: str = None):
+    def insert(self, layer, layer_type: str, meta: dict = None, loader: str = None, is_sparse: bool = False):
         raise NotImplementedError
 
     def delete_layer(self, layer_name: str):

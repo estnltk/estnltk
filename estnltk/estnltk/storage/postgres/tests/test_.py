@@ -7,6 +7,8 @@ Schema/table creation and read/write rights are required.
 import random
 import unittest
 
+from psycopg2.errors import DuplicateSchema
+
 from estnltk_core import Layer
 from estnltk import Text
 from estnltk import logger
@@ -23,6 +25,8 @@ from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres import layer_table_name
+from estnltk.storage.postgres import count_rows
 from estnltk.taggers import ParagraphTokenizer
 from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import VabamorfTagger
@@ -210,6 +214,38 @@ class TestPgCollection(unittest.TestCase):
         # result = collection[1, 'paragraphs']
         # assert isinstance(result, Layer)
         # assert result.name == 'paragraphs'
+
+    def test_collection_selected_layers_are_unique(self):
+        # Test that duplicates are removed from selected_layers
+        # (this is required for correct assembling of results)
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+
+        text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
+        text_2 = Text('Teine tekst')
+        text_1.tag_layer('sentences')
+        text_2.tag_layer('sentences')
+
+        with collection.insert() as collection_insert:
+            collection_insert(text_1, key=1)
+            collection_insert(text_2, key=2)
+            
+        tagger1 = VabamorfTagger(disambiguate=False)
+        collection.create_layer(tagger=tagger1)
+        tagger2 = ParagraphTokenizer()
+        collection.create_layer(tagger=tagger2)
+        # Test that a single selected layer cannot be duplicated
+        collection.selected_layers = \
+            ['words', 'words', 'words', 'words']
+        self.assertEqual( collection.selected_layers, ['words'] )
+        # Test that multiple selected layer cannot be duplicated
+        collection.selected_layers = \
+            ['morph_analysis', 'paragraphs', 'paragraphs', 'morph_analysis']
+        self.assertEqual( collection.selected_layers, \
+            ['words', 'morph_analysis', 'sentences', 'paragraphs'] )
+        
+        collection.delete()
 
     def test_create_and_drop_collection_table(self):
         collection_name = get_random_collection_name()
@@ -430,7 +466,13 @@ class TestFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_fragment"
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        create_schema(self.storage)
+        try:
+            create_schema(self.storage)
+        except DuplicateSchema as ds_error:
+            delete_schema(self.storage)
+            create_schema(self.storage)
+        except:
+            raise
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -589,6 +631,52 @@ class TestLayer(unittest.TestCase):
         self.assertTrue( layer_template_2.name in collection.layers )
         
         collection.create_layer(tagger=sent_tokenizer, mode='overwrite')
+        
+        collection.delete()
+
+    def test_create_layer_block(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+        
+        # Add some documents to the collection
+        with collection.insert() as collection_insert:
+            text1 = Text('see on esimene lause').tag_layer('words')
+            collection_insert(text1)
+            text2 = Text('see on teine lause').tag_layer('words')
+            collection_insert(text2)
+            text3 = Text('ja see paistab olevat kolmas').tag_layer('words')
+            collection_insert(text3)
+            text4 = Text('üks lause veel siia lõppu').tag_layer('words')
+            collection_insert(text4)
+            text5 = Text('ja veel üks').tag_layer('words')
+            collection_insert(text5)
+        
+        # Add layer from Tagger's layer template
+        sent_tokenizer = SentenceTokenizer()
+        layer_template = sent_tokenizer.get_layer_template()
+        collection.add_layer( layer_template )
+        
+        self.assertTrue( layer_table_exists(self.storage, collection.name, layer_template.name) )
+        self.assertTrue( layer_template.name in collection.layers )
+        initial_rows = count_rows( self.storage, 
+                                   table=layer_table_name(collection.name, layer_template.name) )
+        self.assertEqual( initial_rows, 0 )
+
+        # Tag the first block
+        collection.create_layer_block( sent_tokenizer, (2, 0) )
+        inserted_rows = count_rows( self.storage, 
+                                    table=layer_table_name(collection.name, layer_template.name))
+        self.assertEqual( inserted_rows, 3 )
+        # Tag the second block
+        collection.create_layer_block( sent_tokenizer, (2, 1) )
+        inserted_rows = count_rows( self.storage, 
+                                    table=layer_table_name(collection.name, layer_template.name) )
+        self.assertEqual( inserted_rows, 5 )
+        
+        for key, text in collection.select(layers=['sentences']):
+            self.assertTrue("sentences" in text.layers)
+            self.assertEqual( len(text['sentences']), 1 )
         
         collection.delete()
 

@@ -79,6 +79,7 @@ from .structure.base.collection_structure_base import CollectionStructureBase
 from .structure import v00
 from .structure import v10
 from .structure import v20
+from .structure import v30
 
 from .collection import RowMapperRecord
 from .collection import PgCollection
@@ -86,6 +87,7 @@ from .collection import PgCollectionException
 
 from .sql_composition.where_clause import WhereClause
 from .sql_composition.selected_columns import SelectedColumns
+from .sql_composition.from_clause import FromClause
 
 from .pgpass_parsing import parse_pgpass
 

@@ -1,4 +1,5 @@
 import unittest
+import pytest
 import random
 
 from estnltk import logger
@@ -8,6 +9,8 @@ from estnltk.storage.postgres import create_schema, delete_schema, count_rows
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
+
+from estnltk.storage.postgres.tests.test_sparse_layer import ModuleRemainderNumberTagger
 
 logger.setLevel('DEBUG')
 
@@ -197,4 +200,94 @@ class TestLayerNgramQuery(unittest.TestCase):
         self.assertEqual(res[0][1].meta['insert_id'], 2)
         
         collection.delete()
+
+
+    @pytest.mark.filterwarnings("ignore:Metadata items were lost during the sparse insertion")
+    def test_layer_ngram_query_on_sparse_layer(self):
+        # Test that LayerNgramQuery successfully works with sparse layers
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create()
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertGreaterEqual(collection.version , '3.0')
         
+        # Add regular (non-sparse) layers
+        with collection.insert() as collection_insert:
+            for i in range(30):
+                text = Text('Selle teksti number: {}, ülejärgmise number: {}'.format(i, i+2))
+                text.tag_layer('words')
+                text.meta['number'] = i
+                collection_insert( text )
+        
+        # Add sparse layers with n-gram indexes
+        even_number_tagger = ModuleRemainderNumberTagger('even_numbers', 2, 0, 
+                                                         force_str_values=True)
+        sixth_number_tagger = ModuleRemainderNumberTagger('sixth_numbers', 6, 0, 
+                                                          parent_layer='even_numbers',
+                                                          force_str_values=True)
+        collection.create_layer( tagger=even_number_tagger,   
+                                 sparse=True, 
+                                 ngram_index={'normalized': 2} )
+        collection.create_layer( tagger=sixth_number_tagger, 
+                                 sparse=True, 
+                                 ngram_index={'normalized': 2} )
+        # Make initial assertion about rows
+        self.assertEqual(
+            count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, 'even_numbers')), 15)
+        self.assertEqual(
+            count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, 'sixth_numbers')), 10)
+        
+        # Q1 : 'normalized': [("2", "4")]
+        res = list(collection.select( query = LayerNgramQuery( {'even_numbers': {'normalized': [("2", "4")]}} ) ) )
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0][0], 2)
+        self.assertEqual(res[0][1].text, 'Selle teksti number: 2, ülejärgmise number: 4')
+
+        # Q2 : 'normalized': [("8", "10")] | 'normalized': [("16", "18")]
+        res = list(collection.select( query = LayerNgramQuery( {'even_numbers': {'normalized': [("8", "10")]}} ) | 
+                                              LayerNgramQuery( {'even_numbers': {'normalized': [("16", "18")]}} ),
+                                      layers=['even_numbers']) )
+        self.assertEqual(len(res), 2)
+        self.assertEqual(res[0][1].text, 'Selle teksti number: 8, ülejärgmise number: 10')
+        self.assertEqual(res[1][1].text, 'Selle teksti number: 16, ülejärgmise number: 18')
+        self.assertTrue('even_numbers' in res[0][1].layers)
+        self.assertTrue('even_numbers' in res[1][1].layers)
+        self.assertEqual( len(res[0][1]['even_numbers']), 2 )
+        self.assertEqual( len(res[1][1]['even_numbers']), 2 )
+        
+        # Q3 : 'normalized': [("14", "16")] | 'normalized': [("18", "20")]
+        res = list(collection.select( query = LayerNgramQuery( {'even_numbers': {'normalized': [("14", "16")]}} ) | 
+                                              LayerNgramQuery( {'even_numbers': {'normalized': [("18", "20")]}} ),
+                                      layers=['sixth_numbers']) )
+        self.assertEqual(len(res), 2)
+        self.assertEqual(res[0][1].text, 'Selle teksti number: 14, ülejärgmise number: 16')
+        self.assertEqual(res[1][1].text, 'Selle teksti number: 18, ülejärgmise number: 20')
+        self.assertTrue('even_numbers' in res[0][1].layers)
+        self.assertTrue('even_numbers' in res[1][1].layers)
+        self.assertTrue('sixth_numbers' in res[0][1].layers)
+        self.assertTrue('sixth_numbers' in res[1][1].layers)
+        self.assertEqual( len(res[0][1]['sixth_numbers']), 0 )
+        self.assertEqual( len(res[1][1]['sixth_numbers']), 1 )
+
+        # Q4 : LayerNgramQuery: 'normalized': [("8", "10")] | 'normalized': [("22", "24")] | 
+        #      LayerQuery:       sixth_numbers.normalized=12 | sixth_numbers.normalized=18
+        res = list(collection.select( query = LayerNgramQuery( {'even_numbers': {'normalized': [("8", "10")]}} ) | 
+                                              LayerNgramQuery( {'even_numbers': {'normalized': [("22", "24")]}} ) |
+                                              LayerQuery(layer_name='sixth_numbers', normalized='12') |
+                                              LayerQuery(layer_name='sixth_numbers', normalized='18'),
+                                      layers=['sixth_numbers']) )
+        self.assertEqual(len(res), 6)
+        self.assertEqual(res[0][1].text, 'Selle teksti number: 8, ülejärgmise number: 10')  # LayerNgramQuery
+        self.assertEqual(res[1][1].text, 'Selle teksti number: 10, ülejärgmise number: 12') # LayerQuery
+        self.assertEqual(res[2][1].text, 'Selle teksti number: 12, ülejärgmise number: 14') # LayerQuery
+        self.assertEqual(res[3][1].text, 'Selle teksti number: 16, ülejärgmise number: 18') # LayerQuery
+        self.assertEqual(res[4][1].text, 'Selle teksti number: 18, ülejärgmise number: 20') # LayerQuery
+        self.assertEqual(res[5][1].text, 'Selle teksti number: 22, ülejärgmise number: 24') # LayerNgramQuery
+        self.assertEqual( len(res[0][1]['sixth_numbers']), 0 )
+        self.assertEqual( len(res[1][1]['sixth_numbers']), 1 )
+        self.assertEqual( len(res[2][1]['sixth_numbers']), 1 )
+        self.assertEqual( len(res[3][1]['sixth_numbers']), 1 )
+        self.assertEqual( len(res[4][1]['sixth_numbers']), 1 )
+        self.assertEqual( len(res[5][1]['sixth_numbers']), 1 )
+        
+        collection.delete()

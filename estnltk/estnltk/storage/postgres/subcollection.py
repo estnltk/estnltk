@@ -22,6 +22,7 @@ class PgSubCollection:
     - the selection criterion and skip_rows/limit_rows constraints
     - the set of selected layers
     - the set of meta attributes
+    - the sparsity of layers (if texts with empty sparse layers are dropped)
 
     The main usecase for the class is iteration over its elements.
     It is possible to iterate several times over the subcollection.
@@ -55,7 +56,7 @@ class PgSubCollection:
     def __init__(self, collection: pg.PgCollection, selection_criterion: pg.WhereClause = None,
                  selected_layers: Sequence[str] = None, meta_attributes: Sequence[str] = None,
                  progressbar: str = None, return_index: bool = True, itersize: int = 50,
-                 skip_rows: int = None, limit_rows: int = None ):
+                 skip_rows: int = None, limit_rows: int = None, keep_all_texts: bool = True ):
         """
         :param collection: PgCollection
         :param selection_criterion: WhereClause
@@ -76,6 +77,17 @@ class PgSubCollection:
         :param limit_rows: int
             the limit for the number of first rows to be fetched from the subcollection query (PostgreSQL's LIMIT clause).
             should be a positive integer or None (if the limiting constraint is not used).
+        :param keep_all_texts: bool
+            whether collection's text objects are returned even if they contain 
+            empty layers in selected / required sparse layers. 
+            by default, this option is switched on, and as a result, collection's text 
+            objects are retrieved even if their sparse layers are emtpy. 
+            (under the hood, this means using left outer join on all sparse layer tables). 
+            if switched off, then text objects that contain empty layers in sparse layer 
+            tables will be excluded from the results. this can speed up the query. 
+            (under the hood, this means using inner join for all layer tables, including 
+            sparse ones). 
+            this parameter affects both selected layers and selection_criterion layers. 
         """
 
         #TODO: Make sure that all objects used by the class are independent copies and cannot be 
@@ -119,6 +131,10 @@ class PgSubCollection:
         self._sample_from_layer_auto_seed   = None  # an automatically assigned seed (for repeatability with the progressbar)
         self._sample_from_layer_alpha       = None
         self._sample_from_layer_is_attached = None
+        # use left outer join for all required sparse layers
+        # if False, then inner join is used instead
+        self._left_join_sparse_layers = keep_all_texts
+        
 
 
     def __len__(self):
@@ -180,24 +196,25 @@ class PgSubCollection:
 
         # Required layers are part of the main collection
         if required_layers:
-            # Build a join clauses to merge required detached layers by text_id
-            required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
-                                     for layer in required_layers]
-            join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
-                                                                                    layer_table_identifier)
-                                               for layer_table_identifier in required_layer_tables)
-
-            required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
+            # Build a FROM clause with joins to required detached layers
+            from_clause = pg.FromClause(self.collection, [])
+            for layer in required_layers:
+                join_type = None
+                if not self._left_join_sparse_layers:
+                    # check whether we have a sparse layer
+                    if self.collection.is_sparse( layer ):
+                        # force using inner join
+                        join_type = ['INNER JOIN']
+                from_clause &= pg.FromClause(self.collection, [layer], join_type)
+            # Build SELECT query
             if self._selection_criterion:
-                query = SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
-                                                                        required_tables,
-                                                                        join_condition,
+                query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                                        from_clause,
                                                                         self._selection_criterion)
 
             else:
-                query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
-                                                                 required_tables,
-                                                                 join_condition)
+                query = SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns),
+                                                                 from_clause)
         else:
             if self._selection_criterion:
                 query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
@@ -479,7 +496,8 @@ class PgSubCollection:
                                progressbar=self.progressbar,
                                return_index=self.return_index,
                                limit_rows=self.limit_rows,
-                               skip_rows=self.skip_rows
+                               skip_rows=self.skip_rows,
+                               keep_all_texts=self._left_join_sparse_layers
                                )
 
     __read_cursor_counter = 0
@@ -977,7 +995,8 @@ class PgSubCollection:
                progressbar=self.progressbar,
                return_index=self.return_index,
                limit_rows=limit_rows,
-               skip_rows=self.skip_rows
+               skip_rows=self.skip_rows,
+               keep_all_texts=self._left_join_sparse_layers
         )
 
     def tail(self, n: int = 5) -> List[Text]:
@@ -999,11 +1018,141 @@ class PgSubCollection:
                    progressbar=self.progressbar,
                    return_index=self.return_index,
                    limit_rows=self.limit_rows,
-                   skip_rows=skip_rows
+                   skip_rows=skip_rows,
+                   keep_all_texts=self._left_join_sparse_layers
             )
         else:
             return self
 
+    def create_layer(self, tagger, create_index=False, ngram_index=None, meta=None, 
+                     progressbar=None, query_length_limit=5000000, mode=None):
+        """
+        Creates a sparse layer based on this subcollection.
+
+        :param tagger: Tagger
+            Tagger to be used for creating the layer. 
+            Note: tagger's input_layers will be selected automatically, 
+            but the collection must have all the input layers. 
+        :param create_index: bool
+            Whether to create an index on json column. 
+        :param ngram_index: list
+            A list of attributes for which to create an ngram index. 
+        :param meta: dict of str -> str
+            Specifies table column names and data types to create for storing 
+            additional meta information. E.g. meta={"sum": "int", "average": "float"}. 
+            See `pytype2dbtype` in `pg_operations` for supported types. 
+        :param progressbar: str
+            if 'notebook', display progressbar as a jupyter notebook widget
+            if 'unicode', use unicode (smooth blocks) to fill the progressbar
+            if 'ascii', use ASCII characters (1-9 #) to fill the progressbar
+            else disable progressbar (default)
+        :param query_length_limit: int
+            soft approximate query length limit in unicode characters, can be exceeded 
+            by the length of last buffer insert.
+        :param mode: str 
+            Specifies how layer creation should handle existing layers. 
+            Possible modes:
+            * None / 'new' - creates a new layer. If the layer already exists in the 
+                             collection, raises an exception. Default option.
+            * 'append'     - appends to an existing layer; annotates only those documents 
+                             that are missing the layer.
+                             raises an exception if the collection does not have the layer;
+        """
+        # Check collection's version
+        if self.collection.version < '3.0':
+            raise PgCollectionException( ("Creating sparse layer table is not supported in this "+\
+                                          "collection version ({!r}).").format(self.collection.version) )
+        # Check mode value
+        if mode is not None:
+            expected_mode_values = ['new', 'append']
+            if mode.lower() not in expected_mode_values:
+                raise ValueError('(!) Unexpected mode={!r}.'+\
+                                 'Supported mode values are {!r}.'.format(mode, expected_mode_values))
+            mode = mode.lower()
+        # Check existing structure, if needed
+        layer_name = tagger.output_layer
+        if mode is not None and mode == 'append':
+            # Check for the existing layer
+            if not self.collection.has_layer( layer_name ):
+                raise PgCollectionException(("Layer {!r} is missing from collection's structure, " + \
+                                             "cannot use mode='append'. Use mode='new' instead." + \
+                                             "").format(layer_name))
+            if not self.collection.is_sparse( layer_name ):
+                raise PgCollectionException(("Layer {!r} is not sparse. Only sparse layers can be tagged " + \
+                                             "via this method. Use collection.create_layer(...) to tag " + \
+                                             "a non-sparse layer.").format(layer_name))
+        # Prepare data_iterator
+        data_iterator=self
+        add_selected_layers = []
+        for required_layer in tagger.input_layers:
+            if required_layer not in self.selected_layers:
+                if not self.collection.has_layer( required_layer ):
+                    raise PgCollectionException(("Tagger's input layer {!r} is missing from " +\
+                                                 "this collection, cannot apply the tagger." +\
+                                                 "").format(required_layer))
+                add_selected_layers.append( required_layer )
+        if add_selected_layers:
+            # Extend data_iterator by new selected layers
+            data_iterator = data_iterator.select( 
+                selected_layers=data_iterator.selected_layers + add_selected_layers )
+        
+        # Use collection's create_layer method        
+        def default_row_mapper(row):
+            text_id, text = row[0], row[1]
+            status = {}
+            layer = tagger.make_layer(text=text, status=status)
+            return pg.RowMapperRecord(layer=layer, meta=status)
+        self.collection.create_layer(layer_name=tagger.output_layer, data_iterator=data_iterator, 
+                                     row_mapper=default_row_mapper, meta=meta, progressbar=progressbar, 
+                                     query_length_limit=query_length_limit, mode=mode, sparse=True)
+
+    def create_layer_block(self, tagger, block, meta=None, query_length_limit=5000000, mode=None):
+        """
+        Creates a layer block based on this subcollection. 
+        
+        Note 1: before the layer block can be created, the layer table must already exist. 
+        Use collection's method add_layer(..., sparse=True) to create an empty sparse layer 
+        (table).
+        
+        Note 2: only sparse layers can be tagged with this method.
+
+        :param tagger: Tagger
+            tagger to be applied on collection's texts.
+            Note: tagger's input_layers will be selected automatically, 
+            but the collection must have all the input layers. 
+        :param block: Tuple[int, int]
+            pair of integers `(module, remainder)`. Only texts with `id % module = remainder` 
+            are tagged.
+        :param meta: dict of str -> str
+            Specifies table column names and data types to create for storing additional
+            meta information. E.g. meta={"sum": "int", "average": "float"}.
+            See `pytype2dbtype` in `pg_operations` for supported types.
+        :param query_length_limit: int
+            soft approximate query length limit in unicode characters, can be exceeded by the 
+            length of last buffer insert
+        :param mode: str 
+            Specifies how layer creation should handle existing layers inside the block. 
+            Possible modes:
+            * None / 'new' - attempts to tag all texts inside the block 
+                             (creates a new block);
+            * 'append'     - finds untagged texts inside the block and only tags untagged texts;
+                             (continues a block which tagging has not been finished)
+        """
+        # Check for the existence and sparsity of the layer
+        layer_name = tagger.output_layer
+        if not self.collection.has_layer( layer_name ):
+            raise PgCollectionException(("Layer {!r} is missing from collection's structure. " + \
+                                         "Use collection.add_layer(..., sparse=True) to update " + \
+                                         "the structure before using this method. Note that you "+\
+                                         "can only tag a sparse layer with this method.").format(layer_name))
+        if not self.collection.is_sparse( layer_name ):
+            raise PgCollectionException(("Layer {!r} is not sparse. Only sparse layers can be created " + \
+                                         "via this method. Use collection.create_layer_block(...) to " + \
+                                         "create a non-sparse layer.").format(layer_name))
+        data_iterator=self
+        self.collection.create_layer_block( tagger=tagger, block=block, data_iterator=data_iterator,
+                                            meta=meta, query_length_limit=query_length_limit,
+                                            mode=mode )
 
     def select_all(self):
         self.selected_layers = self.layers
@@ -1014,7 +1163,8 @@ class PgSubCollection:
                                        detached_layer=name,
                                        selection_criterion=self._selection_criterion,
                                        progressbar=self.progressbar,
-                                       return_index=self.return_index)
+                                       return_index=self.return_index,
+                                       skip_empty=not self._left_join_sparse_layers)
 
     def fragmented_layer(self, name):
         return pg.PgSubCollectionFragments(self.collection,
@@ -1060,9 +1210,39 @@ class PgSubCollection:
 
         # Otherwise each layer can be serialised differently
         dict_to_layer = default_serialisation.dict_to_layer
-        for layer_element in chain(text_dict['layers'], layer_dicts):
-            layer_name = layer_element['name']
+        # First, we need to reorder selected layers in 
+        # the precise way they will be iterated
+        text_layer_names = \
+            [layer_dict['name'] for layer_dict in text_dict['layers']]
+        reordered_selected_layers = []
+        # 1) not all attached layers are selected: pick the selected ones
+        for layer_name in text_layer_names:
             if layer_name in selected_layers:
+                reordered_selected_layers.append( layer_name )
+        # 2) remaining layer names belong to detached (selected) layers
+        for layer_name in selected_layers:
+            if layer_name not in text_layer_names:
+                reordered_selected_layers.append( layer_name )
+        assert len(reordered_selected_layers) == len(selected_layers)
+        # While iterating results, keep track of the selected layers
+        # (sparse layers can have None values which need to
+        #  be replaced by layer templates)
+        layer_index = 0
+        cur_selected_layer = \
+            reordered_selected_layers[layer_index] if layer_index < len(reordered_selected_layers) else None
+        for layer_element in chain(text_dict['layers'], layer_dicts):
+            if layer_element is None:
+                # Handle sparse layers from LEFT JOIN query
+                assert structure is not None
+                assert structure.version >= '3.0'
+                layer_name = cur_selected_layer
+                assert layer_name is not None
+                assert structure[layer_name]['sparse']
+                # Fetch layer template from the structure
+                layer_element = structure[layer_name]['layer_template_dict']
+
+            layer_name = layer_element['name']
+            if layer_name in reordered_selected_layers:
                 serialisation_module = structure[layer_name]['serialisation_module']
 
                 # Use default serialisation if specification is missing
@@ -1072,7 +1252,10 @@ class PgSubCollection:
                     text.add_layer( SERIALISATION_REGISTRY[serialisation_module].dict_to_layer(layer_element, text) )
                 else:
                     raise ValueError(('serialisation module {!r} not registered in serialisation map: '.format(serialisation_module))+SERIALISATION_REGISTRY.keys())
-
+                layer_index += 1
+                # Take the next selected layer
+                cur_selected_layer = \
+                    reordered_selected_layers[layer_index] if layer_index < len(reordered_selected_layers) else None
         return text
 
     def _dict_to_layer(self, layer_dict: dict, text_object=None):

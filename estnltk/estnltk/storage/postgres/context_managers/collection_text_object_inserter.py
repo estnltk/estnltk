@@ -140,7 +140,7 @@ class CollectionTextObjectInserter(object):
                 # set attached layers of the collection
                 for layer in text.layers:
                     # TODO: meta = ???
-                    self.collection.structure.insert(layer=text[layer], layer_type='attached', meta={})
+                    self.collection.structure.insert(layer=text[layer], layer_type='attached', meta={}, is_sparse=False)
                 return
             self.collection.storage.conn.commit()
             self.collection.structure.load()

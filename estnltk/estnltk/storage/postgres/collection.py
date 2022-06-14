@@ -6,7 +6,6 @@ from contextlib import contextmanager
 from typing import Sequence, Dict
 
 import pandas
-import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
@@ -15,6 +14,7 @@ from estnltk_core import Layer
 from estnltk.converters import dict_to_layer
 from estnltk.converters import dict_to_text
 from estnltk.converters import layer_to_dict
+from estnltk.converters import layer_to_json
 from estnltk_core.layer_operations import create_ngram_fingerprint_index
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import BufferedTableInsert
@@ -62,8 +62,10 @@ class PgCollection:
             self._structure = pg.v10.CollectionStructure(self)
         elif version == '2.0':
             self._structure = pg.v20.CollectionStructure(self)
+        elif version == '3.0':
+            self._structure = pg.v30.CollectionStructure(self)
         else:
-            raise ValueError("version must be '0.0', '1.0' or '2.0'")
+            raise ValueError("version must be '0.0', '1.0', '2.0' or '3.0'")
         self.version = version
 
         self.column_names = ['id', 'data'] + list(self.meta)
@@ -346,16 +348,41 @@ class PgCollection:
                collection_meta: Sequence[str] = None,
                progressbar: str = None,
                return_index: bool = True,
-               itersize: int= 10):
+               itersize: int= 10,
+               keep_all_texts: bool = True):
         """
-
+        Creates a query / selection over text objects of the collection. 
+        
         :param query:
+            query objects specifying selection criteria. 
+            this can be a composition of multiple query objects, joined by 
+            "|" and "&" operators.
         :param layers:
+            names of selected layers that will be attached to returned text objects. 
+            dependencies are included automatically
         :param collection_meta:
+            names of collection's meta attributes that will be yielded with every 
+            text object.
         :param progressbar:
-        :param return_index:
+            progressbar for iteration. no progressbar by default.
+            possible values: None, 'ascii', 'unicode' or 'notebook'
+        :param return_index: bool
+            whether collection id-s will be yielded with text objects.
+            default: True
+        :param itersize: int
+            the number of simultaneously yielded elements
+        :param keep_all_texts: bool
+            whether collection's text objects are yielded even if they contain 
+            empty layers in quieried sparse layers. 
+            by default, this option is switched on, and as a result, collection's text 
+            objects are retrieved even if their sparse layers are emtpy. 
+            if switched off, then text objects that contain empty layers in any of the 
+            quieried sparse layer tables will be excluded from the results. 
+            this can speed up the query. 
+            this parameter affects both selected layers and layers specified in query.  
         :return: PgSubCollection
-
+            a read-only subset of this collection, which can be iterated and further 
+            sub-selected
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
@@ -366,7 +393,8 @@ class PgCollection:
                                   meta_attributes=collection_meta,
                                   progressbar=progressbar,
                                   return_index=return_index,
-                                  itersize=itersize
+                                  itersize=itersize,
+                                  keep_all_texts=keep_all_texts
                                   )
 
     def __len__(self):
@@ -393,16 +421,16 @@ class PgCollection:
                                               collection_meta=(), include_layer_ids=False)
         if selected_detached_layers:
             # Query includes detached_layers
-            required_layer_tables = [pg.layer_table_identifier(self.storage, self.name, layer)
-                                     for layer in sorted(set(selected_detached_layers)) ]
-            join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
-                                                                                    layer_table_identifier)
-                                               for layer_table_identifier in required_layer_tables)
-            required_tables = SQL(', ').join((collection_identifier, *required_layer_tables))
-            query = SQL("SELECT {} FROM {} WHERE {} AND {}").format(SQL(', ').join(selected_columns),
-                                                                    required_tables,
-                                                                    join_condition,
-                                                                    select_by_key_sql)
+            # Build a FROM clause with joins to required detached layers
+            from_clause = pg.FromClause(self, [])
+            for layer in selected_detached_layers:
+                # Note: the join_type is determined automatically based on sparsity of the layer:
+                # * LEFT JOIN for sparse layer tables
+                # * INNER JOIN for non-sparse layer tables
+                from_clause &= pg.FromClause( self, [layer] )
+            query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
+                                                                       from_clause,
+                                                                       select_by_key_sql)
         else:
             # No detached_layers
             query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
@@ -559,7 +587,8 @@ class PgCollection:
 
                 structure_written = False
                 with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
-                                                      query_length_limit=query_length_limit ) as buffered_inserter:
+                                                      query_length_limit=query_length_limit,
+                                                      sparse=False) as buffered_inserter:
 
                     for row in self.select(layers=tagger.input_layers, progressbar=progressbar):
                         text_id, text = row[0], row[1]
@@ -572,7 +601,7 @@ class PgCollection:
                             buffered_inserter.insert(layer, text_id, key=DEFAULT, extra_data=extra_data)
                             
                             if not structure_written:
-                                self._structure.insert(layer=layer, layer_type='fragmented', meta=meta)
+                                self._structure.insert(layer=layer, layer_type='fragmented', meta=meta, is_sparse=False)
                                 structure_written = True
             except Exception:
                 conn.rollback()
@@ -586,7 +615,7 @@ class PgCollection:
 
     def create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
                      create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,
-                     query_length_limit=5000000, mode=None):
+                     query_length_limit=5000000, mode=None, sparse=False):
         """
         Creates layer
 
@@ -629,10 +658,17 @@ class PgCollection:
                 * 'overwrite'  - deletes the old layer and creates a new layer in its place; 
                                  if the collection does not have the layer, then adds the new layer to the collection,
                                  and fills with data;
+            sparse: bool
+                Whether the layer table is created as a sparse tabel which means that empty layers are not stored in
+                the table. The layer search and iteration process is faster on sparse tables.
+                Note that collection version 3.0 is required for sparse tables.
         """
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer".format(
                 self.name))
+
+        if sparse and self.version < '3.0':
+            raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
 
         assert (layer_name is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
                'either tagger ({}) must be None or layer_name ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_name, data_iterator, row_mapper)
@@ -653,8 +689,9 @@ class PgCollection:
         row_mapper = row_mapper or default_row_mapper
 
         missing_layer = layer_name if mode == 'append' else None
-        data_iterator = data_iterator or self.select(layers=tagger.input_layers, progressbar=progressbar,
-                                                     query=MissingLayerQuery(missing_layer=missing_layer) if missing_layer is not None else None)
+        if data_iterator is None:
+            data_iterator = self.select(layers=tagger.input_layers, progressbar=progressbar,
+                                        query=MissingLayerQuery(missing_layer=missing_layer) if missing_layer is not None else None)
 
         logger.info('collection: {!r}'.format(self.name))
         if self._is_empty:
@@ -710,7 +747,8 @@ class PgCollection:
                 logger.info('inserting data into the {!r} layer table'.format(layer_name))
                 
                 with CollectionDetachedLayerInserter( self, layer_name, extra_columns=extra_columns, 
-                                                      query_length_limit=query_length_limit ) as buffered_inserter:
+                                                      query_length_limit=query_length_limit,
+                                                      sparse=sparse ) as buffered_inserter:
 
                     for row in data_iterator:
                         collection_text_id, text = row[0], row[1]
@@ -731,7 +769,7 @@ class PgCollection:
                         buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
 
                         if not structure_written:
-                            self._structure.insert(layer=layer, layer_type='detached', meta=meta)
+                            self._structure.insert(layer=layer, layer_type='detached', meta=meta, is_sparse=sparse)
                             structure_written = True
             except Exception:
                 conn.rollback()
@@ -747,7 +785,8 @@ class PgCollection:
                         fragmented_layer: bool = False,
                         meta: Dict[str, str] = None,
                         create_index: bool = False,
-                        ngram_index=None) -> None:
+                        ngram_index=None,
+                        sparse: bool = False) -> None:
         """
         Adds detached or fragmented layer to the collection. You can use this 
         method to add an empty layer to the collection that will be filled with
@@ -775,6 +814,12 @@ class PgCollection:
                 Whether to create an index on json column (default: False)
             ngram_index: list
                 A list of attributes for which to create an ngram index (default: None)
+                :param sparse:
+            sparse: bool
+                Whether the layer table is created as a sparse tabel which means
+                that empty layers are not stored in the table.
+                The layer search and iteration process is faster on sparse tables.
+                Note that collection version 3.0 is required for sparse tables.
         """
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't add layer".format(self.name))
@@ -787,6 +832,9 @@ class PgCollection:
 
         if self._is_empty:
             raise PgCollectionException("can't add layer {!r}, the collection is empty".format(layer_template.name))
+
+        if sparse and self.version < '3.0':
+            raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
 
         layer_table = layer_table_name(self.name, layer_template.name)
         if table_exists(self.storage, layer_table):
@@ -806,7 +854,7 @@ class PgCollection:
                     overwrite=False,
                     meta=meta)
 
-                self._structure.insert(layer=layer_template, layer_type=layer_type, meta=meta)
+                self._structure.insert(layer=layer_template, layer_type=layer_type, meta=meta, is_sparse=sparse)
 
             except Exception:
                 conn.rollback()
@@ -818,23 +866,29 @@ class PgCollection:
 
         logger.info('{} layer {!r} created from template'.format(layer_type, layer_template.name))
 
-    def create_layer_block(self, tagger, block, meta=None, query_length_limit=5000000, mode=None):
+    def create_layer_block(self, tagger, block, data_iterator=None, meta=None, query_length_limit=5000000, mode=None):
         """Creates a layer block.
         
         Note: before the layer block can be created, the layer table must already exist.
-        You can use the method add_layer() to create an empty layer (table).
+        Use the method add_layer() to create an empty layer (table).
 
         :param tagger: Tagger
-            tagger to be applied on collection's texts
+            tagger to be applied on collection's texts.
+            Note: tagger's input_layers will be selected automatically, 
+            but the collection must have all the input layers. 
         :param block: Tuple[int, int]
             pair of integers `(module, remainder)`. Only texts with `id % module = remainder` are tagged.
+        :param data_iterator: iterator
+            Optional: iterator over Texts of this collection which generates tuples (`text_id`, `text`).
+            If not provided, then applies the block query over all texts of this collection. 
+            See method `PgCollection.select`.
         :param meta: dict of str -> str
             Specifies table column names and data types to create for storing additional
             meta information. E.g. meta={"sum": "int", "average": "float"}.
             See `pytype2dbtype` in `pg_operations` for supported types.
         :param query_length_limit: int
-            soft approximate query length limit in unicode characters, can be exceeded by the length of last buffer
-            insert
+            soft approximate query length limit in unicode characters, can be exceeded by the length of 
+            last buffer insert
         :param mode: str 
             Specifies how layer creation should handle existing layers inside the block. 
             Possible modes:
@@ -856,30 +910,71 @@ class PgCollection:
 
         logger.info('inserting data into the {!r} layer table block {}'.format(layer_name, block))
 
-        with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
-                                              query_length_limit=query_length_limit ) as buffered_inserter:
+        # Attempt to load the structure
+        if layer_name not in self._structure:
+            self._structure.load()
+        if layer_name not in self._structure:
+            # Note: at this point, the structure should already exist
+            # ( created by add_layer(...) function )
+            raise PgCollectionException(("Layer {!r} is missing from collection's structure. " + \
+                                         "Use collection.add_layer(...) to update the structure " + \
+                                         "before using this method.").format(layer_name))
+        struct = self._structure[layer_name]
+        if struct['layer_type'] != 'detached':
+            raise PgCollectionException(("Wrong layer type: {!r}. This method can only be applied " + \
+                                         "on 'detached' layers.").format(struct['layer_type']))
+        layer_structure = (layer_name, struct['attributes'], struct['ambiguous'],
+                           struct['parent'], struct['enveloping'])
+        sparse = struct['sparse'] if 'sparse' in struct else False
 
-            layer_structure = None
+        if data_iterator is not None:
+            # Validate & extend input data_iterator
+            if not isinstance(data_iterator, pg.PgSubCollection):
+                raise TypeError( ('(!) Unexpected data_iterator type {!r}, '+
+                                   'expected PgSubCollection.').format( type(data_iterator) ) )
+            # Collection can only be self
+            if data_iterator.collection != self:
+                raise ValueError( "(!) wrong collection: data_iterator's collection should be "+\
+                                  "this collection." )
+            # Collect layers that should be added to selection
+            add_selected_layers = []
+            for required_layer in tagger.input_layers:
+                if required_layer not in data_iterator.selected_layers:
+                    if not self.has_layer( required_layer ):
+                        raise PgCollectionException(("Tagger's input layer {!r} is missing from " +\
+                                                     "this collection, cannot apply the tagger." +\
+                                                     "").format(required_layer))
+                    add_selected_layers.append( required_layer )
+            # Extend data_iterator by new constraints and layers
+            additional_constraint = pg.WhereClause(collection=self, query=pg.BlockQuery(*block))
+            if mode.lower() == 'append':
+                additional_constraint &= \
+                    pg.WhereClause( collection=self, 
+                                    query = MissingLayerQuery(missing_layer=tagger.output_layer))
+            data_iterator = data_iterator.select( \
+                additional_constraint=additional_constraint, 
+                selected_layers=data_iterator.selected_layers + add_selected_layers )
+        else:
+            # Use default data_iterator
             block_query = pg.BlockQuery(*block)
             if mode.lower() == 'append':
                 block_query &= MissingLayerQuery( missing_layer = tagger.output_layer )
-            for collection_text_id, text in self.select(query=block_query, layers=tagger.input_layers):
+            data_iterator = self.select(query=block_query, layers=tagger.input_layers)
+        
+        with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
+                                              query_length_limit=query_length_limit,
+                                              sparse=sparse) as buffered_inserter:
+
+            for collection_text_id, text in data_iterator:
                 layer = tagger.make_layer(text=text, status=None)
-
-                if layer_structure is None:
-                    if layer_name not in self._structure:
-                        self._structure.load()
-                    if layer_name not in self._structure:
-                        try:
-                            self._structure.insert(layer, layer_type='detached', meta=meta)
-                        except psycopg2.IntegrityError:
-                            pass
-                        self._structure.load()
-                    struct = self._structure[layer_name]
-                    layer_structure = (layer_name, struct['attributes'], struct['ambiguous'], struct['parent'],
-                                       struct['enveloping'])
-
-                assert layer_structure == (layer.name, layer.attributes, layer.ambiguous, layer.parent, layer.enveloping)
+                # Check layer structure
+                layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous,
+                                               layer.parent, layer.enveloping)
+                if layer_structure != layer_structure_from_tagger:
+                    raise ValueError( ('(!) Mismatching layer structures: '+
+                                       'structure in database: {!r} and '+
+                                       'structure created by tagger: {!r}').format(layer_structure,
+                                                                                   layer_structure_from_tagger) )
 
                 extra_values = []
                 if meta_columns:
@@ -1035,6 +1130,13 @@ class PgCollection:
             raise PgCollectionException("collection {!r} does not exist".format( self.name ))
         return fragment_name in self.get_fragment_names()
 
+    def is_sparse(self, layer_name):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+        if not self.has_layer(layer_name):
+            raise ValueError('collection does not have layer {!r}'.format(layer_name))
+        return self._structure[layer_name]['sparse'] if 'sparse' in self._structure[layer_name] else False
+
     def get_fragment_names(self):
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist".format( self.name ))
@@ -1071,6 +1173,19 @@ class PgCollection:
                 layer_table_identifier(self.storage, self.name, layer_name)))
             data = c.fetchall()
             return pandas.DataFrame(data=data, columns=columns)
+
+    def get_sparse_layer_template(self, layer_name, as_json=True):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+
+        if not self.is_sparse(layer_name):
+            raise ValueError('layer {!r} is not sparse'.format(layer_name))
+
+        layer_template_dict = self._structure[layer_name]['layer_template_dict']
+        layer_template = dict_to_layer(layer_template_dict) if layer_template_dict is not None else None
+        if as_json:
+            layer_template_json = layer_to_json(layer_template) if layer_template is not None else None
+        return layer_template_json if as_json else layer_template
 
     def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None, mode='NEW'):
         """
@@ -1185,7 +1300,7 @@ class PgCollection:
                 logger.debug(c.query)
                 self.storage.conn.commit()
 
-        texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta)
+        texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta, keep_all_texts=False)
         i = 0
         initial_rows = 0
         if mode == 'APPEND':
@@ -1216,13 +1331,16 @@ class PgCollection:
                     'check if the collection name is correct.'
                    ).format(self=self)
         
+        if self.version < '3.0':
+            structure_columns = ['layer_type', 'attributes', 'ambiguous', 'parent', 'enveloping', 'meta']
+        else:
+            structure_columns = ['layer_type', 'attributes', 'ambiguous', 'sparse', 'parent', 'enveloping', 'meta']
         if self._is_empty:
             structure_html = '<br/>unknown'
         else:
             structure_html = pandas.DataFrame.from_dict(self._structure.structure,
                                                         orient='index',
-                                                        columns=['layer_type', 'attributes', 'ambiguous', 'parent',
-                                                                 'enveloping', 'meta']
+                                                        columns=structure_columns
                                                         ).to_html()
         column_meta = self._collection_table_meta()
         meta_html = ''

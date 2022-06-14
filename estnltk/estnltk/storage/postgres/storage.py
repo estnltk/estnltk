@@ -93,7 +93,7 @@ class PostgresStorage:
                 return collection
             return collection
 
-        collection = PgCollection(name, self, version='2.0')
+        collection = PgCollection(name, self, version='3.0')
         self._collections[name] = collection
         return collection
 
