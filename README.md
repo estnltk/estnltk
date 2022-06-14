@@ -12,7 +12,7 @@ As of version 1.7, the EstNLTK library is split into 3 Python packages:
 * `estnltk` -- the standard package, which contains basic linguistic analysis (including Vabamorf's morphological analysis, syntactic parsing and information extraction tools), system taggers and Postgres database tools;
 * `estnltk_neural` -- package containing additional linguistic analysis based on neural models (Bert embeddings tagger, Stanza syntax taggers and neural morphological tagger);
 
-Source code of packages is available at the [EstNLTK's monorepository](https://github.com/estnltk/estnltk/tree/devel_1.6_split).  
+Source code of packages is available at the [EstNLTK's monorepository](https://github.com/estnltk/estnltk/tree/main).  
 
 ## `estnltk`
 
@@ -56,8 +56,8 @@ You can install EstNLTK on [Google Colab](https://colab.research.google.com) env
 
 EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org). However, updating tutorials is work-in-progress. Most of the tutorials of version 1.6 should also work for version 1.7, although imports may need fixing:
 
-  * [Basics of EstNLTK 1.6 / 1.7](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials/basics_of_estnltk.ipynb) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials/basics_of_estnltk.ipynb))
-  * [Tutorials root folder](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials)) 
+  * [Basics of EstNLTK 1.6 / 1.7](https://github.com/estnltk/estnltk/blob/devel_1.6_split/tutorials/basics_of_estnltk.ipynb) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/devel_1.6_split/tutorials/basics_of_estnltk.ipynb))
+  * [Tutorials root folder](https://github.com/estnltk/estnltk/blob/devel_1.6_split/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/devel_1.6_split/tutorials)) 
   
 Additional educational materials on EstNLTK are available on web pages of an NLP course taught at the University of Tartu:
 
@@ -71,7 +71,7 @@ Note: if you have trouble viewing jupyter notebooks in github (you get an error 
 The development source of the package can be found at branch [devel\_1.6\_split/estnltk](https://github.com/estnltk/estnltk/tree/devel_1.6_split/estnltk).
 The main repository is https://github.com/estnltk/estnltk
 
-Development [changelog.](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk/CHANGELOG.md)
+Development [changelog.](https://github.com/estnltk/estnltk/blob/devel_1.6_split/CHANGELOG.md)
 
 ## `estnltk_neural`
 
