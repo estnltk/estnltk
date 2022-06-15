@@ -1,6 +1,6 @@
 NLP pipeline
 ============
 
-For brief introduction for users read tutorials with prefix A.
+For a brief introduction to linguistic analysis, read tutorials with prefix A.
 
-Find details for developers in tutorials with prefix B.
+Find details about specific taggers in tutorials with prefix B.
