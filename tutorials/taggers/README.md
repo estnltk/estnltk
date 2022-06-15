@@ -15,9 +15,7 @@ Tagger is a generic class that creates a layer and attaches it to the text objec
 
 ⚙️ Application taggers:
 
-* [HfstClMorphAnalyser](hfst/) provides alternative morphological analysis via HFST tools.
+* [Web taggers](web_taggers/) introduces EstNLTK's taggers that are available (or can be made available) as web services.
 
-⚙️ [Web taggers](web_taggers/) introduces EstNLTK's taggers that are available (or can be made available) as web services.
-
-⚙️ [miscellaneous taggers](miscellaneous/) include tagging simple adjective phrases or detecting measurements and dates from medical texts.
+* [miscellaneous taggers](miscellaneous/) include tagging simple adjective phrases or detecting measurements and dates from medical texts.
 
