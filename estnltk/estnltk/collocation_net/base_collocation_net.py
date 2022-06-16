@@ -6,7 +6,7 @@ import numpy as np
 from typing import List
 import matplotlib.pyplot as plt
 from collections import defaultdict
-
+from estnltk import download, get_resource_paths
 
 class BaseCollocationNet:
     """
@@ -16,7 +16,8 @@ class BaseCollocationNet:
 
     def __init__(self, collocation_type: str = 'noun_adjective', base_path: str = None, examples_file: str = None):
         if base_path is None:
-            base_path = os.path.dirname(os.path.abspath(__file__))
+            download("collocation_net")
+            base_path = get_resource_paths("collocation_net")[0]
         if examples_file is None:
             examples_file = collocation_type
         self.examples_path = f"{base_path}/examples/{examples_file}.db"
