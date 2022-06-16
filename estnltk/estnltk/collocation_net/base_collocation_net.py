@@ -16,8 +16,7 @@ class BaseCollocationNet:
 
     def __init__(self, collocation_type: str = 'noun_adjective', base_path: str = None, examples_file: str = None):
         if base_path is None:
-            download("collocation_net")
-            base_path = get_resource_paths("collocation_net")[0]
+            base_path = get_resource_paths("collocation_net", only_latest=True, download_missing=True)
         if examples_file is None:
             examples_file = collocation_type
         self.examples_path = f"{base_path}/examples/{examples_file}.db"

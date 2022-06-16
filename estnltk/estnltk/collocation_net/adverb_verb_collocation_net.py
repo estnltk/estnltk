@@ -1,4 +1,4 @@
-from base_collocation_net import BaseCollocationNet
+from estnltk.collocation_net.base_collocation_net import BaseCollocationNet
 
 
 class AdverbVerbCollocationNet(BaseCollocationNet):
