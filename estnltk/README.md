@@ -11,7 +11,8 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 * `Text` class with the Estonian NLP pipeline;
 * tokenization tools: word, sentence and paragraph tokenization; clause segmentation; 
 * morphology tools: morphological analysis and disambiguation, spelling correction, morphological synthesis and syllabification, HFST based analyser and GT converter;
-* information extraction tools: named entity recognizer, temporal expression tagger, verb chain detector, address tagger, adjective phrase tagger, phrase tagger and grammar based fact extraction;
+* information extraction tools: addresses tagger, named entity recognizer, temporal expression tagger; tools for rule based and grammar based fact extraction;
+* experimental taggers: verb chain detector, noun phrase chunker, adjective phrase tagger;
 * syntactic analysis tools: preprocessing for syntactic analysis, VislCG3 and Maltparser based syntactic parsers;
 * Estonian Wordnet;
 * web taggers -- such as bert embeddings web tagger, stanza syntax web tagger and stanza ensemble syntax web tagger;
@@ -24,11 +25,11 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.7 to 3.9. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.7 to 3.10. 
 You can install the latest version via PyPI:
 
 ```
-pip install estnltk==1.7.0rc0
+pip install estnltk==1.7.0
 ```
 
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
@@ -45,7 +46,7 @@ conda activate py38
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.7.0rc0
+conda install -c estnltk -c conda-forge estnltk=1.7.0
 ```
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
@@ -55,29 +56,27 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.7.0rc0
+!pip install estnltk==1.7.0
 ```
 
 ### Documentation
 
-EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org). However, updating tutorials is work-in-progress. Most of the tutorials of version 1.6 should also work for version 1.7, although imports may need fixing:
+EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org). However, updating tutorials is currently work-in-progress.
 
-  * [Basics of EstNLTK 1.6 / 1.7](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials/basics_of_estnltk.ipynb) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials/basics_of_estnltk.ipynb))
-  * [Tutorials root folder](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/devel_1.6_split/estnltk/tutorials)) 
+  * [Starting point of tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials/README.md) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/tree/main/tutorials/README.md))
+  * [Tutorials root folder](https://github.com/estnltk/estnltk/tree/main/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/tree/main/tutorials/)) 
   
 Additional educational materials on EstNLTK are available on web pages of an NLP course taught at the University of Tartu:
 
   * [https://github.com/d009/EstNLP](https://github.com/d009/EstNLP) (in Estonian)  
 
-
 Note: if you have trouble viewing jupyter notebooks in github (you get an error message _Sorry, something went wrong. Reload?_ at loading a notebook), then try to open notebooks with the help of [https://nbviewer.jupyter.org](https://nbviewer.jupyter.org)
 
 ### Source
 
-The source of the package development can be found at branch [devel\_1.6\_split](https://github.com/estnltk/estnltk/tree/devel_1.6_split/estnltk).
-The main repository is https://github.com/estnltk/estnltk
+The source of the last release is available at the [main branch](https://github.com/estnltk/estnltk/tree/main/estnltk).
 
-Development [changelog.](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk/CHANGELOG.md)
+Changelog is available [here](https://github.com/estnltk/estnltk/blob/main/CHANGELOG.md).
 
 ## Citation
 
@@ -111,3 +110,9 @@ If you use EstNLTK v1.4.1 (or older), please cite:
     isbn = {978-2-9517408-9-1},
     language = {english}
     }
+
+---
+
+License: GNU General Public License v2.0
+
+(C) University of Tartu  
