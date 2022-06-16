@@ -2,7 +2,7 @@
 
 ---
 
-Updating and reorganizing tutorials is currently work-in-progress. There can be broken or misleading links in tutorials, and some cross-references may be incorrect. Some of the tutorials may be relocated in future releases. We hope to finish the updating as soon as possible. 
+Updating and reorganizing tutorials is currently work-in-progress. There can be broken or misleading links in tutorials, and some cross-references may be incorrect. Some of the tutorials may be reorganized and relocated. We hope to finish the updating as soon as possible. 
 
 ---
 
@@ -16,7 +16,7 @@ Updating and reorganizing tutorials is currently work-in-progress. There can be 
 
 * NLP components:
     
-    * [text_segmentation](nlp_pipeline/A_text_segmentation) -- spliting text into tokens, words, sentences, paragraphs and clauses;
+    * [text_segmentation](nlp_pipeline/A_text_segmentation) -- taggers for splitting text into tokens, words, sentences, paragraphs and clauses;
     
     * [morphological processing](nlp_pipeline/B_morphology) -- morphological analysis, disambiguation and synthesis; spelling correction and syllabification;
 
