@@ -14,6 +14,6 @@ While many of the components are part of the default pipeline (callable via _def
 
 * [D_information_extraction](D_information_extraction/) tutorials describe how to extract addresses, named entities and temporal expressions from texts.
 
-* [E_miscellaneous](E_miscellaneous/) tutorials describe experimental language analysers, such as verb chain detector and noun phrase chunker.
+* [E_miscellaneous](E_miscellaneous/) and experimental language analysers: verb chain detector, noun phrase chunker, date and number taggers for medical texts,  adjective phrase tagger and Flesch reading ease score tagger.
 
 
