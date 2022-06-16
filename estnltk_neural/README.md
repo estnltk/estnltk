@@ -14,31 +14,32 @@ The EstNLTK project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](
 EstNLTK-neural is available as a PyPI wheel:  
 
 ```
-pip install estnltk_neural==1.7.0rc0
+pip install estnltk_neural==1.7.0
 ```
 
 And as an Anaconda package:
 
 ```
-conda install -c estnltk -c conda-forge estnltk_neural=1.7.0rc0
+conda install -c estnltk -c conda-forge estnltk_neural=1.7.0
 ```
 
 Supported Python versions: 3.7+
 
 ### Neural models
 
-Neural models are not distributed with the package, and must be downloaded separately from the repository [https://entu.keeleressursid.ee/entity/folder/7510](https://entu.keeleressursid.ee/entity/folder/7510). 
-Neural models for syntactic parsing can be downloaded from [https://entu.keeleressursid.ee/entity/folder/9785](https://entu.keeleressursid.ee/entity/folder/9785) (see also the [tutorial](https://github.com/estnltk/estnltk/blob/version_1.6/tutorials/syntax/syntax.ipynb) of syntactic parsers).
+Models required by neural tools are large, and therefore cannot be distributed with this package. 
+However, our tagger classes are implemented in a way that once you create an instance of a neural tagger, you'll be asked  for a permission to download missing models, and if you give the permission, the model will be downloaded (and installed in a proper location) automatically. 
+If needed, you can also change the default location where downloaded models will be placed, see [this tutorial](https://github.com/estnltk/estnltk/blob/main/tutorials/estnltk_resources.ipynb) for details.
 
 ### Documentation
 
-Updating tutorials is currently work-in-progress. 
-You can find old tutorials [here](https://github.com/estnltk/estnltk/tree/version_1.6/tutorials).
+You can find tutorials of neural morph disambiguator and bert embeddings tagger [here](https://github.com/estnltk/estnltk/tree/main/tutorials/estnltk_neural).
+
+Tutorials about stanza syntactic analysers are currently in [this file](https://github.com/estnltk/estnltk/blob/fc796f8383e190d2fbaa0957b1b2240def126b3f/tutorials/nlp_pipeline/C_syntax/04_syntactic_analysers_and_utils.ipynb) (but this location is about to change in future releases).
 
 ### Source
 
-The source of the package can be found at branch [devel\_1.6\_split](https://github.com/estnltk/estnltk/tree/devel_1.6_split/estnltk_neural).
-The main repository is  https://github.com/estnltk/estnltk
+The source of the last release is available at the [main branch](https://github.com/estnltk/estnltk/tree/main/estnltk_neural).
 
 ---
 
