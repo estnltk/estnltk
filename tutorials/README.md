@@ -26,7 +26,9 @@ Updating and reorganizing tutorials is currently work-in-progress. There can be 
    
     * [web taggers](taggers/web_taggers/web_taggers.ipynb): EstNLTK's taggers that are available (or can be made available) as web services.
 
-    * [wordnet](wordnet) -- Estonian WordNet API
+    * [Estonian WordNet API](wordnet/wordnet.ipynb)
+
+    * [collocation-net](collocation_net/tutorial.ipynb) 
 
     * [miscellaneous language analysers and experimental tools](nlp_pipeline/E_miscellaneous): verb chain detector, noun phrase chunker, date and number taggers for medical texts,  adjective phrase tagger and Flesch reading ease score tagger.
   
