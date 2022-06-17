@@ -3,7 +3,7 @@ name: Build estnltk_neural conda package and upload to conda
 on: 
   push:
     branches:
-      - devel_1.6_split
+      - main
     paths:
       - '.github/workflows/estnltk_neural_conda.yml'
       
@@ -52,7 +52,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2022-03-24
+          key: estnltk-core-channel-2022-06-17
 
       - name: Build estnltk_core conda package (noarch)
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
@@ -72,7 +72,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk/e_channel
-          key: estnltk-channel-2022-03-24
+          key: estnltk-channel-2022-06-17
 
       - name: Build estnltk conda package (${{ matrix.os }})
         if: steps.cache-e-channel.outputs.cache-hit != 'true'
