@@ -6,14 +6,37 @@ All notable changes to this project will be documented in this file.
 # [1.7.0] - 2022-06-XX
 
 ## Changed
-TODO
+
+* EstNLTK's tools that require large resources (e.g. syntactic parsers and neural analysers) can now download resources automatically upon initialization. This stops the program flow with an interactive prompt asking
+ for user's permission to download the resource. However, you can predownload the resource in order to avoid the interruption, see this [tutorial](https://github.com/estnltk/estnltk/blob/cad31cc63b583bbef56b5f5fbcc3218ba8f5461c/tutorials/estnltk_resources.ipynb) for details. 
+
+* Stucture and organization of [EstNLTK's tutorials](https://github.com/estnltk/estnltk/tree/cad31cc63b583bbef56b5f5fbcc3218ba8f5461c/tutorials). However, the work on updating tutorials is still not complete.
+
+* `PgCollection`: now uses `CollectionStructure.v30` by default.
+
+* Disambiguator (a system tagger): it's now a Retagger, but can work either as a retagger or a tagger, depending on the inputs. [Tutorial](https://github.com/estnltk/estnltk/blob/cad31cc63b583bbef56b5f5fbcc3218ba8f5461c/tutorials/taggers/system/disambiguator.ipynb).
 
 ## Added
-TODO
+
+* `downloader` & `resources_utils` for downloading additional resources and handling paths of downloaded resources. [Tutorial](https://github.com/estnltk/estnltk/blob/cad31cc63b583bbef56b5f5fbcc3218ba8f5461c/tutorials/estnltk_resources.ipynb)
+
+* Collocation net -- allows to find different connections between words based on the collocations each word was in. [Tutorial](https://github.com/estnltk/estnltk/blob/cad31cc63b583bbef56b5f5fbcc3218ba8f5461c/tutorials/collocation_net/tutorial.ipynb).
+
+* `PgCollection`: added `CollectionStructure.v30` which allows to create sparse layer tables. Sparse layer tables do not store empty layers, which can save up the storage space and allow faster queries over tables & collection. The [main db tutorial](https://github.com/estnltk/estnltk/blob/cad31cc63b583bbef56b5f5fbcc3218ba8f5461c/tutorials/storage/storing_text_objects_in_postgres.ipynb) exemplfies the creation and usage of sparse layers.
+
+	* `PgCollection.create_layer` & `PgCollection.add_layer` now take parameter `sparse=True` which turns layer into a sparse layer;
+	
+	* `PgCollection.select` now has a boolean parameter `keep_all_texts`: turning the parameter off yields only texts with non-empty sparse layers;  
+
+	* `PgSubCollection` now has methods `create_layer` and `create_layer_block` which can be used to create a sparse layer from specific subcollection;
 
 ## Fixed
-TODO
 
+* `BaseText.__repr__` method using wrong variable name;
+
+* `NeuralMorphTagger`'s configuration reading and handling: model locations can now be freely customized;
+
+* `TimexTagger`'s rules on detecting dates with roman numeral months & dates with slashes.
 
 # [1.7.0-rc0] - 2022-03-24
 
