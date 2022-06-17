@@ -22,7 +22,7 @@ EstNLTK is available for osx, windows-64, and linux-64, and for python versions 
 You can install the latest version via PyPI:
 
 ```
-pip install estnltk==1.7.0rc0
+pip install estnltk==1.7.0
 ```
 
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
@@ -39,7 +39,7 @@ conda activate py38
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.7.0rc0
+conda install -c estnltk -c conda-forge estnltk=1.7.0
 ```
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
@@ -54,30 +54,27 @@ You can install EstNLTK on [Google Colab](https://colab.research.google.com) env
 
 ### Documentation
 
-EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org). However, updating tutorials is work-in-progress. Most of the tutorials of version 1.6 should also work for version 1.7, although imports may need fixing:
+EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org). However, updating tutorials is currently work-in-progress.
 
-  * [Basics of EstNLTK 1.6 / 1.7](https://github.com/estnltk/estnltk/blob/devel_1.6_split/tutorials/basics_of_estnltk.ipynb) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/devel_1.6_split/tutorials/basics_of_estnltk.ipynb))
-  * [Tutorials root folder](https://github.com/estnltk/estnltk/blob/devel_1.6_split/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/devel_1.6_split/tutorials)) 
+  * [Starting point of tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/tree/main/tutorials/README.md))
   
 Additional educational materials on EstNLTK are available on web pages of an NLP course taught at the University of Tartu:
 
-  * [https://github.com/d009/EstNLP](https://github.com/d009/EstNLP) (in Estonian)  
+  * [https://github.com/d009/EstNLP](https://github.com/d009/EstNLP) (in Estonian)
 
 
 Note: if you have trouble viewing jupyter notebooks in github (you get an error message _Sorry, something went wrong. Reload?_ at loading a notebook), then try to open notebooks with the help of [https://nbviewer.jupyter.org](https://nbviewer.jupyter.org)
 
 ### Source
 
-The development source of the package can be found at branch [devel\_1.6\_split/estnltk](https://github.com/estnltk/estnltk/tree/devel_1.6_split/estnltk).
-The main repository is https://github.com/estnltk/estnltk
+The source of the last release is available at the [main branch](https://github.com/estnltk/estnltk/tree/main).
 
-Development [changelog.](https://github.com/estnltk/estnltk/blob/devel_1.6_split/CHANGELOG.md)
+Changelog is available [here](https://github.com/estnltk/estnltk/blob/main/CHANGELOG.md).
 
 ## `estnltk_neural`
 
 Tools in `estnltk_neural` require installation of deep learning frameworks (`tensorflow`, `pytorch`), and are demanding for computational resources; they also rely on large models which need to be downloaded separately. 
-Instructions for installing the package can be found [here](https://github.com/estnltk/estnltk/blob/devel_1.6_split/estnltk_neural/README.md).
-
+Instructions for installing the package can be found [here](https://github.com/estnltk/estnltk/blob/main/estnltk_neural/README.md).
 
 ## Citation
 

@@ -14,7 +14,7 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 * information extraction tools: addresses tagger, named entity recognizer, temporal expression tagger; tools for rule based and grammar based fact extraction;
 * experimental taggers: verb chain detector, noun phrase chunker, adjective phrase tagger;
 * syntactic analysis tools: preprocessing for syntactic analysis, VislCG3 and Maltparser based syntactic parsers;
-* Estonian Wordnet;
+* Estonian Wordnet and Collocation-Net;
 * web taggers -- such as bert embeddings web tagger, stanza syntax web tagger and stanza ensemble syntax web tagger;
 * corpus importing tools -- tools for importing data from large Estonian corpora, such as the Reference Corpus or the National Corpus of Estonia;
 * system taggers -- regex tagger, disambiguator, atomizer, merge tagger etc;
@@ -63,8 +63,7 @@ You can install EstNLTK on [Google Colab](https://colab.research.google.com) env
 
 EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org). However, updating tutorials is currently work-in-progress.
 
-  * [Starting point of tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials/README.md) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/tree/main/tutorials/README.md))
-  * [Tutorials root folder](https://github.com/estnltk/estnltk/tree/main/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/tree/main/tutorials/)) 
+  * [Starting point of tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/tree/main/tutorials/README.md))
   
 Additional educational materials on EstNLTK are available on web pages of an NLP course taught at the University of Tartu:
 
@@ -92,23 +91,6 @@ In case you use EstNLTK in your work, please cite us as follows:
       publisher = {European Language Resources Association},
       pages     = {7154--7162},
       url       = {https://www.aclweb.org/anthology/2020.lrec-1.884}
-    }
-
-If you use EstNLTK v1.4.1 (or older), please cite:
-
-    @InProceedings{ORASMAA16.332,
-    author = {Siim Orasmaa and Timo Petmanson and Alexander Tkachenko and Sven Laur and Heiki-Jaan Kaalep},
-    title = {EstNLTK - NLP Toolkit for Estonian},
-    booktitle = {Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016)},
-    year = {2016},
-    month = {may},
-    date = {23-28},
-    location = {Portorož, Slovenia},
-    editor = {Nicoletta Calzolari (Conference Chair) and Khalid Choukri and Thierry Declerck and Marko Grobelnik and Bente Maegaard and Joseph Mariani and Asuncion Moreno and Jan Odijk and Stelios Piperidis},
-    publisher = {European Language Resources Association (ELRA)},
-    address = {Paris, France},
-    isbn = {978-2-9517408-9-1},
-    language = {english}
     }
 
 ---
