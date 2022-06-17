@@ -13,7 +13,7 @@ def test_unknown_word():
         index = cn.row_index('testsõna')
 
 
-pytest.mark.skipif(COLLOCATION_NET_PATH is None,
+@pytest.mark.skipif(COLLOCATION_NET_PATH is None,
                     reason="CollocationNet's resources have not been downloaded. Use estnltk.download('collocation_net') to fetch the missing resources.")
 def test_predict():
     cn = BaseCollocationNet()
@@ -23,7 +23,7 @@ def test_predict():
     assert pred[0][0] == "kange"
 
 
-pytest.mark.skipif(COLLOCATION_NET_PATH is None,
+@pytest.mark.skipif(COLLOCATION_NET_PATH is None,
                     reason="CollocationNet's resources have not been downloaded. Use estnltk.download('collocation_net') to fetch the missing resources.")
 def test_possible_collocates_output():
     cn = BaseCollocationNet()
@@ -33,7 +33,7 @@ def test_possible_collocates_output():
     assert len(adjectives) == 5
 
 
-pytest.mark.skipif(COLLOCATION_NET_PATH is None,
+@pytest.mark.skipif(COLLOCATION_NET_PATH is None,
                     reason="CollocationNet's resources have not been downloaded. Use estnltk.download('collocation_net') to fetch the missing resources.")
 def test_similar_nouns():
     cn = BaseCollocationNet()
@@ -41,7 +41,7 @@ def test_similar_nouns():
     assert similar_nouns[0] in cn.rows
 
 
-pytest.mark.skipif(COLLOCATION_NET_PATH is None,
+@pytest.mark.skipif(COLLOCATION_NET_PATH is None,
                     reason="CollocationNet's resources have not been downloaded. Use estnltk.download('collocation_net') to fetch the missing resources.")
 def test_similar_adjectives():
     cn = BaseCollocationNet()
@@ -49,7 +49,7 @@ def test_similar_adjectives():
     assert similar_adjectives[0] in cn.columns
 
 
-pytest.mark.skipif(COLLOCATION_NET_PATH is None,
+@pytest.mark.skipif(COLLOCATION_NET_PATH is None,
                     reason="CollocationNet's resources have not been downloaded. Use estnltk.download('collocation_net') to fetch the missing resources.")
 def test_topic():
     cn = BaseCollocationNet()
@@ -58,7 +58,7 @@ def test_topic():
     assert "kohv" in topic
 
 
-pytest.mark.skipif(COLLOCATION_NET_PATH is None,
+@pytest.mark.skipif(COLLOCATION_NET_PATH is None,
                     reason="CollocationNet's resources have not been downloaded. Use estnltk.download('collocation_net') to fetch the missing resources.")
 def test_characterisation():
     cn = BaseCollocationNet()
@@ -74,7 +74,7 @@ def test_characterisation():
     assert len(first_topic[1]) == 5
 
 
-pytest.mark.skipif(COLLOCATION_NET_PATH is None,
+@pytest.mark.skipif(COLLOCATION_NET_PATH is None,
                     reason="CollocationNet's resources have not been downloaded. Use estnltk.download('collocation_net') to fetch the missing resources.")
 def test_predict_for_several():
     cn = BaseCollocationNet()
@@ -85,7 +85,7 @@ def test_predict_for_several():
     assert isinstance(pred[1], float)
 
 
-pytest.mark.skipif(COLLOCATION_NET_PATH is None,
+@pytest.mark.skipif(COLLOCATION_NET_PATH is None,
                     reason="CollocationNet's resources have not been downloaded. Use estnltk.download('collocation_net') to fetch the missing resources.")
 def test_predict_topic_for_several():
     cn = BaseCollocationNet()
