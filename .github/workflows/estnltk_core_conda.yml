@@ -3,7 +3,7 @@ name: Build estnltk_core conda package and upload to conda
 on: 
   push:
     branches:
-      - devel_1.6_split
+      - main
     paths:
       - '.github/workflows/estnltk_core_conda.yml'
       
@@ -51,7 +51,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2022-03-24
+          key: estnltk-core-channel-2022-06-17
 
       - name: Build estntlk_core conda package
         run: |
