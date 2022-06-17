@@ -49,7 +49,7 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.7.0rc0
+!pip install estnltk==1.7.0
 ```
 
 ### Documentation
