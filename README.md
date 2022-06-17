@@ -56,7 +56,7 @@ You can install EstNLTK on [Google Colab](https://colab.research.google.com) env
 
 EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org). However, updating tutorials is currently work-in-progress.
 
-  * [Starting point of tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/tree/main/tutorials/README.md))
+  * [Starting point of tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials)
   
 Additional educational materials on EstNLTK are available on web pages of an NLP course taught at the University of Tartu:
 
