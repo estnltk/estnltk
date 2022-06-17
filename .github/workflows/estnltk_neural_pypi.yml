@@ -25,7 +25,7 @@ jobs:
       - uses: actions/setup-python@v2
         name: Install Python
         with:
-          python-version: '3.7'
+          python-version: '3.8'
 
       - name: Install pypa/build
         run: |
@@ -54,7 +54,7 @@ jobs:
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          CIBW_BUILD:  cp37-*64
+          CIBW_BUILD:  cp38-*64
           #CIBW_BUILD:  cp37-*64  cp38-*64  cp39-*64  cp310-*64
 
           # Disable building PyPy wheels on all platforms.
@@ -96,6 +96,6 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
-          password: ${{ secrets.test_pypi_token }}
+          password: ${{ secrets.pypi_token }}
           # Use https://test.pypi.org instead of the default pypi:
-          repository_url: https://test.pypi.org/legacy/
+          #repository_url: https://test.pypi.org/legacy/
