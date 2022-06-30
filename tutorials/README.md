@@ -30,7 +30,7 @@ Updating and reorganizing tutorials is currently work-in-progress. There can be 
 
     * [collocation-net](collocation_net/tutorial.ipynb) 
 
-    * [miscellaneous language analysers and experimental tools](nlp_pipeline/E_miscellaneous): verb chain detector, noun phrase chunker, date and number taggers for medical texts,  adjective phrase tagger and Flesch reading ease score tagger.
+    * [miscellaneous language analysers and experimental tools](nlp_pipeline/X_miscellaneous): verb chain detector, noun phrase chunker, date and number taggers for medical texts,  adjective phrase tagger and Flesch reading ease score tagger.
   
 * Importing texts from large Estonian corpora: [importing_text_objects_from_corpora.ipynb](corpus_processing/importing_text_objects_from_corpora.ipynb)
     
