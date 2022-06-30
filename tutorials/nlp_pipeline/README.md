@@ -14,6 +14,8 @@ While many of the components are part of the default pipeline (callable via _def
 
 * [D_information_extraction](D_information_extraction/) tutorials describe how to extract addresses, named entities and temporal expressions from texts.
 
+* [E_embeddings](E_embeddings/) tutorials describe pre-trained language models / embeddings available for Estonian.
+
 * [X_miscellaneous](X_miscellaneous/) and experimental language analysers: verb chain detector, noun phrase chunker, date and number taggers for medical texts,  adjective phrase tagger and Flesch reading ease score tagger.
 
 
