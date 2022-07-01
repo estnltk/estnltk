@@ -60,6 +60,6 @@ Updating and reorganizing tutorials is currently work-in-progress. There can be 
     
     * How to create a tagger / retagger: [base_tagger.ipynb](taggers/base_tagger.ipynb)
 
-* [layer_operations](system/layer_operations.ipynb) -- extract, split or join layers; flatten layer; group layer spans/annotations of a layer;
+* [layer_operations](system/layer_operations.ipynb) -- extract, split or join layers; flatten layer; group spans or annotations of a layer;
 
 * How to visualise annotations: ( [visualisation](visualisation) )
