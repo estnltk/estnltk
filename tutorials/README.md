@@ -24,29 +24,23 @@ Updating and reorganizing tutorials is currently work-in-progress. There can be 
 
     * [information extraction](nlp_pipeline/D_information_extraction): tools for extracting addresses, named entities and temporal expressions from texts;
    
-    * [web taggers](taggers/web_taggers/web_taggers.ipynb): EstNLTK's taggers that are available (or can be made available) as web services.
-
-    * [Estonian WordNet API](wordnet/wordnet.ipynb)
-
-    * [collocation-net](collocation_net/tutorial.ipynb) 
-
     * [embeddings](nlp_pipeline/E_embeddings): EstNLTK's pretrained language models. 
 
+    * [web taggers](taggers/web_taggers/web_taggers.ipynb): EstNLTK's taggers that are available (or can be made available) as web services.
+
     * [miscellaneous language analysers and experimental tools](nlp_pipeline/X_miscellaneous): verb chain detector, noun phrase chunker, date and number taggers for medical texts,  adjective phrase tagger and Flesch reading ease score tagger.
+
+    * [Estonian WordNet API](wordnet/wordnet.ipynb)
+ 
+    * [Collocation-Net](collocation_net/tutorial.ipynb) 
   
 * Importing texts from large Estonian corpora: [importing_text_objects_from_corpora.ipynb](corpus_processing/importing_text_objects_from_corpora.ipynb)
     
     * Importing pretokenized text while keeping the original tokenization: [restoring_pretokenized_text.ipynb](corpus_processing/restoring_pretokenized_text.ipynb).
 
-* Working with different input/output formats ( [converters](converters) ):
+* Working with different input/output formats:
 
-    * Importing from CONLL: [conll_importer.ipynb](converters/conll_importer.ipynb)
-    
-    * Importing/exporting JSON : [json_exporter_importer.ipynb](converters/json_exporter_importer.ipynb)
-
-    * Importing/exporting _dict_ : [dict_exporter_importer.ipynb](converters/dict_exporter_importer.ipynb)
- 
-    * Importing/exporting TCF : [TCF_exporter_importer.ipynb](converters/TCF_exporter_importer.ipynb) 
+    * [converters](converters) -- functions for converting between EstNLTK's data structures and other data formats (such as JSON or CONLL); saving and loading annotated texts.
 
 * Using Postgres database for storing/retrieving texts: ( [storage](storage) )
 
@@ -66,6 +60,6 @@ Updating and reorganizing tutorials is currently work-in-progress. There can be 
     
     * How to create a tagger / retagger: [base_tagger.ipynb](taggers/base_tagger.ipynb)
 
-* Layer operations: [layer_operations.ipynb](system/layer_operations.ipynb)
+* [layer_operations](system/layer_operations.ipynb) -- extract, split or join layers; flatten layer; group layer spans/annotations of a layer;
 
 * How to visualise annotations: ( [visualisation](visualisation) )
