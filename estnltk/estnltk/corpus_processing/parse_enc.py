@@ -15,10 +15,19 @@
 #  content should be clean from HTML annotations, but some annotations may 
 #  have remained.
 #
+#  Adapting this module for parsing ENC 2021 is work-in-progress; so far,
+#  the module has only been tested on files:
+#     nc19_Wikipedia_Talk_2017.vert
+#     nc21_DOAJ.vert
+#     nc21_Wikipedia_2021.vert
+#     nc19_Balanced_Corpus.vert
+#     
+#
 
 import re
 from io import TextIOWrapper
 from typing import Iterable
+from itertools import takewhile
 
 from logging import Logger
 from logging import getLevelName
@@ -46,15 +55,36 @@ _MAKE_WORDS_AMBIGUOUS = True
 # Pattern for capturing names & values of attributes
 enc_tag_attrib_pat = re.compile('([^= ]+)="([^"]+?)"')
 
-def parse_tag_attributes( tag_str, logger:Logger=None ):
+def _get_tag_name( tag_str:str ):
+    """Extracts tag name (very robust, the name includes < and /).
+    """
+    return ''.join(takewhile(lambda x: not x.isspace(), tag_str))
+
+def _has_tag_attrib( tag_str:str, attrib:str ):
+    """Checks if the given XML tag (str) has the given attribute.
+    """
+    return " "+attrib+"=" in tag_str
+
+# All duplicate attribute names encountered during the parsing
+_all_attribute_duplicates = set()
+
+def parse_tag_attributes( tag_str:str, logger:Logger=None, 
+                                       rename_duplicates:bool=True ):
     """Extracts names & values of attributes from an XML tag string,
        and returns as a dictionary.
-       Throws an Exception if attribute key appears more than once.
+
        Parameters
        ----------
        tag_str: str
            string representation of an XML tag;
-        
+       rename_duplicates: bool
+           whether duplicate attribute names should be renamed. 
+           renaming is done simply by adding number 2 (or whichever 
+           integer has not been used yet) to the end of the attribute 
+           name. E.g if attribute "lang_scores" occurs twice, then 
+           the last occurrence will be renamed to "lang_scores2".
+           (default: True).
+       
        Returns
        -------
        dict
@@ -63,16 +93,24 @@ def parse_tag_attributes( tag_str, logger:Logger=None ):
     assert tag_str.count('"') % 2 == 0, \
         '(!) Uneven number of quotation marks in: '+str(tag_str)
     attribs = {}
-    seen_duplicates = set()
     for attr_match in enc_tag_attrib_pat.finditer(tag_str):
         key   = attr_match.group(1)
         value = attr_match.group(2)
-        if key in attribs and key not in seen_duplicates:
-            if logger != None:
-                logger.log(getLevelName('WARNING'), '(!) Unexpected: attribute "'+key+'" appears more than once in: '+tag_str)
-            else:
-                stderr.write('(!) Unexpected: attribute "'+key+'" appears more than once in: '+tag_str+'\n')
-            seen_duplicates.add(key)
+        if key in attribs:
+            tag_name = _get_tag_name(tag_str)
+            if tag_name+'_'+key not in _all_attribute_duplicates:
+                # Only warn upon first encounter of the duplicate attribute
+                if logger != None:
+                    logger.log(getLevelName('WARNING'), '(!) Unexpected: attribute "'+key+'" appears more than once in: '+tag_str)
+                else:
+                    stderr.write('(!) Unexpected: attribute "'+key+'" appears more than once in: '+tag_str+'\n')
+                _all_attribute_duplicates.add( tag_name+'_'+key )
+            if rename_duplicates:
+                new_key_id = 2
+                while _has_tag_attrib(tag_str, key+str(new_key_id)):
+                    new_key_id += 1
+                new_key = key+str(new_key_id)
+                key = new_key
         attribs[key] = value
     return attribs
 
@@ -126,7 +164,7 @@ class ENCTextReconstructor:
         based on document contents extracted by VertXMLFileParser.
     """
     NOT_METADATA_KEYS = ['_paragraphs','_sentences','_words',\
-                         '_original_words','_morph']
+                         '_original_words','_ling']
 
     def __init__(self, tokenization:str='preserve',
                        paragraph_separator:str='\n\n', \
@@ -134,7 +172,8 @@ class ENCTextReconstructor:
                        word_separator:str=' ', \
                        layer_name_prefix:str='',\
                        restore_morph_analysis:bool=False,\
-                       replace_broken_morph_with_none:bool=True,\
+                       restore_syntax:bool=False,\
+                       replace_broken_analysis_with_none:bool=True,\
                        logger:Logger=None ):
         '''Initializes the parser.
         
@@ -186,21 +225,31 @@ class ENCTextReconstructor:
                Default: ''
            restore_morph_analysis: boolean
                If set, then morphological analysis layer is also created 
-               based on the morphological annotations in the input dict
-               representation of the document.
-               Note that this only succeeds if VertXMLFileParser was also 
-               configured to preserve morphological analyses.
+               based on the morphological annotations in the input 
+               document.
+               Note that this only succeeds if VertXMLFileParser was 
+               configured to preserve lingustic analyses.
                If not set, then morphological analyses will be discarded 
                and only tokenization layers will be created.
                (default: False)
-           replace_broken_morph_with_none: boolean
-               If set, then malformed/broken morphological annotations
-               will have all their attribute values set to None.
+           restore_syntax: boolean
+               If set, then dependency syntactic analysis layer is also 
+               created based on the syntactic annotations in the input 
+               document.
+               Note that this only succeeds if VertXMLFileParser was 
+               configured to preserve lingustic analyses.
+               Note also that syntactic analyses can only be read from 
+               the ENC 2021 corpus, as there were no syntactic annotations 
+               in ENC 2019 and 2017 corpora.
+               (default: False)
+           replace_broken_analysis_with_none: boolean
+               If set, then malformed/broken morphological and/or syntactic 
+               analysis will have all their attribute values set to None.
                Otherwise, the processing will halted with raising an 
-               expection if a malformed morphological annotation is 
-               encountered.
-               Note: this only has effect if restore_morph_analysis
-               has been set.
+               expection if a malformed morphological/syntactic annotation 
+               is encountered.
+               Note: this only has effect if restore_morph_analysis or 
+               restore_syntax have been set.
                (default: True)
            logger: logging.Logger
                Logger to be used for warning and debug messages.
@@ -229,8 +278,17 @@ class ENCTextReconstructor:
                 raise Exception('(!) Conflicting configuration: cannot restore original '+\
                                 "morphological analysis with estnltk's tokenization. Please "+\
                                 "use original tokenization instead.")
-        self.restore_original_morph = restore_morph_analysis
-        self.replace_broken_morph_with_none = replace_broken_morph_with_none
+        if restore_syntax:
+            if tokenization == 'none':
+                raise Exception('(!) Conflicting configuration: cannot restore syntactic '+\
+                                'analysis without restoring tokenization.' )
+            elif tokenization == 'estnltk':
+                raise Exception('(!) Conflicting configuration: cannot restore original '+\
+                                "syntactic analysis with estnltk's tokenization. Please "+\
+                                "use original tokenization instead.")
+        self.restore_original_morph  = restore_morph_analysis
+        self.restore_original_syntax = restore_syntax
+        self.replace_broken_analysis_with_none = replace_broken_analysis_with_none
 
 
 
@@ -247,7 +305,7 @@ class ENCTextReconstructor:
         para_locations       = []
         word_locations       = []
         word_chunk_locations = [] # only contains tokens glued together in the original text
-        morph_analyses       = []
+        linguistic_analyses  = []
         cur_pos = 0
         all_text_tokens = []
         if '_paragraphs' in doc_dict:
@@ -258,14 +316,14 @@ class ENCTextReconstructor:
                 if '_sentences' in paragraph:
                     # Collect sentences and words
                     cur_pos, sent_locations, word_locations, \
-                    word_chunk_locations, morph_analyses, \
+                    word_chunk_locations, linguistic_analyses, \
                     all_text_tokens = \
                         self._collect_sentences_and_words( paragraph,
                                                            cur_pos,
                                                            sent_locations,
                                                            word_locations,
                                                            word_chunk_locations,
-                                                           morph_analyses, 
+                                                           linguistic_analyses, 
                                                            all_text_tokens,
                                                            s_attribs )
                 p_end = cur_pos
@@ -296,14 +354,14 @@ class ENCTextReconstructor:
         elif '_sentences' in doc_dict:
             # --------------------------------------------------------
             cur_pos, sent_locations, word_locations, \
-            word_chunk_locations, morph_analyses, \
+            word_chunk_locations, linguistic_analyses, \
             all_text_tokens = \
                 self._collect_sentences_and_words( doc_dict,
                                                    cur_pos,
                                                    sent_locations,
                                                    word_locations,
                                                    word_chunk_locations,
-                                                   morph_analyses,
+                                                   linguistic_analyses,
                                                    all_text_tokens,
                                                    s_attribs )
         # 2) Reconstruct text 
@@ -318,7 +376,7 @@ class ENCTextReconstructor:
             # Attach layers to the Text obj
             self._create_original_layers( text, para_locations, sent_locations, \
                                           word_locations, word_chunk_locations, \
-                                          morph_analyses, s_attribs, par_attribs )
+                                          linguistic_analyses, s_attribs, par_attribs )
         elif self.tokenization == 'estnltk':
             # Create tokenization with estnltk's default tools
             # ( overwrites the original tokenization )
@@ -361,13 +419,14 @@ class ENCTextReconstructor:
                                             sent_locations:list,
                                             word_locations:list,
                                             word_chunk_locations:list,
-                                            morph_analyses:list,
+                                            linguistic_analyses:list,
                                             all_text_tokens:list,
                                             sent_attribs:set ):
         '''Collects content of '_sentences', '_original_words' and 
            '_words' from given content_dict. If restore_original_morph
-           is set, also collects content of morph analysis from 
-           '_morph' of given content_dict.
+           or restore_original_syntax are set, then also collects content 
+           of corresponding linguistic analysis from '_ling' of given 
+           content_dict.
            
            Records token locations into sent_locations, word_locations
            and word_chunk_locations, and updates the pointer cur_pos.
@@ -424,13 +483,13 @@ class ENCTextReconstructor:
                     del chunk['multitoken']
                     word_chunk_locations.append( chunk )
             # Collect original morph analyses
-            if self.restore_original_morph:
-                assert '_morph' in sentence, \
-                    "(!) Key '_morph' missing from dict: {!r}".format(sentence)
-                assert len(sentence['_morph']) == len(sentence['_words']), \
+            if self.restore_original_morph or self.restore_original_syntax:
+                assert '_ling' in sentence, \
+                    "(!) Key '_ling' missing from dict: {!r}".format(sentence)
+                assert len(sentence['_ling']) == len(sentence['_words']), \
                     ("(!) Mismatching number of elements in "+\
-                    "{!r} and {!r}").format(sentence['_morph'],sentence['_words'])
-                morph_analyses.extend( sentence['_morph'] )
+                    "{!r} and {!r}").format(sentence['_ling'],sentence['_words'])
+                linguistic_analyses.extend( sentence['_ling'] )
             s_end = cur_pos
             # Create sentence record
             record = {'start':s_start, 'end':s_end}
@@ -445,7 +504,7 @@ class ENCTextReconstructor:
                 all_text_tokens.append(self.sentence_separator)
                 cur_pos += len(self.sentence_separator)
         return cur_pos, sent_locations, word_locations, \
-               word_chunk_locations, morph_analyses, \
+               word_chunk_locations, linguistic_analyses, \
                all_text_tokens
 
 
@@ -455,7 +514,7 @@ class ENCTextReconstructor:
                                  sent_locations:list,
                                  word_locations:list,
                                  word_chunk_locations:list,
-                                 morph_analyses:list,
+                                 linguistic_analyses:list,
                                  sent_extra_attribs:set, 
                                  para_extra_attribs:set,
                                  attach_layers:bool=True ):
@@ -478,6 +537,7 @@ class ENCTextReconstructor:
         orig_sentences       = None
         orig_paragraphs      = None
         orig_morph_analysis  = None
+        original_syntax      = None
         # Create word chunks layer
         if word_chunk_locations is not None and len(word_chunk_locations) > 0:
             if self.tokenization == 'preserve':
@@ -589,16 +649,19 @@ class ENCTextReconstructor:
                               'annotations. ').format( text_obj.meta['id'] ))
             elif pid > 0:
                 assert pid == len(para_locations)
-        # Create morph_analyses enveloping around words
-        if self.restore_original_morph and morph_analyses is not None and \
-           len(morph_analyses) > 0 and orig_words is not None:
-            orig_morph_analysis = \
-              self._create_original_morph_analysis_layer( text_obj, word_locations,
-                                                          orig_words, morph_analyses )
+        # Create linguistic analyses (morph and/or syntax) enveloping around words
+        if linguistic_analyses is not None and len(linguistic_analyses) > 0 and orig_words is not None:
+            if self.restore_original_morph or self.restore_original_syntax:
+                orig_morph_analysis, original_syntax = \
+                  self._create_original_linguistic_analysis_layers( text_obj, word_locations,
+                                                                    orig_words, linguistic_analyses )
         # Collect results
         created_layers = [orig_word_chunks, orig_tokens, orig_compound_tokens, 
-                          orig_words, orig_sentences, orig_paragraphs, 
-                          orig_morph_analysis]
+                          orig_words, orig_sentences, orig_paragraphs]
+        if self.restore_original_morph and orig_morph_analysis is not None:
+            created_layers.append( orig_morph_analysis )
+        if self.restore_original_syntax and original_syntax is not None:
+            created_layers.append( original_syntax )
         if attach_layers:
             for layer in created_layers:
                 if layer is not None:
@@ -606,16 +669,17 @@ class ENCTextReconstructor:
         else:
             return created_layers
 
-    def _create_original_morph_analysis_layer(self, text_obj: Text,
-                                              word_locations: list,
-                                              orig_words_layer: Layer,
-                                              raw_morph_analyses: list):
-        """Creates a morph_analysis layer based on raw_morph_analyses
-        extracted from the vert / prevert content.
-
+    def _create_original_linguistic_analysis_layers(self, text_obj: Text,
+                                                          word_locations: list,
+                                                          orig_words_layer: Layer,
+                                                          raw_lingustic_analyses: list):
+        """ Creates linguistic analysis (morph / syntax) layers 
+            from raw_lingustic_analyses extracted from the 
+            vert / prevert content.
+            Returns tuple: (morph_layer, syntax_layer).
         """
-        assert len(raw_morph_analyses) == len(orig_words_layer)
-        assert len(raw_morph_analyses) == len(word_locations)
+        assert len(raw_lingustic_analyses) == len(orig_words_layer)
+        assert len(raw_lingustic_analyses) == len(word_locations)
 
         layer_attributes = ESTNLTK_MORPH_ATTRIBUTES
         morph_layer = Layer(name=self.layer_name_prefix+'morph_analysis',
@@ -623,28 +687,43 @@ class ENCTextReconstructor:
                             ambiguous=True,
                             text_object=text_obj,
                             attributes=layer_attributes)
+        syntax_layer = Layer(name=self.layer_name_prefix+'syntax',
+                            parent=orig_words_layer.name,
+                            ambiguous=True,
+                            text_object=text_obj,
+                            attributes=('id', 'head', 'lemma', 'xpostag', 'feats', 'deprel'))
+        for word, raw_analysis in zip( orig_words_layer, raw_lingustic_analyses ):
+            # Parse lingustic analysis from the raw analysis
+            analysis_dict = self._create_lingustic_analysis_dict(raw_analysis)
+            if self.restore_original_morph:
+                # Normalize and add morph attributes
+                attributes = {attr: analysis_dict.get(attr) for attr in layer_attributes}
+                if 'root_tokens' in attributes:
+                    if attributes['root_tokens'] is not None:
+                        attributes['root_tokens'] = tuple(attributes['root_tokens'])
+                morph_layer.add_annotation(word.base_span, **attributes)
+            if self.restore_original_syntax:
+                # Normalize and add syntax attributes
+                attributes = {'id':     int(analysis_dict['syn_id']) \
+                                            if analysis_dict['syn_id'] is not None else None, 
+                              'head':   int(analysis_dict['syn_head']) \
+                                            if analysis_dict['syn_head'] is not None else None, 
+                              'lemma':   analysis_dict['lemma'], 
+                              'xpostag': analysis_dict['partofspeech'], 
+                              'feats':   analysis_dict['extended_feat'], 
+                              'deprel':  analysis_dict['syn_rel'] }
+                syntax_layer.add_annotation(word.base_span, **attributes)
+        return morph_layer, syntax_layer
 
-        for word, raw_analysis in zip(orig_words_layer, raw_morph_analyses):
-            # A) Parse morph analysis from the raw analysis
-            analysis_dict = self._create_morph_analysis_dict(raw_analysis)
-            # B) Normalize and set attributes
-            attributes = {attr: analysis_dict.get(attr) for attr in layer_attributes}
-            if 'root_tokens' in attributes:
-                if attributes['root_tokens'] is not None:
-                    attributes['root_tokens'] = tuple(attributes['root_tokens'])
-            # C) Record span to the layer
-            morph_layer.add_annotation(word.base_span, **attributes)
-        return morph_layer
-
-    def _create_morph_analysis_dict(self, raw_morph_analysis:str):
-        '''Creates a morph analysis dict from the raw_morph_analysis line 
-           extracted from the vert / prevert input file.'''
+    def _create_lingustic_analysis_dict(self, raw_ling_analysis:str):
+        '''Creates a lingustic (morph/syntax) analysis dict from the raw_ling_analysis 
+           line extracted from the vert / prevert input file.'''
         analysis_dict = {}
-        if '\t' in raw_morph_analysis:
-            items = raw_morph_analysis.split("\t")
+        if '\t' in raw_ling_analysis:
+            items = raw_ling_analysis.split("\t")
             if len(items) == 8:
                 #
-                # Full scale morph analysis, for instance:
+                # Full scale morph analysis in ENC 2017 & 2019, for instance:
                 #   ministrite	S.pl.g	minister-s	pl_g	minister	minister	te	
                 #   nõukogule	S.sg.all	nõukogu-s	sg_all	nõu kogu	nõu_kogu	le	
                 #   selles	P.sg.in	see-p	sg_in	see	see	s	
@@ -658,19 +737,50 @@ class ENCTextReconstructor:
                 analysis_dict['ending'] = items[6].replace('_', ' ')
                 analysis_dict['partofspeech'] = items[1][0]
                 assert analysis_dict['partofspeech'].isupper(), \
-                   "(!) Unexpected lowercase 'partofspeech' in {!r} at line {!r}".format(items[1], raw_morph_analysis)
+                   "(!) Unexpected lowercase 'partofspeech' in {!r} at line {!r}".format(items[1], raw_ling_analysis)
                 pos_ending = '-'+analysis_dict['partofspeech'].lower()
                 assert items[2].endswith(pos_ending), \
-                   "(!) Unexpected pos-ending in {!r} at line {!r}".format(items[2], raw_morph_analysis)
+                   "(!) Unexpected pos-ending in {!r} at line {!r}".format(items[2], raw_ling_analysis)
                 analysis_dict['lemma'] = items[2].replace(pos_ending, '')
                 analysis_dict['root_tokens'] = items[4].split()
                 analysis_dict['clitic'] = items[7]
+            elif len(items) == 21:
+                #
+                # Full scale morpho-syntaxtic analysis in ENC 2021, for instance:
+                #   Selline	P.sg.n	selline-p	sg_n	selline	selline	0		sg_nom		dem			1	0	root
+                #   on	V.b	olema-v	b	ole	ole	0		mod_indic_pres_ps3_sg_ps_af			fin	Intr	2	1	cop	Selline	selline	P	sg_n	root
+                #   vähemasti	D	vähemasti-d		vähemasti	vähemasti	0							3	4	advmod	minu	mina	P	sg_g	nmod
+                #   minu	P.sg.g	mina-p	sg_g	mina	mina	0		sg_gen		ps1			4	5	nmod	arvamus	arvamus	S	sg_n	nsubj:cop
+                #   arvamus	S.sg.n	arvamus-s	sg_n	arvamus	arvamus	0		com_sg_nom					5	1	nsubj:cop	Selline	selline	P	sg_n	root
+                #
+                analysis_dict['root'] = items[5]
+                analysis_dict['form'] = items[3].replace('_', ' ')
+                analysis_dict['ending'] = items[6].replace('_', ' ')
+                analysis_dict['partofspeech'] = items[1][0]
+                assert analysis_dict['partofspeech'].isupper(), \
+                   "(!) Unexpected lowercase 'partofspeech' in {!r} at line {!r}".format(items[1], raw_ling_analysis)
+                pos_ending = '-'+analysis_dict['partofspeech'].lower()
+                assert items[2].endswith(pos_ending), \
+                   "(!) Unexpected pos-ending in {!r} at line {!r}".format(items[2], raw_ling_analysis)
+                analysis_dict['lemma'] = items[2].replace(pos_ending, '')
+                analysis_dict['root_tokens'] = items[4].split()
+                analysis_dict['clitic'] = items[7]
+                # syntactic analyses
+                analysis_dict['extended_feat'] = items[8].replace('_', ' ')
+                analysis_dict['syn_id'] = items[13]
+                assert analysis_dict['syn_id'].isnumeric(), \
+                    "(!) Unexpected non-numeric syntactic id {!r} at line {!r}".format(items[13], raw_ling_analysis)
+                analysis_dict['syn_head'] = items[14]
+                assert analysis_dict['syn_head'].isnumeric(), \
+                    "(!) Unexpected non-numeric syntactic head {!r} at line {!r}".format(items[14], raw_ling_analysis)
+                analysis_dict['syn_rel'] = items[15]
             else:
-                # Unexpected format for morph analysis
+                # Unexpected format for linguistic analysis
                 status_str = 'critical'
                 status_action = ''
-                if self.replace_broken_morph_with_none:
+                if self.replace_broken_analysis_with_none:
                     # Add an empty annotation
+                    # morph
                     analysis_dict['root'] = None
                     analysis_dict['form'] = None
                     analysis_dict['ending'] = None
@@ -678,30 +788,42 @@ class ENCTextReconstructor:
                     analysis_dict['lemma'] = None
                     analysis_dict['root_tokens'] = None
                     analysis_dict['clitic'] = None
+                    # syntax
+                    analysis_dict['extended_feat'] = None
+                    analysis_dict['syn_id'] = None
+                    analysis_dict['syn_head'] = None
+                    analysis_dict['syn_rel'] = None
                     status_str    = 'WARNING'
                     status_action = ' Adding an empty annotation.'
                 self._log(status_str, \
-                   '(!) Broken raw_morph_analysis in line {!r}.{}'.format(raw_morph_analysis,status_action))
-                if not self.replace_broken_morph_with_none:
-                    raise Exception('(!) Unexpected malformed raw_morph_analysis: {!r}'.format(raw_morph_analysis))
+                   '(!) Broken raw_ling_analysis in line {!r}.{}'.format(raw_ling_analysis,status_action))
+                if not self.replace_broken_analysis_with_none:
+                    raise Exception('(!) Unexpected malformed raw_ling_analysis: {!r}'.format(raw_ling_analysis))
         else:
             # This should be a tag: format it as a 'Z'
-            if raw_morph_analysis.startswith('<') and \
-               raw_morph_analysis.endswith('>'):
+            if raw_ling_analysis.startswith('<') and \
+               raw_ling_analysis.endswith('>'):
                analysis_dict['partofspeech'] = 'Z'
+               # morph
                for attr in ESTNLTK_MORPH_ATTRIBUTES:
                    if attr in ['lemma', 'root']:
-                       analysis_dict[attr] = raw_morph_analysis
+                       analysis_dict[attr] = raw_ling_analysis
                    elif attr == 'root_tokens':
-                       analysis_dict[attr] = [raw_morph_analysis]
+                       analysis_dict[attr] = [raw_ling_analysis]
                    else:
                        analysis_dict[attr] = ''
+               # syntax
+               analysis_dict['extended_feat'] = None
+               analysis_dict['syn_id'] = None
+               analysis_dict['syn_head'] = None
+               analysis_dict['syn_rel'] = None
             else:
                # If it is not tag, then something unexpected happened
                status_str = 'critical'
                status_action = ''
-               if self.replace_broken_morph_with_none:
+               if self.replace_broken_analysis_with_none:
                    # Add an empty annotation
+                   # morph
                    analysis_dict['root'] = None
                    analysis_dict['form'] = None
                    analysis_dict['ending'] = None
@@ -709,12 +831,17 @@ class ENCTextReconstructor:
                    analysis_dict['lemma'] = None
                    analysis_dict['root_tokens'] = None
                    analysis_dict['clitic'] = None
+                   # syntax
+                   analysis_dict['extended_feat'] = None
+                   analysis_dict['syn_id'] = None
+                   analysis_dict['syn_head'] = None
+                   analysis_dict['syn_rel'] = None
                    status_str    = 'WARNING'
                    status_action = ' Adding an empty annotation.'
                self._log(status_str, \
-                   '(!) Broken raw_morph_analysis in line {!r}.{}'.format(raw_morph_analysis,status_action))
-               if not self.replace_broken_morph_with_none:
-                   raise Exception('(!) Unexpected malformed raw_morph_analysis: {!r}'.format(raw_morph_analysis))
+                   '(!) Broken raw_ling_analysis in line {!r}.{}'.format(raw_ling_analysis,status_action))
+               if not self.replace_broken_analysis_with_none:
+                   raise Exception('(!) Unexpected malformed raw_ling_analysis: {!r}'.format(raw_ling_analysis))
         return analysis_dict
 
 
@@ -729,7 +856,7 @@ class ENCTextReconstructor:
 
 
 # =================================================
-#   Parsing ENC 2017 & 2019 corpus files
+#   Parsing ENC 2017 & 2019 & 2021 corpus files
 # =================================================
 
 class VertXMLFileParser:
@@ -759,7 +886,7 @@ class VertXMLFileParser:
                        discard_empty_fragments:bool=True, \
                        store_fragment_attributes:bool=True, \
                        add_unexpected_tags_to_words:bool=False, \
-                       record_morph_analysis:bool=False,\
+                       record_linguistic_analysis:bool=False,\
                        textReconstructor:ENCTextReconstructor=None,\
                        logger:Logger=None ):
         '''Initializes the parser.
@@ -806,12 +933,12 @@ class VertXMLFileParser:
                reconstructed text as words. 
                Otherwise, all unexpected tags will be discarded.
                (default: False)
-           record_morph_analysis: boolean
-               If set, then morphological analyses will also be extracted from 
-               the input content, and recorded in dict representation of the 
-               document.
-               Otherwise, morphological analyses will be discarded and only 
-               segmentation annotations will be recorded.
+           record_linguistic_analysis: boolean
+               If set, then linguistic (morphological / syntactic) analyses will 
+               also be extracted from the input content, and recorded in dict 
+               representation of the document. 
+               Otherwise, lingustic analyses will be discarded and only segmentation 
+               annotations will be recorded.
                (default: False)
            textReconstructor: ENCTextReconstructor
                ENCTextReconstructor instance that can be used for reconstructing
@@ -852,21 +979,24 @@ class VertXMLFileParser:
         self.store_fragment_attributes = store_fragment_attributes
         self.discard_empty_fragments   = discard_empty_fragments
         self.add_unexpected_tags_to_words = add_unexpected_tags_to_words
-        self.record_original_morph        = record_morph_analysis
+        self.record_linguistic_analysis   = record_linguistic_analysis
         self.logger                       = logger
         self.textreconstructor            = textReconstructor
         if self.textreconstructor:
             # Validate that configurations regarding restoring morph analysis are matching
-            if self.textreconstructor.restore_original_morph != self.record_original_morph:
-                conf1 = '{}.record_original_morph={}'.format( \
-                      self.__class__.__name__,self.record_original_morph)
+            if self.textreconstructor.restore_original_morph and not self.record_linguistic_analysis:
+                conf1 = '{}.record_linguistic_analysis={}'.format( \
+                      self.__class__.__name__, self.record_linguistic_analysis)
                 conf2 = '{}.restore_original_morph={}'.format( \
                       self.textreconstructor.__class__.__name__,self.textreconstructor.restore_original_morph)
                 raise Exception('(!) Conflicting configurations: {} and {}'.format(conf1, conf2) )
-        # Hack: remember the number of Wiki 2017 docs with broken tags encountered (to avoid an abundance of warnings)
-        self.broken_tag_docs_with_wiki_2017_src = 0
-        # ... and in similar vein: remember the number of Web 2017 docs with broken tags encountered
-        self.broken_tag_docs_with_web_2017_src  = 0
+            # Validate that configurations regarding restoring syntactic analysis are matching
+            if self.textreconstructor.restore_original_syntax and not self.record_linguistic_analysis:
+                conf1 = '{}.record_linguistic_analysis={}'.format( \
+                      self.__class__.__name__, self.record_linguistic_analysis)
+                conf2 = '{}.restore_original_syntax={}'.format( \
+                      self.textreconstructor.__class__.__name__,self.textreconstructor.restore_original_syntax)
+                raise Exception('(!) Conflicting configurations: {} and {}'.format(conf1, conf2) )
         # Patterns for detecting tags
         self.enc_doc_tag_start  = re.compile(r"^<doc[^<>]+>\s*$")
         self.enc_doc_tag_end    = re.compile(r"^</doc>\s*$")
@@ -925,34 +1055,6 @@ class VertXMLFileParser:
             # Clear old doc content
             self.document.clear()
             self.content.clear()
-            if 'src="Wikipedia 2017"' in stripped_line and \
-               stripped_line.count('lang_scores=') > 1:
-                #
-                #  Note: There is a systemic error in 'etnc19_wikipedia_2017.vert':
-                #        each and every <doc> contains two "lang_scores" attributes.
-                #        As a result, we would have an abundance of warnings about
-                #        repeated attribute names. In order to avoid that, we remove
-                #        the first "lang_scores" attribute from the <doc> tag after 
-                #        we have recorded five of these warnings.
-                #
-                self.broken_tag_docs_with_wiki_2017_src += 1
-                if self.broken_tag_docs_with_wiki_2017_src > 5:
-                   stripped_line = re.sub('lang_scores="[^"]+"',' ',stripped_line,count=1)
-            #
-            #  Note: the file 'etnc19_web_2017.vert' also has systematic duplicates in tag 
-            #        attributes, so apply the same strategy as previously:  warn  for  the 
-            #        first 5 malformed doc tags, and then remove the duplicates to suppress 
-            #        the abundance of warnings.
-            #
-            if 'src="Web 2017"' in stripped_line and \
-               (stripped_line.count('lang_old=') > 1 or \
-                stripped_line.count('lang_scores=') > 1 ):
-                self.broken_tag_docs_with_web_2017_src += 1
-                if self.broken_tag_docs_with_web_2017_src > 5:
-                    if stripped_line.count('lang_old=') > 1:
-                        stripped_line = re.sub('lang_old="[^"]+"',' ',stripped_line,count=1)
-                    if stripped_line.count('lang_scores=') > 1:
-                        stripped_line = re.sub('lang_scores="[^"]+"',' ',stripped_line,count=1)
             # Carry over attributes
             attribs = parse_tag_attributes( stripped_line, logger=self.logger )
             for key, value in attribs.items():
@@ -960,7 +1062,11 @@ class VertXMLFileParser:
                    raise Exception("(!) Improper key name "+key+" in tag <doc>.")
                 self.document[key] = value
             if 'id' not in self.document:
-                self._log( 'CRITICAL', '(!) doc-tag misses id attribute: {!r}'.format(stripped_line))
+                # Use "doaj_id" instead of "id" (Fix for 'nc21_DOAJ.vert')
+                if 'doaj_id' in self.document:
+                    self.document['id'] = self.document['doaj_id']
+                else:
+                    self._log( 'CRITICAL', '(!) doc-tag misses id attribute: {!r}'.format(stripped_line))
             if 'src' not in self.document and 'id' in self.document:
                 self._log( 'WARNING', 'Document with id={} misses src attribute'.format(self.document['id']))
             # Check if the document passes filters: id, src, lang
@@ -1227,10 +1333,10 @@ class VertXMLFileParser:
             #           these words can be tokens inside 
             #           _original_words
             parent['_words'] = []
-            if self.record_original_morph:
-                # _morph == raw lines of morphological
-                #           analysis
-                parent['_morph'] = []
+            if self.record_linguistic_analysis:
+                # _ling == raw lines of morphological
+                #          (and syntactic) analysis
+                parent['_ling'] = []
         prev_words = parent['_words']
         prev_original_words = parent['_original_words']
         # Add given word
@@ -1249,10 +1355,10 @@ class VertXMLFileParser:
         else:
             # Add a new word to the list 
             prev_original_words.append( word_str )
-        # Record original morphological analysis
-        if self.record_original_morph:
+        # Record original automatic linguistic analysis
+        if self.record_linguistic_analysis:
             assert whole_line is not None and len(whole_line)>0
-            parent['_morph'].append( whole_line )
+            parent['_ling'].append( whole_line )
         self.last_was_glue = False
         
 
@@ -1342,6 +1448,7 @@ def parse_enc_file_iterator( in_file:str,
                              tokenization:str='preserve', \
                              original_layer_prefix:str='original_',\
                              restore_morph_analysis:bool=False, \
+                             restore_syntax:bool=False, \
                              vertParser:VertXMLFileParser=None, \
                              textReconstructor:ENCTextReconstructor=None, \
                              line_progressbar:str=None, \
@@ -1436,13 +1543,22 @@ def parse_enc_file_iterator( in_file:str,
            (default: 'original_')
        
        restore_morph_analysis: boolean
-           If set, then morphological analysis layer is also created 
+           If set, then morphological analysis layer is created 
            based on the morphological annotations available in the 
            vert file content.
            If not set, then morphological annotations will be discarded 
            and only tokenization layers will be created.
            (default: False)
-       
+
+       restore_syntax: boolean
+           If set, then dependency syntactic analysis layer is 
+           created based on the syntactic annotations in the input 
+           document.
+           Note that syntactic analyses can only be read from the 
+           ENC 2021 corpus, as there were no syntactic annotations 
+           in ENC 2019 and ENC 2017 corpora.
+           (default: False)
+
        vertParser: VertXMLFileParser
            If set, then overrides the default VertXMLFileParser with the 
            given vertParser.
@@ -1470,6 +1586,7 @@ def parse_enc_file_iterator( in_file:str,
         reconstructor = ENCTextReconstructor(tokenization=tokenization,\
                                              layer_name_prefix=original_layer_prefix,\
                                              restore_morph_analysis=restore_morph_analysis,\
+                                             restore_syntax=restore_syntax,\
                                              logger=logger)
     if vertParser:
         xmlParser = vertParser
@@ -1479,7 +1596,7 @@ def parse_enc_file_iterator( in_file:str,
                    focus_srcs=focus_srcs, \
                    focus_lang=focus_lang, \
                    textReconstructor=reconstructor,\
-                   record_morph_analysis=restore_morph_analysis,\
+                   record_linguistic_analysis=restore_morph_analysis or restore_syntax,\
                    logger=logger )
     with open( in_file, mode='r', encoding=encoding ) as f:
         for line in _get_iterable_content_w_tqdm( f, line_progressbar ):
@@ -1498,6 +1615,7 @@ def parse_enc_file_content_iterator( content,
                                      tokenization:str='preserve', \
                                      original_layer_prefix:str='original_',\
                                      restore_morph_analysis:bool=False, \
+                                     restore_syntax:bool=False, \
                                      vertParser:VertXMLFileParser=None, \
                                      textReconstructor:ENCTextReconstructor=None, \
                                      line_progressbar:str=None, \
@@ -1590,11 +1708,20 @@ def parse_enc_file_content_iterator( content,
            (default: 'original_')
        
        restore_morph_analysis: boolean
-           If set, then morphological analysis layer is also created 
+           If set, then morphological analysis layer is created 
            based on the morphological annotations available in the 
            vert file content.
            If not set, then morphological annotations will be discarded 
            and only tokenization layers will be created.
+           (default: False)
+
+       restore_syntax: boolean
+           If set, then dependency syntactic analysis layer is 
+           created based on the syntactic annotations in the input 
+           document.
+           Note that syntactic analyses can only be read from the 
+           ENC 2021 corpus, as there were no syntactic annotations 
+           in ENC 2019 and ENC 2017 corpora.
            (default: False)
        
        vertParser: VertXMLFileParser
@@ -1625,6 +1752,7 @@ def parse_enc_file_content_iterator( content,
         reconstructor = ENCTextReconstructor(tokenization=tokenization,\
                                              layer_name_prefix=original_layer_prefix,\
                                              restore_morph_analysis=restore_morph_analysis,\
+                                             restore_syntax=restore_syntax,\
                                              logger=logger)
     if vertParser:
         xmlParser = vertParser
@@ -1634,7 +1762,7 @@ def parse_enc_file_content_iterator( content,
                        focus_srcs=focus_srcs, \
                        focus_lang=focus_lang, \
                        textReconstructor=reconstructor,\
-                       record_morph_analysis=restore_morph_analysis,\
+                       record_lingustic_analysis=restore_morph_analysis or restore_syntax,\
                        logger=logger)
     # Process the content line by line
     for line in _get_iterable_content_w_tqdm( content.splitlines( keepends=True ), \

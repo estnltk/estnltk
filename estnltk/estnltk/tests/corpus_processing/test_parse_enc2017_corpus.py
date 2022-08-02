@@ -257,7 +257,7 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
                                              tokenization='preserve',\
                                              layer_name_prefix='original_')
     parser = VertXMLFileParser(textReconstructor=reconstructor, \
-                               record_morph_analysis=True)
+                               record_linguistic_analysis=True)
     # Collect morph analysed texts from all input files
     texts = []
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
