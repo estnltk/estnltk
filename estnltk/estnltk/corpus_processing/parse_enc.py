@@ -107,9 +107,10 @@ def parse_tag_attributes( tag_str:str, logger:Logger=None,
                 _all_attribute_duplicates.add( tag_name+'_'+key )
             if rename_duplicates:
                 new_key_id = 2
-                while _has_tag_attrib(tag_str, key+str(new_key_id)):
-                    new_key_id += 1
                 new_key = key+str(new_key_id)
+                while _has_tag_attrib(tag_str, new_key) or new_key in attribs:
+                    new_key_id += 1
+                    new_key = key+str(new_key_id)
                 key = new_key
         attribs[key] = value
     return attribs
