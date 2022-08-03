@@ -21,6 +21,8 @@
 #     nc21_DOAJ.vert
 #     nc21_Wikipedia_2021.vert
 #     nc19_Balanced_Corpus.vert
+#     nc21_Fiction.vert
+#     nc19_Reference_Corpus.vert
 #     
 #
 
@@ -704,6 +706,11 @@ class ENCTextReconstructor:
                         attributes['root_tokens'] = tuple(attributes['root_tokens'])
                 morph_layer.add_annotation(word.base_span, **attributes)
             if self.restore_original_syntax:
+                # Sanity check
+                if 'syn_id' not in analysis_dict or 'syn_head' not in analysis_dict:
+                    raise Exception(('(!) Unable to parse syntactic information '+\
+                                     'from the line {!r}. Please make sure you are '+\
+                                     'parsing the correct corpus: ENC 2021.').format(raw_analysis))
                 # Normalize and add syntax attributes
                 attributes = {'id':     int(analysis_dict['syn_id']) \
                                             if analysis_dict['syn_id'] is not None else None, 
@@ -1063,11 +1070,22 @@ class VertXMLFileParser:
                    raise Exception("(!) Improper key name "+key+" in tag <doc>.")
                 self.document[key] = value
             if 'id' not in self.document:
-                # Use "doaj_id" instead of "id" (Fix for 'nc21_DOAJ.vert')
                 if 'doaj_id' in self.document:
+                    # Use "doaj_id" instead of "id" (Fix for 'nc21_DOAJ.vert')
                     self.document['id'] = self.document['doaj_id']
+                elif 'ISBN' in self.document:
+                    # Use "ISBN" instead of "id" (Fix for 'nc21_Fiction.vert')
+                    self.document['id'] = self.document['ISBN']
+                elif 'url' in self.document and \
+                     'src' in self.document and \
+                     self.document['src'] in ['Feeds 2014–2021']:
+                    # Use "url"+"line number" instead of "id" (Fix for 'nc21_Feeds.vert')
+                    # ("url" itself is not enough, as there can be duplicate urls)
+                    self.document['id'] = self.document['url']+('(doc@line:{})'.format(self.lines))
                 else:
-                    self._log( 'CRITICAL', '(!) doc-tag misses id attribute: {!r}'.format(stripped_line))
+                    # No 'id' provided: fall back to using line number as id
+                    self.document['id'] = '(doc@line:{})'.format(self.lines)
+                    self._log('WARNING', '(!) doc-tag misses id attribute: {!r}'.format(stripped_line))
             if 'src' not in self.document and 'id' in self.document:
                 self._log( 'WARNING', 'Document with id={} misses src attribute'.format(self.document['id']))
             # Check if the document passes filters: id, src, lang
