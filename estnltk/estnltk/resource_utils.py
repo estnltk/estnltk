@@ -5,7 +5,7 @@
 #  * Normalizing resource descriptions
 #
 
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 import os
 import re
@@ -446,3 +446,129 @@ def delete_resource(resource: str) -> bool:
                 'from the list: {!r}').format( found_by_alias ) )
     return deleted
 
+
+
+class ResourceView:
+    """Shows Estnltk's resources in a pretty-printed table. 
+       Special filters can be added to show only downloaded  
+       resources or only resources that have specific names. 
+       This view works both in jupyter notebook and on command 
+       line. 
+    """
+    
+    def __init__(self, name: str="", downloaded: bool=False):
+        """Creates a new ResourceView constrained by given parameters.
+           
+           Parameters
+           -----------
+           name: str=""
+                Show only resources that have given `name` as 
+                a part of their name or alias. 
+                Note that the default value ("") is a part of 
+                every resource name, so by default, all resources 
+                will be shown.
+           downloaded: bool=False
+                Show only resources which have been downloaded. 
+        """
+        assert isinstance(name, str)
+        self._keys = [name.lower()]
+        self._only_downloaded = downloaded
+
+    def _get_resource_descriptions(self):
+        # Get normalized resource descriptions
+        res_descriptions = \
+            _normalized_resource_descriptions(check_existence=True)
+        # Rename 'desc' -> 'description'
+        # Add size information to description (if available)
+        for res_dict in res_descriptions:
+            res_dict['description'] = res_dict.get('desc', '')
+            del res_dict['desc']
+            size = res_dict.get('size', None)
+            if size:
+                size = _normalize_resource_size( size )
+                res_dict['description'] += '  '
+                res_dict['description'] += '(size: {})'.format(size)
+        # Show only downloaded resources
+        if self._only_downloaded:
+            filtered_descriptions = []
+            for res_dict in res_descriptions:
+                if res_dict.get('downloaded', False):
+                    filtered_descriptions.append( res_dict )
+            res_descriptions = filtered_descriptions
+        # Show only resources with specific keywords or aliases
+        if self._keys:
+            filtered_descriptions = []
+            for res_dict in res_descriptions:
+                has_name = \
+                    any([k in res_dict['name'] for k in self._keys])
+                has_alias = \
+                    any([k in a for k in self._keys for a in res_dict['aliases']])
+                if has_name or has_alias:
+                    filtered_descriptions.append( res_dict )
+            res_descriptions = filtered_descriptions
+        return res_descriptions
+
+    def __repr__(self):
+        # Get normalized resource descriptions
+        res_descriptions = self._get_resource_descriptions()
+        # Create and output table
+        lengths = { 'name': 20, 'description': 37, 'license': 25, 'downloaded': 10 }
+        table = _pretty_print_resources_table( res_descriptions, lengths )
+        return '{classname}\n{info_table}'.format( classname=self.__class__.__name__, \
+                                                   info_table=table )
+
+    def _repr_html_(self):
+        import pandas
+        # Get normalized resource descriptions
+        res_descriptions = self._get_resource_descriptions()
+        columns = ['name', 'description', 'license', 'downloaded']
+        # Create and output HTML table
+        df = pandas.DataFrame.from_records(res_descriptions, columns=columns)
+        return ('<h4>{}</h4>'.format(self.__class__.__name__))+'\n'+df.to_html(index=False)
+
+
+# Pretty-prints resources table in a way that textual data in cells 
+# is nicely wrapped on multiple lines (for terminal output)
+def _pretty_print_resources_table( records, lengths ):
+    # Computes text wrapping for each cell of the row: cells which 
+    # values exceed the given cell length will be placed on multiple 
+    # lines
+    def _wrap_records_table_row( row_dict, lengths_dict ):
+        from textwrap import wrap
+        assert len(lengths_dict.keys()) <= len(row_dict.keys()), \
+            '{!r} vs {!r}'.format(lengths_dict.keys(), row_dict.keys())
+        assert all({lengths_dict[k] > 0 for k in lengths_dict.keys()})
+        # Wrap values of every colum: if a value exceeds column 
+        # length, then split the value and place on next rows(s)
+        formatted = { k:[] for k in lengths_dict.keys() }
+        max_rows = 1
+        for k in lengths_dict.keys():
+            value = str( row_dict.get(k, '') )
+            wrapped_lines = wrap( value, width=lengths_dict[k] )
+            for l in wrapped_lines:
+                snippet = ('{:'+str(lengths_dict[k])+'}').format(l)
+                formatted[k].append( snippet )
+            cur_max_rows = len( formatted[k] )
+            if cur_max_rows > max_rows:
+                max_rows = cur_max_rows
+        # Make number of rows equal in every column
+        for k in lengths_dict.keys():
+            while len(formatted[k]) < max_rows:
+                formatted[k].append( ' '*lengths_dict[k] )
+        return formatted
+    table_lines = []
+    records.insert(0, { k:k for k in lengths.keys()} )
+    records.insert(1, { k:'='*len(k) for k in lengths.keys()} )
+    for row_id, rec in enumerate(records):
+        table_lines.append('')
+        rows_padded = _wrap_records_table_row( rec, lengths )
+        max_len = len(rows_padded['name'])
+        for i in range(max_len):
+            for k in rows_padded.keys():
+                table_lines[-1] += rows_padded[k][i]
+                table_lines[-1] += '  '
+            table_lines[-1] += '\n'
+        if row_id > 0:
+            # Skip double newline in header row
+            table_lines[-1] += '\n'
+    return ''.join(table_lines)
