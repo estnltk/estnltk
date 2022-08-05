@@ -271,3 +271,73 @@ def test_parse_enc2021_file_iterator_w_original_syntax():
         # clean up: remove temporary file
         os.remove(fp.name)
 
+
+enc_2021_excerpt_2 = \
+"""
+<doc id="738254" src="Web 2013" topic="culture & entertainment" topic_src="classifier" topic_prob="0.743" genre="blogs" genre_src="url rule" length="1k-10k" crawl_date="2013-01-10" domain_distance="1" url="http://blog.varrak.ee/?p=3617" web_domain="blog.varrak.ee" lang_diff="0.20" lang_old2="estonian" lang_scores="estonian: 3405.59, finnish: 1297.96, english: 956.86, arabic: 0.00, chinese: 0.00, danish: 905.74, french: 907.61, german: 886.71, hindi: 0.00, italian: 771.54, japanese: 0.00, korean: 0.00, polish: 882.36, portuguese: 776.59, russian: 0.00, spanish: 756.98, swedish: 901.89">
+<s>
+Eesti	H.sg.g	Eesti-h	sg_g	Eesti	Eesti	0		prop_sg_gen					1	2	nmod	naise	naine	S	sg_g	nmod
+naise	S.sg.g	naine-s	sg_g	naine	naine	0		com_sg_gen					2	3	nmod	elujanu	elujanu	S	sg_g	root
+elujanu	S.sg.g	elujanu-s	sg_g	elu janu	elu_janu	0		com_sg_gen					3	0	root
+19.	O.?	19.-o	?	19.	19.	0		ord_<?>_roman					4	5	amod	sajandi	sajand	S	sg_g	nmod
+sajandi	S.sg.g	sajand-s	sg_g	sajand	sajand	0		com_sg_gen					5	6	nmod	lõppveerandil	lõppveerand	S	sg_ad	nmod
+lõppveerandil	S.sg.ad	lõppveerand-s	sg_ad	lõpp veerand	lõpp_veerand	l		com_sg_ad					6	3	nmod	elujanu	elujanu	S	sg_g	root
+</s>
+</p>
+<p heading="0">
+<s>
+Ma	P.sg.n	mina-p	sg_n	mina	mina	0		sg_nom		ps1			1	2	nsubj	läksin	minema	V	sin	root
+läksin	V.sin	minema-v	sin	mine	mine	sin		mod_indic_impf_ps1_sg_ps_af			fin		2	0	root
+tohtre	S.sg.g	tohtre-s	sg_g	tohtre	tohtre	0		com_sg_gen					3	4	nmod	juure	juur	S	sg_g	obl
+juure	S.sg.g	juur-s	sg_g	juur	juur	0		com_sg_gen					4	2	obl	läksin	minema	V	sin	root
+</s>
+</p>
+<s>
+Ta	P.sg.n	tema-p	sg_n	tema	tema	0		sg_nom		ps3			1	2	nsubj	ütles	ütlema	V	s	root
+ütles	V.s	ütlema-v	s	ütle	ütle	s		mod_indic_impf_ps3_sg_ps_af			fin	NGP-P	2	0	root
+–	Z	--z		-	-				Dsh				3	6	punct	asi	asi	S	sg_n	parataxis
+pole	V.neg.o	olema-v	neg_o	ole	ole	0		aux_imper_pres_ps2_sg_ps_neg			fin	Intr	4	6	cop	asi	asi	S	sg_n	parataxis
+minu	P.sg.g	mina-p	sg_g	mina	mina	0		sg_gen		ps1			5	6	nmod	asi	asi	S	sg_n	parataxis
+asi	S.sg.n	asi-s	sg_n	asi	asi	0		com_sg_nom					6	2	parataxis	ütles	ütlema	V	s	root
+</s>
+</doc>
+"""
+
+def test_parse_enc2021_file_iterator_document_with_malformed_paragraphs():
+    # Tests that sentences/words are properly reconstructed even in
+    # case of malformed paragraph annotations.
+    # Set up: Create an example file from the enc_2021_excerpt_2
+    fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', 
+                                     prefix='enc_2021_excerpt_',
+                                     suffix='.vert', delete=False)
+    fp.write( enc_2021_excerpt_2 )
+    fp.close()
+    try:
+        texts = []
+        word_count = 0
+        paragraph_count = 0
+        # Parse ENC and restore only syntax
+        for text in parse_enc_file_iterator( fp.name, encoding='utf-8',\
+                                             tokenization='preserve',
+                                             restore_morph_analysis=True,
+                                             restore_syntax=True ):
+            assert 'original_paragraphs' in text.layers
+            assert 'original_morph_analysis' in text.layers
+            assert 'original_syntax' in text.layers
+            assert len(text['original_words']) == len(text['original_morph_analysis'])
+            assert len(text['original_words']) == len(text['original_syntax'])
+            texts.append(text)
+            word_count += len(text['original_syntax'])
+            paragraph_count += len(text['original_paragraphs'])
+        assert len(texts) == 1
+        assert word_count == 16
+        assert paragraph_count == 3
+        assert texts[0]['original_paragraphs'][0].enclosing_text == \
+            'Eesti naise elujanu 19. sajandi lõppveerandil'
+        assert texts[0]['original_paragraphs'][1].enclosing_text == \
+            'Ma läksin tohtre juure'
+        assert texts[0]['original_paragraphs'][2].enclosing_text == \
+            'Ta ütles – pole minu asi'
+    finally:
+        # clean up: remove temporary file
+        os.remove(fp.name)

@@ -896,6 +896,7 @@ class VertXMLFileParser:
                        store_fragment_attributes:bool=True, \
                        add_unexpected_tags_to_words:bool=False, \
                        record_linguistic_analysis:bool=False,\
+                       always_create_paragraphs:bool=True,\
                        textReconstructor:ENCTextReconstructor=None,\
                        logger:Logger=None ):
         '''Initializes the parser.
@@ -949,6 +950,15 @@ class VertXMLFileParser:
                Otherwise, lingustic analyses will be discarded and only segmentation 
                annotations will be recorded.
                (default: False)
+           always_create_paragraphs: boolean
+               If set, then attempts to always create paragraph annotations 
+               for sentence annotations (enveloping around sentence annotations), 
+               even if there are no paragraph annotations or if there are malformed 
+               paragraph annotations in the original document markup. 
+               This fixes issue of discarding sentences that are outside the 
+               paragraphs, but forces "inventing paragraph boundaries" for 
+               sentences which are not inside paragraph annotation.
+               (default: True)
            textReconstructor: ENCTextReconstructor
                ENCTextReconstructor instance that can be used for reconstructing
                the Text object based on extracted document content;
@@ -965,6 +975,7 @@ class VertXMLFileParser:
         self.content          = {} # content of the document or subdocument
         self.last_was_glue    = False
         self.last_was_doc_end = False
+        self.last_was_p_end   = False
         if focus_ids is not None:
             assert isinstance(focus_ids, set)
             if len(focus_ids) == 0:
@@ -989,6 +1000,7 @@ class VertXMLFileParser:
         self.discard_empty_fragments   = discard_empty_fragments
         self.add_unexpected_tags_to_words = add_unexpected_tags_to_words
         self.record_linguistic_analysis   = record_linguistic_analysis
+        self.always_create_paragraphs     = always_create_paragraphs
         self.logger                       = logger
         self.textreconstructor            = textReconstructor
         if self.textreconstructor:
@@ -1238,6 +1250,7 @@ class VertXMLFileParser:
             if '_paragraphs' not in parent:
                 parent['_paragraphs'] = []
             parent['_paragraphs'].append( new_paragraph )
+            self.last_was_p_end = False
         # *** Paragraph's end
         if m_par_end:
             if self.discard_empty_fragments:
@@ -1259,6 +1272,7 @@ class VertXMLFileParser:
                            ('_words' not in parent[-1] or \
                             len(parent[-1]['_words']) == 0):
                             parent.pop()
+            self.last_was_p_end = True
         # *** New sentence
         if m_s_start:
             # Create new sentence
@@ -1282,10 +1296,24 @@ class VertXMLFileParser:
                 parent = self.content
             if '_paragraphs' in parent:
                 assert len(parent['_paragraphs']) > 0
+                if self.always_create_paragraphs and self.last_was_p_end:
+                    # Force creating a new paragraph
+                    # (If last was </p>, assume start 
+                    #  of a new paragraph)
+                    parent['_paragraphs'].append( {} )
                 parent = parent['_paragraphs'][-1]
+            else:
+                if self.always_create_paragraphs:
+                    # Force creating a new paragraph
+                    # (Even if no <p> tags have been 
+                    #  encountered, we can still start 
+                    #  a new paragraph)
+                    parent['_paragraphs'] = [ {} ]
+                    parent = parent['_paragraphs'][-1]
             if '_sentences' not in parent:
                 parent['_sentences'] = []
             parent['_sentences'].append( new_sentence )
+            self.last_was_p_end = False
         # *** Sentence end
         if m_s_end:
             if self.discard_empty_fragments:
@@ -1306,6 +1334,7 @@ class VertXMLFileParser:
                         if '_words' not in parent[-1] or \
                            len(parent[-1]['_words']) == 0:
                             parent.pop()
+            self.last_was_p_end = False
         # *** The glue tag: tokens from both side should be joined 
         if m_glue:
             self.last_was_glue = True
