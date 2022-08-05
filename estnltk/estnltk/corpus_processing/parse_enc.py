@@ -23,7 +23,8 @@
 #     nc19_Balanced_Corpus.vert
 #     nc21_Fiction.vert
 #     nc19_Reference_Corpus.vert
-#     
+#     nc19_Web_2013.vert
+#     nc21_Feeds.vert
 #
 
 import re
@@ -1060,6 +1061,11 @@ class VertXMLFileParser:
                 stripped_line = stripped_line.replace('&lt;', '<')
             if gt_escaped:
                 stripped_line = stripped_line.replace('&gt;', '>')
+            # Special hack to fix a broken doc tag in 'nc21_Feeds.vert'
+            if 'src="Feeds 2014–2021"' in stripped_line and \
+               'feed_hostname="xn--snumid-pxa.ee"' in stripped_line:
+                stripped_line = stripped_line.replace("tags='Arvamus|“Terevisioon\"'", \
+                                                      'tags="Arvamus|“Terevisioon”"' )
             # Clear old doc content
             self.document.clear()
             self.content.clear()
