@@ -77,7 +77,7 @@ def test_parse_enc2021_file_iterator_w_original_tokenization():
          'lang_scores2': 'estonian: 156.65, finnish: 64.30, english: 56.98, arabic: 0.00, chinese: 0.00, danish: 51.69, '+\
                         'french: 46.40, german: 46.96, hindi: 0.00, italian: 41.85, japanese: 0.00, korean: 0.00, polish: 41.61, '+\
                         'portuguese: 41.00, russian: 0.00, spanish: 47.91, swedish: 45.60', 
-         'lang_old2': 'estonian'}
+         'lang_old2': 'estonian', 'autocorrected_paragraphs': False}
     assert texts[1].meta == \
         {'id': '3336603', 'src': 'Wikipedia Talk 2017', 'genre': 'forums', 'genre_src': 'source', 
          'domain_distance': '0', 'url': 'https://et.wikipedia.org/wiki/Talk:Carl_Ludvig_Engel', 
@@ -86,7 +86,8 @@ def test_parse_enc2021_file_iterator_w_original_tokenization():
          'Ukrainian: 0.00, Belarusian: 0.00, Serbian: 0.00, Bulgarian: 0.00, Macedonian: 0.00', 
          'lang_scores2': 'estonian: 133.62, finnish: 49.22, english: 31.96, arabic: 0.00, '+\
          'chinese: 0.00, danish: 29.82, french: 30.04, german: 32.27, hindi: 0.00, italian: 22.93, japanese: 0.00, korean: 0.00, '+\
-         'polish: 33.80, portuguese: 23.54, russian: 0.00, spanish: 23.95, swedish: 30.08', 'lang_old2': 'estonian'}
+         'polish: 33.80, portuguese: 23.54, russian: 0.00, spanish: 23.95, swedish: 30.08', 'lang_old2': 'estonian', \
+         'autocorrected_paragraphs': False}
     # Check for existence of tokenization layers
     for layer in ['original_paragraphs', 'original_words', 'original_compound_tokens', \
                   'original_sentences', 'original_tokens', 'original_word_chunks']:
@@ -321,6 +322,9 @@ def test_parse_enc2021_file_iterator_document_with_malformed_paragraphs():
                                              tokenization='preserve',
                                              restore_morph_analysis=True,
                                              restore_syntax=True ):
+            # Check the indicator of paragraph corrections
+            assert 'autocorrected_paragraphs' in text.meta
+            assert text.meta['autocorrected_paragraphs'] == True
             assert 'original_paragraphs' in text.layers
             assert 'original_morph_analysis' in text.layers
             assert 'original_syntax' in text.layers

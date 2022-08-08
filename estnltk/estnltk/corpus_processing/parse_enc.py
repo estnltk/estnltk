@@ -952,12 +952,13 @@ class VertXMLFileParser:
                (default: False)
            always_create_paragraphs: boolean
                If set, then attempts to always create paragraph annotations 
-               for sentence annotations (enveloping around sentence annotations), 
-               even if there are no paragraph annotations or if there are malformed 
-               paragraph annotations in the original document markup. 
+               for sentence annotations (i.e., every sentence will be enveloped 
+               by a paragraph), even if there are no paragraph annotations in 
+               the original document or if there are malformed paragraph 
+               annotations. 
                This fixes issue of discarding sentences that are outside the 
-               paragraphs, but forces "inventing paragraph boundaries" for 
-               sentences which are not inside paragraph annotation.
+               paragraphs, but forces adding paragraph annotations to all 
+               documents (even to those that actually do not have paragraphs).
                (default: True)
            textReconstructor: ENCTextReconstructor
                ENCTextReconstructor instance that can be used for reconstructing
@@ -973,6 +974,7 @@ class VertXMLFileParser:
         self.inside_focus_doc = False
         self.document         = {} # metadata of the document
         self.content          = {} # content of the document or subdocument
+        self.fixed_paragraphs = 0  # how many <p> tags have been autocorrected
         self.last_was_glue    = False
         self.last_was_doc_end = False
         self.last_was_p_end   = False
@@ -1081,10 +1083,12 @@ class VertXMLFileParser:
             # Clear old doc content
             self.document.clear()
             self.content.clear()
+            self.fixed_paragraphs = 0
             # Carry over attributes
             attribs = parse_tag_attributes( stripped_line, logger=self.logger )
             for key, value in attribs.items():
-                if key in ['_paragraphs','_sentences','_words','_original_words']:
+                if key in ['_paragraphs','_sentences','_words','_original_words', \
+                           'autocorrected_paragraphs']:
                    raise Exception("(!) Improper key name "+key+" in tag <doc>.")
                 self.document[key] = value
             if 'id' not in self.document:
@@ -1144,6 +1148,11 @@ class VertXMLFileParser:
                     assert key not in self.content, \
                         ('(!) Key {!r} already in {!r}.').format( key, self.content.keys() )
                     self.content[key] = value
+                # Use metadata key to indicate whether paragraph annotations
+                # have been automatically adjusted/corrected
+                if self.always_create_paragraphs:
+                    self.content['autocorrected_paragraphs'] = \
+                        self.fixed_paragraphs > 0 
                 self.lines += 1
                 if self.textreconstructor:
                     # create Text object
@@ -1186,17 +1195,24 @@ class VertXMLFileParser:
                 if key == 'id':
                     # Rename 'id' -> 'subdoc_id'
                     key = 'subdoc_id'
-                if key in ['_paragraphs','_sentences','_words','_original_words']:
+                if key in ['_paragraphs','_sentences','_words','_original_words',
+                           'autocorrected_paragraphs']:
                     raise Exception("(!) Improper key name "+key+" in tag <doc>.")
                 self.content['subdoc'][key] = value
             # 2) Carry over parent document's attributes
             for key, value in self.document.items():
                 assert key not in self.content['subdoc']
                 self.content['subdoc'][key] = value
+            self.fixed_paragraphs = 0
         # *** End of a subdocument (info)
         if m_info_end:
             if 'subdoc' in self.content:
                 parent = self.content['subdoc']
+                # Use metadata key to indicate whether paragraph annotations
+                # have been automatically adjusted/corrected
+                if self.always_create_paragraphs:
+                    parent['autocorrected_paragraphs'] = \
+                        self.fixed_paragraphs > 0 
             else:
                 # --------------------------------------------
                 # Note: If the first <info> tag is broken and 
@@ -1301,6 +1317,7 @@ class VertXMLFileParser:
                     # (If last was </p>, assume start 
                     #  of a new paragraph)
                     parent['_paragraphs'].append( {} )
+                    self.fixed_paragraphs += 1
                 parent = parent['_paragraphs'][-1]
             else:
                 if self.always_create_paragraphs:
@@ -1310,6 +1327,7 @@ class VertXMLFileParser:
                     #  a new paragraph)
                     parent['_paragraphs'] = [ {} ]
                     parent = parent['_paragraphs'][-1]
+                    self.fixed_paragraphs += 1
             if '_sentences' not in parent:
                 parent['_sentences'] = []
             parent['_sentences'].append( new_sentence )
