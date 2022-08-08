@@ -1,30 +1,19 @@
 #
-#  Module for converting Estonian National Corpus (ENC) 2017 and 2019 
-#  documents to EstNLTK Text objects.
+#  Module for converting Estonian National Corpus (ENC) 2017, 2019 and 
+#  2021 documents to EstNLTK Text objects.
 #
-#  The Estonian National Corpus (ENC) 2017 & 2019 contain variety of corpora,
-#  including documents crawled from web (etTenTen 2013 and etTenTen 2017),
-#  documents from the National Corpus (e.g. Estonian Reference Corpus), 
-#  and articles from Estonian Wikipedia.
+#  The Estonian National Corpus (ENC) 2017, 2019 & 2021 contain variety of 
+#  corpora, including documents crawled from web (Estonian Web 2013, 2017,
+#  2019 & 2021), documents from the National Corpus (e.g. Estonian Reference 
+#  Corpus), and articles from Estonian Wikipedia.
 #
 #  Documents are in an XML-like format, contain metadata (e.g  document 
 #  source and title), and have been split into subdocuments and sentences, 
 #  or into paragraphs and sentences.
-#  etTenTen 2017 web documents have been crawled with the tool SpiderLing, 
-#  see http://corpus.tools/wiki/SpiderLing for details. Most of the textual 
-#  content should be clean from HTML annotations, but some annotations may 
-#  have remained.
-#
-#  Adapting this module for parsing ENC 2021 is work-in-progress; so far,
-#  the module has only been tested on files:
-#     nc19_Wikipedia_Talk_2017.vert
-#     nc21_DOAJ.vert
-#     nc21_Wikipedia_2021.vert
-#     nc19_Balanced_Corpus.vert
-#     nc21_Fiction.vert
-#     nc19_Reference_Corpus.vert
-#     nc19_Web_2013.vert
-#     nc21_Feeds.vert
+#  Web documents have been crawled with the tool SpiderLing, see 
+#  http://corpus.tools/wiki/SpiderLing for details. Most of the textual 
+#  content should be clean from HTML annotations, but some annotations 
+#  may have remained.
 #
 
 import re
@@ -878,7 +867,8 @@ class VertXMLFileParser:
         files: all XML tags are on separate lines, so the line by line parsing 
         is actually the most straightforward approach.
         
-        * VertXMLFileParser is made for parsing vert files of ENC 2017 & 2019; 
+        * VertXMLFileParser is made for parsing vert files of ENC 2017, 2019 & 
+          2021; 
           the implementation is loosely based on earlier EtTenTenXMLParser;
         * vert / prevert is an output file type used by the SpiderLing web 
           crawler, see http://corpus.tools/wiki/SpiderLing for details; 
@@ -1525,10 +1515,9 @@ def parse_enc_file_iterator( in_file:str,
                              textReconstructor:ENCTextReconstructor=None, \
                              line_progressbar:str=None, \
                              logger:Logger=None  ):
-    '''Opens ENC 2017 or ENC 2019 corpus file (a vert type file), 
-       reads its content document by document, reconstructs Text 
-       objects from the documents, and yields created Text objects 
-       one by one.
+    '''Opens ENC corpus file (a vert type file), reads its content document 
+       by document, reconstructs Text objects from the documents, and yields 
+       created Text objects one by one.
        
        If tokenization=='preserve' (default), then created Text 
        objects will have layers preserving original segmentation:
@@ -1545,7 +1534,8 @@ def parse_enc_file_iterator( in_file:str,
        Parameters
        ----------
        in_file: str
-           Full name of ENC corpus file (name with path);
+           Full name of ENC corpus file (name with path); 
+           Must be a file in the vert format.
            
        encoding: str
            Encoding of in_file. Defaults to 'utf-8';
@@ -1692,10 +1682,9 @@ def parse_enc_file_content_iterator( content,
                                      textReconstructor:ENCTextReconstructor=None, \
                                      line_progressbar:str=None, \
                                      logger:Logger=None  ):
-    '''Reads ENC 2017 or ENC 2019 corpus file's content, extracts 
-       documents based on the XML annotations, reconstructs Text 
-       objects from the documents, and yields created Text objects 
-       one by one.
+    '''Reads ENC corpus file's content, extracts documents based on 
+       the XML annotations, reconstructs Text objects from the documents, 
+       and yields created Text objects one by one.
        
        If tokenization=='preserve' (default), then created Text 
        objects will have layers preserving original segmentation:
@@ -1712,8 +1701,9 @@ def parse_enc_file_content_iterator( content,
        Parameters
        ----------
        content: str
-           ENC 2017 or 2019 corpus file's content (or a subset of the 
-           content) as a string.
+           ENC corpus file's content (or a subset of the content) as 
+           a string. It is assumed that the data is in the vert format. 
+           Supported corpus versions: ENC 2017, ENC 2019, ENC 2021. 
        
        focus_doc_ids: set of str
            Set of document id-s corresponding to the documents which 
