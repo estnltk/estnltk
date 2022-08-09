@@ -4,7 +4,7 @@ NLP components
 This folder contains tutorials about EstNLTK's natural language processing (NLP) components. 
 While many of the components are part of the default pipeline (callable via _default resolver_), some components are also stand-alone and need to be imported from specific paths.
 
-* [introduction_to_nlp_pipeline.ipynb](introduction_to_nlp_pipeline.ipynb) gives an overview about how to use EstNLTK for basic text analysis: splitting text into tokens, words, sentences, and performing morphological analysis (including lemmatization and part-of-speech tagging).
+* [introduction_to_nlp_pipeline.ipynb](../basics/introduction_to_nlp_pipeline.ipynb) gives an overview about how to use EstNLTK for basic text analysis: splitting text into tokens, words, sentences, and performing morphological analysis (including lemmatization and part-of-speech tagging).
 
 * [A_text_segmentation](A_text_segmentation/) tutorials give details about segmenting texts into tokens, compound tokens, words, sentences, paragraphs and clauses.
 
