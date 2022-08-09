@@ -8,17 +8,17 @@ Updating and reorganizing tutorials is currently work-in-progress. There can be 
 
 
 * Basics of EstNLTK:
-    * Introduction to the basic NLP pipeline and morphological tagging:  [introduction_to_nlp_pipeline.ipynb](nlp_pipeline/introduction_to_nlp_pipeline.ipynb)
+    * Introduction to the basic NLP pipeline and morphological tagging:  [introduction_to_nlp_pipeline.ipynb](basics/introduction_to_nlp_pipeline.ipynb)
 
-    * Introduction to EstNLTK's programming interface and data structures: [basics_of_estnltk.ipynb](basics_of_estnltk.ipynb)
+    * Introduction to EstNLTK's programming interface and data structures: [introduction_to_estnltk_api.ipynb](basics/introduction_to_estnltk_api.ipynb)
      
-    * EstNLTK's resources (downloading models required by taggers): [estnltk_resources.ipynb](estnltk_resources.ipynb) 
+    * EstNLTK's resources (how to download models required by taggers): [estnltk_resources.ipynb](basics/estnltk_resources.ipynb) 
 
 * NLP components:
     
     * [text_segmentation](nlp_pipeline/A_text_segmentation) -- taggers for splitting text into tokens, words, sentences, paragraphs and clauses;
     
-    * [morphological processing](nlp_pipeline/B_morphology) -- morphological analysis, disambiguation and synthesis; spelling correction and syllabification;
+    * [morphological processing](nlp_pipeline/B_morphology) -- morphological analysis, disambiguation and synthesis;  lemmatization, spelling correction and syllabification;
 
     * [syntactic analysis](nlp_pipeline/C_syntax) -- preprocessing for syntax and syntactic analysers; available models; utilities for comparing and validating syntactic annotations;
 
