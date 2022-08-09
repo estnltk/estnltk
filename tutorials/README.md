@@ -18,7 +18,7 @@ Updating and reorganizing tutorials is currently work-in-progress. There can be 
     
     * [text_segmentation](nlp_pipeline/A_text_segmentation) -- taggers for splitting text into tokens, words, sentences, paragraphs and clauses;
     
-    * [morphological processing](nlp_pipeline/B_morphology) -- morphological analysis, disambiguation and synthesis;  lemmatization, spelling correction and syllabification;
+    * [morphological processing](nlp_pipeline/B_morphology) -- morphological analysis, disambiguation and synthesis; lemmatisation; spelling correction and syllabification;
 
     * [syntactic analysis](nlp_pipeline/C_syntax) -- preprocessing for syntax and syntactic analysers; available models; utilities for comparing and validating syntactic annotations;
 
