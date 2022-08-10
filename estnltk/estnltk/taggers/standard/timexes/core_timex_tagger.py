@@ -20,9 +20,11 @@ from collections import OrderedDict
 from estnltk import Text, Layer
 from estnltk import EnvelopingSpan
 
+from estnltk.common import _get_word_text
+
 from estnltk.taggers import Tagger
 from estnltk.taggers.standard.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.standard.morph_analysis.morf_common import _is_empty_annotation, _get_word_text
+from estnltk.taggers.standard.morph_analysis.morf_common import _is_empty_annotation
 
 from estnltk.java.javaprocess import JavaProcess
 from estnltk.common import JAVARES_PATH

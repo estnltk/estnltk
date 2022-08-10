@@ -6,10 +6,12 @@
 
 from estnltk.vabamorf.morf import Vabamorf
 
+
 from estnltk import Annotation
 from estnltk import Layer, Text
+
 from estnltk.taggers import Retagger
-from estnltk.taggers.standard.morph_analysis.morf_common import _get_word_texts
+from estnltk.common import _get_word_texts
 
 class SpellCheckRetagger(Retagger):
     '''Processes words with Vabamorf's spellchecker and adds normalized forms to misspelled words.'''

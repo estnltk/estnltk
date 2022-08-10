@@ -16,9 +16,10 @@ from collections import defaultdict
 from estnltk import Text, Layer
 from estnltk.taggers import Tagger, Retagger
 
+from estnltk.common import _get_word_text
+
 from estnltk.taggers.standard.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.standard.morph_analysis.morf_common import NORMALIZED_TEXT
-from estnltk.taggers.standard.morph_analysis.morf_common import _get_word_text
 from estnltk.taggers.standard.morph_analysis.morf_common import _is_empty_annotation
 
 

@@ -3,6 +3,9 @@
 #
 import os
 
+from estnltk_core.layer.span import Span
+from estnltk_core.layer import AttributeList
+
 PACKAGE_PATH = os.path.dirname(__file__)
 
 # Path to Java resources used by EstNLTK
@@ -67,3 +70,67 @@ NORMALIZED_TEXT = 'normalized_text'
 # disambiguation, all spans of "morph_analysis" that have 
 # ignore attribute set to True will be skipped;
 IGNORE_ATTR = '_ignore'
+
+
+# ==================================================================
+#    Getting normalized forms from the 'words' layer                
+# ==================================================================
+
+def _get_word_texts(word: Span):
+    '''Returns all possible normalized forms of the given Span from 
+       the 'words' layer.
+       If there are normalized word forms available, returns a list
+       containing all normalized forms (excluding word.text).
+       Otherwise, if no normalized word forms have been set, returns
+       a list containing only one item: the surface form (word.text).
+
+       Taggers that want to be aware of word normalization/spelling 
+       correction should use this function to retrieve normalized word 
+       forms.
+
+       Parameters
+       ----------
+       word: Span
+          word which normalized texts need to be acquired;
+
+       Returns
+       -------
+       str
+          a list of normalized forms of the word, or [ word.text ]
+    '''
+    if hasattr(word, 'normalized_form') and word.normalized_form != None:
+        # return normalized versions of the word
+        if isinstance(word.normalized_form, AttributeList):
+            # words is ambiguous
+            atr_list = [nf for nf in word.normalized_form if nf != None]
+            return atr_list if len(atr_list) > 0 else [ word.text ]
+        elif isinstance(word.normalized_form, str):
+            # words is not ambiguous, and attribute has a single value
+            return [ word.normalized_form ]
+        elif isinstance(word.normalized_form, list):
+            # words is not ambiguous, and attribute has multiple values
+            return word.normalized_form
+        else:
+            raise TypeError('(!) Unexpected data type for word.normalized_form: {}', type(word.normalized_form) )
+    else:
+        # return the surface form
+        return [ word.text ]
+
+
+def _get_word_text(word: Span):
+    '''Returns a word string corresponding to the given Span from 
+       the 'words' layer.
+       If there are normalized word forms available, returns the 
+       first normalized form instead of the surface form.
+
+       Parameters
+       ----------
+       word: Span
+          word which text (or normalized text) needs to be acquired;
+
+       Returns
+       -------
+       str
+          first normalized text of the word, or word.text
+    '''
+    return _get_word_texts(word)[0]

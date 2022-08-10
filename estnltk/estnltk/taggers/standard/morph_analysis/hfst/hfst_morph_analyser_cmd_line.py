@@ -19,7 +19,7 @@ from estnltk.taggers import Tagger
 
 from estnltk_core.converters import as_unicode, as_binary
 
-from estnltk.taggers.standard.morph_analysis.morf_common import _get_word_texts
+from estnltk.common import _get_word_texts
 
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_common import HFST_MODEL_FILE
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_common import HfstMorphOutputExtractor

@@ -14,6 +14,8 @@ from estnltk import Annotation
 from estnltk import Layer, Text
 from estnltk import Span
 
+from estnltk.common import _get_word_texts
+
 from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
 from estnltk.taggers import Retagger
@@ -29,7 +31,6 @@ from estnltk.taggers.standard.morph_analysis.morf_common import VABAMORF_ATTRIBU
 from estnltk.taggers.standard.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.standard.morph_analysis.morf_common import NORMALIZED_TEXT
 
-from estnltk.taggers.standard.morph_analysis.morf_common import _get_word_texts
 from estnltk.taggers.standard.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.standard.morph_analysis.morf_common import _is_empty_annotation
 

@@ -10,7 +10,6 @@ from typing import MutableMapping, Any
 
 from estnltk import Annotation
 from estnltk import Span
-from estnltk_core.layer import AttributeList
 
 from estnltk.vabamorf.morf import get_group_tokens
 from estnltk.vabamorf.morf import get_lemma
@@ -44,59 +43,8 @@ from estnltk.common import IGNORE_ATTR
 #    Helper functions
 # =================================
 
-def _get_word_texts(word: Span):
-    ''' Returns all possible normalized forms of the given (word) Span.
-       If there are normalized word forms available, returns a list
-       containing all normalized forms (excluding word.text).
-       Otherwise, if no normalized word forms have been set, returns
-       a list containing only one item: the surface form (word.text).
-
-       Parameters
-       ----------
-       word: Span
-          word which normalized texts need to be acquired;
-
-       Returns
-       -------
-       str
-          a list of normalized forms of the word, or [ word.text ]
-    '''
-    if hasattr(word, 'normalized_form') and word.normalized_form != None:
-        # return normalized versions of the word
-        if isinstance(word.normalized_form, AttributeList):
-            # words is ambiguous
-            atr_list = [nf for nf in word.normalized_form if nf != None]
-            return atr_list if len(atr_list) > 0 else [ word.text ]
-        elif isinstance(word.normalized_form, str):
-            # words is not ambiguous, and attribute has a single value
-            return [ word.normalized_form ]
-        elif isinstance(word.normalized_form, list):
-            # words is not ambiguous, and attribute has multiple values
-            return word.normalized_form
-        else:
-            raise TypeError('(!) Unexpected data type for word.normalized_form: {}', type(word.normalized_form) )
-    else:
-        # return the surface form
-        return [ word.text ]
-
-
-def _get_word_text(word: Span):
-    '''Returns a word string corresponding to the given (word) Span.
-       If there are normalized word forms available, returns the first
-       normalized form instead of the surface form.
-
-       Parameters
-       ----------
-       word: Span
-          word which text (or normalized text) needs to be acquired;
-
-       Returns
-       -------
-       str
-          first normalized text of the word, or word.text
-    '''
-    return _get_word_texts(word)[0]
-
+from estnltk.common import _get_word_texts
+from estnltk.common import _get_word_text
 
 def _create_empty_morph_record( word = None, layer_attributes = None ):
     ''' Creates an empty 'morph_analysis' record that will 
