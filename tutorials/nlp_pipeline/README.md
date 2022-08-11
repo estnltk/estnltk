@@ -10,7 +10,7 @@ While many of the components are part of the default pipeline (callable via _def
 
 * [B_morphology](B_morphology/) tutorials describe morphological analysis tools (Vabamorf, text-based and corpus-based disambiguator, user dictionary tagger, GT converter and HFST-based analyser), morphological synthesis, spelling correction and syllabification.
 
-* [C_syntax](C_syntax/) tutorials give information about preprocessing for syntactic analysis and syntactic analysers, available models and utilities to comparing and validating syntactic annotations.
+* [C_syntax](C_syntax/) tutorials give information about preprocessing for syntactic analysis and syntactic analysers, available models and utilities for comparing and validating syntactic annotations.
 
 * [D_information_extraction](D_information_extraction/) tutorials describe how to extract addresses, named entities and temporal expressions from texts.
 
