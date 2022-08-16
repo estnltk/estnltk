@@ -123,11 +123,11 @@ class RegexTagger(Tagger):
             subindex[rule.group, rule.priority] = rule.decorator
             dynamic_ruleset_map[rule.pattern] = subindex
             # create corresponding static rule if it does not exist yet
-            if static_ruleset_map.get(rule.pattern.lower(), None) is None:
-                self.static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
-            elif len([item for item in static_ruleset_map.get(rule.pattern.lower())
+            if static_ruleset_map.get(rule.pattern, None) is None:
+                self.static_ruleset_map[rule.pattern] = [(rule.group, rule.priority, dict())]
+            elif len([item for item in static_ruleset_map.get(rule.pattern)
                       if item[0] == rule.group and item[1] == rule.priority]) == 0:
-                self.static_ruleset_map[rule.pattern.lower()] = [(rule.group, rule.priority, dict())]
+                self.static_ruleset_map[rule.pattern] = [(rule.group, rule.priority, dict())]
 
         # No errors were detected
         self.dynamic_ruleset_map = dynamic_ruleset_map
