@@ -150,6 +150,19 @@ def test_syntax_ignore_cutter_smoke():
     assert cut_text['words'] == dict_to_layer(expected_words_layer)
 
 
+def test_syntax_ignore_cutter_on_overlapping_ignore_spans():
+    # Test that SyntaxIgnoreCutter works even if syntax_ignore layer has overlapping spans
+    test_text = Text('Uurimuslikuks lähtekohaks on siin Alfseni ja Effrose fundamentaalne töö '+\
+                     '( 1972 , Ann . Math . 96 ) . \n'+\
+                     '( X 4\n\n 1 ) = 0 ja ( X 4\n\n2 ) = 1. Kui vorm on paarisvorm ...')
+    test_text.tag_layer('sentences')
+    syntax_ignore_tagger = SyntaxIgnoreTagger()
+    syntax_ignore_tagger.tag(test_text)
+    syntax_ignore_cutter = SyntaxIgnoreCutter(add_words_layer=True)
+    cut_text = syntax_ignore_cutter.cut(test_text)
+    assert cut_text.text == \
+        'Uurimuslikuks lähtekohaks on siin Alfseni ja Effrose fundamentaalne töö  \n = 0 ja  Kui vorm on paarisvorm ...'
+
 
 def test_add_syntax_layer_from_cut_text_smoke():
     # Test that add_syntax_layer_from_cut_text works with 

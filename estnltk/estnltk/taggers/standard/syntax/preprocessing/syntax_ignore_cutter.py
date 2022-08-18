@@ -89,8 +89,9 @@ class SyntaxIgnoreCutter:
         if self.input_words_layer not in text.layers:
             raise Exception(('(!) Text object is missing required {!r} layer.'+\
                              '').format(self.input_words_layer))
-        # Validate that syntax_ignore layer does not have any ovelapping spans
+        # Detect ovelapping spans from the syntax_ignore layer
         syntax_ignore_layer = text[self.input_syntax_ignore_layer]
+        overlapping_ignore_spans = {}
         for sid1, span_a in enumerate(syntax_ignore_layer):
             for sid2 in range(sid1+1, len(syntax_ignore_layer)):
                 span_b = syntax_ignore_layer[sid2]
@@ -98,9 +99,12 @@ class SyntaxIgnoreCutter:
                 if (span_a.start <= span_b.start <= span_b.end <= span_a.end or \
                     span_b.start < span_a.end < span_b.end or \
                     span_b.start < span_a.start < span_b.end):
-                    raise ValueError(('(!) Unexpected overlapping spans in '+\
-                                      'syntax_ignore layer:\nA: {!r}\nB: {!r}').format(span_a, 
-                                                                                       span_b))
+                    if sid1 not in overlapping_ignore_spans:
+                        overlapping_ignore_spans[sid1] = []
+                    overlapping_ignore_spans[sid1].append( (sid2, span_b) )
+                    if sid2 not in overlapping_ignore_spans:
+                        overlapping_ignore_spans[sid2] = []
+                    overlapping_ignore_spans[sid2].append( (sid1, span_a) )
         # Collects parts of the new text string and
         # corresponding words layer
         old_words_layer = text[self.input_words_layer]
@@ -109,10 +113,32 @@ class SyntaxIgnoreCutter:
         new_word_annotations = []
         last_word_id = 0
         start = 0
-        for ignore_span in syntax_ignore_layer:
-            assert start <= ignore_span.start
+        skip_ignore_spans = set()
+        for sid, ignore_span in enumerate(syntax_ignore_layer):
+            if sid in skip_ignore_spans:
+                continue
+            ignore_span_start = ignore_span.start
+            ignore_span_end   = ignore_span.end
+            # In case there is an overlap between ignore spans,
+            # take the largest stretch of overlapping spans
+            if sid in overlapping_ignore_spans:
+                span_indexes = []
+                for (sid2, ignore_span2) in overlapping_ignore_spans[sid]:
+                    # Get indexes
+                    span_indexes.append( ignore_span2.start )
+                    span_indexes.append( ignore_span2.end )
+                    # Skip the overlapping span in future
+                    skip_ignore_spans.add(sid2)
+                span_indexes.append( ignore_span.start )
+                span_indexes.append( ignore_span.end )
+                span_indexes = sorted(span_indexes, reverse=False)
+                assert span_indexes[0] <= span_indexes[-1]
+                # Take min/max indexes as region's boundaries
+                ignore_span_start = span_indexes[0]
+                ignore_span_end   = span_indexes[-1]
+            assert start <= ignore_span_start
             prev_region = new_text_str[-1] if len(new_text_str) > 0 else ''
-            new_region  = old_text_str[start:ignore_span.start]
+            new_region  = old_text_str[start:ignore_span_start]
             # Check if there is a whitespace between two regions
             if self.pad_segments_without_ws:
                 whitespace_requirements_met = \
@@ -131,20 +157,20 @@ class SyntaxIgnoreCutter:
                     word_span = old_words_layer[last_word_id]
                     # Record words falling inside the region
                     if start <= word_span.start and \
-                       word_span.end < ignore_span.start:
+                       word_span.end < ignore_span_start:
                         annotation = {'original_start': word_span.start,
                                       'original_end': word_span.end,
                                       'original_index': last_word_id,
                                       'start': _base_len + (word_span.start-start),
                                       'end':   _base_len + (word_span.end-start)}
                         new_word_annotations.append( annotation )
-                    if word_span.start > ignore_span.start or \
-                       word_span.end > ignore_span.start:
+                    if word_span.start > ignore_span_start or \
+                       word_span.end > ignore_span_start:
                         # Stop if word falls out of the region
                         break
                     last_word_id += 1
             # new region start
-            start = ignore_span.end
+            start = ignore_span_end
         # Add the remaining text (after ignore_spans have been exhausted)
         if start < len(old_text_str):
             prev_region = new_text_str[-1] if len(new_text_str) > 0 else ''
