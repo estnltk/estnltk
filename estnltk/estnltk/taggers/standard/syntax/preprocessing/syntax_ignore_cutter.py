@@ -1,15 +1,21 @@
 #
-#  Cuts the input Text object into a smaller Text by 
-#  leaving out all spans from the syntax_ignore layer.
+#  SyntaxIgnoreCutter cuts the input Text object into 
+#  a smaller Text by leaving out all spans from the 
+#  syntax_ignore layer.
 #  
 #  Optionally, adds a words layer to the cut Text 
 #  which has words' start & end indexes on the original 
 #  (uncut) Text object, allowing to trace words' 
-#  locations in the original Text.
+#  locations in the original Text. This can be used by 
+#  the function add_syntax_layer_from_cut_text (also below)
+#  to carry over syntax layer from the cut text to
+#  the original text.
 #  
-#  Use this class to as a preprocessor to create a 
-#  syntactically analysable Text without the 
-#  syntax_ignore text regions.
+#  Use SyntaxIgnoreCutter to as a preprocessor to create 
+#  a syntactically analysable Text without the syntax_ignore 
+#  text regions.
+#  Use add_syntax_layer_from_cut_text to carry syntax layer
+#  back to the original text after analysis.
 #
 #  Some insipration from:
 #  https://github.com/estnltk/syntax_experiments/tree/syntax_consistency/syntax_cutter_library
@@ -196,3 +202,100 @@ class SyntaxIgnoreCutter:
                                                          'original_index': old_index} )
             new_text.add_layer( new_words_layer )
         return new_text
+
+
+
+
+def add_syntax_layer_from_cut_text(original_text: Text, cut_text: Text, syntax_layer: str, 
+                                   original_words_layer: str='words',
+                                   cut_words_layer: str='words',
+                                   add_empty_spans: bool= True):
+    """Carries over syntactic analysis layer from cut_text to original_text. 
+       Returns original_text with the attached syntax_layer.
+       
+       Use this function for carrying syntax layer back to the original text 
+       after applying SyntaxIgnoreTagger, SyntaxIgnoreCutter and syntactic 
+       analysis.
+       
+       Parameters
+       ----------
+       original_text: Text
+           Text object that was cut with SyntaxIgnoreCutter (resulting in cut_text).
+       cut_text: Text
+           Text object resulting from original_text being cut with SyntaxIgnoreCutter.
+       syntax_layer: str
+           Name of the syntactic analysis layer to be carried over from the cut_text
+           to the original_text.
+       original_words_layer: str (default: 'words')
+           Name of the words layer in the original_text. This will be the parent of 
+           the syntax_layer in the original_text.
+       cut_words_layer: str (default: 'words')
+           Name of the words layer in the cut_text. This layer must have extra attributes
+           'original_start', 'original_end', 'original_index' which are used to determine
+           and verify the words' locations in the the original_text.
+       add_empty_spans: bool (defaul: True)
+           If set, then empty syntax_layer spans/annotations are added for words in the 
+           original_text that were left out from the cut_text. 
+           Otherwise, ignorable words will not appear in the syntax_layer at all.
+    """
+    # Validate inputs
+    if syntax_layer not in cut_text.layers:
+        raise Exception('(!) Input cut_text is missing layer {!r}'.format(syntax_layer))
+    if cut_words_layer not in cut_text.layers:
+        raise Exception('(!) Input cut_text is missing layer {!r}'.format(cut_words_layer))
+    if original_words_layer not in original_text.layers:
+        raise Exception('(!) Input original_text is missing layer {!r}'.format(original_words_layer))
+    if len(cut_text[syntax_layer]) != len(cut_text[cut_words_layer]):
+        raise Exception('(!) Layers {!r} and {!r} have unexpectedly different sizes: {} vs {}'.format( \
+                                cut_text[syntax_layer],
+                                cut_text[cut_words_layer],
+                                len(cut_text[syntax_layer]), 
+                                len(cut_text[cut_words_layer]) ))
+    missing_attribs = []
+    for attr in ['original_start', 'original_end', 'original_index']:
+        if attr not in cut_text[cut_words_layer].attributes:
+            missing_attribs.append( attr )
+    if missing_attribs:
+        raise Exception('(!) Layer {!r} in the cut_text is missing attributes {!r}'.format(cut_words_layer, \
+                                                                                           missing_attribs))
+    # Create a new syntax layer based on the syntax layer of the cut_text
+    in_syntax_layer = cut_text[syntax_layer]
+    # Attributes for the new layer: take only the primary attributes
+    out_attributes = \
+        [a for a in in_syntax_layer.attributes if a not in in_syntax_layer.secondary_attributes]
+    new_layer = Layer( name=in_syntax_layer.name,
+                       attributes=out_attributes,
+                       text_object=original_text,
+                       parent=original_words_layer,
+                       enveloping=None,
+                       ambiguous=in_syntax_layer.ambiguous,
+                       default_values=in_syntax_layer.default_values.copy() )
+    # Index syntax layer: mark which syntax spans correspond to which words in the original_text
+    syntax_layer_index = {}
+    for sid, syntax_span in enumerate(in_syntax_layer):
+        word_span = cut_text[cut_words_layer][sid]
+        original_start = word_span.annotations[0]['original_start']
+        original_end   = word_span.annotations[0]['original_end']
+        original_index = word_span.annotations[0]['original_index']
+        # Sanity check
+        original_span = original_text.text[original_start:original_end]
+        if original_span != syntax_span.text:
+            raise Exception(('Mismatching spans of the original text and the cut text {!r} vs {!r} '+\
+                             'at the original text location {!r}').format(original_span, 
+                                                                      syntax_span.text, 
+                                                                      (original_start, original_end)))
+        syntax_layer_index[original_index] = syntax_span
+    syntax_layer_id = 0
+    for wid, word_span in enumerate(original_text[original_words_layer]):
+        if wid in syntax_layer_index.keys():
+            syntax_span = syntax_layer_index[wid]
+            syntax_annotations = syntax_span.annotations[0]
+            new_layer.add_annotation( word_span.base_span, \
+                { a: syntax_annotations[a] for a in new_layer.attributes } )
+        else:
+            if add_empty_spans:
+                # Add None values in place of ignored words (optional)
+                new_layer.add_annotation( word_span.base_span, \
+                    { a: None for a in new_layer.attributes } )
+    original_text.add_layer( new_layer )
+    return original_text
