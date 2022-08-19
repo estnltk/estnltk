@@ -259,7 +259,7 @@ class SyntaxIgnoreCutter:
 def add_syntax_layer_from_cut_text(original_text: Text, cut_text: Text, syntax_layer: str, 
                                    original_words_layer: str='words',
                                    cut_words_layer: str='words',
-                                   add_empty_spans: bool= True):
+                                   add_empty_spans: bool= False):
     """Carries over syntactic analysis layer from cut_text to original_text. 
        Returns original_text with the attached syntax_layer.
        
@@ -283,7 +283,7 @@ def add_syntax_layer_from_cut_text(original_text: Text, cut_text: Text, syntax_l
            Name of the words layer in the cut_text. This layer must have extra attributes
            'original_start', 'original_end', 'original_index' which are used to determine
            and verify the words' locations in the the original_text.
-       add_empty_spans: bool (defaul: True)
+       add_empty_spans: bool (default: False)
            If set, then empty syntax_layer spans/annotations are added for words in the 
            original_text that were left out from the cut_text. 
            Otherwise, ignorable words will not appear in the syntax_layer at all.
