@@ -36,4 +36,5 @@ if 'syntax_v0' not in SERIALISATION_REGISTRY:
 if 'legacy_v0' not in SERIALISATION_REGISTRY:
     SERIALISATION_REGISTRY['legacy_v0'] = legacy_v0
 
+from estnltk.resource_utils import ResourceView
 from estnltk.downloader import download, get_resource_paths
