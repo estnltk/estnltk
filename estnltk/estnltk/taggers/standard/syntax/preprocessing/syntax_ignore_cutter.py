@@ -163,6 +163,9 @@ class SyntaxIgnoreCutter:
                                       'original_index': last_word_id,
                                       'start': _base_len + (word_span.start-start),
                                       'end':   _base_len + (word_span.end-start)}
+                        if 'normalized_form' in old_words_layer.attributes:
+                            annotation['normalized_form'] = \
+                                list( word_span['normalized_form'] )
                         new_word_annotations.append( annotation )
                     if word_span.start > ignore_span_start or \
                        word_span.end > ignore_span_start:
@@ -199,13 +202,22 @@ class SyntaxIgnoreCutter:
                                       'original_index': last_word_id,
                                       'start': _base_len + (word_span.start-start),
                                       'end':   _base_len + (word_span.end-start)}
+                        if 'normalized_form' in old_words_layer.attributes:
+                            annotation['normalized_form'] = \
+                                list( word_span['normalized_form'] )
                         new_word_annotations.append( annotation )
                     last_word_id += 1
         # Construct new Text object
         new_text = Text(''.join(new_text_str))
         if self.add_words_layer:
+            new_attributes = ('original_start', 'original_end', 'original_index')
+            if 'normalized_form' in old_words_layer.attributes:
+                new_attributes = ('normalized_form',) + new_attributes
             new_words_layer = \
-                Layer('words', attributes=('original_start', 'original_end', 'original_index'))
+                Layer( self.output_words_layer, 
+                       attributes=new_attributes, 
+                       text_object=new_text,
+                       ambiguous='normalized_form' in new_attributes )
             for a in new_word_annotations:
                 old_start = a['original_start']
                 old_end   = a['original_end']
@@ -222,10 +234,22 @@ class SyntaxIgnoreCutter:
                                                                new_span_str, 
                                                                (old_start,old_end))
                 # Add annotation
-                new_words_layer.add_annotation( (new_start, new_end), 
-                                                        {'original_start': old_start,
-                                                         'original_end':   old_end,
-                                                         'original_index': old_index} )
+                if new_words_layer.ambiguous:
+                    # with 'normalized_form'
+                    assert 'normalized_form' in a.keys()
+                    for normalized_form in a['normalized_form']:
+                        new_words_layer.add_annotation( (new_start, new_end), 
+                                                           {'original_start':  old_start,
+                                                            'original_end':    old_end,
+                                                            'original_index':  old_index,
+                                                            'normalized_form': normalized_form} )
+                else:
+                    # without 'normalized_form'
+                    new_words_layer.add_annotation( (new_start, new_end), 
+                                                            {'original_start': old_start,
+                                                             'original_end':   old_end,
+                                                             'original_index': old_index} )
+            # Attach layer
             new_text.add_layer( new_words_layer )
         return new_text
 
