@@ -21,6 +21,7 @@
 #  https://github.com/estnltk/syntax_experiments/tree/syntax_consistency/syntax_cutter_library
 #
 from estnltk import Text, Layer
+from estnltk.common import _get_word_texts
 
 class SyntaxIgnoreCutter:
     """Cuts Text object into a smaller Text by leaving out 
@@ -71,6 +72,18 @@ class SyntaxIgnoreCutter:
         self.add_words_layer = add_words_layer
         self.pad_segments_without_ws = pad_segments_without_ws
         self.padding_str = padding_str
+
+    def _get_word_normalized_form(self, word: 'Span'):
+        """A hack for properly retrieving a list of normalized_form 
+           values for a word span.
+           This should handle properly both the current format and 
+           also some old and obscure formats, which some datasets
+           are using.
+        """
+        norm_form = _get_word_texts( word )
+        if len(norm_form) == 1 and norm_form[0] == word.text:
+            norm_form = [None]
+        return norm_form
 
     def cut(self, text: Text):
         """Cuts the input Text object into a smaller Text 
@@ -165,7 +178,7 @@ class SyntaxIgnoreCutter:
                                       'end':   _base_len + (word_span.end-start)}
                         if 'normalized_form' in old_words_layer.attributes:
                             annotation['normalized_form'] = \
-                                list( word_span['normalized_form'] )
+                                self._get_word_normalized_form( word_span )
                         new_word_annotations.append( annotation )
                     if word_span.start > ignore_span_start or \
                        word_span.end > ignore_span_start:
@@ -204,7 +217,7 @@ class SyntaxIgnoreCutter:
                                       'end':   _base_len + (word_span.end-start)}
                         if 'normalized_form' in old_words_layer.attributes:
                             annotation['normalized_form'] = \
-                                list( word_span['normalized_form'] )
+                                self._get_word_normalized_form( word_span )
                         new_word_annotations.append( annotation )
                     last_word_id += 1
         # Construct new Text object
