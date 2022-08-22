@@ -3,6 +3,33 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.7.1] - 2022-XX-XX
+
+## Changed
+
+* Stucture and organization of [EstNLTK's tutorials](https://github.com/estnltk/estnltk/tree/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials), including:
+	* Relocated introductory tutorials into the folder ['basics'](https://github.com/estnltk/estnltk/tree/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials/basics);
+	* Relocated 'estner_training' tutorials to 'nlp_pipeline/D_information_extraction';
+	* Updated syntax tutorials and split into parser-wise sub tutorials:
+		* [maltparser tutorial](https://github.com/estnltk/estnltk/blob/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_maltparser.ipynb);
+		* [stanza's parser tutorial](https://github.com/estnltk/estnltk/blob/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb);
+		* [udpipe's parser tutorial](https://github.com/estnltk/estnltk/blob/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_udpipe.ipynb);
+		* [vislcg3 tutorial](https://github.com/estnltk/estnltk/blob/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_vislcg3.ipynb);  
+* Updated `parse_enc` -- it can now be used for parsing [ENC 2021](https://metashare.ut.ee/repository/browse/eesti-keele-uhendkorpus-2021-vert/f176ccc0d05511eca6e4fa163e9d454794df2849e11048bb9fa104f1fec2d03f/). See the details from [the tutorial](https://github.com/estnltk/estnltk/blob/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials/corpus_processing/importing_text_objects_from_corpora.ipynb);
+	* The function `parse_enc_file_iterator` now attempts to _automatically fix malformed paragraph annotations_ . As a result, more words and sentences can be imported from corpora, but the side effect is that there will be artificially created paragraph annotations -- even for documents that do not have paragraph annotations originally. The setting can be turned off, if needed;
+* Relocated `estnltk.transformers` (`MorphAnalysisWebPipeline`) into `estnltk.web_taggers`;
+* Refactoring: moved functions `_get_word_texts` & `_get_word_text` to `estnltk.common`;
+
+## Added
+
+* `ResourceView` class, which lists EstNLTK's resources as a table, and shows their download status. See the [resources tutorial](https://github.com/estnltk/estnltk/blob/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials/basics/estnltk_resources.ipynb) for details. 
+* `SyntaxIgnoreCutter` class, which cuts the input Text object into a smaller Text by leaving out all spans from the syntax_ignore layer (produced by `SyntaxIgnoreTagger`). The resulting Text can then be analysed syntactically while skipping parts of a text may be difficult to analyse. For details, see the [tutorial](https://github.com/estnltk/estnltk/blob/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials/nlp_pipeline/C_syntax/02_syntax_preprocessing_with_ignoretagger.ipynb);
+* function `add_syntax_layer_from_cut_text`, which can be used to carry over the syntactic analysis layer from the cut text (created by `SyntaxIgnoreCutter`) to the original text. The [tutorial](https://github.com/estnltk/estnltk/blob/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials/nlp_pipeline/C_syntax/02_syntax_preprocessing_with_ignoretagger.ipynb);
+
+## Fixed
+
+* Syntax preprocessing [tutorial](https://github.com/estnltk/estnltk/blob/811978b24b9bacd4b53d301d379ffad2bd8b41e9/tutorials/nlp_pipeline/C_syntax/01_syntax_preprocessing.ipynb) to describe the current state of preprocessing;
+
 # [1.7.0] - 2022-06-17
 
 ## Changed
