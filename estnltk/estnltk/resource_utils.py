@@ -2,10 +2,16 @@
 #  Utilities for handling EstNLTK's resources:
 #  * Detecting EstNLTK's resources directory/path
 #  * Downloading/updating the index of resource descriptions
-#  * Normalizing resource descriptions
+#  * Normalizing resource descriptions;
+#  * Pinging downloadable resources;
+#  * Deleting downloaded resources;
+#  * Rudimentary checking of version constraints imposed 
+#    by resource descriptions;
+#  * ResourceView for viewing EstNLTK's resources in 
+#    a prettyprinted table;
 #
 
-from typing import Dict, Any, List
+from typing import Optional, Any, Dict, List, Tuple
 
 import os
 import re
@@ -403,6 +409,189 @@ def ping_resource(resource_dict: Dict[str, Any]) -> bool:
     return status_code_ok
 
 
+# a pattern for canonical version, as defined 
+# in PEP 440 ( https://peps.python.org/pep-0440/ )
+_canonical_version_pattern = \
+    re.compile(r'^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*'+\
+               r'((a|b|rc)(0|[1-9][0-9]*))?'+\
+               r'(\.post(0|[1-9][0-9]*))?'+\
+               r'(\.dev(0|[1-9][0-9]*))?$')
+
+
+# a version comparison operator, as defined in 
+# in PEP 440 ( https://peps.python.org/pep-0440/ ).
+# Note: currently, we do not support all possible 
+# operators, but only a subset of operators: 
+# ==, <=, >=, <, >
+_version_cmp_operator_pattern = re.compile(r'^((==|<=|>=|<|>)\s*)')
+
+
+def _split_cmp_operator_and_version(version_specifier: str) -> Tuple[str, str]:
+    '''Attempts to split the given version_specifier into two parts:
+    comparison operator and canonical version. Note that the comparsion
+    operator must be from the subset ==, <=, >=, <, > and the version 
+    number must be exact and correspond to the canonical version format 
+    defined in PEP 440 ( https://peps.python.org/pep-0440/ ).
+    
+    Usage examples:
+
+    >>> from estnltk.resource_utils import _split_cmp_operator_and_version
+    >>> _split_cmp_operator_and_version(">= 1.0")
+    ('>=', '1.0')
+    >>> _split_cmp_operator_and_version("<1.7.0")
+    ('<', '1.7.0')
+    >> _split_cmp_operator_and_version("1.4.1.1b")
+    ('', '1.4.1.1b')
+    '''
+    operator_match =\
+        _version_cmp_operator_pattern.match(version_specifier)
+    if operator_match:
+        operator_str = operator_match.group(1)
+        version_wo_operator = version_specifier.replace(operator_str, '')
+        return operator_str.strip(), version_wo_operator
+    else:
+        return '', version_specifier
+
+
+def _is_version_satisfied(target_ver: str, cmp_operator: str, spec_ver: str) -> bool:
+    '''Checks heuristically if the target version satisfies the condition:
+       `target_ver  cmp_operator  spec_ver`. Returns boolean. 
+       Note that `target_ver` and `spec_ver` must both follow the canonical 
+       version format specified in https://peps.python.org/pep-0440/ , and 
+       `cmp_operator` (string) must be one of the following:
+       "==", "<=", ">=", "<", ">".
+       TODO: this is a temporary solution to support version checking. 
+       In future, a version handling library should be used instead, such 
+       as packaging https://packaging.pypa.io/en/latest/
+    '''
+    if cmp_operator == '==':
+        return target_ver == spec_ver
+    elif cmp_operator == '>=':
+        return target_ver >= spec_ver
+    elif cmp_operator == '<=':
+        return target_ver <= spec_ver
+    elif cmp_operator == '<':
+        return target_ver < spec_ver
+    elif cmp_operator == '>':
+        return target_ver > spec_ver
+    else:
+        raise Exception('(!) Unexpected version comparsion operator {}.'+\
+                        ' Currently supported operators are: ==, <=, >=, <, >')
+
+
+def _check_version(resource_name: str, package: str, version_specifier: str,
+                   silent: bool= False) -> Optional[bool]:
+    '''Checks heuristically, if the given EstNLTK's package ('estnltk_core', 
+       'estnltk', or 'estnltk_neural') satisfies the given `version_specifier`. 
+       Note that the format of `version_specifier` is limited to formats 
+       that can be used as inputs of the function `_is_version_satisfied`. 
+       The comparison only operates on version numbers specified as final 
+       releases: pre-releases, post-releases etc will not be distinguished 
+       properly. 
+       
+       Returns bool (True/False) as a result of the version checking, or 
+       None if the parsing of `version_specifier` failed, and also if 
+       the package name does not correspond to EstNLTK's package names.
+       
+       If the flag `silent` is unset (the default setting), then outputs
+       warnings in case of problems with the input arguments. Otherwise, 
+       warnings will be silenced.
+       
+       TODO: this is a temporary solution for version checking. In future, 
+       a version handling library should be used instead, such as packaging
+       https://packaging.pypa.io/en/latest/
+    '''
+    # Try to split cmp_operator and version
+    cmp_op, ver = \
+        _split_cmp_operator_and_version( version_specifier )
+    if len( cmp_op ) == 0:
+        warning_msg = ("(!) Error at parsing {}'s version specifier for "+\
+                       "{!r} : unable to extract a comparison operator from "+\
+                       "{!r}. Falling back to using the default "+\
+                       "operator ==.").format( \
+                            package, resource_name, version_specifier )
+        if not silent:
+            warnings.warn( UserWarning(warning_msg) )
+        cmp_op = '=='
+    m_canonical_ver = _canonical_version_pattern.match(ver)
+    if m_canonical_ver:
+        if package.lower() == 'estnltk':
+            from estnltk import __version__
+            return _is_version_satisfied( __version__, cmp_op, ver )
+        elif package.lower() == 'estnltk_core':
+            from estnltk_core import __version__
+            return _is_version_satisfied( __version__, cmp_op, ver )
+        elif package.lower() == 'estnltk_neural':
+            import pkgutil
+            if pkgutil.find_loader('estnltk_neural') is not None:
+                from estnltk_neural import __version__
+                return _is_version_satisfied( __version__, cmp_op, ver )
+            else:
+                warning_msg = ("(!) Unable to check {}'s version for "+\
+                               "{!r} : the package {} is not installed."+\
+                               "").format( \
+                                    package, resource_name, package )
+                if not silent:
+                    warnings.warn( UserWarning(warning_msg) )
+        else:
+            warning_msg = ("(!) Unable to check version of package "+\
+                           "{} in {!r}: unknown package {}."+\
+                           "").format( \
+                                package, resource_name, package )
+            if not silent:
+                warnings.warn( UserWarning(warning_msg) )
+    else:
+        warning_msg = ("(!) Error at parsing {}'s version specifier for "+\
+                       "{!r} : unable to extract a canonical version string "+\
+                       "from {!r}.").format( \
+                            package, resource_name, version_specifier )
+        if not silent:
+            warnings.warn( UserWarning(warning_msg) )
+    return None
+
+
+def _check_estnltk_ver_constraints(resource_dict: Dict[str, Any],
+                                   silent: bool= False) -> Optional[bool]:
+    '''
+    Checks if EstNLTK's version constraints of the given resource are met.
+    Returns True if all constraints were met, or if there were no constraints 
+    set in the given resource description. 
+    Returns False if at least one of the constraints was unsatisfied. 
+    Returns None if at least one constraints could not be checked due 
+    to errors in parsing the version specifier.
+    
+    If the flag `silent` is unset (the default setting), then outputs
+    warnings in case of problems in parsing the version information. 
+    Otherwise, warnings will be silenced.
+    '''
+    chk_results = True
+    if 'estnltk_version' in resource_dict:
+        result = _check_version( resource_dict['name'], 'estnltk', \
+                                 resource_dict['estnltk_version'], \
+                                 silent=silent )
+        if result is None:
+            return result
+        else:
+            chk_results &= result
+    elif 'estnltk_core_version' in resource_dict:
+        result = _check_version( resource_dict['name'], 'estnltk_core', \
+                                 resource_dict['estnltk_core_version'], \
+                                 silent=silent )
+        if result is None:
+            return result
+        else:
+            chk_results &= result
+    elif 'estnltk_neural_version' in resource_dict:
+        result = _check_version( resource_dict['name'], 'estnltk_neural', \
+                                 resource_dict['estnltk_neural_version'], \
+                                 silent=silent )
+        if result is None:
+            return result
+        else:
+            chk_results &= result
+    return chk_results
+
+
 def delete_resource(resource: str) -> bool:
     '''
     Deletes downloaded resource by name. 
@@ -474,12 +663,29 @@ class ResourceView:
         self._keys = [name.lower()]
         self._only_downloaded = downloaded
 
+    def _get_version_constraint_info(self, resource_dict):
+        # Fetches information about EstNLTK's version constraints 
+        # of the resource. If no constraints have been imposed,
+        # returns None
+        info = []
+        for version_tag in [ 'estnltk_core_version', \
+                             'estnltk_version', \
+                             'estnltk_neural_version' ]:
+            if version_tag in resource_dict:
+                info.append( version_tag+' '+\
+                             resource_dict[version_tag] )
+        if info:
+            return \
+                '(requires: '+('; '.join(info))+')'
+        return None
+
     def _get_resource_descriptions(self):
         # Get normalized resource descriptions
         res_descriptions = \
             _normalized_resource_descriptions(check_existence=True)
         # Rename 'desc' -> 'description'
         # Add size information to description (if available)
+        # Add version constraint information (if available)
         for res_dict in res_descriptions:
             res_dict['description'] = res_dict.get('desc', '')
             del res_dict['desc']
@@ -488,6 +694,10 @@ class ResourceView:
                 size = _normalize_resource_size( size )
                 res_dict['description'] += '  '
                 res_dict['description'] += '(size: {})'.format(size)
+            ver_constraint = self._get_version_constraint_info(res_dict)
+            if ver_constraint is not None:
+                res_dict['description'] += '  '
+                res_dict['description'] += ver_constraint
         # Show only downloaded resources
         if self._only_downloaded:
             filtered_descriptions = []

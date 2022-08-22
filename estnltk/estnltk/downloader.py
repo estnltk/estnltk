@@ -29,6 +29,8 @@ from estnltk.resource_utils import get_resources_index
 from estnltk.resource_utils import _normalized_resource_descriptions
 from estnltk.resource_utils import _normalize_resource_size
 from estnltk.resource_utils import is_huggingface_resource
+from estnltk.resource_utils import _check_estnltk_ver_constraints
+
 
 # ====================================================
 #  Getting full paths to downloaded resources (incl. 
@@ -54,7 +56,8 @@ def _ask_download_permission(resource_dict: Dict[str, Any]) -> bool:
 
 
 def get_resource_paths(resource: str, only_latest:bool=False, 
-                                      download_missing:bool=False) \
+                                      download_missing:bool=False,
+                                      check_version:bool=True) \
                                       -> Union[Optional[str], List[str]]:
     '''
     Finds and returns full paths to (all versions of) downloaded resource.
@@ -95,8 +98,14 @@ def get_resource_paths(resource: str, only_latest:bool=False,
         to download the resource. However, if you set environment variable 
         ALLOW_ESTNLTK_DOWNLOADS to a non-zero length string, then resources 
         will be downloaded without asking permissions.
-        Default: False.        
-
+        Default: False.
+    check_version: bool
+        If True, then resources are checked for constraints imposed on 
+        EstNLTK's version, and paths are returned (incl. resources automati- 
+        cally downloaded) only if the version constrains are satisfied. 
+        If False, then EstNLTK's version constrains are completely ignored. 
+        Default: True.
+        
     Returns
     -------
     Union[List[str], Optional[str]]
@@ -118,6 +127,14 @@ def get_resource_paths(resource: str, only_latest:bool=False,
     for resource_dict in resource_descriptions:
         if resource == resource_dict['name'] or \
            resource in resource_dict['aliases']:
+            # check if the resource satisfies version constraints
+            if check_version:
+                version_ok = _check_estnltk_ver_constraints( resource_dict )
+                if not version_ok:
+                    # Skip this resource either because the version could 
+                    # not be satisfied or because the version info was 
+                    # malformed in the resource description 
+                    continue
             # check that the resource has been downloaded already
             if resource_dict["downloaded"]:
                 target_path = os.path.join(resources_dir, \
@@ -594,7 +611,8 @@ def _download_and_install_hf_resource( resource_description, resources_dir ):
 
 def download(resource:str, refresh_index:bool=False, 
                            redownload:bool=False, 
-                           only_latest:bool=True ) -> bool:
+                           only_latest:bool=True,
+                           version_warnings:bool=True) -> bool:
     """
     Downloads and unpacks given resource into EstNLTK's resources folder.
     Returns True if the download was successful or if the resource already 
@@ -620,7 +638,11 @@ def download(resource:str, refresh_index:bool=False,
         If True, then redownloads the resource even it has already been 
         downloaded. Basically: refreshes existing resource.
         Default: False.
-
+    version_warnings: bool
+        If True, then checks EstNLTK's version constraints before downloading
+        a resource and warns if the constraints are not met. This does not 
+        prevent from downloading the resource, though.
+        Default: True.
     Returns
     -------
     bool
@@ -660,7 +682,18 @@ def download(resource:str, refresh_index:bool=False,
                 print( ("Resource {!r} has already been downloaded."+
                         "").format(resource_desc["name"]) )
             else:
-
+                if version_warnings:
+                    # Check if the version constraints are satisfied
+                    version_ok = \
+                        _check_estnltk_ver_constraints(resource_desc)
+                    if not version_ok:
+                        warning_msg = ("EstNLTK's version constraints are not "+\
+                                       "satisfied for the resource {!r}. With "+\
+                                       "the current version of EstNLTK, you may "+\
+                                       "be unable to use the resource."+\
+                                       "").format( \
+                                            resource_desc['name'] )
+                        warnings.warn( UserWarning(warning_msg) )
                 if is_huggingface_resource( resource_desc ):
                     # Download huggingface resource
                     _download_and_install_hf_resource( \

@@ -3,6 +3,7 @@ import pytest
 import os
 from estnltk.resource_utils import delete_resource
 from estnltk.resource_utils import _normalized_resource_descriptions
+from estnltk.resource_utils import _check_version
 from estnltk.downloader import download, get_resource_paths
 
 TEST_ESTNLTK_DOWNLOADER = os.environ.get('TEST_ESTNLTK_DOWNLOADER', '')
@@ -84,3 +85,14 @@ def test_resource_file_download():
         # Clean up the initial resource
         delete_resource(resource_name)
 
+
+def test_estnltk_version_checking_smoke():
+    # Test estnltk's version checking component works
+    # (this is used by the get_resource_paths function)
+    assert _check_version('my_resource', 'estnltk', '>1.4.1')
+    assert _check_version('my_resource', 'estnltk_core', '>=1.4.1.1')
+    result = _check_version('my_resource', 'estnltk', '<1.4')
+    assert result is not None and not result  # returns False, but not None
+    assert _check_version('my_resource', 'estnltk', '>= 1.7.0')
+    result = _check_version('my_resource', 'estnltk', '>=30.0.0')
+    assert result is not None and not result  # returns False, but not None
