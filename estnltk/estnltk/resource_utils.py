@@ -486,8 +486,12 @@ def _check_version(resource_name: str, package: str, version_specifier: str,
        Note that the format of `version_specifier` is limited to formats 
        that can be used as inputs of the function `_is_version_satisfied`. 
        The comparison only operates on version numbers specified as final 
-       releases: pre-releases, post-releases etc will not be distinguished 
-       properly. 
+       releases, e.g ">= 1.7.0" or "< 1.8.1" are valid specifiers; 
+       pre-releases, post-releases etc. may not be distinguished properly. 
+       
+       `version_specifier` can consist of series of version clauses 
+       separated by commas, e.g. "> 1.4.1, <1.7.1". Then all of the 
+       clauses must be satisfied.
        
        Returns bool (True/False) as a result of the version checking, or 
        None if the parsing of `version_specifier` failed, and also if 
@@ -501,52 +505,65 @@ def _check_version(resource_name: str, package: str, version_specifier: str,
        a version handling library should be used instead, such as packaging
        https://packaging.pypa.io/en/latest/
     '''
-    # Try to split cmp_operator and version
-    cmp_op, ver = \
-        _split_cmp_operator_and_version( version_specifier )
-    if len( cmp_op ) == 0:
-        warning_msg = ("(!) Error at parsing {}'s version specifier for "+\
-                       "{!r} : unable to extract a comparison operator from "+\
-                       "{!r}. Falling back to using the default "+\
-                       "operator ==.").format( \
-                            package, resource_name, version_specifier )
-        if not silent:
-            warnings.warn( UserWarning(warning_msg) )
-        cmp_op = '=='
-    m_canonical_ver = _canonical_version_pattern.match(ver)
-    if m_canonical_ver:
-        if package.lower() == 'estnltk':
-            from estnltk import __version__
-            return _is_version_satisfied( __version__, cmp_op, ver )
-        elif package.lower() == 'estnltk_core':
-            from estnltk_core import __version__
-            return _is_version_satisfied( __version__, cmp_op, ver )
-        elif package.lower() == 'estnltk_neural':
-            import pkgutil
-            if pkgutil.find_loader('estnltk_neural') is not None:
-                from estnltk_neural import __version__
-                return _is_version_satisfied( __version__, cmp_op, ver )
+    # Iterate over series of version clauses
+    all_chk_results = True
+    cancel_check = False
+    for sub_ver_specifier in version_specifier.split(','):
+        sub_ver_specifier = sub_ver_specifier.strip()
+        # Try to split cmp_operator and version
+        cmp_op, ver = \
+            _split_cmp_operator_and_version( sub_ver_specifier )
+        if len( cmp_op ) == 0:
+            warning_msg = ("(!) Error at parsing {}'s version specifier for "+\
+                           "{!r} : unable to extract a comparison operator from "+\
+                           "{!r}. Falling back to using the default "+\
+                           "operator ==.").format( \
+                                package, resource_name, sub_ver_specifier )
+            if not silent:
+                warnings.warn( UserWarning(warning_msg) )
+            cmp_op = '=='
+        m_canonical_ver = _canonical_version_pattern.match(ver)
+        if m_canonical_ver:
+            if package.lower() == 'estnltk':
+                from estnltk import __version__
+                result = _is_version_satisfied( __version__, cmp_op, ver )
+                all_chk_results &= result
+            elif package.lower() == 'estnltk_core':
+                from estnltk_core import __version__
+                result = _is_version_satisfied( __version__, cmp_op, ver )
+                all_chk_results &= result
+            elif package.lower() == 'estnltk_neural':
+                import pkgutil
+                if pkgutil.find_loader('estnltk_neural') is not None:
+                    from estnltk_neural import __version__
+                    result = _is_version_satisfied( __version__, cmp_op, ver )
+                    all_chk_results &= result
+                else:
+                    warning_msg = ("(!) Unable to check {}'s version for "+\
+                                   "{!r} : the package {} is not installed."+\
+                                   "").format( \
+                                        package, resource_name, package )
+                    if not silent:
+                        warnings.warn( UserWarning(warning_msg) )
+                    cancel_check = True
             else:
-                warning_msg = ("(!) Unable to check {}'s version for "+\
-                               "{!r} : the package {} is not installed."+\
+                warning_msg = ("(!) Unable to check version of package "+\
+                               "{} in {!r}: unknown package {}."+\
                                "").format( \
                                     package, resource_name, package )
                 if not silent:
                     warnings.warn( UserWarning(warning_msg) )
+                cancel_check = True
         else:
-            warning_msg = ("(!) Unable to check version of package "+\
-                           "{} in {!r}: unknown package {}."+\
-                           "").format( \
-                                package, resource_name, package )
+            warning_msg = ("(!) Error at parsing {}'s version specifier for "+\
+                           "{!r} : unable to extract a canonical version string "+\
+                           "from {!r}.").format( \
+                                package, resource_name, sub_ver_specifier )
             if not silent:
                 warnings.warn( UserWarning(warning_msg) )
-    else:
-        warning_msg = ("(!) Error at parsing {}'s version specifier for "+\
-                       "{!r} : unable to extract a canonical version string "+\
-                       "from {!r}.").format( \
-                            package, resource_name, version_specifier )
-        if not silent:
-            warnings.warn( UserWarning(warning_msg) )
+            cancel_check = True
+    if not cancel_check:
+        return all_chk_results
     return None
 
 

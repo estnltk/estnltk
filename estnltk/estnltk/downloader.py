@@ -103,7 +103,7 @@ def get_resource_paths(resource: str, only_latest:bool=False,
         If True, then resources are checked for constraints imposed on 
         EstNLTK's version, and paths are returned (incl. resources automati- 
         cally downloaded) only if the version constrains are satisfied. 
-        If False, then EstNLTK's version constrains are completely ignored. 
+        If False, then EstNLTK's version constraints are ignored. 
         Default: True.
         
     Returns
@@ -641,7 +641,7 @@ def download(resource:str, refresh_index:bool=False,
     version_warnings: bool
         If True, then checks EstNLTK's version constraints before downloading
         a resource and warns if the constraints are not met. This does not 
-        prevent from downloading the resource, though.
+        prevent user from downloading the resource.
         Default: True.
     Returns
     -------

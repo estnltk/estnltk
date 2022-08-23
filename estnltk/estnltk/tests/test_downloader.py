@@ -96,3 +96,6 @@ def test_estnltk_version_checking_smoke():
     assert _check_version('my_resource', 'estnltk', '>= 1.7.0')
     result = _check_version('my_resource', 'estnltk', '>=30.0.0')
     assert result is not None and not result  # returns False, but not None
+    assert _check_version('my_resource', 'estnltk', '> 1.6.9.1, <30.0.0')
+    result = _check_version('my_resource', 'estnltk', '<3.0.0, > 2.0.0')
+    assert result is not None and not result  # returns False, but not None
