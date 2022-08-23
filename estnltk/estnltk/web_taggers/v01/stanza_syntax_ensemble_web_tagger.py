@@ -8,7 +8,7 @@ class StanzaSyntaxEnsembleWebTagger( BatchProcessingWebTagger ):
     """Tags dependency syntactic analysis using EstNLTK StanzaSyntaxEnsembleTagger's webservice.
 
     See also StanzaSyntaxEnsembleTagger's documentation:
-    https://nbviewer.jupyter.org/github/estnltk/estnltk/blob/devel_1.6/tutorials/syntax/syntax.ipynb
+    https://github.com/estnltk/estnltk/blob/113cec7af026597d8e45ec9bf06e8492ab3d24e9/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb
     """
 
     def __init__(self, url, output_layer='stanza_ensemble_syntax'):
