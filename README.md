@@ -54,7 +54,7 @@ You can install EstNLTK on [Google Colab](https://colab.research.google.com) env
 
 ### Documentation
 
-EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org). However, updating tutorials is currently work-in-progress.
+EstNLTK's tutorials come in the form of [jupyter notebooks](http://jupyter.org).
 
   * [Starting point of tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials)
   

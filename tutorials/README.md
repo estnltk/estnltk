@@ -1,12 +1,5 @@
 # EstNLTK's tutorials 
 
----
-
-Updating and reorganizing tutorials is currently work-in-progress. There can be broken or misleading links in tutorials, and some cross-references may be incorrect. Some of the tutorials may be reorganized and relocated. We hope to finish the updating as soon as possible. 
-
----
-
-
 * Basics of EstNLTK:
     * Introduction to the basic NLP pipeline and morphological tagging:  [introduction_to_nlp_pipeline.ipynb](basics/introduction_to_nlp_pipeline.ipynb)
 
