@@ -140,7 +140,8 @@ setup(
         'networkx ; python_version >  "3.7"',        # building graphs: required for layers, WordNet and grammars (> py37)
         'networkx<=2.6.3 ; python_version == "3.7"', # building graphs: required for layers, WordNet and grammars (= py37)
         'networkx==2.5 ;   python_version == "3.6"', # building graphs: required for layers, WordNet and grammars (= py36)
-        'matplotlib ; python_version >  "3.6"',        # required for visualizing layer graph (> py36)
+        'matplotlib ; python_version >  "3.7"',        # required for visualizing layer graph (> py37)
+        'matplotlib==3.5.3 ; python_version == "3.7"', # required for visualizing layer graph (= py37)
         'matplotlib==3.3.4 ; python_version == "3.6"', # required for visualizing layer graph (= py36)
         'requests',   # required for TextA export and WebTagger
         'tqdm',       # progressbar: for showing progress on time-hungry operations
