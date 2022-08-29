@@ -28,7 +28,8 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          path: dist/*.tar.gz
+          path: |
+            ./estnltk/dist/*.tar.gz
           retention-days: 14
 
   build_estnltk_wheels:
