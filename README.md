@@ -22,7 +22,7 @@ EstNLTK is available for osx, windows-64, and linux-64, and for python versions 
 You can install the latest version via PyPI:
 
 ```
-pip install estnltk==1.7.0
+pip install estnltk==1.7.1
 ```
 
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
@@ -39,7 +39,7 @@ conda activate py38
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.7.0
+conda install -c estnltk -c conda-forge estnltk=1.7.1
 ```
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
@@ -49,7 +49,7 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.7.0
+!pip install estnltk==1.7.1
 ```
 
 ### Documentation
