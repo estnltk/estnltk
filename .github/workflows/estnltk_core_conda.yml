@@ -51,7 +51,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2022-06-17
+          key: estnltk-core-channel-2022-08-30
 
       - name: Build estntlk_core conda package
         run: |
@@ -70,6 +70,7 @@ jobs:
 
 
   upload_to_conda:
+    if: ${{ false }}  # disable for now
     name: Upload estnltk_core package to conda
     needs: [build_estnltk_core_conda_package]
     runs-on: ubuntu-latest
