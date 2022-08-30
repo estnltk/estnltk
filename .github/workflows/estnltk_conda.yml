@@ -65,7 +65,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2022-06-17
+          key: estnltk-core-channel-2022-08-30
 
       - name: Build estnltk_core conda package
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
@@ -104,7 +104,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk/e_channel
-          key: estnltk-channel-2022-06-17
+          key: estnltk-channel-2022-08-30
 
       - if: matrix.os != 'windows-latest'
         name: Build estnltk conda package (linux or macos)
