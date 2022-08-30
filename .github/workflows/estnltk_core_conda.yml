@@ -70,7 +70,6 @@ jobs:
 
 
   upload_to_conda:
-    if: ${{ false }}  # disable for now
     name: Upload estnltk_core package to conda
     needs: [build_estnltk_core_conda_package]
     runs-on: ubuntu-latest
