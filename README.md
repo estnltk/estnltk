@@ -25,8 +25,6 @@ You can install the latest version via PyPI:
 pip install estnltk==1.7.1
 ```
 
-🛠️ NB! Building version 1.7.1 is currently work in progress. Meanwhile, please use version 1.7.0.
-
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
 
 1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.8, for instance:
@@ -44,8 +42,6 @@ conda activate py38
 conda install -c estnltk -c conda-forge estnltk=1.7.1
 ```
 
-🛠️ NB! Building version 1.7.1 is currently work in progress. Meanwhile, please use version 1.7.0.
-
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 
 ### Using on Google Colab
@@ -55,8 +51,6 @@ You can install EstNLTK on [Google Colab](https://colab.research.google.com) env
 ```
 !pip install estnltk==1.7.1
 ```
-
-🛠️ NB! Building version 1.7.1 is currently work in progress. Meanwhile, please use version 1.7.0.
 
 ### Documentation
 
