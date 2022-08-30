@@ -78,6 +78,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
+          name: estnltk-neural-pypi-packages
           path: |
             ./estnltk_neural/dist/*.whl
             ./estnltk_neural/dist/*.tar.gz
@@ -90,7 +91,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: artifact
+          name: estnltk-neural-pypi-packages
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@v1.4.2
