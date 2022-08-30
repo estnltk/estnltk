@@ -20,7 +20,6 @@ jobs:
         os: [ubuntu-latest]
         python-version: ['3.8']
         #python-version: ['3.7', '3.8', '3.9', '3.10']
-        #
 
     steps:
       - uses: actions/checkout@v2
@@ -53,7 +52,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2022-06-17
+          key: estnltk-core-channel-2022-08-30
 
       - name: Build estnltk_core conda package (noarch)
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
@@ -73,7 +72,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: estnltk/e_channel
-          key: estnltk-channel-2022-06-17
+          key: estnltk-channel-2022-08-30
 
       - name: Build estnltk conda package (${{ matrix.os }})
         if: steps.cache-e-channel.outputs.cache-hit != 'true'
