@@ -55,7 +55,7 @@ jobs:
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
           # Build only for macosx_arm64
-          CIBW_BUILD:  cp38-macosx_arm64
+          CIBW_BUILD:  cp39-macosx_arm64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
@@ -63,7 +63,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: estnltk-pypi-macos-universal2-packages
+          name: estnltk-pypi-macos-arm64-packages
           path: ./estnltk/wheelhouse/*.whl
           retention-days: 14
 
@@ -74,7 +74,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: estnltk-pypi-macos-universal2-packages
+          name: estnltk-pypi-macos-arm64-packages
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@v1.4.2
