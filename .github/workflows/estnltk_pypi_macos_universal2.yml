@@ -49,7 +49,7 @@ jobs:
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
           # Build only for macosx_universal2
-          CIBW_BUILD:  cp38-macosx_universal2
+          CIBW_BUILD:  cp38*universal2  cp38*arm64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
