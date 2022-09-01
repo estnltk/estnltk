@@ -1,0 +1,79 @@
+name: Build estnltk macos universal2 wheel and upload to PyPI
+
+on: 
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/estnltk_pypi_macos_universal2.yml'
+      
+  # Manual run (works only in the default branch)
+  #workflow_dispatch:
+
+
+jobs:
+  build_estnltk_wheels:
+    name: Build estnltk wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]   # Should be:  macos-11
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.3.1
+        with:
+          package-dir: ./estnltk
+          output-dir:  ./estnltk/wheelhouse
+        env:
+          # Before build:
+          # 1) install estnltk_core, because the package is not yet 
+          #    available from the pypi;
+          # 2) run `build_ext` before creating the wheel, because `pip wheel`
+          #    runs `build_ext` as the last command and then the package will
+          #    be missing auto-generated `vabamorf.py`;
+          CIBW_BEFORE_BUILD:  >
+            cd estnltk_core && 
+            python setup.py install && 
+            echo --- estntlk_core completed --- &&
+            cd .. && 
+            cd estnltk && 
+            python setup.py build_ext && 
+            echo --- build_ext completed ---
+
+          # List of available platforms: 
+          # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
+          # Build only for macosx_universal2
+          CIBW_BUILD:  cp38-macosx_universal2
+
+          # Disable building PyPy wheels on all platforms.
+          # Enable if you get it working.
+          #CIBW_SKIP: pp* *arm64 *musllinux_x86_64 *musllinux_aarch64
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: estnltk-pypi-packages
+          path: ./estnltk/wheelhouse/*.whl
+          retention-days: 14
+
+  upload_pypi:
+    name: Push to PyPI
+    needs: [build_estnltk_wheels]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: estnltk-pypi-packages
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_token }}
+          # Use https://test.pypi.org instead of the default pypi:
+          #repository_url: https://test.pypi.org/legacy/
