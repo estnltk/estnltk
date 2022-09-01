@@ -57,7 +57,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: estnltk-pypi-packages
+          name: estnltk-pypi-macos-universal2-packages
           path: ./estnltk/wheelhouse/*.whl
           retention-days: 14
 
@@ -68,7 +68,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: estnltk-pypi-packages
+          name: estnltk-pypi-macos-universal2-packages
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@v1.4.2
