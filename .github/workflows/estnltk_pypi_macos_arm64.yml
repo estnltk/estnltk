@@ -1,11 +1,11 @@
-name: Build estnltk macos universal2 wheel and upload to PyPI
+name: Build estnltk macos arm64 wheel and upload to PyPI
 
 on: 
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/estnltk_pypi_macos_universal2.yml'
+      - '.github/workflows/estnltk_pypi_macos_arm64.yml'
       
   # Manual run (works only in the default branch)
   #workflow_dispatch:
@@ -26,11 +26,17 @@ jobs:
         name: Install Python
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.3.1
+        uses: pypa/cibuildwheel@v2.9.0
         with:
           package-dir: ./estnltk
           output-dir:  ./estnltk/wheelhouse
         env:
+          # Cross-compile arm64 wheels on x86_64 runners.
+          # Note: although we could make universal2 wheel, 
+          # which provides both x86_64 and arm64 in a single
+          # wheel, it can take up to twice the size of the 
+          # separate wheels -- this is to be avoided
+          CIBW_ARCHS_MACOS: x86_64 arm64
           # Before build:
           # 1) install estnltk_core, because the package is not yet 
           #    available from the pypi;
@@ -48,8 +54,8 @@ jobs:
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          # Build only for macosx_universal2
-          CIBW_BUILD:  cp38*universal2  cp38*arm64
+          # Build only for macosx_arm64
+          CIBW_BUILD:  cp38-macosx_arm64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
