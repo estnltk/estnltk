@@ -698,7 +698,8 @@ class VabamorfDisambiguator(Retagger):
     """Disambiguates morphologically analysed texts. 
        Uses Vabamorf for disambiguating.
     """
-    conf_param = ['_vm_instance',
+    conf_param = ['compound', 'phonetic',
+                  '_vm_instance',
                   '_input_words_layer',
                   '_input_sentences_layer' ]
 
@@ -706,7 +707,9 @@ class VabamorfDisambiguator(Retagger):
                  output_layer='morph_analysis',
                  input_words_layer='words',
                  input_sentences_layer='sentences',
-                 vm_instance=None):
+                 vm_instance=None,
+                 compound = DEFAULT_PARAM_COMPOUND,
+                 phonetic = DEFAULT_PARAM_PHONETIC):
         """Initialize VabamorfDisambiguator class.
 
         Parameters
@@ -722,6 +725,18 @@ class VabamorfDisambiguator(Retagger):
         vm_instance: estnltk.vabamorf.morf.Vabamorf
             An instance of Vabamorf that is to be used for 
             disambiguating text morphologically;
+        compound: boolean (default: True)
+            Preserve compound word markers in root forms.
+            Note: this only has effect if the compound markers 
+            have been preserved on the input morph analysis. 
+            If the input layer misses the markers, 
+            then disambiguator cannot add them.
+        phonetic: boolean (default: False)
+            Preserve phonetic markers in root forms.
+            Note: this only has effect if the phonetic markers 
+            have been preserved on the input morph analysis. 
+            If the input layer misses the markers, 
+            then disambiguator cannot add them.
         """
         # Set attributes & configuration
         self.output_layer = output_layer
@@ -731,6 +746,8 @@ class VabamorfDisambiguator(Retagger):
                              output_layer]
         self._input_words_layer     = self.input_layers[0]
         self._input_sentences_layer = self.input_layers[1]
+        self.compound = compound
+        self.phonetic = phonetic
         if vm_instance:
             # Check Vabamorf Instance
             if not isinstance(vm_instance, Vabamorf):
@@ -878,7 +895,10 @@ class VabamorfDisambiguator(Retagger):
             # C) Use Vabamorf for disambiguation
             disambiguated_dicts = []
             if sentence_morph_dicts:
-                disambiguated_dicts = self._vm_instance.disambiguate(sentence_morph_dicts)
+                disambiguated_dicts = \
+                    self._vm_instance.disambiguate( sentence_morph_dicts,
+                                                    phonetic=self.phonetic,
+                                                    compound=self.compound )
             # D) Convert Vabamorf's results to AmbiguousSpans
             global_morph_span_id = sentence_start_morph_span_id
             wid = 0

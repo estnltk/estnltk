@@ -5,6 +5,7 @@ from estnltk import Annotation
 from estnltk.taggers.standard.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
 from estnltk.taggers.standard.morph_analysis.morf import IGNORE_ATTR
 from estnltk.converters import dict_to_layer
+from estnltk.converters import layer_to_dict
 from estnltk.converters import layer_to_records
 
 from estnltk_core.tests import create_amb_attribute_list
@@ -248,6 +249,95 @@ def test_morph_disambiguator_1():
     _sort_morph_analysis_records( expected_records )
     # Check results
     assert expected_records == results_dict
+
+
+# ----------------------------------
+#   Test
+#     that disambiguation preserves
+#     phonetic mark-up
+# ----------------------------------
+
+def test_morph_disambiguator_with_phonetic():
+    analyzer_w_phonetic = \
+        VabamorfAnalyzer(phonetic=True)
+    disamb_w_phonetic = \
+        VabamorfDisambiguator(phonetic=True)
+    text=Text('Mitmenda koha ta sai?')
+    text.tag_layer(['words','sentences'])
+    analyzer_w_phonetic.tag(text)
+    disamb_w_phonetic.retag(text)
+    #from pprint import pprint
+    #pprint(layer_to_dict( text['morph_analysis'] ))
+    assert layer_to_dict( text['morph_analysis'] ) == \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'mitmes',
+                                     'normalized_text': 'Mitmenda',
+                                     'partofspeech': 'P',
+                                     'root': 'm<itmes',
+                                     'root_tokens': ['mitmes']}],
+                    'base_span': (0, 8)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'koht',
+                                     'normalized_text': 'koha',
+                                     'partofspeech': 'S',
+                                     'root': 'k<oht',
+                                     'root_tokens': ['koht']},
+                                    {'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'koha',
+                                     'normalized_text': 'koha',
+                                     'partofspeech': 'S',
+                                     'root': 'koha',
+                                     'root_tokens': ['koha']}],
+                    'base_span': (9, 13)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'tema',
+                                     'normalized_text': 'ta',
+                                     'partofspeech': 'P',
+                                     'root': 'tema',
+                                     'root_tokens': ['tema']}],
+                    'base_span': (14, 16)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 'i',
+                                     'form': 's',
+                                     'lemma': 'saama',
+                                     'normalized_text': 'sai',
+                                     'partofspeech': 'V',
+                                     'root': 's<aa',
+                                     'root_tokens': ['saa']}],
+                    'base_span': (17, 20)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '?',
+                                     'normalized_text': '?',
+                                     'partofspeech': 'Z',
+                                     'root': '?',
+                                     'root_tokens': ['?']}],
+                    'base_span': (20, 21)}]}
+
 
 # ----------------------------------
 #   Test
