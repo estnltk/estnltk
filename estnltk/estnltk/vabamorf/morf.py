@@ -208,29 +208,40 @@ class Vabamorf(object):
             vm.StringVector(words),
             kwargs.get('disambiguate', True),
             kwargs.get('guess', True),
-            True, # phonetic and compound information
+            True, # add phonetic and compound information by default
             kwargs.get('propername', True))
-        trim_phonetic = kwargs.get('phonetic', False)
-        trim_compound = kwargs.get('compound', True)
+        preserve_phonetic = kwargs.get('phonetic', False)
+        preserve_compound = kwargs.get('compound', True)
 
-        return [postprocess_result(mr, trim_phonetic, trim_compound) for mr in morfresults]
+        return [postprocess_result(mr, preserve_phonetic, preserve_compound) for mr in morfresults]
 
-    def disambiguate(self, words):
+    def disambiguate(self, words, **kwargs):
         """Disambiguate previously analyzed words.
 
         Parameters
         ----------
         words: list of dict
             A sentence of words.
-
+        compound: boolean (default: True)
+            Preserve compound word markers in root forms.
+            Note: this has effect only if analysis has 
+            also preserved compound word markers.
+        phonetic: boolean (default: False)
+            Preserve phonetic information in root forms.
+            Note: this has effect only if analysis has 
+            also preserved phonetic markers.
+        
         Returns
         -------
         list of dict
             Sentence of disambiguated words.
         """
+        preserve_phonetic = kwargs.get('phonetic', False)
+        preserve_compound = kwargs.get('compound', True)
+        
         words = vm.SentenceAnalysis([as_wordanalysis(w) for w in words])
         disambiguated = self._morf.disambiguate(words)
-        return [postprocess_result(mr, False, True) for mr in disambiguated]
+        return [postprocess_result(mr, preserve_phonetic, preserve_compound) for mr in disambiguated]
 
     def spellcheck(self, words, suggestions=True):
         """Spellcheck given sentence.
@@ -346,16 +357,16 @@ class Vabamorf(object):
         return [deconvert(w) for w in words]
 
 
-def postprocess_result(morphresult, trim_phonetic, trim_compound):
+def postprocess_result(morphresult, preserve_phonetic, preserve_compound):
     """Postprocess vabamorf wrapper output."""
     word, analysis = morphresult
     return {
         'text': deconvert(word),
-        'analysis': [postprocess_analysis(a, trim_phonetic, trim_compound) for a in analysis]
+        'analysis': [postprocess_analysis(a, preserve_phonetic, preserve_compound) for a in analysis]
     }
 
 
-def postprocess_analysis(analysis, trim_phonetic, trim_compound):
+def postprocess_analysis(analysis, preserve_phonetic, preserve_compound):
     root = deconvert(analysis.root)
 
     # extract tokens and construct lemma
@@ -364,7 +375,7 @@ def postprocess_analysis(analysis, trim_phonetic, trim_compound):
     lemma = get_lemma(grouptoks, analysis.partofspeech)
 
     return {
-        'root': get_root(root, trim_phonetic, trim_compound),
+        'root': get_root(root, preserve_phonetic, preserve_compound),
         'root_tokens': toks,
         'ending': deconvert(analysis.ending),
         'clitic': deconvert(analysis.clitic),
@@ -513,20 +524,28 @@ def analyze(words, **kwargs):
     return Vabamorf.instance().analyze(words, **kwargs)
 
 
-def disambiguate(words):
+def disambiguate(words, **kwargs):
     """Disambiguate previously analyzed words.
 
     Parameters
     ----------
     words: list of dict
         A sentence of words.
+    compound: boolean (default: True)
+        Preserve compound word markers in root forms.
+        Note: this has effect only if analysis has 
+        also preserved compound word markers.
+    phonetic: boolean (default: False)
+        Preserve phonetic information in root forms.
+        Note: this has effect only if analysis has 
+        also preserved phonetic markers.
 
     Returns
     -------
     list of dict
         Sentence of disambiguated words.
     """
-    return Vabamorf.instance().disambiguate(words)
+    return Vabamorf.instance().disambiguate(words, **kwargs)
 
 
 def spellcheck(words, suggestions=True):
