@@ -119,7 +119,9 @@ class LayerResolver:
         if layer_name in text.layers:
             return text
         if layer_name not in self._taggers._graph.nodes:
-            raise Exception('(!) No tagger registered for creating layer {!r}.'.format( layer_name ) )
+            raise Exception( ('(!) No tagger registered for creating layer {!r}. '+\
+                              'Please see Text.layer_resolver for information about '+\
+                              'what layers can be created.').format(layer_name) )
         for prerequisite in self._taggers._graph.predecessors(layer_name):
             self.apply(text, prerequisite)
 
