@@ -653,6 +653,35 @@ def delete_resource(resource: str) -> bool:
     return deleted
 
 
+def delete_all_resources(delete_resources_folder: bool=True) -> bool:
+    '''
+    A clean-up function that deletes all downloaded resources.
+    Normally, you would like to apply it only before uninstalling 
+    EstNLTK.
+    
+    If the flag `delete_resources_folder` is set (default), then also 
+    deletes the resources folder (including the resources index file).
+    
+    Returns boolean indicating whether all resources were deleted 
+    successfully. Also returns True, if there were no resources left 
+    to be deleted.
+    '''
+    # Get resources directory and normalized resource descriptions
+    resources_dir = get_resources_dir()
+    resource_descriptions = \
+        _normalized_resource_descriptions(refresh_index=False,
+                                          check_existence=True)
+    for resource_dict in resource_descriptions:
+        # only downloaded resources can be deleted ...
+        if resource_dict["downloaded"]:
+            status = delete_resource(resource_dict['name'])
+            if not status:
+                print('Could not delete resource {}.'.format(resource_dict['name']))
+                return False
+    if delete_resources_folder:
+        shutil.rmtree(resources_dir)
+    return True
+
 
 class ResourceView:
     """Shows Estnltk's resources in a pretty-printed table. 
