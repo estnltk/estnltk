@@ -74,7 +74,8 @@ class PostgresStorage:
         """Returns a new instance of `PgCollection` without physically creating it."""
         collection = self[table_name]
         if meta_fields is not None:
-            collection.meta = meta_fields
+            # TODO: why should we be able to override collection's meta here?
+            collection.meta_columns = meta_fields
         return collection
 
     @property

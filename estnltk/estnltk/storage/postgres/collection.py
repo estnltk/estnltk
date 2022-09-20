@@ -53,7 +53,7 @@ class PgCollection:
         self.name = name
         self.storage = storage
         # TODO: read meta columns from collection table if exists, move this parameter to self.create
-        self.meta = meta or {}
+        self.meta_columns = meta or {}
         self._temporary = temporary
 
         if version == '0.0':
@@ -68,7 +68,7 @@ class PgCollection:
             raise ValueError("version must be '0.0', '1.0', '2.0' or '3.0'")
         self.version = version
 
-        self.column_names = ['id', 'data'] + list(self.meta)
+        self.column_names = ['id', 'data'] + list(self.meta_columns)
 
         self._selected_layes = None
         self._is_empty = not self.exists() or len(self) == 0
@@ -83,12 +83,12 @@ class PgCollection:
         self.structure.create_table()
 
         if meta:
-            self.meta = meta
+            self.meta_columns = meta
             self.column_names = ['id', 'data'] + list(meta)
 
         pg.create_collection_table(self.storage,
                                    collection_name=self.name,
-                                   meta_columns=self.meta,
+                                   meta_columns=self.meta_columns,
                                    description=description)
 
         logger.info('new empty collection {!r} created'.format(self.name))

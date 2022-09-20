@@ -408,6 +408,46 @@ class TestPgCollection(unittest.TestCase):
         collection.delete()
 
 
+    def test_insert_and_select_meta(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        collection.create(description='demo collection', meta={'author': 'str', 'date': 'str'})
+
+        text_1 = Text('Esimene tekst.')
+        text_1.meta['author'] = 'Niinepuu'
+        text_1.meta['date']   = '1983'
+        text_2 = Text('Teine tekst')
+        text_2.meta['author'] = 'Kõivupuu'
+        text_2.meta['date']   = '1997'
+        text_3 = Text('Kolmas tekst')
+        text_3.meta['author'] = 'Musumets'
+        text_3.meta['date']   = '2009'
+
+        with collection.insert() as collection_insert:
+            collection_insert(text_1, meta_data=text_1.meta)
+            collection_insert(text_2, meta_data=text_2.meta)
+            collection_insert(text_3, meta_data=text_3.meta)
+        
+        self.assertEqual( len(collection), 3 )
+        # Check meta columns
+        self.assertEqual( collection.meta_columns, \
+                          {'author': 'str', 
+                           'date': 'str'} )
+        # Iterate over collection and select id, text_obj and meta
+        selection = \
+            list( collection.select( collection_meta=['author', 'date'] ) )
+        self.assertEqual( len(selection), 3 )
+        # Check meta values
+        self.assertEqual( selection[0][2], \
+                          {'author': 'Niinepuu', 'date': '1983'} )
+        self.assertEqual( selection[1][2], \
+                          {'author': 'Kõivupuu', 'date': '1997'} )
+        self.assertEqual( selection[2][2], \
+                          {'author': 'Musumets', 'date': '2009'} )
+        
+        collection.delete()
+
+
 class TestLayerFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_layer_fragment"
