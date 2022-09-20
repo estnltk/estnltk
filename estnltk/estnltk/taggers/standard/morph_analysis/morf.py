@@ -297,9 +297,11 @@ class VabamorfTagger(Tagger):
                                                          compound=self.compound,
                                                          phonetic=self.phonetic)
         self._vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=_vm_instance,
-                                                             output_layer=output_layer,
-                                                             input_words_layer=self._input_words_layer,
-                                                             input_sentences_layer=self._input_sentences_layer)
+                                                              output_layer=output_layer,
+                                                              input_words_layer=self._input_words_layer,
+                                                              input_sentences_layer=self._input_sentences_layer,
+                                                              compound=self.compound,
+                                                              phonetic=self.phonetic)
         # Update dependencies: add dependencies specific to postanalysis_tagger
         if postanalysis_tagger and postanalysis_tagger.input_layers:
             for postanalysis_dependency in postanalysis_tagger.input_layers:
