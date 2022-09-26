@@ -3,13 +3,9 @@
 #
 
 import os, os.path, sys
-import logging
 from collections import defaultdict
 
 from estnltk import Text, Layer
-from tqdm import tqdm
-
-from estnltk.converters import json_to_text
 
 # =========================================================================
 #   (Optimized) Iterators
