@@ -171,6 +171,72 @@ def _get_prev_clause_syntax_words(cur_clause, all_clauses, sent_cl_syntax_words,
     return None
 
 
+def get_phrase_conjunctions( cl_syntax_words, remove_overlaps=True ):
+    '''Finds all conjunction phrases from the syntax words of the clause.
+       In other words, finds words connected with 'conj' relations and 
+       all their syntactic children. Note that 'conj' relations pointing 
+       outside the clause will be discarded. 
+       
+       Returns a list of lists of indexes, where each sub list contains
+       indexes of (clause) words belonging to a conjunction phrase.
+       Indexes are sorted numerically.
+       
+       Examples:
+       1) clause: ['paneme', 'rannasoleku', 'ajad', 'ja', 'mõõtmisandmed', 'kokku', ',']
+          conjunction phrase: ['rannasoleku', 'ajad', 'ja', 'mõõtmisandmed']
+          conjunction phrase syntax: [(12, 13, 'nmod'), (13, 11, 'obj'), (14, 15, 'cc'), (15, 13, 'conj')]
+       
+       2) clause: ['Vabatahtlikud', 'proovivad', 'tervise', 'ja', 'naha', 'vastupidavust']
+          conjunction phrase: ['tervise', 'ja', 'naha']
+          conjunction phrase syntax: [(3, 6, 'nmod'), (4, 5, 'cc'), (5, 3, 'conj')]
+       
+       3) clause: ['Kuus', 'läheb', 'võla', 'ja', 'lasteaia', 'peale', '1500', 'krooni', '.']
+          conjunction phrase: ['võla', 'ja', 'lasteaia', 'peale']
+          conjunction phrase syntax: [(3, 2, 'obl'), (4, 5, 'cc'), (5, 3, 'conj'), (6, 3, 'case')]
+    '''
+    inside_clause_indexes = [w.annotations[0]['id'] for w in cl_syntax_words]
+    inside_clause_id_map  = {ind:i for i, ind in enumerate(inside_clause_indexes)}
+    conj_heads = {}
+    for i, word in enumerate(cl_syntax_words):
+        ind = word.annotations[0]['id']
+        head = word.annotations[0]['head']
+        deprel = word.annotations[0]['deprel']
+        if deprel == 'conj' and head in inside_clause_id_map:
+            head_word = cl_syntax_words[inside_clause_id_map[head]]
+            if head not in conj_heads:
+                conj_heads[head] = [head]
+            # Find all children of the (head) node
+            nodes = [head]
+            while len( nodes ) > 0:
+                node = nodes.pop(0)
+                if node not in conj_heads[head]:
+                    conj_heads[head].append(node)
+                for i2, word2 in enumerate(cl_syntax_words):
+                    ind2 = word2.annotations[0]['id']
+                    head2 = word2.annotations[0]['head']
+                    if head2 == node:
+                        nodes.append(ind2)
+    # Find clause indexes corresponding to the syntax nodes 
+    # Take out conjunction phrases
+    conjunctions = []
+    for c_head in conj_heads:
+        sorted_indexes = sorted( \
+            [inside_clause_id_map[i] for i in conj_heads[c_head]] )
+        conjunctions.append( sorted_indexes )
+    # Remove overlapped phrases 
+    if remove_overlaps:
+        to_remove = []
+        for p1 in conjunctions:
+            for p2 in conjunctions:
+                if p1 != p2:
+                    # p1 is inside p2
+                    if p2[0] <= p1[0] and p1[-1] <= p2[-1]:
+                        to_remove.append(p1)
+        for p in to_remove:
+            conjunctions.remove(p)
+    return conjunctions
+
+
 # =========================================================================
 #   Detection of clause errors
 # =========================================================================
@@ -213,8 +279,8 @@ def detect_clause_errors( text, output_layer='clause_errors',
     '''
     status = defaultdict(int) if status is None else status
     errors_layer = Layer(output_layer, attributes=('err_type', 'correction'), text_object=text)
-    errors_layer.meta['mis_kes_embedded_clause_wrong_end'] = 0
-    errors_layer.meta['mis_kes_clause_wrong_end'] = 0
+    errors_layer.meta['attributive_embedded_clause_wrong_end'] = 0
+    errors_layer.meta['attributive_clause_wrong_end'] = 0
     output_str = []
     for sent_id, sent_clauses, sent_cl_syntax_words in yield_clauses_and_syntax_words_sentence_wise( text, \
                                                                                 clauses_layer=clauses_layer, \
@@ -230,17 +296,47 @@ def detect_clause_errors( text, output_layer='clause_errors',
             first_verb_idx = _first_index('V', clause_postags)
             last_comma_idx = _last_index(',',  clause_lemmas)
             last_root_idx  = _last_index('root', clause_deprels)
-            if clause_lemmas[0] in ['mis', 'kes'] and last_root_idx > -1 and last_comma_idx > -1 and \
-               last_comma_idx < last_root_idx and first_verb_idx < last_comma_idx and first_verb_idx > -1:
+            #
+            # Detect errors related to attributive clauses starting with mis/kes/millal/kus/kust/kuhu/kuna/kuidas/kas 
+            # 
+            if clause_lemmas[0] in ['mis', 'kes', 'millal', 'kus', 'kust', 'kuhu', 'kuna', 'kuidas', 'kas'] and \
+               last_root_idx > -1 and last_comma_idx > -1 and last_comma_idx < last_root_idx and \
+               first_verb_idx < last_comma_idx and first_verb_idx > -1:
                 exceptions_passed = True
                 #
                 # Pattern: [...] [ mis/kes ... verb ... , ... root ] --> [... [ mis/kes ... verb ...  , ] ... root ]
                 #          ( create an embedded clause )
                 #
                 # Example: [Kahtlemata on iga keel,] [mida inimene valdab, topeltrikkus (root) .] --> 
-                #          [Kahtlemata on iga keel, [mida inimene valdab,] topeltrikkus (root) .]
+                #          [Kahtlemata on iga keel [, mida inimene valdab,] topeltrikkus (root) .]
                 #
-                pat_name = 'mis_kes_embedded_clause_wrong_end'
+                # Example: [Seega mingeid hirme,] [kuidas osaga hakkama saada, pole mul absoluutselt (root) .] --> 
+                #          [Seega mingeid hirme [, kuidas osaga hakkama saada,] pole mul absoluutselt (root) .] --> 
+                #
+                # check previous clause. we are assuming that previous clause ends with comma
+                prev_cl_syntax_words = \
+                    _get_prev_clause_syntax_words( clause, sent_clauses, 
+                                                   sent_cl_syntax_words, can_be_embedded=False )
+                if prev_cl_syntax_words is not None and prev_cl_syntax_words[-1].text != ',':
+                    exceptions_passed = False
+                if 'conj' in clause_deprels:
+                    # 
+                    #  Exception: [ mis/kes/kus jne ... (conj) verb ... (conj) , ... (conj) root ] --> DON'T CHANGE
+                    #             ( tricky, but if the comma is in the middle of a conjunction phrase, 
+                    #               then it likely belongs to the conjunction, and is not a clause break )
+                    #
+                    #  Example:   [ Mindi presidendilossi , kuhu üles rivistatud orkestrile , auvahtkonnale ja 
+                    #               ministritele lisaks oli kutsutud (root) ka 30 soomepoissi . ]
+                    #
+                    conj_phrases = get_phrase_conjunctions(cl_syntax_words)
+                    for conj_phrase in conj_phrases:
+                        if last_comma_idx in conj_phrase:
+                            idx = conj_phrase.index(last_comma_idx)
+                            # Check if comma is in the middle of a phrase
+                            if 0 < idx and idx < len(conj_phrase):
+                                exceptions_passed = False
+                                break
+                pat_name = 'attributive_embedded_clause_wrong_end'
                 if is_sentence_start:
                     # 
                     #  Exception: [ Mis/Kes ... verb ... , ... root ] --> DON'T CHANGE
@@ -258,18 +354,14 @@ def detect_clause_errors( text, output_layer='clause_errors',
                         #             ( create regular clause )
                         #
                         #  Example:  [ teenused ,] 
-                        #            [ mis on seotud liiklusõiguste kasutamisega, välja arvatud (root) käesoleva lisa punktis 3 sätestatu .] 
+                        #            [ mis on seotud liiklusõiguste kasutamisega, välja arvatud (root) käesoleva lisa 
+                        #              punktis 3 sätestatu .] 
                         #             -->
                         #            [ teenused ,] 
                         #            [ mis on seotud liiklusõiguste kasutamisega, ] 
                         #            [ välja arvatud (root) käesoleva lisa punktis 3 sätestatu . ]
                         #
-                        pat_name = 'mis_kes_clause_wrong_end'
-                # check previous clause
-                prev_cl_syntax_words = \
-                    _get_prev_clause_syntax_words( clause, sent_clauses, 
-                                                   sent_cl_syntax_words, can_be_embedded=False )
-                prev_clause_lemmas = []
+                        pat_name = 'attributive_clause_wrong_end'
                 if prev_cl_syntax_words is not None and len(prev_cl_syntax_words) > 1:
                     prev_clause_lemmas = [ w.annotations[0]['lemma'] for w in prev_cl_syntax_words ]
                     if prev_clause_lemmas[0] in ['kui', 'et'] or prev_clause_lemmas[1] in ['kui', 'et']:
@@ -294,8 +386,24 @@ def detect_clause_errors( text, output_layer='clause_errors',
                         #             [kelle kasuks otsus langetada ,] 
                         #             [võib ka aru saada (root) ]
                         #
-                        pat_name = 'mis_kes_clause_wrong_end'
-                    if prev_clause_lemmas[0] in ['kus', 'kes', 'mis']:
+                        pat_name = 'attributive_clause_wrong_end'
+                    prev_clause_deprels = [ w.annotations[0]['deprel'] for w in prev_cl_syntax_words ]
+                    if prev_clause_deprels[-1] == 'punct' and prev_clause_deprels[-2] == 'discourse':
+                        # 
+                        #  Exception: [<discourse> ,] [ mis/kes ... , ... root ] -->
+                        #             [<discourse> ,] [ mis/kes ... ,] [... root ]
+                        #             ( create regular clause )
+                        #
+                        #
+                        #  Example:   [Ah,] [mis neist peensustest ikka rääkida , lööb Kaie käega .]
+                        #              -->
+                        #             [Ah,] 
+                        #             [mis neist peensustest ikka rääkida ,] 
+                        #             [lööb Kaie käega .] 
+                        #
+                        pat_name = 'attributive_clause_wrong_end'
+                    if prev_clause_lemmas[0] in ['kus', 'kes', 'mis', 'millal', 'kuhu', \
+                                                 'kust', 'kuna', 'kuidas', 'kas']:
                         # 
                         #  Exception: [kus/kes/mis ...] [ mis/kes ... , ... root ] --> DON'T CHANGE
                         #             ( tricky )
@@ -306,7 +414,8 @@ def detect_clause_errors( text, output_layer='clause_errors',
                         #
                         #  Example:   [Toodete suhtes,] 
                         #             [mille puhul ekspordiga seotud formaalsused on täidetud või] 
-                        #             [mille suhtes kohaldati ... mõnda määruse osutatud korda , pikendatakse (root) määruse ... lõike] 
+                        #             [mille suhtes kohaldati ... mõnda määruse osutatud korda , pikendatakse (root) määruse 
+                        #              ... lõike] 
                         #
                         #
                         exceptions_passed = False
@@ -325,13 +434,13 @@ def detect_clause_errors( text, output_layer='clause_errors',
                     status[pat_name] += 1
                     correction_desc = ''
                     split_at_word = cl_syntax_words[last_comma_idx]
-                    if pat_name == 'mis_kes_embedded_clause_wrong_end':
-                        embed_positions  = f'{clause.start}:{split_at_word.end}'
+                    if pat_name == 'attributive_embedded_clause_wrong_end':
+                        embed_positions  = f'{prev_cl_syntax_words[-1].start}:{split_at_word.end}'
                         parent_positions = f'{prev_cl_syntax_words[0].start}:{clause.end}'
                         correction_desc = f'Split clause after position {split_at_word.end} '+\
                                           f'and then embed the clause {embed_positions} '+\
                                           f'into clause {parent_positions}.'
-                    if pat_name == 'mis_kes_clause_wrong_end':
+                    if pat_name == 'attributive_clause_wrong_end':
                         correction_desc = f'Split clause after position {split_at_word.end}.'
                     errors_layer.add_annotation( split_at_word.base_span, 
                                                  err_type=pat_name, 
@@ -351,7 +460,7 @@ def detect_clause_errors( text, output_layer='clause_errors',
                                 marking = ''
                                 if w.annotations[0]['id'] in inside_clause_indexes and cl_word_idx == last_comma_idx:
                                     marking = '<--- NEW CLAUSE END / EMBEDDING'
-                                    if pat_name == 'mis_kes_clause_wrong_end':
+                                    if pat_name == 'attributive_clause_wrong_end':
                                         marking = '<--- NEW CLAUSE END'
                                 output_str.append( f"{w.text} {w.annotations[0]['id']} {w.annotations[0]['head']} {w.annotations[0]['deprel']} {marking}" )
                                 output_str.append( '\n' )
