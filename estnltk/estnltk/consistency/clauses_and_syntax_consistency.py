@@ -230,7 +230,9 @@ def get_phrase_conjunctions( cl_syntax_words, remove_overlaps=True ):
             for p2 in conjunctions:
                 if p1 != p2:
                     # p1 is inside p2
-                    if p2[0] <= p1[0] and p1[-1] <= p2[-1]:
+                    if p2[0] <= p1[0] and \
+                       p1[-1] <= p2[-1] and \
+                       p1 not in to_remove:
                         to_remove.append(p1)
         for p in to_remove:
             conjunctions.remove(p)
@@ -279,8 +281,8 @@ def detect_clause_errors( text, output_layer='clause_errors',
     '''
     status = defaultdict(int) if status is None else status
     errors_layer = Layer(output_layer, attributes=('err_type', 'correction'), text_object=text)
-    errors_layer.meta['attributive_embedded_clause_wrong_end'] = 0
-    errors_layer.meta['attributive_clause_wrong_end'] = 0
+    attributive_clause_start_lemmas = \
+        ['mis', 'kes', 'millal', 'kus', 'kust', 'kuhu', 'kuna', 'kuidas', 'kas']
     output_str = []
     for sent_id, sent_clauses, sent_cl_syntax_words in yield_clauses_and_syntax_words_sentence_wise( text, \
                                                                                 clauses_layer=clauses_layer, \
@@ -299,7 +301,7 @@ def detect_clause_errors( text, output_layer='clause_errors',
             #
             # Detect errors related to attributive clauses starting with mis/kes/millal/kus/kust/kuhu/kuna/kuidas/kas 
             # 
-            if clause_lemmas[0] in ['mis', 'kes', 'millal', 'kus', 'kust', 'kuhu', 'kuna', 'kuidas', 'kas'] and \
+            if clause_lemmas[0] in attributive_clause_start_lemmas and \
                last_root_idx > -1 and last_comma_idx > -1 and last_comma_idx < last_root_idx and \
                first_verb_idx < last_comma_idx and first_verb_idx > -1:
                 exceptions_passed = True
@@ -402,8 +404,7 @@ def detect_clause_errors( text, output_layer='clause_errors',
                         #             [lööb Kaie käega .] 
                         #
                         pat_name = 'attributive_clause_wrong_end'
-                    if prev_clause_lemmas[0] in ['kus', 'kes', 'mis', 'millal', 'kuhu', \
-                                                 'kust', 'kuna', 'kuidas', 'kas']:
+                    if prev_clause_lemmas[0] in attributive_clause_start_lemmas:
                         # 
                         #  Exception: [kus/kes/mis ...] [ mis/kes ... , ... root ] --> DON'T CHANGE
                         #             ( tricky )
@@ -429,9 +430,7 @@ def detect_clause_errors( text, output_layer='clause_errors',
                         #
                         exceptions_passed = False
                 if exceptions_passed:
-                    # Add error marker to the output layer
-                    errors_layer.meta[pat_name] += 1
-                    status[pat_name] += 1
+                    # Create error description
                     correction_desc = ''
                     split_at_word = cl_syntax_words[last_comma_idx]
                     if pat_name == 'attributive_embedded_clause_wrong_end':
@@ -440,8 +439,17 @@ def detect_clause_errors( text, output_layer='clause_errors',
                         correction_desc = f'Split clause after position {split_at_word.end} '+\
                                           f'and then embed the clause {embed_positions} '+\
                                           f'into clause {parent_positions}.'
+                        # Make pattern name more specific
+                        pat_name = f'attributive_{clause_lemmas[0]}_embedded_clause_wrong_end'
                     if pat_name == 'attributive_clause_wrong_end':
                         correction_desc = f'Split clause after position {split_at_word.end}.'
+                        # Make pattern name more specific
+                        pat_name = f'attributive_{clause_lemmas[0]}_clause_wrong_end'
+                    # Add error marker to the output layer
+                    if pat_name not in errors_layer.meta:
+                        errors_layer.meta[pat_name] = 0
+                    errors_layer.meta[pat_name] += 1
+                    status[pat_name] += 1
                     errors_layer.add_annotation( split_at_word.base_span, 
                                                  err_type=pat_name, 
                                                  correction=correction_desc )
@@ -460,7 +468,7 @@ def detect_clause_errors( text, output_layer='clause_errors',
                                 marking = ''
                                 if w.annotations[0]['id'] in inside_clause_indexes and cl_word_idx == last_comma_idx:
                                     marking = '<--- NEW CLAUSE END / EMBEDDING'
-                                    if pat_name == 'attributive_clause_wrong_end':
+                                    if not pat_name.endswith('_embedded_clause_wrong_end'):
                                         marking = '<--- NEW CLAUSE END'
                                 output_str.append( f"{w.text} {w.annotations[0]['id']} {w.annotations[0]['head']} {w.annotations[0]['deprel']} {marking}" )
                                 output_str.append( '\n' )
