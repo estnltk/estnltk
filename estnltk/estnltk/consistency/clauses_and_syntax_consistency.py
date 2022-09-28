@@ -280,7 +280,7 @@ def detect_clause_errors( text, output_layer='clause_errors',
         A layer with markings of error positions.
     '''
     status = defaultdict(int) if status is None else status
-    errors_layer = Layer(output_layer, attributes=('err_type', 'correction'), text_object=text)
+    errors_layer = Layer(output_layer, attributes=('err_type', 'correction', 'sent_id'), text_object=text)
     attributive_clause_start_lemmas = \
         ['mis', 'kes', 'millal', 'kus', 'kust', 'kuhu', 'kuna', 'kuidas', 'kas']
     output_str = []
@@ -452,7 +452,8 @@ def detect_clause_errors( text, output_layer='clause_errors',
                     status[pat_name] += 1
                     errors_layer.add_annotation( split_at_word.base_span, 
                                                  err_type=pat_name, 
-                                                 correction=correction_desc )
+                                                 correction=correction_desc,
+                                                 sent_id=sent_id )
                     # Construct debug output
                     if debug_output:
                         output_str.append( '\n' )
