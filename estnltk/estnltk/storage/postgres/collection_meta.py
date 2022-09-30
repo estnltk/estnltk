@@ -7,6 +7,7 @@ class PgCollectionMeta:
        
        Allows to:
        -- retrieve names of metadata columns of the collection;
+       -- retrieve names and types of metadata columns of the collection;
        -- retrieve metadata values of documents via indexer operator [];
           note that the access to metadata is read-only.
     """
@@ -24,11 +25,12 @@ class PgCollectionMeta:
         elif not isinstance(collection, pg.PgCollection):
             raise TypeError('collection must be an instance of PgCollection')
         self.collection = collection
-        self._columns = None # metadata columns of this collection
+        self._columns = None      # metadata columns of this collection
+        self._column_types = None # OrderedDict of pairs (metadata_column, data_type_str)
 
     @property
-    def columns(self):
-        if self._columns is None:
+    def column_types(self):
+        if self._column_types is None:
             if not self.collection.exists():
                 raise PgCollectionException(('collection {!r} does not exist, '+\
                                              'cannot select metadata columns').format( \
@@ -38,7 +40,15 @@ class PgCollectionMeta:
             if column_meta is not None:
                 column_meta.pop('id')
                 column_meta.pop('data')
-                self._columns = [name for (name, col_type) in column_meta.items()]
+                self._column_types = column_meta
+        return self._column_types
+
+    @property
+    def columns(self):
+        if self._columns is None:
+            column_types = self.column_types
+            if column_types is not None:
+                self._columns = [name for (name, col_type) in column_types.items()]
         return self._columns
 
     def __getitem__(self, item):

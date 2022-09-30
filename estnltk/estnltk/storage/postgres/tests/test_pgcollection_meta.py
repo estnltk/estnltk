@@ -61,6 +61,9 @@ class TestPgCollectionMeta(unittest.TestCase):
         meta = PgCollectionMeta(collection)
         # Assert metadata columns can be retrieved
         assert meta.columns == ['text_id', 'text_name', 'text_letter', 'missing_metadata']
+        # Assert metadata column types can be retrieved
+        assert meta.column_types == OrderedDict([('text_id', 'integer'), ('text_name', 'text'),
+                                                 ('text_letter', 'text'), ('missing_metadata', 'text')])
         collection.delete()
 
     def test_collection_meta_select_single_index(self):
