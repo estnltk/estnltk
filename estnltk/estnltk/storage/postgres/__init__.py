@@ -93,6 +93,7 @@ from .pgpass_parsing import parse_pgpass
 
 from .subcollectionlayer import PgSubCollectionLayer
 from .subcollectionfragments import PgSubCollectionFragments
+from .collection_meta import PgCollectionMeta
 from .subcollection import PgSubCollection
 
 from .storage_collections import StorageCollections
