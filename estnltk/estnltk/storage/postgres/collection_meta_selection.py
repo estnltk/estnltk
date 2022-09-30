@@ -92,7 +92,7 @@ class PgCollectionMetaSelection:
             self.selected_attributes = selected_attributes
         else:
             # Select all attributes
-            self.selected_attributes = collection.meta_columns
+            self.selected_attributes = collection.meta.columns
         self.itersize = 50
         self.progressbar  = progressbar
         self.return_index = return_index

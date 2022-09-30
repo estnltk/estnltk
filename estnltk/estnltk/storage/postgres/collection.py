@@ -52,8 +52,6 @@ class PgCollection:
             raise PgCollectionException('collection name must not contain double underscore: {!r}'.format(name))
         self.name = name
         self.storage = storage
-        # TODO: read meta columns from collection table if exists, move this parameter to self.create
-        self.meta_columns = meta or {}
         self._temporary = temporary
 
         if version == '0.0':
@@ -68,8 +66,8 @@ class PgCollection:
             raise ValueError("version must be '0.0', '1.0', '2.0' or '3.0'")
         self.version = version
 
-        self.column_names = ['id', 'data'] + list(self.meta_columns)
-
+        self._meta = None
+        self._column_names = None
         self._selected_layes = None
         self._is_empty = not self.exists() or len(self) == 0
 
@@ -82,13 +80,9 @@ class PgCollection:
 
         self.structure.create_table()
 
-        if meta:
-            self.meta_columns = meta
-            self.column_names = ['id', 'data'] + list(meta)
-
         pg.create_collection_table(self.storage,
                                    collection_name=self.name,
-                                   meta_columns=self.meta_columns,
+                                   meta_columns=meta,
                                    description=description)
 
         logger.info('new empty collection {!r} created'.format(self.name))
@@ -103,6 +97,18 @@ class PgCollection:
         if self._is_empty:
             return []
         return list(self._structure)
+
+    @property
+    def meta(self):
+        if self._meta is None:
+            self._meta = pg.PgCollectionMeta(self)
+        return self._meta
+
+    @property
+    def column_names(self):
+        if self._column_names is None:
+            self._column_names = ['id', 'data'] + self.meta.columns
+        return self._column_names
 
     @property
     def selected_layers(self):
@@ -1342,18 +1348,16 @@ class PgCollection:
                                                         orient='index',
                                                         columns=structure_columns
                                                         ).to_html()
-        column_meta = self._collection_table_meta()
         meta_html = ''
-        if column_meta is not None:
-            column_meta.pop('id')
-            column_meta.pop('data')
-            if column_meta:
-                meta_html = pandas.DataFrame.from_dict(column_meta,
+        if self.meta is not None:
+            if self.meta.columns:
+                meta_html = pandas.DataFrame.from_dict(self.meta.column_types,
                                                        orient='index',
                                                        columns=['data type']
                                                        ).to_html()
             else:
                 meta_html = 'This collection has no metadata.<br/>'
+        column_meta = self._collection_table_meta()
         return ('<b>{self.__class__.__name__}</b><br/>'
                 '<b>name:</b> {self.name}<br/>'
                 '<b>storage:</b> {self.storage}<br/>'

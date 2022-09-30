@@ -58,7 +58,9 @@ class TestPgCollectionMeta(unittest.TestCase):
                                    meta_data={'text_id': i,
                                               'text_name': '{}. tekst.'.format(i+1),
                                               'text_letter': letters[i]} )
-        meta = PgCollectionMeta(collection)
+        meta = collection.meta
+        assert isinstance(meta, PgCollectionMeta)
+        
         # Assert metadata columns can be retrieved
         assert meta.columns == ['text_id', 'text_name', 'text_letter', 'missing_metadata']
         # Assert metadata column types can be retrieved
@@ -75,7 +77,9 @@ class TestPgCollectionMeta(unittest.TestCase):
             for i in range(10):
                 text_str = 'See on {}. tekst.'.format(i+1)
                 collection_insert(Text( text_str ))
-        meta = PgCollectionMeta(collection)
+        meta = collection.meta
+        assert isinstance(meta, PgCollectionMeta)
+        
         # Assert metadata columns returns empty list
         assert meta.columns == []
         # Assert metadata column types are empty
@@ -97,7 +101,8 @@ class TestPgCollectionMeta(unittest.TestCase):
                                    meta_data={'text_id': i,
                                               'text_name': '{}. tekst.'.format(i+1),
                                               'text_letter': letters[i]} )
-        meta = PgCollectionMeta(collection)
+        meta = collection.meta
+        assert isinstance(meta, PgCollectionMeta)
         
         # Select single item with all available metadata
         assert meta[0] == {'text_id': 0, 
@@ -137,7 +142,8 @@ class TestPgCollectionMeta(unittest.TestCase):
                                               'text_name': '{}. tekst.'.format(i+1),
                                               'text_letter': letters[i]} )
         
-        meta = PgCollectionMeta(collection)
+        meta = collection.meta
+        assert isinstance(meta, PgCollectionMeta)
         
         # Assert that slice returns iterable
         assert isinstance(meta[1:3], PgCollectionMetaSelection)
@@ -184,7 +190,8 @@ class TestPgCollectionMeta(unittest.TestCase):
                                               'text_name': '{}. tekst.'.format(i+1),
                                               'text_letter': letters[i]} )
         
-        meta = PgCollectionMeta(collection)
+        meta = collection.meta
+        assert isinstance(meta, PgCollectionMeta)
         
         # Assert that list of indexes returns iterable
         assert isinstance(meta[[3,4,5]], PgCollectionMetaSelection)

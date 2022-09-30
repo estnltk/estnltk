@@ -430,9 +430,7 @@ class TestPgCollection(unittest.TestCase):
         
         self.assertEqual( len(collection), 3 )
         # Check meta columns
-        self.assertEqual( collection.meta_columns, \
-                          {'author': 'str', 
-                           'date': 'str'} )
+        self.assertEqual( collection.meta.columns, ['author', 'date'] )
         # Iterate over collection and select id, text_obj and meta
         selection = \
             list( collection.select( collection_meta=['author', 'date'] ) )
@@ -443,6 +441,17 @@ class TestPgCollection(unittest.TestCase):
         self.assertEqual( selection[1][2], \
                           {'author': 'Kõivupuu', 'date': '1997'} )
         self.assertEqual( selection[2][2], \
+                          {'author': 'Musumets', 'date': '2009'} )
+
+        # Iterate over collection and select id and meta exclusively 
+        selection = list( collection.meta[0:] )
+        self.assertEqual( len(selection), 3 )
+        # Check meta values
+        self.assertEqual( selection[0], \
+                          {'author': 'Niinepuu', 'date': '1983'} )
+        self.assertEqual( selection[1], \
+                          {'author': 'Kõivupuu', 'date': '1997'} )
+        self.assertEqual( selection[2], \
                           {'author': 'Musumets', 'date': '2009'} )
         
         collection.delete()
