@@ -55,7 +55,7 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
         with collection.insert() as collection_insert:
             for i in range(len(letters)):
                 text_str = 'See on {}. tekst.'.format(i+1)
-                collection_insert( Text( text_str ).tag_layer('words'), 
+                collection_insert( Text( text_str ), 
                                    meta_data={'text_id': i,
                                               'text_name': '{}. tekst.'.format(i+1),
                                               'text_letter': letters[i]} )
@@ -132,7 +132,7 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
         with collection.insert() as collection_insert:
             for i in range(len(letters)):
                 text_str = 'See on {}. tekst.'.format(i+1)
-                collection_insert( Text( text_str ).tag_layer('words'), 
+                collection_insert( Text( text_str ), 
                                    meta_data={'text_id': i,
                                               'text_name': '{}. tekst.'.format(i+1),
                                               'text_letter': letters[i]} )
@@ -208,7 +208,7 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
         with collection.insert() as collection_insert:
             for i in range(len(letters)):
                 text_str = 'See on {}. tekst.'.format(i+1)
-                collection_insert( Text( text_str ).tag_layer('words'), 
+                collection_insert( Text( text_str ), 
                                    meta_data={'text_id': i,
                                               'text_name': '{}. tekst.'.format(i+1),
                                               'text_letter': letters[i]} )
