@@ -21,6 +21,7 @@ class PgCollectionMetaSelection:
                        selected_attributes: Sequence[str] = None,
                        itersize: int = 50,
                        progressbar: str = None,
+                       return_index: bool = True,
                        order_by_id: bool = True):
         """
         Initiates new PgCollectionMetaSelection object.
@@ -45,13 +46,16 @@ class PgCollectionMetaSelection:
         :param progressbar: str, default None
             no progressbar by default
             'ascii', 'unicode' or 'notebook'
+        :param return_index: bool
+            yield collection id with metadata values.
+            default: True.
         :param order_by_id: bool
             whether results of the selection will be ordered
             by ids of the collection. default: True.
         """
         # Validate collection
         if collection is None or (isinstance(collection, pg.PgCollection) and not collection.exists()):
-            raise PgCollectionException("collection does not exist, can't create subcollection")
+            raise PgCollectionException("collection does not exist, can't create selection")
         elif not isinstance(collection, pg.PgCollection):
             raise TypeError('collection must be an instance of PgCollection')
         self.collection = collection
@@ -90,7 +94,8 @@ class PgCollectionMetaSelection:
             # Select all attributes
             self.selected_attributes = collection.meta_columns
         self.itersize = 50
-        self.progressbar = progressbar
+        self.progressbar  = progressbar
+        self.return_index = return_index
         self.order_by_id = order_by_id
 
     def __len__(self):
@@ -165,4 +170,5 @@ class PgCollectionMetaSelection:
                 data_iterator.set_description('collection_id: {}'.format(row[0]), refresh=False)
                 meta_stop = 1 + len(self.selected_attributes)
                 meta = {attr: value for attr, value in zip(self.selected_attributes, row[1:meta_stop])}
-                yield row[0], meta
+                yield (row[0], meta) if self.return_index else meta
+

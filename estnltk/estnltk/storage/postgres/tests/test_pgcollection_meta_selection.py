@@ -79,7 +79,14 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
         assert selected == [(9, {'text_id': 9, 'text_name': '10. tekst.', 
                                  'text_letter': 'J', 
                                  'missing_metadata': None})]
-
+        # ... meta without indexes
+        selected = list(PgCollectionMetaSelection(collection, 
+                                                  selected_indexes=[0],
+                                                  return_index=False))
+        assert selected == [{'text_id': 0, 'text_name': '1. tekst.', 
+                             'text_letter': 'A', 
+                             'missing_metadata': None}]
+        
         # Select single item with specific metadata
         selected = list(PgCollectionMetaSelection(collection, 
                                                   selected_indexes=[6],
@@ -91,12 +98,25 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
                                                   selected_indexes=[7],
                                                   selected_attributes=['text_letter']))
         assert selected == [(7, {'text_letter': 'H'})]
+        # ... meta without indexes
+        selected = list(PgCollectionMetaSelection(collection, 
+                                                  selected_indexes=[6],
+                                                  selected_attributes=['text_name',
+                                                                       'text_letter'],
+                                                  return_index=False))
+        assert selected == [{'text_name': '7. tekst.', 'text_letter': 'G'}]
 
         # Select single item w/o metadata
         selected = list(PgCollectionMetaSelection(collection, 
                                                   selected_indexes=[8],
                                                   selected_attributes=[]))
         assert selected == [(8, {})]
+        # ... meta without indexes
+        selected = list(PgCollectionMetaSelection(collection, 
+                                                  selected_indexes=[8],
+                                                  selected_attributes=[],
+                                                  return_index=False))
+        assert selected == [{}]
         
         collection.delete()
 
@@ -130,6 +150,14 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
                                                         'text_name', 'text_letter',
                                                         'missing_metadata']))
         assert selected2 == selected1
+        # ... meta without indexes
+        selected3 = list(PgCollectionMetaSelection(collection, 
+                                                   selected_slice=slice(1,3),
+                                                   return_index=False))
+        assert selected3 == [{'text_id': 1, 'text_name': '2. tekst.', 
+                             'text_letter': 'B', 'missing_metadata': None}, 
+                             {'text_id': 2, 'text_name': '3. tekst.', 
+                              'text_letter': 'C', 'missing_metadata': None}]
         # Select slice with specific metadata
         selected = list(PgCollectionMetaSelection(collection, 
                                                   selected_slice=slice(5,7),
@@ -150,7 +178,22 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
                             (1, {'text_name': '2. tekst.'}), 
                             (2, {'text_name': '3. tekst.'}),
                             (3, {'text_name': '4. tekst.'})]
-        
+        # ... meta without indexes
+        selected = list(PgCollectionMetaSelection(collection, 
+                                                  selected_slice=slice(5,7),
+                                                  selected_attributes=['text_name',
+                                                                       'text_letter'],
+                                                  return_index=False))
+        assert selected == [{'text_name': '6. tekst.', 'text_letter': 'F'}, \
+                            {'text_name': '7. tekst.', 'text_letter': 'G'}]
+        selected = list(PgCollectionMetaSelection(collection, 
+                                                  selected_slice=slice(4),
+                                                  selected_attributes=['text_name'],
+                                                  return_index=False))
+        assert selected == [{'text_name': '1. tekst.'}, 
+                            {'text_name': '2. tekst.'}, 
+                            {'text_name': '3. tekst.'},
+                            {'text_name': '4. tekst.'}]
         collection.delete()
 
 
@@ -174,25 +217,35 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
         selected = list(PgCollectionMetaSelection(collection, 
                                                   selected_indexes=[3,4,5]))
         assert selected == [(3, {'text_id': 3, 'text_name': '4. tekst.', 
-                                 'text_letter': 'D', 'missing_metadata': None}), 
+                                 'text_letter': 'D', 'missing_metadata': None}),
                             (4, {'text_id': 4, 'text_name': '5. tekst.', 
-                                 'text_letter': 'E', 'missing_metadata': None}), 
+                                 'text_letter': 'E', 'missing_metadata': None}),
                             (5, {'text_id': 5, 'text_name': '6. tekst.', 
                                  'text_letter': 'F', 'missing_metadata': None})]
         selected = list(PgCollectionMetaSelection(collection, 
                                                   selected_indexes=[3,6]))
         assert selected == [(3, {'text_id': 3, 'text_name': '4. tekst.', 
-                                 'text_letter': 'D', 'missing_metadata': None}), 
+                                 'text_letter': 'D', 'missing_metadata': None}),
                             (6, {'text_id': 6, 'text_name': '7. tekst.', 
                                  'text_letter': 'G', 'missing_metadata': None})]
+        # ... meta without indexes
+        selected = list(PgCollectionMetaSelection(collection, 
+                                                  selected_indexes=[3,4,5],
+                                                  return_index=False))
+        assert selected == [{'text_id': 3, 'text_name': '4. tekst.', 
+                             'text_letter': 'D', 'missing_metadata': None}, 
+                            {'text_id': 4, 'text_name': '5. tekst.', 
+                             'text_letter': 'E', 'missing_metadata': None}, 
+                            {'text_id': 5, 'text_name': '6. tekst.', 
+                             'text_letter': 'F', 'missing_metadata': None}]
         
         # Select items with specific metadata
         selected = list(PgCollectionMetaSelection(collection, 
                                                   selected_indexes=[2,8,9],
                                                   selected_attributes=['text_name',
                                                                        'text_letter']))
-        assert selected == [(2, {'text_name': '3. tekst.', 'text_letter': 'C'}), 
-                            (8, {'text_name': '9. tekst.', 'text_letter': 'I'}), 
+        assert selected == [(2, {'text_name': '3. tekst.', 'text_letter': 'C'}),
+                            (8, {'text_name': '9. tekst.', 'text_letter': 'I'}),
                             (9, {'text_name': '10. tekst.', 'text_letter': 'J'})]
         selected = list(PgCollectionMetaSelection(collection, 
                                                   selected_indexes=[1,6,9],
@@ -200,6 +253,15 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
         assert selected == [(1, {'text_letter': 'B'}), 
                             (6, {'text_letter': 'G'}), 
                             (9, {'text_letter': 'J'})]
+        # ... meta without indexes
+        selected = list(PgCollectionMetaSelection(collection, 
+                                                  selected_indexes=[2,8,9],
+                                                  selected_attributes=['text_name',
+                                                                       'text_letter'],
+                                                  return_index=False))
+        assert selected == [{'text_name': '3. tekst.', 'text_letter': 'C'},
+                            {'text_name': '9. tekst.', 'text_letter': 'I'},
+                            {'text_name': '10. tekst.', 'text_letter': 'J'}]
         collection.delete()
 
 if __name__ == '__main__':
