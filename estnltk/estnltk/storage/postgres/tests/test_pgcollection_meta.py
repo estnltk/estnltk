@@ -66,6 +66,22 @@ class TestPgCollectionMeta(unittest.TestCase):
                                                  ('text_letter', 'text'), ('missing_metadata', 'text')])
         collection.delete()
 
+    def test_collection_meta_columns_empty(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage[collection_name]
+        # Create collection without any metadata
+        collection.create()
+        with collection.insert() as collection_insert:
+            for i in range(10):
+                text_str = 'See on {}. tekst.'.format(i+1)
+                collection_insert(Text( text_str ))
+        meta = PgCollectionMeta(collection)
+        # Assert metadata columns returns empty list
+        assert meta.columns == []
+        # Assert metadata column types are empty
+        assert meta.column_types == OrderedDict([])
+        collection.delete()
+
     def test_collection_meta_select_single_index(self):
         collection_name = get_random_collection_name()
         collection = self.storage[collection_name]
