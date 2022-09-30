@@ -44,7 +44,7 @@ class PgCollection:
     """Convenience wrapper over PostgresStorage
 
     """
-    def __init__(self, name: str, storage, meta: dict = None, temporary: bool = False, version='0.0'):
+    def __init__(self, name: str, storage, temporary: bool = False, version='0.0'):
         assert isinstance(name, str), name
         assert name.islower(), name
         assert name.isidentifier(), name
