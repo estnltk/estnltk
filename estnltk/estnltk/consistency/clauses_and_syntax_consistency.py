@@ -7,6 +7,8 @@ from collections import defaultdict
 
 from estnltk import Text, Layer
 
+from estnltk_core.layer_operations import extract_section, extract_sections
+
 # =========================================================================
 #   (Optimized) Iterators
 # =========================================================================
@@ -480,3 +482,58 @@ def detect_clause_errors( text, output_layer='clause_errors',
                         output_str.append( '\n' )
     return errors_layer if not debug_output else (errors_layer, ''.join(output_str))
 
+
+# =========================================================================
+#   Extraction of potential erroneous sentences
+# =========================================================================
+
+def _extract_sentences_with_clause_errors( text, clauses_layer='clauses', syntax_layer='syntax', sentences_layer='sentences',
+                                                 copy_metadata=True ):
+    '''
+    Extracts sentences with potential clause errors with the method detect_clause_errors().
+    Yields extracted sentences as Text objects that have the same set of layers as the 
+    input text.
+    
+    Parameters
+    ----------
+    text: Text
+        Analysable Text object.
+    clauses_layer: str
+        Name of the clauses layer attached to the Text object. 
+        Default: 'clauses'
+    syntax_layer: str
+        Name of the syntax layer attached to the Text object. 
+        Default: 'syntax'
+    sentences_layer: str
+        Name of the sentences layer attached to the Text object. 
+        Default: 'sentences'
+    copy_metadata: bool
+        If True, then metadata of the input Text object is also 
+        carried to the yielded Text object.
+    
+    Yields
+    -------
+    Text
+        A Text object corresponding to a potentially erroneous sentence.
+    '''
+    errors_layer = detect_clause_errors( text, output_layer='clause_errors', clauses_layer=clauses_layer, 
+                                               syntax_layer=syntax_layer, sentences_layer=sentences_layer )
+    words_layer_name = text[sentences_layer].enveloping
+    assert words_layer_name in text.layers
+    if len(errors_layer) > 0:
+        for err_span in errors_layer:
+            err_sentence = text[sentences_layer][err_span.sent_id]
+            err_sentence_start = err_sentence.start
+            extracted_text = extract_section( text = text, 
+                start = err_sentence.start,
+                end = err_sentence.end,
+                layers_to_keep = text.layers,
+                trim_overlapping=False
+            )
+            # Carry over metadata
+            if copy_metadata:
+                for key in text.meta.keys():
+                    extracted_text.meta[key] = text.meta[key]
+            extracted_text.meta['_original_sentence_start'] = err_sentence.start
+            extracted_text.meta['_original_sentence_end'] = err_sentence.end
+            yield extracted_text
