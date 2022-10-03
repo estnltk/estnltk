@@ -1357,7 +1357,6 @@ class PgCollection:
                                                        ).to_html()
             else:
                 meta_html = 'This collection has no metadata.<br/>'
-        column_meta = self._collection_table_meta()
         return ('<b>{self.__class__.__name__}</b><br/>'
                 '<b>name:</b> {self.name}<br/>'
                 '<b>storage:</b> {self.storage}<br/>'
