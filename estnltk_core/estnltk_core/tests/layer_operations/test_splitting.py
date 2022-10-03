@@ -615,4 +615,55 @@ def test_split_by_clauses__fix_empty_spans_error():
     assert clause_texts[1]['words'].text == [',', 'keda', 'kohtasime', ',']
 
 
+def test_extract_sections_on_non_ambiguous_layer_with_parent():
+    # Test that extract_sections also works on non-ambiguous layer that has a parent
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
 
+    text = Text('Üks kaks kolm.')
+    # make parent layer
+    layer = Layer('test_1', attributes=['attr_1'], ambiguous=True, 
+                            text_object=text)
+    text.add_layer(layer)
+    layer.add_annotation((0, 3),  attr_1=1)
+    layer.add_annotation((4, 8),  attr_1=2)
+    layer.add_annotation((4, 8),  attr_1=2.1)
+    layer.add_annotation((4, 8),  attr_1=2.2)
+    layer.add_annotation((9, 13), attr_1=3)
+    assert layer.ambiguous
+    # make child layer
+    child_layer = Layer('test_2', attributes=['attr_2'], ambiguous=False, 
+                                  parent=layer.name, text_object=text)
+    text.add_layer(child_layer)
+    child_layer.add_annotation(layer[0].base_span,  attr_2=11)
+    child_layer.add_annotation(layer[1].base_span,  attr_2=22)
+    child_layer.add_annotation(layer[2].base_span,  attr_2=33)
+    assert not child_layer.ambiguous
+    # extract_sections
+    texts = extract_sections(text, sections=[(0, 4), (4, 14)])
+    # Validate extracted content
+    assert len(texts) == 2
+    for text_obj in texts:
+        assert 'test_1' in text_obj.layers
+        assert 'test_2' in text_obj.layers
+    assert layer_to_dict( texts[0]['test_2'] ) == \
+        {'ambiguous': False,
+         'attributes': ('attr_2',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'test_2',
+         'parent': 'test_1',
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'attr_2': 11}], 'base_span': (0, 3)}]}
+    assert layer_to_dict( texts[1]['test_2'] ) == \
+        {'ambiguous': False,
+         'attributes': ('attr_2',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'test_2',
+         'parent': 'test_1',
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'attr_2': 22}], 'base_span': (0, 4)},
+                   {'annotations': [{'attr_2': 33}], 'base_span': (5, 9)}]}
