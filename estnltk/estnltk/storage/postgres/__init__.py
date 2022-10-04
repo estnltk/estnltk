@@ -54,6 +54,7 @@ from .pg_operations import structure_table_exists
 from .pg_operations import layer_table_exists
 from .pg_operations import fragment_table_exists
 
+from .pg_operations import schema_exists
 from .pg_operations import delete_schema
 from .pg_operations import drop_table
 from .pg_operations import drop_collection_table
