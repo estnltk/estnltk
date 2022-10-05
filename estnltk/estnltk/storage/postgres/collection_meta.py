@@ -52,10 +52,6 @@ class PgCollectionMeta:
         return self._columns
 
     def __getitem__(self, item):
-        # TODO: if metadata from multiple documents is selected,
-        # should we also return document indexes? currently, no 
-        # indexes will be returned
-        
         # Get valid metadata attributes/columns
         valid_attributes = self.columns
         if valid_attributes is None or len(valid_attributes) == 0:

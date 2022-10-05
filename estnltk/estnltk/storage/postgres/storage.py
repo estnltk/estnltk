@@ -70,12 +70,9 @@ class PostgresStorage:
     def closed(self):
         return self.conn.closed
 
-    def get_collection(self, table_name: str, meta_fields: dict = None):
+    def get_collection(self, table_name: str):
         """Returns a new instance of `PgCollection` without physically creating it."""
         collection = self[table_name]
-        if meta_fields is not None:
-            # TODO: why should we be able to override collection's meta here?
-            collection.meta_columns = meta_fields
         return collection
 
     @property
