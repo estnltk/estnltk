@@ -141,6 +141,8 @@ def create_collection_table(storage, collection_name, meta_columns=None, descrip
     and automatically adds a GIN index for the jsonb column:
 
         CREATE INDEX idx_table_data ON table USING gin ((data -> 'layers') jsonb_path_ops);
+        
+    The types for meta columns can be int, bigint, float, str and datetime. For more information consult the source code. 
     """
     columns = [SQL('id BIGSERIAL PRIMARY KEY'),
                SQL('data jsonb')]
