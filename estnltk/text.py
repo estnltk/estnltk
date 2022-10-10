@@ -268,20 +268,34 @@ class Text:
         Returns a list of all layers of the given dict of layers in order of dependencies and layer names.
         The order is uniquely determined.
 
-        ayers: Mapping[str, Layer]
+        layers: Mapping[str, Layer]
             maps layer name to layer
         """
         layer_list = sorted(layers.values(), key=lambda l: l.name)
+        layer_name_set = set([l.name for l in layer_list])
         sorted_layers = []
         sorted_layer_names = set()
         while layer_list:
+            success = False
             for layer in layer_list:
                 if (layer.parent is None or layer.parent in sorted_layer_names) and \
                         (layer.enveloping is None or layer.enveloping in sorted_layer_names):
                     sorted_layers.append(layer)
                     sorted_layer_names.add(layer.name)
                     layer_list.remove(layer)
+                    success = True
                     break
+            if layer_list and not success:
+                # If we could not remove any layer from layer_list, then the data 
+                # is malformed: contains unknown dependencies. 
+                # Add layers with unknown dependencies to the end of the sorted list.
+                for layer in layer_list:
+                    if (layer.parent is not None and layer.parent not in layer_name_set) or \
+                         (layer.enveloping is not None and layer.enveloping not in layer_name_set):
+                        sorted_layers.append(layer)
+                        sorted_layer_names.add(layer.name)
+                        layer_list.remove(layer)
+                        break
         return sorted_layers
 
     def list_layers(self) -> List[Layer]:

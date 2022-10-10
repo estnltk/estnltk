@@ -5,7 +5,7 @@ import sys
 
 setup(
     name="estnltk_light",
-    version="1.6.7.6b0",
+    version="1.6.7.7b0",
     packages=find_packages(),
     author="University of Tartu",
     author_email="siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
