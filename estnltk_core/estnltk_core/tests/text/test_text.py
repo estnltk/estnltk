@@ -492,6 +492,54 @@ def test_delete_annotation_in_ambiguous_span():
     assert len(text['test'][1].annotations) == 1
 
 
+def test_text_topological_sort_normal_input():
+    # Test topological_sort on normal input
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    # Create input layers
+    tokens = Layer(name='tokens', parent=None, enveloping=None, text_object=None)
+    words = Layer(name='words', parent=None, enveloping=None, text_object=None)
+    sentences = Layer(name='sentences', parent=None, enveloping='words', text_object=None)
+    paragraphs = Layer(name='paragraphs', parent=None, enveloping='sentences', text_object=None)
+    morph_analysis = \
+        Layer(name='morph_analysis', parent='words', enveloping=None, text_object=None)
+    morph_extended = \
+        Layer(name='morph_extended', parent='morph_analysis', enveloping=None, text_object=None)
+    syntax = Layer(name='syntax', parent='morph_extended', enveloping=None, text_object=None)
+    # Perform sorting
+    layers_dict = {layer.name: layer for layer in [ morph_extended, paragraphs, morph_analysis, 
+                                                    sentences, syntax, words, tokens ]}
+    top_sorted_layers = Text.topological_sort( layers_dict )
+    top_sorted_layer_names = [layer.name for layer in top_sorted_layers]
+    assert top_sorted_layer_names == ['tokens', 'words', 'morph_analysis', 'morph_extended', \
+                                      'sentences', 'paragraphs', 'syntax']
+
+
+def test_text_topological_sort_malformed_input():
+    # Test topological_sort on malformed input (missing dependency layers)
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    # Create input layers
+    tokens = Layer(name='tokens', parent=None, enveloping=None, text_object=None)
+    words = Layer(name='words', parent=None, enveloping=None, text_object=None)
+    sentences = Layer(name='sentences', parent=None, enveloping='words', text_object=None)
+    alternative_words = \
+        Layer(name='alt_words', parent='alt_tokens', enveloping=None, text_object=None)
+    alternative_sentences = \
+        Layer(name='alt_sentences', enveloping='alt_words', parent=None, text_object=None)
+    alternative_paragraphs = \
+        Layer(name='alt_paragraphs', enveloping='alt_sentences', parent=None, text_object=None)
+    alternative_entities = \
+        Layer(name='alt_entities', parent='base_layer', enveloping=None, text_object=None)
+    layers_dict = {layer.name: layer for layer in [words, alternative_words, sentences, \
+                                                   alternative_paragraphs, alternative_words, \
+                                                   alternative_entities, alternative_sentences, \
+                                                   tokens]}
+    top_sorted_layers = Text.topological_sort( layers_dict )
+    top_sorted_layer_names = [layer.name for layer in top_sorted_layers]
+    assert top_sorted_layer_names == ['tokens', 'words', 'sentences', 'alt_entities', \
+                                      'alt_words', 'alt_sentences', 'alt_paragraphs']
+
 
 def test_attribute_values_selection():
     # Test systematically different kinds of attribute value selections
