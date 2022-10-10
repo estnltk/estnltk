@@ -56,7 +56,7 @@ class PgCollectionMeta:
         valid_attributes = self.columns
         if valid_attributes is None or len(valid_attributes) == 0:
             raise PgCollectionException(("collection {!r} does not have any "+\
-                                         "metadata columns that can be selected").format(self.collection))
+                                         "metadata columns that can be selected").format(self.collection.name))
         
         # Expected call: collection.meta[index]
         # Returns all metadata of selected document
