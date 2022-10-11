@@ -72,19 +72,26 @@ class PgCollection:
         self._is_empty = not self.exists() or len(self) == 0
 
     def create(self, description=None, meta: dict = None, temporary=None):
-        """Creates the database tables for the collection
-
+        """Creates and adds new collection to the database. 
+           * Creates tables of the collection (structure table and collection table);
+           * Adds entry about the collection to StorageCollections's table
+             (if the entry is missing);
         """
+        # Add storage.collections entry (collection name + version)
+        if not self.storage._collections.entry_exists( self.name ):
+            try:
+                self.storage._collections.insert(self.name, self._structure.version)
+            except psycopg2.IntegrityError:
+                self.storage._collections.load()
         if description is None:
             description = 'created by {} on {}'.format(self.storage.user, time.asctime())
-
+        # Create structure table (contains information about layers)
         self.structure.create_table()
-
+        # Create collection table (stores Text objects with attached layers and metadata columns)
         pg.create_collection_table(self.storage,
                                    collection_name=self.name,
                                    meta_columns=meta,
                                    description=description)
-
         logger.info('new empty collection {!r} created'.format(self.name))
         return self
 

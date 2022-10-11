@@ -28,15 +28,11 @@ class StorageCollections:
     def __setitem__(self, collection_name: str, collection: pg.PgCollection):
         assert collection.name == collection_name
         self.load()
-        if not collection_name in self._collections:
-            try:
-                self.insert(collection_name, collection.version)
-            except psycopg2.IntegrityError:
-                self.load()
         if collection_name in self._collections and self._collections[collection_name]['collection_object'] is not None:
             raise NotImplementedError('re-adding a collection not implemented: ' + collection_name)
         self._collections[collection_name] = {'version': collection.version,
-                                              'collection_object': collection}
+                                              'collection_object': collection,
+                                              'in_database': False}
 
     def __getitem__(self, collection_name: str):
         return self._collections[collection_name]['collection_object']
@@ -44,6 +40,14 @@ class StorageCollections:
     def get(self, collection_name):
         if collection_name in self._collections:
             return self._collections[collection_name]['collection_object']
+
+    def entry_exists(self, collection_name):
+        # Returns True if the given collection has recorded in db
+        # (entry exists in the '__collections' table)
+        if collection_name in self._collections:
+            return self._collections[collection_name]['in_database']
+        else:
+            return False
 
     def __contains__(self, item: str):
         return item in self.collections
@@ -62,6 +66,8 @@ class StorageCollections:
             )
             )
         self._storage.conn.commit()
+        # Update entries
+        self.load()
 
     def __delitem__(self, collection_name: str):
         with self._storage.conn.cursor() as c:
@@ -85,9 +91,11 @@ class StorageCollections:
                     if collection in self._collections:
                         assert self._collections[collection]['version'] == version
                         collections[collection] = self._collections[collection]
+                        collections[collection]['in_database'] = True
                     else:
                         collections[collection] = {'version': version,
-                                                   'collection_object': None}
+                                                   'collection_object': None,
+                                                   'in_database': True}
         else:
             self.create_table()
 
@@ -95,7 +103,8 @@ class StorageCollections:
         for table in tables:
             if table not in collections and table + '__structure' in tables:
                 collections[table] = {'version': 'unknown',
-                                      'collection_object': None}
+                                      'collection_object': None,
+                                      'in_database': True}
                 self.insert(table, 'unknown')
 
         self._collections = collections

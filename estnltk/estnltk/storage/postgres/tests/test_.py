@@ -60,10 +60,12 @@ class TestPgCollection(unittest.TestCase):
         self.assertIs(collection, self.storage[collection_name])
 
         self.assertFalse(collection.exists())
+        self.assertFalse(self.storage._collections.entry_exists(collection_name))
 
         collection.create()
 
         self.assertTrue(collection.exists())
+        self.assertTrue(self.storage._collections.entry_exists(collection_name))
 
         self.assertIs(collection, self.storage[collection_name])
 
