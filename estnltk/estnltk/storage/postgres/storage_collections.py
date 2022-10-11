@@ -1,4 +1,3 @@
-import psycopg2
 from psycopg2.sql import SQL, Literal
 
 from estnltk import logger

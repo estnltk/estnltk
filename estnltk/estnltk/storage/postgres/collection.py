@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from typing import Sequence, Dict
 
 import pandas
+import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
