@@ -41,7 +41,7 @@ class StorageCollections:
             return self._collections[collection_name]['collection_object']
 
     def entry_exists(self, collection_name):
-        # Returns True if the given collection has recorded in db
+        # Returns True if the given collection has been recorded in db
         # (entry exists in the '__collections' table)
         if collection_name in self._collections:
             return self._collections[collection_name]['in_database']

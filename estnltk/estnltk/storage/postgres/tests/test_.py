@@ -60,12 +60,10 @@ class TestPgCollection(unittest.TestCase):
         self.assertIs(collection, self.storage[collection_name])
 
         self.assertFalse(collection.exists())
-        self.assertFalse(self.storage._collections.entry_exists(collection_name))
 
         collection.create()
 
         self.assertTrue(collection.exists())
-        self.assertTrue(self.storage._collections.entry_exists(collection_name))
 
         self.assertIs(collection, self.storage[collection_name])
 
@@ -79,6 +77,44 @@ class TestPgCollection(unittest.TestCase):
 
         collection.delete()
         self.assertFalse(collection.exists())
+
+    def test_create_collection_multiple_connections(self):
+        storage_1 = self.storage
+        storage_2 = PostgresStorage(pgpass_file='~/.pgpass', 
+                                    schema=storage_1.schema, 
+                                    dbname='test_db')
+        
+        collection_name = get_random_collection_name()
+        collection_from_1 = storage_1[collection_name]
+        collection_from_2 = storage_2[collection_name]
+
+        self.assertFalse(collection_from_1.exists())
+        self.assertFalse(collection_from_2.exists())
+        self.assertFalse(storage_1._collections.entry_exists(collection_name))
+        self.assertFalse(storage_2._collections.entry_exists(collection_name))
+
+        collection_from_1.create()
+
+        self.assertTrue(collection_from_1.exists())
+        self.assertTrue(collection_from_2.exists())
+        # storage_1 has up to date information
+        self.assertTrue(storage_1._collections.entry_exists(collection_name))
+        # storage_2 does not have up to date information yet
+        self.assertFalse(storage_2._collections.entry_exists(collection_name))
+        # update storage_2 
+        storage_2._collections.load()
+        # storage_2 now has up to date information
+        self.assertTrue(storage_2._collections.entry_exists(collection_name))
+
+        self.assertIs(collection_from_1, storage_1[collection_name])
+        self.assertIs(collection_from_2, storage_2[collection_name])
+
+        collection_from_1.delete()
+
+        self.assertFalse(collection_from_1.exists())
+        self.assertFalse(collection_from_2.exists())
+        
+        storage_2.close()
 
     def test_insert(self):
         collection_name = get_random_collection_name()
