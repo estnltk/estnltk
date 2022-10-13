@@ -31,8 +31,7 @@ class StorageCollections:
         if collection_name in self._collections and self._collections[collection_name]['collection_object'] is not None:
             raise NotImplementedError('re-adding a collection not implemented: ' + collection_name)
         self._collections[collection_name] = {'version': collection.version,
-                                              'collection_object': collection,
-                                              'in_database': False}
+                                              'collection_object': collection}
 
     def __getitem__(self, collection_name: str):
         return self._collections[collection_name]['collection_object']
@@ -40,14 +39,6 @@ class StorageCollections:
     def get(self, collection_name):
         if collection_name in self._collections:
             return self._collections[collection_name]['collection_object']
-
-    def entry_exists(self, collection_name):
-        # Returns True if the given collection has been recorded in db
-        # (entry exists in the '__collections' table)
-        if collection_name in self._collections:
-            return self._collections[collection_name]['in_database']
-        else:
-            return False
 
     def __contains__(self, item: str):
         return item in self.collections
@@ -92,13 +83,11 @@ class StorageCollections:
                         # Collection has been loaded already, check the version.
                         assert self._collections[collection]['version'] == version
                         collections[collection] = self._collections[collection]
-                        collections[collection]['in_database'] = True
                     else:
                         # Initialize an unloaded collection. It will be loaded
                         # if user calls storage[collection]
                         collections[collection] = {'version': version,
-                                                   'collection_object': None,
-                                                   'in_database': True}
+                                                   'collection_object': None}
         else:
             self.create_table()
 
@@ -107,8 +96,7 @@ class StorageCollections:
         for table in tables:
             if table not in collections and table + '__structure' in tables:
                 collections[table] = {'version': 'unknown',
-                                      'collection_object': None,
-                                      'in_database': True}
+                                      'collection_object': None}
                 self.insert(table, 'unknown')
 
         self._collections = collections

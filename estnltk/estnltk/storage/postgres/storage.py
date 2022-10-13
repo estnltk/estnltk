@@ -121,14 +121,13 @@ class PostgresStorage:
         if name not in self._collections:
             collection = PgCollection(name, self, version='3.0')
             # Add storage.collections entry (collection name + version)
-            if not self._collections.entry_exists(name):
-                try:
-                    self._collections.insert(name, collection._structure.version)
-                except psycopg2.IntegrityError:
-                    self._collections.load()
+            try:
+                self._collections.insert(name, collection._structure.version)
+            except psycopg2.IntegrityError:
+                self._collections.load()
             if description is None:
                 description = 'created by {} on {}'.format(self.user, time.asctime())
-            # Create structure table (contains information about layers)
+            # Create structure table (contains information about collection's layers)
             collection.structure.create_table()
             # Create collection table (stores Text objects with attached layers and metadata columns)
             pg.create_collection_table(self,
