@@ -39,8 +39,7 @@ class TestPgSubCollectionCreateLayer(unittest.TestCase):
 
     def test_subcollection_create_layer(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
 
@@ -158,8 +157,7 @@ class TestPgSubCollectionCreateLayer(unittest.TestCase):
 
     def test_subcollection_create_layer_block(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
 

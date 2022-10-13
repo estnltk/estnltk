@@ -29,8 +29,8 @@ class TestPgSubCollectionFragments(unittest.TestCase):
         pg.create_schema(self.storage)
 
         self.collection_name = get_random_collection_name()
-        self.collection = self.storage[self.collection_name]
-        self.collection.create(meta=OrderedDict([('meta_1', 'str'), ('meta_2', 'int')]))
+        self.collection = self.storage.add_collection( self.collection_name, 
+                               meta=OrderedDict([('meta_1', 'str'), ('meta_2', 'int')]) )
 
         texts = ['Esimene lause. Teine lause. Kolmas lause.',
                  'Teine tekst',

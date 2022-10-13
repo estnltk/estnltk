@@ -30,8 +30,7 @@ class TestAttachedLayerQuery(unittest.TestCase):
 
     def test_attached_layer_query(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('Ööbik laulab.').tag_layer(['morph_analysis'])
@@ -71,8 +70,7 @@ class TestDetachedLayerQuery(unittest.TestCase):
 
     def test_detached_layer_query(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('Ööbik laulab.').tag_layer(["sentences"])
@@ -138,8 +136,7 @@ class TestDetachedSparseLayerQuery(unittest.TestCase):
     def test_detached_sparse_layer_query(self):
         # Test that LayerQuery successfully works with detached sparse layers
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         

@@ -50,8 +50,7 @@ class TestPgCollectionStoreSyntaxV0Layer(unittest.TestCase):
 
     def test_store_and_load_syntax_v0_layer(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         
         text_1 = Text('Ühel kenal päeval')
         syntax_layer = dict_to_layer( \

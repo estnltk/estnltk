@@ -31,8 +31,8 @@ class TestLayerNgramQuery(unittest.TestCase):
         self.storage.close()
 
     def test_layer_ngram_query(self):
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
 
         id1 = 1
         id2 = 2
@@ -116,8 +116,8 @@ class TestLayerNgramQuery(unittest.TestCase):
 
     def test_layer_ngram_query_on_layer_wo_ngram_index(self):
         # Test an invalid query: LayerNgramQuery on a layer that does not have ngram_index columns
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
         
         with collection.insert() as collection_insert:
             text1 = Text("Kass tiksus mansardkorrusel.").tag_layer(["sentences"])
@@ -138,8 +138,8 @@ class TestLayerNgramQuery(unittest.TestCase):
 
     def test_layer_ngram_query_in_combination_with_layer_query(self):
         # Test combinations of LayerNgramQuery and LayerQuery
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text("Kass tiksus mansardkorrusel.").tag_layer(["morph_analysis"])
@@ -206,8 +206,7 @@ class TestLayerNgramQuery(unittest.TestCase):
     def test_layer_ngram_query_on_sparse_layer(self):
         # Test that LayerNgramQuery successfully works with sparse layers
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         

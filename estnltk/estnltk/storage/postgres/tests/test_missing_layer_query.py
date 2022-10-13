@@ -33,8 +33,7 @@ class TestMissingLayerQuery(unittest.TestCase):
 
     def test_missing_layer_query(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('Ööbik laulab.').tag_layer(["sentences"])
@@ -86,8 +85,7 @@ class TestMissingLayerQuery(unittest.TestCase):
     def test_missing_layer_query_on_sparse_layer(self):
         # Test that MissingLayerQuery works with sparse layers
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         

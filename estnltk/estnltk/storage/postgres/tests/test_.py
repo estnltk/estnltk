@@ -8,6 +8,7 @@ import random
 import unittest
 
 from psycopg2.errors import DuplicateSchema
+from psycopg2.errors import DuplicateTable
 
 from estnltk_core import Layer
 from estnltk import Text
@@ -42,7 +43,16 @@ class TestPgCollection(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        create_schema(self.storage)
+        try:
+            create_schema(self.storage)
+        except DuplicateSchema as ds_error:
+            # If previous tests failed with errors, the schema has already
+            # been created and it's not deleted, so we get DuplicateSchema error.
+            # Delete the old schema and create a new one.
+            delete_schema(self.storage)
+            create_schema(self.storage)
+        except:
+            raise
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -55,13 +65,11 @@ class TestPgCollection(unittest.TestCase):
 
     def test_create_collection(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-
-        self.assertIs(collection, self.storage[collection_name])
-
-        self.assertFalse(collection.exists())
-
-        collection.create()
+        
+        with self.assertRaises(KeyError):
+            self.storage[collection_name]
+        
+        collection = self.storage.add_collection(collection_name)
 
         self.assertTrue(collection.exists())
 
@@ -72,11 +80,8 @@ class TestPgCollection(unittest.TestCase):
 
         collection.delete()
 
-        collection = self.storage['not_existing']
-        self.assertIsInstance(collection, PgCollection)
-
-        collection.delete()
-        self.assertFalse(collection.exists())
+        with self.assertRaises(KeyError):
+            collection = self.storage[collection_name]
 
     def test_create_collection_multiple_connections(self):
         storage_1 = self.storage
@@ -85,41 +90,49 @@ class TestPgCollection(unittest.TestCase):
                                     dbname='test_db')
         
         collection_name = get_random_collection_name()
+        
+        # Check that the collection is missing at first place
+        with self.assertRaises(KeyError):
+            storage_1[collection_name]
+        with self.assertRaises(KeyError):
+            storage_2[collection_name]
+        
+        # Add new collection
+        storage_1.add_collection(collection_name)
+        
+        # Check that new collection cannot be added twice
+        with self.assertRaises(DuplicateTable):
+            storage_2.add_collection(collection_name)
+        
+        # Get collection
         collection_from_1 = storage_1[collection_name]
         collection_from_2 = storage_2[collection_name]
 
-        self.assertFalse(collection_from_1.exists())
-        self.assertFalse(collection_from_2.exists())
-        self.assertFalse(storage_1._collections.entry_exists(collection_name))
-        self.assertFalse(storage_2._collections.entry_exists(collection_name))
-
-        collection_from_1.create()
-
+        # Assert existence
         self.assertTrue(collection_from_1.exists())
         self.assertTrue(collection_from_2.exists())
-        # storage_1 has up to date information
-        self.assertTrue(storage_1._collections.entry_exists(collection_name))
-        # storage_2 does not have up to date information yet
-        self.assertFalse(storage_2._collections.entry_exists(collection_name))
-        # update storage_2 
-        storage_2._collections.load()
-        # storage_2 now has up to date information
-        self.assertTrue(storage_2._collections.entry_exists(collection_name))
 
         self.assertIs(collection_from_1, storage_1[collection_name])
         self.assertIs(collection_from_2, storage_2[collection_name])
 
+        # Remove collection
         collection_from_1.delete()
 
+        # Assert collection is not existing any more
         self.assertFalse(collection_from_1.exists())
         self.assertFalse(collection_from_2.exists())
         
+        # Assert that collection is again "missing" from 1
+        with self.assertRaises(KeyError):
+            storage_1[collection_name]
+        # And not existing in 2
+        self.assertFalse(storage_2[collection_name].exists())
+
         storage_2.close()
 
     def test_insert(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         text_1 = Text('Esimene tekst.')
         text_2 = Text('Teine tekst')
@@ -140,8 +153,7 @@ class TestPgCollection(unittest.TestCase):
     def test_basic_collection_workflow(self):
         # insert texts -> create layers -> select texts
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
         text_2 = Text('Teine tekst')
@@ -183,8 +195,7 @@ class TestPgCollection(unittest.TestCase):
     def test_collection_getitem_and_iter(self):
         # insert texts -> create layers -> select texts
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
         text_2 = Text('Teine tekst')
@@ -257,8 +268,7 @@ class TestPgCollection(unittest.TestCase):
         # Test that duplicates are removed from selected_layers
         # (this is required for correct assembling of results)
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
         text_2 = Text('Teine tekst')
@@ -309,12 +319,18 @@ class TestPgCollection(unittest.TestCase):
         drop_collection_table(self.storage, injected_collection_name)
 
     def test_select(self):
-        not_existing_collection = self.storage['not_existing']
+        # Test error case: try to select on non-existing collection
+        # Create a collection and then remove it
+        collection_name = get_random_collection_name()
+        not_existing_collection = self.storage.add_collection(collection_name)
+        not_existing_collection.delete()
+        # If the collection does not exist, select should rise PgCollectionException
         with self.assertRaises(pg.PgCollectionException):
             not_existing_collection.select()
 
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        # Test positive cases
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('Ööbik laulab.')
@@ -346,8 +362,7 @@ class TestPgCollection(unittest.TestCase):
 
         collection.delete()
 
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection = self.storage.add_collection(get_random_collection_name())
 
         # test select (on attached layers)
         with collection.insert() as collection_insert:
@@ -428,28 +443,40 @@ class TestPgCollection(unittest.TestCase):
 
 
     def test_insert_fails(self):
-        collection = self.storage['no_such_collection_exists']
-
+        # Test that collection operations do not work if someone 
+        # has already deleted the collection
+        
+        # Create collection and then remove it
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        collection.delete()
         # If the collection does not exist, Text insertion should rise PgCollectionException
         with self.assertRaises( pg.PgCollectionException ):
             with collection.insert() as collection_insert:
                 collection_insert( Text('Esimene tekst.') )
 
+        # Create collection and then remove it
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        collection.delete()
         # If the collection does not exist, adding a layer template should rise PgCollectionException
         with self.assertRaises( pg.PgCollectionException ):
             collection.add_layer( ParagraphTokenizer().get_layer_template() )
 
+        # Create collection and then remove it
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        collection.delete()
         # If the collection does not exist, creating a layer should rise PgCollectionException
         with self.assertRaises( pg.PgCollectionException ):
             collection.create_layer( tagger=ParagraphTokenizer() )
 
-        collection.delete()
-
 
     def test_insert_and_select_meta(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(description='demo collection', meta={'author': 'str', 'date': 'str'})
+        collection = self.storage.add_collection(collection_name,
+                                                 description='demo collection', 
+                                                 meta={'author': 'str', 'date': 'str'})
 
         text_1 = Text('Esimene tekst.')
         text_1.meta['author'] = 'Niinepuu'
@@ -499,7 +526,16 @@ class TestLayerFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_layer_fragment"
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        create_schema(self.storage)
+        try:
+            create_schema(self.storage)
+        except DuplicateSchema as ds_error:
+            # If previous tests failed with errors, the schema has already
+            # been created and it's not deleted, so we get DuplicateSchema error.
+            # Delete the old schema and create a new one.
+            delete_schema(self.storage)
+            create_schema(self.storage)
+        except:
+            raise
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -507,8 +543,7 @@ class TestLayerFragment(unittest.TestCase):
 
     def test_read_write(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('see on esimene lause').tag_layer(["sentences"])
@@ -567,8 +602,7 @@ class TestFragment(unittest.TestCase):
 
     def test_read_write(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('see on esimene lause').tag_layer(["sentences"])
@@ -619,7 +653,13 @@ class TestLayer(unittest.TestCase):
     def setUp(self):
         self.schema = "test_layer"
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=self.schema, dbname='test_db')
-        create_schema(self.storage)
+        try:
+            create_schema(self.storage)
+        except DuplicateSchema as ds_error:
+            delete_schema(self.storage)
+            create_schema(self.storage)
+        except:
+            raise
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -627,8 +667,7 @@ class TestLayer(unittest.TestCase):
 
     def test_layer_read_write(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('see on esimene lause').tag_layer(["sentences"])
@@ -670,8 +709,7 @@ class TestLayer(unittest.TestCase):
 
     def test_add_layer(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         
         # Test case 1: Add layer from user-defined layer template
         layer_template = Layer('test_layer', ['attr_1', 'attr_2'], ambiguous=True)
@@ -723,8 +761,7 @@ class TestLayer(unittest.TestCase):
 
     def test_create_layer_block(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         
         # Add some documents to the collection
         with collection.insert() as collection_insert:
@@ -769,8 +806,7 @@ class TestLayer(unittest.TestCase):
 
     def test_layer_meta(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('see on esimene lause').tag_layer(["sentences"])
@@ -809,8 +845,7 @@ class TestLayer(unittest.TestCase):
 
     def test_detached_layer_query(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('Ööbik laulab.').tag_layer(["sentences"])

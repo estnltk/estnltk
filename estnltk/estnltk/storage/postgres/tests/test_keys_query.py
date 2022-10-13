@@ -26,8 +26,8 @@ class TestKeysQuery(unittest.TestCase):
         self.storage.close()
 
     def test_keys_query(self):
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('mis kell on?').tag_layer('morph_analysis')

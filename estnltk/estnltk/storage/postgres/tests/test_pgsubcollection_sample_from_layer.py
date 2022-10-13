@@ -54,8 +54,9 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
     def _create_test_collection_of_docs(self, size=25, detached_sentences=False):
         assert size in [25, 100], '(!) Unexpected test collection size: {}'.format(size)
         # Create a test collection
-        collection = self.storage[get_random_collection_name()]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection( collection_name,
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
         # Populate collection with test sentences
         logger.debug('Creating a collection of {} texts:'.format(size))
         subj_words = ['kiisumiisu', 'vanahärra', 'vanama', 'neiu', 'tuttav', \
@@ -380,8 +381,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
     def test_pgsubcollection_sample_from_sparse_layer(self):
         # Test that sampling works with sparse layers
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         

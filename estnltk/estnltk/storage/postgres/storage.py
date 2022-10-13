@@ -1,4 +1,7 @@
 import bisect
+import time
+import warnings
+
 import pandas
 
 import psycopg2
@@ -70,9 +73,73 @@ class PostgresStorage:
     def closed(self):
         return self.conn.closed
 
-    def get_collection(self, table_name: str):
-        """Returns a new instance of `PgCollection` without physically creating it."""
+    def get_collection(self, name: str):
+        """
+        Gets an existing collection from this storage. 
+        **Important**: this method is deprecated, please use 
+        storage[name] instead.
+        """
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn('Method storage.get_collection(...) is deprecated, '+\
+                      'please use storage[collection_name] instead.', 
+                      DeprecationWarning)
+        warnings.simplefilter("ignore", DeprecationWarning)
         collection = self[table_name]
+        return collection
+
+    def add_collection(self, name: str, description: str = None, meta: dict = None):
+        """
+        Adds a new collection to this storage. 
+        Records entry about the collection to the table of collections 
+        and creates corresponding structure and collection tables.
+        Raises PgStorageException if a collection with the given name 
+        already exists.
+        Returns an instance of the newly created PgCollection.
+        
+        Parameters
+        -----------
+        name: str
+            Name of the new collection. Must be an unique name, 
+            not existing in this storage.
+        description: str
+            Description of this collection. Optional, if missing, 
+            then pattern 'created by {user} on {creation_time}' 
+            is used. 
+        meta: dict
+            A mapping with names and types of metadata columns. 
+            Keys are strings, and values must be types from set 
+            {"int", "bigint", "float", "str", "datetime"}.
+            Optional, if meta is not provided, then no metadata 
+            columns will be added to the collection table.
+
+        Returns
+        --------
+        PgCollection
+            an instance of the created collection
+        """
+        self._load()
+        if name not in self._collections:
+            collection = PgCollection(name, self, version='3.0')
+            # Add storage.collections entry (collection name + version)
+            if not self._collections.entry_exists(name):
+                try:
+                    self._collections.insert(name, collection._structure.version)
+                except psycopg2.IntegrityError:
+                    self._collections.load()
+            if description is None:
+                description = 'created by {} on {}'.format(self.user, time.asctime())
+            # Create structure table (contains information about layers)
+            collection.structure.create_table()
+            # Create collection table (stores Text objects with attached layers and metadata columns)
+            pg.create_collection_table(self,
+                                       collection_name=name,
+                                       meta_columns=meta,
+                                       description=description)
+            logger.info('new empty collection {!r} created'.format(name))
+            self._collections[name] = collection
+        else:
+            raise PgStorageException( ('(!) Cannot add new collection {!r}, '+\
+                                       'this collection already exists.').format(name) )
         return collection
 
     @property
@@ -81,19 +148,24 @@ class PostgresStorage:
         return sorted(self._collections)
 
     def __getitem__(self, name: str):
+        """
+        Returns an existing PgCollection from this storage.
+        Raises KeyError if there is no such collection.
+        """
         self._load()
         if name in self._collections:
             collection = self._collections[name]
             if collection is None:
+                # An unloaded collection. 
+                # Load it now, because there is a demand for it.
                 version = self._collections.collections[name]['version']
                 collection = PgCollection(name, self, version=version)
                 self._collections[name] = collection
                 return collection
+            # Return a loaded collection
             return collection
-
-        collection = PgCollection(name, self, version='3.0')
-        self._collections[name] = collection
-        return collection
+        raise KeyError( ('(!) Collection {!r} does not '+\
+                         'exist in this storage.').format(name) )
 
     def delete(self, collection_name: str, cascade=False):
         if collection_name not in self.collections:

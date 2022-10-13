@@ -43,8 +43,9 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
     def _create_test_collection_of_docs( self, size=100 ):
         assert size in [100, 200], '(!) Unexpected test collection size: {}'.format(size)
         # Create a test collection
-        collection = self.storage[get_random_collection_name()]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
         # Populate collection with test sentences
         logger.debug('Creating a collection of {} texts:'.format(size))
         subj_words = ['kiisumiisu', 'vanahärra', 'vanama', 'neiu', 'tuttav']

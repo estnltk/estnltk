@@ -30,8 +30,8 @@ class TestPgSubCollection(unittest.TestCase):
         pg.create_schema(self.storage)
 
         self.collection_name = get_random_collection_name()
-        self.collection = self.storage[self.collection_name]
-        self.collection.create(meta=OrderedDict([('meta_1', 'str'), ('meta_2', 'int')]))
+        self.collection = self.storage.add_collection( self.collection_name,
+                               meta=OrderedDict([('meta_1', 'str'), ('meta_2', 'int')]) )
 
         texts = ['Esimene lause. Teine lause. Kolmas lause.',
                  'Teine tekst',
@@ -61,7 +61,11 @@ class TestPgSubCollection(unittest.TestCase):
         self.storage.close()
 
     def test_init(self):
-        not_existing_collection = self.storage['not_existing']
+        # Add collection and then remove it
+        not_existing_collection = self.storage.add_collection('not_existing')
+        not_existing_collection.delete()
+        # Check that PgSubCollection cannot be created for non-existent 
+        # collection
         with self.assertRaises(pg.PgCollectionException):
             pg.PgSubCollection(not_existing_collection)
 
@@ -171,8 +175,8 @@ class TestPgSubCollection(unittest.TestCase):
         assert len(list(subcollection_6)) == 2
 
     def test_iter(self):
-        collection = self.storage[self.collection.name + '_new']
-        collection.create()
+        new_collection_name = self.collection.name + '_new'
+        collection = self.storage.add_collection(new_collection_name)
         subcollection = pg.PgSubCollection(collection)
         collection.delete()
         with self.assertRaises(pg.PgCollectionException):

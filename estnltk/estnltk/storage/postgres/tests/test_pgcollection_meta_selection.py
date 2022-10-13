@@ -46,11 +46,11 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
 
     def test_collection_meta_selection_from_single_index(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), 
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), 
                                             ('text_name', 'str'),
                                             ('text_letter', 'str'),
-                                            ('missing_metadata', 'str')]))
+                                            ('missing_metadata', 'str')]) )
         letters = 'ABCDEFGHIJ'
         with collection.insert() as collection_insert:
             for i in range(len(letters)):
@@ -123,11 +123,11 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
 
     def test_collection_meta_selection_from_slice(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), 
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), 
                                             ('text_name', 'str'),
                                             ('text_letter', 'str'),
-                                            ('missing_metadata', 'str')]))
+                                            ('missing_metadata', 'str')]) )
         letters = 'ABCDEFGHIJ'
         with collection.insert() as collection_insert:
             for i in range(len(letters)):
@@ -199,11 +199,11 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
 
     def test_collection_meta_selection_from_list_of_indexes(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), 
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), 
                                             ('text_name', 'str'),
                                             ('text_letter', 'str'),
-                                            ('missing_metadata', 'str')]))
+                                            ('missing_metadata', 'str')]) )
         letters = 'ABCDEFGHIJ'
         with collection.insert() as collection_insert:
             for i in range(len(letters)):

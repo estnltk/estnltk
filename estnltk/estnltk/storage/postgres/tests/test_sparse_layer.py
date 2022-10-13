@@ -107,8 +107,7 @@ class TestSparseLayerCreation(unittest.TestCase):
 
     def test_create_sparse_layer_structure(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
 
@@ -154,8 +153,7 @@ class TestSparseLayerCreation(unittest.TestCase):
 
     def test_create_sparse_layer_insertion(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -211,8 +209,7 @@ class TestSparseLayerSelection(unittest.TestCase):
 
     def test_collection_select_by_key_on_sparse_layers(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
 
@@ -364,8 +361,7 @@ class TestSparseLayerSelection(unittest.TestCase):
 
     def test_collection_default_select_on_sparse_layers(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -461,8 +457,7 @@ class TestSparseLayerSelection(unittest.TestCase):
 
     def test_collection_inner_join_select_on_sparse_layers(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -571,8 +566,7 @@ class TestSparseLayerSelection(unittest.TestCase):
     def test_select_sparse_subcollection_layers(self):
         # Test that PgSubCollectionLayer handles sparse layers properly
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         

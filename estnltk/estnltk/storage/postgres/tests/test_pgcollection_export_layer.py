@@ -61,8 +61,8 @@ class TestPgCollectionExportLayer(unittest.TestCase):
 
     def test_export_layer(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
 
         text_1 = Text('Esimene tekst.').tag_layer('words')
         text_2 = Text('Teine tekst').tag_layer('words')
@@ -135,8 +135,8 @@ class TestPgCollectionExportLayer(unittest.TestCase):
 
     def test_export_layer_invalid_modes(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
         
         text_1 = Text('Esimene tekst.').tag_layer('words')
         text_2 = Text('Teine tekst').tag_layer('words')
@@ -159,8 +159,8 @@ class TestPgCollectionExportLayer(unittest.TestCase):
 
     def test_export_layer_appending(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
 
         text_1 = Text('Esimene tekst.').tag_layer('words')
         text_2 = Text('Teine tekst').tag_layer('words')
@@ -198,8 +198,8 @@ class TestPgCollectionExportLayer(unittest.TestCase):
 
     def test_export_sparse_layer(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
         # Assert structure version 3.0+ (required for sparse layers)
         assert collection.version >= '3.0'
 

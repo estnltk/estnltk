@@ -125,8 +125,9 @@ class TestCollectionTextObjectInserter(unittest.TestCase):
 
 
     def _create_test_collection(self):
-        collection = self.storage[get_random_collection_name()]
-        collection.create( meta=OrderedDict([('subcorpus', 'str'), ('type', 'str')]) )
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection( collection_name, 
+                                  meta=OrderedDict([('subcorpus', 'str'), ('type', 'str')]) )
         return collection
 
 
