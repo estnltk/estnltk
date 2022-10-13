@@ -23,6 +23,7 @@ class StorageCollections:
                           'version text);').format(temporary=temporary,
                                                             table=self._table_identifier))
             logger.debug(c.query.decode())
+        self._storage.conn.commit()
 
     def __setitem__(self, collection_name: str, collection: pg.PgCollection):
         assert collection.name == collection_name
@@ -88,16 +89,20 @@ class StorageCollections:
                           format(self._table_identifier))
                 for collection, version in c.fetchall():
                     if collection in self._collections:
+                        # Collection has been loaded already, check the version.
                         assert self._collections[collection]['version'] == version
                         collections[collection] = self._collections[collection]
                         collections[collection]['in_database'] = True
                     else:
+                        # Initialize an unloaded collection. It will be loaded
+                        # if user calls storage[collection]
                         collections[collection] = {'version': version,
                                                    'collection_object': None,
                                                    'in_database': True}
         else:
             self.create_table()
 
+        # TODO: the following seems like a legacy behaviour, remove this
         tables = pg.get_all_tables(self._storage)
         for table in tables:
             if table not in collections and table + '__structure' in tables:
