@@ -84,7 +84,7 @@ class PostgresStorage:
                       'please use storage[collection_name] instead.', 
                       DeprecationWarning)
         warnings.simplefilter("ignore", DeprecationWarning)
-        collection = self[table_name]
+        collection = self[name]
         return collection
 
     def add_collection(self, name: str, description: str = None, meta: dict = None):
