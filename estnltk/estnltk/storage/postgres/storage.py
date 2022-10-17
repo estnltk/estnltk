@@ -179,6 +179,12 @@ class PostgresStorage:
 
         del self._collections[collection_name]
 
+    def __setitem__(self, name: str, collection: pg.PgCollection):
+        error_msg = '(!) Cannot assign collection via index operator. '+\
+                    'Use add_collection(collection_name) method for '+\
+                    'adding a new collection.'
+        raise PgStorageException( error_msg )
+
     def __delitem__(self, collection_name: str):
         if collection_name not in self.collections:
             raise KeyError('collection not found: {!r}'.format(collection_name))
