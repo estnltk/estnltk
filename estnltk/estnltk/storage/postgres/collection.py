@@ -1553,8 +1553,7 @@ class PgCollection:
     def _repr_html_(self):
         if not self.exists():
             return ('<p style="color:red">{self.__class__.__name__} {self.name!r} does not exist!</p><br/> '+\
-                    'Use <b>create()</b> method to create a new collection with this name, or '+\
-                    'check if the collection name is correct.'
+                    'Likely reason: the collection has been deleted from the database.'
                    ).format(self=self)
         
         if self.version < '3.0':
