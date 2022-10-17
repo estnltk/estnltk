@@ -5,6 +5,18 @@ from estnltk.storage import postgres as pg
 
 
 class StorageCollections:
+    '''
+    `StorageCollections` wraps the table of collections of the storage.
+    It allows creating the table, inserting new entries to the table and
+    removing the table.
+    Index operator can be used to set and retrieve `PgCollection` objects
+    by collection names.
+
+    Note: This class maintains collection names, versions and corresponding
+    `PgCollection` objects, but does not create `PgCollection` objects.
+    A lazy loading is used for `PgCollection` objects, meaning that objects
+    are created by `PostgresStorage` only on user demand.
+    '''
     def __init__(self, storage):
         self._storage = storage
         self._table_identifier = pg.table_identifier(self._storage, '__collections')
@@ -90,15 +102,6 @@ class StorageCollections:
                                                    'collection_object': None}
         else:
             self.create_table()
-
-        # TODO: the following seems like a legacy behaviour, remove this
-        tables = pg.get_all_tables(self._storage)
-        for table in tables:
-            if table not in collections and table + '__structure' in tables:
-                collections[table] = {'version': 'unknown',
-                                      'collection_object': None}
-                self.insert(table, 'unknown')
-
         self._collections = collections
 
     def drop_table(self):
