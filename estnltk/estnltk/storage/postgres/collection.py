@@ -42,10 +42,207 @@ class PgCollectionException(Exception):
 RowMapperRecord = collections.namedtuple("RowMapperRecord", ["layer", "meta"])
 
 class PgCollection:
-    """Convenience wrapper over PostgresStorage
-
     """
+    Collection of Text objects and their metadata in the database.
+    
+    Allows to:
+    * insert Text objects along with metadata and attached layers;
+    * insert detached layers (incl. parallelization of layer creation via blocks);
+    * query/iterate metadata of the collection;
+    * query/iterate over Text objects and their layers;
+    * export json layer content into a database table;
+    
+    Creating/accessing a collection
+    ================================
+    You can create a new collection via storage class, e.g.
+    
+        # Connect to the storage
+        storage = PostgresStorage(...)
+        
+        # Create a new collection
+        collection = storage.add_collection('my_collection')
+    
+    In order to retrieve an existing collection, use indexing
+    operator of the storage:
+    
+        # Retrieve existing collection
+        collection = storage['my_collection']
+    
+    ! Do not create PgCollection objects via constructor.
+    
+    Document insertion
+    ====================
+    Collection's insert() method provides a context manager, which 
+    allows buffered insertion of Text objects into database.
+    
+    Example 1. Insert Text objects with metadata, but without annotation layers:
+        # Create collection with metadata columns
+        storage.add_collection( 'my_collection', 
+                                meta=OrderedDict([('my_meta', 'str')]) )
+        
+        # Insert into the collection
+        with collection.insert() as collection_insert:
+            collection_insert( Text( ... ), key=0, meta_data={'my_meta':'A'} )
+            collection_insert( Text( ... ), key=1, meta_data={'my_meta':'B'} )
+            ...
+    
+    Example 2. Insert annotated Text objects:
+        # Create collection
+        storage.add_collection('my_collection')
+        
+        # Insert into the collection
+        with collection.insert() as collection_insert:
+            collection_insert( Text( ... ).tag_layer('words') )
+            collection_insert( Text( ... ).tag_layer('words') )
+            ...
+
+    You can insert new Text objects into the collection as long as the
+    collection does not have any detached layers. Once a detached layer
+    is added to the collection, new Text objects can no longer be
+    inserted.
+    
+    Attached layers
+    =================
+    If you insert Text objects with layers, these layers become "attached 
+    layers", meaning that they are stored in the same table as Text objects, 
+    and these layers will always be retrieved with Text objects.
+    Note that attached layers are determined on the insertion of the first 
+    Text: all the following inserted Text objects must have the same layers
+    as the first Text.
+
+    Detached layers
+    ====================
+    A detached layer is a layer that is stored in a separate table.
+    If you iterate/query over documents of the collection, you can choose which
+    detached layers you want to retrieve with the results.
+
+    You can add detached layers to the collection after documents (with or without
+    attached layers) have been inserted. Note that adding a detached layer freezes
+    collection's size -- after that new documents cannot be added to the collection.
+    You can create detached layers with a tagger:
+
+            # Insert layers with a tagger
+            collection.create_layer( tagger=tagger, mode='create' )
+
+    Alternatively, you can use collection.add_layer(...) method to first add a new
+    detached layer to the structure of the collection:
+
+            # Add a template of the layer (an empty layer with correct attribute values)
+            collection.add_layer( layer_template=tagger.get_layer_template() )
+
+    After that, you can parallelize layer creation via launching separate tagging
+    processes over different blocks of documents in the collection:
+
+            # Insert layers with a tagger (first job)
+            collection.create_layer_block( tagger=tagger, (2, 0) )
+
+            # Insert layers with a tagger (second job)
+            collection.create_layer_block( tagger=tagger, (2, 1) )
+
+    Note that each parallel tagging process must be launched inside a different database
+    connection.
+
+    Single document access
+    =======================
+    If you want to retrieve a single document from the collection, you can get
+    the document (Text object) via indexing operator:
+
+            # set (detached) layers you want to retrieve
+            collection.selected_layers = [ layer_1, layer_2 ]
+
+            # retrieve the document via index
+            collection[index]
+
+    In order to retrieve metadata of a single document, use the collection.meta
+    with indexing operator:
+
+            # retrieve metadata of the document via index
+            collection.meta[index]
+
+    This returns dictionary with metadata values. You can also get a reduced
+    dictionary that only has values of specific metadata columns, e.g.
+
+            # retrieve only values of specific metadata columns
+            collection.meta[index, [meta_column_1, meta_column_2]]
+
+
+    Querying/Iterating
+    ====================
+    You can iterate over the collection via select() method, which yields a
+    read-only sub collection of texts (a PgSubCollection object):
+
+            # Iterate over the whole collection
+            for text_id, text_obj in collection.select():
+                # to something with text_id and text_obj
+                ...
+
+    Use parameter `query` in collection.select() to add more constraints to
+    retrievable documents, e.g. query=SubstringQuery('laula') instructs to yield
+    only documents with substring 'laula'.
+
+    Use parameter `layers` in collection.select() to specify which (detached)
+    layers will be retrieved with documents (alternatively, you can set layers via
+    collection.selected_layers).
+
+    Use parameter `collection_meta` in collection.select() to specify a list of
+    metadata columns which values will be retrieved along with text_id, text_obj:
+
+            data_iterator = collection.select(collection_meta=['meta_column_1'])
+            for  text_id, text_obj, meta  in  data_iterator:
+                # to something with text_id, text_obj and meta
+                ...
+
+    In order to iterate over metadata of documents (without Text objects), you
+    can use the slice operator on collection.meta:
+
+            # retrieve metadata of all documents
+            collection.meta[0:]
+
+            # retrieve metadata of documents starting from the index `start`
+            collection.meta[start:]
+
+    This returns a PgCollectionMetaSelection object, which can be iterated for
+    metadata dictionaries.
+
+    Removing layers
+    ====================
+    You can delete a detached layer in the following manner:
+
+            collection.delete_layer( layer_name )
+
+    Attached layers cannot be deleted.
+
+    Removing collection
+    ====================
+    You can remove the whole collection via delete() method:
+
+            collection.delete()
+
+    More information
+    ====================
+    * https://github.com/estnltk/estnltk/blob/main/tutorials/storage/storing_text_objects_in_postgres.ipynb
+    """
+
     def __init__(self, name: str, storage, temporary: bool = False, version='0.0'):
+        """
+        Initializes a new PgCollection object.
+
+        **Important:** Do not create PgCollection objects via this constructor.
+        Instead, create collections via storage class, e.g.
+
+            # Connect to the storage
+            storage = PostgresStorage(...)
+
+            # Create a new collection
+            collection = storage.add_collection('my_collection')
+
+        In order to retrieve an existing collection, use indexing
+        operator of the storage:
+
+            # Retrieve existing collection
+            collection = storage['my_collection']
+
+        """
         assert isinstance(name, str), name
         assert name.islower(), name
         assert name.isidentifier(), name
@@ -77,6 +274,9 @@ class PgCollection:
            * Creates tables of the collection (structure table and collection table);
            * Adds entry about the collection to StorageCollections's table
              (if the entry is missing);
+          
+          **Important:** this method is deprecated. Please use
+          PostgresStorage.add_collection(...) to create a new collection.
         """
         error_msg = '(!) PgCollection.create() is deprecated. '+\
                     'Please use PostgresStorage.add_collection(...) '+\
@@ -228,35 +428,46 @@ class PgCollection:
     def insert(self, buffer_size=10000, query_length_limit=5000000):
         """Context manager for buffered insertion of Text objects into the collection.
         Optionally, metadata and keys of insertable Text objects can be specified during
-        the insertion. 
-        
-        Notes about layers. 
-        1) Attached layers. After the first Text object has been inserted, its layers 
-        will be taken as the attached layers of the collection. Which means that other 
-        insertable Text objects must have exactly the same layers.
-        (and attached layers cannot be changed after the first insertion)
-        2) Detached layers. If this collection already has detached layer(s), new Text 
-        objects cannot be inserted.
-        
-        Example usage 1. Insert Text objects with metadata, but wo annotation layers:
+        the insertion.
+
+        If inserted Text objects contain layers, then these layers become "attached
+        layers", meaning that they are stored in the same table as Text objects,
+        and these layers will always be retrieved with Text objects.
+        After the first Text object has been inserted, the attached layers of the
+        collection are frozen. Which means that other insertable Text objects must
+        have exactly the same layers (and attached layers cannot be changed after
+        the first insertion).
+
+        Note that you can insert new Text objects into the collection as long as the
+        collection does not have any detached layers. After a detached layer has been
+        added to the collection, the size of the collection is frozen and new Texts
+        cannot be inserted via this method.
+        Be aware: there is no guarding mechanism that stops one from adding a detached
+        layer while the insertion of Text objects is still in progress. It's up for
+        users to avoid this situation, as this would mess up the integrity of the
+        collection.
+
+        Example usage 1. Insert Text objects with metadata, but w/o annotation layers::
+
             # Create collection w metadata
-            collection.create( meta=OrderedDict( [('my_meta', 'str')]) )
+            storage.add_collection('my_collection', meta=OrderedDict([('my_meta', 'str')]))
+
             # Insert into the collection
             with collection.insert() as collection_insert:
                 collection_insert( Text( ... ), key=0, meta_data={'my_meta':'A'} )
                 collection_insert( Text( ... ), key=1, meta_data={'my_meta':'B'} )
                 ...
-                
-        Example usage 2. Insert annotated Text objects:
+
+        Example usage 2. Insert annotated Text objects::
+
             # Create collection
-            collection.create()
+            storage.add_collection('my_collection')
+
             # Insert into the collection
             with collection.insert() as collection_insert:
                 collection_insert( Text( ... ).tag_layer('words') )
                 collection_insert( Text( ... ).tag_layer('words') )
                 ...
-        
-        Parameters:
         
         :param buffer_size: int
             Maximum buffer size (in table rows) for the insert query. 
@@ -353,7 +564,7 @@ class PgCollection:
                keep_all_texts: bool = True):
         """
         Creates a query / selection over text objects of the collection. 
-        
+
         :param query:
             query objects specifying selection criteria. 
             this can be a composition of multiple query objects, joined by 
@@ -618,10 +829,18 @@ class PgCollection:
                      create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,
                      query_length_limit=5000000, mode=None, sparse=False):
         """
-        Creates layer
+        Creates a new detached layer to this collection.
+
+        **Important:** You should use this method only after the insertion of Text objects into
+        the collection has been finished. Once you create a detached layer, new Text objects
+        cannot be inserted into the collection.
 
         Args:
-            layer_name:
+
+            layer_name: str
+                Name of the layer added to the collection. If not provided, then
+                `tagger` must be provided and the name of the layer will be
+                `tagger.output_layer`.
             data_iterator: iterator
                 Iterator over Text collection which generates tuples (`text_id`, `text`).
                 See method `PgCollection.select`.
@@ -665,8 +884,7 @@ class PgCollection:
                 Note that collection version 3.0 is required for sparse tables.
         """
         if not self.exists():
-            raise PgCollectionException("collection {!r} does not exist, can't create layer".format(
-                self.name))
+            raise PgCollectionException("collection {!r} does not exist, can't create layer".format(self.name))
 
         if sparse and self.version < '3.0':
             raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
@@ -790,10 +1008,13 @@ class PgCollection:
                         sparse: bool = False) -> None:
         """
         Adds detached or fragmented layer to the collection. You can use this 
-        method to add an empty layer to the collection that will be filled with
-        data later. Note, however, that the collection must already contain some
-        documents before the layer can be added, and after adding the layer, 
-        new documents can no longer be inserted.
+        method to add an empty layer to the collection that will be filled in
+        with data later. Conditions:
+
+        * the collection must already contain some documents before the layer can be added.
+          After adding a layer, new documents can no longer be inserted into the collection;
+        * this method should be called only once, even if the layer creation is spread among
+          multiple processes/threads;
 
         Layer must be specified by a template layer. The function fails only if 
         the layer is already present or the database schema is in an inconsistent 
@@ -801,7 +1022,7 @@ class PgCollection:
         One should set create_index only if one plans to search specific elements 
         from the layer. The ngram index speeds up search of element combinations. 
         This is useful when one uses phase grammars.
-        
+
         Args:
             layer_template: Layer
                 A template which is used as a basis on creating the new layer
@@ -872,6 +1093,10 @@ class PgCollection:
         
         Note: before the layer block can be created, the layer table must already exist.
         Use the method add_layer() to create an empty layer (table).
+
+        **Important:** You should use this method only after the insertion of Text objects into
+        the collection has been finished. Once you create a detached layer, new Text objects
+        cannot be inserted into the collection.
 
         :param tagger: Tagger
             tagger to be applied on collection's texts.
