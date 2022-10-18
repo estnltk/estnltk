@@ -34,11 +34,13 @@ def test_detect_clause_errors_with_syntax():
                                                                debug_output=False,
                                                                status=problems_found )
                 assert len(errors_layer) > 0
-    assert dict(problems_found) == {'attributive_kes_embedded_clause_wrong_end': 11, 
-                                    'attributive_mis_clause_wrong_end': 5, 
-                                    'attributive_kes_clause_wrong_end': 3, 
-                                    'attributive_kus_embedded_clause_wrong_end': 3, 
-                                    'attributive_mis_embedded_clause_wrong_end': 19, 
+    assert dict(problems_found) == {'attributive_mis_embedded_clause_wrong_end': 37, 
+                                    'attributive_kes_clause_wrong_end': 5, 
+                                    'attributive_kes_embedded_clause_wrong_end': 35, 
+                                    'attributive_kus_embedded_clause_wrong_end': 8, 
+                                    'attributive_kuidas_embedded_clause_wrong_end': 8, 
                                     'attributive_millal_embedded_clause_wrong_end': 1, 
-                                    'attributive_kuidas_embedded_clause_wrong_end': 1}
+                                    'attributive_mis_clause_wrong_end': 4, 
+                                    'attributive_kas_embedded_clause_wrong_end': 1, 
+                                    'attributive_kuhu_embedded_clause_wrong_end': 1}
 
