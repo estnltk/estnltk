@@ -2,7 +2,9 @@
 #  Rules for checking consistency between clause and syntactic annotations
 #
 
-import os, os.path, sys
+import os, os.path, sys, re
+import warnings
+
 from collections import defaultdict
 
 from estnltk import Text, Layer
@@ -282,7 +284,7 @@ def detect_clause_errors( text, output_layer='clause_errors',
         A layer with markings of error positions.
     '''
     status = defaultdict(int) if status is None else status
-    errors_layer = Layer(output_layer, attributes=('err_type', 'correction', 'sent_id'), text_object=text)
+    errors_layer = Layer(output_layer, attributes=('err_type', 'sent_id', 'correction_description'), text_object=text)
     attributive_clause_start_lemmas = \
         ['mis', 'kes', 'millal', 'kus', 'kust', 'kuhu', 'kuna', 'kuidas', 'kas']
     output_str = []
@@ -454,8 +456,8 @@ def detect_clause_errors( text, output_layer='clause_errors',
                     status[pat_name] += 1
                     errors_layer.add_annotation( split_at_word.base_span, 
                                                  err_type=pat_name, 
-                                                 correction=correction_desc,
-                                                 sent_id=sent_id )
+                                                 sent_id=sent_id, 
+                                                 correction_description=correction_desc )
                     # Construct debug output
                     if debug_output:
                         output_str.append( '\n' )
@@ -537,3 +539,187 @@ def _extract_sentences_with_clause_errors( text, clauses_layer='clauses', syntax
             extracted_text.meta['_original_sentence_start'] = err_sentence.start
             extracted_text.meta['_original_sentence_end'] = err_sentence.end
             yield extracted_text
+
+# =========================================================================
+#   Repair clause errors
+# =========================================================================
+
+_pattern_simple_split = \
+    re.compile(r'Split clause after position (\d+)\.')
+_pattern_split_and_embed = \
+    re.compile(r'Split clause after position (\d+) and then embed the clause (\d+):(\d+) into clause (\d+):(\d+)\.')
+
+def fix_clause_errors_with_syntax( text, clauses_layer='clauses', syntax_layer='syntax', 
+                                         sentences_layer='sentences', output_layer='clauses' ):
+    '''
+    Detects potential clause errors with the method detect_clause_errors(), and applies 
+    described corrections to the clauses layer. 
+    Returns a new fixed clauses layer, which is not attached to the Text object.
+    
+    Parameters
+    ----------
+    text: Text
+        Analysable Text object.
+    clauses_layer: str
+        Name of the clauses layer attached to the Text object. 
+        Default: 'clauses'
+    syntax_layer: str
+        Name of the syntax layer attached to the Text object. 
+        Default: 'syntax'
+    sentences_layer: str
+        Name of the sentences layer attached to the Text object. 
+        Default: 'sentences'
+    output_layer: str
+        Name of the output fixed clauses layer. The layer will 
+        not be attached to the Text object by default.
+        Default: 'clauses'
+    
+    Yields
+    -------
+    Layer
+        A fixed clauses layer.
+    '''
+    errors_layer = detect_clause_errors( text, output_layer='clause_errors', clauses_layer=clauses_layer, 
+                                               syntax_layer=syntax_layer, sentences_layer=sentences_layer )
+    old_clauses_layer = text[clauses_layer]
+    assert old_clauses_layer.enveloping is not None 
+    assert old_clauses_layer.enveloping in text.layers
+    # Find erroneous sentences
+    sent_to_clause_errors_map = {}
+    for error in errors_layer:
+        sent_id = error.annotations[0]['sent_id']
+        if sent_id not in sent_to_clause_errors_map:
+            sent_to_clause_errors_map[sent_id] = []
+        sent_to_clause_errors_map[sent_id].append(error)
+    # Iterate sentences and apply fixes
+    fixed_layer = Layer(output_layer, attributes=old_clauses_layer.attributes, 
+                                      enveloping=old_clauses_layer.enveloping, text_object=text)
+    for sent_id, sent_clauses, sent_cl_syntax_words in yield_clauses_and_syntax_words_sentence_wise( text, \
+                                                                                clauses_layer=clauses_layer, \
+                                                                                syntax_layer=syntax_layer, \
+                                                                                sentences_layer=sentences_layer ):
+        if sent_id not in sent_to_clause_errors_map.keys():
+            # Nothing to fix here, just carry over the clauses
+            for clause in sent_clauses:
+                annotation = {attr: clause.annotations[0][attr] for attr in fixed_layer.attributes}
+                fixed_layer.add_annotation( clause.base_span, annotation )
+        else:
+            # Apply fixes
+            for error_id, error in enumerate(sent_to_clause_errors_map[sent_id]):
+                correction_description = error.annotations[0]['correction_description']
+                if error_id > 0:
+                    warnings.warn( ('Applying multiple fixes on a sentence has not been implemented. '+\
+                                    'Discarding the fix {!r}.').format(correction_description) )
+                    continue
+                m1 = _pattern_simple_split.match(correction_description)
+                m2 = _pattern_split_and_embed.match(correction_description)
+                if m1:
+                    # Instruction:  Split clause after position (\d+).
+                    split_after = int(m1.group(1))
+                    old_clause = None
+                    old_clause_id = None
+                    first_subclause = []
+                    second_subclause = []
+                    for cid, clause in enumerate(sent_clauses):
+                        split_clause_at_word = -1
+                        for wid, word in enumerate(clause):
+                            if word.end == split_after:
+                                old_clause = clause
+                                old_clause_id = cid
+                                first_subclause  = \
+                                    [clause[i].base_span for i in range(0, wid+1)]
+                                second_subclause = \
+                                    [clause[i].base_span for i in range(wid+1, len(clause))]
+                                break
+                        if first_subclause and second_subclause:
+                            break
+                    if first_subclause and second_subclause:
+                        # Apply fixes
+                        # TODO: make it work in a way that multiple fixes can also be applied on a sentence
+                        for cid, clause in enumerate(sent_clauses):
+                            if cid != old_clause_id:
+                                # Simply copy the old clause
+                                annotation = {attr: clause.annotations[0][attr] for attr in fixed_layer.attributes}
+                                fixed_layer.add_annotation( clause.base_span, annotation )
+                            else:
+                                # Make two subclauses
+                                annotation = {attr: old_clause.annotations[0][attr] for attr in fixed_layer.attributes}
+                                fixed_layer.add_annotation( first_subclause, annotation )
+                                fixed_layer.add_annotation( second_subclause, annotation )
+                    else:
+                        raise Exception( ('(!) Unable to find clause meeting '+\
+                                          'correction_description {!r}.').format(correction_description) )
+                elif m2:
+                    # Instruction: Split clause after position (\d+) and then embed the clause (\d+):(\d+) into clause (\d+):(\d+)
+                    split_after  = int(m2.group(1))
+                    embed_start  = int(m2.group(2))
+                    embed_end    = int(m2.group(3))
+                    parent_start = int(m2.group(4))
+                    parent_end   = int(m2.group(5))
+                    old_clause = None
+                    old_clause_id = None
+                    old_parent_clause = None
+                    old_parent_clause_id = None
+                    conj_span = None
+                    embedded_clause = []
+                    parent_clause_start = []
+                    parent_clause_end = []
+                    for cid, clause in enumerate(sent_clauses):
+                        split_clause_at_word = -1
+                        for wid, word in enumerate(clause):
+                            if word.start == parent_start:
+                                # First half of the parent clause
+                                assert wid == 0
+                                old_parent_clause = clause
+                                old_parent_clause_id = cid
+                                parent_clause_start = []
+                                while wid < len(clause):
+                                    word = clause[wid]
+                                    if word.start < embed_start:
+                                        parent_clause_start.append(word.base_span)
+                                    elif word.start == embed_start:
+                                        conj_span = word.base_span
+                                        break
+                                    else:
+                                        break
+                                    wid += 1
+                                break
+                            if word.end == split_after:
+                                # Embedded clause and second half of the parent clause
+                                old_clause = clause
+                                old_clause_id = cid
+                                embedded_clause = \
+                                    [clause[i].base_span for i in range(0, wid+1)]
+                                parent_clause_end = \
+                                    [clause[i].base_span for i in range(wid+1, len(clause))]
+                                assert embedded_clause[-1].end == embed_end
+                                assert parent_clause_end[-1].end == parent_end
+                                break
+                        if embedded_clause and parent_clause_start and parent_clause_end:
+                            break
+                    if embedded_clause and parent_clause_start and parent_clause_end and conj_span:
+                        # Apply fixes
+                        # TODO: make it work in a way that multiple fixes can also be applied on a sentence
+                        for cid, clause in enumerate(sent_clauses):
+                            if cid == old_parent_clause_id:
+                                # Make a parent clause
+                                annotation = {attr: old_parent_clause.annotations[0][attr] for attr in fixed_layer.attributes}
+                                fixed_layer.add_annotation( parent_clause_start + parent_clause_end, annotation )
+                            elif cid == old_clause_id:
+                                # Make an embedded clause
+                                annotation = {attr: old_parent_clause.annotations[0][attr] for attr in fixed_layer.attributes}
+                                annotation['clause_type'] = 'embedded'
+                                fixed_layer.add_annotation( [conj_span]+embedded_clause, annotation )
+                            else:
+                                # Simply copy the old clause
+                                annotation = {attr: clause.annotations[0][attr] for attr in fixed_layer.attributes}
+                                fixed_layer.add_annotation( clause.base_span, annotation )
+
+                    else:
+                        raise Exception( ('(!) Unable to find clauses meeting '+\
+                                          'correction_description {!r}.').format(correction_description) )
+                else:
+                    raise NotImplementedError( ('(!) Unexpected correction_description {!r}. '+\
+                                                'No fix implemented for such correction.').format(correction_description) )
+            
+    return fixed_layer
