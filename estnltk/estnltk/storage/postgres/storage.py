@@ -123,7 +123,7 @@ class PostgresStorage:
             collection = PgCollection(name, self, version='3.0')
             # Add storage.collections entry (collection name + version)
             try:
-                self._collections.insert(name, collection._structure.version)
+                self._collections.insert(collection)
             except psycopg2.IntegrityError:
                 self._collections.load()
             if description is None:

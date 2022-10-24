@@ -7,8 +7,8 @@ from estnltk.storage import postgres as pg
 class StorageCollections:
     '''
     `StorageCollections` wraps the table of collections of the storage.
-    It allows creating the table, inserting new entries to the table and
-    removing the table.
+    It allows creating the table, inserting new entries to the table, 
+    removing entries from the table and deleting the table.
     Index operator can be used to set and retrieve `PgCollection` objects
     by collection names.
 
@@ -58,14 +58,14 @@ class StorageCollections:
     def __iter__(self):
         yield from self._collections
 
-    def insert(self, collection: str, version: str):
+    def insert(self, collection: pg.PgCollection):
         with self._storage.conn.cursor() as c:
             c.execute(SQL(
                     "INSERT INTO {} (collection, version) "
                     "VALUES ({}, {});").format(
                     self._table_identifier,
-                    Literal(collection),
-                    Literal(version)
+                    Literal(collection.name),
+                    Literal(collection.version)
             )
             )
         self._storage.conn.commit()
