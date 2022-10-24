@@ -46,10 +46,11 @@ class PostgresStorage:
 
         try:
             self.conn = psycopg2.connect(**conn_param, **kwargs)
-        except Exception:
-            logger.error('Failed to connect '
-                         'host: {host!r}, port: {port!r}, dbname: {dbname!r}, user: {user!r}.'.format(**conn_param))
-            raise
+        except Exception as connection_error:
+            connection_error_msg = ('Failed to connect '+\
+                'host: {host!r}, port: {port!r}, dbname: {dbname!r}, user: {user!r}.').format(**conn_param)
+            logger.error( connection_error_msg )
+            raise PgStorageException( connection_error_msg ) from connection_error
 
         with self.conn.cursor() as c:
             c.execute(SQL("SET ROLE {};").format(Identifier(role)))
