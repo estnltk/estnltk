@@ -50,6 +50,22 @@ class TestPgCollection(unittest.TestCase):
         delete_schema(self.storage)
         self.storage.close()
 
+    def test_storage_connection(self):
+        # If we try to connect to a database that does not have 
+        # the schema, an exception will be thrown
+        schema = "unseen_test_schema"
+        with self.assertRaises( PgStorageException ):
+            storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, 
+                                      dbname='test_db', \
+                                      create_schema_if_missing=False)
+        # However, we can create the schema if we have sufficient privileges
+        storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, 
+                                  dbname='test_db', \
+                                  create_schema_if_missing=True)
+        self.assertTrue( pg.schema_exists(storage) )
+        delete_schema(storage)
+        storage.close()
+
     def test_storage_get_collections(self):
         # Test that the collections list can be accessed
         # even before it is filled in with collections 
@@ -70,7 +86,18 @@ class TestPgCollection(unittest.TestCase):
         # In case of an empty collection, collection.layers should be []
         self.assertTrue(collection.layers == [])
 
+        # 1st way to remove collection
         collection.delete()
+
+        with self.assertRaises(KeyError):
+            collection = self.storage[collection_name]
+        
+        self.storage.add_collection(collection_name)
+        collection = self.storage[collection_name]
+        self.assertTrue(collection.exists())
+
+        # 2nd way to remove collection
+        del self.storage[collection_name]
 
         with self.assertRaises(KeyError):
             collection = self.storage[collection_name]
