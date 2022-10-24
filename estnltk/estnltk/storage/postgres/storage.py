@@ -154,7 +154,6 @@ class PostgresStorage:
                                        meta_columns=meta,
                                        description=description)
             logger.info('new empty collection {!r} created'.format(name))
-            self._collections[name] = collection
         else:
             raise PgStorageException( ('(!) Cannot add new collection {!r}, '+\
                                        'this collection already exists.').format(name) )

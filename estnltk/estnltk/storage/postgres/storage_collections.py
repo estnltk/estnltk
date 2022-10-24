@@ -69,8 +69,8 @@ class StorageCollections:
             )
             )
         self._storage.conn.commit()
-        # Update entries
-        self.load()
+        # Update _collections entry
+        self[collection.name] = collection
 
     def __delitem__(self, collection_name: str):
         with self._storage.conn.cursor() as c:
