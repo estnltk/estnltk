@@ -67,6 +67,7 @@ class PostgresStorage:
         if not schema_exists(self):
             if create_schema_if_missing:
                 create_schema(self)
+                logger.info('new schema {!r} created'.format(self.schema))
             else:
                 schema_error_msg = ('Schema {!r} does not exist in the database. '+\
                                     'Set flag create_schema_if_missing=True to create '+\
