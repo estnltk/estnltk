@@ -317,7 +317,7 @@ def detect_clause_errors( text, output_layer='clause_errors',
                 #          [Kahtlemata on iga keel [, mida inimene valdab,] topeltrikkus (root) .]
                 #
                 # Example: [Seega mingeid hirme,] [kuidas osaga hakkama saada, pole mul absoluutselt (root) .] --> 
-                #          [Seega mingeid hirme [, kuidas osaga hakkama saada,] pole mul absoluutselt (root) .] --> 
+                #          [Seega mingeid hirme [, kuidas osaga hakkama saada,] pole mul absoluutselt (root) .]
                 #
                 # check previous clause. we are assuming that previous clause ends with comma
                 prev_cl_syntax_words = \
