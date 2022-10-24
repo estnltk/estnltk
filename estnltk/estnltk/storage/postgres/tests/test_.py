@@ -17,6 +17,7 @@ from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import LayerQuery
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import PgCollectionException
+from estnltk.storage.postgres import PgStorageException
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
 from estnltk.storage.postgres import collection_table_exists
@@ -101,7 +102,7 @@ class TestPgCollection(unittest.TestCase):
         storage_1.add_collection(collection_name)
         
         # Check that new collection cannot be added twice
-        with self.assertRaises(DuplicateTable):
+        with self.assertRaises(PgStorageException):
             storage_2.add_collection(collection_name)
         
         # Get collection

@@ -124,8 +124,14 @@ class PostgresStorage:
             # Add storage.collections entry (collection name + version)
             try:
                 self._collections.insert(collection)
-            except psycopg2.IntegrityError:
+            except psycopg2.IntegrityError as integrity_err:
+                # Someone might have inserted the collection after we made
+                # the connection to the database and loaded the collections.
+                # Re-load collections table so that after the error message 
+                # it contains up to date information
                 self._collections.load()
+                raise PgStorageException(('(!) Cannot add new collection {!r}, '+\
+                                          'this collection already exists.').format(name)) from integrity_err
             if description is None:
                 description = 'created by {} on {}'.format(self.user, time.asctime())
             # Create structure table (contains information about collection's layers)
