@@ -66,8 +66,17 @@ class PostgresStorage:
             self._collections = pg.StorageCollections(self)
             self._loaded = True
 
+    def refresh(self):
+        """Reloads table of collections of this storage. 
+        Motivation: if any new collections have been inserted to 
+        the database by a separate user/thread/job, this updates 
+        the information about collections.
+        """
+        self._load()
+        self._collections.load()
+
     def close(self):
-        """Closes database connection"""
+        """Closes database connection."""
         self.conn.commit()
         self.conn.close()
 
@@ -118,20 +127,11 @@ class PostgresStorage:
         PgCollection
             an instance of the created collection
         """
-        self._load()
+        self.refresh()
         if name not in self._collections:
             collection = PgCollection(name, self, version='3.0')
             # Add storage.collections entry (collection name + version)
-            try:
-                self._collections.insert(collection)
-            except psycopg2.IntegrityError as integrity_err:
-                # Someone might have inserted the collection after we made
-                # the connection to the database and loaded the collections.
-                # Re-load collections table so that after the error message 
-                # it contains up to date information
-                self._collections.load()
-                raise PgStorageException(('(!) Cannot add new collection {!r}, '+\
-                                          'this collection already exists.').format(name)) from integrity_err
+            self._collections.insert(collection)
             if description is None:
                 description = 'created by {} on {}'.format(self.user, time.asctime())
             # Create structure table (contains information about collection's layers)
@@ -174,6 +174,7 @@ class PostgresStorage:
                          'exist in this storage.').format(name) )
 
     def delete(self, collection_name: str, cascade=False):
+        self.refresh()
         if collection_name not in self.collections:
             raise KeyError('collection not found: {!r}'.format(collection_name))
 
@@ -193,6 +194,7 @@ class PostgresStorage:
         raise PgStorageException( error_msg )
 
     def __delitem__(self, collection_name: str):
+        self.refresh()
         if collection_name not in self.collections:
             raise KeyError('collection not found: {!r}'.format(collection_name))
 
@@ -210,8 +212,7 @@ class PostgresStorage:
                 self=self)
 
     def _repr_html_(self):
-        self._load()
-        self._collections.load()
+        self.refresh()
 
         bisect_left = bisect.bisect_left
 
