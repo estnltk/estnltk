@@ -23,8 +23,9 @@ def create_schema(storage):
     storage.conn.commit()
 
 def schema_exists(storage):
+    storage.conn.commit()
     with storage.conn.cursor() as c:
-        c.execute(SQL('SELECT EXISTS (SELECT schema_name from information_schema.schemata '
+        c.execute(SQL('SELECT EXISTS (SELECT 1 from information_schema.schemata '
                       'WHERE schema_name={}) ').format(Literal(storage.schema)))
         return c.fetchone()[0]
 

@@ -14,7 +14,7 @@ from estnltk import logger
 
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres.collection_meta import PgCollectionMeta
 from estnltk.storage.postgres.collection_meta_selection import PgCollectionMetaSelection
 
@@ -29,15 +29,8 @@ def get_random_collection_name():
 class TestPgCollectionMeta(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # TODO: for some reason we get DuplicateSchema error. Unexpected?
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)

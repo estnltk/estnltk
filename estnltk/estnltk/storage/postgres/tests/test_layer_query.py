@@ -4,7 +4,7 @@ import random
 from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage, layer_table_identifier
-from estnltk.storage.postgres import create_schema, delete_schema, count_rows
+from estnltk.storage.postgres import delete_schema, count_rows
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
 
@@ -20,9 +20,8 @@ def get_random_collection_name():
 class TestAttachedLayerQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -60,9 +59,8 @@ class TestAttachedLayerQuery(unittest.TestCase):
 class TestDetachedLayerQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -125,9 +123,8 @@ class TestDetachedLayerQuery(unittest.TestCase):
 class TestDetachedSparseLayerQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)

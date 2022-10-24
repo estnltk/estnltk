@@ -10,6 +10,8 @@ from psycopg2.sql import SQL, Identifier
 from estnltk import logger
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import parse_pgpass
+from estnltk.storage.postgres import create_schema
+from estnltk.storage.postgres import schema_exists
 from estnltk.storage.postgres import drop_layer_table
 from estnltk.storage import postgres as pg
 
@@ -19,17 +21,23 @@ class PgStorageException(Exception):
 
 
 class PostgresStorage:
-    """`PostgresStorage` instance wraps a database connection and
+    """
+    `PostgresStorage` instance wraps a database connection and
     exposes interface to conveniently search/save json data.
     """
 
     def __init__(self, dbname=None, user=None, password=None, host=None, port=None,
-                 pgpass_file=None, schema="public", role=None, temporary=False, **kwargs):
+                 pgpass_file=None, schema="public", role=None, temporary=False, 
+                 create_schema_if_missing=False, **kwargs):
         """
         Connects to database either using connection parameters if specified, or ~/.pgpass file.
 
             ~/.pgpass file format: hostname:port:database:username:password
 
+        Normally, expects that the schema has already been created in the database, 
+        and raises a PgStorageException if the schema is missing. 
+        Use flag `create_schema_if_missing=True` to create the schema automatically if 
+        the user has sufficient privileges.
         """
         self.schema = schema
         self.temporary = temporary
@@ -56,15 +64,19 @@ class PostgresStorage:
             c.execute(SQL("SET ROLE {};").format(Identifier(role)))
         self.conn.commit()
 
-        self._collections = None
-        self._loaded = False
-
+        if not schema_exists(self):
+            if create_schema_if_missing:
+                create_schema(self)
+            else:
+                schema_error_msg = ('Schema {!r} does not exist in the database. '+\
+                                    'Set flag create_schema_if_missing=True to create '+\
+                                    'the schema if you have enough privileges.').format(schema)
+                logger.error(schema_error_msg)
+                raise PgStorageException(schema_error_msg)
+        
+        self._collections = pg.StorageCollections(self)
+        
         logger.info('schema: {!r}, temporary: {!r}, role: {!r}'.format(self.schema, self.temporary, role))
-
-    def _load(self):
-        if not self._loaded:
-            self._collections = pg.StorageCollections(self)
-            self._loaded = True
 
     def refresh(self):
         """Reloads table of collections of this storage. 
@@ -72,7 +84,6 @@ class PostgresStorage:
         the database by a separate user/thread/job, this updates 
         the information about collections.
         """
-        self._load()
         self._collections.load()
 
     def close(self):
@@ -150,7 +161,6 @@ class PostgresStorage:
 
     @property
     def collections(self):
-        self._load()
         return sorted(self._collections)
 
     def __getitem__(self, name: str):
@@ -158,7 +168,6 @@ class PostgresStorage:
         Returns an existing PgCollection from this storage.
         Raises KeyError if there is no such collection.
         """
-        self._load()
         if name in self._collections:
             collection = self._collections[name]
             if collection is None:

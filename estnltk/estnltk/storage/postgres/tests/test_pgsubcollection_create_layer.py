@@ -10,7 +10,7 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 from estnltk.storage.postgres import PgCollectionException
@@ -27,9 +27,9 @@ def get_random_collection_name():
 class TestPgSubCollectionCreateLayer(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
-        create_schema(self.storage)
         self.maxDiff = None
 
     def tearDown(self):

@@ -17,7 +17,7 @@ from estnltk.taggers import TokensTagger
 from estnltk.storage import postgres as pg
 
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import BufferedTableInsert
 from estnltk.storage.postgres import CollectionTextObjectInserter
 
@@ -32,14 +32,8 @@ class TestBufferedTableInsert(unittest.TestCase):
 
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
 
     def tearDown(self):
@@ -109,15 +103,8 @@ class TestCollectionTextObjectInserter(unittest.TestCase):
 
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
-
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)

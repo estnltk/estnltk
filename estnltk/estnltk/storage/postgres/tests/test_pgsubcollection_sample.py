@@ -9,7 +9,7 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
@@ -26,15 +26,8 @@ def get_random_collection_name():
 class TestPgSubCollectionSample(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # TODO: for some reason we get DuplicateSchema error. Unexpected?
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
 
     def tearDown(self):

@@ -26,8 +26,8 @@ def get_random_collection_name():
 class TestPgSubCollection(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = pg.PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        pg.create_schema(self.storage)
+        self.storage = pg.PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                          create_schema_if_missing=True)
 
         self.collection_name = get_random_collection_name()
         self.collection = self.storage.add_collection( self.collection_name,

@@ -8,7 +8,7 @@ from estnltk import logger
 from estnltk import Text, Layer
 from estnltk.converters import layer_to_dict, text_to_dict
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import count_rows
 from estnltk.taggers import Tagger
@@ -96,9 +96,9 @@ def _make_count_query( storage, collection, layer_name ):
 class TestSparseLayerCreation(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
-        create_schema(self.storage)
         self.maxDiff = None
 
     def tearDown(self):
@@ -198,9 +198,9 @@ class TestSparseLayerCreation(unittest.TestCase):
 class TestSparseLayerSelection(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
-        create_schema(self.storage)
         self.maxDiff = None
 
     def tearDown(self):

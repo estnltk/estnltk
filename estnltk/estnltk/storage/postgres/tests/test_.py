@@ -22,7 +22,7 @@ from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
 from estnltk.storage.postgres import collection_table_exists
 from estnltk.storage.postgres import create_collection_table
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import layer_table_exists
@@ -43,17 +43,8 @@ def get_random_collection_name():
 class TestPgCollection(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # If previous tests failed with errors, the schema has already
-            # been created and it's not deleted, so we get DuplicateSchema error.
-            # Delete the old schema and create a new one.
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -88,7 +79,8 @@ class TestPgCollection(unittest.TestCase):
         storage_1 = self.storage
         storage_2 = PostgresStorage(pgpass_file='~/.pgpass', 
                                     schema=storage_1.schema, 
-                                    dbname='test_db')
+                                    dbname='test_db', 
+                                    create_schema_if_missing=False)
         
         collection_name = get_random_collection_name()
         
@@ -526,17 +518,8 @@ class TestPgCollection(unittest.TestCase):
 class TestLayerFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_layer_fragment"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # If previous tests failed with errors, the schema has already
-            # been created and it's not deleted, so we get DuplicateSchema error.
-            # Delete the old schema and create a new one.
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -588,14 +571,8 @@ class TestLayerFragment(unittest.TestCase):
 class TestFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_fragment"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -653,14 +630,8 @@ class TestFragment(unittest.TestCase):
 class TestLayer(unittest.TestCase):
     def setUp(self):
         self.schema = "test_layer"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=self.schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=self.schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)

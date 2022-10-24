@@ -17,7 +17,7 @@ from estnltk.converters import dict_to_layer
 
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 
 logger.setLevel('DEBUG')
 
@@ -30,17 +30,8 @@ class TestPgCollectionStoreSyntaxV0Layer(unittest.TestCase):
 
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # If some of the previous database tests failed and did not clean 
-            # up the schema after the test, then we get a DuplicateSchema error.
-            # We can 'restart' by deleting the old schema and creating a new one
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
 
     def tearDown(self):

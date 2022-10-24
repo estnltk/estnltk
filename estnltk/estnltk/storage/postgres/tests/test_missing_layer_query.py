@@ -6,7 +6,7 @@ from psycopg2.sql import SQL
 from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 from estnltk.storage import postgres as pg
 from estnltk.taggers import VabamorfTagger
 
@@ -23,9 +23,8 @@ class TestMissingLayerQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
         self.schema = schema
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
