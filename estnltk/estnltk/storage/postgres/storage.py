@@ -55,8 +55,11 @@ class PostgresStorage:
         try:
             self.conn = psycopg2.connect(**conn_param, **kwargs)
         except Exception as connection_error:
+            conn_param_copy = dict(conn_param)
+            conn_param_copy['connection_error'] = connection_error
             connection_error_msg = ('Failed to connect '+\
-                'host: {host!r}, port: {port!r}, dbname: {dbname!r}, user: {user!r}.').format(**conn_param)
+                'host: {host!r}, port: {port!r}, dbname: {dbname!r}, user: {user!r} '+\
+                'due to an error: {connection_error}').format(**conn_param_copy)
             logger.error( connection_error_msg )
             raise PgStorageException( connection_error_msg ) from connection_error
 
@@ -154,15 +157,15 @@ class PostgresStorage:
                                            collection_name=name,
                                            meta_columns=meta,
                                            description=description)
-            except Exception as integrity_err:
+            except Exception as adding_error:
                 # Someone might have inserted the collection after we made
                 # the connection to the database and loaded the collections.
                 # Re-load collections table so that after the error message 
                 # it contains up to date information
                 self._collections.load()
-                raise PgStorageException( ('(!) Cannot add new collection {!r}, '+\
-                                           'possible reason: this collection already '+\
-                                           'exists.').format(name) ) from integrity_err
+                raise PgStorageException(('(!) Cannot add new collection {!r} '+\
+                                          'due to an exception: {}').format( \
+                                                name, adding_error)) from adding_error
             logger.info('new empty collection {!r} created'.format(name))
         else:
             raise PgStorageException( ('(!) Cannot add new collection {!r}, '+\
@@ -226,10 +229,9 @@ class PostgresStorage:
             pg.drop_structure_table(self, collection_name)
             del self._collections[collection_name]
         except Exception as deletion_err:
-            raise PgStorageException(('(!) Failed to delete collection {!r}, '+\
-                                      'possible reason: someone has already deleted '+\
-                                      'this collection.').format(collection_name)) \
-                                                                    from deletion_err
+            raise PgStorageException(('(!) Failed to delete collection {!r} '+\
+                                      'due to an exception: {}.').format( \
+                                            deletion_err, collection_name)) from deletion_err
 
     def __setitem__(self, name: str, collection: pg.PgCollection):
         error_msg = '(!) Cannot assign collection via index operator. '+\
