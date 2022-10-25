@@ -193,7 +193,6 @@ class PostgresStorage:
                 version = self._collections.collections[name]['version']
                 collection = PgCollection(name, self, version=version)
                 self._collections[name] = collection
-                return collection
             # Return a loaded collection
             return collection
         raise KeyError(('(!) Collection {!r} does not '+\
