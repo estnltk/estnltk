@@ -177,6 +177,13 @@ class PostgresStorage:
         """
         Returns an existing PgCollection from this storage.
         Raises KeyError if there is no such collection.
+        
+        Note: this method does not automatically update the list 
+        of available collections. If the status of collections has 
+        been changed (some collections added or deleted) by another 
+        thread or process during this connection, then refresh() 
+        method needs to be called before this method to update the 
+        information about available collections.
         """
         if name in self._collections:
             collection = self._collections[name]
@@ -189,8 +196,10 @@ class PostgresStorage:
                 return collection
             # Return a loaded collection
             return collection
-        raise KeyError( ('(!) Collection {!r} does not '+\
-                         'exist in this storage.').format(name) )
+        raise KeyError(('(!) Collection {!r} does not '+\
+                        'exist in this storage. Use Storage.refresh() '+\
+                        'if the collection is updated by another thread '+\
+                        'or process.').format(name))
 
     def delete(self, collection_name: str, cascade=False):
         self.refresh()
