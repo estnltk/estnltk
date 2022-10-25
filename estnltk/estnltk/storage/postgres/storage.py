@@ -142,17 +142,27 @@ class PostgresStorage:
         self.refresh()
         if name not in self._collections:
             collection = PgCollection(name, self, version='3.0')
-            # Add storage.collections entry (collection name + version)
-            self._collections.insert(collection)
-            if description is None:
-                description = 'created by {} on {}'.format(self.user, time.asctime())
-            # Create structure table (contains information about collection's layers)
-            collection.structure.create_table()
-            # Create collection table (stores Text objects with attached layers and metadata columns)
-            pg.create_collection_table(self,
-                                       collection_name=name,
-                                       meta_columns=meta,
-                                       description=description)
+            try:
+                # Add storage.collections entry (collection name + version)
+                self._collections.insert(collection)
+                if description is None:
+                    description = 'created by {} on {}'.format(self.user, time.asctime())
+                # Create structure table (contains information about collection's layers)
+                collection.structure.create_table()
+                # Create collection table (stores Text objects with attached layers and metadata columns)
+                pg.create_collection_table(self,
+                                           collection_name=name,
+                                           meta_columns=meta,
+                                           description=description)
+            except Exception as integrity_err:
+                # Someone might have inserted the collection after we made
+                # the connection to the database and loaded the collections.
+                # Re-load collections table so that after the error message 
+                # it contains up to date information
+                self._collections.load()
+                raise PgStorageException( ('(!) Cannot add new collection {!r}, '+\
+                                           'possible reason: this collection already '+\
+                                           'exists.').format(name) ) from integrity_err
             logger.info('new empty collection {!r} created'.format(name))
         else:
             raise PgStorageException( ('(!) Cannot add new collection {!r}, '+\
