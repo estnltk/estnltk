@@ -124,6 +124,11 @@ class TestPgCollection(unittest.TestCase):
         with self.assertRaises(PgStorageException):
             storage_2.add_collection(collection_name)
         
+        # Add different collection via other thread
+        another_collection_name = get_random_collection_name()
+        assert collection_name != another_collection_name
+        storage_2.add_collection(another_collection_name)
+        
         # Get collection
         collection_from_1 = storage_1[collection_name]
         collection_from_2 = storage_2[collection_name]
@@ -147,6 +152,15 @@ class TestPgCollection(unittest.TestCase):
             storage_1[collection_name]
         # And not existing in 2
         self.assertFalse(storage_2[collection_name].exists())
+
+        # Check the remaining collection
+        self.assertTrue(another_collection_name in storage_2.collections)
+        storage_1.refresh()
+        another_collection = storage_1[another_collection_name]
+        self.assertTrue(another_collection.exists())
+
+        # Remove last collection
+        another_collection.delete()
 
         storage_2.close()
 

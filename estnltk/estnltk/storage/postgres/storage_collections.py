@@ -59,7 +59,15 @@ class StorageCollections:
         yield from self._collections
 
     def insert(self, collection: pg.PgCollection):
+        # This is required to avoid psycopg2.errors.NoActiveSqlTransaction
+        self._storage.conn.commit()
+        self._storage.conn.autocommit = False
         with self._storage.conn.cursor() as c:
+            # SHARE ROW EXCLUSIVE locking -- this mode protects a table against 
+            # concurrent data changes, and is self-exclusive so that only one 
+            # session can hold it at a time. 
+            # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+            c.execute(SQL('LOCK TABLE {} IN SHARE ROW EXCLUSIVE MODE').format(self._table_identifier))
             c.execute(SQL(
                     "INSERT INTO {} (collection, version) "
                     "VALUES ({}, {});").format(
@@ -73,7 +81,15 @@ class StorageCollections:
         self[collection.name] = collection
 
     def __delitem__(self, collection_name: str):
+        # This is required to avoid psycopg2.errors.NoActiveSqlTransaction
+        self._storage.conn.commit()
+        self._storage.conn.autocommit = False
         with self._storage.conn.cursor() as c:
+            # SHARE ROW EXCLUSIVE locking -- this mode protects a table against 
+            # concurrent data changes, and is self-exclusive so that only one 
+            # session can hold it at a time. 
+            # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+            c.execute(SQL('LOCK TABLE {} IN SHARE ROW EXCLUSIVE MODE').format(self._table_identifier))
             c.execute(SQL("DELETE FROM {} WHERE collection={};").format(
                 self._table_identifier,
                 Literal(collection_name)
