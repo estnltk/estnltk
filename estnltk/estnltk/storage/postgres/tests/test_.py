@@ -97,7 +97,7 @@ class TestPgCollection(unittest.TestCase):
         self.assertTrue(collection.exists())
 
         # 2nd way to remove collection
-        del self.storage[collection_name]
+        self.storage.delete_collection(collection_name)
 
         with self.assertRaises(KeyError):
             collection = self.storage[collection_name]

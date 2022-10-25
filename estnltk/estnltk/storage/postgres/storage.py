@@ -202,18 +202,35 @@ class PostgresStorage:
                         'or process.').format(name))
 
     def delete(self, collection_name: str, cascade=False):
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn('Method storage.delete(collection_name) is deprecated, '+\
+                      'please use storage.delete_collection(collection_name) '+\
+                      'instead.', DeprecationWarning)
+        warnings.simplefilter("ignore", DeprecationWarning)
+        self.delete_collection(collection_name, cascade=cascade)
+
+    def delete_collection(self, collection_name: str, cascade=False):
+        '''
+        Deletes the given collection from the database.
+        If cascade=True is set, then removes layer and collection 
+        tables along with the tables dependent on these (if any).
+        '''
         self.refresh()
         if collection_name not in self.collections:
             raise KeyError('collection not found: {!r}'.format(collection_name))
-
-        for layer, v in self[collection_name].structure.structure.items():
-            if v['layer_type'] == 'detached':
-                drop_layer_table(self, collection_name, layer, cascade=cascade)
-                # TODO: delete layer from structure immediately
-        pg.drop_collection_table(self, collection_name, cascade=cascade)
-        pg.drop_structure_table(self, collection_name)
-
-        del self._collections[collection_name]
+        try:
+            for layer, v in self[collection_name].structure.structure.items():
+                if v['layer_type'] in {'detached', 'fragmented'}:
+                    drop_layer_table(self, collection_name, layer, cascade=cascade)
+                    # TODO: delete layer from structure immediately
+            pg.drop_collection_table(self, collection_name, cascade=cascade)
+            pg.drop_structure_table(self, collection_name)
+            del self._collections[collection_name]
+        except Exception as deletion_err:
+            raise PgStorageException(('(!) Failed to delete collection {!r}, '+\
+                                      'possible reason: someone has already deleted '+\
+                                      'this collection.').format(collection_name)) \
+                                                                    from deletion_err
 
     def __setitem__(self, name: str, collection: pg.PgCollection):
         error_msg = '(!) Cannot assign collection via index operator. '+\
@@ -222,18 +239,12 @@ class PostgresStorage:
         raise PgStorageException( error_msg )
 
     def __delitem__(self, collection_name: str):
-        self.refresh()
-        if collection_name not in self.collections:
-            raise KeyError('collection not found: {!r}'.format(collection_name))
-
-        for layer, v in self[collection_name].structure.structure.items():
-            if v['layer_type'] in {'detached', 'fragmented'}:
-                drop_layer_table(self, collection_name, layer)
-                # TODO: delete layer from structure immediately
-        pg.drop_collection_table(self, collection_name)
-        pg.drop_structure_table(self, collection_name)
-
-        del self._collections[collection_name]
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn('Method del storage[collection_name] is deprecated, '+\
+                      'please use storage.delete_collection(collection_name) '+\
+                      'instead.', DeprecationWarning)
+        warnings.simplefilter("ignore", DeprecationWarning)
+        self.delete_collection(collection_name)
 
     def __str__(self):
         return '{self.__class__.__name__}({self.conn.dsn} schema={self.schema} temporary={self.temporary})'.format(

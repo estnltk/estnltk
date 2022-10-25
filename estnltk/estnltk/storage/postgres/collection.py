@@ -1343,7 +1343,7 @@ class PgCollection:
         """Removes collection and all related layers."""
         if not self.exists():
             return
-        del self.storage[self.name]
+        self.storage.delete_collection(self.name)
         self._is_empty = True
 
     def has_layer(self, layer_name):
