@@ -52,13 +52,11 @@ The alternative way for installing if you are unable to use the anaconda distrib
 
 This is slower, more error-prone and requires you to have the appropriate compilers for building the scientific computation packages for your platform. 
 
-Find more details in the [installation tutorial for version 1.4](https://estnltk.github.io/estnltk/1.4/tutorials/installation.html).
+Find more details in the [installation tutorial for version 1.4](https://github.com/estnltk/estnltk/blob/version_1.4.1.1/docs/html/1.4.1/tutorials/installation.html) (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/version_1.4.1.1/docs/html/1.4.1/tutorials/installation.html)).
 
 ### Documentation
 
-Release 1.4.1 documentation is available at https://estnltk.github.io/estnltk/1.4.1/index.html.
-For previous versions refer to https://estnltk.github.io/estnltk.
-For more tools see https://estnltk.github.io.
+Release 1.4.1 documentation is available at https://github.com/estnltk/estnltk/blob/version_1.4.1.1/docs/html/1.4.1/index.html (via [nbviewer](https://nbviewer.org/github/estnltk/estnltk/blob/version_1.4.1.1/docs/html/1.4.1/index.html)).
 
 Additional educational materials on EstNLTK version 1.4 are available on web pages of the NLP courses taught at the University of Tartu:
 
